@@ -55,6 +55,11 @@ try:
 except ImportError:
     from pipeline import keyword_intent  # noqa: E402
 
+try:
+    from seo.pipeline import recommendation_memory  # noqa: E402
+except ImportError:
+    from pipeline import recommendation_memory  # noqa: E402
+
 # ---------------------------------------------------------------------------
 # Logging
 # ---------------------------------------------------------------------------
@@ -351,22 +356,43 @@ def _gen_high_recommendations(
 
     if current_title and not title_aligned:
         if litellm_key and not placement_blocks_llm:
-            prompt = _build_seo_title_rewrite_prompt(
-                current_title, primary_kw, family, platform
+            title_consult = recommendation_memory.consult_before_llm_call(
+                page_path, "seoTitle", current_value=current_title,
+                primary_kw=primary_kw, family=family, platform=platform,
             )
-            llm_result = _call_llm(
-                prompt,
-                _LLM_MODEL_MEDIUM,
-                {"proposed_title": "str", "rationale": "str"},
-                litellm_key,
-            )
-            if llm_result:
-                proposed_title = llm_result.get("proposed_title")
-                rationale = llm_result.get("rationale", "LLM-proposed rewrite.")
+            if not title_consult["should_call_llm"]:
+                cached = title_consult["cached_proposal"]
+                if cached is not None:
+                    proposed_title = cached.get("proposed_title")
+                    rationale = cached.get("rationale", "Cached from a prior run (recommendation memory).")
+                else:
+                    proposed_title = None
+                    rationale = (
+                        f"Recommendation memory: {title_consult['reason']} for this exact "
+                        "signal state — not regenerating a new guess until it changes."
+                    )
+                    llm_skipped = True
             else:
-                proposed_title = None
-                rationale = "LLM call failed — human review required."
-                llm_skipped = True
+                prompt = _build_seo_title_rewrite_prompt(
+                    current_title, primary_kw, family, platform
+                )
+                llm_result = _call_llm(
+                    prompt,
+                    _LLM_MODEL_MEDIUM,
+                    {"proposed_title": "str", "rationale": "str"},
+                    litellm_key,
+                )
+                if llm_result:
+                    proposed_title = llm_result.get("proposed_title")
+                    rationale = llm_result.get("rationale", "LLM-proposed rewrite.")
+                    recommendation_memory.record_result(
+                        page_path, "seoTitle", title_consult["signal_hash"],
+                        {"proposed_title": proposed_title, "rationale": rationale},
+                    )
+                else:
+                    proposed_title = None
+                    rationale = "LLM call failed — human review required."
+                    llm_skipped = True
         elif placement_blocks_llm:
             proposed_title = None
             rationale = (
@@ -407,21 +433,41 @@ def _gen_high_recommendations(
     desc_ok = signals.get("description_ok", True)
 
     if not desc_ok and current_desc and litellm_key and not llm_skipped and not placement_blocks_llm:
-        prompt = _build_description_rewrite_prompt(
-            current_desc, primary_kw, family, platform
+        desc_consult = recommendation_memory.consult_before_llm_call(
+            page_path, "description", current_value=current_desc,
+            primary_kw=primary_kw, family=family, platform=platform,
         )
-        llm_result = _call_llm(
-            prompt,
-            _LLM_MODEL_MEDIUM,
-            {"proposed_description": "str", "rationale": "str"},
-            litellm_key,
-        )
-        if llm_result:
-            proposed_desc = llm_result.get("proposed_description")
-            desc_rationale = llm_result.get("rationale", "LLM-proposed rewrite.")
+        if not desc_consult["should_call_llm"]:
+            cached = desc_consult["cached_proposal"]
+            if cached is not None:
+                proposed_desc = cached.get("proposed_description")
+                desc_rationale = cached.get("rationale", "Cached from a prior run (recommendation memory).")
+            else:
+                proposed_desc = None
+                desc_rationale = (
+                    f"Recommendation memory: {desc_consult['reason']} for this exact "
+                    "signal state — not regenerating a new guess until it changes."
+                )
         else:
-            proposed_desc = None
-            desc_rationale = "LLM call failed — human review required."
+            prompt = _build_description_rewrite_prompt(
+                current_desc, primary_kw, family, platform
+            )
+            llm_result = _call_llm(
+                prompt,
+                _LLM_MODEL_MEDIUM,
+                {"proposed_description": "str", "rationale": "str"},
+                litellm_key,
+            )
+            if llm_result:
+                proposed_desc = llm_result.get("proposed_description")
+                desc_rationale = llm_result.get("rationale", "LLM-proposed rewrite.")
+                recommendation_memory.record_result(
+                    page_path, "description", desc_consult["signal_hash"],
+                    {"proposed_description": proposed_desc, "rationale": desc_rationale},
+                )
+            else:
+                proposed_desc = None
+                desc_rationale = "LLM call failed — human review required."
     else:
         proposed_desc = None
         if not desc_ok and placement_blocks_llm:
@@ -528,28 +574,49 @@ def _gen_medium_recommendations(
     # seoTitle rewrite: only if title present but misaligned
     if current_title and not title_aligned:
         if litellm_key and not placement_blocks_llm:
-            prompt = _build_seo_title_rewrite_prompt(
-                current_title, primary_kw, family, platform
+            title_consult = recommendation_memory.consult_before_llm_call(
+                page_path, "seoTitle", current_value=current_title,
+                primary_kw=primary_kw, family=family, platform=platform,
             )
-            llm_result = _call_llm(
-                prompt,
-                _LLM_MODEL_MEDIUM,
-                {"proposed_title": "str", "rationale": "str"},
-                litellm_key,
-            )
-            if llm_result:
-                proposed_title = llm_result.get("proposed_title")
-                rationale = llm_result.get("rationale", "LLM-proposed rewrite.")
-                _LOG.info(
-                    "LLM seoTitle rewrite for %s: %r → %r",
-                    page_path,
-                    current_title[:50],
-                    (proposed_title or "")[:50],
-                )
+            if not title_consult["should_call_llm"]:
+                cached = title_consult["cached_proposal"]
+                if cached is not None:
+                    proposed_title = cached.get("proposed_title")
+                    rationale = cached.get("rationale", "Cached from a prior run (recommendation memory).")
+                else:
+                    proposed_title = None
+                    rationale = (
+                        f"Recommendation memory: {title_consult['reason']} for this exact "
+                        "signal state — not regenerating a new guess until it changes."
+                    )
+                    llm_skipped = True
             else:
-                proposed_title = None
-                rationale = "LLM call failed after retries — human review required."
-                llm_skipped = True
+                prompt = _build_seo_title_rewrite_prompt(
+                    current_title, primary_kw, family, platform
+                )
+                llm_result = _call_llm(
+                    prompt,
+                    _LLM_MODEL_MEDIUM,
+                    {"proposed_title": "str", "rationale": "str"},
+                    litellm_key,
+                )
+                if llm_result:
+                    proposed_title = llm_result.get("proposed_title")
+                    rationale = llm_result.get("rationale", "LLM-proposed rewrite.")
+                    _LOG.info(
+                        "LLM seoTitle rewrite for %s: %r → %r",
+                        page_path,
+                        current_title[:50],
+                        (proposed_title or "")[:50],
+                    )
+                    recommendation_memory.record_result(
+                        page_path, "seoTitle", title_consult["signal_hash"],
+                        {"proposed_title": proposed_title, "rationale": rationale},
+                    )
+                else:
+                    proposed_title = None
+                    rationale = "LLM call failed after retries — human review required."
+                    llm_skipped = True
         elif placement_blocks_llm:
             proposed_title = None
             rationale = (
