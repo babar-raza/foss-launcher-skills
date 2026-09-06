@@ -53,11 +53,18 @@ class TestConstructionFallback:
 
 
 class TestClassify:
-    def test_error_citing_the_replace_target_is_upstream_broken(self):
+    """Independent-reviewer finding, fixed: the original heuristic checked whether the
+    raw `replace_path` string appeared verbatim in the output -- but real go vet/go run
+    errors inside a replaced package cite a location RELATIVE to the invoking directory
+    (e.g. `..\\upstream_pkg\\lib.go:4:2: ...`), never the replace target's own absolute
+    path, so that check never actually fired. See TestClassifyRealUpstreamError below
+    for a real-subprocess reproduction; these are the pure-function unit tests for the
+    new file-citation-based heuristic itself."""
+
+    def test_error_citing_a_non_main_go_file_is_upstream_broken(self):
         runner = GoRunner(family="no-such-family")
-        replace_path = "D:/clones/aspose_pdf_go"
-        output = f"{replace_path}/writer.go:42: undefined: someInternalHelper"
-        reason, detail = runner.classify(output, {"stage": "compile", "replace_path": replace_path})
+        output = "..\\upstream_pkg\\lib.go:4:2: undefined: someInternalHelper"
+        reason, detail = runner.classify(output, {"stage": "compile"})
         assert reason == "UPSTREAM-BROKEN"
         assert detail == output
 
@@ -66,10 +73,46 @@ class TestClassify:
         reason, _ = runner.classify("./main.go:4:2: undefined: notAThing", {"stage": "compile"})
         assert reason == "COMPILE-ERROR"
 
-    def test_error_at_execute_stage_is_a_runtime_error(self):
+    def test_runtime_panic_citing_only_main_go_is_a_runtime_error(self):
+        runner = GoRunner(family="no-such-family")
+        output = "panic: runtime error: integer divide by zero\n\nmain.main()\n\tC:/tmp/x/main.go:5 +0x9"
+        reason, _ = runner.classify(output, {"stage": "execute"})
+        assert reason == "RUNTIME-ERROR"
+
+    def test_error_at_execute_stage_with_no_file_citation_is_a_runtime_error(self):
         runner = GoRunner(family="no-such-family")
         reason, _ = runner.classify("panic: boom", {"stage": "execute"})
         assert reason == "RUNTIME-ERROR"
+
+
+class TestClassifyRealUpstreamError:
+    """Real, non-mocked reproduction of the exact scenario TestClassify's unit tests
+    only simulate: a genuine compile error inside a replaced ("upstream") package,
+    surfaced through a real `go vet` subprocess call via GoRunner.compile()."""
+
+    def test_real_replaced_package_compile_error_is_classified_upstream_broken(self, tmp_path):
+        upstream_dir = tmp_path / "upstream_pkg"
+        upstream_dir.mkdir()
+        (upstream_dir / "go.mod").write_text("module example.com/upstream\n\ngo 1.24\n", encoding="utf-8")
+        (upstream_dir / "lib.go").write_text(
+            "package upstream\n\nfunc DoThing() {\n\tundefinedHelper()\n}\n", encoding="utf-8",
+        )
+
+        work_dir = tmp_path / "scratch"
+        work_dir.mkdir()
+        runner = GoRunner(family="no-such-family")
+        acquired = {
+            "work_dir": work_dir,
+            "module_path": "example.com/upstream",
+            "replace_path": str(upstream_dir).replace("\\", "/"),
+        }
+        code = 'import "example.com/upstream"\n\nupstream.DoThing()'
+
+        result = runner.compile(acquired, code, 0)
+
+        assert result is not None, "the upstream package's own real bug must fail go vet"
+        assert result["reason"] == "UPSTREAM-BROKEN"
+        assert "undefinedHelper" in result["detail"]
 
 
 class TestCompileRealGoVet:

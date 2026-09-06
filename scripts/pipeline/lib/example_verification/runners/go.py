@@ -83,6 +83,11 @@ _EXTRA_IMPORT_HEURISTICS: list[tuple[re.Pattern, str]] = []
 
 _CANONICAL_IMPORT_RE = re.compile(r'import\s+(\w+)\s+"([^"]+)"')
 
+# A go vet/go run error's own file:line location citation -- e.g.
+# "..\upstream_pkg\lib.go:4:2: undefined: x" or
+# "C:/tmp/.../main.go:5 +0x9" -- used by GoRunner.classify() below.
+_GO_FILE_LOCATION_RE = re.compile(r'([\w./\\-]+\.go):\d+')
+
 
 def _resolve_go_module_for_family(
     family: str, repo_root: "Path | None" = None,
@@ -328,8 +333,16 @@ def _write_go_module(
 def _exec_go(argv: list[str], work_dir: Path, timeout: float) -> "tuple[str, str]":
     """("OK"|"FAILED"|"TIMEOUT", output). GOFLAGS=-mod=mod: a fresh go.mod
     referencing a local `replace` target has no go.sum entry yet; without this,
-    the command refuses with "updates to go.mod needed" instead of running."""
-    env = {**os.environ, "GOFLAGS": "-mod=mod"}
+    the command refuses with "updates to go.mod needed" instead of running.
+    GOPROXY=off: independent-reviewer finding -- when a real product module
+    needs a replace directive but `acquire()` couldn't resolve one (evicted
+    clone cache, fresh checkout), `-mod=mod` alone would let Go silently
+    resolve the bare `require` over the real network against whatever public
+    package happens to share that module path, and `execute()` would then
+    actually RUN that unverified code with no error ever surfacing. Blocking
+    the network here makes that failure loud (a real, honest COMPILE-ERROR/
+    RUNTIME-ERROR) instead of silent."""
+    env = {**os.environ, "GOFLAGS": "-mod=mod", "GOPROXY": "off"}
     try:
         result = subprocess.run(
             argv, capture_output=True, text=True, encoding="utf-8", errors="replace",
@@ -361,9 +374,17 @@ class GoRunner:
     Go products (cells/go, pdf/go) actually need today. The plan's `published:
     go get {module}@{version}` (a real proxy.golang.org resolve) branch is not
     built: neither real product is published this way, and there is no fixture
-    to prove that path against without inventing one. `acquire()` reports
-    `{"ok": False}` for a family with no resolvable local clone rather than
-    silently attempting a network call that has never been tested here."""
+    to prove that path against without inventing one. `acquire()` always
+    reports `{"ok": True}` (see its own docstring below for why); when a real
+    product module needs a replace directive but none resolves, `compile()`/
+    `execute()` run with `GOPROXY=off` (see `_exec_go`) so an unresolved
+    dependency fails loudly at the vet/run stage instead of silently
+    resolving over the network against a possibly-different or stale public
+    package of the same name -- independent-reviewer finding, fixed here:
+    an earlier draft had no such guard, so a missing replace path combined
+    with `GOFLAGS=-mod=mod` could have silently succeeded against whatever a
+    real network fetch happened to resolve, then `execute()` would have
+    actually RUN that code."""
 
     canonical_lang = "go"
     ceiling_tier = 3
@@ -399,7 +420,8 @@ class GoRunner:
         same way `check_go_code_blocks.py:_vet_block` always has. So this
         always succeeds; `replace_path` is simply `None` when this product has
         no resolvable local clone, and compile()/execute() below will fail
-        (correctly, at the vet/run stage) only if the code actually references
+        (correctly, at the vet/run stage, never silently over the network --
+        see `_exec_go`'s `GOPROXY=off`) only if the code actually references
         an unresolved product import."""
         replace_path = _find_module_replace_path(self._module_path, family=self._family)
         return {
@@ -440,12 +462,26 @@ class GoRunner:
 
     def classify(self, output: str, context: "dict | None" = None) -> "tuple[str, str]":
         """Distinguishes a real defect in the UPSTREAM package's own source
-        (the error cites a file inside the replaced clone directory) from an
-        ordinary COMPILE-ERROR/RUNTIME-ERROR in the block's own generated
-        wrapper (`main.go`)."""
+        from an ordinary COMPILE-ERROR/RUNTIME-ERROR in the block's own
+        generated wrapper (`main.go`).
+
+        Independent-reviewer finding, fixed here: the original version checked
+        whether the raw `replace_path` string appeared verbatim in the output --
+        but real `go vet`/`go run` failures inside a replaced package cite a
+        location RELATIVE to the invoking directory (e.g.
+        `..\\upstream_pkg\\lib.go:4:2: undefined: ...`), never the replace
+        target's own absolute path, so that check silently never fired
+        (confirmed by reproducing a real replaced-package compile error).
+        Now looks for ANY `<file>.go:<line>` location citation whose basename
+        isn't `main.go` -- present for a real upstream defect (a citation
+        inside the replaced package), absent for an ordinary error in the
+        block's own generated wrapper (whose only citation is `main.go`,
+        whether relative or the absolute path a runtime panic trace uses)."""
         tail = (output or "").strip()[-2000:]
-        replace_path = (context or {}).get("replace_path")
-        if replace_path and replace_path in tail:
+        cites_other_file = any(
+            Path(loc).name != "main.go" for loc in _GO_FILE_LOCATION_RE.findall(tail)
+        )
+        if cites_other_file:
             return "UPSTREAM-BROKEN", tail
         stage = (context or {}).get("stage", "compile")
         return ("COMPILE-ERROR" if stage == "compile" else "RUNTIME-ERROR"), tail
