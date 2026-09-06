@@ -308,14 +308,40 @@ def check_grounding_preservation(composed: str, raw_source_text: str) -> bool:
 # `.NET` page's own `platform` exemption already covers it correctly.
 # ---------------------------------------------------------------------------
 
-# Candidate tokens: 2-6 chars, letters/digits/"+" (covers "C++"), must
-# contain at least one letter (excludes bare numbers like a version "365"
-# or a year). Case-insensitive by construction (re.IGNORECASE) -- checked
-# unconditionally across the whole composed text, deliberately NOT gated
-# behind first detecting "this looks like an enumeration" (see rework
-# note above: a syntax-based detector has real, LLM-plausible blind spots
-# a position-independent scan does not).
-_ENUM_CANDIDATE_RE = re.compile(r"\b(?=[A-Za-z0-9]*[A-Za-z])[A-Za-z0-9+]{2,6}\b")
+# Candidate tokens, in two length tiers -- both checked unconditionally
+# across the whole composed text, deliberately NOT gated behind first
+# detecting "this looks like an enumeration" (see rework note above: a
+# syntax-based detector has real, LLM-plausible blind spots a position-
+# independent scan does not).
+#
+# **Rework 4** [round-4 independent review, agentId `a48cf84e1790ab29e`,
+# REJECT]: the original single-tier design capped candidates at 6
+# characters, reasoning real format names/extensions are short
+# abbreviations. The reviewer proved this false by scanning the real
+# portfolio: `formats.json` values range up to 27 characters
+# ("FlatOpcTemplateMacroEnabled", real Word SaveFormat-adjacent options).
+# A 7+ character fabricated format name (e.g. "WordPerfect", "PostScript")
+# was completely invisible to the check -- never even became a candidate.
+# Widening the cap outright to cover realistic long values would explode
+# false-positive risk from ordinary long lowercase English prose words
+# (ordinary marketing copy is full of them: "developers", "reliable",
+# "comprehensive", ...), which a hand-curated common-word list cannot
+# realistically keep pace with at that length. Real long format
+# identifiers, in contrast, are essentially always written capitalized
+# (PascalCase or ALL-CAPS) in any authentic English text, including in
+# `formats.json` itself -- unlike a short acronym, nobody naturally
+# lowercases "PostScript" or "WordPerfect" mid-sentence. So: SHORT
+# candidates (2-6 chars) stay fully case-insensitive (round 2/3's fix,
+# still needed since short acronyms genuinely do appear lowercased in
+# real prose); LONG candidates (7-30 chars) require the token to START
+# with an uppercase letter, closing the length gap without reopening
+# round 2's original casing-only false-positive flood at long lengths. A
+# fully-lowercase LONG fabrication (e.g. "wordperfect" written in all
+# lowercase mid-sentence) remains a disclosed, narrow residual limitation
+# -- genuinely unnatural LLM phrasing for a long compound identifier,
+# unlike the short-token lowercase case round 2 found realistic.
+_ENUM_SHORT_CANDIDATE_RE = re.compile(r"\b(?=[A-Za-z0-9]*[A-Za-z])[A-Za-z0-9+]{2,6}\b")
+_ENUM_LONG_CANDIDATE_RE = re.compile(r"\b[A-Z][A-Za-z0-9]{6,29}\b")
 
 # Acronyms that are never themselves a file/document format, however
 # plausible-looking -- confirmed common in real Aspose FOSS prose
@@ -330,7 +356,7 @@ _ENUM_UNIVERSAL_EXEMPT = frozenset({
     "foss", "api", "sdk", "cli", "url", "sql", "http", "https", "rest",
     "ui", "ux", "os", "ide", "gui", "jwt", "oauth", "saas", "ai", "ml",
     "gpu", "cpu", "ram", "ssd", "vm", "ci", "cd", "npm", "pip", "git",
-    "seo", "id", "faq", "aspose", "enum", "enums",
+    "seo", "id", "faq", "aspose", "enum", "enums", "saveformat",
 })
 
 # Ordinary short (2-6 char) common English words -- real file-format
@@ -421,37 +447,57 @@ _ENUM_COMMON_WORDS = frozenset({
     "detail", "return", "select", "define", "assign", "delete",
     "update", "toggle", "adjust", "expand", "reduce", "ensure",
     "daily", "weekly", "yearly", "hourly", "always", "months", "month",
-    "years", "year", "week", "hours", "hour", "days",
+    "years", "year", "week", "hours", "hour", "days", "day",
+    # longer (7+ char) common words -- needed now that the long-candidate
+    # tier (7-30 chars, capitalized) checks sentence-initial/capitalized
+    # common verbs and nouns too, not just short ones
+    "convert", "exports", "explore", "discover", "available",
+    "workbook", "support", "provide", "include", "feature", "deliver",
+    "ensure", "leverage", "utilize", "harness", "generate", "integrate",
+    "extract", "automate", "customize", "configure", "implement",
+    "developer", "document", "project", "library", "platform", "solution",
+    "workflow", "pipeline", "capability", "application", "performance",
+    "efficient", "reliable", "flexible", "seamless", "comprehensive",
+    "professional", "enterprise", "advanced", "powerful", "scalable",
+    "lightweight", "intuitive", "versatile", "dedicated", "extensive",
+    "complete", "essential", "multiple", "several", "numerous",
+    "including", "excluding", "throughout", "regardless", "however",
+    "therefore", "moreover", "furthermore", "meanwhile", "otherwise",
 })
 
 
 def check_enumeration_membership(
     composed: str, real_vocabulary: "set[str]", *, exempt: "set[str] | None" = None,
 ) -> bool:
-    """Every short (2-6 character) candidate token in `composed`, checked
-    CASE-INSENSITIVELY, must be a member of `real_vocabulary` (must already
-    be lowercase -- a real, closed vocabulary the caller supplies, e.g.
-    `formats.json`'s real member list) UNLESS it is a common English word
-    (`_ENUM_COMMON_WORDS`), a universally-known non-format acronym
-    (`_ENUM_UNIVERSAL_EXEMPT`), or one of the caller's own `exempt` tokens
-    (e.g. this page's own family/platform slug -- never itself a claimed
-    format). Checked across the WHOLE text unconditionally, independent of
-    position, surrounding punctuation, OR casing -- see the rework notes
-    above for why syntax-based detection and ALL-CAPS-only shape were both
-    replaced. Returns True (nothing to check, or every candidate passed)
-    or False (at least one non-exempt candidate is absent from the real
-    vocabulary -- reject, matching this module's own "any doubt -> None"
-    fallback philosophy). Never raises; a real_vocabulary of None/empty set
-    makes every non-exempt candidate fail closed rather than silently pass
-    unchecked."""
+    """Every candidate token in `composed` must be a member of
+    `real_vocabulary` (must already be lowercase -- a real, closed
+    vocabulary the caller supplies, e.g. `formats.json`'s real member list)
+    UNLESS it is a common English word (`_ENUM_COMMON_WORDS`), a
+    universally-known non-format acronym (`_ENUM_UNIVERSAL_EXEMPT`), or one
+    of the caller's own `exempt` tokens (e.g. this page's own family/
+    platform slug -- never itself a claimed format). Two candidate tiers
+    (see `_ENUM_SHORT_CANDIDATE_RE`/`_ENUM_LONG_CANDIDATE_RE` above): short
+    (2-6 char) tokens are checked fully case-insensitively; long (7-30
+    char) tokens must start with an uppercase letter (real format
+    identifiers this long are essentially always written capitalized).
+    Checked across the WHOLE text unconditionally, independent of
+    position or surrounding punctuation -- see the rework notes above for
+    why syntax-based detection, ALL-CAPS-only shape, and a single fixed
+    length cap were each replaced in turn. Returns True (nothing to check,
+    or every candidate passed) or False (at least one non-exempt candidate
+    is absent from the real vocabulary -- reject, matching this module's
+    own "any doubt -> None" fallback philosophy). Never raises; a
+    real_vocabulary of None/empty set makes every non-exempt candidate
+    fail closed rather than silently pass unchecked."""
     vocabulary = real_vocabulary or set()
     exempt_set = _ENUM_UNIVERSAL_EXEMPT | _ENUM_COMMON_WORDS | {e.lower() for e in (exempt or set())}
-    for m in _ENUM_CANDIDATE_RE.finditer(composed):
-        token = m.group(0).lower()
-        if token in exempt_set:
-            continue
-        if token not in vocabulary:
-            return False
+    for pattern in (_ENUM_SHORT_CANDIDATE_RE, _ENUM_LONG_CANDIDATE_RE):
+        for m in pattern.finditer(composed):
+            token = m.group(0).lower()
+            if token in exempt_set:
+                continue
+            if token not in vocabulary:
+                return False
     return True
 
 

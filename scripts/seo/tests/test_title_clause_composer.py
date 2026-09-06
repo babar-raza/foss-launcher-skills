@@ -310,10 +310,61 @@ class TestEnumerationMembershipRound3FormatCollisionWordsFixed:
 
     def test_collision_word_fabricated_on_an_unrelated_family_is_caught(self):
         """The exact class of live bypass round 3 found: "DOC" fabricated
-        on a family whose own real vocabulary has no such member."""
+        on a family whose own real vocabulary has no such member. Round-4
+        review found the original version of this test was tautological
+        (its own "3D" token also independently failed, unrelated to the
+        actual doc-collision fix under test, since "3d" was never in
+        vocabulary or exempt) -- exempt={"3d"} here mirrors how
+        description_composer.py's real call site passes the page's own
+        family as an exemption, making this a clean, non-tautological
+        proof of the doc-collision fix specifically."""
         real_3d_formats = {"obj", "fbx", "stl", "gltf"}
         composed = "Convert 3D models exporting to OBJ, FBX, STL, glTF, DOC and other formats today."
-        assert not check_enumeration_membership(composed, real_3d_formats)
+        assert not check_enumeration_membership(composed, real_3d_formats, exempt={"3d"})
+
+
+class TestEnumerationMembershipRound4LongCandidatesFixed:
+    """Round-4 independent review (agentId a48cf84e1790ab29e) REJECT: the
+    original single-tier candidate regex capped detection at 6 characters,
+    reasoning real format names are short abbreviations -- proven false by
+    a real portfolio scan (formats.json values up to 27 characters, e.g.
+    "FlatOpcTemplateMacroEnabled"). A 7+ character fabricated format name
+    ("WordPerfect", "PostScript") was completely invisible to the check.
+    Fixed with a length-tiered design: short (2-6 char) candidates stay
+    case-insensitive; long (7-30 char) candidates must be capitalized."""
+
+    def test_long_fabricated_format_name_is_now_caught(self):
+        real_words_formats = {"doc", "docx", "rtf", "odt"}
+        composed = "Exports documents to DOC, DOCX, RTF, ODT and WordPerfect formats today."
+        assert not check_enumeration_membership(composed, real_words_formats)
+
+    def test_long_fabricated_format_name_all_caps_is_also_caught(self):
+        real_pdf_formats = {"ps", "pdfxml", "xslfo"}
+        composed = "Converts to PS, PDFXML, XSLFO and POSTSCRIPT formats today."
+        assert not check_enumeration_membership(composed, real_pdf_formats)
+
+    def test_long_genuinely_real_format_name_passes(self):
+        real_formats = {"flatopctemplatemacroenabled", "docx"}
+        composed = "Exports using DOCX or FlatOpcTemplateMacroEnabled formats today."
+        assert check_enumeration_membership(composed, real_formats)
+
+    def test_long_lowercase_word_never_becomes_a_candidate(self):
+        """Disclosed residual limitation: the long tier requires
+        capitalization by design (avoids a false-positive flood from
+        ordinary long lowercase English prose) -- a long fabrication
+        written in fully lowercase mid-sentence is not caught by this
+        specific gate. Documented here as an accepted trade-off, not a
+        silent gap."""
+        assert check_enumeration_membership(
+            "Exports documents to doc, docx, rtf, odt and wordperfect formats today.",
+            {"doc", "docx", "rtf", "odt"},
+        )
+
+    def test_ordinary_long_capitalized_sentence_initial_words_never_flagged(self):
+        assert check_enumeration_membership(
+            "Convert documents easily. Explore export options. Discover reliable results today.",
+            set(),
+        )
 
 
 # ---------------------------------------------------------------------------

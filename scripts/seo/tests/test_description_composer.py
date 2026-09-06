@@ -351,6 +351,28 @@ class TestEnumerationMembershipEndToEnd:
         )
         assert result is None
 
+    def test_long_fabricated_format_name_does_not_ground_end_to_end(self, tmp_path):
+        """Round-4 review REJECT, real end-to-end reproduction: a fixed
+        2-6 char candidate length cap made any 7+ character fabricated
+        format name (e.g. "WordPerfect") completely invisible to the check
+        -- confirmed live-reproducible against real words/net data, whose
+        real formats.json genuinely has no such member."""
+        dc.configure(repo_root=tmp_path)
+        self._write_formats_json(tmp_path, "words", "net", ["Doc", "Docx", "Rtf", "Odt"])
+        proposed = (
+            "Explore Aspose.Words FOSS for .NET and export documents to "
+            "DOC, DOCX, RTF, ODT and WordPerfect formats today for "
+            "developers building automation."
+        )
+        result = compose_description(
+            "content/reference.aspose.org/en/words/net/SaveFormat.md",
+            "SaveFormat enum", "words net save format export",
+            ["SaveFormat lists the supported output formats for documents."],
+            "words", "net",
+            llm_call=lambda p: {"proposed_description": proposed, "rationale": "x"},
+        )
+        assert result is None
+
     def test_all_real_format_enumeration_passes_end_to_end(self, tmp_path):
         dc.configure(repo_root=tmp_path)
         self._write_formats_json(tmp_path, "slides", "net", ["Ppt", "Pdf", "Xps", "Pptx", "Html"])
