@@ -1082,9 +1082,6 @@ def _promote_snippets(scout_dir: Path, merged_dir: Path) -> int:
         if not isinstance(entry, dict):
             continue
         src_file = entry.get("file", "")
-        if src_file and (scout_snip / src_file).exists():
-            shutil.copy2(scout_snip / src_file, merged_snip / src_file)
-
         merged_entry = dict(entry)
         merged_entry["id"] = f"snippet_{i:03d}"
         merged_entry["provenance"] = "scout"
@@ -1095,9 +1092,20 @@ def _promote_snippets(scout_dir: Path, merged_dir: Path) -> int:
         # block inherit this snippet's proof via an exact-hash lookup even after cosmetic
         # drift (indentation, line endings) -- see lib/example_verification/code_fences.py
         # and audit/snippets.py's rewritten verify_snippet_coverage.
-        if src_file and (merged_snip / src_file).exists():
+        #
+        # Independent-reviewer finding, fixed here: this must hash THIS run's scout file
+        # (`scout_snip / src_file`), gated on the exact same condition that triggers the
+        # copy below -- never the merged-dir copy target. promote_atomic() seeds the
+        # staging merged/ dir via shutil.copytree of the PRIOR promotion's output before
+        # calling promote() (a stale-but-still-present file), and snippet filenames are
+        # purely positional (snippet_{n:03d}, reused run-over-run for different content)
+        # -- so checking `(merged_snip / src_file).exists()` could stamp a hash for
+        # leftover content this run never actually copied, if this run's scout is
+        # missing a file the index still references.
+        if src_file and (scout_snip / src_file).exists():
+            shutil.copy2(scout_snip / src_file, merged_snip / src_file)
             try:
-                _snippet_text = (merged_snip / src_file).read_text(encoding="utf-8")
+                _snippet_text = (scout_snip / src_file).read_text(encoding="utf-8")
                 merged_entry["code_sha256"] = {
                     "exact": hashlib.sha256(_snippet_text.encode("utf-8")).hexdigest(),
                     "norm": hashlib.sha256(

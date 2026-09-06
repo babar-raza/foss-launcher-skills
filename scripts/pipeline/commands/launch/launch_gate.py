@@ -994,7 +994,7 @@ def gate_l15_snippet_syntax(family: str, platform: str) -> GateResult:
         shortfalls: list[str] = []
         for e in proven:
             proof = e["execution_proof"]
-            tier = proof.get("tier", 0)
+            tier = proof.get("tier") or 0
             if tier < want_tier:
                 why = proof.get("stale_by") or proof.get("reason") or f"tier {tier} < {want_tier}"
                 shortfalls.append(f"{e.get('id', '?')}: {why}")

@@ -103,6 +103,43 @@ def test_promote_snippets_missing_file_gets_no_code_sha256(tmp_path):
     assert "code_sha256" not in merged_index[0]
 
 
+def test_promote_snippets_does_not_hash_a_stale_leftover_in_merged_dir(tmp_path):
+    """Independent-reviewer finding: promote_atomic() seeds the staging merged/ dir via
+    shutil.copytree of the PRIOR promotion's output before calling promote(), and
+    snippet filenames are purely positional (snippet_NNN, reused run-over-run for
+    different content). If this run's scout is missing a file the index still
+    references, a same-named leftover from the prior run can still be sitting in
+    merged_dir -- code_sha256 must be computed from THIS run's scout file only, never
+    from a pre-existing merged-dir file, or the hash would silently prove content that
+    was never actually re-verified this run."""
+    scout_dir = tmp_path / "scout"
+    merged_dir = tmp_path / "merged"
+    snip_dir = scout_dir / "snippets"
+    snip_dir.mkdir(parents=True)
+
+    # Simulate promote_atomic()'s staging pre-seed: a same-named file already sitting in
+    # merged_dir, left over from a prior run, with content this run's scout never provided.
+    merged_snip = merged_dir / "snippets"
+    merged_snip.mkdir(parents=True)
+    stale_text = "# stale leftover from a prior promotion\nold_call()\n"
+    (merged_snip / "reused_name.py").write_text(stale_text, encoding="utf-8")
+
+    # This run's scout index references the same filename, but the scout file itself is
+    # absent (a real write-gap) -- the copy step is a no-op, so nothing new lands there.
+    (snip_dir / "snippets_index.json").write_text(json.dumps([
+        {"file": "reused_name.py"},
+    ]), encoding="utf-8")
+
+    promote_mod._promote_snippets(scout_dir, merged_dir)
+
+    merged_index = json.loads((merged_dir / "snippets" / "snippets_index.json").read_text(encoding="utf-8"))
+    assert "code_sha256" not in merged_index[0], (
+        "must not stamp a hash from a stale merged-dir file this run never copied"
+    )
+    # And the stale file itself must be left alone -- not silently adopted/renamed.
+    assert (merged_snip / "reused_name.py").read_text(encoding="utf-8") == stale_text
+
+
 # ---------------------------------------------------------------------------
 # audit/snippets.py::verify_snippet_coverage — the field's page-side consumer
 # ---------------------------------------------------------------------------
