@@ -42,6 +42,9 @@ class TestStageRegistry:
         assert ps.STAGE_REGISTRY["page_index"] == "reports/seo/page_index.json"
         assert ps.STAGE_REGISTRY["patch_manifest"] == "patches/seo/patch_manifest.json"
         assert ps.STAGE_REGISTRY["schema_a_migration_state"] == "data/seo_schema_a_migration_state.json"
+        # report.py writes both patch_manifest.json and pipeline_run.json -- apply.py
+        # only ever reads the former, it produces neither.
+        assert ps.STAGE_REGISTRY["pipeline_run"] == "reports/seo/pipeline_run.json"
 
 
 class TestLoadPipelineState:
@@ -105,6 +108,7 @@ class TestRecordStageWrite:
         ps.record_stage_write("page_index")
         first = ps.load_pipeline_state()["stages"]["page_index"]["recorded_at"]
         ps.record_stage_write("opportunities")
+        sibling_before = ps.load_pipeline_state()["stages"]["opportunities"]
 
         target = _isolated_repo_root / "reports" / "seo" / "page_index.json"
         target.parent.mkdir(parents=True, exist_ok=True)
@@ -115,6 +119,10 @@ class TestRecordStageWrite:
         assert set(state["stages"]) == {"page_index", "opportunities"}
         assert state["stages"]["page_index"]["size_bytes"] == len(b'{"pages": [1]}')
         assert first is not None
+        # the untouched sibling entry must be byte-for-byte unchanged, not just
+        # present -- a weaker "key still exists" check would miss a bug that
+        # silently rewrote every entry's timestamp on every call.
+        assert state["stages"]["opportunities"] == sibling_before
 
     def test_extra_metadata_is_carried_when_provided(self, _isolated_repo_root):
         ps.record_stage_write("safety_summary", extra={"run_id": "it-0049"})

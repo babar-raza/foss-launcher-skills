@@ -66,7 +66,8 @@ STAGE_REGISTRY: dict[str, str] = {
     "safety_summary": "reports/seo/safety_summary.json",               # safety.py
     "report_summary": "reports/seo/summary.md",                        # report.py
     "report_low_priority_summary": "reports/seo/low_priority_summary.md",  # report.py
-    "patch_manifest": "patches/seo/patch_manifest.json",               # apply.py
+    "pipeline_run": "reports/seo/pipeline_run.json",                   # report.py
+    "patch_manifest": "patches/seo/patch_manifest.json",               # report.py (apply.py only reads it)
     "keyword_gap_report": "reports/seo/keyword_gap_report.json",       # keyword_gap_report.py
     "title_consistency_report": "reports/seo/title_consistency_report.json",  # title_consistency_evaluator.py
     "schema_a_stale_audit": "reports/seo/schema_a_stale_audit.json",   # audit_schema_a.py
