@@ -21,11 +21,13 @@ from lib.example_verification.policy import Policy, ProductContext
 from lib.example_verification.runners.base import BaseRunner
 from lib.example_verification.runners.rust import (
     RustRunner,
+    _cites_other_file_in_primary_span,
     _find_rust_replace_path,
     _has_top_level_main,
     _lib_ident_for_crate,
     _needs_wrap,
     _resolve_rust_crate_for_family,
+    _RUST_FILE_LOCATION_RE,
     _wrap_fragment,
 )
 
@@ -92,6 +94,15 @@ class TestHasTopLevelMain:
         assert not _needs_wrap(code_with_main)
         assert _needs_wrap(code_fragment)
 
+    def test_async_main_is_recognized_as_top_level_main(self):
+        """Independent-review finding (round 1): the original regex only
+        matched `fn main(`, so `#[tokio::main]\nasync fn main() {...}`
+        would have been double-wrapped inside another fn main -- legal per
+        tree-sitter (never caught by a syntax check) but a real rustc
+        restriction (proc-macro attribute on a nested item)."""
+        assert _has_top_level_main("#[tokio::main]\nasync fn main() {\n    println!(\"hi\");\n}\n")
+        assert not _needs_wrap("#[tokio::main]\nasync fn main() {}\n")
+
 
 class TestWrapFragment:
     def test_wraps_fragment_in_result_returning_main(self):
@@ -154,6 +165,22 @@ class TestStartsChain:
         runner = RustRunner(family="no-such-family")
         assert runner.starts_chain("// a comment\nfn main() {}")
 
+    def test_leading_outer_attribute_starts_a_new_chain(self):
+        """Independent-review finding (round 1): a fresh, self-contained
+        `#[derive(Debug)]\nstruct Foo {...}` block was previously
+        misclassified as a chain continuation since only fn main/use were
+        recognized."""
+        runner = RustRunner(family="no-such-family")
+        assert runner.starts_chain("#[derive(Debug)]\nstruct Foo { x: i32 }")
+
+    def test_leading_inner_attribute_starts_a_new_chain(self):
+        runner = RustRunner(family="no-such-family")
+        assert runner.starts_chain("#![allow(dead_code)]\nfn main() {}")
+
+    def test_async_main_starts_a_new_chain(self):
+        runner = RustRunner(family="no-such-family")
+        assert runner.starts_chain("async fn main() {\n    println!(\"hi\");\n}")
+
 
 class TestClassify:
     def test_error_citing_a_non_main_rs_file_is_upstream_broken(self):
@@ -181,6 +208,53 @@ class TestClassify:
         runner = RustRunner(family="no-such-family")
         reason, _ = runner.classify("some opaque cargo failure with no location", {"stage": "compile"})
         assert reason == "COMPILE-ERROR"
+
+    def test_location_regex_matches_windows_drive_letter_paths(self):
+        """Independent-review finding (round 1): the original character
+        class had no `:`, so it could never match a Windows absolute path
+        citation -- and _find_rust_replace_path itself builds exactly that
+        path shape (a drive-letter clone-cache path) for `replace_path` on
+        this repo's own OS, so this was a real, self-inflicted bug, not a
+        hypothetical one."""
+        for loc in (
+            r"D:/onedrive/Documents/GitHub/aspose.org/lib.rs:45:9",
+            r"D:\onedrive\Documents\GitHub\aspose.org\lib.rs:88:1",
+        ):
+            m = _RUST_FILE_LOCATION_RE.search(f"  --> {loc}")
+            assert m is not None, loc
+            assert m.group(1) == loc.rsplit(":", 2)[0]
+
+    def test_note_citation_of_a_dependency_is_not_mistaken_for_the_primary_span(self):
+        """Independent-review finding (round 1), reproduced live: a real
+        rustc diagnostic shape where the PRIMARY span is the block's own
+        main.rs, but an explanatory `note:` cites the dependency's own
+        definition site -- must classify as an ordinary COMPILE-ERROR, not
+        a false UPSTREAM-BROKEN."""
+        runner = RustRunner(family="no-such-family")
+        output = (
+            "error[E0277]: the trait bound `Foo: Bar` is not satisfied\n"
+            "  --> src/main.rs:5:9\n"
+            "   |\n"
+            "note: required by a bound in `baz`\n"
+            "  --> upstream_crate/src/lib.rs:10:5\n"
+        )
+        reason, _ = runner.classify(output, {"stage": "compile"})
+        assert reason == "COMPILE-ERROR"
+
+    def test_primary_span_citing_upstream_is_still_detected(self):
+        """The note-skipping fix must not break the genuine case: an
+        error whose OWN primary span cites the dependency's file."""
+        runner = RustRunner(family="no-such-family")
+        output = "error[E0433]: failed to resolve\n  --> upstream_crate/src/lib.rs:12:9\n"
+        reason, detail = runner.classify(output, {"stage": "compile"})
+        assert reason == "UPSTREAM-BROKEN"
+        assert detail == output.strip()
+
+    def test_cites_other_file_in_primary_span_pure_function(self):
+        assert _cites_other_file_in_primary_span(
+            "error[E0433]: x\n  --> upstream/src/lib.rs:1:1\n")
+        assert not _cites_other_file_in_primary_span(
+            "error[E0425]: x\n  --> src/main.rs:1:1\n")
 
 
 class TestAcquireCompileExecute:
