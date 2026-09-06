@@ -42,6 +42,7 @@ ALL_EVALUATORS = [
     "generic_description_check",  # TC-GDF-001: detect generic fallback descriptions in _index.md
     "duplicate_content",  # RC-W1-005 (MT026 blind-spot audit): whole-page duplicate/alias-collision detection
     "module_compilability",  # RC-tex-python-05 (MT037 blind-spot audit): verify cited API modules actually compile
+    "example_execution",  # MT065-2026-09-06-EXAMPLE-VERIFICATION-CENTRALIZATION C8: inherit-first execution-proof + tier-1 syntax check
 ]
 
 # FREEZE-03: Canonical evaluators — contribute to the frontmatter grade letter.
@@ -98,6 +99,7 @@ EXPERIMENTAL_EVALUATORS = frozenset({
     "generic_description_check",  # TC-GDF-001: EXPERIMENTAL — index placeholder detection
     "duplicate_content",  # RC-W1-005: EXPERIMENTAL — new evaluators MUST start here per GRADE_CONTRACT.md §6
     "module_compilability",  # RC-tex-python-05: EXPERIMENTAL — new evaluators MUST start here per GRADE_CONTRACT.md §6
+    "example_execution",  # MT065-2026-09-06-EXAMPLE-VERIFICATION-CENTRALIZATION C8: EXPERIMENTAL — new evaluators MUST start here per GRADE_CONTRACT.md §6
 })
 
 # Default evaluators (fast, deterministic, production-ready)
@@ -136,6 +138,7 @@ DEFAULT_EVALUATORS = [
     "evidence_format_validity",  # added to DEFAULT 2026-07-12 — surfaces stale evidence.formats entries in reports
     "generic_description_check",  # TC-GDF-001: EXPERIMENTAL — detect placeholder descriptions in _index.md
     "duplicate_content",  # RC-W1-005: detect duplicate/near-duplicate pages + alias-slug collisions (blog/kb)
+    "example_execution",  # MT065-2026-09-06-EXAMPLE-VERIFICATION-CENTRALIZATION C8: inherit-first execution-proof + tier-1 syntax check, no grade effect
 ]
 
 # Platform foreign-code patterns: (regex, description)

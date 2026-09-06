@@ -61,6 +61,7 @@ def _ensure_loaded():
         content_substance,
         coverage,
         description_completeness,
+        example_execution,
         evidence_completeness,
         evidence_depth,
         evidence_format_validity,
