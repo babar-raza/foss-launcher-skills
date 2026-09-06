@@ -64,7 +64,7 @@ from __future__ import annotations
 
 import logging
 from dataclasses import dataclass, field
-from typing import Any
+from pathlib import Path
 
 try:
     from seo.pipeline import autonomy_state, recommendation_memory
@@ -72,6 +72,31 @@ except ImportError:
     from pipeline import autonomy_state, recommendation_memory
 
 log = logging.getLogger(__name__)
+
+
+def configure(*, repo_root: "Path | str | None" = None) -> None:
+    """Sync recommendation_memory's and autonomy_state's own module-level
+    repo roots to `repo_root`, using EXACTLY the module objects THIS
+    file's own invariant-checking functions call internally.
+
+    This repo has two live import conventions for the same sibling
+    modules -- `scripts.seo.pipeline.X` (used throughout apply.py) and
+    `seo.pipeline.X` (used throughout recommend.py and this file's own
+    import above) -- and Python caches a module by the exact dotted name
+    used to import it, so these are two DISTINCT module objects for the
+    same file on disk, each with its own independent REPO_ROOT global. A
+    caller that configured recommendation_memory/autonomy_state via ITS
+    OWN, differently-qualified import (e.g. apply.py calling
+    `recommendation_memory.configure(...)` on its own `scripts.seo.
+    pipeline.recommendation_memory` reference) silently configures a
+    decoy object that this module's own `recommendation_memory_is_ok()`/
+    `no_unresolved_suspension()` never read -- exactly the test-isolation
+    bug an earlier independent review of this exact card found live.
+    Call THIS function instead of configuring the submodules directly,
+    from any caller, regardless of which import convention that caller
+    otherwise uses."""
+    recommendation_memory.configure(repo_root=repo_root)
+    autonomy_state.configure(repo_root=repo_root)
 
 
 @dataclass

@@ -372,3 +372,77 @@ class TestRecommendInvariant14RealIntegration:
         finally:
             autonomy_state.configure()
             recommendation_memory.configure()
+
+
+class TestConfigureReachesTheRealInternallyBoundReferences:
+    """This exact bug shipped once already on this card's own first rework:
+    apply.py imports its siblings via `scripts.seo.pipeline.X`, while this
+    module's own top-of-file import uses `seo.pipeline.X` -- Python caches
+    a module by the exact dotted name used to import it, so these are two
+    DISTINCT objects for the same file, each with its own REPO_ROOT global.
+    Calling `recommendation_memory.configure(...)` on apply.py's own
+    reference silently left THIS module's internally-bound reference (the
+    one recommendation_memory_is_ok()/no_unresolved_suspension() actually
+    read) unconfigured -- a real, live-reproduced test-isolation hazard a
+    second independent review caught. ei.configure() exists specifically
+    to make that class of bug impossible: these tests prove it actually
+    reaches the real, internally-bound objects, not a caller's own,
+    possibly-differently-imported reference."""
+
+    def test_configure_syncs_the_module_actually_used_by_recommendation_memory_is_ok(self, tmp_path):
+        ei.configure(repo_root=tmp_path)
+        try:
+            store = tmp_path / "reports" / "seo" / "recommendation_memory.json"
+            store.parent.mkdir(parents=True, exist_ok=True)
+            store.write_text('{"schema_version": 999, "entries": {}}', encoding="utf-8")
+            assert ei.recommendation_memory_is_ok() is False
+        finally:
+            ei.configure()
+
+    def test_configure_syncs_the_module_actually_used_by_no_unresolved_suspension(self, tmp_path):
+        ei.configure(repo_root=tmp_path)
+        try:
+            autonomy_state.transition(
+                "words", "title_description_writes", autonomy_state.STATUS_REVIEW_PENDING,
+                reason="test setup", actor="test",
+            )
+            autonomy_state.transition(
+                "words", "title_description_writes", autonomy_state.STATUS_HUMAN_CLEARED,
+                reason="test setup", actor="test",
+            )
+            autonomy_state.transition(
+                "words", "title_description_writes", autonomy_state.STATUS_AUTONOMOUSLY_ELIGIBLE,
+                reason="test setup", actor="test",
+            )
+            autonomy_state.suspend("words", "title_description_writes", reason="test suspend")
+            assert ei.no_unresolved_suspension(["words"], "title_description_writes") is False
+        finally:
+            ei.configure()
+
+    def test_apply_py_gate_genuinely_detects_a_bad_store_via_its_own_scripts_dotted_import(self, tmp_path, monkeypatch):
+        """The exact regression: import apply.py via its OWN real import
+        convention (matching test_apply_governance.py's own
+        `import seo.pipeline.apply as apply_mod`-style access pattern used
+        throughout this repo's test suite) and prove the real gate --
+        reached through apply.py's own code, not a shortcut -- actually
+        refuses a genuinely corrupted store."""
+        import seo.pipeline.apply as apply_mod
+
+        monkeypatch.setattr(apply_mod, "_REPO_ROOT", tmp_path)
+        apply_mod.change_budget.configure(repo_root=tmp_path)
+        try:
+            store = tmp_path / "reports" / "seo" / "recommendation_memory.json"
+            store.parent.mkdir(parents=True, exist_ok=True)
+            store.write_text('{"schema_version": 999, "entries": {}}', encoding="utf-8")
+
+            apply_mod.run_apply([], dry_run=False)
+
+            assert apply_mod.execution_invariants.recommendation_memory_is_ok() is False, (
+                "apply.py's own gate 0.5 code path must reach the SAME "
+                "recommendation_memory instance this check reads -- if this "
+                "assertion is ever violated again, apply.py's isolation fix "
+                "has silently regressed"
+            )
+        finally:
+            apply_mod.execution_invariants.configure()
+            apply_mod.change_budget.configure()

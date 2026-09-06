@@ -65,11 +65,6 @@ try:
 except ImportError:
     from pipeline import execution_invariants  # noqa: E402
 
-try:
-    from seo.pipeline import autonomy_state  # noqa: E402
-except ImportError:
-    from pipeline import autonomy_state  # noqa: E402
-
 # ---------------------------------------------------------------------------
 # Logging
 # ---------------------------------------------------------------------------
@@ -822,12 +817,18 @@ def run_recommendations(
     # test seam (see test_metrics_recommend_adapter.py's own monkeypatch
     # conventions), and without this an isolated test run would silently
     # read/consult the REAL, shared reports/seo/recommendation_memory.json
-    # and data/seo_autonomy_state.json instead of its own tmp_path (the
-    # exact test-isolation hazard SEO-EXECUTION-INVARIANTS' first
-    # independent review found in apply.py's equivalent gate and this
-    # module now avoids by construction).
-    recommendation_memory.configure(repo_root=_REPO_ROOT)
-    autonomy_state.configure(repo_root=_REPO_ROOT)
+    # and data/seo_autonomy_state.json instead of its own tmp_path. Routed
+    # through execution_invariants.configure() (which syncs its OWN
+    # internally-bound recommendation_memory/autonomy_state references),
+    # not a direct call on this module's own imports -- this repo has two
+    # live import conventions for the same sibling modules
+    # (`scripts.seo.pipeline.X` in apply.py, `seo.pipeline.X` here and in
+    # execution_invariants.py's own import), and Python caches a module by
+    # the exact dotted name used to import it, so configuring the "wrong"
+    # reference directly is a real, live-reproduced hazard this mission's
+    # second independent review of SEO-EXECUTION-INVARIANTS found in
+    # apply.py's own equivalent gate.
+    execution_invariants.configure(repo_root=_REPO_ROOT)
 
     # --- Governance gate: execution invariants (Contract J), invariant 13
     # "recommendation_memory_readable_and_schema_matched" --- read-only,

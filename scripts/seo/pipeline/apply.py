@@ -110,14 +110,6 @@ except ImportError as exc:
         "Run from repo root: python scripts/seo/pipeline/apply.py"
     )
 
-try:
-    from scripts.seo.pipeline import recommendation_memory  # type: ignore  # noqa: E402
-except ImportError as exc:
-    sys.exit(
-        f"apply.py: cannot import recommendation_memory.py — {exc}\n"
-        "Run from repo root: python scripts/seo/pipeline/apply.py"
-    )
-
 # ---------------------------------------------------------------------------
 # Logging
 # ---------------------------------------------------------------------------
@@ -530,14 +522,23 @@ def run_apply(patches: list[dict], dry_run: bool) -> None:
     # store -- recommendation_memory.load_memory() itself fails open to a
     # bootstrap-empty, valid shape) so this only ever refuses on a genuine
     # schema-version mismatch, never on the store simply not existing yet.
-    # Synced to this module's own _REPO_ROOT first -- _REPO_ROOT is a
-    # monkeypatched test seam (see test_apply_governance.py), and without
-    # this an isolated test run would silently read the REAL, shared
-    # reports/seo/recommendation_memory.json instead of its own tmp_path,
-    # mirroring the exact fix change_budget.configure() above already
-    # applies for change_budget_history.json (found live by this card's
-    # first independent review).
-    recommendation_memory.configure(repo_root=_REPO_ROOT)
+    # Synced to this module's own _REPO_ROOT first via
+    # execution_invariants.configure() -- NEVER call
+    # recommendation_memory.configure() directly from this file: apply.py
+    # imports its siblings via `scripts.seo.pipeline.X`, while
+    # execution_invariants.py's own internal recommendation_memory
+    # reference is bound via `seo.pipeline.X` -- two distinct module
+    # objects for the same file, each with its own REPO_ROOT global.
+    # Configuring apply.py's own `scripts.seo.pipeline.recommendation_
+    # memory` reference silently leaves the DIFFERENT object the actual
+    # gate check reads from unconfigured -- a real, live-reproduced
+    # test-isolation hazard this mission's second independent review of
+    # this exact card found (the first review's fix for this same issue
+    # was itself insufficient for exactly this reason). Routing through
+    # execution_invariants.configure() -- which syncs its OWN internally-
+    # bound reference -- makes this correct regardless of which import
+    # convention the caller uses.
+    execution_invariants.configure(repo_root=_REPO_ROOT)
     # The other 13 named invariants are deliberately NOT duplicated here:
     # invariants 9-11 are already enforced by this function's own
     # pre-existing, independently-reviewed gates (gate 0 above, gate 2.5
