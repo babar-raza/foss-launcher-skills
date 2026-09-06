@@ -53,6 +53,33 @@ def test_is_cacheable_false_for_timeout():
     assert r.is_cacheable() is False
 
 
+def test_real_s120_reasons_are_all_valid():
+    # These 9 are S-120's actual reason literals, confirmed by grepping
+    # readme_refresh_run.py directly -- a prior draft of REASONS
+    # substituted NO-CLONE-CACHE/BUDGET-EXHAUSTED (package additions, not
+    # S-120 originals) for two of these by mistake.
+    for reason in (
+        "TOOLCHAIN-UNAVAILABLE", "RUNTIME-ERROR", "UPSTREAM-BROKEN",
+        "TYPE-CHECK-FAILED", "DEPENDS-ON-FAILED-BLOCK", "ACQUIRE-FAILED",
+        "TIMEOUT", "FIXTURE-UNAVAILABLE", "NOT-A-PRODUCT-COMMAND",
+    ):
+        BlockResult(identity=_identity(0), status="BLOCKED-WITH-REASON", reason=reason)
+
+
+def test_is_cacheable_true_for_not_a_product_command():
+    # A property of the block's own content (is this a real product
+    # command or not) -- deterministic, safe to cache.
+    r = BlockResult(identity=_identity(0), status="BLOCKED-WITH-REASON", reason="NOT-A-PRODUCT-COMMAND")
+    assert r.is_cacheable() is True
+
+
+def test_is_cacheable_false_for_fixture_unavailable():
+    # A property of the acquire-time workspace, not the block's content --
+    # must never outlive the transient staging problem that caused it.
+    r = BlockResult(identity=_identity(0), status="BLOCKED-WITH-REASON", reason="FIXTURE-UNAVAILABLE")
+    assert r.is_cacheable() is False
+
+
 def test_to_legacy_s120_clean_execution_matches_fixture_dict():
     # Mirrors test_readme_refresh_run.py::test_run_single_python_block_clean_execution
     report = VerificationReport(runner="python", blocks=[

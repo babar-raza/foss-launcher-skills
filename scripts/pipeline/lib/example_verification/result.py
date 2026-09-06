@@ -20,9 +20,13 @@ Status/reason vocabulary (governing plan, Central module section):
   reason (when status == BLOCKED-WITH-REASON) -- S-120's nine original
     reasons verbatim, plus this package's additions:
     TOOLCHAIN-UNAVAILABLE, RUNTIME-ERROR, UPSTREAM-BROKEN, TYPE-CHECK-FAILED,
-    DEPENDS-ON-FAILED-BLOCK, ACQUIRE-FAILED, TIMEOUT, NO-CLONE-CACHE,
-    BUDGET-EXHAUSTED (S-120 originals) + GRAMMAR-UNAVAILABLE, SYNTAX-ERROR,
-    COMPILE-ERROR, VERSION-SKEW, SLOW, ACQUIRE-SKIPPED, BUILD-VERIFIED-ONLY
+    DEPENDS-ON-FAILED-BLOCK, ACQUIRE-FAILED, TIMEOUT, FIXTURE-UNAVAILABLE,
+    NOT-A-PRODUCT-COMMAND (S-120 originals, confirmed verbatim against
+    readme_refresh_run.py's own literals -- a prior draft of this set
+    substituted NO-CLONE-CACHE/BUDGET-EXHAUSTED here by mistake; those two
+    are package additions, not S-120 originals, fixed below) +
+    GRAMMAR-UNAVAILABLE, SYNTAX-ERROR, COMPILE-ERROR, VERSION-SKEW, SLOW,
+    ACQUIRE-SKIPPED, NO-CLONE-CACHE, BUDGET-EXHAUSTED, BUILD-VERIFIED-ONLY
     (this package's additions).
   proof_tier ∈ {0 (none/stub), 1 (syntax-parsed), 2 (compiled/type-checked),
     3 (executed, exit 0), 4 (reserved -- output/artifact assertion, not
@@ -41,13 +45,15 @@ STATUSES: frozenset[str] = frozenset({
 # report. Kept as one flat set rather than per-status subsets because a
 # reason's home status never changes across this codebase's history.
 REASONS: frozenset[str] = frozenset({
-    # S-120 originals (readme_refresh_run.py, verbatim)
+    # S-120 originals (readme_refresh_run.py, verbatim -- confirmed by
+    # grepping every "[A-Z-]+" literal in that file: exactly these 9)
     "TOOLCHAIN-UNAVAILABLE", "RUNTIME-ERROR", "UPSTREAM-BROKEN",
     "TYPE-CHECK-FAILED", "DEPENDS-ON-FAILED-BLOCK", "ACQUIRE-FAILED",
-    "TIMEOUT", "NO-CLONE-CACHE", "BUDGET-EXHAUSTED",
+    "TIMEOUT", "FIXTURE-UNAVAILABLE", "NOT-A-PRODUCT-COMMAND",
     # This package's additions (Rounds 2-4)
     "GRAMMAR-UNAVAILABLE", "SYNTAX-ERROR", "COMPILE-ERROR", "VERSION-SKEW",
-    "SLOW", "ACQUIRE-SKIPPED", "BUILD-VERIFIED-ONLY",
+    "SLOW", "ACQUIRE-SKIPPED", "NO-CLONE-CACHE", "BUDGET-EXHAUSTED",
+    "BUILD-VERIFIED-ONLY",
 })
 
 ORIGINS: frozenset[str] = frozenset({
@@ -63,8 +69,11 @@ DETERMINISTIC_STATUSES_FOR_CACHE: frozenset[str] = frozenset({
 })
 DETERMINISTIC_REASONS_FOR_CACHE: frozenset[str] = frozenset({
     "SYNTAX-ERROR", "COMPILE-ERROR", "RUNTIME-ERROR", "UPSTREAM-BROKEN",
-    "TYPE-CHECK-FAILED", "DEPENDS-ON-FAILED-BLOCK",
+    "TYPE-CHECK-FAILED", "DEPENDS-ON-FAILED-BLOCK", "NOT-A-PRODUCT-COMMAND",
 })
+# FIXTURE-UNAVAILABLE is deliberately NOT here: like NO-CLONE-CACHE, it's a
+# property of the acquire-time workspace, not of the block's own content --
+# caching it would let a transient staging problem outlive its cause.
 
 
 @dataclass(frozen=True, slots=True)
