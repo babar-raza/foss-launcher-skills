@@ -161,6 +161,71 @@ class TestSuccessPath:
         assert result is not None
         assert result.rationale == "LLM-proposed description, grounding-verified."
 
+    def test_over_length_candidate_retries_once_and_succeeds(self):
+        """title_clause_composer.py's own established pattern, reused here:
+        discovered live against the real SaveFormat.md page, whose first
+        genuine LLM candidate was 163 chars (3 over the 160 max) -- a single
+        over-length answer must retry once with the bound restated rather
+        than failing the whole call immediately."""
+        too_long = "Convert PDF to Word using Aspose.PDF for Python. " * 6
+        calls = []
+
+        def _call(prompt: str) -> dict:
+            calls.append(prompt)
+            if len(calls) == 1:
+                return {"proposed_description": too_long, "rationale": "first try"}
+            return {"proposed_description": _GOOD_DESC, "rationale": "second try"}
+
+        result = compose_description(
+            "content/docs.aspose.org/en/pdf/python/x.md", _CURRENT_DESC, _KW, _CLAIMS, "pdf", "python",
+            llm_call=_call,
+        )
+        assert result == DescriptionCandidate(text=_GOOD_DESC, rationale="second try")
+        assert len(calls) == 2
+        assert "previous answer" not in calls[0].lower()
+        assert "previous answer" in calls[1].lower()
+        assert f"{len(too_long.strip())} characters" in calls[1]
+
+    def test_rationale_from_a_rejected_over_length_attempt_is_never_carried_forward(self):
+        """Independent review finding (SEO-DESCRIPTION-PILOT-HIGH-IMPRESSION
+        it-0055): the retry loop must only keep the WINNING attempt's
+        rationale -- an earlier, rejected over-length attempt's rationale
+        describing different (never-served) text must not leak through."""
+        too_long = "Convert PDF to Word using Aspose.PDF for Python. " * 6
+        calls = []
+
+        def _call(prompt: str) -> dict:
+            calls.append(prompt)
+            if len(calls) == 1:
+                return {"proposed_description": too_long, "rationale": "describes the REJECTED text"}
+            return {"proposed_description": _GOOD_DESC}  # no rationale key at all
+
+        result = compose_description(
+            "content/docs.aspose.org/en/pdf/python/x.md", _CURRENT_DESC, _KW, _CLAIMS, "pdf", "python",
+            llm_call=_call,
+        )
+        assert result is not None
+        assert result.text == _GOOD_DESC
+        assert "REJECTED" not in result.rationale
+        assert result.rationale == "LLM-proposed description, grounding-verified."
+
+    def test_over_length_after_one_retry_still_returns_none_and_stops(self):
+        """Never retries more than once -- title_clause_composer.py's own
+        proven bound (_MAX_RETRIES_OVER_LENGTH = 1)."""
+        too_long = "Convert PDF to Word using Aspose.PDF for Python. " * 6
+        calls = []
+
+        def _call(prompt: str) -> dict:
+            calls.append(prompt)
+            return {"proposed_description": too_long, "rationale": "x"}
+
+        result = compose_description(
+            "content/docs.aspose.org/en/pdf/python/x.md", _CURRENT_DESC, _KW, _CLAIMS, "pdf", "python",
+            llm_call=_call,
+        )
+        assert result is None
+        assert len(calls) == 2
+
 
 # ---------------------------------------------------------------------------
 # Acceptance check: token-overlap grounding (not claim_mapper, Finding #84)
@@ -352,6 +417,82 @@ class TestLoadPageClaims:
         )
         result = load_page_claims("content/docs.aspose.org/en/fam/plat/x.md", "fam", "plat", repo_root=tmp_path)
         assert result == ["Page.render(dpi) -> RasterizedPage"]
+
+    def test_apis_fallback_matches_api_class_kind_claims_for_enum_shaped_symbols(self, tmp_path):
+        """Enum-shaped-symbol extension, discovered live against the real
+        SaveFormat.md page: an enum's own real claims.json entry is phrased
+        "Class SYMBOL defined in <file>" (kind=api_class), never
+        "SYMBOL.member(...)" -- so the owner-anchored pattern alone leaves
+        page_claims empty for every enum page. kind=api_class claims
+        matching "^Class SYMBOL\\b" must now resolve."""
+        self._write_claims_json(tmp_path, [
+            {"claim_id": "CLM-1", "text": "Class SaveFormat defined in src/Export/SaveFormat.cs", "kind": "api_class"},
+            {"claim_id": "CLM-2", "text": "Class SourceFormat defined in src/Export/SourceFormat.cs", "kind": "api_class"},
+        ])
+        self._write_page(
+            tmp_path, "content/docs.aspose.org/en/fam/plat/x.md",
+            evidence_claims=["CLM-STALE"], evidence_apis=["SaveFormat"],
+        )
+        result = load_page_claims("content/docs.aspose.org/en/fam/plat/x.md", "fam", "plat", repo_root=tmp_path)
+        assert result == ["Class SaveFormat defined in src/Export/SaveFormat.cs"]
+
+    def test_apis_fallback_matches_format_support_kind_claims_ending_in_via_symbol(self, tmp_path):
+        """Companion enum-shaped-symbol extension: real format_support claims
+        are phrased "export support for <fmt> via SYMBOL" -- confirmed live,
+        24/24 real slides/net entries end in this exact suffix. Must match
+        only when SYMBOL is the exact trailing "via" target, not a prefix of
+        a longer trailing symbol name."""
+        self._write_claims_json(tmp_path, [
+            {"claim_id": "CLM-1", "text": "export support for Pptx via SaveFormat", "kind": "format_support"},
+            {"claim_id": "CLM-2", "text": "export support for Pptx via SaveFormatX", "kind": "format_support"},
+            {"claim_id": "CLM-3", "text": "import support for Pptx via SourceFormat", "kind": "format_support"},
+        ])
+        self._write_page(
+            tmp_path, "content/docs.aspose.org/en/fam/plat/x.md",
+            evidence_claims=["CLM-STALE"], evidence_apis=["SaveFormat"],
+        )
+        result = load_page_claims("content/docs.aspose.org/en/fam/plat/x.md", "fam", "plat", repo_root=tmp_path)
+        assert result == ["export support for Pptx via SaveFormat"]
+
+    def test_apis_fallback_excludes_usage_context_mentions_of_a_different_kind(self, tmp_path):
+        """Regression guard for the enum-shaped extension itself: a claim
+        that merely mentions the symbol as a parameter of a DIFFERENT
+        owning API (kind=api/format, real phrasing "Use Presentation.Save
+        with SaveFormat.Pptx...") must stay excluded -- same contamination
+        shape round-1 review found and fixed for the method-owner case,
+        just for a different `kind`. Only api_class/format_support are
+        eligible for the new structural patterns."""
+        self._write_claims_json(tmp_path, [
+            {"claim_id": "CLM-1", "text": "Use Presentation.Save with SaveFormat.Pptx to export.", "kind": "api"},
+            {"claim_id": "CLM-2", "text": "The library exports via SaveFormat in most cases.", "kind": "format"},
+            {"claim_id": "CLM-3", "text": "Class SaveFormat defined in src/Export/SaveFormat.cs", "kind": "api_class"},
+        ])
+        self._write_page(
+            tmp_path, "content/docs.aspose.org/en/fam/plat/x.md",
+            evidence_claims=["CLM-STALE"], evidence_apis=["SaveFormat"],
+        )
+        result = load_page_claims("content/docs.aspose.org/en/fam/plat/x.md", "fam", "plat", repo_root=tmp_path)
+        assert result == ["Class SaveFormat defined in src/Export/SaveFormat.cs"]
+
+    def test_apis_fallback_anchor_and_kind_extensions_are_additive_not_exclusive(self, tmp_path):
+        """A symbol can have BOTH a genuine method-owned claim and a genuine
+        api_class/format_support claim -- all real, relevant matches for
+        that symbol must be returned together, not just one shape."""
+        self._write_claims_json(tmp_path, [
+            {"claim_id": "CLM-1", "text": "SaveFormat.Pptx represents the PowerPoint Open XML format."},
+            {"claim_id": "CLM-2", "text": "Class SaveFormat defined in src/Export/SaveFormat.cs", "kind": "api_class"},
+            {"claim_id": "CLM-3", "text": "export support for Pptx via SaveFormat", "kind": "format_support"},
+        ])
+        self._write_page(
+            tmp_path, "content/docs.aspose.org/en/fam/plat/x.md",
+            evidence_claims=["CLM-STALE"], evidence_apis=["SaveFormat"],
+        )
+        result = load_page_claims("content/docs.aspose.org/en/fam/plat/x.md", "fam", "plat", repo_root=tmp_path)
+        assert set(result) == {
+            "SaveFormat.Pptx represents the PowerPoint Open XML format.",
+            "Class SaveFormat defined in src/Export/SaveFormat.cs",
+            "export support for Pptx via SaveFormat",
+        }
 
     def test_no_evidence_block_returns_empty(self, tmp_path):
         page = tmp_path / "content/docs.aspose.org/en/fam/plat/x.md"

@@ -48,9 +48,19 @@ composer; this module itself is stateless and writes nothing to disk.
 skeleton substitute unlike titles -- a fabricated-but-plausible summary
 sentence is a worse failure mode than a title fragment, so the safe default
 here is "leave the current description untouched, flag for human"): no LLM
-call injected, LLM call/parse failure, out-of-bounds length, grounding-
-preservation failure, an ungrounded numeral, a newly-introduced forbidden
-claim, or a naturalness verdict other than PASS.
+call injected, LLM call/parse failure, out-of-bounds length after one retry
+(see below), grounding-preservation failure, an ungrounded numeral, a
+newly-introduced forbidden claim, or a naturalness verdict other than PASS.
+
+**Length retry** [discovered live, SEO-DESCRIPTION-PILOT-HIGH-IMPRESSION,
+against the real SaveFormat.md page's first genuine LLM candidate]: a
+single over-length candidate used to fail the whole call immediately, even
+though `title_clause_composer.compose_natural_clause` already established,
+proven, in-production handling for exactly this failure mode. Reused
+verbatim, not reinvented: an out-of-bounds candidate gets exactly one retry
+with the bound restated in the prompt (`_MAX_RETRIES_OVER_LENGTH = 1`);
+still out-of-bounds after that retry -> `None`, same as any other doubt.
+Never truncates -- truncation risks silently changing a sentence's meaning.
 
 **Claims sourcing** [`load_page_claims`]: per the citation convention every
 skill-generated page already uses (AGENTS.md Sec.5), pulls claim TEXT from
@@ -86,6 +96,26 @@ owned matches, confirmed live) while still matching every genuine
 `"SYMBOL.member(...)"`/`"SYMBOL manages..."` claim. An empty result is a
 legitimate, fail-closed outcome (makes every downstream grounding/numeral
 check maximally strict), never fabricated.
+
+**Enum-shaped symbol extension** [discovered live,
+SEO-DESCRIPTION-PILOT-HIGH-IMPRESSION, against the real
+`content/reference.aspose.org/en/slides/net/SaveFormat.md` page]: the
+owner-anchored match above only recognizes claims phrased as
+`"SYMBOL.member(...)"` -- it does not generalize to enum-shaped symbols,
+whose real `claims.json` entries are prose referencing the symbol rather
+than method calls owned by it (`"Class SaveFormat defined in..."`,
+`"export support for Pptx via SaveFormat"`). `load_page_claims` now also
+matches two additional structural conventions, gated on each claim's own
+`kind` field (a real, always-present field: `api_method`/`api`/`api_class`/
+`api_field`/`feature`/`troubleshoot`/`format`/`format_support`/`install`) so
+only claims of that exact shape are eligible: `kind == "api_class"` claims
+matching `"^Class SYMBOL\b"` (confirmed live: 264/264 real `api_class`
+entries in `slides/net` follow this exact prefix), and
+`kind == "format_support"` claims matching `"via SYMBOL$"` (confirmed live:
+24/24 real entries end in this exact suffix). Usage-context claims that
+merely mention the symbol as a parameter (`kind in {"api", "format"}`, e.g.
+`"Use Presentation.Save with SaveFormat.Pptx..."`) stay excluded -- same
+contamination shape as the round-1 defect, just for a different `kind`.
 """
 from __future__ import annotations
 
@@ -123,7 +153,7 @@ REPO_ROOT = _DEFAULT_REPO_ROOT
 # cached "approved" candidate rather than silently serving stale-era output
 # forever. Callers (recommend.py) pass this to consult_before_llm_call()/
 # record_result() as composer_version -- never compute it themselves.
-COMPOSER_VERSION = "1"
+COMPOSER_VERSION = "2"
 
 
 def configure(*, repo_root: "Path | str | None" = None) -> None:
@@ -138,6 +168,12 @@ def configure(*, repo_root: "Path | str | None" = None) -> None:
 _MIN_CHARS = 130
 _MAX_CHARS = 160
 _DEFAULT_SIBLING_COUNT = 3
+# title_clause_composer.py's own established, proven pattern (reused, not
+# reinvented -- same principle as reusing check_grounding_preservation):
+# an over-length candidate gets exactly one retry with the bound restated,
+# never a truncation (truncation risks silently changing the meaning of a
+# sentence, unlike a title clause fragment).
+_MAX_RETRIES_OVER_LENGTH = 1
 
 _SITE_PREFIXES = (
     "content/docs.aspose.org/",
@@ -185,7 +221,12 @@ def _claims_json_path(family: str, platform: str, repo_root: Path) -> Path:
     return repo_root / "knowledge" / family / platform / "merged" / "claims.json"
 
 
-def _load_claims_index(family: str, platform: str, repo_root: Path) -> "dict[str, str]":
+def _load_claims_index(family: str, platform: str, repo_root: Path) -> "dict[str, dict]":
+    """claim_id -> {"text": str, "kind": str | None}. `kind` is claims.json's
+    own structural tag (api_method/api/api_class/api_field/feature/
+    troubleshoot/format/format_support/install, confirmed live) -- carried
+    through so the apis: fallback below can anchor to kind-specific real
+    conventions, not just the bare method-owner one."""
     path = _claims_json_path(family, platform, repo_root)
     if not path.exists():
         return {}
@@ -195,10 +236,10 @@ def _load_claims_index(family: str, platform: str, repo_root: Path) -> "dict[str
         return {}
     if not isinstance(data, list):
         return {}
-    out: "dict[str, str]" = {}
+    out: "dict[str, dict]" = {}
     for entry in data:
         if isinstance(entry, dict) and entry.get("claim_id") and isinstance(entry.get("text"), str):
-            out[entry["claim_id"]] = entry["text"]
+            out[entry["claim_id"]] = {"text": entry["text"], "kind": entry.get("kind")}
     return out
 
 
@@ -223,7 +264,7 @@ def load_page_claims(
         if isinstance(evidence, dict) and isinstance(evidence.get("claims"), list):
             claim_ids = [str(c) for c in evidence["claims"] if c]
         if claim_ids:
-            resolved = [index[cid] for cid in claim_ids if cid in index]
+            resolved = [index[cid]["text"] for cid in claim_ids if cid in index]
             if resolved:
                 return resolved
             # Every referenced claim_id is stale (the knowledge model has
@@ -250,8 +291,58 @@ def load_page_claims(
             # live-reproduced residual leak found during this fix's own
             # verification. Anchoring to the claim's own owner eliminates it
             # while still matching every genuine "SYMBOL.member(...)" claim.
-            patterns = [re.compile(r"^" + re.escape(a) + r"\b") for a in api_set]
-            return [text for text in index.values() if any(p.search(text) for p in patterns)]
+            owner_patterns = [re.compile(r"^" + re.escape(a) + r"\b") for a in api_set]
+            # ENUM-SHAPED SYMBOL EXTENSION [discovered live,
+            # SEO-DESCRIPTION-PILOT-HIGH-IMPRESSION, real
+            # content/reference.aspose.org/en/slides/net/SaveFormat.md]: the
+            # owner-anchored pattern above only matches claims phrased as
+            # "SYMBOL.member(...)" -- real method-owned claims. It does NOT
+            # generalize to enum-shaped symbols, whose real claims.json
+            # entries are prose referencing the symbol rather than method
+            # calls owned by it ("Class SaveFormat defined in...", "export
+            # support for Pptx via SaveFormat") -- confirmed live: SaveFormat
+            # had 0 owner-anchored matches despite 41 real, relevant
+            # unanchored mentions existing. Rather than loosening to an
+            # unscoped/unanchored match (already proven unsafe above), this
+            # extends anchoring to two ADDITIONAL claims.json structural
+            # conventions, gated on the claim's own `kind` field so only
+            # claims of that exact structural shape are eligible:
+            #   - kind == "api_class": claims.json's own class/enum-identity
+            #     convention is "Class SYMBOL defined in <file>" (confirmed
+            #     live: 264/264 real api_class entries in slides/net follow
+            #     this exact prefix, zero exceptions) -- the enum/class
+            #     equivalent of the method-owner anchor above.
+            #   - kind == "format_support": claims.json's own convention is
+            #     "export support for <fmt> via SYMBOL" (confirmed live:
+            #     24/24 real format_support entries end in this exact "via
+            #     SYMBOL" suffix) -- SYMBOL is the actual mechanism named,
+            #     not an incidental parameter mention.
+            # Deliberately excludes kind in {"api", "format"} even when they
+            # mention the symbol (e.g. real claim "Use Presentation.Save
+            # with SaveFormat.Pptx...", "Use IPresentation.Save(string
+            # fileName, SaveFormat format)...") -- those claims are ABOUT a
+            # DIFFERENT owning symbol (Presentation.Save/IPresentation.Save)
+            # and merely reference SYMBOL as a parameter/argument,
+            # structurally the same contamination shape round-1 review found
+            # and fixed for the method-owner case. Both new patterns anchor
+            # to the claims.json-documented structural convention for their
+            # own kind, not to unscoped symbol presence, so this cannot
+            # regress the round-1 fix (verified: neither new pattern matches
+            # any fixture entry from that regression test, since none of
+            # those fixture entries carry a matching `kind`).
+            class_patterns = [re.compile(r"^Class\s+" + re.escape(a) + r"\b") for a in api_set]
+            format_support_patterns = [re.compile(r"\bvia\s+" + re.escape(a) + r"\Z") for a in api_set]
+            matches: "list[str]" = []
+            for entry in index.values():
+                text = entry["text"]
+                kind = entry.get("kind")
+                if any(p.search(text) for p in owner_patterns):
+                    matches.append(text)
+                elif kind == "api_class" and any(p.search(text) for p in class_patterns):
+                    matches.append(text)
+                elif kind == "format_support" and any(p.search(text) for p in format_support_patterns):
+                    matches.append(text)
+            return matches
         return []
     except Exception:
         return []
@@ -421,22 +512,45 @@ def compose_description(
         current_description, grounded_keyword_signal, claims, family, platform,
         siblings, min_chars, max_chars,
     )
-    try:
-        result = llm_call(prompt)
-    except Exception:
-        return None
-    if not result:
-        return None
-    proposed = result.get("proposed_description")
-    if not isinstance(proposed, str) or not proposed.strip():
-        return None
-    proposed = proposed.strip()
-    rationale = result.get("rationale")
-    rationale = rationale.strip() if isinstance(rationale, str) and rationale.strip() else (
-        "LLM-proposed description, grounding-verified."
-    )
 
-    if not (min_chars <= len(proposed) <= max_chars):
+    proposed: "str | None" = None
+    rationale = "LLM-proposed description, grounding-verified."
+    for _attempt in range(_MAX_RETRIES_OVER_LENGTH + 1):
+        try:
+            result = llm_call(prompt)
+        except Exception:
+            return None
+        if not result:
+            return None
+        candidate = result.get("proposed_description")
+        if not isinstance(candidate, str) or not candidate.strip():
+            return None
+        candidate = candidate.strip()
+        if min_chars <= len(candidate) <= max_chars:
+            # Only the WINNING attempt's rationale is kept -- an earlier,
+            # rejected over-length attempt's rationale must never describe
+            # text that was never served (independent review finding,
+            # SEO-DESCRIPTION-PILOT-HIGH-IMPRESSION it-0055).
+            candidate_rationale = result.get("rationale")
+            if isinstance(candidate_rationale, str) and candidate_rationale.strip():
+                rationale = candidate_rationale.strip()
+            proposed = candidate
+            break
+        # Over-length: retry exactly once with the bound restated, never
+        # truncate mid-sentence (matches title_clause_composer.py's own
+        # established pattern -- truncation risks silently changing meaning).
+        prompt = (
+            build_description_prompt(
+                current_description, grounded_keyword_signal, claims, family,
+                platform, siblings, min_chars, max_chars,
+            )
+            + f"\nYour previous answer was {len(candidate)} characters. It "
+            f"MUST be between {min_chars} and {max_chars} characters."
+        )
+    else:
+        return None
+
+    if proposed is None:
         return None
 
     grounding_text = " ".join(
