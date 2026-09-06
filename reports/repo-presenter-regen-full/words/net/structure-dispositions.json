@@ -1,0 +1,38 @@
+[
+  {
+    "unit_id": "s0001",
+    "heading": "At a Glance",
+    "disposition": "merged_reframed",
+    "target_section": "At a Glance",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "Aspose.Words/Model/Document/Document.cs"
+    }
+  },
+  {
+    "unit_id": "s0002",
+    "heading": "Merge Two Documents",
+    "disposition": "merged_verbatim",
+    "target_section": "Additional Examples",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "Aspose.Words/Model/Document/Document.cs"
+    }
+  },
+  {
+    "unit_id": "s0003",
+    "heading": "Convert Markdown to DOCX",
+    "disposition": "merged_verbatim",
+    "target_section": "Additional Examples",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "Aspose.Words/Model/Document/SaveFormat.cs"
+    }
+  }
+]

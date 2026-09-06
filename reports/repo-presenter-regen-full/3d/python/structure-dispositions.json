@@ -1,0 +1,48 @@
+[
+  {
+    "unit_id": "s0001",
+    "heading": "At a glance",
+    "disposition": "merged_reframed",
+    "target_section": "At a Glance",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "aspose/threed/FileFormat.py"
+    }
+  },
+  {
+    "unit_id": "s0002",
+    "heading": "Assign a PBR material and export to glTF",
+    "disposition": "merged_reframed",
+    "target_section": "Additional Examples",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "aspose/threed/shading/PbrMaterial.py"
+    }
+  },
+  {
+    "unit_id": "s0003",
+    "heading": "Import a COLLADA file",
+    "disposition": "excluded",
+    "target_section": null,
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "aspose/threed/formats/collada/ColladaImporter.py"
+    },
+    "excluded_reason": "This specific worked COLLADA-import snippet was not reproduced in the recomposed Additional Examples set; COLLADA import itself remains real and working per the cited importer, and is independently documented via Key Capabilities and the Scope and Limitations submodule-import guidance."
+  },
+  {
+    "unit_id": "s0004",
+    "heading": "Convert a parametric primitive to a mesh",
+    "disposition": "excluded",
+    "target_section": null,
+    "verification": {
+      "status": "verified_redundant",
+      "evidence_type": "candidate_section_reference",
+      "evidence_ref": "Quick Start"
+    },
+    "excluded_reason": "Superseded by Quick Start's own second example, which already demonstrates converting a parametric Box primitive to a Mesh via to_mesh() before exporting it -- reproducing a near-identical standalone snippet here would be redundant."
+  }
+]

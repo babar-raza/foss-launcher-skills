@@ -1,0 +1,6 @@
+{
+  "baseline_commit": "cabbb9d8ba2067854f7cb3dcdc4acfeec849747b",
+  "reason": "content-dispositions.json (31/31 units) was agent-authored 2026-08-14 against this commit, base of PR #2 (aspose-cells-foss/Aspose.Cells-FOSS-for-TypeScript, merged 2026-08-14T14:57:33Z by babar-raza, gh pr view confirmed, an AI-assisted human-reviewed refresh matching the same MT041 pilot noted in this repo's own memory). Live HEAD (fc18650) is that same PR's merge commit. Combined with the TC-B-02 bullet-marker normalization fix (readme_refresh_checks.py _normalize_for_drop_match), re-verifying against this pinned commit collapses excerpt mismatches from 27/31 to 0/31.",
+  "recorded_at": "2026-09-01T04:33:46.719306Z",
+  "recorded_by": "1b8927dd-48c8-4f8c-bb41-24dfbd5a4509"
+}

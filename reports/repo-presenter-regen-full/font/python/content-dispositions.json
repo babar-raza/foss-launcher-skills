@@ -1,0 +1,957 @@
+[
+  {
+    "unit_id": "u0001",
+    "source": "clone_cache/README.md",
+    "excerpt": "Pure-Python font workflow automation for teams that need to prepare, review, package, and explain fonts without native runtime dependencies.",
+    "salient_tokens": [],
+    "classification": "3_branding_positioning",
+    "classification_basis": "3_branding_positioning -- judged against the recomposed candidate and real source on 2026-09-02 (ledger rebuilt: the 2026-08-20 ledger had been authored against our own merged README).",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "pyproject.toml",
+      "evidence_note": "pure-Python, zero [project.dependencies]; the Intro states the same positioning (free, open-source, pure-Python, zero required third-party runtime dependencies)."
+    },
+    "disposition": "merged_reframed",
+    "target_section": "Intro"
+  },
+  {
+    "unit_id": "u0002",
+    "source": "clone_cache/README.md",
+    "excerpt": "Use it when you need deployable web-font packages, visual review assets, variable-font instances, and QA evidence from scripts, CI, or local CLI workflows.",
+    "salient_tokens": [
+      "QA",
+      "CI",
+      "CLI"
+    ],
+    "classification": "3_branding_positioning",
+    "classification_basis": "3_branding_positioning -- judged against the recomposed candidate and real source on 2026-09-02 (ledger rebuilt: the 2026-08-20 ledger had been authored against our own merged README).",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/aspose_font/__init__.py",
+      "evidence_note": "the Intro names the same surfaces: web-font packaging, previews, variable-font instancing, QA reporting, Python/CLI/MCP."
+    },
+    "disposition": "merged_reframed",
+    "target_section": "Intro"
+  },
+  {
+    "unit_id": "u0003",
+    "source": "clone_cache/README.md",
+    "excerpt": "Public GitHub repository: [aspose-font-foss/Aspose.Font-FOSS-for-Python](https://github.com/aspose-font-foss/Aspose.Font-FOSS-for-Python)",
+    "salient_tokens": [
+      "GitHub",
+      "FOSS",
+      "aspose-font-foss/Aspose.Font-FOSS-for-Python",
+      "https://github.com/aspose-font-foss/Aspose.Font-FOSS-for-Python"
+    ],
+    "classification": "redundant_with_existing",
+    "classification_basis": "redundant_with_existing -- judged against the recomposed candidate and real source on 2026-09-02 (ledger rebuilt: the 2026-08-20 ledger had been authored against our own merged README).",
+    "verification": {
+      "status": "verified_redundant",
+      "evidence_type": "candidate_section_reference",
+      "evidence_ref": "Installation",
+      "evidence_note": "the same repository URL is the git clone target in Installation; the README lives in that repository, so a self-link adds nothing."
+    },
+    "disposition": "excluded",
+    "target_section": null,
+    "excluded_reason": "self-referential link to the repository the README lives in; the URL is already the Installation section's git clone target"
+  },
+  {
+    "unit_id": "u0004",
+    "source": "clone_cache/README.md",
+    "excerpt": "| Workflow | Output |\n| --- | --- |\n| Optimize fonts for the web | WOFF2/WOFF files, CSS, specimen HTML, JSON manifests, coverage diagnostics, variable-font export-mode explanations, and fallback reasons. |\n| Review font quality | Font QA Reports as JSON/HTML/PNG package deliverables, compatibility reports, delta reports, and visual boards for release decisions. |\n| Create release-safe variable instances | Static instance fonts with naming strategies, optional STAT metadata, custom family suffixes, family review boards, and handoff manifests. |\n| Generate visual proof | PNG/SVG previews, axis-grid sheets, before/after comparisons, APNG animations, storyboard packages, and showcase outputs. |\n| Automate font operations | Python APIs, CLI commands, and optional MCP tools over the same pure-Python engine. |",
+    "salient_tokens": [
+      "WOFF2",
+      "WOFF",
+      "CSS",
+      "HTML",
+      "JSON",
+      "QA",
+      "PNG",
+      "STAT",
+      "SVG",
+      "APNG",
+      "APIs",
+      "CLI",
+      "MCP"
+    ],
+    "classification": "2_mechanism_explanation",
+    "classification_basis": "2_mechanism_explanation -- judged against the recomposed candidate and real source on 2026-09-02 (ledger rebuilt: the 2026-08-20 ledger had been authored against our own merged README).",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/aspose_font/web.py",
+      "evidence_note": "'What You Get' workflow->output table: web packaging (web.py), QA (qa.py), static instances (instancing.py), previews (preview.py/animation.py), CLI/MCP (cli.py/mcp.py) are each a Key Capabilities bullet."
+    },
+    "disposition": "merged_reframed",
+    "target_section": "Key Capabilities"
+  },
+  {
+    "unit_id": "u0005",
+    "source": "clone_cache/README.md",
+    "excerpt": "- Pure Python: no native font-tooling runtime dependency for local scripts or CI.",
+    "salient_tokens": [
+      "CI"
+    ],
+    "classification": "2_mechanism_explanation",
+    "classification_basis": "2_mechanism_explanation -- judged against the recomposed candidate and real source on 2026-09-02 (ledger rebuilt: the 2026-08-20 ledger had been authored against our own merged README).",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "pyproject.toml",
+      "evidence_note": "no [project.dependencies]; Dependencies says 'No required third-party package dependencies' and 'No native system libraries'."
+    },
+    "disposition": "merged_reframed",
+    "target_section": "Dependencies"
+  },
+  {
+    "unit_id": "u0006",
+    "source": "clone_cache/README.md",
+    "excerpt": "- Business artifacts first: packages, reports, manifests, previews, and review boards.",
+    "salient_tokens": [],
+    "classification": "3_branding_positioning",
+    "classification_basis": "3_branding_positioning -- judged against the recomposed candidate and real source on 2026-09-02 (ledger rebuilt: the 2026-08-20 ledger had been authored against our own merged README).",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/aspose_font/qa.py",
+      "evidence_note": "packages/reports/manifests/previews/review boards are the concrete outputs the Key Capabilities bullets name (WebFontBundle manifests, FontQaReport, PreviewImage, family review boards)."
+    },
+    "disposition": "merged_reframed",
+    "target_section": "Additional Examples"
+  },
+  {
+    "unit_id": "u0007",
+    "source": "clone_cache/README.md",
+    "excerpt": "- Variable-font aware: axes, named instances, static/live web modes, naming policies, and QA diagnostics.",
+    "salient_tokens": [
+      "QA"
+    ],
+    "classification": "2_mechanism_explanation",
+    "classification_basis": "2_mechanism_explanation -- judged against the recomposed candidate and real source on 2026-09-02 (ledger rebuilt: the 2026-08-20 ledger had been authored against our own merged README).",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/aspose_font/qa.py",
+      "evidence_note": "axes/named instances/naming strategies/QA diagnostics: SmartInstancer; static/live web modes: web.py variable_mode."
+    },
+    "disposition": "merged_reframed",
+    "target_section": "Key Capabilities"
+  },
+  {
+    "unit_id": "u0008",
+    "source": "clone_cache/README.md",
+    "excerpt": "- Broad format coverage: TrueType, OpenType, CFF, Type 1, WOFF, WOFF2, and EOT.",
+    "salient_tokens": [
+      "TrueType",
+      "OpenType",
+      "CFF",
+      "WOFF",
+      "WOFF2",
+      "EOT"
+    ],
+    "classification": "2_mechanism_explanation",
+    "classification_basis": "2_mechanism_explanation -- judged against the recomposed candidate and real source on 2026-09-02 (ledger rebuilt: the 2026-08-20 ledger had been authored against our own merged README).",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/aspose_font/loader.py",
+      "evidence_note": "FontLoader detects TTF/OTF/CFF/Type 1/WOFF/WOFF2/EOT by magic bytes."
+    },
+    "disposition": "merged_reframed",
+    "target_section": "Key Capabilities"
+  },
+  {
+    "unit_id": "u0009",
+    "source": "clone_cache/README.md",
+    "excerpt": "- Built for automation: Python, CLI, and optional MCP surfaces share the same capabilities.",
+    "salient_tokens": [
+      "CLI",
+      "MCP"
+    ],
+    "classification": "2_mechanism_explanation",
+    "classification_basis": "2_mechanism_explanation -- judged against the recomposed candidate and real source on 2026-09-02 (ledger rebuilt: the 2026-08-20 ledger had been authored against our own merged README).",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/aspose_font/mcp.py",
+      "evidence_note": "cli.py and mcp.py both call the same library classes."
+    },
+    "disposition": "merged_reframed",
+    "target_section": "Key Capabilities"
+  },
+  {
+    "unit_id": "u0010",
+    "source": "clone_cache/README.md",
+    "excerpt": "Install MCP support only when you want the built-in server surface:",
+    "salient_tokens": [
+      "MCP"
+    ],
+    "classification": "2_mechanism_explanation",
+    "classification_basis": "2_mechanism_explanation -- judged against the recomposed candidate and real source on 2026-09-02 (ledger rebuilt: the 2026-08-20 ledger had been authored against our own merged README).",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "pyproject.toml",
+      "evidence_note": "[project.optional-dependencies] mcp extra."
+    },
+    "disposition": "merged_reframed",
+    "target_section": "Installation"
+  },
+  {
+    "unit_id": "u0011",
+    "source": "clone_cache/README.md",
+    "excerpt": "Build a web handoff package:",
+    "salient_tokens": [],
+    "classification": "redundant_with_existing",
+    "classification_basis": "redundant_with_existing -- judged against the recomposed candidate and real source on 2026-09-02 (ledger rebuilt: the 2026-08-20 ledger had been authored against our own merged README).",
+    "verification": {
+      "status": "verified_redundant",
+      "evidence_type": "candidate_section_reference",
+      "evidence_ref": "Additional Examples",
+      "evidence_note": "caption of the web-handoff example, which is the flagship example in Additional Examples with its own fuller lead-in sentence."
+    },
+    "disposition": "excluded",
+    "target_section": null,
+    "excluded_reason": "one-line caption for an example that is carried in full (with a fuller lead-in) as the Additional Examples flagship"
+  },
+  {
+    "unit_id": "u0012",
+    "source": "clone_cache/README.md",
+    "excerpt": "Generate QA evidence:",
+    "salient_tokens": [
+      "QA"
+    ],
+    "classification": "redundant_with_existing",
+    "classification_basis": "redundant_with_existing -- judged against the recomposed candidate and real source on 2026-09-02 (ledger rebuilt: the 2026-08-20 ledger had been authored against our own merged README).",
+    "verification": {
+      "status": "verified_redundant",
+      "evidence_type": "candidate_section_reference",
+      "evidence_ref": "Additional Examples",
+      "evidence_note": "caption of the QA-evidence example, carried under 'Generate a Font QA Report Package'."
+    },
+    "disposition": "excluded",
+    "target_section": null,
+    "excluded_reason": "one-line caption for an example carried in full under its own heading in Additional Examples"
+  },
+  {
+    "unit_id": "u0013",
+    "source": "clone_cache/README.md",
+    "excerpt": "Create a release-safe static instance:",
+    "salient_tokens": [],
+    "classification": "redundant_with_existing",
+    "classification_basis": "redundant_with_existing -- judged against the recomposed candidate and real source on 2026-09-02 (ledger rebuilt: the 2026-08-20 ledger had been authored against our own merged README).",
+    "verification": {
+      "status": "verified_redundant",
+      "evidence_type": "candidate_section_reference",
+      "evidence_ref": "Additional Examples",
+      "evidence_note": "caption of the static-instance example, carried under 'Create a Release-Safe Static Instance'."
+    },
+    "disposition": "excluded",
+    "target_section": null,
+    "excluded_reason": "one-line caption for an example carried in full under its own heading in Additional Examples"
+  },
+  {
+    "unit_id": "u0014",
+    "source": "clone_cache/README.md",
+    "excerpt": "These fixture-backed examples mirror the generated demo site and show the kinds of artifacts the library produces.",
+    "salient_tokens": [],
+    "classification": "2_mechanism_explanation",
+    "classification_basis": "2_mechanism_explanation -- judged against the recomposed candidate and real source on 2026-09-02 (ledger rebuilt: the 2026-08-20 ledger had been authored against our own merged README).",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "website/generated/roboto-axis-grid.png",
+      "evidence_note": "the fixture-backed outputs under website/generated/ are the assets the Additional Examples intro sentence refers to."
+    },
+    "disposition": "merged_reframed",
+    "target_section": "Additional Examples"
+  },
+  {
+    "unit_id": "u0015",
+    "source": "clone_cache/README.md",
+    "excerpt": "`WebFontBuilder` and the `web-build` CLI produce browser-ready files plus machine-readable evidence:",
+    "salient_tokens": [
+      "WebFontBuilder",
+      "web-build",
+      "CLI"
+    ],
+    "classification": "2_mechanism_explanation",
+    "classification_basis": "2_mechanism_explanation -- judged against the recomposed candidate and real source on 2026-09-02 (ledger rebuilt: the 2026-08-20 ledger had been authored against our own merged README).",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/aspose_font/web.py",
+      "evidence_note": "WebFontBuilder.build + the web-build CLI (cli.py) produce the files listed."
+    },
+    "disposition": "merged_reframed",
+    "target_section": "Additional Examples"
+  },
+  {
+    "unit_id": "u0016",
+    "source": "clone_cache/README.md",
+    "excerpt": "The manifest records export mode, source/output variable status, coverage diagnostics, naming choices, and STAT policy guidance when applicable.",
+    "salient_tokens": [
+      "STAT"
+    ],
+    "classification": "2_mechanism_explanation",
+    "classification_basis": "2_mechanism_explanation -- judged against the recomposed candidate and real source on 2026-09-02 (ledger rebuilt: the 2026-08-20 ledger had been authored against our own merged README).",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/aspose_font/web.py",
+      "evidence_note": "WebFontBundle.manifest keys: export_mode, variable status, coverage, naming, STAT policy."
+    },
+    "disposition": "merged_reframed",
+    "target_section": "Additional Examples"
+  },
+  {
+    "unit_id": "u0017",
+    "source": "clone_cache/README.md",
+    "excerpt": "`FontQaReporter.build_package(...)` and `qa-report --package-output` produce a review folder with JSON, HTML, and a preview PNG:",
+    "salient_tokens": [
+      "FontQaReporter.build_package(...)",
+      "qa-report --package-output",
+      "FontQaReporter",
+      "JSON",
+      "HTML",
+      "PNG"
+    ],
+    "classification": "2_mechanism_explanation",
+    "classification_basis": "2_mechanism_explanation -- judged against the recomposed candidate and real source on 2026-09-02 (ledger rebuilt: the 2026-08-20 ledger had been authored against our own merged README).",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/aspose_font/qa.py",
+      "evidence_note": "FontQaReporter.build_package writes json/html/preview; cli.py qa-report --package-output."
+    },
+    "disposition": "merged_reframed",
+    "target_section": "Additional Examples"
+  },
+  {
+    "unit_id": "u0018",
+    "source": "clone_cache/README.md",
+    "excerpt": "![Font QA Report summary](./website/generated/roboto-qa-report-summary.svg)",
+    "salient_tokens": [
+      "QA"
+    ],
+    "classification": "2_mechanism_explanation",
+    "classification_basis": "2_mechanism_explanation -- judged against the recomposed candidate and real source on 2026-09-02 (ledger rebuilt: the 2026-08-20 ledger had been authored against our own merged README).",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "website/generated/roboto-qa-report-summary.svg"
+    },
+    "disposition": "merged_verbatim",
+    "target_section": "Additional Examples"
+  },
+  {
+    "unit_id": "u0019",
+    "source": "clone_cache/README.md",
+    "excerpt": "Generate approval-ready boards for selected named instances:",
+    "salient_tokens": [],
+    "classification": "2_mechanism_explanation",
+    "classification_basis": "2_mechanism_explanation -- judged against the recomposed candidate and real source on 2026-09-02 (ledger rebuilt: the 2026-08-20 ledger had been authored against our own merged README).",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/aspose_font/instancing.py",
+      "evidence_note": "SmartInstancer.build_family_review_board."
+    },
+    "disposition": "merged_reframed",
+    "target_section": "Additional Examples"
+  },
+  {
+    "unit_id": "u0020",
+    "source": "clone_cache/README.md",
+    "excerpt": "![Family review board](./website/generated/roboto-family-review-board.png)",
+    "salient_tokens": [],
+    "classification": "2_mechanism_explanation",
+    "classification_basis": "2_mechanism_explanation -- judged against the recomposed candidate and real source on 2026-09-02 (ledger rebuilt: the 2026-08-20 ledger had been authored against our own merged README).",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "website/generated/roboto-family-review-board.png"
+    },
+    "disposition": "merged_verbatim",
+    "target_section": "Additional Examples"
+  },
+  {
+    "unit_id": "u0021",
+    "source": "clone_cache/README.md",
+    "excerpt": "Show how a variable font behaves across weight and width:",
+    "salient_tokens": [],
+    "classification": "2_mechanism_explanation",
+    "classification_basis": "2_mechanism_explanation -- judged against the recomposed candidate and real source on 2026-09-02 (ledger rebuilt: the 2026-08-20 ledger had been authored against our own merged README).",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/aspose_font/instancing.py",
+      "evidence_note": "SmartInstancer.build_axis_grid_sheet."
+    },
+    "disposition": "merged_reframed",
+    "target_section": "Additional Examples"
+  },
+  {
+    "unit_id": "u0022",
+    "source": "clone_cache/README.md",
+    "excerpt": "![Axis grid preview](./website/generated/roboto-axis-grid.png)",
+    "salient_tokens": [],
+    "classification": "2_mechanism_explanation",
+    "classification_basis": "2_mechanism_explanation -- judged against the recomposed candidate and real source on 2026-09-02 (ledger rebuilt: the 2026-08-20 ledger had been authored against our own merged README).",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "website/generated/roboto-axis-grid.png"
+    },
+    "disposition": "merged_verbatim",
+    "target_section": "Additional Examples"
+  },
+  {
+    "unit_id": "u0023",
+    "source": "clone_cache/README.md",
+    "excerpt": "Inspect how outlines change between variable-font instances:",
+    "salient_tokens": [],
+    "classification": "2_mechanism_explanation",
+    "classification_basis": "2_mechanism_explanation -- judged against the recomposed candidate and real source on 2026-09-02 (ledger rebuilt: the 2026-08-20 ledger had been authored against our own merged README).",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/aspose_font/instancing.py",
+      "evidence_note": "SmartInstancer.compare_delta_glyph."
+    },
+    "disposition": "merged_reframed",
+    "target_section": "Additional Examples"
+  },
+  {
+    "unit_id": "u0024",
+    "source": "clone_cache/README.md",
+    "excerpt": "![Delta comparison board](./website/generated/roboto-delta-compare.png)",
+    "salient_tokens": [],
+    "classification": "2_mechanism_explanation",
+    "classification_basis": "2_mechanism_explanation -- judged against the recomposed candidate and real source on 2026-09-02 (ledger rebuilt: the 2026-08-20 ledger had been authored against our own merged README).",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "website/generated/roboto-delta-compare.png"
+    },
+    "disposition": "merged_verbatim",
+    "target_section": "Additional Examples"
+  },
+  {
+    "unit_id": "u0025",
+    "source": "clone_cache/README.md",
+    "excerpt": "Create APNG sweeps, scripted paths, frame packages, review bundles, and showcase folders:",
+    "salient_tokens": [
+      "APNG"
+    ],
+    "classification": "2_mechanism_explanation",
+    "classification_basis": "2_mechanism_explanation -- judged against the recomposed candidate and real source on 2026-09-02 (ledger rebuilt: the 2026-08-20 ledger had been authored against our own merged README).",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/aspose_font/animation.py",
+      "evidence_note": "AnimationPreviewBuilder.build_axis_sweep/build_path/build_path_package/build_path_review_package/build_path_showcase_package."
+    },
+    "disposition": "merged_reframed",
+    "target_section": "Additional Examples"
+  },
+  {
+    "unit_id": "u0026",
+    "source": "clone_cache/README.md",
+    "excerpt": "![Variable font animation sweep](./website/generated/roboto-animation-sweep.png)",
+    "salient_tokens": [],
+    "classification": "2_mechanism_explanation",
+    "classification_basis": "2_mechanism_explanation -- judged against the recomposed candidate and real source on 2026-09-02 (ledger rebuilt: the 2026-08-20 ledger had been authored against our own merged README).",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "website/generated/roboto-animation-sweep.png"
+    },
+    "disposition": "merged_verbatim",
+    "target_section": "Additional Examples"
+  },
+  {
+    "unit_id": "u0027",
+    "source": "clone_cache/README.md",
+    "excerpt": "| Area | What You Can Do Now |\n| --- | --- |\n| Load and inspect | Open TTF, OTF, CFF, Type 1, WOFF, WOFF2, and EOT fonts from paths, bytes, or streams; inspect names, metrics, encodings, glyphs, kerning, and loader source metadata. |\n| Convert | Convert between desktop and web-facing formats in pure Python. |\n| Clean metadata | Strip legacy sfnt metadata tables and old Mac `name` records before web or distribution export. |\n| Subset | Build smaller fonts from text, glyph IDs, codepoints, or web-oriented preset groups including Latin, Cyrillic, Greek, Hebrew, Arabic, Devanagari, and Thai. |\n| Preview | Generate PNG and SVG previews, APNG animation sweeps, scripted animation frame packages, preview batches, axis sweeps, specimen sheets, and before/after comparison boards with diff and overlay panels. |\n| Variable fonts | Explore axes and named instances, resolve coordinates, suggest guided preset grids, instantiate static outputs with `HVAR`-aware widths, and auto-name exported instances with multiple naming policies plus optional custom family suffixes such as `Beta` or `Web`. |\n| Web packaging | Emit WOFF2/WOFF bundles, JSON manifests, CSS, specimen HTML with reusable templates and live variable-axis sliders, navigable family packages with style filters, comparative preview artifacts, reusable family review export packs for docs and marketing handoff, variable-font subset flows that fall back to a clear static export mode when needed, explicit `auto`/`live`/`static` variable export selection, configurable naming strategies, family suffix controls, opt-in static STAT metadata, and coordinate-aware axis-grid web bundles or shared packages for custom sweeps. |\n| QA workflows | Generate Font QA Reports as JSON/HTML deliverables, run compatibility checks with richer shape and interpolation diagnostics, and create Delta Inspector reports/boards with overlay, glyph-diagram, component-aware composite diagnostics, and richer text-level comparison review cards for variable-font review. |\n| Animation | Export APNG sweeps and scripted paths with presets, easing controls, baked frame captions, frame-sequence packages, presentation-ready review bundles, and showcase packages that bundle APNG, storyboard, landing HTML, and manifests for downstream sharing. |\n| Automation | Use the CLI directly or expose the library through the built-in MCP server, including machine-readable variable-font compatibility reports. |",
+    "salient_tokens": [
+      "name",
+      "HVAR",
+      "Beta",
+      "Web",
+      "auto",
+      "live",
+      "static",
+      "TTF",
+      "OTF",
+      "CFF",
+      "WOFF",
+      "WOFF2",
+      "EOT",
+      "IDs",
+      "PNG",
+      "SVG",
+      "APNG",
+      "JSON",
+      "CSS",
+      "HTML",
+      "STAT",
+      "QA",
+      "CLI",
+      "MCP"
+    ],
+    "classification": "2_mechanism_explanation",
+    "classification_basis": "2_mechanism_explanation -- judged against the recomposed candidate and real source on 2026-09-02 (ledger rebuilt: the 2026-08-20 ledger had been authored against our own merged README).",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/aspose_font/__init__.py",
+      "evidence_note": "Capability Snapshot rows map to the Key Capabilities bullets: loader.py, converter.py, cleaner.py, subsetter.py, instancing.py, preview.py/animation.py, web.py, qa.py/compatibility.py/delta.py, cli.py/mcp.py."
+    },
+    "disposition": "merged_reframed",
+    "target_section": "Key Capabilities"
+  },
+  {
+    "unit_id": "u0028",
+    "source": "clone_cache/README.md",
+    "excerpt": "The current roadmap is centered on variable fonts. The strongest surface area today is the combination of:",
+    "salient_tokens": [],
+    "classification": "1_narrative_cta",
+    "classification_basis": "1_narrative_cta -- judged against the recomposed candidate and real source on 2026-09-02 (ledger rebuilt: the 2026-08-20 ledger had been authored against our own merged README).",
+    "verification": {
+      "status": "not_applicable_category_1",
+      "evidence_type": "none",
+      "evidence_ref": ""
+    },
+    "disposition": "excluded",
+    "target_section": null,
+    "excluded_reason": "roadmap/positioning narrative ('the current roadmap is centered on variable fonts; the strongest surface area today is...') -- a statement of development focus, not a checkable product mechanism; the bullets it introduced are each carried separately"
+  },
+  {
+    "unit_id": "u0029",
+    "source": "clone_cache/README.md",
+    "excerpt": "- `font.axes`, `font.named_instances`, and `font.smart_instancer`",
+    "salient_tokens": [
+      "font.axes",
+      "font.named_instances",
+      "font.smart_instancer"
+    ],
+    "classification": "2_mechanism_explanation",
+    "classification_basis": "2_mechanism_explanation -- judged against the recomposed candidate and real source on 2026-09-02 (ledger rebuilt: the 2026-08-20 ledger had been authored against our own merged README).",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/aspose_font/ttf/font.py",
+      "evidence_note": "TtfFont.axes / named_instances / smart_instancer properties."
+    },
+    "disposition": "merged_reframed",
+    "target_section": "Key Capabilities"
+  },
+  {
+    "unit_id": "u0030",
+    "source": "clone_cache/README.md",
+    "excerpt": "- `font.variable_axes` with labels, presets, and presentation metadata for common axes",
+    "salient_tokens": [
+      "font.variable_axes"
+    ],
+    "classification": "2_mechanism_explanation",
+    "classification_basis": "2_mechanism_explanation -- judged against the recomposed candidate and real source on 2026-09-02 (ledger rebuilt: the 2026-08-20 ledger had been authored against our own merged README).",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/aspose_font/ttf/font.py",
+      "evidence_note": "TtfFont.variable_axes, used by format_coordinates in the discovery example."
+    },
+    "disposition": "merged_reframed",
+    "target_section": "Additional Examples"
+  },
+  {
+    "unit_id": "u0031",
+    "source": "clone_cache/README.md",
+    "excerpt": "- additive axis summaries such as `axis.range_summary`, `axis.default_ratio`, and preset-aware `axis.describe_value(...)`",
+    "salient_tokens": [
+      "axis.range_summary",
+      "axis.default_ratio",
+      "axis.describe_value(...)"
+    ],
+    "classification": "2_mechanism_explanation",
+    "classification_basis": "2_mechanism_explanation -- judged against the recomposed candidate and real source on 2026-09-02 (ledger rebuilt: the 2026-08-20 ledger had been authored against our own merged README).",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/aspose_font/variation.py",
+      "evidence_note": "VariableAxis.range_summary (673), default_ratio (553), describe_value (663)."
+    },
+    "disposition": "merged_reframed",
+    "target_section": "Additional Examples"
+  },
+  {
+    "unit_id": "u0032",
+    "source": "clone_cache/README.md",
+    "excerpt": "- locale-aware axis and named-instance labels through `axis.name(...)`, `instance.name(...)`, and `var-info --language`",
+    "salient_tokens": [
+      "axis.name(...)",
+      "instance.name(...)",
+      "var-info --language"
+    ],
+    "classification": "2_mechanism_explanation",
+    "classification_basis": "2_mechanism_explanation -- judged against the recomposed candidate and real source on 2026-09-02 (ledger rebuilt: the 2026-08-20 ledger had been authored against our own merged README).",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/aspose_font/variation.py",
+      "evidence_note": "VariableAxis.name / VariableInstance.name (594/784); cli.py var-info --language."
+    },
+    "disposition": "merged_reframed",
+    "target_section": "Additional Examples"
+  },
+  {
+    "unit_id": "u0033",
+    "source": "clone_cache/README.md",
+    "excerpt": "- ordered localization inventory through `axis.localized_labels(...)`, `instance.localized_labels(...)`, and broader common `name`-table locale coverage",
+    "salient_tokens": [
+      "axis.localized_labels(...)",
+      "instance.localized_labels(...)",
+      "name"
+    ],
+    "classification": "2_mechanism_explanation",
+    "classification_basis": "2_mechanism_explanation -- judged against the recomposed candidate and real source on 2026-09-02 (ledger rebuilt: the 2026-08-20 ledger had been authored against our own merged README).",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/aspose_font/variation.py",
+      "evidence_note": "localized_labels (622/809)."
+    },
+    "disposition": "merged_reframed",
+    "target_section": "Additional Examples"
+  },
+  {
+    "unit_id": "u0034",
+    "source": "clone_cache/README.md",
+    "excerpt": "- display-ready requested-language profile payloads through `axis.language_profiles(...)`, `instance.language_profiles(...)`, and `font.variable_presentation(...)`",
+    "salient_tokens": [
+      "axis.language_profiles(...)",
+      "instance.language_profiles(...)",
+      "font.variable_presentation(...)"
+    ],
+    "classification": "2_mechanism_explanation",
+    "classification_basis": "2_mechanism_explanation -- judged against the recomposed candidate and real source on 2026-09-02 (ledger rebuilt: the 2026-08-20 ledger had been authored against our own merged README).",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/aspose_font/variation.py",
+      "evidence_note": "language_profiles (634/821); TtfFont.variable_presentation (ttf/font.py:440)."
+    },
+    "disposition": "merged_reframed",
+    "target_section": "Additional Examples"
+  },
+  {
+    "unit_id": "u0035",
+    "source": "clone_cache/README.md",
+    "excerpt": "- axis-aware named-instance coordinate labels through `instance.format_coordinates(...)` and richer `var-info` output",
+    "salient_tokens": [
+      "instance.format_coordinates(...)",
+      "var-info"
+    ],
+    "classification": "2_mechanism_explanation",
+    "classification_basis": "2_mechanism_explanation -- judged against the recomposed candidate and real source on 2026-09-02 (ledger rebuilt: the 2026-08-20 ledger had been authored against our own merged README).",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/aspose_font/variation.py",
+      "evidence_note": "VariableInstance.format_coordinates (832); cli.py var-info."
+    },
+    "disposition": "merged_reframed",
+    "target_section": "Additional Examples"
+  },
+  {
+    "unit_id": "u0036",
+    "source": "clone_cache/README.md",
+    "excerpt": "- JSON-ready Axes Explorer snapshots through `axis.to_presentation(...)`, `instance.to_presentation(...)`, `font.variable_presentation(...)`, and `var-info --json-output`; see `docs/variable-presentation-schema.md` for the stable integration contract",
+    "salient_tokens": [
+      "axis.to_presentation(...)",
+      "instance.to_presentation(...)",
+      "font.variable_presentation(...)",
+      "var-info --json-output",
+      "docs/variable-presentation-schema.md",
+      "JSON"
+    ],
+    "classification": "2_mechanism_explanation",
+    "classification_basis": "2_mechanism_explanation -- judged against the recomposed candidate and real source on 2026-09-02 (ledger rebuilt: the 2026-08-20 ledger had been authored against our own merged README).",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/aspose_font/variation.py",
+      "evidence_note": "to_presentation (402/708/866), TtfFont.variable_presentation, cli.py var-info --json-output are all real and carried; the old bullet's 'see docs/variable-presentation-schema.md' cites a file that does NOT exist in this tree (docs/ is absent from the repository root -- verified by listing), so that pointer is dropped."
+    },
+    "disposition": "corrected",
+    "target_section": "Additional Examples",
+    "correction_reason": "corrected: the API facts are carried; the pointer to docs/variable-presentation-schema.md is dropped because that file does not exist in this tree"
+  },
+  {
+    "unit_id": "u0037",
+    "source": "clone_cache/README.md",
+    "excerpt": "- preset-aware coordinate selection such as `wght=\"Bold\"` or `wdth=\"Condensed\"`",
+    "salient_tokens": [
+      "wght=\"Bold\"",
+      "wdth=\"Condensed\"",
+      "Bold",
+      "Condensed"
+    ],
+    "classification": "2_mechanism_explanation",
+    "classification_basis": "2_mechanism_explanation -- judged against the recomposed candidate and real source on 2026-09-02 (ledger rebuilt: the 2026-08-20 ledger had been authored against our own merged README).",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/aspose_font/instancing.py",
+      "evidence_note": "SmartInstancer.resolve accepts preset names (Bold/Condensed) per axis."
+    },
+    "disposition": "merged_reframed",
+    "target_section": "Additional Examples"
+  },
+  {
+    "unit_id": "u0038",
+    "source": "clone_cache/README.md",
+    "excerpt": "- guided axis-grid suggestions through `SmartInstancer.suggest_axis_values(...)` and preset-driven grid exports",
+    "salient_tokens": [
+      "SmartInstancer.suggest_axis_values(...)",
+      "SmartInstancer"
+    ],
+    "classification": "2_mechanism_explanation",
+    "classification_basis": "2_mechanism_explanation -- judged against the recomposed candidate and real source on 2026-09-02 (ledger rebuilt: the 2026-08-20 ledger had been authored against our own merged README).",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/aspose_font/instancing.py",
+      "evidence_note": "SmartInstancer.suggest_axis_values (66)."
+    },
+    "disposition": "merged_reframed",
+    "target_section": "Additional Examples"
+  },
+  {
+    "unit_id": "u0039",
+    "source": "clone_cache/README.md",
+    "excerpt": "- `HVAR`-aware static instancing so exported widths can follow horizontal metric variation data",
+    "salient_tokens": [
+      "HVAR"
+    ],
+    "classification": "2_mechanism_explanation",
+    "classification_basis": "2_mechanism_explanation -- judged against the recomposed candidate and real source on 2026-09-02 (ledger rebuilt: the 2026-08-20 ledger had been authored against our own merged README).",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/aspose_font/ttf/tables/hvar.py",
+      "evidence_note": "HVAR-aware static instancing."
+    },
+    "disposition": "merged_reframed",
+    "target_section": "Key Capabilities"
+  },
+  {
+    "unit_id": "u0040",
+    "source": "clone_cache/README.md",
+    "excerpt": "- configurable naming strategies for generated static instances and web handoff packages, including `menu-safe` and `ribbi-safe` policies plus optional custom family suffixes and explicit family/style overrides for safer app/menu coexistence and release-channel labeling",
+    "salient_tokens": [
+      "menu-safe",
+      "ribbi-safe"
+    ],
+    "classification": "2_mechanism_explanation",
+    "classification_basis": "2_mechanism_explanation -- judged against the recomposed candidate and real source on 2026-09-02 (ledger rebuilt: the 2026-08-20 ledger had been authored against our own merged README).",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/aspose_font/ttf/instancer.py",
+      "evidence_note": "naming_strategy menu-safe/ribbi-safe, family_suffix, legacy/typographic overrides."
+    },
+    "disposition": "merged_reframed",
+    "target_section": "Key Capabilities"
+  },
+  {
+    "unit_id": "u0041",
+    "source": "clone_cache/README.md",
+    "excerpt": "- high-level previews through `FontPreviewBuilder`",
+    "salient_tokens": [
+      "FontPreviewBuilder"
+    ],
+    "classification": "2_mechanism_explanation",
+    "classification_basis": "2_mechanism_explanation -- judged against the recomposed candidate and real source on 2026-09-02 (ledger rebuilt: the 2026-08-20 ledger had been authored against our own merged README).",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/aspose_font/preview.py",
+      "evidence_note": "FontPreviewBuilder.build."
+    },
+    "disposition": "merged_reframed",
+    "target_section": "Additional Examples"
+  },
+  {
+    "unit_id": "u0042",
+    "source": "clone_cache/README.md",
+    "excerpt": "- web handoff packaging through `WebFontBuilder`, `SmartInstancer.build_web_bundle(...)`, axis-grid web bundles, and coordinate-aware shared grid-family packages",
+    "salient_tokens": [
+      "WebFontBuilder",
+      "SmartInstancer.build_web_bundle(...)",
+      "SmartInstancer"
+    ],
+    "classification": "2_mechanism_explanation",
+    "classification_basis": "2_mechanism_explanation -- judged against the recomposed candidate and real source on 2026-09-02 (ledger rebuilt: the 2026-08-20 ledger had been authored against our own merged README).",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/aspose_font/web.py",
+      "evidence_note": "WebFontBuilder; SmartInstancer.build_web_bundle/build_axis_grid_web_family_package."
+    },
+    "disposition": "merged_reframed",
+    "target_section": "Key Capabilities"
+  },
+  {
+    "unit_id": "u0043",
+    "source": "clone_cache/README.md",
+    "excerpt": "- QA reporting through `FontQaReporter`, `CompatibilityChecker`, and `DeltaInspector`",
+    "salient_tokens": [
+      "FontQaReporter",
+      "CompatibilityChecker",
+      "DeltaInspector",
+      "QA"
+    ],
+    "classification": "2_mechanism_explanation",
+    "classification_basis": "2_mechanism_explanation -- judged against the recomposed candidate and real source on 2026-09-02 (ledger rebuilt: the 2026-08-20 ledger had been authored against our own merged README).",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/aspose_font/qa.py",
+      "evidence_note": "FontQaReporter (qa.py), CompatibilityChecker (compatibility.py), DeltaInspector (delta.py)."
+    },
+    "disposition": "merged_reframed",
+    "target_section": "Key Capabilities"
+  },
+  {
+    "unit_id": "u0044",
+    "source": "clone_cache/README.md",
+    "excerpt": "- deeper compatibility issue notes for segment mix, control points, contour closure, and endpoint movement",
+    "salient_tokens": [],
+    "classification": "2_mechanism_explanation",
+    "classification_basis": "2_mechanism_explanation -- judged against the recomposed candidate and real source on 2026-09-02 (ledger rebuilt: the 2026-08-20 ledger had been authored against our own merged README).",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/aspose_font/compatibility.py",
+      "evidence_note": "GlyphCompatibilityIssue notes: segment mix, control points, contour closure, endpoint movement."
+    },
+    "disposition": "merged_reframed",
+    "target_section": "Key Capabilities"
+  },
+  {
+    "unit_id": "u0045",
+    "source": "clone_cache/README.md",
+    "excerpt": "- additive interpolation diagnostics for active `gvar` tuple changes between compared instance states",
+    "salient_tokens": [
+      "gvar"
+    ],
+    "classification": "2_mechanism_explanation",
+    "classification_basis": "2_mechanism_explanation -- judged against the recomposed candidate and real source on 2026-09-02 (ledger rebuilt: the 2026-08-20 ledger had been authored against our own merged README).",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/aspose_font/delta.py",
+      "evidence_note": "active gvar tuple diagnostics between compared instance states."
+    },
+    "disposition": "merged_reframed",
+    "target_section": "Key Capabilities"
+  },
+  {
+    "unit_id": "u0046",
+    "source": "clone_cache/README.md",
+    "excerpt": "The generated grid-family package links back to the demo-site direction: `family.html` shows\ncoordinate labels like `wdth=100 wght=700`, while `family-manifest.json` exposes the same\n`review_label` and `instance_coordinates` fields for automation.",
+    "salient_tokens": [
+      "family.html",
+      "wdth=100 wght=700",
+      "family-manifest.json",
+      "review_label",
+      "instance_coordinates"
+    ],
+    "classification": "2_mechanism_explanation",
+    "classification_basis": "2_mechanism_explanation -- judged against the recomposed candidate and real source on 2026-09-02 (ledger rebuilt: the 2026-08-20 ledger had been authored against our own merged README).",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/aspose_font/instancing.py",
+      "evidence_note": "build_axis_grid_web_family_package writes family.html and family-manifest.json with review_label/instance_coordinates."
+    },
+    "disposition": "merged_reframed",
+    "target_section": "Additional Examples"
+  },
+  {
+    "unit_id": "u0047",
+    "source": "clone_cache/README.md",
+    "excerpt": "Expose the library to AI clients and local toolchains:",
+    "salient_tokens": [
+      "AI"
+    ],
+    "classification": "2_mechanism_explanation",
+    "classification_basis": "2_mechanism_explanation -- judged against the recomposed candidate and real source on 2026-09-02 (ledger rebuilt: the 2026-08-20 ledger had been authored against our own merged README).",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/aspose_font/mcp.py",
+      "evidence_note": "python -m aspose_font.mcp serves the FastMCP app."
+    },
+    "disposition": "merged_reframed",
+    "target_section": "Additional Examples"
+  },
+  {
+    "unit_id": "u0048",
+    "source": "clone_cache/README.md",
+    "excerpt": "The MCP server now covers low-level inspection tools, machine-readable variable-font compatibility\nreports through `var_compat`, and high-level web export workflows including single-bundle web\npackaging and shared family-package generation.",
+    "salient_tokens": [
+      "var_compat",
+      "MCP"
+    ],
+    "classification": "2_mechanism_explanation",
+    "classification_basis": "2_mechanism_explanation -- judged against the recomposed candidate and real source on 2026-09-02 (ledger rebuilt: the 2026-08-20 ledger had been authored against our own merged README).",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/aspose_font/mcp.py",
+      "evidence_note": "var_compat tool (386) plus web export tools."
+    },
+    "disposition": "merged_reframed",
+    "target_section": "Additional Examples"
+  },
+  {
+    "unit_id": "u0049",
+    "source": "clone_cache/README.md",
+    "excerpt": "These verification flows also refresh the generated demo site content.",
+    "salient_tokens": [],
+    "classification": "2_mechanism_explanation",
+    "classification_basis": "2_mechanism_explanation -- judged against the recomposed candidate and real source on 2026-09-02 (ledger rebuilt: the 2026-08-20 ledger had been authored against our own merged README).",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "Makefile",
+      "evidence_note": "test/docs/serve-website targets; the test suite regenerates website/generated assets."
+    },
+    "disposition": "merged_reframed",
+    "target_section": "Development and Testing"
+  },
+  {
+    "unit_id": "u0050",
+    "source": "clone_cache/README.md",
+    "excerpt": "[MIT](./LICENSE.txt)",
+    "salient_tokens": [
+      "MIT",
+      "LICENSE",
+      "./LICENSE.txt"
+    ],
+    "classification": "2_mechanism_explanation",
+    "classification_basis": "2_mechanism_explanation -- judged against the recomposed candidate and real source on 2026-09-02 (ledger rebuilt: the 2026-08-20 ledger had been authored against our own merged README).",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "LICENSE.txt"
+    },
+    "disposition": "merged_reframed",
+    "target_section": "License"
+  }
+]

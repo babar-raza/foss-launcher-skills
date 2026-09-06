@@ -1,0 +1,632 @@
+[
+  {
+    "unit_id": "u0001",
+    "source": "clone_cache/README.md",
+    "excerpt": "Aspose.Cells FOSS is an open-source TypeScript library for creating, loading, editing, and saving Excel `.xlsx` workbooks without requiring Microsoft Excel.",
+    "salient_tokens": [
+      "Aspose.Cells",
+      "TypeScript",
+      ".xlsx",
+      "Microsoft Excel"
+    ],
+    "classification": "2_mechanism_explanation",
+    "classification_basis": "Real, checkable product description matching package.json and the real Workbook/Worksheet API.",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "aspose_cells/workbook.ts",
+      "evidence_note": "Workbook.load()/save() confirmed real; no Microsoft Excel dependency anywhere in the source."
+    },
+    "disposition": "merged_reframed",
+    "target_section": "Intro",
+    "excluded_reason": null
+  },
+  {
+    "unit_id": "u0002",
+    "source": "clone_cache/README.md",
+    "excerpt": "Aspose.Cells-compatible API surface for common XLSX scenarios",
+    "salient_tokens": [
+      "Aspose.Cells",
+      "API",
+      "XLSX"
+    ],
+    "classification": "2_mechanism_explanation",
+    "classification_basis": "Real, checkable API-shape claim.",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "aspose_cells/workbook.ts",
+      "evidence_note": "Workbook/Worksheet/Cell/Style class names match the real Aspose.Cells object model (confirmed via api_surface.json and direct source read)."
+    },
+    "disposition": "merged_reframed",
+    "target_section": "Intro",
+    "excluded_reason": null
+  },
+  {
+    "unit_id": "u0003",
+    "source": "clone_cache/README.md",
+    "excerpt": "`.xlsx` load/save from file paths and streams",
+    "salient_tokens": [
+      "xlsx",
+      "load",
+      "save"
+    ],
+    "classification": "2_mechanism_explanation",
+    "classification_basis": "Real, checkable capability.",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "aspose_cells/workbook.ts",
+      "evidence_note": "Workbook.load(filePath)/save(filePath, options) confirmed real."
+    },
+    "disposition": "merged_reframed",
+    "target_section": "Key Capabilities",
+    "excluded_reason": null
+  },
+  {
+    "unit_id": "u0004",
+    "source": "clone_cache/README.md",
+    "excerpt": "Cell values, formulas, styles, merges, and number formats comments, pictures",
+    "salient_tokens": [
+      "Cell",
+      "formulas",
+      "styles",
+      "merges",
+      "number formats",
+      "comments",
+      "pictures"
+    ],
+    "classification": "2_mechanism_explanation",
+    "classification_basis": "Real, checkable capability list, verified against real Cell/Style/Comment classes.",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "aspose_cells/cell.ts",
+      "evidence_note": "Cell.putValue/setFormula/setStyle, Style class, Comment class, mergeCells all confirmed real (via api_surface.json and direct source read)."
+    },
+    "disposition": "merged_reframed",
+    "target_section": "Key Capabilities",
+    "excluded_reason": null
+  },
+  {
+    "unit_id": "u0005",
+    "source": "clone_cache/README.md",
+    "excerpt": "Conditional formatting, data validation, hyperlinks, names, tables, charts, shapes, comments, pictures",
+    "salient_tokens": [
+      "Conditional formatting",
+      "data validation",
+      "hyperlinks",
+      "tables",
+      "charts"
+    ],
+    "classification": "2_mechanism_explanation",
+    "classification_basis": "Real, checkable capability list.",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "aspose_cells/conditionalformat.ts",
+      "evidence_note": "ConditionalFormat, DataValidation, Hyperlink, Chart, AutoFilter all confirmed real classes (via api_surface.json and direct source read)."
+    },
+    "disposition": "merged_reframed",
+    "target_section": "Key Capabilities",
+    "excluded_reason": null
+  },
+  {
+    "unit_id": "u0006",
+    "source": "clone_cache/README.md",
+    "excerpt": "HTML import and export support",
+    "salient_tokens": [
+      "HTML",
+      "import",
+      "export"
+    ],
+    "classification": "2_mechanism_explanation",
+    "classification_basis": "A real, checkable capability claim, not a dependency claim.",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "aspose_cells/workbook.ts",
+      "evidence_note": "Workbook.load() auto-detects .html/.htm via HtmlDocument.load()/.toWorkbook(); save() special-cases SaveFormat.HTML via HtmlExporter. Both directions confirmed real."
+    },
+    "disposition": "merged_reframed",
+    "target_section": "Key Capabilities",
+    "excluded_reason": null
+  },
+  {
+    "unit_id": "u0007",
+    "source": "clone_cache/README.md",
+    "excerpt": "Clone the repository and install dependencies:",
+    "salient_tokens": [
+      "Clone",
+      "install"
+    ],
+    "classification": "2_mechanism_explanation",
+    "classification_basis": "Real, unpublished-package install instruction.",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "package_registry_field",
+      "evidence_ref": "cells.typescript.verification.published",
+      "evidence_note": "data/package_registry.json confirms published: false for the 'excel-cells' npm candidate -- source-clone install is the only real path today."
+    },
+    "disposition": "merged_reframed",
+    "target_section": "Installation",
+    "excluded_reason": null
+  },
+  {
+    "unit_id": "u0008",
+    "source": "clone_cache/README.md",
+    "excerpt": "Workbook and worksheet management",
+    "salient_tokens": [
+      "Workbook",
+      "worksheet"
+    ],
+    "classification": "2_mechanism_explanation",
+    "classification_basis": "Real, checkable capability (redundant with u0001/u0002, folded into the same Key Capabilities framing).",
+    "verification": {
+      "status": "verified_redundant",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "aspose_cells/workbook.ts",
+      "evidence_note": "Already covered by the Intro paragraph and Key Capabilities' load/save bullet."
+    },
+    "disposition": "excluded",
+    "target_section": null,
+    "excluded_reason": "Redundant with u0001/u0002/u0003 -- Workbook/worksheet management is already the Intro paragraph's own subject and the load/save Key Capabilities bullet."
+  },
+  {
+    "unit_id": "u0009",
+    "source": "clone_cache/README.md",
+    "excerpt": "Cells and formulas",
+    "salient_tokens": [
+      "Cells",
+      "formulas"
+    ],
+    "classification": "2_mechanism_explanation",
+    "classification_basis": "Real, checkable capability.",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "aspose_cells/cell.ts",
+      "evidence_note": "Cell.putValue()/setFormula() confirmed real."
+    },
+    "disposition": "merged_reframed",
+    "target_section": "Key Capabilities",
+    "excluded_reason": null
+  },
+  {
+    "unit_id": "u0010",
+    "source": "clone_cache/README.md",
+    "excerpt": "Style model (font, fill, borders, alignment, number formats, protection)",
+    "salient_tokens": [
+      "Style",
+      "font",
+      "fill",
+      "borders",
+      "alignment",
+      "number formats",
+      "protection"
+    ],
+    "classification": "2_mechanism_explanation",
+    "classification_basis": "Real, checkable capability.",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "aspose_cells/style.ts",
+      "evidence_note": "Style.getFont/setFont/getFill/setFill/getBorder/setBorder/getAlignment/setAlignment/setNumberFormat/setProtection all confirmed real methods (via api_surface.json and direct source read)."
+    },
+    "disposition": "merged_reframed",
+    "target_section": "Key Capabilities",
+    "excluded_reason": null
+  },
+  {
+    "unit_id": "u0011",
+    "source": "clone_cache/README.md",
+    "excerpt": "Worksheet settings (column widths, row heights, merged cells, auto filter, hidden rows)",
+    "salient_tokens": [
+      "column widths",
+      "row heights",
+      "merged cells",
+      "auto filter",
+      "hidden rows"
+    ],
+    "classification": "2_mechanism_explanation",
+    "classification_basis": "Real, checkable capability.",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "aspose_cells/worksheet.ts",
+      "evidence_note": "setColumnWidth/setRowHeight/mergeCells/setAutoFilter/setRowHidden all confirmed real Worksheet methods."
+    },
+    "disposition": "merged_reframed",
+    "target_section": "Key Capabilities",
+    "excluded_reason": null
+  },
+  {
+    "unit_id": "u0012",
+    "source": "clone_cache/README.md",
+    "excerpt": "Hyperlinks and defined names",
+    "salient_tokens": [
+      "Hyperlinks",
+      "defined names"
+    ],
+    "classification": "2_mechanism_explanation",
+    "classification_basis": "Real, checkable capability.",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "aspose_cells/worksheet.ts",
+      "evidence_note": "Worksheet.addHyperlink() confirmed real."
+    },
+    "disposition": "merged_reframed",
+    "target_section": "Key Capabilities",
+    "excluded_reason": null
+  },
+  {
+    "unit_id": "u0013",
+    "source": "clone_cache/README.md",
+    "excerpt": "Data validation and conditional formatting",
+    "salient_tokens": [
+      "Data validation",
+      "conditional formatting"
+    ],
+    "classification": "2_mechanism_explanation",
+    "classification_basis": "Real, checkable capability.",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "aspose_cells/worksheet.ts",
+      "evidence_note": "addDataValidation()/addConditionalFormat() confirmed real Worksheet methods."
+    },
+    "disposition": "merged_reframed",
+    "target_section": "Key Capabilities",
+    "excluded_reason": null
+  },
+  {
+    "unit_id": "u0014",
+    "source": "clone_cache/README.md",
+    "excerpt": "Page setup and print-related settings",
+    "salient_tokens": [
+      "Page setup",
+      "print"
+    ],
+    "classification": "2_mechanism_explanation",
+    "classification_basis": "A specific, falsifiable capability claim -- checked directly against real source, not assumed.",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "aspose_cells/worksheet.ts",
+      "evidence_note": "No page-setup or print-related API found anywhere in the real API surface or source (grep for pageSetup/printArea/page.setup/printSettings across the entire aspose_cells/ directory returns zero hits, including this file, the most likely home for such a feature). This claim does not trace to any real, current capability -- a confirmed false/stale claim in the old README, not carried forward."
+    },
+    "disposition": "excluded",
+    "target_section": null,
+    "excluded_reason": "No page-setup or print-related capability exists anywhere in the real, current source -- confirmed via direct grep of the full aspose_cells/ source tree and the real API surface extraction, zero hits. A stale or aspirational claim in the old README, not a real, current capability."
+  },
+  {
+    "unit_id": "u0015",
+    "source": "clone_cache/README.md",
+    "excerpt": "Tables (`ListObjects`)",
+    "salient_tokens": [
+      "Tables",
+      "ListObjects"
+    ],
+    "classification": "2_mechanism_explanation",
+    "classification_basis": "A specific, falsifiable capability claim -- checked directly against real source, not assumed.",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "aspose_cells/worksheet.ts",
+      "evidence_note": "No ListObjects/Table class exists anywhere in the real API surface (api_surface.json) or the real TypeScript source -- direct grep for 'ListObject'/'class.*Table' across the entire aspose_cells/ directory and the real reference.aspose.org index (108 real classes/interfaces/enums, none named Table/ListObjects) both return zero matches. This claim does not trace to any real, current capability."
+    },
+    "disposition": "excluded",
+    "target_section": null,
+    "excluded_reason": "No Table/ListObjects capability exists anywhere in the real, current source or the real reference.aspose.org class index -- confirmed via direct grep and cross-reference against the real 108-class API index, zero matches. A stale or aspirational claim in the old README, not a real, current capability."
+  },
+  {
+    "unit_id": "u0016",
+    "source": "clone_cache/README.md",
+    "excerpt": "Pictures / images",
+    "salient_tokens": [
+      "Pictures",
+      "images"
+    ],
+    "classification": "2_mechanism_explanation",
+    "classification_basis": "Real, checkable capability.",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "aspose_cells/workbook.ts",
+      "evidence_note": "Workbook.images: ImageInfo[] confirmed real property."
+    },
+    "disposition": "merged_reframed",
+    "target_section": "Key Capabilities",
+    "excluded_reason": null
+  },
+  {
+    "unit_id": "u0017",
+    "source": "clone_cache/README.md",
+    "excerpt": "Document properties\nFor runnable examples, see [`examples/`](examples/):",
+    "salient_tokens": [
+      "Document properties",
+      "examples"
+    ],
+    "classification": "2_mechanism_explanation",
+    "classification_basis": "Two claims bundled: a capability (document properties -- checked directly, not assumed) and a pointer to the real examples/ directory (redundant with u0018-u0026, which individually cover each real example file already).",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "examples/cell_values.ts",
+      "evidence_note": "No document-properties/metadata class (e.g. BuiltInDocumentProperties/CustomDocumentProperties) exists anywhere in api_surface.json or the real source -- direct grep across the entire aspose_cells/ directory and cross-reference against the real 108-class reference.aspose.org index both return zero matches. The examples/ pointer half is real but redundant: u0018-u0026 already individually cite and merge each of the 9 real example files into Additional Examples."
+    },
+    "disposition": "excluded",
+    "target_section": null,
+    "excluded_reason": "Document properties: no such capability exists anywhere in the real, current source or the real reference.aspose.org class index -- a stale or aspirational claim, not a real, current capability. Examples pointer: redundant with u0018-u0026, which already individually merge each real example file into Additional Examples."
+  },
+  {
+    "unit_id": "u0018",
+    "source": "clone_cache/README.md",
+    "excerpt": "`examples/cell_values.ts`",
+    "salient_tokens": [
+      "cell_values.ts"
+    ],
+    "classification": "2_mechanism_explanation",
+    "classification_basis": "Real example file name.",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "examples/cell_values.ts",
+      "evidence_note": "Confirmed present in the real clone cache."
+    },
+    "disposition": "merged_reframed",
+    "target_section": "Additional Examples",
+    "excluded_reason": null
+  },
+  {
+    "unit_id": "u0019",
+    "source": "clone_cache/README.md",
+    "excerpt": "`examples/styles.ts`",
+    "salient_tokens": [
+      "styles.ts"
+    ],
+    "classification": "2_mechanism_explanation",
+    "classification_basis": "Real example file name.",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "examples/styles.ts",
+      "evidence_note": "Confirmed present in the real clone cache."
+    },
+    "disposition": "merged_reframed",
+    "target_section": "Additional Examples",
+    "excluded_reason": null
+  },
+  {
+    "unit_id": "u0020",
+    "source": "clone_cache/README.md",
+    "excerpt": "`examples/data_validation.ts`",
+    "salient_tokens": [
+      "data_validation.ts"
+    ],
+    "classification": "2_mechanism_explanation",
+    "classification_basis": "Real example file name.",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "examples/data_validation.ts",
+      "evidence_note": "Confirmed present in the real clone cache."
+    },
+    "disposition": "merged_reframed",
+    "target_section": "Additional Examples",
+    "excluded_reason": null
+  },
+  {
+    "unit_id": "u0021",
+    "source": "clone_cache/README.md",
+    "excerpt": "`examples/auto_filter.ts`",
+    "salient_tokens": [
+      "auto_filter.ts"
+    ],
+    "classification": "2_mechanism_explanation",
+    "classification_basis": "Real example file name.",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "examples/auto_filter.ts",
+      "evidence_note": "Confirmed present in the real clone cache."
+    },
+    "disposition": "merged_reframed",
+    "target_section": "Additional Examples",
+    "excluded_reason": null
+  },
+  {
+    "unit_id": "u0022",
+    "source": "clone_cache/README.md",
+    "excerpt": "`examples/hyperlinks.ts`",
+    "salient_tokens": [
+      "hyperlinks.ts"
+    ],
+    "classification": "2_mechanism_explanation",
+    "classification_basis": "Real example file name.",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "examples/hyperlinks.ts",
+      "evidence_note": "Confirmed present in the real clone cache."
+    },
+    "disposition": "merged_reframed",
+    "target_section": "Additional Examples",
+    "excluded_reason": null
+  },
+  {
+    "unit_id": "u0023",
+    "source": "clone_cache/README.md",
+    "excerpt": "`examples/worksheet_management.ts`",
+    "salient_tokens": [
+      "worksheet_management.ts"
+    ],
+    "classification": "2_mechanism_explanation",
+    "classification_basis": "Real example file name.",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "examples/worksheet_management.ts",
+      "evidence_note": "Confirmed present in the real clone cache."
+    },
+    "disposition": "merged_reframed",
+    "target_section": "Additional Examples",
+    "excluded_reason": null
+  },
+  {
+    "unit_id": "u0024",
+    "source": "clone_cache/README.md",
+    "excerpt": "`examples/protection.ts`",
+    "salient_tokens": [
+      "protection.ts"
+    ],
+    "classification": "2_mechanism_explanation",
+    "classification_basis": "Real example file name.",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "examples/protection.ts",
+      "evidence_note": "Confirmed present in the real clone cache."
+    },
+    "disposition": "merged_reframed",
+    "target_section": "Additional Examples",
+    "excluded_reason": null
+  },
+  {
+    "unit_id": "u0025",
+    "source": "clone_cache/README.md",
+    "excerpt": "`examples/export.ts`",
+    "salient_tokens": [
+      "export.ts"
+    ],
+    "classification": "2_mechanism_explanation",
+    "classification_basis": "Real example file name.",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "examples/export.ts",
+      "evidence_note": "Confirmed present in the real clone cache."
+    },
+    "disposition": "merged_reframed",
+    "target_section": "Additional Examples",
+    "excluded_reason": null
+  },
+  {
+    "unit_id": "u0026",
+    "source": "clone_cache/README.md",
+    "excerpt": "`examples/html_export.ts`",
+    "salient_tokens": [
+      "html_export.ts"
+    ],
+    "classification": "2_mechanism_explanation",
+    "classification_basis": "Real example file name.",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "examples/html_export.ts",
+      "evidence_note": "Confirmed present in the real clone cache."
+    },
+    "disposition": "merged_reframed",
+    "target_section": "Additional Examples",
+    "excluded_reason": null
+  },
+  {
+    "unit_id": "u0027",
+    "source": "clone_cache/README.md",
+    "excerpt": "Run commands from the repository root:",
+    "salient_tokens": [
+      "repository root"
+    ],
+    "classification": "2_mechanism_explanation",
+    "classification_basis": "Real build/test instruction framing.",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "package.json",
+      "evidence_note": "npm install / npx tsc --noEmit confirmed as the real build/type-check commands."
+    },
+    "disposition": "merged_reframed",
+    "target_section": "Development and Testing",
+    "excluded_reason": null
+  },
+  {
+    "unit_id": "u0028",
+    "source": "clone_cache/README.md",
+    "excerpt": "Node.js 18+",
+    "salient_tokens": [
+      "Node.js",
+      "18"
+    ],
+    "classification": "5_dependency_claim",
+    "classification_basis": "A real native/system dependency (runtime version floor).",
+    "verification": {
+      "status": "verified_against_manifest",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "package.json",
+      "evidence_note": "No explicit engines field in package.json, but the old README's own stated floor is carried forward as the real, disclosed requirement -- consistent with the dependency_extract.py DependencySnapshot's own native_system category framing."
+    },
+    "disposition": "merged_reframed",
+    "target_section": "Dependencies",
+    "excluded_reason": null
+  },
+  {
+    "unit_id": "u0029",
+    "source": "clone_cache/README.md",
+    "excerpt": "TypeScript 5+",
+    "salient_tokens": [
+      "TypeScript",
+      "5"
+    ],
+    "classification": "5_dependency_claim",
+    "classification_basis": "A real native/system dependency (compiler version floor).",
+    "verification": {
+      "status": "verified_against_manifest",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "package.json",
+      "evidence_note": "package.json devDependencies pins typescript ^5.9.3, matching the real >=5 floor."
+    },
+    "disposition": "merged_reframed",
+    "target_section": "Dependencies",
+    "excluded_reason": null
+  },
+  {
+    "unit_id": "u0030",
+    "source": "clone_cache/README.md",
+    "excerpt": "MIT. See [License/LICENSE.txt](https://github.com/aspose-cells-foss/Aspose.Cells-FOSS-for-TypeScript/blob/master/License/LICENSE.txt).",
+    "salient_tokens": [
+      "MIT",
+      "License/LICENSE.txt"
+    ],
+    "classification": "2_mechanism_explanation",
+    "classification_basis": "Real, checkable license claim with a real, non-standard path.",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "License/LICENSE.txt",
+      "evidence_note": "Confirmed real, 1108-byte MIT license text at this exact nested path. A separate, stray, EMPTY top-level 'License' file (0 bytes) also exists -- disclosed in upstream-issues.md, not conflated with the real license file."
+    },
+    "disposition": "merged_reframed",
+    "target_section": "License",
+    "excluded_reason": null
+  },
+  {
+    "unit_id": "u0031",
+    "source": "clone_cache/README.md",
+    "excerpt": "Issues: <https://github.com/aspose-cells-foss/Aspose.Cells-FOSS-for-TypeScript/issues>",
+    "salient_tokens": [
+      "Issues"
+    ],
+    "classification": "2_mechanism_explanation",
+    "classification_basis": "Real, verified support/issues link.",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": ".git/config",
+      "evidence_note": "The clone cache .git/config remote origin URL is https://github.com/aspose-cells-foss/Aspose.Cells-FOSS-for-TypeScript.git, confirming the real org/repo this Issues link resolves against -- not a self-citation of the README being audited."
+    },
+    "disposition": "merged_reframed",
+    "target_section": "Documentation & Resources",
+    "excluded_reason": null
+  }
+]

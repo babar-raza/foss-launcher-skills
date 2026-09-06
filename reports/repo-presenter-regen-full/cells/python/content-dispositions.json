@@ -1,0 +1,914 @@
+[
+  {
+    "unit_id": "u0001",
+    "classification": "2_mechanism_explanation",
+    "disposition": "merged_verbatim",
+    "excerpt": "Aspose.Cells FOSS for Python is a free, open-source, pure-Python library for creating, reading,\nand modifying Excel `.xlsx` workbooks without requiring Microsoft Excel. It runs on Python 3.7 or\nlater and depends only on `pycryptodome` (AES encryption) and `olefile` (Compound File Binary\nhandling). It covers cell values and formulas, styling, data validation, conditional formatting,\nauto filters, charts, drawing shapes, tables, sparklines, comments, embedded pictures, password\nprotection, and CSV/JSON/Markdown export.",
+    "salient_tokens": [
+      ".xlsx",
+      "pycryptodome",
+      "olefile",
+      "FOSS",
+      "AES",
+      "CSV",
+      "JSON",
+      "3.7"
+    ],
+    "target_section": "Intro",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "pyproject.toml"
+    }
+  },
+  {
+    "unit_id": "u0002",
+    "classification": "2_mechanism_explanation",
+    "disposition": "merged_verbatim",
+    "excerpt": "- [At a Glance](#at-a-glance)",
+    "salient_tokens": [
+      "At a Glance",
+      "#at-a-glance"
+    ],
+    "target_section": "Navigation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "candidate_section_reference",
+      "evidence_ref": "Navigation"
+    }
+  },
+  {
+    "unit_id": "u0003",
+    "classification": "2_mechanism_explanation",
+    "disposition": "merged_verbatim",
+    "excerpt": "- [Key Capabilities](#key-capabilities)",
+    "salient_tokens": [
+      "Key Capabilities",
+      "#key-capabilities"
+    ],
+    "target_section": "Navigation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "candidate_section_reference",
+      "evidence_ref": "Navigation"
+    }
+  },
+  {
+    "unit_id": "u0004",
+    "classification": "2_mechanism_explanation",
+    "disposition": "merged_verbatim",
+    "excerpt": "- [Installation](#installation)",
+    "salient_tokens": [
+      "Installation",
+      "#installation"
+    ],
+    "target_section": "Navigation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "candidate_section_reference",
+      "evidence_ref": "Navigation"
+    }
+  },
+  {
+    "unit_id": "u0005",
+    "classification": "2_mechanism_explanation",
+    "disposition": "merged_verbatim",
+    "excerpt": "- [Quick Start](#quick-start)",
+    "salient_tokens": [
+      "Quick Start",
+      "#quick-start"
+    ],
+    "target_section": "Navigation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "candidate_section_reference",
+      "evidence_ref": "Navigation"
+    }
+  },
+  {
+    "unit_id": "u0006",
+    "classification": "2_mechanism_explanation",
+    "disposition": "merged_verbatim",
+    "excerpt": "- [Additional Examples](#additional-examples)",
+    "salient_tokens": [
+      "Additional Examples",
+      "#additional-examples"
+    ],
+    "target_section": "Navigation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "candidate_section_reference",
+      "evidence_ref": "Navigation"
+    }
+  },
+  {
+    "unit_id": "u0007",
+    "classification": "2_mechanism_explanation",
+    "disposition": "merged_verbatim",
+    "excerpt": "- [API Reference](#api-reference)",
+    "salient_tokens": [
+      "API",
+      "API Reference",
+      "#api-reference"
+    ],
+    "target_section": "Navigation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "candidate_section_reference",
+      "evidence_ref": "Navigation"
+    }
+  },
+  {
+    "unit_id": "u0008",
+    "classification": "2_mechanism_explanation",
+    "disposition": "merged_verbatim",
+    "excerpt": "- [Documentation & Resources](#documentation--resources)",
+    "salient_tokens": [
+      "Documentation & Resources",
+      "#documentation--resources"
+    ],
+    "target_section": "Navigation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "candidate_section_reference",
+      "evidence_ref": "Navigation"
+    }
+  },
+  {
+    "unit_id": "u0009",
+    "classification": "2_mechanism_explanation",
+    "disposition": "merged_verbatim",
+    "excerpt": "- [Scope and Limitations](#scope-and-limitations)",
+    "salient_tokens": [
+      "Scope and Limitations",
+      "#scope-and-limitations"
+    ],
+    "target_section": "Navigation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "candidate_section_reference",
+      "evidence_ref": "Navigation"
+    }
+  },
+  {
+    "unit_id": "u0010",
+    "classification": "2_mechanism_explanation",
+    "disposition": "merged_verbatim",
+    "excerpt": "- [Development and Testing](#development-and-testing)",
+    "salient_tokens": [
+      "Development and Testing",
+      "#development-and-testing"
+    ],
+    "target_section": "Navigation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "candidate_section_reference",
+      "evidence_ref": "Navigation"
+    }
+  },
+  {
+    "unit_id": "u0011",
+    "classification": "2_mechanism_explanation",
+    "disposition": "merged_verbatim",
+    "excerpt": "- [License](#license)",
+    "salient_tokens": [
+      "License",
+      "#license"
+    ],
+    "target_section": "Navigation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "candidate_section_reference",
+      "evidence_ref": "Navigation"
+    }
+  },
+  {
+    "unit_id": "u0012",
+    "classification": "2_mechanism_explanation",
+    "disposition": "merged_verbatim",
+    "excerpt": "- The primary entry point is `Workbook`, used to create Excel files or edit and modify existing\n  `.xlsx` files; it manages multiple worksheets — `add_worksheet()`, `remove_worksheet()`,\n  `copy_worksheet()`, `get_active_worksheet()`, and `Worksheet.rename()` cover creating,\n  removing, and renaming them. Each worksheet exposes a `cells` collection of `Cell` objects for\n  reading and writing values and formulas, plus a basic `FormulaEvaluator` for cells without\n  cached values.",
+    "salient_tokens": [
+      "Workbook",
+      ".xlsx",
+      "add_worksheet()",
+      "remove_worksheet()",
+      "copy_worksheet()",
+      "get_active_worksheet()",
+      "Worksheet.rename()",
+      "cells",
+      "Cell",
+      "FormulaEvaluator"
+    ],
+    "target_section": "Key Capabilities",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "aspose/cells_foss/workbook.py"
+    }
+  },
+  {
+    "unit_id": "u0013",
+    "classification": "2_mechanism_explanation",
+    "disposition": "merged_verbatim",
+    "excerpt": "- `Style` (via `Cell.get_style()`/`apply_style()`) carries fonts, fills, borders, alignment, text\n  wrap/rotation, and number formats, including built-in Excel number-format codes.",
+    "salient_tokens": [
+      "Style",
+      "Cell.get_style()",
+      "apply_style()"
+    ],
+    "target_section": "Key Capabilities",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "aspose/cells_foss/style.py"
+    }
+  },
+  {
+    "unit_id": "u0014",
+    "classification": "2_mechanism_explanation",
+    "disposition": "merged_verbatim",
+    "excerpt": "- `PageSetup`, `PageMargins`, and horizontal/vertical page-break collections configure print\n  layout, and `Pane` configures freeze/split panes.",
+    "salient_tokens": [
+      "PageSetup",
+      "PageMargins",
+      "Pane"
+    ],
+    "target_section": "Key Capabilities",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "aspose/cells_foss/worksheet_properties.py"
+    }
+  },
+  {
+    "unit_id": "u0015",
+    "classification": "2_mechanism_explanation",
+    "disposition": "merged_verbatim",
+    "excerpt": "- Merged cells (`Cells.merge()`/`merge_range()`), defined names (`DefinedNameCollection`), and\n  hyperlinks (`Hyperlinks`) to URLs, email addresses, files, and internal references round-trip\n  through load and save.",
+    "salient_tokens": [
+      "Cells.merge()",
+      "merge_range()",
+      "DefinedNameCollection",
+      "Hyperlinks",
+      "URLs"
+    ],
+    "target_section": "Key Capabilities",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "aspose/cells_foss/cells.py"
+    }
+  },
+  {
+    "unit_id": "u0016",
+    "classification": "2_mechanism_explanation",
+    "disposition": "merged_verbatim",
+    "excerpt": "- `DataValidationCollection` applies data validation rules (dropdown lists, number ranges, custom\n  formulas), and `ConditionalFormatCollection` applies rules-based formatting, both scoped to\n  cell ranges.",
+    "salient_tokens": [
+      "DataValidationCollection",
+      "ConditionalFormatCollection"
+    ],
+    "target_section": "Key Capabilities",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "aspose/cells_foss/data_validation.py"
+    }
+  },
+  {
+    "unit_id": "u0017",
+    "classification": "2_mechanism_explanation",
+    "disposition": "merged_verbatim",
+    "excerpt": "- Filtering a worksheet range down to matching rows is handled by `AutoFilter`.",
+    "salient_tokens": [
+      "AutoFilter"
+    ],
+    "target_section": "Key Capabilities",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "aspose/cells_foss/auto_filter.py"
+    }
+  },
+  {
+    "unit_id": "u0018",
+    "classification": "2_mechanism_explanation",
+    "disposition": "merged_verbatim",
+    "excerpt": "- `ChartCollection` creates and modifies all 16 real `ChartType` values (line, bar, pie, area,\n  box-and-whisker, waterfall, combo, scatter, stock, surface, radar, treemap, sunburst,\n  histogram, funnel, and map), each with its own dedicated XML writer.",
+    "salient_tokens": [
+      "ChartCollection",
+      "ChartType",
+      "XML"
+    ],
+    "target_section": "Key Capabilities",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "aspose/cells_foss/chart.py"
+    }
+  },
+  {
+    "unit_id": "u0019",
+    "classification": "2_mechanism_explanation",
+    "disposition": "merged_verbatim",
+    "excerpt": "- Rectangles, ovals, textboxes, arrows, and other preset shapes (`MsoDrawingType`) are added via\n  `ShapeCollection`, while `TableCollection` creates, styles, and manages structured Excel tables\n  (ECMA-376's ListObject) with auto-filters.",
+    "salient_tokens": [
+      "MsoDrawingType",
+      "ShapeCollection",
+      "TableCollection",
+      "ECMA",
+      "ListObject"
+    ],
+    "target_section": "Key Capabilities",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "aspose/cells_foss/shape.py"
+    }
+  },
+  {
+    "unit_id": "u0020",
+    "classification": "2_mechanism_explanation",
+    "disposition": "merged_verbatim",
+    "excerpt": "- `SparklineGroupCollection` manages sparklines — a data-source range paired with the cell where\n  each one appears, grouped by shared visual style.",
+    "salient_tokens": [
+      "SparklineGroupCollection"
+    ],
+    "target_section": "Key Capabilities",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "aspose/cells_foss/sparkline.py"
+    }
+  },
+  {
+    "unit_id": "u0021",
+    "classification": "2_mechanism_explanation",
+    "disposition": "merged_verbatim",
+    "excerpt": "- Cell comments with author and rich text are added via `Cell.set_comment()`, and\n  `PictureCollection` embeds images anchored to a cell range.",
+    "salient_tokens": [
+      "Cell.set_comment()",
+      "PictureCollection"
+    ],
+    "target_section": "Key Capabilities",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "aspose/cells_foss/cell.py"
+    }
+  },
+  {
+    "unit_id": "u0022",
+    "classification": "2_mechanism_explanation",
+    "disposition": "merged_verbatim",
+    "excerpt": "- Password-protecting a workbook AES-encrypts it (`XLSXEncryptor`, Agile encryption per ECMA-376\n  Part 2 §4) via `Workbook.save(password=...)`, and `Workbook(path, password=...)` decrypts one on\n  load; `WorkbookProtection`/`SheetProtection` lock workbook structure and individual sheets\n  independently of encryption.",
+    "salient_tokens": [
+      "XLSXEncryptor",
+      "Workbook.save(password=...)",
+      "Workbook(path, password=...)",
+      "WorkbookProtection",
+      "SheetProtection",
+      "AES",
+      "ECMA"
+    ],
+    "target_section": "Key Capabilities",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "aspose/cells_foss/xlsx_encryptor.py"
+    }
+  },
+  {
+    "unit_id": "u0023",
+    "classification": "2_mechanism_explanation",
+    "disposition": "merged_verbatim",
+    "excerpt": "- `Workbook.save_as_csv()`/`load_csv()`, `save_as_json()`, and `save_as_markdown()` export/import\n  workbook data in CSV, JSON, and Markdown text formats alongside native `.xlsx` I/O.",
+    "salient_tokens": [
+      "Workbook.save_as_csv()",
+      "load_csv()",
+      "save_as_json()",
+      "save_as_markdown()",
+      ".xlsx",
+      "CSV",
+      "JSON"
+    ],
+    "target_section": "Key Capabilities",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "aspose/cells_foss/workbook.py"
+    }
+  },
+  {
+    "unit_id": "u0024",
+    "classification": "5_dependency_claim",
+    "disposition": "merged_verbatim",
+    "excerpt": "Requires Python 3.7 or later. Installs `pycryptodome` (>=3.15.0) and `olefile` (>=0.46) as\ndependencies.",
+    "salient_tokens": [
+      "pycryptodome",
+      "olefile",
+      "3.7",
+      "3.15.0",
+      "0.46"
+    ],
+    "target_section": "Installation",
+    "verification": {
+      "status": "verified_against_manifest",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "pyproject.toml"
+    }
+  },
+  {
+    "unit_id": "u0025",
+    "classification": "1_narrative_cta",
+    "disposition": "merged_verbatim",
+    "excerpt": "Create a new workbook and save it:",
+    "salient_tokens": [],
+    "target_section": "Quick Start",
+    "verification": {
+      "status": "not_applicable_category_1",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": ""
+    }
+  },
+  {
+    "unit_id": "u0026",
+    "classification": "1_narrative_cta",
+    "disposition": "merged_verbatim",
+    "excerpt": "Read an existing workbook:",
+    "salient_tokens": [],
+    "target_section": "Quick Start",
+    "verification": {
+      "status": "not_applicable_category_1",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": ""
+    }
+  },
+  {
+    "unit_id": "u0027",
+    "classification": "1_narrative_cta",
+    "disposition": "merged_verbatim",
+    "excerpt": "Apply cell styling:",
+    "salient_tokens": [],
+    "target_section": "Additional Examples",
+    "verification": {
+      "status": "not_applicable_category_1",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": ""
+    }
+  },
+  {
+    "unit_id": "u0028",
+    "classification": "1_narrative_cta",
+    "disposition": "merged_verbatim",
+    "excerpt": "<details>\n<summary>View Additional Examples</summary>",
+    "salient_tokens": [],
+    "target_section": "Additional Examples",
+    "verification": {
+      "status": "not_applicable_category_1",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": ""
+    }
+  },
+  {
+    "unit_id": "u0029",
+    "classification": "1_narrative_cta",
+    "disposition": "merged_verbatim",
+    "excerpt": "</details>",
+    "salient_tokens": [],
+    "target_section": "Additional Examples",
+    "verification": {
+      "status": "not_applicable_category_1",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": ""
+    }
+  },
+  {
+    "unit_id": "u0030",
+    "classification": "2_mechanism_explanation",
+    "disposition": "merged_verbatim",
+    "excerpt": "The public entry point is the `aspose.cells_foss` package (import: `from aspose.cells_foss import\nWorkbook`). The classes below cover the full supported public API surface — 130 public types\norganized into one module.",
+    "salient_tokens": [
+      "aspose.cells_foss",
+      "from aspose.cells_foss import\nWorkbook",
+      "API"
+    ],
+    "target_section": "API Reference",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "aspose/cells_foss/__init__.py"
+    }
+  },
+  {
+    "unit_id": "u0031",
+    "classification": "1_narrative_cta",
+    "disposition": "merged_verbatim",
+    "excerpt": "<details>\n<summary>View the Supported Public API Surface</summary>",
+    "salient_tokens": [
+      "API"
+    ],
+    "target_section": "API Reference",
+    "verification": {
+      "status": "not_applicable_category_1",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": ""
+    }
+  },
+  {
+    "unit_id": "u0032",
+    "classification": "2_mechanism_explanation",
+    "disposition": "merged_verbatim",
+    "excerpt": "| Class | Description |\n|---|---|\n| `AgileEncryptionParameters` | Parameters for Agile Encryption (ECMA-376 Part 2, Section 4). |\n| `Alignment` | Represents alignment settings for a cell or range of cells. |\n| `AutoFilter` | Represents auto filters in a worksheet. |\n| `AutoFilterXMLLoader` | Handles loading autofilter data from XML format for .xlsx files. |\n| `AutoFilterXMLWriter` | Handles writing autofilter data to XML format for .xlsx files. |\n| `Border` | Represents border settings for a single side of a cell or range of cells. |\n| `Borders` | Represents border settings for all sides of a cell or range of cells. |\n| `CFBReader` | Reads encrypted XLSX from CFB format. |\n| `CFBWriter` | Writes CFB (Compound File Binary) files according to MS-CFB specification. |\n| `CFBWriter-cfb_handler` | Writes encrypted XLSX to CFB format (a distinct `CFBWriter` class in `cfb_handler.py`, not the general-purpose one above). |\n| `CSVHandler` | Handles CSV import and export operations for workbooks. |\n| `CSVLoadOptions` | Options for loading CSV files. |\n| `CSVSaveOptions` | Options for saving CSV files. |\n| `CalculationProperties` | Represents calculation properties for the workbook. |\n| `Cell` | Represents a single cell in a worksheet. |\n| `CellValueHandler` | Handles cell value import and export operations according to ECMA-376 specification. |\n| `Cells` | Represents a collection of cells in a worksheet. |\n| `Chart` | Represents a chart in a worksheet. |\n| `ChartAxis` | Represents a chart axis (category, value, or series). |\n| `ChartCollection` | Collection of charts in a worksheet. |\n| `ChartErrorBars` | Represents error bars attached to a chart series. |\n| `ChartSeries` | Represents a single chart series. |\n| `ChartView3D` | Represents chart-level 3D view settings. |\n| `ChartXmlLoader` | Loads worksheet chart settings from drawing/chart XML parts. |\n| `ChartXmlSaver` | Handles writing chart-related XLSX parts:. |\n| `CommentXMLReader` | Handles reading comment data from XML format. |\n| `CommentXMLWriter` | Handles writing comment data to XML format. |\n| `ConditionalFormat` | Represents a single conditional formatting rule applied to a cell range. |\n| `ConditionalFormatCollection` | Represents a collection of conditional formats for a worksheet. |\n| `ConditionalFormatXMLLoader` | Handles loading conditional formatting data from XML format for .xlsx files. |\n| `ConditionalFormatXMLWriter` | Handles writing conditional formatting data to XML format for .xlsx files. |\n| `CoreProperties` | Represents core document properties stored in docProps/core.xml. |\n| `DataValidation` | Represents data validation settings for a range of cells. |\n| `DataValidationCollection` | Represents a collection of DataValidation objects for a worksheet. |\n| `DataValidationXmlLoader` | Loads DataValidation objects from ECMA-376 SpreadsheetML XML format. |\n| `DataValidationXmlSaver` | Saves DataValidation objects to ECMA-376 SpreadsheetML XML format. |\n| `DefinedName` | Represents a defined name in the workbook. |\n| `DefinedNameCollection` | Collection of defined names in the workbook. |\n| `DocumentProperties` | Container for all document-level properties. |\n| `EncryptionParameters` | Base class for encryption parameters. |\n| `EncryptionVerifier` | Encryption verifier generation and validation. |\n| `ExtendedProperties` | Represents extended/application properties stored in docProps/app.xml. |\n| `FileVersion` | Represents file version information for the workbook. |\n| `Fill` | Represents fill settings for a cell or range of cells. |\n| `FilterColumn` | Represents a filter column in an auto filter. |\n| `Font` | Represents font settings for a cell or range of cells. |\n| `FormulaEvaluator` | Basic formula evaluator for XLSX cells without cached values. |\n| `HeaderFooter` | Represents header and footer settings. |\n| `HorizontalPageBreakCollection` | Collection of manual horizontal page breaks (row breaks). |\n| `Hyperlink` | Represents a hyperlink in a worksheet. |\n| `HyperlinkRelationshipWriter` | Writes hyperlink relationships to _rels files. |\n| `HyperlinkXMLLoader` | Loads hyperlinks from worksheet XML and relationship files. |\n| `HyperlinkXMLSaver` | Saves hyperlinks to worksheet XML and relationship files. |\n| `Hyperlinks` | Collection of hyperlinks in a worksheet. |\n| `JsonHandler` | Handles JSON export operations for workbooks. |\n| `JsonSaveOptions` | Options for saving JSON files. |\n| `MarkdownHandler` | Handles Markdown export operations for workbooks. |\n| `MarkdownSaveOptions` | Options for saving Markdown files. |\n| `MinimalCFBWriter` | Minimal CFB file writer for encrypted Office documents. |\n| `MsoFillFormat` | Fill format properties for a shape. |\n| `MsoLineFormat` | Border/outline format properties for a shape. |\n| `NSeries` | Collection of series for a chart. |\n| `NumberFormat` | Represents number format settings for a cell or range of cells. |\n| `PackageEncryption` | Package data encryption and decryption. |\n| `PageMargins` | Represents page margins. |\n| `PageSetup` | Represents page setup settings. |\n| `Pane` | Represents pane (freeze/split) settings. |\n| `PasswordDerivation` | Password derivation helpers for Agile encryption. |\n| `Picture` | Represents a worksheet picture anchored to cells. |\n| `PictureCollection` | Collection of pictures in a worksheet. |\n| `PictureXmlLoader` | Loads pictures from worksheet drawing parts. |\n| `PictureXmlSaver` | Handles writing picture-related drawing/media XML payloads. |\n| `PrintOptions` | Represents print options. |\n| `Protection` | Represents protection settings for a cell or range of cells. |\n| `Selection` | Represents cell selection in a sheet view. |\n| `Shape` | Represents a drawing shape (rectangle, oval, text box, arrow, etc.) on a worksheet. |\n| `ShapeCollection` | Collection of Shape objects on a worksheet. |\n| `ShapeFont` | Font properties for text inside a shape. |\n| `ShapeXmlLoader` | Loads xdr:sp shape elements from a drawing XML part. |\n| `ShapeXmlSaver` | Generates drawing XML and relationship XML for worksheet shapes. |\n| `SharedStringTable` | Manages the Shared String Table for XLSX files according to ECMA-376 specification. |\n| `SheetFormatProperties` | Represents sheet format properties. |\n| `SheetProtection` | Represents sheet protection settings. |\n| `SheetProtectionDictWrapper` | Dictionary-like wrapper around SheetProtection for backward compatibility. |\n| `SheetView` | Represents a sheet view configuration. |\n| `Sparkline` | One sparkline: a data source range paired with the cell where it appears. |\n| `SparklineGroup` | A group of sparklines that share the same visual style. |\n| `SparklineGroupCollection` | Collection of SparklineGroup objects (ws.sparkline_groups). |\n| `SparklineXmlLoader` | Loads sparkline group data from the in a worksheet XML root. |\n| `SparklineXmlSaver` | Serialises SparklineGroupCollection to XML. |\n| `StandardEncryptionParameters` | Parameters for Standard Encryption (ECMA-376 Part 2, Section 3). |\n| `Style` | Represents formatting settings for a cell or range of cells. |\n| `Table` | Represents an Excel structured table (ECMA-376 §18.5). |\n| `TableCollection` | Collection of Table objects belonging to a worksheet (ws.tables). |\n| `TableColumn` | Settings for a single table column. |\n| `TableStyleInfo` | Visual style settings for an Excel table. |\n| `TableXmlLoader` | Loads table definitions from an XLSX ZIP archive into a worksheet. |\n| `TableXmlSaver` | Serialises Table objects to ECMA-376 table XML. |\n| `VerticalPageBreakCollection` | Collection of manual vertical page breaks (column breaks). |\n| `Workbook` | Represents an Excel workbook. |\n| `WorkbookPr` | Represents workbook properties (workbookPr element). |\n| `WorkbookProperties` | Container for all workbook-level properties. |\n| `WorkbookPropertiesXMLLoader` | Handles loading workbook properties from XML format for .xlsx files. |\n| `WorkbookPropertiesXMLWriter` | Handles writing workbook properties to XML format for .xlsx files. |\n| `WorkbookProtection` | Represents workbook protection settings. |\n| `WorkbookView` | Represents a workbook view configuration. |\n| `Worksheet` | Represents a single worksheet in an Excel workbook. |\n| `WorksheetProperties` | Container for all worksheet-level properties. |\n| `WorksheetPropertiesXMLLoader` | Handles loading worksheet properties from XML format for .xlsx files. |\n| `WorksheetPropertiesXMLWriter` | Handles writing worksheet properties to XML format for .xlsx files. |\n| `XLSXDecryptor` | Handles decryption of XLSX files. |\n| `XLSXEncryptor` | Handles encryption of XLSX files. |\n| `XMLLoader` | Handles loading of Excel workbook XML files. |\n| `XMLSaver` | Handles saving workbook data to XML format for .xlsx files. |",
+    "salient_tokens": [
+      "AgileEncryptionParameters",
+      "Alignment",
+      "AutoFilter",
+      "AutoFilterXMLLoader",
+      "AutoFilterXMLWriter",
+      "Border",
+      "Borders",
+      "CFBReader",
+      "CFBWriter",
+      "CFBWriter-cfb_handler",
+      "cfb_handler.py",
+      "CSVHandler",
+      "CSVLoadOptions",
+      "CSVSaveOptions",
+      "CalculationProperties",
+      "Cell",
+      "CellValueHandler",
+      "Cells",
+      "Chart",
+      "ChartAxis",
+      "ChartCollection",
+      "ChartErrorBars",
+      "ChartSeries",
+      "ChartView3D",
+      "ChartXmlLoader",
+      "ChartXmlSaver",
+      "CommentXMLReader",
+      "CommentXMLWriter",
+      "ConditionalFormat",
+      "ConditionalFormatCollection",
+      "ConditionalFormatXMLLoader",
+      "ConditionalFormatXMLWriter",
+      "CoreProperties",
+      "DataValidation",
+      "DataValidationCollection",
+      "DataValidationXmlLoader",
+      "DataValidationXmlSaver",
+      "DefinedName",
+      "DefinedNameCollection",
+      "DocumentProperties",
+      "EncryptionParameters",
+      "EncryptionVerifier",
+      "ExtendedProperties",
+      "FileVersion",
+      "Fill",
+      "FilterColumn",
+      "Font",
+      "FormulaEvaluator",
+      "HeaderFooter",
+      "HorizontalPageBreakCollection",
+      "Hyperlink",
+      "HyperlinkRelationshipWriter",
+      "HyperlinkXMLLoader",
+      "HyperlinkXMLSaver",
+      "Hyperlinks",
+      "JsonHandler",
+      "JsonSaveOptions",
+      "MarkdownHandler",
+      "MarkdownSaveOptions",
+      "MinimalCFBWriter",
+      "MsoFillFormat",
+      "MsoLineFormat",
+      "NSeries",
+      "NumberFormat",
+      "PackageEncryption",
+      "PageMargins",
+      "PageSetup",
+      "Pane",
+      "PasswordDerivation",
+      "Picture",
+      "PictureCollection",
+      "PictureXmlLoader",
+      "PictureXmlSaver",
+      "PrintOptions",
+      "Protection",
+      "Selection",
+      "Shape",
+      "ShapeCollection",
+      "ShapeFont",
+      "ShapeXmlLoader",
+      "ShapeXmlSaver",
+      "SharedStringTable",
+      "SheetFormatProperties",
+      "SheetProtection",
+      "SheetProtectionDictWrapper",
+      "SheetView",
+      "Sparkline",
+      "SparklineGroup",
+      "SparklineGroupCollection",
+      "SparklineXmlLoader",
+      "SparklineXmlSaver",
+      "StandardEncryptionParameters",
+      "Style",
+      "Table",
+      "TableCollection",
+      "TableColumn",
+      "TableStyleInfo",
+      "TableXmlLoader",
+      "TableXmlSaver",
+      "VerticalPageBreakCollection",
+      "Workbook",
+      "WorkbookPr",
+      "WorkbookProperties",
+      "WorkbookPropertiesXMLLoader",
+      "WorkbookPropertiesXMLWriter",
+      "WorkbookProtection",
+      "WorkbookView",
+      "Worksheet",
+      "WorksheetProperties",
+      "WorksheetPropertiesXMLLoader",
+      "WorksheetPropertiesXMLWriter",
+      "XLSXDecryptor",
+      "XLSXEncryptor",
+      "XMLLoader",
+      "XMLSaver",
+      "ECMA",
+      "XML",
+      "XLSX",
+      "CFB",
+      "MS",
+      "CSV",
+      "docProps",
+      "SpreadsheetML",
+      "JSON",
+      "ZIP",
+      "18.5"
+    ],
+    "target_section": "API Reference",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "aspose/cells_foss/workbook.py"
+    }
+  },
+  {
+    "unit_id": "u0033",
+    "classification": "2_mechanism_explanation",
+    "disposition": "merged_verbatim",
+    "excerpt": "| Enumeration | Description |\n|---|---|\n| `ChartType` | Supported chart types. |\n| `CipherAlgorithm` | Cipher algorithm enumeration. |\n| `DataValidationAlertStyle` | Specifies the style of the error alert displayed when invalid data is entered. |\n| `DataValidationImeMode` | Specifies the Input Method Editor (IME) mode for CJK language input. |\n| `DataValidationOperator` | Specifies the comparison operator for data validation. |\n| `DataValidationType` | Specifies the type of data validation. |\n| `EncryptionType` | Encryption type enumeration. |\n| `FillType` | Shape fill type (ECMA-376 a:spPr fill child elements). |\n| `HashAlgorithm` | Hash algorithm enumeration. |\n| `MsoDrawingType` | Shape preset geometry types (maps to ECMA-376 a:prstGeom prst attributes). |\n| `MsoLineDashStyle` | Shape border/line dash style (ECMA-376 a:prstDash val attribute). |\n| `SaveFormat` | Specifies the format for saving a workbook. |\n| `SparklineEmptyCells` | How a sparkline handles empty cells in its data range: `ZERO`, `GAP`, or `CONNECTED`. |\n| `SparklineType` | The visual form of a sparkline: `LINE`, `COLUMN`, or `WIN_LOSS`. |\n| `TextAlignmentType` | Horizontal text alignment inside a shape (ECMA-376 a:pPr algn attribute). |\n| `TextAnchorType` | Vertical text anchor inside a shape (ECMA-376 a:bodyPr anchor attribute). |",
+    "salient_tokens": [
+      "ChartType",
+      "CipherAlgorithm",
+      "DataValidationAlertStyle",
+      "DataValidationImeMode",
+      "DataValidationOperator",
+      "DataValidationType",
+      "EncryptionType",
+      "FillType",
+      "HashAlgorithm",
+      "MsoDrawingType",
+      "MsoLineDashStyle",
+      "SaveFormat",
+      "SparklineEmptyCells",
+      "ZERO",
+      "GAP",
+      "CONNECTED",
+      "SparklineType",
+      "LINE",
+      "COLUMN",
+      "WIN_LOSS",
+      "TextAlignmentType",
+      "TextAnchorType",
+      "IME",
+      "CJK",
+      "ECMA",
+      "spPr",
+      "prstGeom",
+      "prstDash",
+      "pPr",
+      "bodyPr"
+    ],
+    "target_section": "API Reference",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "aspose/cells_foss/chart.py"
+    }
+  },
+  {
+    "unit_id": "u0034",
+    "classification": "1_narrative_cta",
+    "disposition": "merged_verbatim",
+    "excerpt": "</details>",
+    "salient_tokens": [],
+    "target_section": "API Reference",
+    "verification": {
+      "status": "not_applicable_category_1",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": ""
+    }
+  },
+  {
+    "unit_id": "u0035",
+    "classification": "1_narrative_cta",
+    "disposition": "merged_verbatim",
+    "excerpt": "- **[Getting started guide](https://docs.aspose.org/cells/python/)** — Python documentation for Aspose.Cells FOSS: workbook creation, cell operations, styling, and data validation.",
+    "salient_tokens": [
+      "FOSS",
+      "Getting started guide",
+      "https://docs.aspose.org/cells/python/"
+    ],
+    "target_section": "Documentation & Resources",
+    "verification": {
+      "status": "not_applicable_category_1",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": ""
+    }
+  },
+  {
+    "unit_id": "u0036",
+    "classification": "1_narrative_cta",
+    "disposition": "merged_verbatim",
+    "excerpt": "- **[How-to guides & FAQ](https://kb.aspose.org/cells/python/)** — Python knowledge base for Aspose.Cells FOSS: how-to articles, FAQ, and troubleshooting guides.",
+    "salient_tokens": [
+      "FAQ",
+      "FOSS",
+      "How-to guides & FAQ",
+      "https://kb.aspose.org/cells/python/"
+    ],
+    "target_section": "Documentation & Resources",
+    "verification": {
+      "status": "not_applicable_category_1",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": ""
+    }
+  },
+  {
+    "unit_id": "u0037",
+    "classification": "1_narrative_cta",
+    "disposition": "merged_verbatim",
+    "excerpt": "- **[Full API reference](https://reference.aspose.org/cells/python/)** — the complete, browsable reference for all 130 public types (the [API reference](#api-reference) section above covers the essentials).",
+    "salient_tokens": [
+      "API",
+      "Full API reference",
+      "API reference",
+      "https://reference.aspose.org/cells/python/",
+      "#api-reference"
+    ],
+    "target_section": "Documentation & Resources",
+    "verification": {
+      "status": "not_applicable_category_1",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": ""
+    }
+  },
+  {
+    "unit_id": "u0038",
+    "classification": "1_narrative_cta",
+    "disposition": "merged_verbatim",
+    "excerpt": "- More examples live in the repository's [`examples`](examples) directory.",
+    "salient_tokens": [
+      "examples",
+      "`examples`"
+    ],
+    "target_section": "Documentation & Resources",
+    "verification": {
+      "status": "not_applicable_category_1",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": ""
+    }
+  },
+  {
+    "unit_id": "u0039",
+    "classification": "1_narrative_cta",
+    "disposition": "merged_verbatim",
+    "excerpt": "- **[Contributor guide](AGENTS.md)** — architecture notes and conventions for contributors.",
+    "salient_tokens": [
+      "AGENTS",
+      "Contributor guide",
+      "AGENTS.md"
+    ],
+    "target_section": "Documentation & Resources",
+    "verification": {
+      "status": "not_applicable_category_1",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": ""
+    }
+  },
+  {
+    "unit_id": "u0040",
+    "classification": "1_narrative_cta",
+    "disposition": "merged_verbatim",
+    "excerpt": "- Found a bug or have a feature request? [Open an issue](https://github.com/aspose-cells-foss/Aspose.Cells-FOSS-for-Python/issues) on GitHub.",
+    "salient_tokens": [
+      "FOSS",
+      "GitHub",
+      "Open an issue",
+      "https://github.com/aspose-cells-foss/Aspose.Cells-FOSS-for-Python/issues"
+    ],
+    "target_section": "Documentation & Resources",
+    "verification": {
+      "status": "not_applicable_category_1",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": ""
+    }
+  },
+  {
+    "unit_id": "u0041",
+    "classification": "2_mechanism_explanation",
+    "disposition": "merged_verbatim",
+    "excerpt": "- Only `.xlsx` is supported for native load/save; CSV, JSON, and Markdown are additional\n  text-format export targets (CSV also supports import), not general spreadsheet formats.",
+    "salient_tokens": [
+      ".xlsx",
+      "CSV",
+      "JSON"
+    ],
+    "target_section": "Scope and Limitations",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "aspose/cells_foss/workbook.py"
+    }
+  },
+  {
+    "unit_id": "u0042",
+    "classification": "2_mechanism_explanation",
+    "disposition": "merged_verbatim",
+    "excerpt": "- Only Agile encryption (ECMA-376 Part 2, Section 4) is supported for reading and writing\n  password-protected workbooks; Standard encryption (Section 3) is not yet supported for reading.",
+    "salient_tokens": [
+      "ECMA"
+    ],
+    "target_section": "Scope and Limitations",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "aspose/cells_foss/xlsx_encryptor.py"
+    }
+  },
+  {
+    "unit_id": "u0043",
+    "classification": "2_mechanism_explanation",
+    "disposition": "merged_verbatim",
+    "excerpt": "- `FormulaEvaluator` is a basic evaluator for cells without cached values — this is not a full\n  spreadsheet calculation engine.",
+    "salient_tokens": [
+      "FormulaEvaluator"
+    ],
+    "target_section": "Scope and Limitations",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "aspose/cells_foss/formula_evaluator.py"
+    }
+  },
+  {
+    "unit_id": "u0044",
+    "classification": "1_narrative_cta",
+    "disposition": "merged_verbatim",
+    "excerpt": "These limitations don't apply to\n[Aspose.Cells for Python — Enterprise Edition](https://products.aspose.com/cells/python-java/),\nwhich adds a full formula calculation engine, Standard encryption support, additional\nspreadsheet formats, and dedicated enterprise support.",
+    "salient_tokens": [
+      "Aspose.Cells for Python — Enterprise Edition",
+      "https://products.aspose.com/cells/python-java/"
+    ],
+    "target_section": "Scope and Limitations",
+    "verification": {
+      "status": "not_applicable_category_1",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": ""
+    }
+  },
+  {
+    "unit_id": "u0045",
+    "classification": "1_narrative_cta",
+    "disposition": "merged_verbatim",
+    "excerpt": "Install the development dependencies and run the test suite:",
+    "salient_tokens": [],
+    "target_section": "Development and Testing",
+    "verification": {
+      "status": "not_applicable_category_1",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": ""
+    }
+  },
+  {
+    "unit_id": "u0046",
+    "classification": "2_mechanism_explanation",
+    "disposition": "merged_verbatim",
+    "excerpt": "This project is licensed under the [MIT License](License/LICENSE.txt). The MIT License permits\nuse, copying, modification, distribution, sublicensing, and commercial use, provided its\ncopyright and permission notice are retained. The software is provided without warranty.",
+    "salient_tokens": [
+      "MIT",
+      "LICENSE",
+      "MIT License",
+      "License/LICENSE.txt"
+    ],
+    "target_section": "License",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "License/LICENSE.txt"
+    }
+  }
+]

@@ -1,0 +1,132 @@
+[
+  {
+    "unit_id": "c0001",
+    "disposition": "merged_reframed",
+    "target_section": "At a Glance",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/aspose/page/ps/document.py"
+    }
+  },
+  {
+    "unit_id": "c0002",
+    "disposition": "merged_verbatim",
+    "target_section": "Installation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "pyproject.toml"
+    }
+  },
+  {
+    "unit_id": "c0003",
+    "disposition": "merged_verbatim",
+    "target_section": "Quick Start",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/aspose/page/mcp/handlers.py"
+    }
+  },
+  {
+    "unit_id": "c0004",
+    "disposition": "merged_verbatim",
+    "target_section": "Quick Start",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/aspose/page/image/raster_renderer.py"
+    }
+  },
+  {
+    "unit_id": "c0005",
+    "disposition": "merged_verbatim",
+    "target_section": "Additional Examples",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/aspose/page/common/render_model.py"
+    }
+  },
+  {
+    "unit_id": "c0006",
+    "disposition": "merged_verbatim",
+    "target_section": "Additional Examples",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/aspose/page/ps/dsc.py"
+    }
+  },
+  {
+    "unit_id": "c0007",
+    "disposition": "merged_verbatim",
+    "target_section": "Additional Examples",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/aspose/page/mcp/handlers.py"
+    }
+  },
+  {
+    "unit_id": "c0008",
+    "disposition": "merged_verbatim",
+    "target_section": "Additional Examples",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/aspose/page/image/raster_renderer.py"
+    }
+  },
+  {
+    "unit_id": "c0009",
+    "disposition": "merged_verbatim",
+    "target_section": "Additional Examples",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/aspose/page/image/raster_renderer.py"
+    }
+  },
+  {
+    "unit_id": "c0010",
+    "disposition": "merged_verbatim",
+    "target_section": "Additional Examples",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/aspose/page/mcp/server.py"
+    }
+  },
+  {
+    "unit_id": "c0011",
+    "disposition": "merged_verbatim",
+    "target_section": "Development and Testing",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "pyproject.toml"
+    }
+  },
+  {
+    "unit_id": "c0012",
+    "disposition": "merged_verbatim",
+    "target_section": "Development and Testing",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "Makefile"
+    }
+  },
+  {
+    "unit_id": "c0013",
+    "disposition": "merged_verbatim",
+    "target_section": "Development and Testing",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "Makefile"
+    }
+  }
+]

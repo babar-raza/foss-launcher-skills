@@ -1,0 +1,62 @@
+[
+  {
+    "unit_id": "s0001",
+    "heading": "At a Glance",
+    "disposition": "merged_reframed",
+    "target_section": "At a Glance",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "Aspose.Cells.Foss.Cpp/include/aspose/cells_foss/Workbook.h"
+    }
+  },
+  {
+    "unit_id": "s0002",
+    "heading": "Highlight Cells With Conditional Formatting",
+    "disposition": "merged_verbatim",
+    "target_section": "Additional Examples",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "Aspose.Cells.Foss.Cpp/include/aspose/cells_foss/ConditionalFormattingCollection.h"
+    }
+  },
+  {
+    "unit_id": "s0003",
+    "heading": "Constrain Input With Data Validation",
+    "disposition": "merged_verbatim",
+    "target_section": "Additional Examples",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "Aspose.Cells.Foss.Cpp/include/aspose/cells_foss/Validation.h"
+    }
+  },
+  {
+    "unit_id": "s0004",
+    "heading": "Add a Hyperlink",
+    "disposition": "merged_verbatim",
+    "target_section": "Additional Examples",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "Aspose.Cells.Foss.Cpp/include/aspose/cells_foss/Hyperlink.h"
+    }
+  },
+  {
+    "unit_id": "s0005",
+    "heading": "Configure Page Setup for Printing",
+    "disposition": "merged_verbatim",
+    "target_section": "Additional Examples",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "Aspose.Cells.Foss.Cpp/include/aspose/cells_foss/PageSetup.h"
+    }
+  }
+]

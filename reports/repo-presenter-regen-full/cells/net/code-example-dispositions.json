@@ -1,0 +1,222 @@
+[
+  {
+    "unit_id": "c0001",
+    "disposition": "merged_reframed",
+    "target_section": "At a Glance",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "README.md"
+    }
+  },
+  {
+    "unit_id": "c0002",
+    "disposition": "merged_verbatim",
+    "target_section": "Installation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "README.md"
+    }
+  },
+  {
+    "unit_id": "c0003",
+    "disposition": "merged_verbatim",
+    "target_section": "Installation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/Aspose.Cells_FOSS/Aspose.Cells_FOSS.csproj"
+    }
+  },
+  {
+    "unit_id": "c0004a",
+    "disposition": "merged_verbatim",
+    "target_section": "Quick Start",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/Aspose.Cells_FOSS/Workbook.cs"
+    }
+  },
+  {
+    "unit_id": "c0004b",
+    "disposition": "merged_verbatim",
+    "target_section": "Quick Start",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/Aspose.Cells_FOSS/Workbook.cs"
+    }
+  },
+  {
+    "unit_id": "c0004c",
+    "disposition": "merged_verbatim",
+    "target_section": "Quick Start",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/Aspose.Cells_FOSS/Cell.cs"
+    }
+  },
+  {
+    "unit_id": "c0004d",
+    "disposition": "merged_verbatim",
+    "target_section": "Quick Start",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/Aspose.Cells_FOSS/Style.cs"
+    }
+  },
+  {
+    "unit_id": "c0004e",
+    "disposition": "merged_verbatim",
+    "target_section": "Quick Start",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/Aspose.Cells_FOSS/Workbook.cs"
+    }
+  },
+  {
+    "unit_id": "c0005",
+    "disposition": "merged_verbatim",
+    "target_section": "Quick Start",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/Aspose.Cells_FOSS/LoadOptions.cs"
+    }
+  },
+  {
+    "unit_id": "c0006",
+    "disposition": "merged_verbatim",
+    "target_section": "Quick Start",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/Aspose.Cells_FOSS/PdfSaveOptions.cs"
+    }
+  },
+  {
+    "unit_id": "c0007a",
+    "disposition": "merged_verbatim",
+    "target_section": "Additional Examples",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/Aspose.Cells_FOSS/Workbook.cs"
+    }
+  },
+  {
+    "unit_id": "c0007b",
+    "disposition": "merged_verbatim",
+    "target_section": "Additional Examples",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/Aspose.Cells_FOSS/Cell.cs"
+    }
+  },
+  {
+    "unit_id": "c0007c",
+    "disposition": "merged_verbatim",
+    "target_section": "Additional Examples",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/Aspose.Cells_FOSS/ListObjectCollection.cs"
+    }
+  },
+  {
+    "unit_id": "c0007d",
+    "disposition": "merged_verbatim",
+    "target_section": "Additional Examples",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/Aspose.Cells_FOSS/Workbook.cs"
+    }
+  },
+  {
+    "unit_id": "c0008",
+    "disposition": "merged_verbatim",
+    "target_section": "Additional Examples",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/Aspose.Cells_FOSS/ValidationCollection.cs"
+    }
+  },
+  {
+    "unit_id": "c0009",
+    "disposition": "merged_verbatim",
+    "target_section": "Additional Examples",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/Aspose.Cells_FOSS/FormatConditionCollection.cs"
+    }
+  },
+  {
+    "unit_id": "c0010",
+    "disposition": "merged_verbatim",
+    "target_section": "Additional Examples",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/Aspose.Cells_FOSS/HyperlinkCollection.cs"
+    }
+  },
+  {
+    "unit_id": "c0011",
+    "disposition": "merged_verbatim",
+    "target_section": "Additional Examples",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/Aspose.Cells_FOSS/ChartCollection.cs"
+    }
+  },
+  {
+    "unit_id": "c0012",
+    "disposition": "merged_verbatim",
+    "target_section": "Additional Examples",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/Aspose.Cells_FOSS/PdfSaveOptions.cs"
+    }
+  },
+  {
+    "unit_id": "c0013",
+    "disposition": "merged_verbatim",
+    "target_section": "Development and Testing",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/Aspose.Cells_FOSS/Aspose.Cells_FOSS.csproj"
+    }
+  },
+  {
+    "unit_id": "c0014",
+    "disposition": "merged_verbatim",
+    "target_section": "Development and Testing",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "samples/Aspose.Cells_FOSS.Samples.Basic/Aspose.Cells_FOSS.Samples.Basic.csproj"
+    }
+  },
+  {
+    "unit_id": "c0015",
+    "disposition": "merged_verbatim",
+    "target_section": "Development and Testing",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "samples/Aspose.Cells_FOSS.Samples.PdfConversion/Aspose.Cells_FOSS.Samples.PdfConversion.csproj"
+    }
+  }
+]

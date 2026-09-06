@@ -1,0 +1,6 @@
+{
+  "baseline_commit": "2f4bfab3863e66ef32868f5464685eb4c2d36911",
+  "reason": "retroactive backfill from run rr-20260902T080803Z-47f9708b4c7a, audit-baseline-coverage",
+  "recorded_at": "2026-09-03T16:39:56.311776Z",
+  "recorded_by": "session-e8de1af5"
+}

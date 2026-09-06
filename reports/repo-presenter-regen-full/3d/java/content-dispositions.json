@@ -1,0 +1,1079 @@
+[
+  {
+    "unit_id": "u0001",
+    "excerpt": "![Aspose.3D FOSS for Java](https://products.aspose.org/media/3d/java/banner-readme.png)",
+    "classification": "1_narrative_cta",
+    "disposition": "merged_verbatim",
+    "target_section": "Intro",
+    "verification": {
+      "status": "not_applicable_category_1",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": ""
+    }
+  },
+  {
+    "unit_id": "u0002",
+    "excerpt": "Aspose.3D FOSS for Java is a free, open-source Java library for working with 3D scenes and\nmeshes through an Aspose.3D-compatible API. It builds and traverses a scene graph of nodes,\nmeshes, curves, and materials, detects 3D file formats automatically, and reads and writes\nthe formats implemented in this edition. It is a clean-room implementation, engineered\nindependently to the same public API design as the commercial Aspose.3D for Java library,\nrather than a reduction of its proprietary source.",
+    "classification": "2_mechanism_explanation",
+    "disposition": "excluded",
+    "target_section": null,
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/main/java/com/aspose/threed/Scene.java"
+    },
+    "excluded_reason": "Intro paraphrase; candidate's own Intro paragraph covers the same identity/positioning (free Java library, Aspose.3D-compatible API, scene graph, automatic format detection, clean-room implementation) with different wording -- fully reframed, not a word-overlap match."
+  },
+  {
+    "unit_id": "u0003",
+    "excerpt": "- [At a glance](#at-a-glance)",
+    "classification": "1_narrative_cta",
+    "disposition": "merged_verbatim",
+    "target_section": "Navigation",
+    "verification": {
+      "status": "not_applicable_category_1",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": ""
+    }
+  },
+  {
+    "unit_id": "u0004",
+    "excerpt": "- [Key capabilities](#key-capabilities)",
+    "classification": "1_narrative_cta",
+    "disposition": "merged_verbatim",
+    "target_section": "Navigation",
+    "verification": {
+      "status": "not_applicable_category_1",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": ""
+    }
+  },
+  {
+    "unit_id": "u0005",
+    "excerpt": "- [Installation](#installation)",
+    "classification": "1_narrative_cta",
+    "disposition": "merged_verbatim",
+    "target_section": "Navigation",
+    "verification": {
+      "status": "not_applicable_category_1",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": ""
+    }
+  },
+  {
+    "unit_id": "u0006",
+    "excerpt": "- [Quick start](#quick-start)",
+    "classification": "1_narrative_cta",
+    "disposition": "merged_verbatim",
+    "target_section": "Navigation",
+    "verification": {
+      "status": "not_applicable_category_1",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": ""
+    }
+  },
+  {
+    "unit_id": "u0007",
+    "excerpt": "- [Additional examples](#additional-examples)",
+    "classification": "1_narrative_cta",
+    "disposition": "merged_verbatim",
+    "target_section": "Navigation",
+    "verification": {
+      "status": "not_applicable_category_1",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": ""
+    }
+  },
+  {
+    "unit_id": "u0008",
+    "excerpt": "- [API reference](#api-reference)",
+    "classification": "1_narrative_cta",
+    "disposition": "merged_verbatim",
+    "target_section": "Navigation",
+    "verification": {
+      "status": "not_applicable_category_1",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": ""
+    }
+  },
+  {
+    "unit_id": "u0009",
+    "excerpt": "- [Documentation & resources](#documentation--resources)",
+    "classification": "1_narrative_cta",
+    "disposition": "merged_verbatim",
+    "target_section": "Navigation",
+    "verification": {
+      "status": "not_applicable_category_1",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": ""
+    }
+  },
+  {
+    "unit_id": "u0010",
+    "excerpt": "- [Scope and limitations](#scope-and-limitations)",
+    "classification": "1_narrative_cta",
+    "disposition": "merged_verbatim",
+    "target_section": "Navigation",
+    "verification": {
+      "status": "not_applicable_category_1",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": ""
+    }
+  },
+  {
+    "unit_id": "u0011",
+    "excerpt": "- [Development and testing](#development-and-testing)",
+    "classification": "1_narrative_cta",
+    "disposition": "merged_verbatim",
+    "target_section": "Navigation",
+    "verification": {
+      "status": "not_applicable_category_1",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": ""
+    }
+  },
+  {
+    "unit_id": "u0012",
+    "excerpt": "- [License](#license)",
+    "classification": "1_narrative_cta",
+    "disposition": "merged_verbatim",
+    "target_section": "Navigation",
+    "verification": {
+      "status": "not_applicable_category_1",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": ""
+    }
+  },
+  {
+    "unit_id": "u0013",
+    "excerpt": "- Detect a 3D file's format automatically, or resolve an explicit format from a file path or binary stream (`FileFormat.detect`, `FileFormat.getFormatByExtension`). Of the formats this edition can detect, only STL currently loads real scene content — see [Scope and limitations](#scope-and-limitations).",
+    "classification": "2_mechanism_explanation",
+    "disposition": "merged_reframed",
+    "target_section": "Key Capabilities",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/main/java/com/aspose/threed/FileFormat.java"
+    }
+  },
+  {
+    "unit_id": "u0014",
+    "excerpt": "- Build a scene graph from scratch: `Scene`, `Node.createChildNode`, and `Mesh` with control points and polygons.",
+    "classification": "2_mechanism_explanation",
+    "disposition": "merged_reframed",
+    "target_section": "Key Capabilities",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/main/java/com/aspose/threed/Scene.java"
+    }
+  },
+  {
+    "unit_id": "u0015",
+    "excerpt": "- Construct parameterized primitives such as `Box`, `Cylinder`, and `Dish`, and IFC-style profiles such as `CircleShape` and `EllipseShape`.",
+    "classification": "2_mechanism_explanation",
+    "disposition": "merged_reframed",
+    "target_section": "Key Capabilities",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/main/java/com/aspose/threed/CircleShape.java"
+    }
+  },
+  {
+    "unit_id": "u0016",
+    "excerpt": "- Apply materials — `LambertMaterial`, `PhongMaterial`, and `PbrMaterial` — with configurable colors, transparency, and reflection.",
+    "classification": "2_mechanism_explanation",
+    "disposition": "merged_reframed",
+    "target_section": "Key Capabilities",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/main/java/com/aspose/threed/PhongMaterial.java"
+    }
+  },
+  {
+    "unit_id": "u0017",
+    "excerpt": "- Work with `NurbsCurve` (degree, order, knot vectors, control points) and composite curve types.",
+    "classification": "2_mechanism_explanation",
+    "disposition": "merged_reframed",
+    "target_section": "Key Capabilities",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/main/java/com/aspose/threed/NurbsCurve.java"
+    }
+  },
+  {
+    "unit_id": "u0018",
+    "excerpt": "- Use the `Vector2`/`Vector3`/`Vector4`, `Matrix4`, and `BoundingBox` math utilities that back the scene graph, and read or set each `Node`'s `Transform` (`getTransform().getTranslation()` / `setTranslation(...)`).",
+    "classification": "2_mechanism_explanation",
+    "disposition": "merged_reframed",
+    "target_section": "Key Capabilities",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/main/java/com/aspose/threed/Vector3.java"
+    }
+  },
+  {
+    "unit_id": "u0019",
+    "excerpt": "- Export to STL in ASCII or binary form (`StlSaveOptions`), and read STL back with `StlLoadOptions`.",
+    "classification": "2_mechanism_explanation",
+    "disposition": "merged_reframed",
+    "target_section": "Key Capabilities",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/main/java/com/aspose/threed/FileFormat.java"
+    }
+  },
+  {
+    "unit_id": "u0020",
+    "excerpt": "Add the dependency to your `pom.xml`:",
+    "classification": "1_narrative_cta",
+    "disposition": "merged_verbatim",
+    "target_section": "Installation",
+    "verification": {
+      "status": "not_applicable_category_1",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": ""
+    }
+  },
+  {
+    "unit_id": "u0021",
+    "excerpt": "Gradle (Groovy DSL):",
+    "classification": "1_narrative_cta",
+    "disposition": "merged_verbatim",
+    "target_section": "Installation",
+    "verification": {
+      "status": "not_applicable_category_1",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": ""
+    }
+  },
+  {
+    "unit_id": "u0022",
+    "excerpt": "The library targets Java 21 and has no third-party runtime dependencies.",
+    "classification": "2_mechanism_explanation",
+    "disposition": "merged_reframed",
+    "target_section": "Dependencies",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "pom.xml"
+    }
+  },
+  {
+    "unit_id": "u0023",
+    "excerpt": "Load an STL file and re-save it in an explicit STL representation — format is detected\nautomatically for the load:",
+    "classification": "1_narrative_cta",
+    "disposition": "merged_verbatim",
+    "target_section": "Quick Start",
+    "verification": {
+      "status": "not_applicable_category_1",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": ""
+    }
+  },
+  {
+    "unit_id": "u0024",
+    "excerpt": "Build a scene from scratch and export it to STL:",
+    "classification": "1_narrative_cta",
+    "disposition": "excluded",
+    "target_section": null,
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/main/java/com/aspose/threed/Scene.java"
+    },
+    "excluded_reason": "Transitional narrative caption ('Build a scene from scratch and export it to STL:'); candidate's own Quick Start section has an equivalent, differently-worded lead-in before the same kind of code example."
+  },
+  {
+    "unit_id": "u0025",
+    "excerpt": "Every example below is exercised by the project's own test suite. See the\n[`src/test/java/com/aspose/threed`](https://github.com/aspose-3d-foss/Aspose.3D-FOSS-for-Java/tree/master/src/test/java/com/aspose/threed)\ntests for the full set.",
+    "classification": "1_narrative_cta",
+    "disposition": "excluded",
+    "target_section": null,
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/main/java/com/aspose/threed/Scene.java"
+    },
+    "excluded_reason": "Points readers at the project's own test suite for the full set of examples -- an optional pointer, not an independently-checkable claim; every example this unit introduces is itself separately disposed (u0026 onward)."
+  },
+  {
+    "unit_id": "u0026",
+    "excerpt": "<details>\n<summary>View Additional Examples</summary>",
+    "classification": "1_narrative_cta",
+    "disposition": "merged_verbatim",
+    "target_section": "Additional Examples",
+    "verification": {
+      "status": "not_applicable_category_1",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": ""
+    }
+  },
+  {
+    "unit_id": "u0027",
+    "excerpt": "</details>",
+    "classification": "1_narrative_cta",
+    "disposition": "merged_verbatim",
+    "target_section": "Additional Examples",
+    "verification": {
+      "status": "not_applicable_category_1",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": ""
+    }
+  },
+  {
+    "unit_id": "u0028",
+    "excerpt": "The public entry points are the scene graph (`Scene`, `Node`, `Entity`, `A3DObject`), the\nprimitive and mesh types (`Box`, `Cylinder`, `Dish`, `Mesh`, `Curve`, ...), the material system\n(`LambertMaterial`, `PhongMaterial`, `PbrMaterial`), and one `LoadOptions`/`SaveOptions` pair\nper file format, resolved through `FileFormat`. The library ships 195 public classes in total;\nthe sections below cover the ones used most often.",
+    "classification": "2_mechanism_explanation",
+    "disposition": "merged_reframed",
+    "target_section": "API Reference",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/main/java/com/aspose/threed/Scene.java"
+    }
+  },
+  {
+    "unit_id": "u0029",
+    "excerpt": "This library's public API is engineered to match Aspose.3D for Java's package structure\n(`com.aspose.threed.*`), method signatures, and class names, within the capabilities this\nedition implements. Because the API design is shared, the commercial edition's\n[developer documentation](https://docs.aspose.com/3d/java/) and\n[API reference](https://reference.aspose.com/3d/java/) are useful supplementary resources\nwithin the supported feature set.",
+    "classification": "2_mechanism_explanation",
+    "disposition": "excluded",
+    "target_section": null,
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/main/java/com/aspose/threed/FileFormat.java"
+    },
+    "excluded_reason": "Candidate's Scope and Limitations closing paragraph already states the Enterprise Edition relationship ('simply swap to the commercial package; no separate trial download is required') -- same substance (shared API design, commercial docs as a supplementary resource), reframed into the closing note rather than the API Reference intro."
+  },
+  {
+    "unit_id": "u0030",
+    "excerpt": "<details>\n<summary>View the Supported Public API Surface</summary>",
+    "classification": "1_narrative_cta",
+    "disposition": "merged_verbatim",
+    "target_section": "API Reference",
+    "verification": {
+      "status": "not_applicable_category_1",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": ""
+    }
+  },
+  {
+    "unit_id": "u0031",
+    "excerpt": "| Class | Description |\n|---|---|\n| `A3DObject` | A3DObject.A3DObject creates an object with an empty name. |\n| `AnimationClip` | AnimationClip.AnimationClip creates a new animation clip with an empty name. |\n| `AssetInfo` | AssetInfo.AssetInfo creates a new AssetInfo instance with default values. |\n| `AxisSystem` | AxisSystem.AxisSystem creates an AxisSystem with the given coordinate system, up axis, and front axis. |\n| `BoundingBox` | BoundingBox.BoundingBox creates an empty bounding box with default minimum and maximum values. |\n| `Camera` | Camera.Camera creates a new camera instance with default name and properties. |\n| `Cancellation` | Cancellation.Cancellation creates a new cancellation token instance. |\n| `CustomObject` | CustomObject.CustomObject(name:String) creates a new CustomObject with the specified name. |\n| `Deformer` | Deformer.Deformer creates a new Deformer instance with default settings. |\n| `Entity` | Entity.Entity creates a new Entity with no name. |\n| `EntityRendererKey` | EntityRendererKey.EntityRendererKey creates a key with the specified rendering features and name. |\n| `ExportException` | ExportException.ExportException creates an exception with a given error message. |\n| `FVector3` | FVector3.FVector3 creates a vector with all components set to zero. |\n| `FVector4` | FVector4.FVector4 creates a vector with all components initialized to zero. |\n| `FbxExporter` | FbxExporter.canExport returns true if the exporter supports the specified FileFormat. |\n| `FbxImporter` | FbxImporter.canImport returns true if the specified FileFormat is supported for import. |\n| `FbxLoadOptions` | FbxLoadOptions.getFlipCoordinateSystem returns whether the coordinate system is flipped on load. |\n| `FbxSaveOptions` | FbxSaveOptions.FbxSaveOptions creates a new instance with default FBX save settings. |\n| `FileFormat` | Identifies a specific 3D file format variant (e.g. `FBX7400_BINARY`, `WAVEFRONTOBJ`, `GLTF2`) together with its version, content type (ASCII/binary), and file extension; also exposes `detect()`/`getFormatByExtension()` for format resolution. |\n| `FileFormatType` | FileFormatType.getExtension() returns the associated file extension string. |\n| `Geometry` | Geometry.Geometry creates a new Geometry with default name. |\n| `GlobalTransform` | GlobalTransform.GlobalTransform creates a new GlobalTransform instance with default matrix, translation, rotation, and scale. |\n| `GltfExporter` | Class with 2 methods. |\n| `GltfImporter` | GltfImporter.canImport checks if the specified FileFormat is supported for import. |\n| `GltfLoadOptions` | GltfLoadOptions.getFlipCoordinateSystem returns true if the loader flips the coordinate system. |\n| `GltfSaveOptions` | GltfSaveOptions.GltfSaveOptions constructs a new instance with default settings. |\n| `IOService` | IOService.detectFormat detects the file format of a stream, optionally using the file name. |\n| `ImageRenderOptions` | `SaveOptions` for rendering a scene to a raster image — background color, shadow rendering, and asset-directory lookup paths. |\n| `ImportException` | ImportException.ImportException creates an exception with a detail message. |\n| `LoadOptions` | LoadOptions.LoadOptions creates a LoadOptions instance with default settings. |\n| `Material` | Material.Material creates a new material instance with the specified name. |\n| `Matrix4` | Matrix4.Matrix4 creates a new identity matrix. |\n| `Mesh` | Mesh.Mesh creates an empty mesh with default name. |\n| `Node` | Represents a node in the scene graph — holds a local `Transform`, child `Node`s, and the `Entity` objects (geometry, camera, light) attached to it. |\n| `ObjExporter` | ObjExporter.canExport returns true when the exporter can handle the specified FileFormat. |\n| `ObjImporter` | Class with 2 methods. |\n| `ObjLoadOptions` | ObjLoadOptions.ObjLoadOptions creates a new ObjLoadOptions object with default option values. |\n| `ObjSaveOptions` | ObjSaveOptions.getApplyUnitScale returns true if unit scaling is applied when saving. |\n| `ParseException` | ParseException.ParseException creates an exception with the specified error message. |\n| `PbrMaterial` | PbrMaterial.PbrMaterial() creates a new PbrMaterial with default values. |\n| `Pose` | Stores the transformation matrices used when skinning a mesh's geometry — a set of `BonePose` entries, one per bone node. |\n| `Property` | Property.Property creates a Property with the given name and value. |\n| `PropertyCollection` | PropertyCollection.add adds the specified Property to the collection. |\n| `Quaternion` | Quaternion.Quaternion creates a quaternion with default components (0,0,0,0). |\n| `SaveOptions` | SaveOptions.SaveOptions initializes a new SaveOptions instance with default settings. |\n| `Scene` | Represents a complete 3D scene — the root container for the node graph (`getRootNode()`), animation clips, and poses, and the entry point for loading and saving 3D files via `save()`/`FileFormat`. |\n| `SceneObject` | SceneObject.SceneObject creates a new SceneObject with default settings. |\n| `StlExporter` | Class with 2 methods. |\n| `StlImporter` | StlImporter.canImport determines whether the given file format is supported for import. |\n| `StlLoadOptions` | StlLoadOptions.StlLoadOptions initializes a new instance with the specified content type. |\n| `StlSaveOptions` | StlSaveOptions.StlSaveOptions initializes a new instance using the specified FileContentType. |\n| `Stream` | Stream.Stream creates a Stream wrapping the given InputStream. |\n| `TextureData` | TextureData.TextureData creates a new instance of TextureData. |\n| `Transform` | Represents a node's local transformation — translation, scaling, and rotation (plus pivot/offset controls) resolvable to a `Matrix4`. |\n| `Vector2` | Vector2.Vector2 creates a vector with both components set to zero. |\n| `Vector3` | Mutable 3D vector (`x`, `y`, `z` double fields) used throughout the API for positions, scaling, rotation, and colors. |\n| `Vector4` | Vector4.Vector4 initializes a vector with the specified x, y, z, and w component values. |\n| `Version` | Version.Version(major:int, minor:int) creates a version with specified major and minor numbers. |\n| `VertexElement` | VertexElement.getType returns the element's data type. |\n| `VertexElementBinormal` | VertexElementBinormal.VertexElementBinormal creates a binormal vertex element with specified mapping and reference modes. |\n| `VertexElementMaterial` | VertexElementMaterial.VertexElementMaterial creates a material vertex element using the given mapping and reference modes. |\n| `VertexElementNormal` | VertexElementNormal.VertexElementNormal constructs a vertex normal element using the given mapping and reference modes. |\n| `VertexElementTangent` | VertexElementTangent.VertexElementTangent creates a tangent vertex element using the given mappingMode and referenceMode. |\n| `VertexElementUV` | VertexElementUV.VertexElementUV creates a new instance with the given texture mapping, mapping mode, and reference mode. |\n| `VertexElementVertexColor` | Per-vertex color data element (`VertexElementType.VERTEX_COLOR`) attached to a mesh's vertex buffer. |",
+    "classification": "2_mechanism_explanation",
+    "disposition": "merged_reframed",
+    "target_section": "API Reference",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/main/java/com/aspose/threed/A3DObject.java"
+    }
+  },
+  {
+    "unit_id": "u0032",
+    "excerpt": "| Interface | Description |\n|---|---|\n| `IExporter` | IExporter.canExport returns true when the exporter supports the specified FileFormat. |\n| `IImporter` | IImporter.canImport determines whether the given FileFormat is supported for import. |\n| `IMeshConvertible` | IMeshConvertible.toMesh converts the implementing object to a Mesh instance. |\n| `INamedObject` | INamedObject.getName returns the object's current name. |\n| `NodeVisitor` | NodeVisitor.visit processes the specified Node and returns true to continue traversal, false to stop. |\n| `Struct` | Struct.clone returns a new instance that is a copy of this struct. |",
+    "classification": "2_mechanism_explanation",
+    "disposition": "corrected",
+    "target_section": "API Reference",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/main/java/com/aspose/threed/IMeshConvertible.java"
+    },
+    "correction_reason": "Old README's Interfaces table includes IExporter/IImporter, neither of which exists anywhere in the real Java source (grep-confirmed absent) -- likely copied from the .NET port, which does have these as real internal interfaces. The candidate's rebuilt Interfaces table (mirroring the real, independently-verified reference.aspose.org index) correctly omits both; the table's other 4 real entries (IMeshConvertible, INamedObject, NodeVisitor, Struct) are present.",
+    "ledger_migration_note": "2026-09-02 field migration: correction text moved from excluded_reason (pre-fix gate workaround) to correction_reason; disposition/verification untouched"
+  },
+  {
+    "unit_id": "u0033",
+    "excerpt": "| Enumeration | Description |\n|---|---|\n| `Axis` | Axis.X_AXIS represents the positive X axis direction. |\n| `BooleanOperation` | BooleanOperation.UNION represents a boolean operation that combines two solids into their union. |\n| `CoordinateSystem` | CoordinateSystem.RIGHT_HANDED represents a right‑handed coordinate system orientation. |\n| `EntityRendererFeatures` | EntityRendererFeatures.None represents no rendering features enabled. |\n| `FileContentType` | FileContentType.BINARY represents a binary file content type. |\n| `MappingMode` | MappingMode.CONTROL_POINT represents mapping values per control point. |\n| `ReferenceMode` | ReferenceMode.DIRECT represents a reference mode where vertex data is stored directly without indices. |\n| `TextureMapping` | TextureMapping.AMBIENT represents the ambient texture mapping channel. |\n| `VertexElementType` | VertexElementType.BINORMAL represents a vertex's binormal (bitangent) vector attribute. |",
+    "classification": "2_mechanism_explanation",
+    "disposition": "merged_reframed",
+    "target_section": "API Reference",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/main/java/com/aspose/threed/Axis.java"
+    }
+  },
+  {
+    "unit_id": "u0034",
+    "excerpt": "- `Scene`",
+    "classification": "2_mechanism_explanation",
+    "disposition": "merged_reframed",
+    "target_section": "API Reference",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/main/java/com/aspose/threed/Scene.java"
+    }
+  },
+  {
+    "unit_id": "u0035",
+    "excerpt": "- `Scene()`, `fromFile(path) -> Scene`, `open(stream, format)`",
+    "classification": "2_mechanism_explanation",
+    "disposition": "merged_reframed",
+    "target_section": "API Reference",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/main/java/com/aspose/threed/Scene.java"
+    }
+  },
+  {
+    "unit_id": "u0036",
+    "excerpt": "- `getRootNode() -> Node`",
+    "classification": "2_mechanism_explanation",
+    "disposition": "merged_reframed",
+    "target_section": "API Reference",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/main/java/com/aspose/threed/Scene.java"
+    }
+  },
+  {
+    "unit_id": "u0037",
+    "excerpt": "- `save(path)`, `save(path, format)`, `save(path, options)`",
+    "classification": "2_mechanism_explanation",
+    "disposition": "merged_reframed",
+    "target_section": "API Reference",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/main/java/com/aspose/threed/Scene.java"
+    }
+  },
+  {
+    "unit_id": "u0038",
+    "excerpt": "- `getName() -> String`",
+    "classification": "2_mechanism_explanation",
+    "disposition": "merged_reframed",
+    "target_section": "API Reference",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/main/java/com/aspose/threed/Scene.java"
+    }
+  },
+  {
+    "unit_id": "u0039",
+    "excerpt": "- `Node` (extends `A3DObject`)",
+    "classification": "2_mechanism_explanation",
+    "disposition": "merged_reframed",
+    "target_section": "API Reference",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/main/java/com/aspose/threed/Node.java"
+    }
+  },
+  {
+    "unit_id": "u0040",
+    "excerpt": "- `createChildNode(name)`, `createChildNode(name, entity)`",
+    "classification": "2_mechanism_explanation",
+    "disposition": "merged_reframed",
+    "target_section": "API Reference",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/main/java/com/aspose/threed/Node.java"
+    }
+  },
+  {
+    "unit_id": "u0041",
+    "excerpt": "- `getChildNodes() -> List<Node>`",
+    "classification": "2_mechanism_explanation",
+    "disposition": "merged_reframed",
+    "target_section": "API Reference",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/main/java/com/aspose/threed/Node.java"
+    }
+  },
+  {
+    "unit_id": "u0042",
+    "excerpt": "- `getEntities() -> List<Entity>`",
+    "classification": "2_mechanism_explanation",
+    "disposition": "merged_reframed",
+    "target_section": "API Reference",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/main/java/com/aspose/threed/Node.java"
+    }
+  },
+  {
+    "unit_id": "u0043",
+    "excerpt": "- `getTransform() -> Transform`",
+    "classification": "2_mechanism_explanation",
+    "disposition": "merged_reframed",
+    "target_section": "API Reference",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/main/java/com/aspose/threed/Node.java"
+    }
+  },
+  {
+    "unit_id": "u0044",
+    "excerpt": "- `Mesh`",
+    "classification": "2_mechanism_explanation",
+    "disposition": "merged_reframed",
+    "target_section": "API Reference",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/main/java/com/aspose/threed/Mesh.java"
+    }
+  },
+  {
+    "unit_id": "u0046",
+    "excerpt": "- `createPolygon(indices)`",
+    "classification": "2_mechanism_explanation",
+    "disposition": "merged_reframed",
+    "target_section": "API Reference",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/main/java/com/aspose/threed/Mesh.java"
+    }
+  },
+  {
+    "unit_id": "u0047",
+    "excerpt": "- `getControlPoints() -> ...`, `getPolygonCount() -> int`",
+    "classification": "2_mechanism_explanation",
+    "disposition": "merged_reframed",
+    "target_section": "API Reference",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/main/java/com/aspose/threed/Mesh.java"
+    }
+  },
+  {
+    "unit_id": "u0045",
+    "excerpt": "- `addControlPoint(x, y, z)`",
+    "classification": "2_mechanism_explanation",
+    "disposition": "excluded",
+    "target_section": null,
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/main/java/com/aspose/threed/Mesh.java"
+    },
+    "excluded_reason": "Method-level detail; candidate's 'Detailed Member Reference' describes Mesh's control-point/polygon API at prose/class level rather than enumerating every individual accessor -- consolidated, not dropped."
+  },
+  {
+    "unit_id": "u0048",
+    "excerpt": "- `Box`, `Cylinder`, `Dish` — parameterized solid primitives with `toMesh() -> Mesh`",
+    "classification": "2_mechanism_explanation",
+    "disposition": "merged_reframed",
+    "target_section": "API Reference",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/main/java/com/aspose/threed/Box.java"
+    }
+  },
+  {
+    "unit_id": "u0049",
+    "excerpt": "- `CircleShape`, `EllipseShape` (extend `ParameterizedProfile`) — IFC-compatible 2D profiles",
+    "classification": "2_mechanism_explanation",
+    "disposition": "merged_reframed",
+    "target_section": "API Reference",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/main/java/com/aspose/threed/CircleShape.java"
+    }
+  },
+  {
+    "unit_id": "u0050",
+    "excerpt": "- `BooleanOperator`, `BooleanOperand`, `BooleanOperation` — mesh boolean add/subtract/intersect",
+    "classification": "2_mechanism_explanation",
+    "disposition": "merged_reframed",
+    "target_section": "API Reference",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/main/java/com/aspose/threed/BooleanOperator.java"
+    }
+  },
+  {
+    "unit_id": "u0051",
+    "excerpt": "- `Material` (base)",
+    "classification": "2_mechanism_explanation",
+    "disposition": "merged_reframed",
+    "target_section": "API Reference",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/main/java/com/aspose/threed/Material.java"
+    }
+  },
+  {
+    "unit_id": "u0052",
+    "excerpt": "- `LambertMaterial` — `getDiffuseColor/setDiffuseColor`, `getAmbientColor/setAmbientColor`, `getEmissiveColor/setEmissiveColor`, `getTransparency/setTransparency`",
+    "classification": "2_mechanism_explanation",
+    "disposition": "excluded",
+    "target_section": null,
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/main/java/com/aspose/threed/LambertMaterial.java"
+    },
+    "excluded_reason": "Method-level detail; candidate's 'Detailed Member Reference' describes LambertMaterial's accessors at prose/class level rather than enumerating every individual accessor -- consolidated, not dropped."
+  },
+  {
+    "unit_id": "u0053",
+    "excerpt": "- `PhongMaterial` — adds `getSpecularColor/setSpecularColor`, `getShininess/setShininess`, `getReflectionFactor/setReflectionFactor`",
+    "classification": "2_mechanism_explanation",
+    "disposition": "excluded",
+    "target_section": null,
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/main/java/com/aspose/threed/PhongMaterial.java"
+    },
+    "excluded_reason": "Method-level detail; candidate's 'Detailed Member Reference' describes PhongMaterial's accessors at prose/class level rather than enumerating every individual accessor -- consolidated, not dropped."
+  },
+  {
+    "unit_id": "u0054",
+    "excerpt": "- `PbrMaterial` — `getAlbedo/setAlbedo`, `getMetallicFactor/setMetallicFactor`, `getRoughnessFactor/setRoughnessFactor`, `getOcclusionFactor/setOcclusionFactor`, `fromMaterial(material) -> PbrMaterial`",
+    "classification": "2_mechanism_explanation",
+    "disposition": "merged_reframed",
+    "target_section": "API Reference",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/main/java/com/aspose/threed/PbrMaterial.java"
+    }
+  },
+  {
+    "unit_id": "u0055",
+    "excerpt": "- `Curve` (abstract base), `Circle`, `Ellipse`, `CompositeCurve`",
+    "classification": "2_mechanism_explanation",
+    "disposition": "merged_reframed",
+    "target_section": "API Reference",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/main/java/com/aspose/threed/Curve.java"
+    }
+  },
+  {
+    "unit_id": "u0056",
+    "excerpt": "- `NurbsCurve` — `getDegree/setDegree`, `getOrder/setOrder`, `getControlPoints`, `getKnotVectors`, `getMultiplicity`, `getRational/setRational`, `getCurveType/setCurveType`",
+    "classification": "2_mechanism_explanation",
+    "disposition": "merged_reframed",
+    "target_section": "API Reference",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/main/java/com/aspose/threed/NurbsCurve.java"
+    }
+  },
+  {
+    "unit_id": "u0057",
+    "excerpt": "- `Vector2`, `Vector3` — `add`, `dot`, `cross`, component accessors",
+    "classification": "2_mechanism_explanation",
+    "disposition": "merged_reframed",
+    "target_section": "API Reference",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/main/java/com/aspose/threed/Vector3.java"
+    }
+  },
+  {
+    "unit_id": "u0058",
+    "excerpt": "- `Vector4` — plain `x`/`y`/`z`/`w` component fields only (no `add`/`dot`/`cross` methods)",
+    "classification": "2_mechanism_explanation",
+    "disposition": "merged_reframed",
+    "target_section": "API Reference",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/main/java/com/aspose/threed/Vector4.java"
+    }
+  },
+  {
+    "unit_id": "u0059",
+    "excerpt": "- `Matrix4` — transform matrices",
+    "classification": "2_mechanism_explanation",
+    "disposition": "merged_reframed",
+    "target_section": "API Reference",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/main/java/com/aspose/threed/Matrix4.java"
+    }
+  },
+  {
+    "unit_id": "u0060",
+    "excerpt": "- `BoundingBox` — `getMinimum`, `getMaximum`, `getCenter`, `getSize`, `merge`, `contains`",
+    "classification": "2_mechanism_explanation",
+    "disposition": "excluded",
+    "target_section": null,
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/main/java/com/aspose/threed/BoundingBox.java"
+    },
+    "excluded_reason": "Method-level detail; candidate's 'Detailed Member Reference' describes BoundingBox's accessors at prose/class level rather than enumerating every individual accessor -- consolidated, not dropped."
+  },
+  {
+    "unit_id": "u0061",
+    "excerpt": "- `BoundingBox2D` — `getMinimum`, `getMaximum`, `merge`",
+    "classification": "2_mechanism_explanation",
+    "disposition": "excluded",
+    "target_section": null,
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/main/java/com/aspose/threed/BoundingBox2D.java"
+    },
+    "excluded_reason": "Method-level detail; candidate's 'Detailed Member Reference' describes BoundingBox2D's accessors at prose/class level rather than enumerating every individual accessor -- consolidated, not dropped."
+  },
+  {
+    "unit_id": "u0062",
+    "excerpt": "- `Transform` — `getTranslation/setTranslation`",
+    "classification": "2_mechanism_explanation",
+    "disposition": "excluded",
+    "target_section": null,
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/main/java/com/aspose/threed/Transform.java"
+    },
+    "excluded_reason": "Method-level detail; candidate's 'Detailed Member Reference' describes Transform's accessors at prose/class level rather than enumerating every individual accessor -- consolidated, not dropped."
+  },
+  {
+    "unit_id": "u0063",
+    "excerpt": "- `FileFormat` — `detect(stream, fileName)`, `getFormatByExtension(path)`, `getCanImport()`, `getCanExport()`, format constants (`WAVEFRONTOBJ`, `STL_BINARY`, `STLASCII`, and others)",
+    "classification": "2_mechanism_explanation",
+    "disposition": "merged_reframed",
+    "target_section": "API Reference",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/main/java/com/aspose/threed/FileFormat.java"
+    }
+  },
+  {
+    "unit_id": "u0064",
+    "excerpt": "- `StlLoadOptions` — `getFlipCoordinateSystem/setFlipCoordinateSystem`, `getRecalculateNormal/setRecalculateNormal`",
+    "classification": "2_mechanism_explanation",
+    "disposition": "excluded",
+    "target_section": null,
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/main/java/com/aspose/threed/StlLoadOptions.java"
+    },
+    "excluded_reason": "Method-level detail; candidate's 'Detailed Member Reference' describes StlLoadOptions' accessors at prose/class level rather than enumerating every individual accessor -- consolidated, not dropped."
+  },
+  {
+    "unit_id": "u0065",
+    "excerpt": "- `StlSaveOptions` — `getFlipCoordinateSystem/setFlipCoordinateSystem`, `getAxisSystem/setAxisSystem`",
+    "classification": "2_mechanism_explanation",
+    "disposition": "excluded",
+    "target_section": null,
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/main/java/com/aspose/threed/StlSaveOptions.java"
+    },
+    "excluded_reason": "Method-level detail; candidate's 'Detailed Member Reference' describes StlSaveOptions' accessors at prose/class level rather than enumerating every individual accessor -- consolidated, not dropped."
+  },
+  {
+    "unit_id": "u0066",
+    "excerpt": "- `LoadOptions`, `SaveOptions` (bases for all format-specific options)",
+    "classification": "2_mechanism_explanation",
+    "disposition": "merged_reframed",
+    "target_section": "API Reference",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/main/java/com/aspose/threed/LoadOptions.java"
+    }
+  },
+  {
+    "unit_id": "u0067",
+    "excerpt": "- `Axis`, `CoordinateSystem`, `BoneLinkMode`, `BooleanOperation`, `DracoCompressionLevel`, `ApertureMode`, `BindPoint`",
+    "classification": "2_mechanism_explanation",
+    "disposition": "merged_reframed",
+    "target_section": "API Reference",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/main/java/com/aspose/threed/Axis.java"
+    }
+  },
+  {
+    "unit_id": "u0068",
+    "excerpt": "The full surface totals 195 public classes. See the [full API reference](#documentation--resources)\nbelow for every type.",
+    "classification": "2_mechanism_explanation",
+    "disposition": "corrected",
+    "target_section": "API Reference",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/main/java/com/aspose/threed/FileFormat.java"
+    },
+    "correction_reason": "Stale count -- old README says 195 public classes; the real, already-published reference.aspose.org index for this product lists 266 (200 Core API + 21 Interfaces + 45 Enumerations), independently re-verified this session and mirrored into the candidate's own Core API/Interfaces/Enumerations tables (closing api_reference_table_completeness's 210 findings). The candidate states 266, not 195.",
+    "ledger_migration_note": "2026-09-02 field migration: correction text moved from excluded_reason (pre-fix gate workaround) to correction_reason; disposition/verification untouched"
+  },
+  {
+    "unit_id": "u0069",
+    "excerpt": "</details>",
+    "classification": "1_narrative_cta",
+    "disposition": "merged_verbatim",
+    "target_section": "API Reference",
+    "verification": {
+      "status": "not_applicable_category_1",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": ""
+    }
+  },
+  {
+    "unit_id": "u0070",
+    "excerpt": "- **[Getting started guide](https://docs.aspose.org/3d/java/)** — installation, walkthroughs, and feature guides for this library.",
+    "classification": "1_narrative_cta",
+    "disposition": "merged_verbatim",
+    "target_section": "Documentation & Resources",
+    "verification": {
+      "status": "not_applicable_category_1",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": ""
+    }
+  },
+  {
+    "unit_id": "u0071",
+    "excerpt": "- **[How-to guides & FAQ](https://kb.aspose.org/3d/java/)** — task-focused answers for common 3D-processing questions.",
+    "classification": "1_narrative_cta",
+    "disposition": "merged_verbatim",
+    "target_section": "Documentation & Resources",
+    "verification": {
+      "status": "not_applicable_category_1",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": ""
+    }
+  },
+  {
+    "unit_id": "u0072",
+    "excerpt": "- **[Full API reference](https://reference.aspose.org/3d/java/)** — the complete, browsable reference for all 195 public classes.",
+    "classification": "1_narrative_cta",
+    "disposition": "merged_verbatim",
+    "target_section": "Documentation & Resources",
+    "verification": {
+      "status": "not_applicable_category_1",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": ""
+    }
+  },
+  {
+    "unit_id": "u0073",
+    "excerpt": "- **[FILE_FORMATS.md](FILE_FORMATS.md)** — per-format support status in this repository.",
+    "classification": "1_narrative_cta",
+    "disposition": "merged_verbatim",
+    "target_section": "Documentation & Resources",
+    "verification": {
+      "status": "not_applicable_category_1",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": ""
+    }
+  },
+  {
+    "unit_id": "u0076",
+    "excerpt": "- **[Publishing guide](PUBLISHING.md)** — how this package is built and released.",
+    "classification": "1_narrative_cta",
+    "disposition": "merged_verbatim",
+    "target_section": "Documentation & Resources",
+    "verification": {
+      "status": "not_applicable_category_1",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": ""
+    }
+  },
+  {
+    "unit_id": "u0077",
+    "excerpt": "- In-repo implementation notes: [API diff since 26.1.0](docs/api-diff-26.1.0.md),\n  [directory structures](docs/directory-structures.md), and\n  [project progress](docs/foss-java-progress.md).",
+    "classification": "1_narrative_cta",
+    "disposition": "merged_verbatim",
+    "target_section": "Documentation & Resources",
+    "verification": {
+      "status": "not_applicable_category_1",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": ""
+    }
+  },
+  {
+    "unit_id": "u0078",
+    "excerpt": "- Found a bug or have a feature request? [Open an issue](https://github.com/aspose-3d-foss/Aspose.3D-FOSS-for-Java/issues) on GitHub.",
+    "classification": "1_narrative_cta",
+    "disposition": "merged_verbatim",
+    "target_section": "Documentation & Resources",
+    "verification": {
+      "status": "not_applicable_category_1",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": ""
+    }
+  },
+  {
+    "unit_id": "u0074",
+    "excerpt": "- **[TODO.md](TODO.md)** — current porting progress and planned work.",
+    "classification": "1_narrative_cta",
+    "disposition": "excluded",
+    "target_section": null,
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "TODO.md"
+    },
+    "excluded_reason": "Real link, present in the candidate's Development and Testing section ('see TODO.md for current progress') rather than Documentation & Resources -- carried forward, just relocated to sit next to the other project-status pointer."
+  },
+  {
+    "unit_id": "u0075",
+    "excerpt": "- **[Contributor guide](AGENTS.md)** — architecture notes and conventions for contributors.",
+    "classification": "1_narrative_cta",
+    "disposition": "excluded",
+    "target_section": null,
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "AGENTS.md"
+    },
+    "excluded_reason": "Real link, present in the candidate's Development and Testing section ('[AGENTS.md](AGENTS.md) documents the API-compatibility rules...') rather than Documentation & Resources -- carried forward, just relocated."
+  },
+  {
+    "unit_id": "u0079",
+    "excerpt": "- STL import and export (ASCII and binary) is the only fully functional read/write path in this\n  edition.",
+    "classification": "2_mechanism_explanation",
+    "disposition": "merged_reframed",
+    "target_section": "Scope and Limitations",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/main/java/com/aspose/threed/FileFormat.java"
+    }
+  },
+  {
+    "unit_id": "u0080",
+    "excerpt": "- Wavefront OBJ import does not currently work, despite being format-detectable — see\n  [upstream-issues.md](upstream-issues.md) for details.",
+    "classification": "2_mechanism_explanation",
+    "disposition": "excluded",
+    "target_section": null,
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/main/java/com/aspose/threed/FileFormat.java"
+    },
+    "excluded_reason": "Candidate's Scope and Limitations already carries this exact claim near-verbatim ('OBJ import has a real, working parser in the upstream GitHub source, but the currently published Maven Central artifact was built from an older state and still ships a stub there') -- independently re-verified this session with executable proof (reports/plan_state/readme-disposition-remediation-2026-08-18/evidence/3d-java-obj-proof/): confirmed true against both the source build and the real published 26.5.0 jar."
+  },
+  {
+    "unit_id": "u0081",
+    "excerpt": "- Save options classes exist for other formats (Collada, glTF, FBX-family, AMF, Draco, and more),\n  but their encoders are not yet wired up in this FOSS build.",
+    "classification": "2_mechanism_explanation",
+    "disposition": "merged_reframed",
+    "target_section": "Scope and Limitations",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/main/java/com/aspose/threed/FileFormat.java"
+    }
+  },
+  {
+    "unit_id": "u0082",
+    "excerpt": "- Draco encoding and decoding, `Scene.render` (no rendering pipeline), and `Camera.moveForward`\n  explicitly throw `UnsupportedOperationException`.",
+    "classification": "2_mechanism_explanation",
+    "disposition": "excluded",
+    "target_section": null,
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/main/java/com/aspose/threed/FileFormat.java"
+    },
+    "excluded_reason": "Candidate's Scope and Limitations covers the same ground via 'Additional format coverage beyond STL... is a commercial-edition feature' and 'Scene rendering is not implemented in this edition' -- same substance (Draco, rendering, and other unimplemented operations), reframed at a slightly higher level without naming Camera.moveForward specifically."
+  },
+  {
+    "unit_id": "u0083",
+    "excerpt": "- Cryptographic and licensing/metering helpers — no licensing, trial, or DRM-related\n  functionality — are not applicable to an open-source edition.",
+    "classification": "2_mechanism_explanation",
+    "disposition": "merged_reframed",
+    "target_section": "Scope and Limitations",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/main/java/com/aspose/threed/License.java"
+    }
+  },
+  {
+    "unit_id": "u0084",
+    "excerpt": "- `toMesh()` conversion is not implemented for a few parametric primitives (`Pyramid`, `Torus`,\n  `RectangularTorus`, `RevolvedAreaSolid`, `LinearExtrusion`).",
+    "classification": "2_mechanism_explanation",
+    "disposition": "excluded",
+    "target_section": null,
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/main/java/com/aspose/threed/Pyramid.java"
+    },
+    "excluded_reason": "Candidate's Scope and Limitations already covers this via the complementary framing 'A handful of primitive-shape classes have a mesh-conversion method that is present but not yet implemented; Box, Cylinder, Sphere, and Dish are confirmed to convert correctly' -- independently re-verified this session (grep-confirmed Pyramid/Torus/RectangularTorus/RevolvedAreaSolid/LinearExtrusion's toMesh() throws UnsupportedOperationException in source, matching the old README's explicit list)."
+  },
+  {
+    "unit_id": "u0085",
+    "excerpt": "These limitations don't apply to\n[Aspose.3D for Java — Enterprise Edition](https://products.aspose.com/3d/java/), which adds\nrendering, the broader exchange-format set (FBX, glTF, USD, PDF, JT, and more), and advanced\nmesh operations. Because this FOSS edition shares the same public API design, upgrading is a\npackage swap, not an API rewrite — your existing code continues to work unmodified.",
+    "classification": "3_branding_positioning",
+    "disposition": "merged_reframed",
+    "target_section": "Scope and Limitations",
+    "verification": {
+      "status": "verified_redundant",
+      "evidence_type": "candidate_section_reference",
+      "evidence_ref": "Scope and Limitations closing Enterprise Edition paragraph"
+    }
+  },
+  {
+    "unit_id": "u0086",
+    "excerpt": "This is a Maven project targeting Java 21. Build and test from source:",
+    "classification": "1_narrative_cta",
+    "disposition": "merged_verbatim",
+    "target_section": "Development and Testing",
+    "verification": {
+      "status": "not_applicable_category_1",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": ""
+    }
+  },
+  {
+    "unit_id": "u0087",
+    "excerpt": "Releases are published via the\n[Maven Central release workflow](.github/workflows/maven-central-release.yml).",
+    "classification": "2_mechanism_explanation",
+    "disposition": "merged_reframed",
+    "target_section": "Development and Testing",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": ".github/workflows/maven-central-release.yml"
+    }
+  },
+  {
+    "unit_id": "u0088",
+    "excerpt": "This project is licensed under the [MIT License](LICENSE). The MIT License permits use, copying,\nmodification, distribution, sublicensing, and commercial use, provided its copyright and\npermission notice are retained. The software is provided without warranty.",
+    "classification": "2_mechanism_explanation",
+    "disposition": "merged_reframed",
+    "target_section": "License",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "LICENSE"
+    }
+  }
+]

@@ -1,0 +1,58 @@
+[
+  {
+    "unit_id": "s0001",
+    "heading": "At a Glance",
+    "kind": "generic_structural_block",
+    "claimed_paths": [],
+    "disposition": "merged_reframed",
+    "target_section": "Project Structure",
+    "excluded_reason": null,
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "candidate_section_reference",
+      "evidence_ref": "Project Structure"
+    }
+  },
+  {
+    "unit_id": "s0002",
+    "heading": "Open a Password-Protected Document",
+    "kind": "generic_structural_block",
+    "claimed_paths": [],
+    "disposition": "merged_verbatim",
+    "target_section": "Project Structure",
+    "excluded_reason": null,
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "candidate_section_reference",
+      "evidence_ref": "Project Structure"
+    }
+  },
+  {
+    "unit_id": "s0003",
+    "heading": "Render Every Page to a Multi-Page TIFF",
+    "kind": "generic_structural_block",
+    "claimed_paths": [],
+    "disposition": "merged_verbatim",
+    "target_section": "Project Structure",
+    "excluded_reason": null,
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "candidate_section_reference",
+      "evidence_ref": "Project Structure"
+    }
+  },
+  {
+    "unit_id": "s0004",
+    "heading": "Build an Outline (Bookmark) Tree",
+    "kind": "generic_structural_block",
+    "claimed_paths": [],
+    "disposition": "merged_verbatim",
+    "target_section": "Project Structure",
+    "excluded_reason": null,
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "candidate_section_reference",
+      "evidence_ref": "Project Structure"
+    }
+  }
+]

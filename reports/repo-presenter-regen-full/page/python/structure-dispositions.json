@@ -1,0 +1,50 @@
+[
+  {
+    "unit_id": "s0001",
+    "heading": "At a Glance",
+    "disposition": "merged_reframed",
+    "target_section": "At a Glance",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/aspose/page/ps/document.py"
+    }
+  },
+  {
+    "unit_id": "s0002",
+    "heading": "Extract EPS Metadata",
+    "disposition": "merged_verbatim",
+    "target_section": "Additional Examples",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/aspose/page/ps/dsc.py"
+    }
+  },
+  {
+    "unit_id": "s0003",
+    "heading": "Convert XPS to PDF via the MCP Handler",
+    "disposition": "merged_verbatim",
+    "target_section": "Additional Examples",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/aspose/page/mcp/handlers.py"
+    }
+  },
+  {
+    "unit_id": "s0004",
+    "heading": "Render a Page to PNG Without Any PS/XPS Input",
+    "disposition": "merged_verbatim",
+    "target_section": "Additional Examples",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/aspose/page/image/raster_renderer.py"
+    }
+  }
+]

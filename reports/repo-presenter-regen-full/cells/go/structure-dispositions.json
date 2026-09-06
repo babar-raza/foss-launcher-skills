@@ -1,0 +1,86 @@
+[
+  {
+    "unit_id": "s0001",
+    "heading": "At a Glance",
+    "kind": "generic_structural_block",
+    "disposition": "merged_verbatim",
+    "target_section": "At a Glance",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "aspose/cells_foss/workbook.go"
+    }
+  },
+  {
+    "unit_id": "s0002",
+    "heading": "Data Validation",
+    "kind": "generic_structural_block",
+    "disposition": "merged_verbatim",
+    "target_section": "Additional Examples",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "aspose/cells_foss/datavalidation.go"
+    }
+  },
+  {
+    "unit_id": "s0003",
+    "heading": "Picture Embedding",
+    "kind": "generic_structural_block",
+    "disposition": "merged_verbatim",
+    "target_section": "Additional Examples",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "aspose/cells_foss/picture.go"
+    }
+  },
+  {
+    "unit_id": "s0004",
+    "heading": "Streaming Large Files",
+    "kind": "generic_structural_block",
+    "disposition": "merged_verbatim",
+    "target_section": "Additional Examples",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "aspose/cells_foss/streaming_reader.go"
+    }
+  },
+  {
+    "unit_id": "s0005",
+    "heading": "Styling",
+    "kind": "generic_structural_block",
+    "disposition": "merged_verbatim",
+    "target_section": "Additional Examples",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "aspose/cells_foss/style.go"
+    }
+  },
+  {
+    "unit_id": "s0006",
+    "heading": "Structured Tables",
+    "kind": "generic_structural_block",
+    "disposition": "merged_verbatim",
+    "target_section": "Additional Examples",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "aspose/cells_foss/table.go"
+    }
+  },
+  {
+    "unit_id": "s0007",
+    "heading": "Project Structure",
+    "kind": "directory_tree",
+    "disposition": "merged_verbatim",
+    "target_section": "Project Structure",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "aspose/cells_foss/workbook.go"
+    }
+  }
+]

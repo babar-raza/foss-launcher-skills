@@ -1,0 +1,224 @@
+[
+  {
+    "unit_id": "c0001",
+    "disposition": "merged_verbatim",
+    "target_section": "At a Glance",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/main/java/org/aspose/cells_foss/Workbook.java"
+    }
+  },
+  {
+    "unit_id": "c0002",
+    "disposition": "corrected",
+    "target_section": "Installation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "pom.xml"
+    },
+    "correction_reason": "Maven/Gradle coordinate version bumped from the old README's 26.5.0 to the current real published 26.7.0 (Maven Central republish, mission MT036, 2026-08-21) -- merged_verbatim incorrectly asserted exact preservation of a version string that was deliberately updated, not preserved unchanged."
+  },
+  {
+    "unit_id": "c0003",
+    "disposition": "corrected",
+    "target_section": "Installation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "pom.xml"
+    },
+    "correction_reason": "Maven/Gradle coordinate version bumped from the old README's 26.5.0 to the current real published 26.7.0 (Maven Central republish, mission MT036, 2026-08-21) -- merged_verbatim incorrectly asserted exact preservation of a version string that was deliberately updated, not preserved unchanged."
+  },
+  {
+    "unit_id": "c0004a",
+    "disposition": "merged_verbatim",
+    "target_section": "Quick Start",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/main/java/org/aspose/cells_foss/Workbook.java"
+    }
+  },
+  {
+    "unit_id": "c0004b",
+    "disposition": "merged_verbatim",
+    "target_section": "Quick Start",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/main/java/org/aspose/cells_foss/Workbook.java"
+    }
+  },
+  {
+    "unit_id": "c0004c",
+    "disposition": "merged_verbatim",
+    "target_section": "Quick Start",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/main/java/org/aspose/cells_foss/Cells.java"
+    }
+  },
+  {
+    "unit_id": "c0004d",
+    "disposition": "merged_verbatim",
+    "target_section": "Quick Start",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/main/java/org/aspose/cells_foss/Style.java"
+    }
+  },
+  {
+    "unit_id": "c0004e",
+    "disposition": "merged_verbatim",
+    "target_section": "Quick Start",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/main/java/org/aspose/cells_foss/Row.java"
+    }
+  },
+  {
+    "unit_id": "c0004f",
+    "disposition": "merged_verbatim",
+    "target_section": "Quick Start",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/main/java/org/aspose/cells_foss/Workbook.java"
+    }
+  },
+  {
+    "unit_id": "c0005a",
+    "disposition": "merged_verbatim",
+    "target_section": "Quick Start",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/main/java/org/aspose/cells_foss/LoadOptions.java"
+    }
+  },
+  {
+    "unit_id": "c0005b",
+    "disposition": "merged_verbatim",
+    "target_section": "Quick Start",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/main/java/org/aspose/cells_foss/LoadOptions.java"
+    }
+  },
+  {
+    "unit_id": "c0005c",
+    "disposition": "merged_verbatim",
+    "target_section": "Quick Start",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/main/java/org/aspose/cells_foss/LoadDiagnostics.java"
+    }
+  },
+  {
+    "unit_id": "c0005d",
+    "disposition": "merged_verbatim",
+    "target_section": "Quick Start",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/main/java/org/aspose/cells_foss/DocumentProperties.java"
+    }
+  },
+  {
+    "unit_id": "c0006a",
+    "disposition": "merged_verbatim",
+    "target_section": "Additional Examples",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/main/java/org/aspose/cells_foss/Validation.java"
+    }
+  },
+  {
+    "unit_id": "c0006b",
+    "disposition": "merged_verbatim",
+    "target_section": "Additional Examples",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/main/java/org/aspose/cells_foss/Workbook.java"
+    }
+  },
+  {
+    "unit_id": "c0006c",
+    "disposition": "merged_verbatim",
+    "target_section": "Additional Examples",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/main/java/org/aspose/cells_foss/ValidationCollection.java"
+    }
+  },
+  {
+    "unit_id": "c0006d",
+    "disposition": "merged_verbatim",
+    "target_section": "Additional Examples",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/main/java/org/aspose/cells_foss/FormatConditionCollection.java"
+    }
+  },
+  {
+    "unit_id": "c0006e",
+    "disposition": "merged_verbatim",
+    "target_section": "Additional Examples",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/main/java/org/aspose/cells_foss/FormatCondition.java"
+    }
+  },
+  {
+    "unit_id": "c0006f",
+    "disposition": "merged_verbatim",
+    "target_section": "Additional Examples",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/main/java/org/aspose/cells_foss/Workbook.java"
+    }
+  },
+  {
+    "unit_id": "c0007",
+    "disposition": "merged_verbatim",
+    "target_section": "Project Structure",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/main/java/org/aspose/cells_foss/Workbook.java"
+    }
+  },
+  {
+    "unit_id": "c0008",
+    "disposition": "merged_verbatim",
+    "target_section": "Development and Testing",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "pom.xml"
+    }
+  },
+  {
+    "unit_id": "c0009",
+    "disposition": "merged_verbatim",
+    "target_section": "Development and Testing",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "pom.xml"
+    }
+  }
+]

@@ -131,14 +131,39 @@ _pc_step_start "reports/ boundary"
 # ---------------------------------------------------------------------------
 # reports/ is gitignored and is a strict local-only boundary. Any staged
 # addition or modification under reports/ is an error (usually caused by
-# git add -f bypassing .gitignore). Deletions (git rm --cached) are allowed
-# so that the cleanup commit can untrack already-committed files.
+# git add -f bypassing .gitignore), EXCEPT a path scripts/pipeline/config/
+# git_tracking_policy.yaml explicitly declares trackable (S-125
+# git-tracking-policy, 2026-09-06 — e.g. reports/repo-presenter-regen-full/
+# {family}/**). Deletions (git rm --cached) are allowed so that the cleanup
+# commit can untrack already-committed files.
 staged_reports=$(git diff --cached --name-only --diff-filter=ACM | grep '^reports/')
+if [ -n "$staged_reports" ] && [ -n "$_HOOK_PYTHON" ] && \
+   [ -f "scripts/pipeline/commands/ops/git_tracking_policy_sync.py" ]; then
+    tracked_prefixes=$(PYTHONPATH=scripts/pipeline "$_HOOK_PYTHON" \
+        scripts/pipeline/commands/ops/git_tracking_policy_sync.py --list-tracked-prefixes 2>/dev/null | tr -d '\r')
+    if [ -n "$tracked_prefixes" ]; then
+        staged_reports=$(printf '%s\n' "$staged_reports" | while IFS= read -r _rf; do
+            [ -z "$_rf" ] && continue
+            _matched=0
+            while IFS= read -r _prefix; do
+                [ -z "$_prefix" ] && continue
+                case "$_rf" in
+                    "$_prefix"*) _matched=1; break ;;
+                esac
+            done <<< "$tracked_prefixes"
+            if [ "$_matched" -eq 0 ]; then
+                echo "$_rf"
+            fi
+        done)
+    fi
+fi
 if [ -n "$staged_reports" ]; then
     echo "BLOCKED: Staged files under reports/ violate the local-only artifact boundary:"
     echo "$staged_reports"
     echo ""
-    echo "reports/ is gitignored. Do not use 'git add -f' to stage files under reports/."
+    echo "reports/ is gitignored. Do not use 'git add -f' to stage files under reports/,"
+    echo "unless the path is declared trackable in scripts/pipeline/config/git_tracking_policy.yaml"
+    echo "(S-125 git-tracking-policy) — see 'git_tracking_policy_sync.py --list-tracked-prefixes'."
     echo "Override tokens are validated from disk (reports/overrides/pending/) — do not stage them."
     echo "Restored to blocking 2026-08-10 (TC-CIR-01, CI reliability reassessment): this check is"
     echo "  fast, deterministic, and staged-scoped, and content-audit.yml's identical CI-side copy"
@@ -1787,6 +1812,43 @@ if [ -n "$staged_rtc_files" ]; then
     fi
 else
     echo "[Step 40] No staged contract/checks/registry files — skipping."
+fi
+_pc_step_end "PASS"
+
+_pc_step_start "git tracking policy parity"
+# ---------------------------------------------------------------------------
+# Step 41 (2026-09-06, S-125 git-tracking-policy skill): blocks a commit that
+# leaves .gitignore's managed "# BEGIN/END GIT-TRACKING-POLICY" block out of
+# sync with scripts/pipeline/config/git_tracking_policy.yaml or with the
+# family registry that policy resolves against (data/blog_family_routes.yaml).
+# That block is generated, not hand-authored (see
+# git_tracking_policy_sync.py's module docstring for why: un-ignoring a path
+# under an ignored directory requires un-ignoring every ancestor level, a
+# well-known git footgun that fails silently when a level is missed) — a
+# commit that hand-edits inside the marked region, or that adds/removes a
+# family without re-running --fix, must not land silently out of sync.
+# Scoped to ONLY fire when a relevant file is staged, same design as Step 33.
+# ---------------------------------------------------------------------------
+staged_gtp_files=$(git diff --cached --name-only --diff-filter=ACMR 2>/dev/null | grep -E \
+    '^(\.gitignore|scripts/pipeline/config/git_tracking_policy\.yaml|data/blog_family_routes\.yaml)$' \
+    || true)
+if [ -n "$staged_gtp_files" ]; then
+    if [ -n "$_HOOK_PYTHON" ] && [ -f "scripts/ci/checks/check_git_tracking_policy.py" ]; then
+        _gtp_files=()
+        while IFS= read -r _gline; do _gtp_files+=("$_gline"); done <<< "$staged_gtp_files"
+        _gtp_out=$(PYTHONPATH=scripts/pipeline "$_HOOK_PYTHON" \
+            scripts/ci/checks/check_git_tracking_policy.py --staged-files "${_gtp_files[@]}" 2>&1)
+        _gtp_exit=$?
+        echo "$_gtp_out" | sed 's/^/[Step 41] /'
+        if [ $_gtp_exit -ne 0 ]; then
+            _pc_step_end "FAIL"
+            _pc_exit 1
+        fi
+    else
+        echo "[Step 41] SKIP: .venv not found or check_git_tracking_policy.py missing." >&2
+    fi
+else
+    echo "[Step 41] No staged .gitignore/policy/family-registry files — skipping."
 fi
 _pc_step_end "PASS"
 

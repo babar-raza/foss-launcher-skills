@@ -45,6 +45,7 @@
 | gap-plan | S-44 | Wave-ordered remediation planning |
 | gap-report | S-45 | Cross-product gap synthesis report |
 | getting-started | S-64 | Fresh-clone onboarding |
+| git-tracking-policy | S-125 | Generate/verify the managed .gitignore negation-chain block that selectively tracks a curated subtree of an otherwise blanket-ignored directory (e.g. reports/repo-presenter-regen-full/{family}/**), keyed off a canonical name registry (e.g. data/blog_family_routes.yaml) via scripts/pipeline/config/git_tracking_policy.yaml |
 | heal-batch | S-89 | Batch healing from content_eval report |
 | heal-page | S-26 | Heal low-quality page |
 | knowledge-bootstrap | S-54 | Pre-condition gate before content or validation |

@@ -1,0 +1,272 @@
+[
+  {
+    "unit_id": "c0001",
+    "heading_context": "At a Glance",
+    "language": "mermaid",
+    "api_call_fingerprint": [],
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/aspose_pdf/pages.py",
+      "evidence_note": "Diagram restates already-verified Key Capabilities facts; PDF/PNG/TIFF outputs confirmed via pages.py."
+    },
+    "disposition": "merged_verbatim",
+    "target_section": "At a Glance"
+  },
+  {
+    "unit_id": "c0002",
+    "heading_context": "Installation",
+    "language": "bash",
+    "api_call_fingerprint": [
+      "git clone"
+    ],
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "pyproject.toml",
+      "evidence_note": "python -m pip install -e '.[dev]' confirmed against pyproject.toml's dev extra."
+    },
+    "disposition": "merged_verbatim",
+    "target_section": "Installation"
+  },
+  {
+    "unit_id": "c0003",
+    "heading_context": "Installation",
+    "language": "bash",
+    "api_call_fingerprint": [],
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "pyproject.toml",
+      "evidence_note": "images/woff2/text-layout extras confirmed real in pyproject.toml."
+    },
+    "disposition": "merged_verbatim",
+    "target_section": "Installation"
+  },
+  {
+    "unit_id": "c0004",
+    "heading_context": "Quick Start",
+    "language": "python",
+    "api_call_fingerprint": [
+      "Document",
+      "document.pages.add",
+      "page.add_text",
+      "document.save"
+    ],
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/aspose_pdf/document.py",
+      "evidence_note": "Document()/document.pages.add()/document.save() confirmed real in document.py; page.add_text() confirmed real in pages.py."
+    },
+    "disposition": "merged_verbatim",
+    "target_section": "Quick Start"
+  },
+  {
+    "unit_id": "c0005",
+    "heading_context": "Quick Start",
+    "language": "python",
+    "api_call_fingerprint": [
+      "Document"
+    ],
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/aspose_pdf/document.py",
+      "evidence_note": "Document(\"input.pdf\"), document.page_count, document.version, document.info confirmed real in document.py."
+    },
+    "disposition": "merged_verbatim",
+    "target_section": "Quick Start"
+  },
+  {
+    "unit_id": "c0006",
+    "heading_context": "Render a Page to an Image",
+    "language": "python",
+    "api_call_fingerprint": [
+      "Document",
+      "document.load_from",
+      "save_as_image"
+    ],
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/aspose_pdf/pages.py",
+      "evidence_note": "document.load_from confirmed real in document.py; document.pages[0].save_as_image confirmed real in pages.py."
+    },
+    "disposition": "merged_verbatim",
+    "target_section": "Additional Examples"
+  },
+  {
+    "unit_id": "c0007",
+    "disposition": "corrected",
+    "target_section": "Additional Examples",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/aspose_pdf/recipients.py"
+    },
+    "correction_reason": "The upstream README's own example (confirmed identical in the pinned commit) omits `from pathlib import Path` while using `Path(...)` -- a real, live-verified bug (reproduced via verify-examples: NameError: name 'Path' is not defined). Added the missing import; no other change."
+  },
+  {
+    "unit_id": "c0008",
+    "disposition": "merged_verbatim",
+    "target_section": "Additional Examples",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/aspose_pdf/pages.py"
+    }
+  },
+  {
+    "unit_id": "c0009",
+    "disposition": "merged_verbatim",
+    "target_section": "Additional Examples",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/aspose_pdf/document.py"
+    }
+  },
+  {
+    "unit_id": "c0010",
+    "disposition": "merged_verbatim",
+    "target_section": "Additional Examples",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/aspose_pdf/document.py"
+    }
+  },
+  {
+    "unit_id": "c0011",
+    "disposition": "merged_verbatim",
+    "target_section": "Additional Examples",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/aspose_pdf/font_substitution.py"
+    }
+  },
+  {
+    "unit_id": "c0012",
+    "heading_context": "Author Multi-Script Unicode Text",
+    "language": "python",
+    "api_call_fingerprint": [
+      "Document",
+      "document.pages.add",
+      "page.add_text",
+      "document.save"
+    ],
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/aspose_pdf/pages.py",
+      "evidence_note": "page.add_text(..., font=...) confirmed real in pages.py."
+    },
+    "disposition": "merged_verbatim",
+    "target_section": "Additional Examples"
+  },
+  {
+    "unit_id": "c0013a",
+    "heading_context": "Author Complex-Script Text With TextLayoutOptions",
+    "language": "python",
+    "api_call_fingerprint": [],
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/aspose_pdf/text_layout.py",
+      "evidence_note": "TextLayoutOptions import confirmed real in text_layout.py."
+    },
+    "disposition": "merged_verbatim",
+    "target_section": "Additional Examples"
+  },
+  {
+    "unit_id": "c0013b",
+    "heading_context": "Author Complex-Script Text With TextLayoutOptions",
+    "language": "python",
+    "api_call_fingerprint": [
+      "Document",
+      "document.pages.add",
+      "page.add_text",
+      "TextLayoutOptions",
+      "document.save"
+    ],
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/aspose_pdf/text_layout.py",
+      "evidence_note": "page.add_text(..., layout=TextLayoutOptions(...)) confirmed real; TextLayoutOptions confirmed real in text_layout.py."
+    },
+    "disposition": "merged_verbatim",
+    "target_section": "Additional Examples"
+  },
+  {
+    "unit_id": "c0014",
+    "heading_context": "Extract Text From a PDF",
+    "language": "python",
+    "api_call_fingerprint": [
+      "PdfExtractor",
+      "extractor.bind_pdf",
+      "extractor.extract_text",
+      "extractor.get_text"
+    ],
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/aspose_pdf/facades.py",
+      "evidence_note": "PdfExtractor.bind_pdf/extract_text/get_text confirmed real in facades.py."
+    },
+    "disposition": "merged_verbatim",
+    "target_section": "Additional Examples"
+  },
+  {
+    "unit_id": "c0015",
+    "heading_context": "Merge PDF Files",
+    "language": "python",
+    "api_call_fingerprint": [
+      "PdfFileEditor",
+      "editor.concatenate",
+      "RuntimeError"
+    ],
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/aspose_pdf/facades.py",
+      "evidence_note": "PdfFileEditor.concatenate/last_exception confirmed real in facades.py."
+    },
+    "disposition": "merged_verbatim",
+    "target_section": "Additional Examples"
+  },
+  {
+    "unit_id": "c0016",
+    "heading_context": "Apply Resource Limits for Untrusted PDF Input",
+    "language": "python",
+    "api_call_fingerprint": [
+      "PdfLoadLimits",
+      "Document",
+      "document.load_from"
+    ],
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/aspose_pdf/load_limits.py",
+      "evidence_note": "PdfLoadLimits(...) confirmed real in load_limits.py; PdfResourceLimitException confirmed real in exceptions.py; document.load_from confirmed real in document.py."
+    },
+    "disposition": "merged_verbatim",
+    "target_section": "Additional Examples"
+  },
+  {
+    "unit_id": "c0017",
+    "heading_context": "Development and Testing",
+    "language": "bash",
+    "api_call_fingerprint": [],
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "scripts/check.sh",
+      "evidence_note": "ruff check / pytest / compileall / build / twine check sequence confirmed real in scripts/check.sh."
+    },
+    "disposition": "merged_verbatim",
+    "target_section": "Development and Testing"
+  }
+]

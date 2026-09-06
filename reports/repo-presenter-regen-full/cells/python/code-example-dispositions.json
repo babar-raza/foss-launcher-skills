@@ -1,0 +1,92 @@
+[
+  {
+    "unit_id": "c0001",
+    "disposition": "merged_verbatim",
+    "target_section": "At a Glance",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "aspose/cells_foss/workbook.py"
+    }
+  },
+  {
+    "unit_id": "c0002",
+    "disposition": "merged_verbatim",
+    "target_section": "Installation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "pyproject.toml"
+    }
+  },
+  {
+    "unit_id": "c0003",
+    "disposition": "merged_verbatim",
+    "target_section": "Quick Start",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "aspose/cells_foss/workbook.py"
+    }
+  },
+  {
+    "unit_id": "c0004",
+    "disposition": "merged_verbatim",
+    "target_section": "Quick Start",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "aspose/cells_foss/workbook.py"
+    }
+  },
+  {
+    "unit_id": "c0005",
+    "disposition": "merged_verbatim",
+    "target_section": "Additional Examples",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "aspose/cells_foss/style.py"
+    }
+  },
+  {
+    "unit_id": "c0006",
+    "disposition": "merged_verbatim",
+    "target_section": "Additional Examples",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "aspose/cells_foss/data_validation.py"
+    }
+  },
+  {
+    "unit_id": "c0007",
+    "disposition": "merged_verbatim",
+    "target_section": "Additional Examples",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "aspose/cells_foss/workbook.py"
+    }
+  },
+  {
+    "unit_id": "c0008",
+    "disposition": "merged_verbatim",
+    "target_section": "Additional Examples",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "aspose/cells_foss/xlsx_encryptor.py"
+    }
+  },
+  {
+    "unit_id": "c0009",
+    "disposition": "merged_verbatim",
+    "target_section": "Development and Testing",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "pyproject.toml"
+    }
+  }
+]

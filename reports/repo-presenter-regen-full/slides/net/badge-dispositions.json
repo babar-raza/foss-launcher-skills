@@ -1,0 +1,41 @@
+[
+  {
+    "unit_id": "b0001",
+    "category": "ci_build_status",
+    "action": "preserved",
+    "new_badge_unit_id": "b0001",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": ".github/workflows/ci.yml",
+      "evidence_note": "Live GitHub Actions CI-status badge; badge svg/link both point at this real, existing workflow file (verify_badge_target: unverified/http for the live link itself, no live_check configured -- same posture as every other CI badge this session; the workflow file the badge actually refers to is real and on disk)."
+    },
+    "excluded_reason": null
+  },
+  {
+    "unit_id": "b0002",
+    "category": "license",
+    "action": "preserved",
+    "new_badge_unit_id": "b0002",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "LICENSE",
+      "evidence_note": "License badge linking to the real, existing LICENSE file (verify_badge_target: local_file_exists)."
+    },
+    "excluded_reason": null
+  },
+  {
+    "unit_id": "b0003",
+    "category": "unknown",
+    "action": "preserved",
+    "new_badge_unit_id": "b0003",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/Aspose.Slides.Foss/Aspose.Slides.Foss.csproj",
+      "evidence_note": ".NET 9.0 static language/framework-version badge linking to the real .csproj declaring <TargetFramework>net9.0</TargetFramework> (verify_badge_target: local_file_exists). Classifies as 'unknown' via the real classify_badge() function since '.NET' is not in its language_version pattern list -- same documented pattern as other language/framework badges this session."
+    },
+    "excluded_reason": null
+  }
+]

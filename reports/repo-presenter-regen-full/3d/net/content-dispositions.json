@@ -1,0 +1,678 @@
+[
+  {
+    "unit_id": "u0001",
+    "excerpt": "Aspose.3D FOSS for .NET is a free, open-source, MIT-licensed .NET library for reading, building,\nand exporting 3D scenes. It exposes an Aspose.3D-compatible scene-graph API — `Scene`, `Node`,\n`Mesh`, `Camera`, `Transform` — and supports common interchange formats such as OBJ, STL, glTF/GLB,\nFBX, COLLADA, 3MF, and PLY (import only), without requiring any native runtime, external SDK, or\nthird-party renderer.",
+    "classification": "2_mechanism_explanation",
+    "disposition": "merged_reframed",
+    "target_section": "Intro",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/main/Aspose.ThreeD/Aspose/ThreeD/FileFormat.cs"
+    }
+  },
+  {
+    "unit_id": "u0002",
+    "excerpt": "- [At a glance](#at-a-glance)",
+    "classification": "1_narrative_cta",
+    "disposition": "merged_verbatim",
+    "target_section": "Navigation",
+    "verification": {
+      "status": "not_applicable_category_1",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": ""
+    }
+  },
+  {
+    "unit_id": "u0003",
+    "excerpt": "- [Key capabilities](#key-capabilities)",
+    "classification": "1_narrative_cta",
+    "disposition": "merged_verbatim",
+    "target_section": "Navigation",
+    "verification": {
+      "status": "not_applicable_category_1",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": ""
+    }
+  },
+  {
+    "unit_id": "u0004",
+    "excerpt": "- [Installation](#installation)",
+    "classification": "1_narrative_cta",
+    "disposition": "merged_verbatim",
+    "target_section": "Navigation",
+    "verification": {
+      "status": "not_applicable_category_1",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": ""
+    }
+  },
+  {
+    "unit_id": "u0005",
+    "excerpt": "- [Quick start](#quick-start)",
+    "classification": "1_narrative_cta",
+    "disposition": "merged_verbatim",
+    "target_section": "Navigation",
+    "verification": {
+      "status": "not_applicable_category_1",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": ""
+    }
+  },
+  {
+    "unit_id": "u0006",
+    "excerpt": "- [Additional examples](#additional-examples)",
+    "classification": "1_narrative_cta",
+    "disposition": "merged_verbatim",
+    "target_section": "Navigation",
+    "verification": {
+      "status": "not_applicable_category_1",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": ""
+    }
+  },
+  {
+    "unit_id": "u0007",
+    "excerpt": "- [API reference](#api-reference)",
+    "classification": "1_narrative_cta",
+    "disposition": "merged_verbatim",
+    "target_section": "Navigation",
+    "verification": {
+      "status": "not_applicable_category_1",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": ""
+    }
+  },
+  {
+    "unit_id": "u0008",
+    "excerpt": "- [Documentation & resources](#documentation--resources)",
+    "classification": "1_narrative_cta",
+    "disposition": "merged_verbatim",
+    "target_section": "Navigation",
+    "verification": {
+      "status": "not_applicable_category_1",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": ""
+    }
+  },
+  {
+    "unit_id": "u0009",
+    "excerpt": "- [Scope and limitations](#scope-and-limitations)",
+    "classification": "1_narrative_cta",
+    "disposition": "merged_verbatim",
+    "target_section": "Navigation",
+    "verification": {
+      "status": "not_applicable_category_1",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": ""
+    }
+  },
+  {
+    "unit_id": "u0010",
+    "excerpt": "- [Development and testing](#development-and-testing)",
+    "classification": "1_narrative_cta",
+    "disposition": "merged_verbatim",
+    "target_section": "Navigation",
+    "verification": {
+      "status": "not_applicable_category_1",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": ""
+    }
+  },
+  {
+    "unit_id": "u0011",
+    "excerpt": "- [License](#license)",
+    "classification": "1_narrative_cta",
+    "disposition": "merged_verbatim",
+    "target_section": "Navigation",
+    "verification": {
+      "status": "not_applicable_category_1",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": ""
+    }
+  },
+  {
+    "unit_id": "u0012",
+    "excerpt": "- Build and traverse a scene graph with `Scene`, `Node`, `Group`, and `Entity` — nodes support\n  child creation, merging, and global-transform evaluation.",
+    "classification": "2_mechanism_explanation",
+    "disposition": "merged_reframed",
+    "target_section": "Key Capabilities",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/main/Aspose.ThreeD/Aspose/ThreeD/Scene.cs"
+    }
+  },
+  {
+    "unit_id": "u0013",
+    "excerpt": "- Create parametric primitives — `Box`, `Cylinder`, `Sphere`, `Torus`, `Dish`, `Pyramid` — and\n  convert them to `Mesh` data for export.",
+    "classification": "2_mechanism_explanation",
+    "disposition": "merged_reframed",
+    "target_section": "Key Capabilities",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/main/Aspose.ThreeD/Aspose/ThreeD/Entities/Box.cs"
+    }
+  },
+  {
+    "unit_id": "u0014",
+    "excerpt": "- Load and save OBJ (with `.mtl` materials), STL (binary and ASCII), glTF 2.0 / GLB (PBR\n  materials), FBX (import and export), COLLADA, and 3MF; PLY is import-only.",
+    "classification": "2_mechanism_explanation",
+    "disposition": "merged_reframed",
+    "target_section": "Key Capabilities",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/main/Aspose.ThreeD/Aspose/ThreeD/Formats/IOService.cs"
+    }
+  },
+  {
+    "unit_id": "u0015",
+    "excerpt": "- Configure per-format behavior through dedicated load/save option classes, e.g.\n  `ObjLoadOptions.FlipCoordinateSystem` / `NormalizeNormal` / `Scale`.",
+    "classification": "2_mechanism_explanation",
+    "disposition": "merged_reframed",
+    "target_section": "Key Capabilities",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/main/Aspose.ThreeD/Aspose/ThreeD/Formats/FormatOptions.cs"
+    }
+  },
+  {
+    "unit_id": "u0016",
+    "excerpt": "- Apply materials (`LambertMaterial`, `PhongMaterial`, `PbrMaterial`), cameras, lights, and\n  `TransformBuilder`-composed transforms.",
+    "classification": "2_mechanism_explanation",
+    "disposition": "merged_reframed",
+    "target_section": "Key Capabilities",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/main/Aspose.ThreeD/Aspose/ThreeD/Shading/LambertMaterial.cs"
+    }
+  },
+  {
+    "unit_id": "u0017",
+    "excerpt": "- Embed or extract text watermarks in 3D files via the `Watermark` utility class.",
+    "classification": "2_mechanism_explanation",
+    "disposition": "excluded",
+    "target_section": null,
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/main/Aspose.ThreeD/Aspose/ThreeD/Utilities/Watermark.cs"
+    },
+    "excluded_reason": "False as a Key Capability claim -- Watermark.EncodeWatermark/DecodeWatermark throw NotImplementedException unconditionally; already correctly listed as a limitation, not a capability."
+  },
+  {
+    "unit_id": "u0018",
+    "excerpt": "Install the library from NuGet:",
+    "classification": "1_narrative_cta",
+    "disposition": "merged_verbatim",
+    "target_section": "Installation",
+    "verification": {
+      "status": "not_applicable_category_1",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": ""
+    }
+  },
+  {
+    "unit_id": "u0019",
+    "excerpt": "The main library (`src/main/Aspose.ThreeD/Aspose.ThreeD.csproj`) multi-targets `net10.0`,\n`net8.0`, `net6.0`, and `netcoreapp3.1` in Release builds (Debug builds target `net10.0` only).\nThe repository also contains a separate console conversion tool\n(`src/converter/Converter.csproj`, package id `Aspose.3D.Converter`) that references the library\nas a project — it is not published to NuGet.",
+    "classification": "2_mechanism_explanation",
+    "disposition": "merged_reframed",
+    "target_section": "Installation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/main/Aspose.ThreeD/Aspose.ThreeD.csproj"
+    }
+  },
+  {
+    "unit_id": "u0020",
+    "excerpt": "Load an OBJ scene and export it as glTF:",
+    "classification": "1_narrative_cta",
+    "disposition": "merged_verbatim",
+    "target_section": "Additional Examples",
+    "verification": {
+      "status": "not_applicable_category_1",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": ""
+    }
+  },
+  {
+    "unit_id": "u0021",
+    "excerpt": "Build a scene from a primitive and save it to OBJ:",
+    "classification": "1_narrative_cta",
+    "disposition": "merged_verbatim",
+    "target_section": "Additional Examples",
+    "verification": {
+      "status": "not_applicable_category_1",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": ""
+    }
+  },
+  {
+    "unit_id": "u0022",
+    "excerpt": "Runnable examples and additional format coverage are collected below.",
+    "classification": "1_narrative_cta",
+    "disposition": "excluded",
+    "target_section": null,
+    "verification": {
+      "status": "not_applicable_category_1",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": ""
+    },
+    "excluded_reason": "Transitional narrative sentence, no independent claim; candidate's own Additional Examples section opens with an equivalent (reworded) transition sentence serving the same function."
+  },
+  {
+    "unit_id": "u0023",
+    "excerpt": "<details>\n<summary>View additional examples</summary>",
+    "classification": "1_narrative_cta",
+    "disposition": "merged_verbatim",
+    "target_section": "Additional Examples",
+    "verification": {
+      "status": "not_applicable_category_1",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": ""
+    }
+  },
+  {
+    "unit_id": "u0024",
+    "excerpt": "</details>",
+    "classification": "1_narrative_cta",
+    "disposition": "merged_verbatim",
+    "target_section": "Additional Examples",
+    "verification": {
+      "status": "not_applicable_category_1",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": ""
+    }
+  },
+  {
+    "unit_id": "u0025",
+    "excerpt": "The library ships 193 public types. Selected entry points:",
+    "classification": "2_mechanism_explanation",
+    "disposition": "merged_reframed",
+    "target_section": "API Reference",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/main/Aspose.ThreeD/Aspose/ThreeD/FileFormat.cs"
+    }
+  },
+  {
+    "unit_id": "u0026",
+    "excerpt": "<details>\n<summary>View selected API surface</summary>",
+    "classification": "1_narrative_cta",
+    "disposition": "merged_verbatim",
+    "target_section": "API Reference",
+    "verification": {
+      "status": "not_applicable_category_1",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": ""
+    }
+  },
+  {
+    "unit_id": "u0027",
+    "excerpt": "- `Scene` — top-level container; `Open`/`FromFile`/`FromStream`, `Save`, `RootNode`,\n  `SubScenes`, `AnimationClips`, `Poses`.",
+    "classification": "2_mechanism_explanation",
+    "disposition": "merged_reframed",
+    "target_section": "API Reference",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/main/Aspose.ThreeD/Aspose/ThreeD/Scene.cs"
+    }
+  },
+  {
+    "unit_id": "u0028",
+    "excerpt": "- `Node` — `CreateChildNode`, `AddChildNode`, `Merge`, `EvaluateGlobalTransform`.",
+    "classification": "2_mechanism_explanation",
+    "disposition": "merged_reframed",
+    "target_section": "API Reference",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/main/Aspose.ThreeD/Aspose/ThreeD/Node.cs"
+    }
+  },
+  {
+    "unit_id": "u0029",
+    "excerpt": "- `Entity` (abstract) — base of all scene-graph content; `Geometry`, `Frustum` extend it.",
+    "classification": "2_mechanism_explanation",
+    "disposition": "merged_reframed",
+    "target_section": "API Reference",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/main/Aspose.ThreeD/Aspose/ThreeD/Entity.cs"
+    }
+  },
+  {
+    "unit_id": "u0030",
+    "excerpt": "- `A3DObject` — base of all Aspose.3D objects; dynamic `Properties` via `GetProperty`/`SetProperty`.",
+    "classification": "2_mechanism_explanation",
+    "disposition": "merged_reframed",
+    "target_section": "API Reference",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/main/Aspose.ThreeD/Aspose/ThreeD/A3DObject.cs"
+    }
+  },
+  {
+    "unit_id": "u0031",
+    "excerpt": "- `Group` — logical grouping of nodes.",
+    "classification": "2_mechanism_explanation",
+    "disposition": "merged_reframed",
+    "target_section": "API Reference",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/main/Aspose.ThreeD/Aspose/ThreeD/Group.cs"
+    }
+  },
+  {
+    "unit_id": "u0032",
+    "excerpt": "- `Box`, `Cylinder`, `Sphere`, `Torus`, `Dish`, `Pyramid`, `RectangularTorus` — parameterized\n  primitives; `ToMesh()`, `GetBoundingBox()`.",
+    "classification": "2_mechanism_explanation",
+    "disposition": "merged_reframed",
+    "target_section": "API Reference",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/main/Aspose.ThreeD/Aspose/ThreeD/Entities/Box.cs"
+    }
+  },
+  {
+    "unit_id": "u0033",
+    "excerpt": "- `Mesh` — polygon mesh; `TriMesh` — GPU-ready raw vertex/index data.",
+    "classification": "2_mechanism_explanation",
+    "disposition": "merged_reframed",
+    "target_section": "API Reference",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/main/Aspose.ThreeD/Aspose/ThreeD/Entities/Mesh.cs"
+    }
+  },
+  {
+    "unit_id": "u0034",
+    "excerpt": "- `Curve`, `Circle`, `Ellipse`, `CompositeCurve`, `NurbsCurve`, `NurbsSurface`.",
+    "classification": "2_mechanism_explanation",
+    "disposition": "merged_reframed",
+    "target_section": "API Reference",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/main/Aspose.ThreeD/Aspose/ThreeD/Entities/NurbsCurve.cs"
+    }
+  },
+  {
+    "unit_id": "u0035",
+    "excerpt": "- `BooleanOperator` / `BooleanOperand` — mesh boolean operations (Add/Sub/Intersect).",
+    "classification": "2_mechanism_explanation",
+    "disposition": "merged_reframed",
+    "target_section": "API Reference",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/main/Aspose.ThreeD/Aspose/ThreeD/Entities/BooleanOperator.cs"
+    }
+  },
+  {
+    "unit_id": "u0036",
+    "excerpt": "- `Material` (abstract), `LambertMaterial`, `PhongMaterial`, `PbrMaterial`.",
+    "classification": "2_mechanism_explanation",
+    "disposition": "merged_reframed",
+    "target_section": "API Reference",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/main/Aspose.ThreeD/Aspose/ThreeD/Shading/Material.cs"
+    }
+  },
+  {
+    "unit_id": "u0037",
+    "excerpt": "- `Camera`, `Light`, `Frustum` (shared base of Camera/Light).",
+    "classification": "2_mechanism_explanation",
+    "disposition": "merged_reframed",
+    "target_section": "API Reference",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/main/Aspose.ThreeD/Aspose/ThreeD/Entities/Camera.cs"
+    }
+  },
+  {
+    "unit_id": "u0038",
+    "excerpt": "- `Texture`, `TextureSlot`, `TextureBase`.",
+    "classification": "2_mechanism_explanation",
+    "disposition": "merged_reframed",
+    "target_section": "API Reference",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/main/Aspose.ThreeD/Aspose/ThreeD/Shading/Texture.cs"
+    }
+  },
+  {
+    "unit_id": "u0039",
+    "excerpt": "- `FileFormat` — format registry (`Detect`, `GetFormatByExtension`, and per-format static members\n  such as `WavefrontOBJ`, `STLBinary`, `GLTF2`, `Collada`, `Discreet3DS`, `Microsoft3MF`).",
+    "classification": "2_mechanism_explanation",
+    "disposition": "merged_reframed",
+    "target_section": "API Reference",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/main/Aspose.ThreeD/Aspose/ThreeD/FileFormat.cs"
+    }
+  },
+  {
+    "unit_id": "u0040",
+    "excerpt": "- Per-format `LoadOptions`/`SaveOptions` pairs: `ObjLoadOptions`/`ObjSaveOptions`,\n  `StlLoadOptions`/`StlSaveOptions`, `GltfLoadOptions`/`GltfSaveOptions`,\n  `FbxLoadOptions`/`FbxSaveOptions`, `ColladaSaveOptions`, `Discreet3dsLoadOptions`/\n  `Discreet3dsSaveOptions`, `DracoSaveOptions`, `AmfSaveOptions`, `A3dwSaveOptions`,\n  `Html5SaveOptions`.",
+    "classification": "2_mechanism_explanation",
+    "disposition": "merged_reframed",
+    "target_section": "API Reference",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/main/Aspose.ThreeD/Aspose/ThreeD/Formats/FormatOptions.cs"
+    }
+  },
+  {
+    "unit_id": "u0041",
+    "excerpt": "- `Vector2`/`Vector3`/`Vector4`, `FVector2`/`FVector3`/`FVector4`, `Matrix4`/`FMatrix4`,\n  `Quaternion`, `BoundingBox`/`BoundingBox2D`, `Rect`.",
+    "classification": "2_mechanism_explanation",
+    "disposition": "merged_reframed",
+    "target_section": "API Reference",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/main/Aspose.ThreeD/Aspose/ThreeD/Utilities/Vector3.cs"
+    }
+  },
+  {
+    "unit_id": "u0042",
+    "excerpt": "- `TransformBuilder` — compose/prepend/append transformation matrices with a selectable order.",
+    "classification": "2_mechanism_explanation",
+    "disposition": "merged_reframed",
+    "target_section": "API Reference",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/main/Aspose.ThreeD/Aspose/ThreeD/Utilities/TransformBuilder.cs"
+    }
+  },
+  {
+    "unit_id": "u0043",
+    "excerpt": "- `Watermark` — text-watermark embed/decode utilities.",
+    "classification": "2_mechanism_explanation",
+    "disposition": "merged_reframed",
+    "target_section": "API Reference",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/main/Aspose.ThreeD/Aspose/ThreeD/Utilities/Watermark.cs"
+    }
+  },
+  {
+    "unit_id": "u0044",
+    "excerpt": "- `AssetInfo` — document metadata (author, coordinate system, unit scale).",
+    "classification": "2_mechanism_explanation",
+    "disposition": "merged_reframed",
+    "target_section": "API Reference",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/main/Aspose.ThreeD/Aspose/ThreeD/AssetInfo.cs"
+    }
+  },
+  {
+    "unit_id": "u0045",
+    "excerpt": "- `ExportException`, `ImportException`, `ParseException`, `DriverException`, `TrialException`.",
+    "classification": "2_mechanism_explanation",
+    "disposition": "merged_reframed",
+    "target_section": "API Reference",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/main/Aspose.ThreeD/Aspose/ThreeD/License.cs"
+    }
+  },
+  {
+    "unit_id": "u0046",
+    "excerpt": "</details>",
+    "classification": "1_narrative_cta",
+    "disposition": "merged_verbatim",
+    "target_section": "API Reference",
+    "verification": {
+      "status": "not_applicable_category_1",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": ""
+    }
+  },
+  {
+    "unit_id": "u0047",
+    "excerpt": "- **[Getting started guide](https://docs.aspose.org/3d/net/)** — installation, walkthroughs, and feature guides for this library.",
+    "classification": "1_narrative_cta",
+    "disposition": "merged_verbatim",
+    "target_section": "Documentation & Resources",
+    "verification": {
+      "status": "not_applicable_category_1",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": ""
+    }
+  },
+  {
+    "unit_id": "u0048",
+    "excerpt": "- **[How-to guides & FAQ](https://kb.aspose.org/3d/net/)** — task-focused answers for common 3D-processing questions.",
+    "classification": "1_narrative_cta",
+    "disposition": "merged_verbatim",
+    "target_section": "Documentation & Resources",
+    "verification": {
+      "status": "not_applicable_category_1",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": ""
+    }
+  },
+  {
+    "unit_id": "u0049",
+    "excerpt": "- **[Full API reference](https://reference.aspose.org/3d/net/)** — the complete, browsable reference for all 193 public types.",
+    "classification": "1_narrative_cta",
+    "disposition": "merged_verbatim",
+    "target_section": "Documentation & Resources",
+    "verification": {
+      "status": "not_applicable_category_1",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": ""
+    }
+  },
+  {
+    "unit_id": "u0050",
+    "excerpt": "- **[AGENTS.md](AGENTS.md)** — implementation status and development guidelines for contributors.",
+    "classification": "1_narrative_cta",
+    "disposition": "merged_verbatim",
+    "target_section": "Documentation & Resources",
+    "verification": {
+      "status": "not_applicable_category_1",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": ""
+    }
+  },
+  {
+    "unit_id": "u0051",
+    "excerpt": "- Found a bug or have a feature request? [Open an issue](https://github.com/aspose-3d-foss/Aspose.3D-FOSS-for-.NET/issues) on GitHub.",
+    "classification": "1_narrative_cta",
+    "disposition": "merged_verbatim",
+    "target_section": "Documentation & Resources",
+    "verification": {
+      "status": "not_applicable_category_1",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": ""
+    }
+  },
+  {
+    "unit_id": "u0052",
+    "excerpt": "This is a work-in-progress FOSS implementation focused on the most widely used open 3D formats.\nSeveral members exist on the public API surface but throw `NotImplementedException` in this\nedition, including: Draco decode/encode (`DracoFormat`), PDF scene extraction (`PdfFormat`), PLY\nencoding (`PlyFormat.Encode` — PLY is import-only), Microsoft 3MF buildable/object-type accessors,\nRVM attribute loading, ZIP-backed file systems, NURBS curve evaluation, mesh boolean/triangulate\noperations on `PolygonModifier`, and text-watermark encode/decode. License and trial-management\nAPIs (`License`, `Metered`) are intentionally not implemented, since they don't apply to an\nopen-source project. Rendering (`Scene.Render`) is also not implemented in this edition.",
+    "classification": "2_mechanism_explanation",
+    "disposition": "corrected",
+    "target_section": "Scope and Limitations",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/main/Aspose.ThreeD/Aspose/ThreeD/Formats/IOService.cs"
+    },
+    "correction_reason": "Old README's PLY-encoding claim (PlyFormat.Encode, 'import-only') is itself inaccurate for the real Scene.Save/Open dispatch path -- PlyReader/PlyWriter (registered in IOService.CreateImporter/CreateExporter) provide real, working PLY import AND export; only the confusable, non-dispatched Formats.PlyFormat.Encode/Decode decoy throws. Executable proof: reports/plan_state/readme-disposition-remediation-2026-08-18/evidence/3d-net-ply-proof/ (dotnet run output, 2026-08-19). All other format claims in this unit (Draco, PDF, 3MF buildable metadata, RVM attributes) independently re-verified true -- no dispatcher/reader/writer exists for Draco or PDF anywhere in the codebase.",
+    "ledger_migration_note": "2026-09-02 field migration: correction text moved from excluded_reason (pre-fix gate workaround) to correction_reason; disposition/verification untouched"
+  },
+  {
+    "unit_id": "u0053",
+    "excerpt": "For proprietary formats (A3DW, PDF, USD, JT), rendering, and advanced mesh operations, see\n[Aspose.3D for .NET — Enterprise Edition](https://products.aspose.com/3d/net/).",
+    "classification": "3_branding_positioning",
+    "disposition": "merged_reframed",
+    "target_section": "Scope and Limitations",
+    "verification": {
+      "status": "verified_redundant",
+      "evidence_type": "candidate_section_reference",
+      "evidence_ref": "Scope and Limitations closing Enterprise Edition paragraph"
+    }
+  },
+  {
+    "unit_id": "u0054",
+    "excerpt": "Build the library and run the xUnit test suite from the repository root:",
+    "classification": "1_narrative_cta",
+    "disposition": "merged_verbatim",
+    "target_section": "Development and Testing",
+    "verification": {
+      "status": "not_applicable_category_1",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": ""
+    }
+  },
+  {
+    "unit_id": "u0055",
+    "excerpt": "The console converter tool builds separately as a project reference to the library:",
+    "classification": "1_narrative_cta",
+    "disposition": "merged_verbatim",
+    "target_section": "Development and Testing",
+    "verification": {
+      "status": "not_applicable_category_1",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": ""
+    }
+  },
+  {
+    "unit_id": "u0056",
+    "excerpt": "This project is licensed under the [MIT License](LICENSE). The MIT License permits use, copying,\nmodification, distribution, sublicensing, and commercial use, provided its copyright and\npermission notice are retained. The software is provided without warranty.",
+    "classification": "2_mechanism_explanation",
+    "disposition": "merged_reframed",
+    "target_section": "License",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "LICENSE"
+    }
+  }
+]

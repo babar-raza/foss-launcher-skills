@@ -1,0 +1,173 @@
+[
+  {
+    "unit_id": "c0001",
+    "disposition": "merged_reframed",
+    "target_section": "At a Glance",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "README.md"
+    }
+  },
+  {
+    "unit_id": "c0002",
+    "disposition": "merged_reframed",
+    "target_section": "Installation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/Aspose.Slides.Foss/Aspose.Slides.Foss.csproj"
+    }
+  },
+  {
+    "unit_id": "c0003",
+    "disposition": "merged_reframed",
+    "target_section": "Installation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/Aspose.Slides.Foss/Aspose.Slides.Foss.csproj"
+    }
+  },
+  {
+    "unit_id": "c0004",
+    "disposition": "merged_reframed",
+    "target_section": "Installation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": ".github/workflows/ci.yml"
+    }
+  },
+  {
+    "unit_id": "c0005",
+    "disposition": "excluded",
+    "target_section": null,
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "Directory.Build.props"
+    },
+    "excluded_reason": "excluded per check_installation_matches_live_publication policy -- the package is not yet live-published, so no registry-shaped install command (dotnet add package / PackageReference naming the identity) may appear in Installation, even for this real local-source CI-artifact workflow the section already describes in prose."
+  },
+  {
+    "unit_id": "c0006",
+    "disposition": "merged_reframed",
+    "target_section": "Quick Start",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/Aspose.Slides.Foss/Presentation.cs"
+    }
+  },
+  {
+    "unit_id": "c0007",
+    "disposition": "merged_reframed",
+    "target_section": "Quick Start",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/Aspose.Slides.Foss/Presentation.cs"
+    }
+  },
+  {
+    "unit_id": "c0008",
+    "disposition": "merged_reframed",
+    "target_section": "Additional Examples",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/Aspose.Slides.Foss/Aspose.Slides.Foss.csproj"
+    }
+  },
+  {
+    "unit_id": "c0009",
+    "disposition": "merged_reframed",
+    "target_section": "Additional Examples",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/Aspose.Slides.Foss/Portion.cs"
+    }
+  },
+  {
+    "unit_id": "c0010",
+    "disposition": "merged_reframed",
+    "target_section": "Additional Examples",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/Aspose.Slides.Foss/Table.cs"
+    }
+  },
+  {
+    "unit_id": "c0011",
+    "disposition": "merged_verbatim",
+    "target_section": "Additional Examples",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/Aspose.Slides.Foss/Image.cs"
+    }
+  },
+  {
+    "unit_id": "c0012",
+    "disposition": "merged_verbatim",
+    "target_section": "Additional Examples",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/Aspose.Slides.Foss/EffectFormat.cs"
+    }
+  },
+  {
+    "unit_id": "c0013",
+    "disposition": "merged_reframed",
+    "target_section": "Additional Examples",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/Aspose.Slides.Foss/NotesSlideManager.cs"
+    }
+  },
+  {
+    "unit_id": "c0014",
+    "disposition": "merged_verbatim",
+    "target_section": "Additional Examples",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/Aspose.Slides.Foss/Section.cs"
+    }
+  },
+  {
+    "unit_id": "c0015",
+    "disposition": "merged_verbatim",
+    "target_section": "Additional Examples",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/Aspose.Slides.Foss/Presentation.cs"
+    }
+  },
+  {
+    "unit_id": "c0016",
+    "disposition": "merged_reframed",
+    "target_section": "Scope and Limitations",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/Aspose.Slides.Foss/Internal/Export/SaveFormatSupport.cs"
+    }
+  },
+  {
+    "unit_id": "c0017",
+    "disposition": "merged_reframed",
+    "target_section": "Scope and Limitations",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/Aspose.Slides.Foss/Internal/Export/SaveFormatSupport.cs"
+    }
+  }
+]

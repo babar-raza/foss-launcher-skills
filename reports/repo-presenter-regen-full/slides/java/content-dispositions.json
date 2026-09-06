@@ -1,0 +1,779 @@
+[
+  {
+    "unit_id": "u0001",
+    "excerpt": "An MIT-licensed Java library that creates, reads and edits PowerPoint `.pptx` presentations by\nbuilding the Office Open XML package itself \u2014 no PowerPoint installation, no native code, and no\nruntime dependencies at all. The CycloneDX SBOM the build produces lists zero components.",
+    "classification": "3_branding_positioning",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "pom.xml"
+    },
+    "disposition": "merged_reframed",
+    "target_section": "Intro"
+  },
+  {
+    "unit_id": "u0002",
+    "excerpt": "It is for developers who generate or modify decks on a server or in a build, and who are working\n*inside* the file format. It is not a renderer or a converter: there is no PDF, HTML, SVG or image\noutput, and everything it cannot do is listed under [Limitations](#limitations).",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/main/java/org/aspose/slides/foss/internal/export/ExporterRegistry.java"
+    },
+    "disposition": "merged_reframed",
+    "target_section": "Intro"
+  },
+  {
+    "unit_id": "u0003",
+    "excerpt": "| | |\n|---|---|\n| Java | **21 or later.** The sources use `List.getFirst()`, `List.removeLast()` and an unconditional `instanceof` pattern, so they do not compile below 21, and the build refuses to start on an older JDK. |\n| Runtime dependencies | none |\n| Tested on | Linux, Windows and macOS, on Java 21 and Java 25 \u2014 every push and every pull request |",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "pom.xml"
+    },
+    "disposition": "merged_reframed",
+    "target_section": "Dependencies"
+  },
+  {
+    "unit_id": "u0004",
+    "excerpt": "Maven:",
+    "classification": "redundant_with_existing",
+    "verification": {
+      "status": "verified_redundant",
+      "evidence_type": "candidate_section_reference",
+      "evidence_ref": "Installation"
+    },
+    "disposition": "excluded",
+    "target_section": null,
+    "excluded_reason": "redundant_with_existing: a bare 'Maven:' label with no content of its own; the candidate's own Installation section already has the Maven dependency block"
+  },
+  {
+    "unit_id": "u0005",
+    "excerpt": "Gradle:",
+    "classification": "redundant_with_existing",
+    "verification": {
+      "status": "verified_redundant",
+      "evidence_type": "candidate_section_reference",
+      "evidence_ref": "Installation"
+    },
+    "disposition": "excluded",
+    "target_section": null,
+    "excluded_reason": "redundant_with_existing: a bare 'Gradle:' label with no content of its own; the candidate's own Installation section already has the Gradle dependency line"
+  },
+  {
+    "unit_id": "u0006",
+    "excerpt": "**Before you depend on `26.7.0`, read this.** It predates the XML hardening described under\n*Security* in [CHANGELOG.md](CHANGELOG.md), and [SECURITY.md](SECURITY.md) lists it as not\nsupported for that reason. If your program opens `.pptx` files that come from somewhere you do not\ncontrol, [build from source](#building-from-source) rather than depending on `26.7.0`.",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "SECURITY.md"
+    },
+    "disposition": "merged_reframed",
+    "target_section": "Installation"
+  },
+  {
+    "unit_id": "u0007",
+    "excerpt": "`26.7.0`, published 2026-07-27, is the only version on Maven Central today \u2014\n`repo1.maven.org/maven2/org/aspose/aspose-slides-foss/maven-metadata.xml` lists it as both\n`<latest>` and `<release>`. **This source tree is `26.8.0` and is not published yet**, and the\nbehaviour changes at the top of [CHANGELOG.md](CHANGELOG.md) \u2014 above all the refusal to write a save\nformat it cannot produce \u2014 are in the source and not in `26.7.0`. Until `26.8.0` is released,\n[build from source](#building-from-source) if you need them.",
+    "classification": "redundant_with_existing",
+    "verification": {
+      "status": "verified_redundant",
+      "evidence_type": "candidate_section_reference",
+      "evidence_ref": "Installation"
+    },
+    "disposition": "excluded",
+    "target_section": null,
+    "excluded_reason": "redundant_with_existing: the candidate's own Installation section already states 26.7.0 is the published Maven Central version; the exact publish date and maven-metadata.xml URL are a lower-value restatement of the same fact"
+  },
+  {
+    "unit_id": "u0008",
+    "excerpt": "Searching for the library on `search.maven.org` finds nothing, and that is a limitation of that\nsearch index rather than of the release \u2014 the artifact resolves normally from `repo1.maven.org`.\n[central.sonatype.com](https://central.sonatype.com/artifact/org.aspose/aspose-slides-foss) lists\nit; [PUBLISHING.md](PUBLISHING.md) explains why the other one does not.",
+    "classification": "redundant_with_existing",
+    "verification": {
+      "status": "verified_redundant",
+      "evidence_type": "candidate_section_reference",
+      "evidence_ref": "Documentation & Resources"
+    },
+    "disposition": "excluded",
+    "target_section": null,
+    "excluded_reason": "redundant_with_existing: a search-index quirk on a third-party site (search.maven.org), not a fact about this library; central.sonatype.com already correctly listing the artifact is the substantive point, already covered by the candidate's own registry-install command"
+  },
+  {
+    "unit_id": "u0009",
+    "excerpt": "The jar declares `Automatic-Module-Name: org.aspose.slides.foss`, so it can go on the module path\nunder a stable name.",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "pom.xml"
+    },
+    "disposition": "merged_reframed",
+    "target_section": "Installation"
+  },
+  {
+    "unit_id": "u0010",
+    "excerpt": "Compiled against this tree and run, it prints",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/main/java/org/aspose/slides/foss/Presentation.java"
+    },
+    "disposition": "merged_reframed",
+    "target_section": "Quick Start"
+  },
+  {
+    "unit_id": "u0011",
+    "excerpt": "and leaves a 5,458-byte `hello.pptx` behind.",
+    "classification": "redundant_with_existing",
+    "verification": {
+      "status": "verified_redundant",
+      "evidence_type": "candidate_section_reference",
+      "evidence_ref": "Quick Start"
+    },
+    "disposition": "excluded",
+    "target_section": null,
+    "excluded_reason": "redundant_with_existing: a specific byte count for upstream's own println-based Quick Start example, which this candidate's Quick Start (a fill/colour demo) does not reproduce verbatim"
+  },
+  {
+    "unit_id": "u0012",
+    "excerpt": "Three things worth knowing before the second program you write:",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/main/java/org/aspose/slides/foss/IShapeCollection.java"
+    },
+    "disposition": "merged_reframed",
+    "target_section": "Quick Start"
+  },
+  {
+    "unit_id": "u0013",
+    "excerpt": "- **`save` and the `Presentation(String)` constructor throw `IOException`.** `close()` does not, so\n  try-with-resources needs nothing extra.",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/main/java/org/aspose/slides/foss/IShapeCollection.java"
+    },
+    "disposition": "merged_verbatim",
+    "target_section": "Quick Start"
+  },
+  {
+    "unit_id": "u0014",
+    "excerpt": "- **`IShapeCollection.get(int)` returns `IShape`.** Cast to `IAutoShape`, `ITable`, `IConnector` or\n  `IPictureFrame` to reach the members only those have. `ISlideCollection` implements `Iterable`, so\n  a for-each over `getSlides()` works; `IShapeCollection` does not, so iterate it with an index or\n  with `getShapes().asIEnumerable()`.",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/main/java/org/aspose/slides/foss/IShapeCollection.java"
+    },
+    "disposition": "merged_verbatim",
+    "target_section": "Quick Start"
+  },
+  {
+    "unit_id": "u0015",
+    "excerpt": "- **Coordinates and sizes are points** \u2014 1 point = 1/72 inch. Slide and shape indices are\n  zero-based.",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/main/java/org/aspose/slides/foss/IShapeCollection.java"
+    },
+    "disposition": "merged_verbatim",
+    "target_section": "Quick Start"
+  },
+  {
+    "unit_id": "u0016",
+    "excerpt": "Every example below was compiled against this tree and run.",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "tests/integration/org/aspose/slides/foss/integration/ConnectorTest.java"
+    },
+    "disposition": "merged_reframed",
+    "target_section": "Additional Examples"
+  },
+  {
+    "unit_id": "u0017",
+    "excerpt": "Everything below was exercised through the public API and then confirmed by reading the XML inside\nthe file that came out \u2014 not by asking the library to read its own file back.",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "tests/integration/org/aspose/slides/foss/integration/ConnectorTest.java"
+    },
+    "disposition": "merged_reframed",
+    "target_section": "Key Capabilities"
+  },
+  {
+    "unit_id": "u0018",
+    "excerpt": "- **Presentations** \u2014 create, open a path or a stream, save to a path or a stream, save a subset of\n  slides; `Presentation` is `AutoCloseable`.",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/main/java/org/aspose/slides/foss/Presentation.java"
+    },
+    "disposition": "merged_reframed",
+    "target_section": "Key Capabilities"
+  },
+  {
+    "unit_id": "u0019",
+    "excerpt": "- **Slides** \u2014 add empty, insert, remove (the part, its relationship and its content-type override\n  all go), clone, hide (`<p:sld show=\"0\">`), enumerate; the masters and layouts of a loaded deck are\n  enumerable.",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/main/java/org/aspose/slides/foss/SlideCollection.java"
+    },
+    "disposition": "merged_reframed",
+    "target_section": "Key Capabilities"
+  },
+  {
+    "unit_id": "u0020",
+    "excerpt": "- **Shapes** \u2014 AutoShapes for all **190** `ShapeType` values, writing **187** distinct\n  `<a:prstGeom prst=\"\u2026\">` tokens between them. `NOT_DEFINED` and `CUSTOM` have no preset and come\n  out as `rect`; `ROUND_RECTANGLE` and `ROUND_CORNER_RECTANGLE` both write `roundRect`. Also\n  picture frames, tables, and connectors bound to shapes by connection site.",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/main/java/org/aspose/slides/foss/ShapeType.java"
+    },
+    "disposition": "merged_reframed",
+    "target_section": "Key Capabilities"
+  },
+  {
+    "unit_id": "u0021",
+    "excerpt": "- **Text** \u2014 text frames, paragraphs, portions; character formatting (bold, italic, size, spacing,\n  caps, latin and east-asian fonts), paragraph formatting (alignment, indent, margins, spacing, and\n  symbol, numbered and picture bullets), text-frame formatting (margins, wrap, anchor, autofit,\n  columns).",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/main/java/org/aspose/slides/foss/BasePortionFormat.java"
+    },
+    "disposition": "merged_reframed",
+    "target_section": "Key Capabilities"
+  },
+  {
+    "unit_id": "u0022",
+    "excerpt": "- **Fill** \u2014 solid, gradient, pattern, picture and no-fill, on shapes, lines, text portions and\n  table cells alike.",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/main/java/org/aspose/slides/foss/FillFormat.java"
+    },
+    "disposition": "merged_reframed",
+    "target_section": "Key Capabilities"
+  },
+  {
+    "unit_id": "u0023",
+    "excerpt": "- **Lines** \u2014 width, dash style, cap, join, compound style, alignment, arrowheads at both ends.",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/main/java/org/aspose/slides/foss/LineFormat.java"
+    },
+    "disposition": "merged_reframed",
+    "target_section": "Key Capabilities"
+  },
+  {
+    "unit_id": "u0024",
+    "excerpt": "- **Effects** \u2014 outer shadow, inner shadow, glow, soft edge, reflection, blur, preset shadow and\n  fill overlay, each landing inside `<a:effectLst>`.",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/main/java/org/aspose/slides/foss/EffectFormat.java"
+    },
+    "disposition": "merged_reframed",
+    "target_section": "Key Capabilities"
+  },
+  {
+    "unit_id": "u0025",
+    "excerpt": "- **3-D** \u2014 bevel top and bottom, extrusion, contour, material, a camera with a preset and a light\n  rig, written where `CT_ShapeProperties` puts them.",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/main/java/org/aspose/slides/foss/ThreeDFormat.java"
+    },
+    "disposition": "merged_reframed",
+    "target_section": "Key Capabilities"
+  },
+  {
+    "unit_id": "u0027",
+    "excerpt": "- **Pictures** \u2014 embed from a byte array, an `IImage` or an `InputStream`, through a real\n  relationship declared in the owning part's `.rels`.",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/main/java/org/aspose/slides/foss/ImageCollection.java"
+    },
+    "disposition": "merged_reframed",
+    "target_section": "Key Capabilities"
+  },
+  {
+    "unit_id": "u0028",
+    "excerpt": "- **Notes** \u2014 a notes slide per slide, with header/footer management.",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/main/java/org/aspose/slides/foss/NotesSlideManager.java"
+    },
+    "disposition": "merged_reframed",
+    "target_section": "Key Capabilities"
+  },
+  {
+    "unit_id": "u0029",
+    "excerpt": "- **Comments** \u2014 authors, and comments with position and timestamp, on the classic `ppt/comments/`\n  list; a reply additionally writes `ppt/threadedComments/` and `ppt/authors.xml`.",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/main/java/org/aspose/slides/foss/Comment.java"
+    },
+    "disposition": "merged_reframed",
+    "target_section": "Key Capabilities"
+  },
+  {
+    "unit_id": "u0030",
+    "excerpt": "- **Document properties** \u2014 core, extended and custom, with the extended counts recomputed from the\n  document on save.",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/main/java/org/aspose/slides/foss/DocumentProperties.java"
+    },
+    "disposition": "merged_reframed",
+    "target_section": "Key Capabilities"
+  },
+  {
+    "unit_id": "u0031",
+    "excerpt": "- **Unknown parts** \u2014 parts the library does not model are carried through a load and a save\n  unchanged.",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/main/java/org/aspose/slides/foss/Presentation.java"
+    },
+    "disposition": "merged_reframed",
+    "target_section": "Key Capabilities"
+  },
+  {
+    "unit_id": "u0026",
+    "excerpt": "- **Tables** \u2014 rows, columns, cells, cell merging, cell fill, borders, margins, and the\n  `<a:graphicFrameLocks>` the schema requires on the frame.",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/main/java/org/aspose/slides/foss/Table.java"
+    },
+    "disposition": "merged_reframed",
+    "target_section": "API Reference"
+  },
+  {
+    "unit_id": "u0032",
+    "excerpt": "This section is the point of this file. Nothing here is a \"coming soon\"; it is what the API does not\ncontain today.",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/main/java/org/aspose/slides/foss/internal/export/ExporterRegistry.java"
+    },
+    "disposition": "merged_verbatim",
+    "target_section": "Scope and Limitations"
+  },
+  {
+    "unit_id": "u0033",
+    "excerpt": "| | |\n|---|---|\n| Charts | no `IShapeCollection.addChart` |\n| SmartArt, OLE objects, video, audio | not modelled |\n| Group shapes | no `IShapeCollection.addGroupShape` \u2014 no shape can hold child shapes |\n| Animations and slide transitions | no `ISlide.getTimeline`, no `ISlide.getSlideShowTransition` |\n| Hyperlinks | no `setHyperlinkClick` on a shape or on a text portion |\n| Sections | no `IPresentation.getSections` |\n| Slide backgrounds | no `ISlide.getBackground` |\n| Themes | no `IPresentation.getMasterTheme` |\n| Slide size | no `IPresentation.getSlideSize`. A new deck is 4:3 (`cx=\"9144000\" cy=\"6858000\" type=\"screen4x3\"`) and there is no supported way to change it |\n| Rendering and conversion | no PDF, HTML, SVG, image or text export of any kind |\n| VBA macros, digital signatures, encryption | not modelled |",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/main/java/org/aspose/slides/foss/internal/export/ExporterRegistry.java"
+    },
+    "disposition": "merged_reframed",
+    "target_section": "Scope and Limitations"
+  },
+  {
+    "unit_id": "u0034",
+    "excerpt": "`getMasters().addClone(...)` returns, and the collection then reports a size of 2 \u2014 but the saved\npackage contains one `<p:sldMasterId>` and one `ppt/slideMasters/slideMaster1.xml`. The clone never\nreaches the file, and nothing reports a problem. Do not rely on it.",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/main/java/org/aspose/slides/foss/MasterSlideCollection.java"
+    },
+    "disposition": "merged_reframed",
+    "target_section": "Scope and Limitations"
+  },
+  {
+    "unit_id": "u0035",
+    "excerpt": "`SaveFormat` declares **25** values. `save` writes **three** of them and raises\n`UnsupportedOperationException` for the other **22**. It never writes a package under a name that\nclaims to be a format it did not produce, and nothing is left on disk when it refuses.",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/main/java/org/aspose/slides/foss/Presentation.java"
+    },
+    "disposition": "merged_reframed",
+    "target_section": "Scope and Limitations"
+  },
+  {
+    "unit_id": "u0036",
+    "excerpt": "| Written | Refused |\n|---|---|\n| `PPTX`, `PPSX`, `POTX` | `PPT`, `PDF`, `XPS`, `TIFF`, `ODP`, `PPTM`, `PPSM`, `POTM`, `HTML`, `HTML5`, `SWF`, `OTP`, `PPS`, `POT`, `FODP`, `GIF`, `MD`, `XML`, `SVG`, `JPEG`, `PNG`, `BMP` |",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/main/java/org/aspose/slides/foss/internal/export/ExporterRegistry.java"
+    },
+    "disposition": "merged_reframed",
+    "target_section": "Scope and Limitations"
+  },
+  {
+    "unit_id": "u0037",
+    "excerpt": "The macro-enabled formats are refused because their content type declares a VBA project this library\ndoes not write. The refusal names the alternatives:",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/main/java/org/aspose/slides/foss/Presentation.java"
+    },
+    "disposition": "merged_reframed",
+    "target_section": "Scope and Limitations"
+  },
+  {
+    "unit_id": "u0038",
+    "excerpt": "The three that are written are three genuinely different packages, each with its own main-part\ncontent type, so a template saved as a template really is a template. **Give the file the extension\nits format uses.** `save(\"deck.pptx\", SaveFormat.POTX)` writes a correct template that PowerPoint\nrefuses to open: the content type says template, the name says presentation, and PowerPoint trusts\nneither over the other. A template is `.potx`, a slideshow `.ppsx`, a presentation `.pptx`.",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/main/java/org/aspose/slides/foss/internal/export/ExporterRegistry.java"
+    },
+    "disposition": "merged_reframed",
+    "target_section": "Scope and Limitations"
+  },
+  {
+    "unit_id": "u0039",
+    "excerpt": "Opening a deck and saving it again preserves **every part**, and most of them byte for byte. It does\nnot rewrite nothing at all. Measured on a 41-part deck written by Apache POI \u2014 an independent\nwriter, not this library:",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "tests/conformance/org/aspose/slides/foss/conformance/Fixtures.java"
+    },
+    "disposition": "merged_reframed",
+    "target_section": "Scope and Limitations"
+  },
+  {
+    "unit_id": "u0040",
+    "excerpt": "| | |\n|---|---|\n| Parts in / out | 41 / 41 |\n| Parts dropped | 0 |\n| Parts added | 0 |\n| Parts byte-identical afterwards | 36 of 41 |\n| Parts rewritten | `docProps/app.xml`, `ppt/presentation.xml`, and the three slide parts |",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "tests/conformance/org/aspose/slides/foss/conformance/Fixtures.java"
+    },
+    "disposition": "merged_reframed",
+    "target_section": "Scope and Limitations"
+  },
+  {
+    "unit_id": "u0041",
+    "excerpt": "`docProps/app.xml` is regenerated from the presentation; the others are rebuilt from the package\nmodel. Parts the library has no model for \u2014 `presProps`, `viewProps`, `tableStyles`, themes, unused\nlayouts \u2014 are among the 36 that come back unchanged. That is a specific, measured claim about one\nreal deck, and it is deliberately narrower than \"full fidelity\".",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/main/java/org/aspose/slides/foss/Presentation.java"
+    },
+    "disposition": "merged_reframed",
+    "target_section": "Scope and Limitations"
+  },
+  {
+    "unit_id": "u0042",
+    "excerpt": "Re-saving is stable as well: a save with nothing modified in between does not change the file size\nor the slide XML, so a byte-length delta stays a usable \"did anything actually change\" signal.",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/main/java/org/aspose/slides/foss/Presentation.java"
+    },
+    "disposition": "merged_reframed",
+    "target_section": "Scope and Limitations"
+  },
+  {
+    "unit_id": "u0043",
+    "excerpt": "A deck written by this library contains no `lang=` attribute anywhere in the package, and a portion\nthat was never formatted gets no `<a:rPr>` at all. PowerPoint will apply the authoring machine's\ndefault language rather than one the file states.",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/main/java/org/aspose/slides/foss/BasePortionFormat.java"
+    },
+    "disposition": "merged_reframed",
+    "target_section": "Scope and Limitations"
+  },
+  {
+    "unit_id": "u0044",
+    "excerpt": "There are four editions of this library and they are **not** interchangeable. Three of them \u2014 .NET,\nJava and C++ \u2014 are the same design in three languages; Python is a larger and different one. The\ntable was measured on 2026-08-16 by running each edition and reading the XML in the file it\nproduced.",
+    "classification": "1_narrative_cta",
+    "verification": {
+      "status": "not_applicable_category_1",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": ""
+    },
+    "disposition": "merged_reframed",
+    "target_section": "Documentation & Resources"
+  },
+  {
+    "unit_id": "u0045",
+    "excerpt": "| | .NET | **Java** | C++ | Python |\n|---|---|---|---|---|\n| Create, open, round-trip, save | yes | **yes** | yes | yes |\n| Text, tables, connectors, fills, all 8 effects, 3-D | yes | **yes** | yes | yes |\n| Notes and classic comments | yes | **yes** | yes | yes |\n| Threaded comment part | no | **yes** | no | yes |\n| Save to a stream | yes | **yes** | **no** | yes |\n| Add a picture from a stream | yes | **yes** | **no** | yes |\n| Clone a slide, with its text | yes | **yes** | **partial** | yes |\n| Clone a master | yes | **no** | **no** | yes |\n| Sections | **yes** | **no** | no | no |\n| Charts | no | **no** | no | **yes** |\n| Animations | no | **no** | no | **yes** |\n| Slide transitions | no | **no** | no | **yes** |\n| Themes | no | **no** | no | **yes** |\n| Slide backgrounds | no | **no** | no | **yes** |\n| Group shapes | no | **no** | no | **yes** |\n| Hyperlinks | no | **no** | no | **yes** |\n| Markdown export | no | **no** | no | **yes** |\n| Formats `save` writes | 3 | **3** | 6 | 7 |\n| Default slide size of a new deck | 4:3 | **4:3** | 4:3 | **16:9** |\n| Layouts in a new deck | 1 | **1** | 1 | **11** |",
+    "classification": "1_narrative_cta",
+    "verification": {
+      "status": "not_applicable_category_1",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": ""
+    },
+    "disposition": "merged_reframed",
+    "target_section": "Documentation & Resources"
+  },
+  {
+    "unit_id": "u0046",
+    "excerpt": "The short version: **if you need charts, animations, transitions, themes, backgrounds, group shapes\nor hyperlinks, none of them exist in this edition \u2014 use the Python one.** If you need sections, only\nthe .NET edition has them. Code written against the Python examples does not port here, and a new\ndeck is not even the same shape.",
+    "classification": "1_narrative_cta",
+    "verification": {
+      "status": "not_applicable_category_1",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": ""
+    },
+    "disposition": "merged_reframed",
+    "target_section": "Documentation & Resources"
+  },
+  {
+    "unit_id": "u0047",
+    "excerpt": "- [Aspose.Slides FOSS for .NET](https://github.com/aspose-slides-foss/Aspose.Slides-FOSS-for-.NET)",
+    "classification": "1_narrative_cta",
+    "verification": {
+      "status": "not_applicable_category_1",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": ""
+    },
+    "disposition": "merged_verbatim",
+    "target_section": "Documentation & Resources"
+  },
+  {
+    "unit_id": "u0048",
+    "excerpt": "- [Aspose.Slides FOSS for C++](https://github.com/aspose-slides-foss/Aspose.Slides-FOSS-for-Cpp)",
+    "classification": "1_narrative_cta",
+    "verification": {
+      "status": "not_applicable_category_1",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": ""
+    },
+    "disposition": "merged_verbatim",
+    "target_section": "Documentation & Resources"
+  },
+  {
+    "unit_id": "u0049",
+    "excerpt": "- [Aspose.Slides FOSS for Python](https://github.com/aspose-slides-foss/Aspose.Slides-FOSS-for-Python)",
+    "classification": "1_narrative_cta",
+    "verification": {
+      "status": "not_applicable_category_1",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": ""
+    },
+    "disposition": "merged_verbatim",
+    "target_section": "Documentation & Resources"
+  },
+  {
+    "unit_id": "u0050",
+    "excerpt": "JDK 21 or later and Maven 3.9 or later are required; the build refuses to start otherwise. That one\ncommand runs the whole test suite \u2014 **3,638 tests**, of which **232 are conformance tests** that\nunzip the produced `.pptx` and assert on the package \u2014 and builds the jar, the sources jar, the\njavadoc jar and a CycloneDX SBOM into `target/`. `-Dgpg.skip=true` skips artifact signing, which is\npart of `verify` and needs the release key.",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": ".github/workflows/build.yml"
+    },
+    "disposition": "merged_reframed",
+    "target_section": "Development and Testing"
+  },
+  {
+    "unit_id": "u0051",
+    "excerpt": "Compiler warnings fail the build, and so does a javadoc error. Two builds of the same source produce\nbyte-identical jars; CI proves it by building twice and comparing the hashes.",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "pom.xml"
+    },
+    "disposition": "merged_reframed",
+    "target_section": "Development and Testing"
+  },
+  {
+    "unit_id": "u0052",
+    "excerpt": "Every push and every pull request runs that build on Linux, Windows and macOS, on Java 21 and Java\n25 (`.github/workflows/build.yml`). The jar, sources jar, javadoc jar and SBOM from each run are\ndownloadable from the run's page.",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": ".github/workflows/build.yml"
+    },
+    "disposition": "merged_reframed",
+    "target_section": "Development and Testing"
+  },
+  {
+    "unit_id": "u0053",
+    "excerpt": "Releases go to Maven Central through `.github/workflows/maven-central-release.yml`;\n[PUBLISHING.md](PUBLISHING.md) documents how one is cut and what fails one.",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": ".github/workflows/maven-central-release.yml"
+    },
+    "disposition": "merged_reframed",
+    "target_section": "Development and Testing"
+  },
+  {
+    "unit_id": "u0054",
+    "excerpt": "This library mirrors the naming of the commercial **Aspose.Slides for Java** product, so that\nproduct's documentation is often the fastest way to understand what a shared type name means. It\ndescribes a much larger API: check the tables above before relying on anything you read there.",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "pom.xml"
+    },
+    "disposition": "merged_reframed",
+    "target_section": "Documentation & Resources"
+  },
+  {
+    "unit_id": "u0055",
+    "excerpt": "- [Aspose.Slides for Java \u2014 product page](https://products.aspose.com/slides/java/)",
+    "classification": "redundant_with_existing",
+    "verification": {
+      "status": "verified_redundant",
+      "evidence_type": "candidate_section_reference",
+      "evidence_ref": "Documentation & Resources"
+    },
+    "disposition": "excluded",
+    "target_section": null,
+    "excluded_reason": "redundant_with_existing: the candidate's own Documentation & Resources section already links the equivalent docs.aspose.org/kb.aspose.org/reference.aspose.org FOSS-site resources for this same informational need, per this pipeline's own house convention (upstream's own README instead points to the commercial aspose.com site)"
+  },
+  {
+    "unit_id": "u0056",
+    "excerpt": "- [Documentation](https://docs.aspose.com/slides/java/)",
+    "classification": "redundant_with_existing",
+    "verification": {
+      "status": "verified_redundant",
+      "evidence_type": "candidate_section_reference",
+      "evidence_ref": "Documentation & Resources"
+    },
+    "disposition": "excluded",
+    "target_section": null,
+    "excluded_reason": "redundant_with_existing: the candidate's own Documentation & Resources section already links the equivalent docs.aspose.org/kb.aspose.org/reference.aspose.org FOSS-site resources for this same informational need, per this pipeline's own house convention (upstream's own README instead points to the commercial aspose.com site)"
+  },
+  {
+    "unit_id": "u0057",
+    "excerpt": "- [API reference](https://reference.aspose.com/slides/java/)",
+    "classification": "redundant_with_existing",
+    "verification": {
+      "status": "verified_redundant",
+      "evidence_type": "candidate_section_reference",
+      "evidence_ref": "Documentation & Resources"
+    },
+    "disposition": "excluded",
+    "target_section": null,
+    "excluded_reason": "redundant_with_existing: the candidate's own Documentation & Resources section already links the equivalent docs.aspose.org/kb.aspose.org/reference.aspose.org FOSS-site resources for this same informational need, per this pipeline's own house convention (upstream's own README instead points to the commercial aspose.com site)"
+  },
+  {
+    "unit_id": "u0058",
+    "excerpt": "- [Free support forum](https://forum.aspose.com/c/slides/11)",
+    "classification": "redundant_with_existing",
+    "verification": {
+      "status": "verified_redundant",
+      "evidence_type": "candidate_section_reference",
+      "evidence_ref": "Documentation & Resources"
+    },
+    "disposition": "excluded",
+    "target_section": null,
+    "excluded_reason": "redundant_with_existing: the candidate's own Documentation & Resources section already links the equivalent docs.aspose.org/kb.aspose.org/reference.aspose.org FOSS-site resources for this same informational need, per this pipeline's own house convention (upstream's own README instead points to the commercial aspose.com site)"
+  },
+  {
+    "unit_id": "u0059",
+    "excerpt": "**When you want the commercial product instead of this one:** if you need to render or convert \u2014\nPDF, images, HTML, thumbnails \u2014 or need charts, SmartArt, animations, OLE objects or macro-enabled\nfiles, or need a supported product with a licence behind it, none of that is here and none of it is\nplanned in this repository. This library is the right choice when you are reading and writing\n`.pptx` and want an MIT-licensed dependency that brings nothing else with it.",
+    "classification": "1_narrative_cta",
+    "verification": {
+      "status": "not_applicable_category_1",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": ""
+    },
+    "disposition": "merged_verbatim",
+    "target_section": "Documentation & Resources"
+  },
+  {
+    "unit_id": "u0060",
+    "excerpt": "Bugs and feature requests for **this** library belong in\n[this repository's issue tracker](https://github.com/aspose-slides-foss/Aspose.Slides-FOSS-for-Java/issues),\nnot in the commercial product's forum.",
+    "classification": "1_narrative_cta",
+    "verification": {
+      "status": "not_applicable_category_1",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": ""
+    },
+    "disposition": "merged_reframed",
+    "target_section": "Documentation & Resources"
+  },
+  {
+    "unit_id": "u0061",
+    "excerpt": "Pull requests are welcome. Read [CONTRIBUTING.md](CONTRIBUTING.md) first \u2014 it explains the build,\nthe test suites, and the one rule specific to this project: **a writer fix ships with a test that\nasserts on the produced `.pptx` package, not on what the library reads back.**",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "CONTRIBUTING.md"
+    },
+    "disposition": "merged_reframed",
+    "target_section": "Development and Testing"
+  },
+  {
+    "unit_id": "u0062",
+    "excerpt": "By participating you agree to the [Code of Conduct](CODE_OF_CONDUCT.md). Changes between releases,\nincluding behaviour changes and removed API, are in [CHANGELOG.md](CHANGELOG.md).",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "CODE_OF_CONDUCT.md"
+    },
+    "disposition": "merged_reframed",
+    "target_section": "Development and Testing"
+  },
+  {
+    "unit_id": "u0063",
+    "excerpt": "Do not report a vulnerability in a public issue. [SECURITY.md](SECURITY.md) has the reporting route.",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "SECURITY.md"
+    },
+    "disposition": "merged_verbatim",
+    "target_section": "Development and Testing"
+  },
+  {
+    "unit_id": "u0064",
+    "excerpt": "MIT \u2014 see [LICENSE](LICENSE). Copyright (c) 2026 Aspose Pty Ltd.",
+    "classification": "3_branding_positioning",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "LICENSE"
+    },
+    "disposition": "merged_reframed",
+    "target_section": "License"
+  }
+]

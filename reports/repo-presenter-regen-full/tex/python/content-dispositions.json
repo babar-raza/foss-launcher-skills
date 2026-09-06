@@ -1,0 +1,223 @@
+[
+  {
+    "unit_id": "u0001",
+    "source": "clone_cache/README.md",
+    "excerpt": "Pure-Python library for TeX/LaTeX processing. Parses TeX input and produces PDF,\nSVG, and DVI output. No external TeX installation required — Computer Modern\nfonts and hyphenation patterns are bundled.",
+    "salient_tokens": ["TeX", "LaTeX", "PDF", "SVG", "DVI"],
+    "classification": "2_mechanism_explanation",
+    "classification_basis": "MT031 mixed-unit treatment: the core claim (pure-Python TeX/LaTeX processing, PDF/SVG/DVI output, no external TeX install needed, bundled Computer Modern fonts) is real and verified. The trailing 'and hyphenation patterns are bundled' clause is FALSE as of this checkout: src/aspose_tex/data/hyphenation/ contains only a .gitkeep placeholder, data/README.md itself says US-English patterns 'will be added', and the \\patterns/\\hyphenation primitives (_engine/expansion.py) are registered no-ops that parse and discard their argument. Merged with the false sub-claim dropped, not carried forward.",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/aspose_tex/data/README.md",
+      "evidence_note": "data/README.md's own hyphenation/ section: 'Holds language-specific hyphenation pattern files. US-English hyphenation patterns (public domain) will be added. ... Empty at this stage.' Corroborated by a direct directory listing (hyphenation/ contains only .gitkeep) and by _engine/expansion.py:382 ('if name in (\"patterns\", \"hyphenation\"): self._consume_balanced_text_discard(name)' — a documented no-op). Fonts-bundled half corroborated separately: src/aspose_tex/data/fonts/ contains 55 real .pfb and 76 real .tfm files."
+    },
+    "disposition": "merged_reframed",
+    "target_section": "Intro",
+    "excluded_reason": null
+  },
+  {
+    "unit_id": "u0002",
+    "source": "clone_cache/README.md",
+    "excerpt": "> **Status: Pre-Alpha.** The core engine and public API are under active\n> development. Interfaces may change between releases.",
+    "salient_tokens": ["API"],
+    "classification": "3_branding_positioning",
+    "classification_basis": "A project-maturity/status disclosure, not a mechanism explanation or narrative/CTA prose — reframed as a plain Scope and Limitations bullet (matching this skill's own established 'no top-of-file blockquote' convention) rather than kept as a preamble blockquote.",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "pyproject.toml",
+      "evidence_note": "pyproject.toml classifiers: 'Development Status :: 2 - Pre-Alpha' — matches the claimed status exactly."
+    },
+    "disposition": "merged_reframed",
+    "target_section": "Scope and Limitations",
+    "excluded_reason": null
+  },
+  {
+    "unit_id": "u0003",
+    "source": "clone_cache/README.md",
+    "excerpt": "- Python 3.10+",
+    "salient_tokens": ["3.10"],
+    "classification": "2_mechanism_explanation",
+    "classification_basis": "A real installation requirement, merged into the Installation section.",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "pyproject.toml",
+      "evidence_note": "pyproject.toml: 'requires-python = \">=3.10\"' — matches exactly."
+    },
+    "disposition": "merged_reframed",
+    "target_section": "Installation",
+    "excluded_reason": null
+  },
+  {
+    "unit_id": "u0004",
+    "source": "clone_cache/README.md",
+    "excerpt": "For development:",
+    "salient_tokens": [],
+    "classification": "2_mechanism_explanation",
+    "classification_basis": "Lead-in label for the dev-install command; the underlying fact (install the dev extras before running tests) is merged into Development and Testing rather than repeated as a second Installation step.",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "pyproject.toml",
+      "evidence_note": "pyproject.toml [project.optional-dependencies] dev group lists pytest/ruff/build/twine — the real dev extras this label introduces."
+    },
+    "disposition": "merged_reframed",
+    "target_section": "Development and Testing",
+    "excluded_reason": null
+  },
+  {
+    "unit_id": "u0005",
+    "source": "clone_cache/README.md",
+    "excerpt": "In-memory PDF:",
+    "salient_tokens": ["PDF"],
+    "classification": "redundant_with_existing",
+    "classification_basis": "Lead-in label for the in-memory PDF snippet — already the candidate's own flagship Quick Start example (TeXJob + PdfDevice with no destination, job.run() returning pdf_bytes).",
+    "verification": {
+      "status": "verified_redundant",
+      "evidence_type": "candidate_section_reference",
+      "evidence_ref": "Quick Start",
+      "evidence_note": "Quick Start's flagship example is exactly this: PdfDevice() with no destination, TeXJob(...).run() assigned to pdf_bytes."
+    },
+    "disposition": "excluded",
+    "target_section": null,
+    "excluded_reason": "The in-memory PDF example is already the flagship Quick Start example using the real TeXJob/PdfDevice API."
+  },
+  {
+    "unit_id": "u0006",
+    "source": "clone_cache/README.md",
+    "excerpt": "Output to file directly:",
+    "salient_tokens": [],
+    "classification": "redundant_with_existing",
+    "classification_basis": "Lead-in label for the DVI-to-file snippet — reframed as real prose ('DVI can also be written directly to a file instead of into memory') plus code in Additional Examples.",
+    "verification": {
+      "status": "verified_redundant",
+      "evidence_type": "candidate_section_reference",
+      "evidence_ref": "Additional Examples",
+      "evidence_note": "Additional Examples' 'DVI Output' subsection includes the file-output variant (DviDevice(Path(\"hello.dvi\"))) with the sentence 'DVI can also be written directly to a file instead of into memory.'"
+    },
+    "disposition": "excluded",
+    "target_section": null,
+    "excluded_reason": "DVI file-output is demonstrated, with equivalent real code, in the Additional Examples section."
+  },
+  {
+    "unit_id": "u0007",
+    "source": "clone_cache/README.md",
+    "excerpt": "Output to file:",
+    "salient_tokens": [],
+    "classification": "redundant_with_existing",
+    "classification_basis": "Lead-in label for the SVG-to-file snippet — reframed as real prose plus code in Additional Examples.",
+    "verification": {
+      "status": "verified_redundant",
+      "evidence_type": "candidate_section_reference",
+      "evidence_ref": "Additional Examples",
+      "evidence_note": "Additional Examples' 'SVG Output' subsection includes the file-output variant (SvgDevice(Path(\"output/hello\"))) with a sentence describing the automatic hello.svg / hello-1.svg naming."
+    },
+    "disposition": "excluded",
+    "target_section": null,
+    "excluded_reason": "SVG file-output is demonstrated, with equivalent real code, in the Additional Examples section."
+  },
+  {
+    "unit_id": "u0008",
+    "source": "clone_cache/README.md",
+    "excerpt": "Multi-page in-memory output:",
+    "salient_tokens": [],
+    "classification": "redundant_with_existing",
+    "classification_basis": "Lead-in label for the multi-page SVG snippet — reframed as real prose plus code in Additional Examples.",
+    "verification": {
+      "status": "verified_redundant",
+      "evidence_type": "candidate_section_reference",
+      "evidence_ref": "Additional Examples",
+      "evidence_note": "Additional Examples' 'SVG Output' subsection includes the multi-page in-memory variant (get_all_pages() -> list[bytes]) with the sentence 'A multi-page document run in memory returns one SVG byte string per page.'"
+    },
+    "disposition": "excluded",
+    "target_section": null,
+    "excluded_reason": "Multi-page in-memory SVG output is demonstrated, with equivalent real code, in the Additional Examples section."
+  },
+  {
+    "unit_id": "u0009",
+    "source": "clone_cache/README.md",
+    "excerpt": "SVG output is self-contained — glyph outlines are extracted from the bundled\nComputer Modern PFB fonts and embedded as `<path>` elements, so no external\nfonts are required by the SVG viewer.",
+    "salient_tokens": ["<path>", "SVG", "PFB"],
+    "classification": "2_mechanism_explanation",
+    "classification_basis": "A real, distinct, currently-functional capability fact not otherwise summarized anywhere in the candidate's Key Capabilities section — recovered there per this skill's verify-and-merge convention.",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/aspose_tex/_output/svg_writer.py",
+      "evidence_note": "SvgDevice (presentation/__init__.py) wraps SvgWriter (_output/svg_writer.py), and _fonts/type1_outlines.py provides the PFB glyph-outline extraction this claim describes; SvgDevice.get_bytes()'s own docstring confirms UTF-8 SVG output."
+    },
+    "disposition": "merged_reframed",
+    "target_section": "Key Capabilities",
+    "excluded_reason": null
+  },
+  {
+    "unit_id": "u0010",
+    "source": "clone_cache/README.md",
+    "excerpt": "`TeXJob.messages` returns a copy of the messages collected during the most\nrecent run. `\\message` and `\\write 16` append plain-text messages; `\\errmessage`\nappends messages with a leading `! ` prefix; `\\write -1` logs only.",
+    "salient_tokens": ["TeXJob.messages", "\\message", "\\write 16", "\\errmessage", "!", "\\write -1", "TeXJob"],
+    "classification": "2_mechanism_explanation",
+    "classification_basis": "A real, distinct, currently-functional capability fact (job-level diagnostics collection) recovered into Key Capabilities.",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/aspose_tex/_engine/io_primitives.py",
+      "evidence_note": "io_primitives.py's exec_message/exec_write/exec_errmessage implement exactly this behavior; TeXJob.messages (presentation/__init__.py) returns list(self._messages), a defensive copy."
+    },
+    "disposition": "merged_reframed",
+    "target_section": "Key Capabilities",
+    "excluded_reason": null
+  },
+  {
+    "unit_id": "u0011",
+    "source": "clone_cache/README.md",
+    "excerpt": "`extra_format_paths` is searched after bundled format data and before the\ncurrent working directory for `\\input` files.",
+    "salient_tokens": ["extra_format_paths", "\\input"],
+    "classification": "2_mechanism_explanation",
+    "classification_basis": "A real, distinct, currently-functional configuration capability recovered into Key Capabilities.",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/aspose_tex/presentation/__init__.py",
+      "evidence_note": "TeXOptions's own docstring in presentation/__init__.py documents extra_format_paths with this exact search order."
+    },
+    "disposition": "merged_reframed",
+    "target_section": "Key Capabilities",
+    "excluded_reason": null
+  },
+  {
+    "unit_id": "u0012",
+    "source": "clone_cache/README.md",
+    "excerpt": "The package registers a `logging.NullHandler` on the `aspose_tex` logger so\napplications can opt into standard Python logging without receiving default\nhandler warnings:",
+    "salient_tokens": ["logging.NullHandler", "aspose_tex", "NullHandler"],
+    "classification": "2_mechanism_explanation",
+    "classification_basis": "A real, distinct integration/observability fact, merged into Development and Testing (where the candidate already discusses running and instrumenting the test suite).",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/aspose_tex/__init__.py",
+      "evidence_note": "__init__.py lines 19-21: _logger = logging.getLogger(\"aspose_tex\"); if not any(isinstance(handler, logging.NullHandler) ...): _logger.addHandler(logging.NullHandler())."
+    },
+    "disposition": "merged_reframed",
+    "target_section": "Development and Testing",
+    "excluded_reason": null
+  },
+  {
+    "unit_id": "u0013",
+    "source": "clone_cache/README.md",
+    "excerpt": "Released under the MIT License — see [LICENSE](LICENSE). Bundled Computer Modern\nfonts are covered separately — see [LICENSE-FONTS](LICENSE-FONTS).",
+    "salient_tokens": ["MIT", "LICENSE", "FONTS"],
+    "classification": "2_mechanism_explanation",
+    "classification_basis": "MT031 mixed-unit treatment: the MIT/LICENSE half is already covered by the candidate's fixed License template sentence; the LICENSE-FONTS half names a real, distinct fact (bundled fonts carry a separate license) not covered by that template and is merged in addition to it.",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "LICENSE-FONTS",
+      "evidence_note": "LICENSE-FONTS is a real file at the clone-cache root, sibling to LICENSE and README.md."
+    },
+    "disposition": "merged_reframed",
+    "target_section": "License",
+    "excluded_reason": null
+  }
+]

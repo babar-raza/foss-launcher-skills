@@ -2,7 +2,7 @@
   "schema_version": 1,
   "generated_from": "skills/*.md",
   "generated_by": "scripts/pipeline/commands/ops/sync_providers.py",
-  "skill_count": 112,
+  "skill_count": 113,
   "skills": [
     {
       "id": "S-01",
@@ -850,6 +850,14 @@
       "description": "Checks whether a refresh run's real, non-empty knowledge delta requires a mandatory",
       "internal": false,
       "canonical_path": "skills/blog-release-check.md"
+    },
+    {
+      "id": "S-125",
+      "slug": "git-tracking-policy",
+      "name": "Git Tracking Policy — Selectively Track a Subtree of an Ignored Directory",
+      "description": "Some directories in this repo are blanket-gitignored (e.g.",
+      "internal": false,
+      "canonical_path": "skills/git-tracking-policy.md"
     },
     {
       "id": "S-HT-02",

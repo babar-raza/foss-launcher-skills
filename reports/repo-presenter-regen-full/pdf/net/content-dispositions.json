@@ -1,0 +1,2170 @@
+[
+  {
+    "unit_id": "u0001",
+    "excerpt": "Aspose.PDF FOSS for .NET is a free, open-source PDF library for .NET 8+ that reads, creates,\nmodifies, and converts PDF documents. It provides an Aspose.PDF-compatible API surface for common\nPDF scenarios, so a large part of existing Aspose.PDF for .NET code can compile and run against it\nunchanged.",
+    "disposition": "merged_reframed",
+    "target_section": "Intro",
+    "classification": "3_branding_positioning",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/Aspose.Pdf.Foss.csproj"
+    }
+  },
+  {
+    "unit_id": "u0002",
+    "excerpt": "- [At a Glance](#at-a-glance)",
+    "classification": "1_narrative_cta",
+    "disposition": "merged_verbatim",
+    "target_section": "Navigation",
+    "verification": {
+      "status": "not_applicable_category_1",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": ""
+    }
+  },
+  {
+    "unit_id": "u0003",
+    "excerpt": "- [Key Capabilities](#key-capabilities)",
+    "classification": "1_narrative_cta",
+    "disposition": "merged_verbatim",
+    "target_section": "Navigation",
+    "verification": {
+      "status": "not_applicable_category_1",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": ""
+    }
+  },
+  {
+    "unit_id": "u0004",
+    "excerpt": "- [Installation](#installation)",
+    "classification": "1_narrative_cta",
+    "disposition": "merged_verbatim",
+    "target_section": "Navigation",
+    "verification": {
+      "status": "not_applicable_category_1",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": ""
+    }
+  },
+  {
+    "unit_id": "u0005",
+    "excerpt": "- [Quick Start](#quick-start)",
+    "classification": "1_narrative_cta",
+    "disposition": "merged_verbatim",
+    "target_section": "Navigation",
+    "verification": {
+      "status": "not_applicable_category_1",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": ""
+    }
+  },
+  {
+    "unit_id": "u0006",
+    "excerpt": "- [Additional Examples](#additional-examples)",
+    "classification": "1_narrative_cta",
+    "disposition": "merged_verbatim",
+    "target_section": "Navigation",
+    "verification": {
+      "status": "not_applicable_category_1",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": ""
+    }
+  },
+  {
+    "unit_id": "u0007",
+    "excerpt": "- [API Reference](#api-reference)",
+    "classification": "1_narrative_cta",
+    "disposition": "merged_verbatim",
+    "target_section": "Navigation",
+    "verification": {
+      "status": "not_applicable_category_1",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": ""
+    }
+  },
+  {
+    "unit_id": "u0008",
+    "excerpt": "- [Documentation & Resources](#documentation--resources)",
+    "classification": "1_narrative_cta",
+    "disposition": "merged_verbatim",
+    "target_section": "Navigation",
+    "verification": {
+      "status": "not_applicable_category_1",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": ""
+    }
+  },
+  {
+    "unit_id": "u0009",
+    "excerpt": "- [Scope and Limitations](#scope-and-limitations)",
+    "classification": "1_narrative_cta",
+    "disposition": "merged_verbatim",
+    "target_section": "Navigation",
+    "verification": {
+      "status": "not_applicable_category_1",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": ""
+    }
+  },
+  {
+    "unit_id": "u0010",
+    "excerpt": "- [Development and Testing](#development-and-testing)",
+    "classification": "1_narrative_cta",
+    "disposition": "merged_verbatim",
+    "target_section": "Navigation",
+    "verification": {
+      "status": "not_applicable_category_1",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": ""
+    }
+  },
+  {
+    "unit_id": "u0011",
+    "excerpt": "- [License](#license)",
+    "classification": "1_narrative_cta",
+    "disposition": "merged_verbatim",
+    "target_section": "Navigation",
+    "verification": {
+      "status": "not_applicable_category_1",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": ""
+    }
+  },
+  {
+    "unit_id": "u0013",
+    "excerpt": "- Open an existing PDF or create one from scratch with `Document`, then add, delete, reorder,\n  rotate, resize, or copy pages across documents through `Page` and `PageCollection`; full\n  round-trip save and incremental save preserve bookmarks and outlines, page labels, named\n  destinations, document info, XMP metadata, and optional content (OCG) layers.",
+    "disposition": "merged_verbatim",
+    "target_section": "Key Capabilities",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/Document.cs"
+    }
+  },
+  {
+    "unit_id": "u0014",
+    "excerpt": "- Standard 14 font handling, TrueType / OpenType embedding and subsetting, and Type 1 (PostScript)\n  and Type 3 font parsing are handled through `FontRepository` and `FontEmbedder`.",
+    "disposition": "merged_verbatim",
+    "target_section": "Key Capabilities",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/Text/FontEmbedder.cs"
+    }
+  },
+  {
+    "unit_id": "u0015",
+    "excerpt": "- Extract text with `TextAbsorber`, `TextFragmentAbsorber`, `ParagraphAbsorber`, and\n  `TableAbsorber`; find and replace across pages — including cross-operator and ligature-aware\n  spans — and build new text with `TextBuilder`, `TextFragment`, `TextSegment`, `TextStamp`, and\n  `FormattedText`, with Bidi (RTL) support and AGL Unicode mapping.",
+    "disposition": "merged_verbatim",
+    "target_section": "Key Capabilities",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/Text/TextAbsorber.cs"
+    }
+  },
+  {
+    "unit_id": "u0016",
+    "excerpt": "- Read, fill, and build AcroForm fields — text, checkbox, radio, choice, button, signature, and\n  rich text — through `Form`, `Field`, `FormFieldBuilder`, `FormEditor`, and `FormDataConverter`,\n  including field-level flatten and JSON/XFDF form-data import and export.",
+    "disposition": "merged_verbatim",
+    "target_section": "Key Capabilities",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/Forms/Field.cs"
+    }
+  },
+  {
+    "unit_id": "u0017",
+    "excerpt": "- Add and edit every standard annotation type — link, text, free-text, highlight,\n  square/circle/line/polyline, ink, stamp, popup, file attachment, screen, redaction, watermark,\n  pre-press marks, and rich media — with appearance generation and flatten.",
+    "disposition": "merged_verbatim",
+    "target_section": "Key Capabilities",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/Annotations/Annotation.cs"
+    }
+  },
+  {
+    "unit_id": "u0018",
+    "excerpt": "- Encrypt and decrypt with RC4-40, RC4-128, AES-128, and AES-256, and sign documents with PKCS#7 /\n  CMS detached signatures — including DocMDP certifying signatures — through `PdfFileSecurity`,\n  `PdfFileSignature`, `PdfSigner`, and `PdfCertificate`; document permissions can be read and set\n  directly on `Document`.",
+    "disposition": "merged_verbatim",
+    "target_section": "Key Capabilities",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/Security/CryptoAlgorithm.cs"
+    }
+  },
+  {
+    "unit_id": "u0019",
+    "excerpt": "- Render pages to PNG, JPEG, BMP, TIFF, or SVG with `PngDevice`, `JpegDevice`, `BmpDevice`,\n  `TiffDevice`, and `SvgDevice` through the pluggable `IPageRenderer` (default\n  `SoftwarePageRenderer`), with mesh shading types 4-7 (free-form and lattice-form Gouraud,\n  Coons, and tensor-product patch meshes), a JBIG2 decoder, and JPEG / JPEG2000 / CCITT-Fax\n  filters.",
+    "disposition": "merged_verbatim",
+    "target_section": "Key Capabilities",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/Devices/BmpDevice.cs"
+    }
+  },
+  {
+    "unit_id": "u0020",
+    "excerpt": "- Convert PDF to and from HTML and SVG, load Markdown, XML, or plain-text (TXT) files, and export\n  to Markdown, plain text, or PDF/A (1A through 4F), using `HtmlLoadOptions` / `HtmlSaveOptions`,\n  `SvgLoadOptions`, `MdLoadOptions`, and `TxtLoadOptions`.",
+    "disposition": "merged_verbatim",
+    "target_section": "Key Capabilities",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/Converters/PdfToMarkdownConverter.cs"
+    }
+  },
+  {
+    "unit_id": "u0021",
+    "excerpt": "- High-level, task-oriented facades cover common workflows: `PdfFileEditor` for\n  concatenate/split/resize/extract, `PdfBookmarkEditor` for outline CRUD with XML/HTML export,\n  `PdfContentEditor` for annotations/stamps/replace-text, `PdfFileStamp` for header/footer/\n  page-number stamping, plus `PdfFileInfo`, `PdfFileMend`, `PdfAnnotationEditor`, `PdfPageEditor`,\n  `PdfConverter`, `PdfExtractor`, and `PdfViewer`.",
+    "disposition": "merged_verbatim",
+    "target_section": "Key Capabilities",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/Facades/FacadeInterfaces.cs"
+    }
+  },
+  {
+    "unit_id": "u0022",
+    "excerpt": "- Read an existing `/StructTreeRoot` tree and walk its `Aspose.Pdf.LogicalStructure` element\n  hierarchy, or build tagged content from scratch with `ITaggedContent`'s 37 typed structure\n  elements, setting document language, title, alternate text, and marked content for\n  accessibility.",
+    "disposition": "merged_verbatim",
+    "target_section": "Key Capabilities",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/LogicalStructure/Elements.cs"
+    }
+  },
+  {
+    "unit_id": "u0024",
+    "excerpt": "- Extract tabular data and build tables with `Table`, `Row`, `Cell`, and `TableAbsorber`; draw\n  with `Graph`, `Rectangle`, `Circle`, `Ellipse`, `Arc`, `Line`, and `Curve`; and extract or place\n  images through `ImagePlacementAbsorber` and `XImageCollection`.",
+    "disposition": "merged_verbatim",
+    "target_section": "Key Capabilities",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/Text/TableAbsorber.cs"
+    }
+  },
+  {
+    "unit_id": "u0025",
+    "excerpt": "This library publishes prebuilt binaries to NuGet as\n[`Aspose.PDF.FOSS`](https://www.nuget.org/packages/Aspose.PDF.FOSS/):",
+    "disposition": "merged_verbatim",
+    "target_section": "Installation",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/Aspose.Pdf.Foss.csproj"
+    }
+  },
+  {
+    "unit_id": "u0026",
+    "excerpt": "Or with a `<PackageReference>`:",
+    "classification": "1_narrative_cta",
+    "disposition": "merged_verbatim",
+    "target_section": "Installation",
+    "verification": {
+      "status": "not_applicable_category_1",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": ""
+    }
+  },
+  {
+    "unit_id": "u0027",
+    "excerpt": "The library targets **.NET 8.0** and pulls in one NuGet dependency, `System.Drawing.Common`\n(8.0.0), used only by a few image-interop members (e.g. `ImageDevice.GetBitmap`,\n`StampInfo.Image`). Those specific members are Windows-only on .NET 8 and throw\n`PlatformNotSupportedException` on Linux/macOS — use the byte-array / `Stream` overloads instead,\nor read raw pixel data directly from the renderer's `RgbaBuffer`. Everything else — text, forms,\nparsing, encryption and signing, and page-to-image rendering via `PngDevice`/`JpegDevice` (backed\nby the built-in managed `SoftwarePageRenderer`, used automatically off Windows) — is pure-managed\nand runs on Windows, Linux, and macOS.",
+    "disposition": "merged_verbatim",
+    "target_section": "Installation",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/Aspose.Pdf.Foss.csproj"
+    }
+  },
+  {
+    "unit_id": "u0028",
+    "excerpt": "To build from source instead:",
+    "classification": "1_narrative_cta",
+    "disposition": "merged_verbatim",
+    "target_section": "Installation",
+    "verification": {
+      "status": "not_applicable_category_1",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": ""
+    }
+  },
+  {
+    "unit_id": "u0029",
+    "excerpt": "Then reference `src/Aspose.Pdf.Foss.csproj` from your project (e.g. `dotnet add reference`), or\nadd the built `Aspose.Pdf.Foss.dll` as an assembly reference.",
+    "disposition": "merged_verbatim",
+    "target_section": "Installation",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/Aspose.Pdf.Foss.csproj"
+    }
+  },
+  {
+    "unit_id": "u0030",
+    "excerpt": "- `System.Drawing.Common` (8.0.0) — used only by a few image-interop members (e.g.\n  `ImageDevice.GetBitmap`, `StampInfo.Image`). Those specific members are Windows-only on .NET 8\n  and throw `PlatformNotSupportedException` on Linux/macOS; everything else in the library is\n  pure-managed and cross-platform.",
+    "disposition": "merged_verbatim",
+    "target_section": "Installation",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/Aspose.Pdf.Foss.csproj"
+    }
+  },
+  {
+    "unit_id": "u0031",
+    "excerpt": "No optional third-party package dependencies.",
+    "disposition": "merged_verbatim",
+    "target_section": "Dependencies",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/Aspose.Pdf.Foss.csproj"
+    }
+  },
+  {
+    "unit_id": "u0032",
+    "excerpt": "- .NET 8.0 or later, running on Windows, Linux, or macOS.",
+    "disposition": "merged_verbatim",
+    "target_section": "Dependencies",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/Aspose.Pdf.Foss.csproj"
+    }
+  },
+  {
+    "unit_id": "u0033",
+    "excerpt": "No development-only third-party package dependencies beyond the standard .NET SDK/test tooling\nused to build and run the test suite (see [Development and Testing](#development-and-testing)).",
+    "disposition": "merged_verbatim",
+    "target_section": "Dependencies",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/Aspose.Pdf.Foss.csproj"
+    }
+  },
+  {
+    "unit_id": "u0034",
+    "excerpt": "Create a new PDF, then open an existing one and extract its text:",
+    "classification": "1_narrative_cta",
+    "disposition": "merged_verbatim",
+    "target_section": "Quick Start",
+    "verification": {
+      "status": "not_applicable_category_1",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": ""
+    }
+  },
+  {
+    "unit_id": "u0035",
+    "excerpt": "More real, runnable examples, adapted from the library's own test suite.",
+    "classification": "1_narrative_cta",
+    "disposition": "merged_verbatim",
+    "target_section": "Additional Examples",
+    "verification": {
+      "status": "not_applicable_category_1",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": ""
+    }
+  },
+  {
+    "unit_id": "u0036",
+    "excerpt": "<details>\n<summary>View Additional Examples</summary>",
+    "classification": "1_narrative_cta",
+    "disposition": "merged_verbatim",
+    "target_section": "Additional Examples",
+    "verification": {
+      "status": "not_applicable_category_1",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": ""
+    }
+  },
+  {
+    "unit_id": "u0037",
+    "excerpt": "</details>",
+    "classification": "1_narrative_cta",
+    "disposition": "merged_verbatim",
+    "target_section": "Additional Examples",
+    "verification": {
+      "status": "not_applicable_category_1",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": ""
+    }
+  },
+  {
+    "unit_id": "u0038",
+    "excerpt": "The primary entry point is `Document`, which exposes its pages through `Document.Pages` (a\n`PageCollection` of `Page` objects), its interactive form through `Document.Form`, and its\nsecurity surface through `PdfFileSecurity` and `PdfFileSignature`. The public API surface includes\n854 public types across 36 modules, summarized in the module-grouped tables below.",
+    "disposition": "merged_reframed",
+    "target_section": "API Reference",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/Document.cs"
+    }
+  },
+  {
+    "unit_id": "u0039",
+    "excerpt": "<details>\n<summary>View the Core API Surface</summary>",
+    "classification": "1_narrative_cta",
+    "disposition": "merged_verbatim",
+    "target_section": "API Reference",
+    "verification": {
+      "status": "not_applicable_category_1",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": ""
+    }
+  },
+  {
+    "unit_id": "u0040",
+    "excerpt": "| Class | Description |\n|---|---|\n| `BaseOperatorCollection` | Standalone operator-list class — surface mirrors OperatorCollection but is detached from any page. |\n| `BuildVersionInfo` | Build and version information for the library. |\n| `CollectionItem` | Per-file metadata entries declared by a portfolio /Collection's schema, exposed as a typed dictionary on CollectionItem. |\n| `ContentsAppender` | Buffers operators to prepend to / append to a page's content stream. |\n| `Document` | Represents a PDF document. |\n| `DocumentCollection` | Enumerable collection of `Document` instances; `GetEnumerator()` throws `NotImplementedException` in this edition (see Scope and Limitations). |\n| `DocumentInfo` | Represents the document information dictionary. |\n| `EmbeddedFileCollection` | Collection of embedded files in a document. |\n| `EncryptedPayload` | Wraps the /EP entry on an embedded-file file-spec — the encrypted-payload that signals a PDF 2.0 unencrypted-wrapper document. |\n| `EngineDocFacade` | Wrapper providing the small slice of engine-level state callers may set via `doc._engineDoc.X`. |\n| `ExtGStateValue` | One /ExtGState entry — name plus stroke/fill alpha factors. |\n| `FileParams` | Wraps the /Params dict on an embedded-file stream (PDF §7.11.3 Table 46). |\n| `FileSpecification` | Represents an embedded file specification (PDF §7.11.3). |\n| `Group` | Group / blending colour space dictionary (PDF 32000 §11.6.5). |\n| `Image` | Image compositing can be customized using the BlendMode enumeration, which includes common blend operations such as Multiply and Screen. |\n| `ImagePlacement` | Represents an image placement found on a PDF page — the position, size, and resolution of an image XObject as it appears on the page (after CTM transformation). |\n| `ImagePlacementAbsorber` | Absorbs image placement information from PDF pages. |\n| `ImagePlacementCollection` | A collection of ImagePlacement items. |\n| `ImageStamp` | Adds an image to a PDF page. |\n| `InterruptMonitor` | Class with 1 method. |\n| `JavaScriptCollection` | Document-level JavaScript scripts (PDF spec §12.6.4.16). |\n| `LaunchActionOperationConverter` | LaunchActionOperationConverter converts a LaunchActionOperation value to its string representation via ToString, exposing the strings strOpen and strPrint. |\n| `Layer` | A PDF layer (Optional Content Group) as exposed through Layers. |\n| `MergeOptions` | Merge tuning knobs honored by Merge(MergeOptions, Document[]) and friends. |\n| `OcspSettings` | OCSP (Online Certificate Status Protocol) settings for the signer's revocation-check / OCSP-stapling path. |\n| `Operator-Pdf` | Top-level base for all PDF content-stream operators. |\n| `OperatorCollection` | Collection of content stream operators for a page. |\n| `Opi` | Open Prepress Interface (OPI) metadata wrapper for an XForm. |\n| `OptimizationOptions-Pdf` | Document-scoped alias for OptimizationOptions. |\n| `Page` | Represents a page in a PDF document. |\n| `PageActionCollection` | Per-page additional actions (PDF 32000 §12.6.3 /AA entries). |\n| `PageExtensions` | Extension methods over Page that manipulate the page content stream. |\n| `PageInfo` | Container for page dimension and margin properties. |\n| `PageResources` | Provides access to a page's resource collections (fonts, images). |\n| `PageTransition` | Represents a page transition effect (PDF32000 §12.4.4). |\n| `RawOperator` | An unparsed operator token from a content stream — used as a fallback for operators not covered by the typed Operators hierarchy. |\n| `RepairOptions` | Options describing what repair is needed. |\n| `Resolution` | Represents the resolution (DPI) for device rendering and image placement. |\n| `Resources` | Type alias for PageResources, matching the Resources class name. |\n| `Stamp-Pdf` | Top-level Aspose.Pdf-shape abstract base for stamps applied to a Page via AddStamp(Stamp). |\n| `TextStamp-Pdf` | Compat re-export so external tests that reference Aspose.Pdf.TextStamp (from before the type moved to Aspose.Pdf.Stamps) keep compiling. |\n| `TimestampSettings` | RFC 3161 Time-Stamp Authority (TSA) settings consumed by the signer when embedding a timestamp token into the PKCS#7 envelope. |\n| `Value` | One typed value pulled out of a CollectionItem dict by TryGet*Value. |\n| `WarningInfo` | Class with 2 methods and 3 properties. |\n| `Watermark` | Watermark applied to a page. |\n| `XForm` | Represents a Form XObject (reusable content stream with its own resources). |\n| `XFormCollection` | Collection of XForm (Form XObject) resources on a page. |\n| `XFormResources` | Resources (fonts, xobjects) on an XForm's stream dict. |",
+    "disposition": "merged_verbatim",
+    "target_section": "API Reference",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/Page.cs"
+    }
+  },
+  {
+    "unit_id": "u0041",
+    "excerpt": "| Interface | Description |\n|---|---|\n| `IDocumentFontUtilities` | Per-document font helper contract — implemented by FontUtilities. |\n| `IOperatorSelector` | Visitor interface for Accept(IOperatorSelector). |\n| `IWarningCallback` | Interface with 1 method. |",
+    "disposition": "merged_verbatim",
+    "target_section": "API Reference",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/Document.cs"
+    }
+  },
+  {
+    "unit_id": "u0042",
+    "excerpt": "| Enumeration | Description |\n|---|---|\n| `AFRelationship` | Relationship between an embedded file and the document content that references it (/AFRelationship, PDF 2.0 §7.11.3). |\n| `FileEncoding` | Compression / encoding used for the embedded file stream's data (consumed by Encoding). |\n| `Fixup` | Pre-defined PDF fixup operations accepted by Stream, bool, object[]). |\n| `ImageDeleteAction` | Action taken by Delete(int, ImageDeleteAction) when the image being removed is still referenced from the page content. |\n| `ImageFileType` | Recognised image-source file types reported by Image.FileType. |\n| `ImageFilterType` | ImageFilterType enum defines the compression filters `Jpeg2000`, `Flate`, `Jpeg`, and `CCITTFax` that can be applied when re‑encoding images. |\n| `LaunchActionOperation` | LaunchActionOperation enum defines the possible launch operations: None, Open, and Print. |\n| `NoCharacterAction-Pdf` | Action taken when the configured font does not have a glyph for a character in the stamp text. |\n| `PasswordType` | Identifies which password (if any) is in effect on an encrypted PDF. |\n| `PdfAStandardVersion` | PdfAStandardVersion enum lists supported PDF/A conformance levels, including PDF_A_1A, PDF_A_2B, PDF_A_3U, and PDF_A_4. |\n| `Permissions` | Permissions.PrintDocument, ModifyContent, ExtractContent, etc., are enum values that can be combined to set document security settings. |\n| `PrintScaling` | Enum with 2 members. |\n| `ReturnAction` | The ReturnAction enum is used by RichMediaAnnotation.Accept(visitor) to indicate whether the visitor should Continue processing or Abort. |\n| `Rotation` | Enum with 5 members. |\n| `TabOrder` | Tab order applied to widget annotations on a page (PDF 32000 /Tabs entry). |\n| `WarningType` | Categories of warnings emitted during save/load. |",
+    "disposition": "merged_verbatim",
+    "target_section": "API Reference",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/FileSpecificationDeps.cs"
+    }
+  },
+  {
+    "unit_id": "u0043",
+    "excerpt": "| Class | Description |\n|---|---|\n| `ActionCollection` | Collection of actions associated with an annotation. |\n| `GoToAction` | Class with 13 methods and 5 properties. |\n| `GoToRemoteAction` | Go-to-remote action — jumps to a destination in a different PDF file . |\n| `GoToURIAction` | Alias for UriAction, matching the public API name. |\n| `ImportDataAction` | An import-data action (/S /ImportData): imports field data from the FDF/XFDF file identified by the action's /F file specification. |\n| `JavascriptAction` | Class with 8 methods and 3 properties. |\n| `LaunchAction` | Class with 9 methods and 4 properties. |\n| `NamedAction` | NamedAction.CreateUri(uri) builds a URI action that can be linked to from annotations or form fields. |\n| `PdfAction` | Base class for PDF actions. |\n| `SubmitFormAction` | Submit-form action — sends form field data to a URL or remote file (PDF 32000-1:2008 §12.7.5.2). |\n| `UriAction` | Class with 7 methods and 3 properties. |",
+    "disposition": "merged_verbatim",
+    "target_section": "API Reference",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/Actions/ActionCollection.cs"
+    }
+  },
+  {
+    "unit_id": "u0044",
+    "excerpt": "| Enumeration | Description |\n|---|---|\n| `ActionType` | The type of a PDF action. |",
+    "disposition": "merged_verbatim",
+    "target_section": "API Reference",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/Actions/PdfAction.cs"
+    }
+  },
+  {
+    "unit_id": "u0045",
+    "excerpt": "| Class | Description |\n|---|---|\n| `Annotation` | Represents a PDF annotation. |\n| `AnnotationActionCollection` | Per-event PDF action slots for a widget annotation (matches the Aspose.Pdf /AA-tree entry shape: 14 named events plus the direct /A activation action). |\n| `AnnotationCollection` | Collection of annotations on a page. |\n| `AnnotationSelector` | Visitor that filters annotations across one or more pages. |\n| `AppearanceDictionary` | Appearance-stream dictionary on an annotation (/AP entry): maps appearance-state name -> XForm. |\n| `BleedMarkAnnotation` | BleedMarkAnnotation can be instantiated with a page and position, and provides methods to update its appearance, flatten it, and write XFDF data. |\n| `Border` | Represents the border of an annotation or field widget. |\n| `CaretAnnotation` | Class with 16 methods and 52 properties. |\n| `Characteristics` | Annotation characteristics (border, rotation, etc.). |\n| `CircleAnnotation` | Class with 16 methods and 51 properties. |\n| `ColorBarAnnotation` | The ColorBarAnnotation constructor creates a color‑bar annotation on a page by specifying the page, rectangle and a CMYK color selector. |\n| `CommonFigureAnnotation` | Common base for square and circle annotations — a figure drawn inside a rectangle, optionally inset by /RD (PDF 32000 §12.5.6.8). |\n| `Dash` | Represents a dash pattern for borders. |\n| `DefaultAppearance` | Represents the default appearance of a free text annotation. |\n| `DocumentActionCollection` | Document-level /AA additional-action dictionary (PDF 32000-1 §12.6.3 Table 195). |\n| `ExplicitDestination` | Represents an explicit destination in a PDF document (e.g. |\n| `FieldDateTimeFormatter` | Formats a date/time value string according to an Acrobat-style date format. |\n| `FieldNumberCurrencyFormatter` | Formats a numeric string as a currency value. |\n| `FieldNumberPercentFormatter` | Formats a numeric string as a percentage (multiplies by 100 first). |\n| `FileAttachmentAnnotation` | Represents a file attachment annotation. |\n| `FitBExplicitDestination` | Fit-bounding-box destination (/FitB). |\n| `FitBHExplicitDestination` | FitBH destination (/FitBH) — fit bounding box horizontally at Top. |\n| `FitBVExplicitDestination` | FitBV destination (/FitBV) — fit bounding box vertically at Left. |\n| `FitExplicitDestination` | Fit-the-page destination (/Fit). |\n| `FitHExplicitDestination` | Fit horizontally at /Top (/FitH). |\n| `FitRExplicitDestination` | FitR rectangle destination (/FitR). |\n| `FitVExplicitDestination` | Fit vertically at /Left (/FitV). |\n| `FixedPrint` | Class with 3 properties. |\n| `FreeTextAnnotation` | FreeTextAnnotation constructors allow creating a free‑text annotation on a specific page rectangle with a defined appearance. |\n| `GenericAnnotation` | Fallback annotation class for annotation subtypes that have no dedicated model (e.g. |\n| `HighlightAnnotation` | Highlight text markup annotation. |\n| `InkAnnotation` | Class with 17 methods and 52 properties. |\n| `LineAnnotation` | Class with 17 methods and 62 properties. |\n| `LinkAnnotation` | Class with 9 methods and 51 properties. |\n| `MarkupAnnotation` | Class with 15 methods and 50 properties. |\n| `Measure` | Measure-units metadata attached to a LineAnnotation (PDF 32000 §12.5.6.13 measure dictionaries). |\n| `MediaClip` | A media clip object (PDF §13.2.4) — the actual media data or section thereof. |\n| `MediaClipData` | A media clip data object (PDF §13.2.4.2) — full media data via a file specification. |\n| `MediaClipSection` | A media clip section object (PDF §13.2.4.3) — a temporal section of another clip. |\n| `MediaRendition` | A media rendition (PDF §13.2.3.2) — pairs a media clip with playback parameters. |\n| `MovieAnnotation` | Class with 9 methods and 51 properties. |\n| `NumberFormat` | One number-format entry — describes how a measurement value is rendered (precision, separators, before/after text). |\n| `NumberFormatList` | Nested number-format list (Aspose.Pdf shape: Measure+NumberFormatList). |\n| `PDF3DAnnotation` | Class with 14 methods and 53 properties. |\n| `PDF3DArtwork` | A 3D artwork dictionary referenced by a PDF 3D annotation (Aspose.Pdf shape). |\n| `PDF3DContent` | Embedded-stream content for a 3D artwork (U3D or PRC). |\n| `PDF3DCrossSection` | Single cross-section through a PDF 3D model (Aspose.Pdf shape). |\n| `PDF3DCrossSectionArray` | Ordered collection of PDF3DCrossSection entries applied to a PDF 3D view (Aspose.Pdf shape). |\n| `PDF3DCuttingPlaneOrientation` | Orientation angles for the cutting plane of a 3D cross-section (Aspose.Pdf shape). |\n| `PDF3DLightingScheme` | Lighting scheme applied to a PDF 3D artwork (Aspose.Pdf shape). |\n| `PDF3DRenderMode` | Render mode applied to a 3D artwork view (Aspose.Pdf shape). |\n| `PDF3DStream` | PDF /3DD stream wrapper — pairs a PDF3DArtwork with its document-owned content stream. |\n| `PDF3DView` | Camera + render-state snapshot of a 3D artwork (Aspose.Pdf shape). |\n| `PDF3DViewArray` | Indexed collection of PDF3DView snapshots (Aspose.Pdf shape). |\n| `PageInformationAnnotation` | Class with 8 methods and 47 properties. |\n| `PdfActionCollection` | Collection of PdfAction entries attached to an annotation (or any other action-bearing PDF object). |\n| `PolyAnnotation` | Common base for polygon and polyline annotations — a chain of connected vertices (PDF 32000 §12.5.6.9). |\n| `PolygonAnnotation` | Class with 16 methods and 52 properties. |\n| `PolylineAnnotation` | Class with 15 methods and 52 properties. |\n| `PopupAnnotation` | Class with 9 methods and 49 properties. |\n| `PrinterMarkAnnotation` | Aggregate printer's-mark generator. |\n| `RedactAnnotation` | Backward-compatible alias for RedactionAnnotation. |\n| `RedactionAnnotation` | Represents a redaction annotation. |\n| `RegistrationMarkAnnotation` | Class with 8 methods and 48 properties. |\n| `Rendition` | A rendition object (PDF §13.2.3) — describes a media object to be played by a rendition action. |\n| `RenditionAction` | A rendition action (PDF §12.6.4.14) — controls the playing of multimedia content. |\n| `RichMediaAnnotation` | Class with 12 methods and 52 properties. |\n| `RichTextToFlatStructureTransformer` | Transforms rich text annotation content (XHTML with arbitrarily nested spans) into a flat structure where every leaf text node becomes a single &lt;span style=\".\"&gt; with the fully-merged CSS from all ancestor elements. |\n| `ScreenAnnotation` | The ScreenAnnotation class lets you add a screen annotation to a page by providing the page, rectangle, and media file, and exposes AnnotationType, Action, and Title properties. |\n| `SelectorRendition` | A selector rendition (PDF §13.2.3.3) — chooses among alternative renditions. |\n| `SoundAnnotation` | Class with 16 methods and 52 properties. |\n| `SoundData` | Class with 5 properties. |\n| `SoundSampleData` | SoundSampleData constructors allow specifying samplingRate alone or together with numberOfSoundChannels, bitsPerChannel, and SoundSampleDataEncodingFormat. |\n| `SquareAnnotation` | The SquareAnnotation.Accept(visitor) method implements the visitor pattern, allowing custom processing of annotation objects. |\n| `SquigglyAnnotation` | Squiggly text markup annotation. |\n| `StampAnnotation` | Class with 16 methods and 53 properties. |\n| `StrikeOutAnnotation` | StrikeOut text markup annotation. |\n| `TextAnnotation` | Class with 16 methods and 54 properties. |\n| `TextMarkupAnnotation` | Base class for the text-markup annotations (Highlight, Underline, StrikeOut, Squiggly) — those whose geometry is a set of QuadPoints over page text. |\n| `TextStyle` | Bundled font / colour / alignment style applied to a free-text annotation's rich text. |\n| `TrimMarkAnnotation` | Class with 8 methods and 48 properties. |\n| `UnderlineAnnotation` | Underline text markup annotation. |\n| `WatermarkAnnotation` | Represents a watermark annotation that can be added to a PDF page. |\n| `WidgetAnnotation` | Class with 13 methods and 59 properties. |\n| `XYZExplicitDestination` | XYZ explicit destination: display the page at position (left, top) with zoom factor. |",
+    "disposition": "merged_verbatim",
+    "target_section": "API Reference",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/Annotations/Annotation.cs"
+    }
+  },
+  {
+    "unit_id": "u0046",
+    "excerpt": "| Interface | Description |\n|---|---|\n| `IAppointment` | Marker interface for any object that can be stored in an outline item's Destination, a link annotation's Destination, Document.OpenAction, or a named-destination collection. |",
+    "disposition": "merged_verbatim",
+    "target_section": "API Reference",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/Annotations/IAppointment.cs"
+    }
+  },
+  {
+    "unit_id": "u0047",
+    "excerpt": "| Enumeration | Description |\n|---|---|\n| `ActivationEvent` | Enum with 3 members. |\n| `AnnotationFlags` | Annotation flags as defined in PDF spec Table 165. |\n| `AnnotationState` | Review or marked-state of a markup annotation, as defined by PDF 32000 §12.5.6.3 (text annotations, /StateModel + /State entries). |\n| `AnnotationStateModel` | Which state model a AnnotationState belongs to. |\n| `AnnotationType` | Annotation subtype as defined in PDF spec Table 169. |\n| `BorderEffect` | Border effect applied to annotations. |\n| `BorderStyle` | Border style for annotations and fields. |\n| `CapStyle` | Cap style used by ink strokes (free-hand drawings). |\n| `CaptionPosition` | Caption-position within a LineAnnotation. |\n| `CaretSymbol` | Caret-symbol style for CaretAnnotation. |\n| `ColorsOfCMYK` | CMYK channel selector used by ColorBarAnnotation. |\n| `ContentType` | Enum with 3 members. |\n| `ExplicitDestinationType` | Explicit destination type, mirroring PDF 32000 §12.3.2.2 names. |\n| `FileIcon` | Named-icon style for FileAttachmentAnnotation (/Name entry). |\n| `FractionStyle` | How fractional values are rendered (decimal / fraction / round / truncate). |\n| `FreeTextIntent` | Intent (sub-purpose) of a free-text annotation. |\n| `HighlightingMode` | Highlighting mode for link annotations. |\n| `Justification` | Justification of a free-text annotation's content. |\n| `LightingSchemeType` | Lighting-scheme nominal type (PDF 32000-1 §13.6.4). |\n| `LineEnding` | Line annotation ending styles (/LE entry elements). |\n| `LineIntent` | Line annotation intents (/IT entry). |\n| `PDF3DActivation` | How the embedded 3D model becomes active (PDF 32000-1 §13.6.2, AAS entry of the 3D activation dictionary). |\n| `PolyIntent` | Intent of a polygon or polyline annotation (/IT entry). |\n| `PredefinedAction` | Named viewer commands targeted by a NamedAction (PDF 32000 §12.6.4.11). |\n| `PrinterMarkCornerPosition` | Corner a printer-mark annotation sits in (used by bleed-/trim-marks). |\n| `PrinterMarkSidePosition` | Side a printer-mark annotation sits on. |\n| `PrinterMarksKind` | The set of printer's-mark families AddPrinterMarks generates on a page (PDF 32000 pre-press marks). |\n| `RenderModeType` | Render-mode nominal type (PDF 32000-1 §13.6.5). |\n| `ReplyType` | Reply-relationship between a markup annotation and its InReplyTo target. |\n| `RichTextFontStyles` | Rich-text run styles applied via Color). |\n| `SoundEncoding` | Enum with 4 members. |\n| `SoundIcon` | Enum with 2 members. |\n| `SoundSampleDataEncodingFormat` | SoundSampleDataEncodingFormat enum defines the supported audio encodings: Raw, Signed, muLaw, and ALaw. |\n| `StampIcon` | Named stamp-icon style for StampAnnotation (/Name entry, PDF 32000 §12.5.6.14). |\n| `TextAlignment` | Horizontal text alignment for annotation text boxes. |\n| `TextIcon` | Named-icon style for TextAnnotation (PDF 32000 §12.5.6.4 /Name entries). |",
+    "disposition": "merged_verbatim",
+    "target_section": "API Reference",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/Annotations/Annotation.cs"
+    }
+  },
+  {
+    "unit_id": "u0048",
+    "excerpt": "| Class | Description |\n|---|---|\n| `Artifact` | Represents a PDF artifact — a marked content sequence tagged as /Artifact (PDF 32000 §14.8.2.2). |\n| `ArtifactCollection` | Collection of artifacts on a page. |\n| `BackgroundArtifact` | Represents a background artifact (a coloured block or image painted behind page content). |\n| `HeaderArtifact` | Represents a header artifact — a page-level running head tagged Artifact /Subtype /Header (PDF 32000 §14.8.2.2). |\n| `WatermarkArtifact` | Represents a watermark artifact that can be added to a PDF page. |",
+    "disposition": "merged_verbatim",
+    "target_section": "API Reference",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/Artifacts/Artifact.cs"
+    }
+  },
+  {
+    "unit_id": "u0049",
+    "excerpt": "| Enumeration | Description |\n|---|---|\n| `ArtifactSubtype` | Enumerates artifact subtypes. |\n| `ArtifactType` | Enumerates artifact types as defined by PDF 32000 §14.8.2.2. |",
+    "disposition": "merged_verbatim",
+    "target_section": "API Reference",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/Artifacts/Artifact.cs"
+    }
+  },
+  {
+    "unit_id": "u0050",
+    "excerpt": "| Class | Description |\n|---|---|\n| `Collection` | PDF Portfolio collection. |\n| `CollectionField` | One column in a PDF Portfolio's collection schema (PDF spec §7.11.5 Table 75). |\n| `CollectionSchema` | Schema of a PDF Portfolio collection (PDF spec §7.11.5 Table 74). |\n| `ImageCollection` | Collection of image XObjects on a page. |\n| `ImageXObject` | Represents an image XObject found in a PDF page's resources. |\n| `PageCollection` | Collection of pages in a PDF document. |\n| `XImage` | Image XObject wrapper that mirrors the Aspose.Pdf XImage public surface. |\n| `XImageCollection` | Collection of image XObjects on a page, with XImage-typed accessors and editing helpers. |",
+    "disposition": "merged_verbatim",
+    "target_section": "API Reference",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/Collections/CollectionFieldSubtype.cs"
+    }
+  },
+  {
+    "unit_id": "u0051",
+    "excerpt": "| Enumeration | Description |\n|---|---|\n| `CollectionFieldSubtype` | Predefined collection field subtypes (PDF spec §7.11.5 Table 75). |",
+    "disposition": "merged_verbatim",
+    "target_section": "API Reference",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/Collections/CollectionFieldSubtype.cs"
+    }
+  },
+  {
+    "unit_id": "u0052",
+    "excerpt": "| Class | Description |\n|---|---|\n| `Color-Pdf` | Represents a color value used in PDF documents. |",
+    "disposition": "merged_verbatim",
+    "target_section": "API Reference",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/Color/Color.cs"
+    }
+  },
+  {
+    "unit_id": "u0053",
+    "excerpt": "| Enumeration | Description |\n|---|---|\n| `ColorSpace` | Top-level device colour-space selector (Aspose.Pdf public surface). |\n| `ColorType` | Represents the color type of a page. |",
+    "disposition": "merged_verbatim",
+    "target_section": "API Reference",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/Color/ColorSpace.cs"
+    }
+  },
+  {
+    "unit_id": "u0054",
+    "excerpt": "| Class | Description |\n|---|---|\n| `SideBySidePdfComparer` | Compares the text of two pages or two documents and writes a result PDF showing both versions side by side with the changes highlighted (deletions on the left page, insertions on the right). Static `Compare` overloads target a file path or a stream. |\n| `SideBySideComparisonOptions` | Options for the side-by-side comparer: whitespace `ComparisonMode`, `AdditionalChangeMarks`, `ExcludeTables`, per-side comparison and exclusion areas, and the `DeleteColor` / `InsertColor` markers. |\n| `SideBySideDocsComparisonResult` | Result of a document-level comparison: `HasChanges`, plus per-page `FirstDocChanges` / `SecondDocChanges` highlights and the per-page `FullChanges` edit sequences. |\n| `SideBySidePagesComparisonResult` | Result of a page-level comparison: `HasChanges`, the `FirstPageChanges` / `SecondPageChanges` highlights, and the `FullChanges` edit list. |\n| `EditContainer` | A single highlighted change in a side-by-side result: its `Id`, the `DiffOperation` it came from, and the `Rects` it covers on the page. |\n| `GraphicalPdfComparer` | Renders two pages and compares them pixel by pixel, with configurable `Resolution`, mark `Color`, and `Threshold`. Windows only — it hands back `System.Drawing` bitmaps. |\n| `ImagesDifference` | The pixel difference of two rendered pages: raw `Difference` / `Stride` / `Height`, the `SourceImage` and `GetDestinationImage()`, and `DifferenceToImage()`. Windows only. |\n| `DiffOperation` | A single edit produced when diffing two texts: an Operation (Equal / Delete / Insert) together with the run of text it applies to. |\n| `DiffUtils` | Text helpers used by the diff engine: common prefix/suffix extraction and re-assembly of the source / destination text from a list of DiffOperations. |\n| `MergingOptimizer` | Semantic clean-up pass: eliminates equalities that are no larger than the edits surrounding them (folding those short common runs back into the adjacent delete/insert), then re-merges the result into canonical form. |\n| `OperationsMerger` | Merges a diff into its canonical minimal form: coalesces adjacent runs of the same operation, and for a mixed delete/insert run factors any common prefix into the preceding equality and any common suffix into the following equality. |\n| `OperationsSlideMerger` | Shifts a single edit that is surrounded on both sides by equalities sideways to eliminate one of those equalities, canonicalising the diff. |",
+    "disposition": "excluded",
+    "target_section": null,
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/Comparison/Diff/DiffOperation.cs"
+    },
+    "excluded_reason": "Genuinely new upstream API surface (SideBySidePdfComparer and 5 related classes) not yet reflected in reference.aspose.org own graded index for this product -- reference-site regeneration is out of scope for this readme-refresh pass. The candidates own Key Capabilities section already summarizes this feature narratively (verified against source), but the formal API Reference table stays consistent with the currently-gradeable reference index rather than getting ahead of it."
+  },
+  {
+    "unit_id": "u0055",
+    "excerpt": "| Interface | Description |\n|---|---|\n| `IDiffOptimizationOperation` | A post-processing pass that normalises a diff — a mutable list of DiffOperations — in place, preserving the source and destination texts while producing a cleaner or more canonical sequence of edits. |",
+    "disposition": "merged_verbatim",
+    "target_section": "API Reference",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/Comparison/Diff/DiffOptimization/IDiffOptimizationOperation.cs"
+    }
+  },
+  {
+    "unit_id": "u0056",
+    "excerpt": "| Enumeration | Description |\n|---|---|\n| `ComparisonMode` | How the side-by-side comparer treats whitespace: `Normal` compares the extracted runs as-is, `IgnoreSpaces` compares only non-space characters, and `ParseSpaces` reconstructs inter-word spaces and line breaks from glyph geometry first. |\n| `EditOperationsOrder` | When a delete and an insert are emitted for the same position, which one an optimizer places first in the resulting operation sequence. |\n| `Operation` | The kind of edit a DiffOperation represents when diffing two texts: a run that is unchanged, deleted from the source, or inserted in the destination. |",
+    "disposition": "excluded",
+    "target_section": null,
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/Comparison/Diff/DiffOptimization/EditOperationsOrder.cs"
+    },
+    "excluded_reason": "Same reason as the Comparison Classes table (u0054): ComparisonMode is part of the same not-yet-reference-indexed feature; EditOperationsOrder/Operation (the pre-existing enum content) remain accurately covered under their own original table entry, unaffected."
+  },
+  {
+    "unit_id": "u0057",
+    "excerpt": "| Class | Description |\n|---|---|\n| `BDC` | BDC — Begin marked content with properties. |\n| `BI` | BI — Begin inline-image object. |\n| `BMC` | BMC — Begin marked-content sequence (no properties). |\n| `BT` | BT — Begin text object. |\n| `BX` | BX — Begin compatibility section. |\n| `BasicSetColorAndPatternOperator` | Common base for SCN/scn (basic color or pattern). |\n| `BasicSetColorOperator` | Common base for the rg/RG/g/G/k/K family. |\n| `BlockTextOperator` | Common base for the BT / ET delimiters. |\n| `Clip` | W — Set clipping path (nonzero winding rule). |\n| `ClosePath` | h — Close subpath. |\n| `ClosePathEOFillStroke` | b* — Close, fill, and stroke path (even-odd rule). |\n| `ClosePathFillStroke` | b — Close, fill, and stroke path (nonzero winding rule). |\n| `ClosePathStroke` | s — Close and stroke path. |\n| `ConcatenateMatrix` | cm — Concatenate matrix to CTM. |\n| `ContentStreamBuilder` | Builds PDF content stream bytes using the operator syntax from PDF32000 §8-9. |\n| `CurveTo` | c — Append cubic Bézier curve with three control points. |\n| `CurveTo1` | v — Append cubic Bézier curve; first control point is current point. |\n| `CurveTo2` | y — Append cubic Bézier curve; second control point coincides with final point. |\n| `DP` | DP — Designate marked-content point with property list. |\n| `Do` | Do — Invoke named XObject. |\n| `EI` | EI — End inline-image object. |\n| `EMC` | EMC — End marked content. |\n| `EOClip` | W* — Set clipping path (even-odd rule). |\n| `EOFill` | f* — Fill path (even-odd rule). |\n| `EOFillStroke` | B* — Fill and stroke path (even-odd rule). |\n| `ET` | ET — End text object. |\n| `EX` | EX — End compatibility section. |\n| `EndPath` | n — End path without filling or stroking. |\n| `ExtGState` | Represents an Extended Graphics State dictionary (PDF32000 §8.4.5). |\n| `ExtractedPath` | Represents a complete path with its painting mode and color. |\n| `Fill` | f — Fill path (nonzero winding rule). |\n| `FillStroke` | B — Fill and stroke path (nonzero winding rule). |\n| `GRestore` | Q — Restore graphics state. |\n| `GS` | gs — Set parameters from named ExtGState resource. |\n| `GSave` | q — Save graphics state. |\n| `GlyphPosition` | One element of a TJ-style glyph-position array: a string with an optional preceding/following position adjustment (in 1/1000 text units). |\n| `GraphicsState` | Tracks the PDF graphics state during content stream parsing (PDF32000 §8.4). |\n| `ID-Operators` | ID — Begin image data (after the inline-image dictionary). |\n| `LineTo` | l — Append straight line segment to (X, Y). |\n| `MP` | MP — Designate marked-content point (no properties). |\n| `MoveTextPosition` | Td — Move text position: translate text origin by (X, Y). |\n| `MoveTextPositionSetLeading` | TD — Move text position and set leading: translate by (X, Y) and set leading to -Y. |\n| `MoveTo` | m — Begin new subpath at (X, Y). |\n| `MoveToNextLine` | T* — Move to next line using current leading. |\n| `MoveToNextLineShowText` | ' — Move to next line and show text. |\n| `ObsoleteFill` | F — Fill path (deprecated; equivalent to f). |\n| `Operator-Operators` | Back-compat alias for Operator kept so existing using Aspose.Pdf.Operators; code and the concrete operator subclasses (GSave, BT, ET, …) in this namespace continue to bind. |\n| `OperatorSelector` | Visitor that filters content-stream operators by concrete type. |\n| `PathExtractor` | Extracts vector paths from PDF page content streams. |\n| `PathSegment` | Represents a segment of a path. |\n| `Re` | re — Append rectangle (X, Y, Width, Height) as a complete subpath. |\n| `SelectFont` | Tf — Select font and size. |\n| `SetAdvancedColor` | scn — Set color (with optional pattern name) in current color space (non-stroking). |\n| `SetAdvancedColorStroke` | SCN — Set color (with optional pattern name) in current color space (stroking). |\n| `SetCMYKColor` | k — Set CMYK fill color. |\n| `SetCMYKColorStroke` | K — Set CMYK stroke color. |\n| `SetCharWidth` | d0 — Set glyph width in a Type 3 font. |\n| `SetCharWidthBoundingBox` | d1 — Set glyph width and bounding box in a Type 3 font. |\n| `SetCharacterSpacing` | Tc — Set character spacing. |\n| `SetColor` | sc — Set color in current color space (non-stroking). |\n| `SetColorOperator` | Common base for the SC/SCN/sc/scn family. |\n| `SetColorRenderingIntent` | ri — Set color rendering intent. |\n| `SetColorSpace` | cs — Set color space for non-stroking operations. |\n| `SetColorSpaceStroke` | CS — Set color space for stroking operations. |\n| `SetColorStroke` | SC — Set color in current color space (stroking). |\n| `SetDash` | d — Set dash pattern. |\n| `SetFlat` | i — Set flatness tolerance. |\n| `SetGlyphsPositionShowText` | TJ — Show text with individual glyph positioning (array of strings and numeric adjustments). |\n| `SetGray` | g — Set gray fill color. |\n| `SetGrayStroke` | G — Set gray stroke color. |\n| `SetHorizontalTextScaling` | Tz — Set horizontal text scaling. |\n| `SetLineCap` | J — Set line cap style. |\n| `SetLineJoin` | j — Set line join style. |\n| `SetLineWidth` | w — Set line width. |\n| `SetMiterLimit` | M — Set miter limit. |\n| `SetRGBColor` | rg — Set RGB fill color. |\n| `SetRGBColorStroke` | RG — Set RGB stroke color. |\n| `SetSpacingMoveToNextLineShowText` | \" — Set word/char spacing, move to next line, and show text. |\n| `SetTextLeading` | TL — Set text leading. |\n| `SetTextMatrix` | Tm — Set text matrix. |\n| `SetTextRenderingMode` | Tr — Set text rendering mode. |\n| `SetTextRise` | Ts — Set text rise. |\n| `SetWordSpacing` | Tw — Set word spacing. |\n| `ShFill` | sh — Paint shading specified by named resource. |\n| `ShowText` | Tj — Show text string. |\n| `Stroke` | S — Stroke path. |\n| `TextOperator` | Common base for all text-related operators (BT/ET, Tx state, text-show, text-place). |\n| `TextPlaceOperator` | Common base for text-positioning operators (Td, TD, T*, Tm). |\n| `TextShowOperator` | Common base for text-showing operators (Tj, TJ, ', \"). |\n| `TextStateOperator` | Common base for text-state operators (Tc, Tw, Tz, TL, Tf, Tr, Ts). |",
+    "disposition": "merged_verbatim",
+    "target_section": "API Reference",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/Content/ContentStreamParser.cs"
+    }
+  },
+  {
+    "unit_id": "u0058",
+    "excerpt": "| Struct | Description |\n|---|---|\n| `PathCommand` | A single path construction command with coordinates. |",
+    "disposition": "merged_verbatim",
+    "target_section": "API Reference",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/Content/Operators.cs"
+    }
+  },
+  {
+    "unit_id": "u0059",
+    "excerpt": "| Enumeration | Description |\n|---|---|\n| `LineCap` | Line cap style. |\n| `LineJoin` | Line join style. |\n| `PathOp` | Path construction operator type. |\n| `PathOperationType` | Represents a type of path operation. |\n| `PathPaintMode` | Represents a single path painting operation. |",
+    "disposition": "merged_verbatim",
+    "target_section": "API Reference",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/Content/Operators.cs"
+    }
+  },
+  {
+    "unit_id": "u0060",
+    "excerpt": "| Class | Description |\n|---|---|\n| `MarkdownConverterOptions` | Options for PDF-to-Markdown conversion. |\n| `MdLoadOptions` | Options for loading Markdown files as PDF documents. |\n| `PageSizeInfo` | Page size configuration for document loading. |\n| `PdfToHtmlConverter` | Converts PDF pages to HTML markup. |\n| `PdfToMarkdownConverter` | Converts PDF pages to Markdown text. |\n| `PdfToSvgConverter` | Converts PDF pages to SVG format. |\n| `PdfToTextConverter` | Converts PDF pages to plain text. |\n| `SvgLoadOptions` | Options for loading SVG files as PDF documents. |\n| `TxtLoadOptions` | Options for loading a plain-text (.txt) file as a PDF document. |",
+    "disposition": "merged_verbatim",
+    "target_section": "API Reference",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/Converters/PdfToMarkdownConverter.cs"
+    }
+  },
+  {
+    "unit_id": "u0061",
+    "excerpt": "| Enumeration | Description |\n|---|---|\n| `ConversionEngines` | Available conversion engines. |",
+    "disposition": "merged_verbatim",
+    "target_section": "API Reference",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/Converters/SvgLoadOptions.cs"
+    }
+  },
+  {
+    "unit_id": "u0062",
+    "excerpt": "| Class | Description |\n|---|---|\n| `BmpDevice` | Renders PDF document pages into BMP image format. |\n| `DocumentDevice` | Abstract base for whole-document rendering devices. |\n| `GdiPlusPageRenderer` | PDF page renderer that rasterizes through GDI+ (Graphics). |\n| `GifDevice` | Renders PDF document pages into GIF image format. |\n| `ImageDevice` | Abstract base class for image rendering devices (PNG, JPEG, BMP, TIFF). |\n| `ImagePageDevice` | Default PageDevice that delegates to any ImageDevice — PngDevice / JpegDevice / BmpDevice / TiffDevice. |\n| `IndexBitmapConverter` | Abstract base class for converting rendered images to indexed (1/4/8bpp) bitmaps. |\n| `JpegDevice` | Renders PDF document pages into JPEG image format. |\n| `Margins` | Page margins in points for TIFF rendering. |\n| `PageDevice` | Abstract base for single-page rendering devices. |\n| `PageSize-Devices` | Represents a physical page size in points. |\n| `PdfDocumentDevice` | Default DocumentDevice implementation that saves the document as a PDF (Document.Save round-trip). |\n| `PngDevice` | Renders PDF document pages into PNG image format. |\n| `RgbaBuffer` | Raw RGBA pixel buffer returned by a IPageRenderer. |\n| `SoftwarePageRenderer` | Built-in software PDF page renderer. |\n| `SvgDevice` | Converts a PDF page to SVG markup. |\n| `TextDevice` | Extracts text from PDF pages. |\n| `TiffDevice` | Renders PDF document pages into TIFF image format. |\n| `TiffSettings` | Settings for TIFF image generation (color depth, compression). |",
+    "disposition": "merged_verbatim",
+    "target_section": "API Reference",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/Devices/BmpDevice.cs"
+    }
+  },
+  {
+    "unit_id": "u0063",
+    "excerpt": "| Interface | Description |\n|---|---|\n| `IPageRenderer` | Renders a PDF page to an RGBA pixel buffer. |",
+    "disposition": "merged_verbatim",
+    "target_section": "API Reference",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/Devices/PageRenderer.cs"
+    }
+  },
+  {
+    "unit_id": "u0064",
+    "excerpt": "| Enumeration | Description |\n|---|---|\n| `ColorDepth` | Color depth options for TIFF encoding. |\n| `CompressionType` | TIFF compression algorithm options. |\n| `FormPresentationMode` | How form fields are rendered (canonical Production / Editor split). |\n| `PageCoordinateType` | Which page-box the rendered image extents come from. |\n| `ShapeType` | Shape type for TIFF rendering. |",
+    "disposition": "merged_verbatim",
+    "target_section": "API Reference",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/Devices/TiffSettings.cs"
+    }
+  },
+  {
+    "unit_id": "u0065",
+    "excerpt": "| Class | Description |\n|---|---|\n| `Arc` | An arc shape (portion of an ellipse). |\n| `Circle` | A circle shape. |\n| `Color-Drawing` | Color for drawing shapes. |\n| `Curve` | A Bézier curve shape. |\n| `DrawingPath` | A path shape composed of move, line, and curve segments. |\n| `DrawingRectangle` | A rectangle shape. |\n| `Ellipse` | An ellipse shape. |\n| `GradientAxialShading` | Defines a linear (axial) gradient between two colors for use as a fill pattern. |\n| `Graph` | A graph container that holds drawable shapes and renders them to a content stream. |\n| `Line` | A line shape. |\n| `PatternColorSpace` | Pattern colour-space marker (Aspose.Pdf public surface). |\n| `Point-Drawing` | A 2D point (x, y). |\n| `Polygon` | A polygon shape (closed path with arbitrary vertices). |\n| `Rectangle-Drawing` | A rectangle shape in the Drawing namespace (distinct from Aspose.Pdf.Rectangle which is a page rectangle). |\n| `Shape` | Base class for drawable shapes. |",
+    "disposition": "merged_verbatim",
+    "target_section": "API Reference",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/Drawing/Graph.cs"
+    }
+  },
+  {
+    "unit_id": "u0066",
+    "excerpt": "| Enumeration | Description |\n|---|---|\n| `ImageFormat` | Specifies the encoding format of an image. |",
+    "disposition": "merged_verbatim",
+    "target_section": "API Reference",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/Drawing/ImageFormat.cs"
+    }
+  },
+  {
+    "unit_id": "u0067",
+    "excerpt": "| Class | Description |\n|---|---|\n| `Id` | Pair of byte strings that make up the /ID array in the PDF trailer. |",
+    "disposition": "merged_verbatim",
+    "target_section": "API Reference",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/FileSpecificationDeps.cs"
+    }
+  },
+  {
+    "unit_id": "u0068",
+    "excerpt": "| Enumeration | Description |\n|---|---|\n| `Direction` | Predominant text-flow direction recorded in the viewer-preferences dictionary. |\n| `ExtendedBoolean` | A tri-state Boolean — True/False plus an Undefined sentinel used at deserialization time when a value isn't carried on the PDF dictionary entry. |\n| `FieldValueType` | Logical value type carried by a CollectionField. |\n| `HorizontalAlignment` | Describes horizontal alignment. |\n| `PageLayout` | Page-layout entry written to the catalog (PDF32000 Table 28). |\n| `PageMode` | Page-mode entry written to the catalog (PDF32000 Table 28). |\n| `PdfVersion` | PDF specification version targeted by the document header. |\n| `PrintDuplex` | Print-duplex value recorded in viewer preferences (PDF32000 Table 150). |\n| `VerticalAlignment` | Describes vertical alignment. |",
+    "disposition": "merged_verbatim",
+    "target_section": "API Reference",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/Enums/DocumentEnums.cs"
+    }
+  },
+  {
+    "unit_id": "u0069",
+    "excerpt": "| Class | Description |\n|---|---|\n| `CrashReportOptions` | Configures crash-report emission for GenerateCrashReport. |\n| `DeprecatedFeatureException` | Thrown when a mechanism ISO 32000-2 retires is used on a PDF 2.0 document — RC4 under the 2.0 encryption flag, a legacy security handler, or the raw-RSA / enveloping PKCS#7 signature subfilters. |\n| `FontNotFoundException` | Thrown when a requested font cannot be located (no system font with that name, no matching custom-font source, etc.). |\n| `IncorrectFontUsageException` | Thrown during text extraction when the content stream issues a text-showing operator (Tj/TJ/'/\") while no font is set in the current graphics state — i.e. |\n| `InvalidFormTypeOperationException` | Thrown when an operation is attempted on the wrong form type (e.g. |\n| `InvalidPasswordException` | Thrown when a password-protected operation is attempted without supplying a valid password (e.g. |\n| `InvalidPdfFileFormatException` | Thrown when a stream cannot be opened as a PDF (bad header, truncated file, or otherwise unrecognisable as PDF). |\n| `PdfException` | Represents errors that occur during PDF application execution. |\n| `PdfExceptionMessages` | Centralised message strings surfaced by the library's exceptions and security diagnostics. |\n| `PdfTextDecodingException` | Thrown when text content cannot be decoded — e.g. |\n| `UnsupportedFontTypeException` | Thrown when a file cannot be opened as a font because its format is not a supported font program (e.g. |\n| `ValidationIssue` | Represents a validation issue found in a PDF document. |",
+    "disposition": "excluded",
+    "target_section": null,
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/Exceptions/PdfException.cs"
+    },
+    "excluded_reason": "DeprecatedFeatureException is real, verified new upstream API surface not yet reflected in reference.aspose.org own graded index for this product -- same reference-site-regeneration-out-of-scope reasoning as u0054/u0056."
+  },
+  {
+    "unit_id": "u0070",
+    "excerpt": "| Class | Description |\n|---|---|\n| `AlignmentType` | Horizontal-alignment selector for legacy facade APIs (e.g. |\n| `AutoFiller` | Repeatedly stamps a template PDF with rows from a DataTable: for each row, fills the form fields whose names match column names, flattens (except those listed in UnFlattenFields), and appends the resulting pages to the output. |\n| `BDCProperties` | Properties for a BDC / DP marked-content operator (/MCID and /Lang). |\n| `Bookmark` | A single bookmark extracted from a document's outline tree by ExtractBookmarks(). |\n| `Bookmarks` | An ordered, indexable collection of Bookmark entries returned by ExtractBookmarks(). |\n| `ContentsResizeParameters` | Parameters for ResizeContents describing margins, content size, and whether the page media box should change to match. |\n| `ContentsResizeValue` | Represents a content-resize value. |\n| `CorruptedItem` | One file the Concatenate path could not parse — recorded only when CorruptedFileAction is set to skip-and-continue. |\n| `DocumentPrivilege` | Represents document access permissions (P value in encryption dictionary). |\n| `FontColor` | Represents a font color using RGB components. |\n| `Form-Facades` | Facade for form field manipulation including XML import/export. |\n| `FormDataConverter` | Bridges PDF form-data formats (FDF / XFDF / XML) with DataTable and direct stream-to-stream transforms. |\n| `FormEditor` | Facade for form operations: fill fields, flatten forms, import/export data. |\n| `FormFieldFacade` | Represents the visual appearance attributes of a form field. |\n| `FormImportResult` | Per-field result of a form-data import operation. |\n| `FormattedText` | Represents formatted text used in stamp and mend operations. |\n| `FormattedTextFont` | Represents a font reference returned by FormattedText.getFont(). |\n| `LineInfo` | Line drawing parameters for PdfContentEditor.DrawCurve. |\n| `PageBreak` | Describes a single horizontal cut on a source page: PageNumber (1-based) identifies the page in the source document, Position the PDF y-coordinate where the page is split. |\n| `PdfAnnotationEditor` | Facade for annotation manipulation: import/export XFDF, delete, flatten, redact. |\n| `PdfBookmarkEditor` | Facade for bookmark (outline) manipulation: create, extract, delete bookmarks. |\n| `PdfContentEditor` | Facade for content-level editing: text replacement, link creation, image operations. |\n| `PdfConverter` | Facade for converting PDF pages to images. |\n| `PdfExtractor` | Facade for extracting text and images from a PDF document. |\n| `PdfFileEditor` | Real-only additions to PdfFileEditor: exception-handling state, Try* wrappers around the existing working methods, and MemoryStream/file overloads for SplitToBulks/SplitToPages that wrap the real byte[] implementations already present in PdfFileEditor.cs. |\n| `PdfFileInfo` | Facade for accessing PDF document metadata and properties. |\n| `PdfFileMend` | Facade for adding text and images to existing PDF documents. |\n| `PdfFileSecurity` | Facade for encrypting, decrypting, and changing passwords on PDF files. |\n| `PdfFileSignature` | Facade for signing and reading digital signatures in PDF documents. |\n| `PdfFileStamp` | Facade for adding stamps, page numbers, headers, footers, and watermarks. |\n| `PdfJavaScriptStripper` | Removes all JavaScript from a PDF document. |\n| `PdfPageEditor` | Facade for page-level editing: rotation, resizing, margin adjustment, and page box manipulation (CropBox, TrimBox, BleedBox, ArtBox). |\n| `PdfPrintPageInfo` | Class with 1 property. |\n| `PdfViewer` | Façade for viewing / printing a PDF document. |\n| `PdfXmpMetadata` | Dictionary-style facade over a PDF document's XMP metadata stream. |\n| `RenderingOptions-Facades` | Rendering options used by PdfConverter and other facade classes. |\n| `ReplaceTextStrategy` | Configures how ReplaceText(string, string) matches and substitutes text. |\n| `SignatureName` | Identifies a signature field by both its partial name (Name) and full hierarchical name (FullName), and reports whether the field currently carries a signature value via HasSignature. |\n| `Stamp-Facades` | Represents a stamp to be applied via PdfFileStamp facade. |\n| `StampInfo` | Contains information about a stamp on a page. |\n| `TextProperties` | Text-display properties consumed by the *TextOperator family. |\n| `VerticalAlignmentType` | Vertical-alignment selector for legacy facade APIs (e.g. |\n| `ViewerPreference` | Bag of const int bit-flags describing viewer preferences (page mode, page layout, fullscreen behaviour, duplex, print scaling, reading direction). |",
+    "disposition": "merged_verbatim",
+    "target_section": "API Reference",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/Facades/AlignmentType.cs"
+    }
+  },
+  {
+    "unit_id": "u0071",
+    "excerpt": "| Interface | Description |\n|---|---|\n| `IFacade` | Interface with 5 methods. |\n| `ISaveableFacade` | Interface with 5 methods. |",
+    "disposition": "merged_verbatim",
+    "target_section": "API Reference",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/Facades/FacadeInterfaces.cs"
+    }
+  },
+  {
+    "unit_id": "u0072",
+    "excerpt": "| Enumeration | Description |\n|---|---|\n| `Algorithm` | Encryption algorithm family used by PdfFileSecurity. |\n| `AutoRotateMode` | Auto-rotation behaviour for the PDF viewer. |\n| `BlendingColorSpace` | Blend-mode colour-space hint passed to a Stamp. |\n| `ConcatenateCorruptedFileAction` | How the facade reacts to corrupted input during Concatenate. |\n| `DataType` | Form-data source / destination kind consumed by FormDataConverter. |\n| `DefaultMetadataProperties` | Well-known XMP-basic-schema property keys exposed by PdfXmpMetadata as a typed alternative to raw \"xmp:&lt;name&gt;\" strings. |\n| `EncodingType` | Encoding type enumeration for FormattedText. |\n| `ExtractImageMode` | Image extraction mode — matches docs.aspose.com Aspose.Pdf.ExtractImageMode. |\n| `ExtractTextMode` | Text extraction mode — matches docs.aspose.com \"Pure\" (0) / \"Raw\" (1). |\n| `FieldType-Facades` | The type of an AcroForm field, as used by AddField and related facade operations. |\n| `FontStyle` | Font style enumeration for FormattedText. |\n| `ImageMergeMode` | Layout strategy used by MergeImages when combining multiple input images into a single output image. |\n| `ImportStatus` | Outcome of importing a single field's value. |\n| `KeySize` | Key strength selector paired with Algorithm to pick the concrete RC4/AES variant used by PdfFileSecurity. |\n| `NoCharacterAction-Facades` | What to do when the replacement font lacks a glyph for a character. |\n| `PdfConverterImageFormat` | Image format for PdfConverter output. |\n| `PositioningMode` | Text positioning mode for PdfFileMend. |\n| `PropertyFlag` | Attribute flags applied to a form field via SetFieldAttribute. |\n| `Scope-Facades` | How many matches to replace per call. |\n| `StampType` | Stamp kind exposed by StampInfo. |\n| `SubmitFormFlag` | Format of the data posted by a Submit form action — set per field via SetSubmitFlag. |\n| `WordWrapMode-Facades` | Word wrap mode for PdfFileMend text operations. |",
+    "disposition": "merged_verbatim",
+    "target_section": "API Reference",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/Facades/EncryptionEnums.cs"
+    }
+  },
+  {
+    "unit_id": "u0073",
+    "excerpt": "| Class | Description |\n|---|---|\n| `AcroFormData` | Form-level AcroForm dictionary data surfaced by the form JSON export. |\n| `AppearanceEntry` | One state of a widget appearance variant (the body of an /AP/N, AP/D, or /AP/R entry). |\n| `ButtonField` | Push-button form field (FT=Btn with Pushbutton flag set). |\n| `CheckboxField` | Class with 26 methods and 84 properties. |\n| `ChoiceField` | Class with 25 methods and 89 properties. |\n| `ComboBoxField` | Combo box (drop-down) form field — a ChoiceField with the Combo flag set. |\n| `DefaultResourcesData` | Form-level default resources (/DR) surfaced by the form JSON export. |\n| `DocMDPSignature` | Pairs a Signature (which carries the signing certificate) with the DocMDPAccessPermissions level a certifying signature will impose. |\n| `ExportFieldsToJsonOptions` | Options passed to ExportToJson. |\n| `Field` | Represents a form field. |\n| `FieldExportingData` | Data-transfer object describing a single form field (or the form-level AcroForm dictionary) as produced by the form JSON export. |\n| `FieldSerializationResult` | Per-field outcome of an ExportToJson or ImportFromJson call. |\n| `FlattenSettings` | Settings for Flatten(FlattenSettings). |\n| `Form-Forms` | Represents the interactive form (AcroForm) of a PDF document. |\n| `FormFieldBuilder` | Creates new interactive form fields and adds them to a PDF document. |\n| `IconFit` | PDF Annotation Handler \"IF\" entry — icon-fit dictionary for push-button widgets. |\n| `ListBoxField` | List box form field — a ChoiceField without the Combo flag. |\n| `Option` | Class represents option of choice field. |\n| `OptionCollection` | Mutable collection of Option values backed by the owning ChoiceField's /Opt entry. |\n| `PKCS1` | Class with 7 methods and 14 properties. |\n| `PKCS7` | Class with 6 methods and 14 properties. |\n| `PKCS7Detached` | A detached PKCS#7 (CMS) signature configuration. |\n| `RadioButtonField` | Class with 27 methods and 95 properties. |\n| `RadioButtonGroup` | A logical radio-button group — a set of mutually exclusive options sharing the same field name in the AcroForm hierarchy. |\n| `RadioButtonOption` | A single option within a radio button group. |\n| `RadioButtonOptionField` | One option of a RadioButtonField. |\n| `RichTextBoxField` | A Tx form field that carries the rich-text flag (bit 26 of /Ff). |\n| `Signature` | Represents a digital signature in a PDF document. |\n| `SignatureCustomAppearance` | Visual-layout knobs for a signature's appearance stream — font, size, padding and which signer metadata strings are rendered inside the widget annotation. |\n| `SignatureField` | SignatureField.Sign(signature) applies a digital signature to a form field, and Flatten() can make the signature appearance permanent in the document. |\n| `TextBoxField` | The TextBoxField class lets developers create AcroForm text fields with multiple constructors and supports adding barcodes and images to the field. |\n| `XFA` | XmlNode-based accessor for the document's XFA packets (template / datasets / config / form / xdp). |\n| `XfaAccessor` | Provides indexer access to XFA field values by path. |\n| `XfaField` | Represents a single field of an XFA form addressed by its template SOM path (e.g. |",
+    "disposition": "merged_verbatim",
+    "target_section": "API Reference",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/Forms/FieldExportingData.cs"
+    }
+  },
+  {
+    "unit_id": "u0074",
+    "excerpt": "| Enumeration | Description |\n|---|---|\n| `BoxShape` | Outer shape of a checkbox / radio-button widget border. |\n| `BoxStyle` | Visual style of the checkbox glyph (/MK /CA mapping). |\n| `DocMDPAccessPermissions` | /DocMDP /TransformParams /P access-permission levels per PDF 32000-1 §12.8.2.2. |\n| `FieldSerializationStatus` | Outcome of serializing a single form field through ExportToJson or ImportFromJson. |\n| `FieldType-Forms` | The type of a form field. |\n| `FormType` | Represents the type of a PDF form. |\n| `IconCaptionPosition` | PDF Annotation Handler \"TP\" entry — caption / icon layout for push-button widgets. |\n| `ScalingMode` | How a button icon is scaled to fit its rectangle (/MK /IF /SW). |\n| `ScalingReason` | When to scale the icon to fit its rectangle (/MK /IF /S). |\n| `SignDependentElementsRenderingModes` | How widgets dependent on signature appearance are rendered when the form is converted. |\n| `SubjectNameElements` | X.500 distinguished-name components rendered inside the visible signature appearance when UseDigitalSubjectFormat is set. |",
+    "disposition": "merged_verbatim",
+    "target_section": "API Reference",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/Forms/Field.cs"
+    }
+  },
+  {
+    "unit_id": "u0075",
+    "excerpt": "| Class | Description |\n|---|---|\n| `ExponentialFunction` | Exponential interpolation function (§7.10.3). |\n| `PdfFunction` | Abstract base for all PDF function types. |\n| `PostScriptEvaluator` | PostScript calculator evaluator for Type 4 PDF functions (PDF32000 §7.10.5). |\n| `PostScriptFunction` | PostScript calculator function (§7.10.5). |\n| `SampledFunction` | Sampled function (§7.10.2): lookup table with linear interpolation. |\n| `StitchingFunction` | Stitching function (§7.10.4): combines sub-functions over sub-domains. |",
+    "disposition": "merged_verbatim",
+    "target_section": "API Reference",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/Functions/PdfFunction.cs"
+    }
+  },
+  {
+    "unit_id": "u0076",
+    "excerpt": "| Class | Description |\n|---|---|\n| `BaseParagraph` | Base class for paragraph-level DOM content (text fragments, tables, images, header/footer fragments, floating boxes). |\n| `BorderInfo` | Represents border information for table cells and rows. |\n| `Cell` | Represents a cell in a table row. |\n| `Cells` | A collection of cells in a row. |\n| `ColumnInfo` | ColumnInfo stores table layout details, exposing ColumnWidths, ColumnSpacing, and ColumnCount properties for precise column sizing. |\n| `FileHyperlink` | Hyperlink that launches an external file (e.g. |\n| `FloatingBox` | Represents a floating box that can be positioned absolutely or flowed on a page. |\n| `GraphInfo` | Stroke / fill settings for drawable shapes and table-cell borders. |\n| `HeaderFooter` | Represents a header or footer that can be applied to PDF pages. |\n| `Heading` | Represents a TOC heading entry that links to a destination page. |\n| `Hyperlink` | Base type for hyperlinks attached to text fragments or annotations. |\n| `LevelFormat` | Per-heading-level TOC formatting descriptor (line-dash style, margins, indent, text state). |\n| `LocalHyperlink` | Hyperlink that jumps to another paragraph or page in the same document. |\n| `MarginInfo` | Represents margin information for page elements. |\n| `Note` | A footnote or endnote attached to a TextFragment. |\n| `Paragraphs` | Container for paragraph-level content (text fragments, tables, images, header/footer fragments, etc.) attached to a Page, Cell, HeaderFooter or FloatingBox. |\n| `Row` | Represents a row in a table. |\n| `Rows` | A collection of rows in a table. |\n| `Table` | Represents a table that can be added to a PDF page. |\n| `TocInfo` | Table of contents information for a page. |\n| `WebHyperlink` | Hyperlink that opens an external URL. |",
+    "disposition": "merged_verbatim",
+    "target_section": "API Reference",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/Generator/BaseParagraph.cs"
+    }
+  },
+  {
+    "unit_id": "u0077",
+    "excerpt": "| Enumeration | Description |\n|---|---|\n| `BorderCornerStyle` | Corner-rounding style for a Table's border box. |\n| `BorderSide` | Specifies which sides of a border to draw. |\n| `ColumnAdjustment` | How a Table sizes its columns (API parity). |\n| `ParagraphPositioningMode` | How Left / Top are interpreted. |\n| `TableBroken` | TableBroken enum indicates how a table is split across pages, with values None, Vertical, VerticalInSamePage, and IsInNextPage. |",
+    "disposition": "merged_verbatim",
+    "target_section": "API Reference",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/Generator/Table.cs"
+    }
+  },
+  {
+    "unit_id": "u0078",
+    "excerpt": "| Class | Description |\n|---|---|\n| `Matrix` | Represents a 3x3 transformation matrix [a b 0; c d 0; e f 1]. |\n| `Matrix3D` | 4×3 affine 3D matrix (Aspose.Pdf shape for PDF 3D camera positioning). |\n| `PageSize-Pdf` | Standard page size constants (dimensions in points, portrait orientation). |\n| `Point-Pdf` | Represents a point in 2D space. |\n| `Point3D` | Represents a point in 3D space (used by 3D annotations). |\n| `Rectangle-Pdf` | Represents a rectangle defined by lower-left and upper-right coordinates (PDF user-space convention: Y increases upward). |",
+    "disposition": "merged_verbatim",
+    "target_section": "API Reference",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/Geometry/Matrix.cs"
+    }
+  },
+  {
+    "unit_id": "u0079",
+    "excerpt": "| Struct | Description |\n|---|---|\n| `ObjectKey` | Identifies a PDF indirect object by its object number and generation number. |",
+    "disposition": "merged_verbatim",
+    "target_section": "API Reference",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/GroupProcessor/ObjectKey.cs"
+    }
+  },
+  {
+    "unit_id": "u0080",
+    "excerpt": "| Class | Description |\n|---|---|\n| `BoundsCheckableList` | A list of T that optionally enforces container bounds on insertion. |\n| `OptimizedMemoryStream` | A growable in-memory stream that can exceed the 2 GB single-array limit of MemoryStream by storing data in fixed-size chunks. |\n| `PolygonsHelper` | Polygon and rectangle geometry utilities — point/polygon containment, segment hit-testing and rectangle/polygon classification. |",
+    "disposition": "merged_verbatim",
+    "target_section": "API Reference",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/Helpers/BoundsCheckableList.cs"
+    }
+  },
+  {
+    "unit_id": "u0081",
+    "excerpt": "| Enumeration | Description |\n|---|---|\n| `BoundsCheckMode` | How a BoundsCheckableList{T} reacts when an item lies outside its container. |\n| `RectanglePosition` | Position of a rectangle relative to a polygon, as returned by GetRectanglePositionRelativePolygon. |",
+    "disposition": "merged_verbatim",
+    "target_section": "API Reference",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/Helpers/BoundsCheckableList.cs"
+    }
+  },
+  {
+    "unit_id": "u0082",
+    "excerpt": "| Class | Description |\n|---|---|\n| `CssSavingInfo` | Context passed to a CssSavingStrategy callback. |\n| `CssUrlRequestInfo` | Context passed to a CssUrlMakingStrategy callback. |\n| `HtmlFragment` | Represents an HTML content fragment that can be added to PDF pages via HeaderFooter.Paragraphs or Page.Paragraphs. |\n| `HtmlImageSavingInfo` | Context passed to a per-image saving callback. |\n| `HtmlLoadOptions` | Options for loading HTML content into PDF. |\n| `HtmlPageMarkupSavingInfo` | Context passed to a HtmlPageMarkupSavingStrategy callback. |\n| `HtmlSaveOptions` | Options for saving a PDF document as HTML. |",
+    "disposition": "merged_verbatim",
+    "target_section": "API Reference",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/Html/HtmlSaveOptions.cs"
+    }
+  },
+  {
+    "unit_id": "u0083",
+    "excerpt": "| Enumeration | Description |\n|---|---|\n| `AntialiasingProcessingType` | Antialiasing pass applied to the resulting HTML. |\n| `FontEncodingRules` | Backing-byte enum: the Aspose.Pdf reflection signature is byte-typed. |\n| `FontSavingModes` | How fonts are emitted into the output HTML. |\n| `HtmlDocumentType` | HTML document flavour produced by HtmlSaveOptions. |\n| `HtmlImageType` | Image type produced for embedded raster content. |\n| `HtmlMarkupGenerationModes` | Granularity of HTML markup produced. |\n| `HtmlMediaType` | Specifies the media type for HTML rendering. |\n| `HtmlPageLayoutOption` | How the generated PDF page layout reacts to wide HTML content. |\n| `ImageParentTypes` | Container element that hosts an image. |\n| `LettersPositioningMethods` | How letter positions are encoded in the output CSS. |\n| `PartsEmbeddingModes` | Whether and how secondary parts (CSS / images / fonts) are embedded. |\n| `RasterImagesSavingModes` | How raster images are saved alongside the HTML. |",
+    "disposition": "merged_verbatim",
+    "target_section": "API Reference",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/Html/HtmlSaveOptions.cs"
+    }
+  },
+  {
+    "unit_id": "u0084",
+    "excerpt": "| Class | Description |\n|---|---|\n| `BitmapInfo` | Class with 2 methods and 4 properties. |",
+    "disposition": "merged_verbatim",
+    "target_section": "API Reference",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/Interop/BitmapInterop.cs"
+    }
+  },
+  {
+    "unit_id": "u0085",
+    "excerpt": "| Interface | Description |\n|---|---|\n| `IIndexBitmapConverter` | Interface with 3 methods. |",
+    "disposition": "merged_verbatim",
+    "target_section": "API Reference",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/Interop/BitmapInterop.cs"
+    }
+  },
+  {
+    "unit_id": "u0086",
+    "excerpt": "| Enumeration | Description |\n|---|---|\n| `PixelFormat` | Enum with 6 members. |",
+    "disposition": "merged_verbatim",
+    "target_section": "API Reference",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/Interop/BitmapInterop.cs"
+    }
+  },
+  {
+    "unit_id": "u0087",
+    "excerpt": "| Class | Description |\n|---|---|\n| `ZDeflaterOutputStream` | zlib (RFC 1950) deflating output stream — a public helper matching the Aspose.Pdf surface. |\n| `ZInflaterInputStream` | zlib (RFC 1950) inflating input stream — a public helper matching the Aspose.Pdf surface. |",
+    "disposition": "merged_verbatim",
+    "target_section": "API Reference",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/IO/ZStreams.cs"
+    }
+  },
+  {
+    "unit_id": "u0088",
+    "excerpt": "| Class | Description |\n|---|---|\n| `AnnotElement` | Class with 11 methods and 13 properties. |\n| `ArtElement` | Class with 11 methods and 13 properties. |\n| `AttributeName` | A typed value for a standard attribute name (the /Name-valued entries in an attribute object, e.g. |\n| `BibEntryElement` | Class with 11 methods and 13 properties. |\n| `BlockQuoteElement` | Class with 11 methods and 13 properties. |\n| `CaptionElement` | Class with 11 methods and 13 properties. |\n| `CodeElement` | Class with 11 methods and 13 properties. |\n| `DivElement` | Class with 11 methods and 13 properties. |\n| `DocumentElement` | The document root structure element (/S Document). |\n| `Element-LogicalStructure` | Common base for nodes in the logical-structure tree. |\n| `ElementList` | An ordered list of structure elements, as returned by ChildElements. |\n| `FigureElement-LogicalStructure` | FigureElement also offers **AdjustPosition(settings)** to reposition the figure according to layout settings. |\n| `FormElement` | Class with 11 methods and 13 properties. |\n| `FormulaElement` | Class with 12 methods and 17 properties. |\n| `HeaderElement` | Class with 11 methods and 13 properties. |\n| `IllustrationElement` | Abstract base for illustration-kind structure elements (Figure, Formula). |\n| `IndexElement` | Class with 11 methods and 13 properties. |\n| `LinkElement` | Class with 11 methods and 15 properties. |\n| `ListElement` | Class with 11 methods and 13 properties. |\n| `ListLBodyElement` | Class with 11 methods and 13 properties. |\n| `ListLIElement` | Class with 11 methods and 13 properties. |\n| `ListLblElement` | Class with 11 methods and 13 properties. |\n| `MCRElement` | A marked-content reference leaf (role \"MCR\") emitted by the auto-tagger to mark where a structure element's page content lives. |\n| `NonStructElement` | NonStructElement.SetTag(tag) assigns a custom tag to a non‑structural element, influencing its identification in the PDF structure tree. |\n| `NoteElement` | Class with 11 methods and 13 properties. |\n| `OBJRElement` | An object reference (role \"OBJR\") — links a structure element to a PDF object on a page (typically an annotation, e.g. |\n| `ParagraphElement` | ParagraphElement provides methods to modify its text, tag, ID, and hierarchical position within a PDF structure. |\n| `PartElement` | Class with 11 methods and 13 properties. |\n| `PrivateElement` | Class with 11 methods and 13 properties. |\n| `QuoteElement` | Class with 11 methods and 13 properties. |\n| `ReferenceElement` | Class with 11 methods and 13 properties. |\n| `RubyElement` | Class with 11 methods and 13 properties. |\n| `SectElement` | SectElement provides methods such as AppendChild, SetTag, SetText, and Remove to build and manipulate structural elements within a PDF document. |\n| `SpanElement` | SpanElement methods such as AppendChild, SetTag, SetText, SetId, AdjustPosition, and ChangeParentElement let developers build and manipulate structured PDF content. |\n| `StructTreeRootElement` | The /StructTreeRoot wrapper at the top of the logical- structure tree. |\n| `StructureAttribute` | A single tagged-PDF structure attribute (key plus one typed value). |\n| `StructureAttributes` | An owner-scoped set of StructureAttribute objects attached to a structure element (one PDF attribute dictionary with a fixed /O owner). |\n| `StructureElement` | Base class for tagged-PDF logical-structure elements. |\n| `StructureElementAttributes` | The attribute manager exposed by Attributes. |\n| `StructureTextState` | Text-state snapshot used to format inline structure-element runs. |\n| `StructureType` | A structure-type role (the /S entry value), exposed via S. |\n| `TOCElement` | Class with 11 methods and 13 properties. |\n| `TOCIElement` | Class with 11 methods and 13 properties. |\n| `TableElement` | Class with 14 methods and 31 properties. |\n| `TableTBodyElement` | Class with 12 methods and 13 properties. |\n| `TableTDElement` | TableTDElement.ColSpan and RowSpan properties allow a cell to span multiple columns or rows within a Table. |\n| `TableTFootElement` | Class with 12 methods and 13 properties. |\n| `TableTHElement` | Class with 11 methods and 23 properties. |\n| `TableTHeadElement` | Class with 12 methods and 13 properties. |\n| `TableTRElement` | Class with 13 methods and 23 properties. |\n| `WarichuElement` | Class with 11 methods and 13 properties. |",
+    "disposition": "merged_verbatim",
+    "target_section": "API Reference",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/LogicalStructure/Elements.cs"
+    }
+  },
+  {
+    "unit_id": "u0089",
+    "excerpt": "| Interface | Description |\n|---|---|\n| `ITextElement` | A structure element that can carry inline text content (written to the element's /ActualText entry). |",
+    "disposition": "merged_verbatim",
+    "target_section": "API Reference",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/LogicalStructure/Elements.cs"
+    }
+  },
+  {
+    "unit_id": "u0090",
+    "excerpt": "| Enumeration | Description |\n|---|---|\n| `AttributeKey` | Standard tagged-PDF attribute keys (ISO 32000-1 §14.8.5). |\n| `AttributeOwnerStandard` | Standard owners of a tagged-PDF attribute set (the /O entry of an attribute object, ISO 32000-1 Table 348). |",
+    "disposition": "merged_verbatim",
+    "target_section": "API Reference",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/LogicalStructure/StructureAttributes.cs"
+    }
+  },
+  {
+    "unit_id": "u0091",
+    "excerpt": "| Class | Description |\n|---|---|\n| `DestinationArray` | Opaque wrapper around a PDF destination array, created by NamedDestination factory methods. |\n| `DestinationCollection` | Named-destination collection exposed as IEnumerable&lt;KeyValuePair&lt;string, object&gt;&gt; for Aspose.Pdf parity. |\n| `NamedDestination` | Represents a named destination in the document (PDF32000 §12.3.2.3). |\n| `NamedDestinationCollection` | Collection of named destinations in the document. |\n| `OutlineBuilder` | Builder for creating bookmarks (outlines) programmatically. |\n| `OutlineCollection` | Class with 11 methods and 8 properties. |\n| `OutlineItem` | Represents a bookmark (outline item) in the document outline hierarchy. |\n| `OutlineItemBuilder` | Builder for a single outline item with fluent API. |\n| `OutlineItemCollection` | The document outline (bookmark tree). |\n| `Outlines` | Document-level bookmark (outline) collection. |\n| `PageLabel` | Represents a page label range. |\n| `PageLabelBuilder` | Builder for creating page labels on a document. |\n| `PageLabelCollection` | Collection of page label ranges from the /PageLabels number tree. |",
+    "disposition": "merged_verbatim",
+    "target_section": "API Reference",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/Navigation/NamedDestination.cs"
+    }
+  },
+  {
+    "unit_id": "u0092",
+    "excerpt": "| Enumeration | Description |\n|---|---|\n| `NumberingStyle` | Numbering style for page labels. |",
+    "disposition": "merged_verbatim",
+    "target_section": "API Reference",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/Navigation/PageLabel.cs"
+    }
+  },
+  {
+    "unit_id": "u0093",
+    "excerpt": "| Class | Description |\n|---|---|\n| `AutoTaggingSettings` | Settings controlling automatic structure-tree generation during conversion. |\n| `FontEmbeddingOptions` | Font-embedding behaviour during conversion. |\n| `HeadingLevels` | Heading-level recognition tuning for AutoTaggingSettings. |\n| `ImageCompressionOptions` | Image-compression sub-options for OptimizationOptions. |\n| `OptimizationOptions-Optimization` | Class which describes document optimization algorithm. |\n| `PdfANonSpecificationFlags` | PDF/A non-spec compliance toggles. |\n| `PdfASymbolicFontEncodingStrategy` | Strategy for re-encoding symbolic fonts during PDF/A conversion. |\n| `PdfFormatConversionOptions` | Options for converting a PDF document to a specific PDF/A conformance level. |\n| `QueueItem` | One entry in the priority queue — names a single (platformID, platformSpecificID) cmap subtable. |\n| `RgbToDeviceGrayConversionStrategy` | Converts all RGB color operators and image color spaces on a page to DeviceGray. |\n| `ToUnicodeProcessingRules` | Rules applied when generating ToUnicode CMaps during conversion. |",
+    "disposition": "merged_verbatim",
+    "target_section": "API Reference",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/Optimization/PdfFormatConversionDependencies.cs"
+    }
+  },
+  {
+    "unit_id": "u0094",
+    "excerpt": "| Enumeration | Description |\n|---|---|\n| `CMapEncodingTableType` | OpenType cmap subtable selector. |\n| `ConvertErrorAction` | Action to take when a conversion error is found. |\n| `ConvertSoftMaskAction` | Soft-mask handling strategy during PDF/A conversion. |\n| `ConvertTransparencyAction` | Action to take when transparency is encountered during PDF/A conversion. |\n| `HeadingRecognitionStrategy` | Algorithm used to detect headings during auto-tagging. |\n| `ImageCompressionVersion` | Strategy version for image compression. |\n| `ImageEncoding` | How image streams are re-encoded during optimization. |\n| `PdfFormat` | PDF format/conformance level for validation and conversion. |\n| `PuaProcessingStrategy` | Strategy for processing Private-Use-Area Unicode characters. |\n| `RemoveFontsStrategy` | Strategy for removing or excluding fonts during conversion. |\n| `SegmentAlignStrategy` | Strategy for collapsing adjacent text segments during PDF/A conversion. |",
+    "disposition": "merged_verbatim",
+    "target_section": "API Reference",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/Optimization/PdfFormatConversionDependencies.cs"
+    }
+  },
+  {
+    "unit_id": "u0095",
+    "excerpt": "| Class | Description |\n|---|---|\n| `BorderPartStyle` | Class with 1 method and 1 property. |\n| `CompositingParameters` | Image-blending parameters consumed by Stream, int, float, float, float, float, CompositingParameters). |\n| `LayerCollection` | Represents the collection of layers on a specific page. |\n| `LayerEntry` | Represents a layer being built by OptionalContentBuilder. |\n| `LoadOptions` | Class with 4 properties. |\n| `MarginPartStyle` | One side of a MarginInfo: either a fixed PDF-point value or an auto-fit hint. |\n| `OptionalContentBuilder` | Creates optional content groups (layers) in a PDF document. |\n| `OptionalContentGroup` | Represents an Optional Content Group (layer) in a PDF document. |\n| `OptionalContentProperties` | Collection of Optional Content Groups (layers) in a document. |\n| `OutputIntent` | Represents a PDF OutputIntent entry (PDF32000 §14.11.5). |\n| `OutputIntents` | Collection of OutputIntent entries on the document catalog's /OutputIntents array. |\n| `PdfSaveOptions` | Class with 8 properties. |\n| `ProgressEventHandlerInfo` | Class in the PDF .NET API. |\n| `RenderingOptions-Pdf` | Rendering options used by the page-to-image converters (PngDevice, JpegDevice, PdfConverter, …). |\n| `ResourceLoadingResult` | Class with 1 method and 1 property. |\n| `ResourceSavingInfo` | Class with 1 property. |\n| `SaveOptions` | The SaveOptions class exposes properties such as SaveFormat, CloseResponse, and WarningHandler to control PDF saving behavior. |\n| `SvgImageSavingInfo` | Class with 2 properties. |\n| `SvgSaveOptions` | SvgSaveOptions provides properties such as SaveFormat to control how a PDF is saved as SVG. |\n| `UnifiedSaveOptions` | Class with 7 properties. |\n| `ViewerPreferences` | Represents the document's viewer preferences (PDF32000 §12.2). |",
+    "disposition": "merged_verbatim",
+    "target_section": "API Reference",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/Options/SaveOptions.cs"
+    }
+  },
+  {
+    "unit_id": "u0096",
+    "excerpt": "| Enumeration | Description |\n|---|---|\n| `BlendMode` | PDF blend modes (Table 136 of PDF 32000-1:2008). |\n| `DefaultState` | Default visibility state of an Optional Content Group (layer). |\n| `HtmlBorderLineType` | Enum with 9 members. |\n| `LoadFormat` | Source format selector used by LoadOptions. |\n| `NodeLevelResourceType` | NodeLevelResourceType enum distinguishes between Font and Image resources when working with structural elements. |\n| `PageLayoutMode` | Page layout mode for the document (PDF32000 §12.2, Table 28). |\n| `PageModeValue` | Page mode specifying how the document should be displayed on opening (PDF32000 §12.2, Table 28). |\n| `ProgressEventType` | Conversion-progress milestones reported via EventType. |\n| `SaveFormat` | Save format enumeration. |\n| `SvgExternalImageType` | Image format used by the SVG embedded-image saver. |",
+    "disposition": "merged_verbatim",
+    "target_section": "API Reference",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/Options/CompositingParameters.cs"
+    }
+  },
+  {
+    "unit_id": "u0097",
+    "excerpt": "| Class | Description |\n|---|---|\n| `CustomPrintEventArgs` | Event args raised by PdfViewer.CustomPrint. |\n| `PageSettings` | Per-page print settings (paper size / orientation / margins). |\n| `PaperSize` | The PaperSize class lets developers define custom page dimensions by specifying a name, width, and height. |\n| `PdfQueryPageSettingsEventArgs` | Event args supplied to PdfViewer.PdfQueryPageSettings. |\n| `PrinterSettings` | Printer-side settings (printer name, copies, range). |\n| `StartEndPageEventArgs` | Event args raised by PdfViewer.StartPage / EndPage. |",
+    "disposition": "merged_verbatim",
+    "target_section": "API Reference",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/Printing/PrintingTypes.cs"
+    }
+  },
+  {
+    "unit_id": "u0098",
+    "excerpt": "| Class | Description |\n|---|---|\n| `BitString` | A variable-length bit string supporting bitwise operations, concatenation, substring extraction, and conversion to/from bytes and hex. |\n| `CertificateEncryptionOptions` | Bundles the public certificate used to encrypt a document and the private-key store needed to decrypt it. |\n| `EncryptionInfo` | Information about a document's encryption. |\n| `EncryptionParameters` | Parameters parsed from the document's /Encrypt dictionary and passed to Initialize when a custom security handler takes over for an alternative /Filter. |\n| `HashAlgorithmFactory` | Creates a HashAlgorithm for a DigestHashAlgorithm. |\n| `MathExtensions` | Small integer math helpers shared by the security primitives. |\n| `PdfCertificate` | Represents a certificate + private key for PDF signing. |\n| `PdfSigner` | Signs PDF documents with X.509 certificates using PKCS#7/CMS detached signatures. |\n| `Sha3_256` | SHA3-256 (FIPS 202) — own Keccak implementation. |\n| `Sha3_384` | SHA3-384 (FIPS 202) — own Keccak implementation. |\n| `Sha3_512` | SHA3-512 (FIPS 202) — own Keccak implementation. |\n| `SignatureAlgorithmInfo` | Algorithm + digest + envelope-standard triple extracted from a PDF signature value. |\n| `SignatureAppearance` | Defines the visual appearance for a digital signature annotation. |\n| `SignatureOptions` | Options for signing a PDF document. |\n| `ValidationOptions` | Tunes the verification policy used by Verify(SignatureName, ValidationOptions, out ValidationResult). |\n| `ValidationResult` | Verification outcome produced by Verify(SignatureName, ValidationOptions, out ValidationResult). |",
+    "disposition": "merged_verbatim",
+    "target_section": "API Reference",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/Security/BitString.cs"
+    }
+  },
+  {
+    "unit_id": "u0099",
+    "excerpt": "| Interface | Description |\n|---|---|\n| `ICustomSecurityHandler` | Pluggable custom security handler — implement this to handle non-Standard /Filter entries (e.g. |",
+    "disposition": "merged_verbatim",
+    "target_section": "API Reference",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/Security/ICustomSecurityHandler.cs"
+    }
+  },
+  {
+    "unit_id": "u0100",
+    "excerpt": "| Enumeration | Description |\n|---|---|\n| `CryptoAlgorithm` | PDF encryption algorithm. |\n| `CryptographicStandard` | Cryptographic envelope standard reported by a PDF signature SubFilter entry. |\n| `DigestHashAlgorithm` | Digest hash algorithm used by a PDF signature (PKCS#7 messageDigest attribute). |\n| `SignatureAlgorithmType` | Signing-algorithm family extracted from a signature's PKCS#7 signatureAlgorithm OID. |\n| `ValidationMethod` | Revocation-check protocol selector used by ValidationMethod. |\n| `ValidationMode` | How aggressively VerifySignature(string, ValidationOptions, out ValidationResult) reports problems. |\n| `ValidationStatus` | Outcome categories reported by Status. |",
+    "disposition": "merged_verbatim",
+    "target_section": "API Reference",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/Security/CryptoAlgorithm.cs"
+    }
+  },
+  {
+    "unit_id": "u0101",
+    "excerpt": "| Class | Description |\n|---|---|\n| `AxialShading` | Axial (linear) shading (Type 2, §8.7.4.3). |\n| `CoonsPatchShading` | Coons patch mesh (Type 6, §8.7.4.5.7). |\n| `FreeFormGouraudShading` | Free-form Gouraud-shaded triangle mesh (Type 4, §8.7.4.5.5). |\n| `FunctionBasedShading` | Function-based shading (Type 1, §8.7.4.2). |\n| `LatticeFormGouraudShading` | Lattice-form Gouraud-shaded triangle mesh (Type 5, §8.7.4.5.6). |\n| `Pattern` | Abstract base for all PDF pattern types. |\n| `RadialShading` | Radial (circular) shading (Type 3, §8.7.4.4). |\n| `ShadingBase` | Abstract base for all PDF shading types (§8.7.4.1). |\n| `ShadingPattern` | Shading pattern (PatternType 2, §8.7.3.2): smooth gradient. |\n| `TensorPatchShading` | Tensor-product patch mesh (Type 7, §8.7.4.5.8). |\n| `TilingPattern` | Tiling pattern (PatternType 1, §8.7.3.1): repeating tile. |",
+    "disposition": "merged_verbatim",
+    "target_section": "API Reference",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/Shading/Shading.cs"
+    }
+  },
+  {
+    "unit_id": "u0102",
+    "excerpt": "| Enumeration | Description |\n|---|---|\n| `ShadingType` | Shading type — /ShadingType entry. |",
+    "disposition": "merged_verbatim",
+    "target_section": "API Reference",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/Shading/Shading.cs"
+    }
+  },
+  {
+    "unit_id": "u0103",
+    "excerpt": "| Class | Description |\n|---|---|\n| `PageNumberStamp` | A stamp that adds page numbers to PDF pages. |\n| `PdfPageStamp` | Stamps the content of one PDF page onto another page. |\n| `Stamp-Stamps` | Base class for stamps that can be applied to PDF pages. |\n| `TextStamp-Stamps` | A text stamp that can be applied to PDF pages. |\n| `WatermarkStamp` | A watermark stamp that draws diagonal text across the page. |",
+    "disposition": "merged_verbatim",
+    "target_section": "API Reference",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/Stamps/PageNumberStamp.cs"
+    }
+  },
+  {
+    "unit_id": "u0104",
+    "excerpt": "| Class | Description |\n|---|---|\n| `Element-Structure` | A node in a PDF's logical-structure tree (the /StructTreeRoot /K subtree, plus their /K descendants). |\n| `ElementCollection` | A live, mutable collection of structure elements held under a parent's /K array. |\n| `FigureElement-Structure` | A figure structure element (/S = \"Figure\") that wraps a raster or vector picture. |\n| `RootElement` | Top-level wrapper for the PDF /StructTreeRoot dictionary. |\n| `StructElement` | A generic structure element (anything other than the recognised typed subclasses). |\n| `TextElement` | A text-bearing structure element (Span / P / Quote / Note / Reference / BibEntry). |",
+    "disposition": "merged_verbatim",
+    "target_section": "API Reference",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/Structure/Element.cs"
+    }
+  },
+  {
+    "unit_id": "u0105",
+    "excerpt": "| Class | Description |\n|---|---|\n| `MarkedContentInfo` | Information about a marked content sequence, used to wrap content in BDC/EMC operators. |\n| `PositionSettings` | Layout/position settings for a tagged structure element, passed to AdjustPosition. |\n| `StructTreeElement` | Read-only view of a single structure element in a tagged document's structure tree: its role, accessibility text, attributes, marked-content references, and child elements. |\n| `StructTreeRoot` | Read-only view of a tagged document's structure-tree root (/StructTreeRoot). |\n| `StructureElementBuilder` | Builder for creating a structure element with children and marked content. |\n| `StructureTreeBuilder` | Builds a logical structure tree for a tagged PDF document. |\n| `TaggedContent` | Provides access to tagged PDF metadata (title, language) and the logical structure tree. |\n| `TaggedException` | Exception thrown when a tagged PDF structure operation violates PDF spec constraints. |",
+    "disposition": "merged_verbatim",
+    "target_section": "API Reference",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/Tagged/StructureTreeBuilder.cs"
+    }
+  },
+  {
+    "unit_id": "u0106",
+    "excerpt": "| Interface | Description |\n|---|---|\n| `ITaggedContent` | The author-facing surface for a tagged PDF document. |",
+    "disposition": "merged_verbatim",
+    "target_section": "API Reference",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/Tagged/ITaggedContent.cs"
+    }
+  },
+  {
+    "unit_id": "u0107",
+    "excerpt": "| Class | Description |\n|---|---|\n| `AbsorbedCell` | Represents a cell in an absorbed table. |\n| `AbsorbedRow` | Represents a row in an absorbed table. |\n| `AbsorbedTable` | Represents a table detected on a PDF page. |\n| `CharInfo` | Per-character layout information (glyph rectangle + page position). |\n| `CharInfoCollection` | Collection of CharInfo entries — supports the public surface used by TextSegment.Characters but stays empty by default. |\n| `CustomFontSubstitutionBase` | Class with 1 method. |\n| `ExternalFontCache` | Manages the set of folders searched for external (non-embedded) TrueType/OpenType faces during rendering and conversion. |\n| `FileFontSource` | A font source backed by a single font file on disk. |\n| `FolderFontSource` | A font source that searches fonts in a specific directory. |\n| `Font` | Type alias for FontInfo, matching the Font class name. |\n| `FontAbsorber` | Collects all fonts used in a PDF document or a single page. |\n| `FontCollection` | Collection of fonts referenced by a page. |\n| `FontData` | Represents a font with its name and type. |\n| `FontEmbedder` | Embeds TrueType fonts into PDF documents for custom text rendering. |\n| `FontInfo` | Information about a font used in a PDF. |\n| `FontRepository` | Provides access to fonts available for use in PDF documents. |\n| `FontSource` | Base class for font sources. |\n| `FontSourceCollection` | A collection of font sources used by FontRepository. |\n| `FontSubstitution` | Base type for font substitutions held in FontSubstitutionCollection. |\n| `FontSubstitutionCollection` | Class with 9 methods and 3 properties. |\n| `FontUtilities` | Provides font management utilities for a document. |\n| `MarkupParagraph` | A paragraph within a markup section. |\n| `MarkupSection` | A section of text on a page — a spatially coherent group of lines. |\n| `MemoryFontSource` | A font source backed by an in-memory font byte buffer. |\n| `OneBasedList` | Read-only list with 1-based indexer, matching the public API. |\n| `OriginalFontSpecification` | Class with 1 method and 3 properties. |\n| `PageMarkup` | Represents the text markup of a single page, organized into sections. |\n| `ParagraphAbsorber` | Absorbs text from PDF pages and organizes it into sections and paragraphs. |\n| `ParagraphAbsorberOptions` | Options for ParagraphAbsorber controlling section detection thresholds. |\n| `PdfFontView` | Thin engine-font view used by Aspose.Pdf parity (Font.iPdfFont). |\n| `PhysicalTextSegment` | Physical (page-space) projection of an absorbed TextSegment. |\n| `Position` | The Position class can be used to specify X and Y indents for layout adjustments; its XIndent and YIndent properties are read‑only after construction. |\n| `RegexManager` | Global configuration for regular-expression text search (for example via TextFragmentAbsorber). |\n| `SimpleFontSubstitution` | Class with 3 methods and 3 properties. |\n| `SystemFontSource` | A font source that searches the system's installed fonts. |\n| `TabStop` | Represents a single tab stop position. |\n| `TabStops` | A collection of tab stop positions for text layout. |\n| `TableAbsorber` | Detects and extracts tables from PDF pages by analyzing text positions and line drawing operations. |\n| `TextAbsorber` | Extracts text from PDF pages by parsing content streams. |\n| `TextBuilder` | Appends text fragments to a PDF page by registering fonts in the page resources and writing content stream operators. |\n| `TextEditOptions` | Options that control how text is edited (replaced, font-substituted, language-transformed). |\n| `TextExtractionError` | Diagnostic produced by TextFragmentAbsorber when a page-level extraction fails or partially succeeds. |\n| `TextExtractionErrorLocation` | Structured location of a TextExtractionError within a page's content stream. |\n| `TextExtractionOptions` | Options for text extraction operations. |\n| `TextFormattingOptions` | Represents text formatting options for a TextParagraph. |\n| `TextFragment` | Represents a fragment of text on a page with position and style information. |\n| `TextFragmentAbsorber` | Searches for text fragments on PDF pages, optionally matching a search phrase. |\n| `TextFragmentCollection` | A 1-indexed collection of TextFragment objects, matching the public API. |\n| `TextFragmentState` | Fragment-level text formatting state. |\n| `TextOptions` | Base class for text-processing options. |\n| `TextParagraph` | Represents a text paragraph that can be placed on a page via AppendParagraph. |\n| `TextReplaceOptions` | Options for text replacement operations. |\n| `TextReplacer` | Finds and replaces text in PDF content streams. |\n| `TextSearchOptions` | Options for text search operations in PDF documents. |\n| `TextSegment` | A single segment within a TextFragment. |\n| `TextSegmentCollection` | A 1-indexed collection of TextSegment objects belonging to a TextFragment. |\n| `TextState` | Text formatting state. |",
+    "disposition": "merged_verbatim",
+    "target_section": "API Reference",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/Text/TableAbsorber.cs"
+    }
+  },
+  {
+    "unit_id": "u0108",
+    "excerpt": "| Interface | Description |\n|---|---|\n| `IFontOptions` | Per-font runtime options (currently only the font-embedding error toggle). |",
+    "disposition": "merged_verbatim",
+    "target_section": "API Reference",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/Text/FontInfo.cs"
+    }
+  },
+  {
+    "unit_id": "u0109",
+    "excerpt": "| Enumeration | Description |\n|---|---|\n| `ClippingPathsProcessingMode` | How clipping paths are processed when text edits affect clipped regions. |\n| `CoordinateOrigin` | How the lowest Y coordinate of a text fragment is interpreted in positioning APIs (CoordinateOrigin and per-segment SetPosition overloads). |\n| `FontReplace` | Font-replacement strategy when the original font cannot encode replacement text. |\n| `FontSizeAdjustment` | Font size adjustment strategy when replaced text has a different size. |\n| `FontStyles` | Represents a position on a page. |\n| `FontSubsetStrategy` | Strategy for font subsetting when saving a document. |\n| `FontType` | Font type classification. |\n| `FontTypes` | Stream-loadable font formats accepted by Stream, FontTypes). |\n| `LanguageTransformation` | Language transformation behavior (RTL, ligatures, etc). |\n| `LineSpacingMode` | How line spacing is interpreted (font-derived vs full glyph extent). |\n| `NoCharacterAction-Text` | Action to perform if font does not contain required character. |\n| `ReplaceAdjustment` | Specifies how text replacement adjustments are handled. |\n| `Scope-Text` | Replace-scope selector (canonical screaming-snake naming). |\n| `TabAlignmentType` | Tab alignment type for tab stops. |\n| `TabLeaderType` | Tab leader character type. |\n| `TextFormattingMode` | Specifies how extracted text is formatted. |\n| `TextRenderingMode` | PDF text rendering mode (Tr operator). |\n| `WordWrapMode-Text` | Word wrap mode that controls how text wraps within a paragraph rectangle. |",
+    "disposition": "merged_verbatim",
+    "target_section": "API Reference",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/Text/TextEditOptions.cs"
+    }
+  },
+  {
+    "unit_id": "u0110",
+    "excerpt": "| Class | Description |\n|---|---|\n| `GraphicElement` | Single vector-graphics element (path segment, image, text run) extracted from a PDF content stream. |\n| `GraphicElementCollection` | Mutable collection of GraphicElement entries. |\n| `GraphicsAbsorber` | Extracts the painted vector sub-paths of a page as SubPath elements, each carrying its page-space bounding Rectangle. |\n| `SubPath` | A single painted sub-path extracted from a content stream: its construction operators (in their original user-space coordinates), the CTM in effect when it was drawn, and the painting operator that closed it. |\n| `XFormPlacement` | Class in the PDF .NET API. |",
+    "disposition": "merged_verbatim",
+    "target_section": "API Reference",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/Vector/GraphicElement.cs"
+    }
+  },
+  {
+    "unit_id": "u0111",
+    "excerpt": "| Class | Description |\n|---|---|\n| `Metadata` | XMP metadata accessor exposed by per-resource members such as Metadata. |\n| `XmpField` | One named XMP field — a (prefix, local-name) pair plus a typed value. |\n| `XmpMetadata` | Provides access to XMP metadata embedded in the PDF. |\n| `XmpPacketContainer` | The XMP packet exposed by getData; its WorkingPacket yields the live RDF/XML. |\n| `XmpPdfAExtensionField` | One field of a PDF/A XMP-extension structured value type. |\n| `XmpPdfAExtensionObject` | One PDF/A XMP-extension property/value pair. |\n| `XmpPdfAExtensionProperty` | One PDF/A XMP-extension property declaration (name, value, value type, category, description). |\n| `XmpPdfAExtensionSchema` | One PDF/A XMP-extension schema, holding a description and its associated XmpPdfAExtensionObjects. |\n| `XmpPdfAExtensionSchemaDescription` | Human-readable description of a PDF/A XMP extension schema. |\n| `XmpPdfAExtensionValueType` | One PDF/A XMP-extension structured value type, holding its fields. |\n| `XmpValue` | Represents a typed XMP metadata value. |\n| `XmpWorkingPacket` | A working XMP packet; GetXml returns the packet's RDF/XML with rdf:RDF as the document element so callers can XPath into it. |",
+    "disposition": "merged_verbatim",
+    "target_section": "API Reference",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/Xmp/Metadata.cs"
+    }
+  },
+  {
+    "unit_id": "u0112",
+    "excerpt": "| Enumeration | Description |\n|---|---|\n| `XmpFieldType` | XMP field categories (matches the Aspose.Pdf reflection signature exactly — the underlying integer values are not load-bearing because callers compare against the named members). |\n| `XmpPdfAExtensionCategoryType` | Whether a PDF/A XMP-extension property is for external (publicly visible) or internal (private) use. |",
+    "disposition": "merged_verbatim",
+    "target_section": "API Reference",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/Xmp/XmpField.cs"
+    }
+  },
+  {
+    "unit_id": "u0113",
+    "excerpt": "- `Document`",
+    "disposition": "merged_verbatim",
+    "target_section": "API Reference",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/Document.cs"
+    }
+  },
+  {
+    "unit_id": "u0114",
+    "excerpt": "- `Create() -> Document`",
+    "disposition": "merged_verbatim",
+    "target_section": "API Reference",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/Document.cs"
+    }
+  },
+  {
+    "unit_id": "u0115",
+    "excerpt": "- `Open(path) -> Document` / `Open(data) -> Document` / `Open(stream) -> Document`",
+    "disposition": "merged_verbatim",
+    "target_section": "API Reference",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/Document.cs"
+    }
+  },
+  {
+    "unit_id": "u0116",
+    "excerpt": "- `Pages -> PageCollection`",
+    "disposition": "merged_verbatim",
+    "target_section": "API Reference",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/Document.cs"
+    }
+  },
+  {
+    "unit_id": "u0117",
+    "excerpt": "- `Form -> Form`",
+    "disposition": "merged_verbatim",
+    "target_section": "API Reference",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/Document.cs"
+    }
+  },
+  {
+    "unit_id": "u0118",
+    "excerpt": "- `Save(path)` / `Save(stream, options)` / `ToArray() -> byte[]`",
+    "disposition": "merged_verbatim",
+    "target_section": "API Reference",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/Document.cs"
+    }
+  },
+  {
+    "unit_id": "u0119",
+    "excerpt": "- `Encrypt(userPassword, ownerPassword, permissions, algorithm)`",
+    "disposition": "merged_verbatim",
+    "target_section": "API Reference",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/Document.cs"
+    }
+  },
+  {
+    "unit_id": "u0120",
+    "excerpt": "- `Decrypt()`",
+    "disposition": "merged_verbatim",
+    "target_section": "API Reference",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/Document.cs"
+    }
+  },
+  {
+    "unit_id": "u0121",
+    "excerpt": "- `PageCollection`",
+    "disposition": "merged_verbatim",
+    "target_section": "API Reference",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/Collections/PageCollection.cs"
+    }
+  },
+  {
+    "unit_id": "u0122",
+    "excerpt": "- `Add() -> Page` / `Add(width, height) -> Page`",
+    "disposition": "merged_verbatim",
+    "target_section": "API Reference",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/Collections/PageCollection.cs"
+    }
+  },
+  {
+    "unit_id": "u0123",
+    "excerpt": "- `At(oneBasedIndex) -> Page`",
+    "disposition": "merged_verbatim",
+    "target_section": "API Reference",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/Collections/PageCollection.cs"
+    }
+  },
+  {
+    "unit_id": "u0124",
+    "excerpt": "- `Page`",
+    "disposition": "merged_verbatim",
+    "target_section": "API Reference",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/Page.CalculateContentBBox.cs"
+    }
+  },
+  {
+    "unit_id": "u0125",
+    "excerpt": "- `Annotations -> AnnotationCollection`",
+    "disposition": "merged_verbatim",
+    "target_section": "API Reference",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/Page.cs"
+    }
+  },
+  {
+    "unit_id": "u0126",
+    "excerpt": "- `Resources -> PageResources`",
+    "disposition": "merged_verbatim",
+    "target_section": "API Reference",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/Page.cs"
+    }
+  },
+  {
+    "unit_id": "u0127",
+    "excerpt": "- `TextAbsorber`",
+    "disposition": "merged_verbatim",
+    "target_section": "API Reference",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/Text/TextAbsorber.cs"
+    }
+  },
+  {
+    "unit_id": "u0128",
+    "excerpt": "- `Visit(page)` / `Visit(form)` / `Visit(pdf)`",
+    "disposition": "merged_verbatim",
+    "target_section": "API Reference",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/Text/TextAbsorber.cs"
+    }
+  },
+  {
+    "unit_id": "u0129",
+    "excerpt": "- `Text -> string`",
+    "disposition": "merged_verbatim",
+    "target_section": "API Reference",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/Text/TextAbsorber.cs"
+    }
+  },
+  {
+    "unit_id": "u0130",
+    "excerpt": "- `TextFragmentAbsorber`",
+    "disposition": "merged_verbatim",
+    "target_section": "API Reference",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/Text/TextFragmentAbsorber.cs"
+    }
+  },
+  {
+    "unit_id": "u0131",
+    "excerpt": "- `Visit(page)`",
+    "disposition": "merged_verbatim",
+    "target_section": "API Reference",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/Text/TextFragmentAbsorber.cs"
+    }
+  },
+  {
+    "unit_id": "u0132",
+    "excerpt": "- `TextFragments -> TextFragmentCollection`",
+    "disposition": "merged_verbatim",
+    "target_section": "API Reference",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/Text/TextFragmentAbsorber.cs"
+    }
+  },
+  {
+    "unit_id": "u0133",
+    "excerpt": "- `Field`",
+    "disposition": "merged_verbatim",
+    "target_section": "API Reference",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/Forms/Field.cs"
+    }
+  },
+  {
+    "unit_id": "u0134",
+    "excerpt": "- `ExportToJson(stream)`",
+    "disposition": "merged_verbatim",
+    "target_section": "API Reference",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/Forms/Field.cs"
+    }
+  },
+  {
+    "unit_id": "u0135",
+    "excerpt": "- `Flatten()`",
+    "disposition": "merged_verbatim",
+    "target_section": "API Reference",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/Forms/Field.cs"
+    }
+  },
+  {
+    "unit_id": "u0136",
+    "excerpt": "- `ChoiceField`",
+    "disposition": "merged_verbatim",
+    "target_section": "API Reference",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/Forms/Field.cs"
+    }
+  },
+  {
+    "unit_id": "u0137",
+    "excerpt": "- `Options -> OptionCollection`",
+    "disposition": "merged_verbatim",
+    "target_section": "API Reference",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/Forms/Field.cs"
+    }
+  },
+  {
+    "unit_id": "u0138",
+    "excerpt": "- `AddOption(optionName)` / `AddOption(export, name)`",
+    "disposition": "merged_verbatim",
+    "target_section": "API Reference",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/Forms/Field.cs"
+    }
+  },
+  {
+    "unit_id": "u0139",
+    "excerpt": "- `DeleteOption(optionName)`",
+    "disposition": "merged_verbatim",
+    "target_section": "API Reference",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/Forms/Field.cs"
+    }
+  },
+  {
+    "unit_id": "u0140",
+    "excerpt": "- `AnnotationCollection`",
+    "disposition": "merged_verbatim",
+    "target_section": "API Reference",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/Annotations/AnnotationCollection.cs"
+    }
+  },
+  {
+    "unit_id": "u0141",
+    "excerpt": "- `AddLinkAnnotation(rect, action)`",
+    "disposition": "merged_verbatim",
+    "target_section": "API Reference",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/Annotations/AnnotationCollection.cs"
+    }
+  },
+  {
+    "unit_id": "u0142",
+    "excerpt": "- `AddStampAnnotation(rect, contents, stampName)`",
+    "disposition": "merged_verbatim",
+    "target_section": "API Reference",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/Annotations/AnnotationCollection.cs"
+    }
+  },
+  {
+    "unit_id": "u0143",
+    "excerpt": "- `AddTextAnnotation(rect, contents, title, open)`",
+    "disposition": "merged_verbatim",
+    "target_section": "API Reference",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/Annotations/AnnotationCollection.cs"
+    }
+  },
+  {
+    "unit_id": "u0144",
+    "excerpt": "- `AddFreeTextAnnotation(rect, contents, fontName, fontSize, color)`",
+    "disposition": "merged_verbatim",
+    "target_section": "API Reference",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/Annotations/AnnotationCollection.cs"
+    }
+  },
+  {
+    "unit_id": "u0145",
+    "excerpt": "- `PdfAction`",
+    "disposition": "merged_verbatim",
+    "target_section": "API Reference",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/Actions/PdfAction.cs"
+    }
+  },
+  {
+    "unit_id": "u0146",
+    "excerpt": "- `CreateUri(uri)`",
+    "disposition": "merged_verbatim",
+    "target_section": "API Reference",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/Actions/PdfAction.cs"
+    }
+  },
+  {
+    "unit_id": "u0147",
+    "excerpt": "- `CreateGoTo(pageIndex, fitType)`",
+    "disposition": "merged_verbatim",
+    "target_section": "API Reference",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/Actions/PdfAction.cs"
+    }
+  },
+  {
+    "unit_id": "u0148",
+    "excerpt": "- `CreateJavaScript(script)`",
+    "disposition": "merged_verbatim",
+    "target_section": "API Reference",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/Actions/PdfAction.cs"
+    }
+  },
+  {
+    "unit_id": "u0149",
+    "excerpt": "- `CreateNamed(name)`",
+    "disposition": "merged_verbatim",
+    "target_section": "API Reference",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/Actions/PdfAction.cs"
+    }
+  },
+  {
+    "unit_id": "u0150",
+    "excerpt": "- `CreateLaunch(filePath)`",
+    "disposition": "merged_verbatim",
+    "target_section": "API Reference",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/Actions/PdfAction.cs"
+    }
+  },
+  {
+    "unit_id": "u0151",
+    "excerpt": "- `SvgDevice`",
+    "disposition": "merged_verbatim",
+    "target_section": "API Reference",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/Devices/SvgDevice.cs"
+    }
+  },
+  {
+    "unit_id": "u0152",
+    "excerpt": "- `Process(page) -> string`",
+    "disposition": "merged_verbatim",
+    "target_section": "API Reference",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/Devices/SvgDevice.cs"
+    }
+  },
+  {
+    "unit_id": "u0153",
+    "excerpt": "- `Process(page, output)` / `Process(page, outputFileName)`",
+    "disposition": "merged_verbatim",
+    "target_section": "API Reference",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/Devices/SvgDevice.cs"
+    }
+  },
+  {
+    "unit_id": "u0154",
+    "excerpt": "- `PngDevice` / `JpegDevice` / `BmpDevice` / `TiffDevice`",
+    "disposition": "merged_verbatim",
+    "target_section": "API Reference",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/Devices/PngDevice.cs"
+    }
+  },
+  {
+    "unit_id": "u0155",
+    "excerpt": "- `Process(page, output)` (inherited from `ImageDevice`)",
+    "disposition": "merged_verbatim",
+    "target_section": "API Reference",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/Devices/ImageDevice.cs"
+    }
+  },
+  {
+    "unit_id": "u0156",
+    "excerpt": "</details>",
+    "classification": "1_narrative_cta",
+    "disposition": "merged_verbatim",
+    "target_section": "API Reference",
+    "verification": {
+      "status": "not_applicable_category_1",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": ""
+    }
+  },
+  {
+    "unit_id": "u0157",
+    "excerpt": "- **[Getting started guide](https://docs.aspose.org/pdf/net/)** — installation, walkthroughs, and\n  feature guides for this library.",
+    "classification": "1_narrative_cta",
+    "disposition": "merged_verbatim",
+    "target_section": "Documentation & Resources",
+    "verification": {
+      "status": "not_applicable_category_1",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": ""
+    }
+  },
+  {
+    "unit_id": "u0158",
+    "excerpt": "- **[How-to guides & FAQ](https://kb.aspose.org/pdf/net/)** — task-focused answers for common\n  PDF-processing questions.",
+    "classification": "1_narrative_cta",
+    "disposition": "merged_verbatim",
+    "target_section": "Documentation & Resources",
+    "verification": {
+      "status": "not_applicable_category_1",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": ""
+    }
+  },
+  {
+    "unit_id": "u0159",
+    "excerpt": "- **[Full API reference](https://reference.aspose.org/pdf/net/)** — the complete, browsable\n  reference for all 854 public types (the API Reference section above covers the essentials).",
+    "classification": "1_narrative_cta",
+    "disposition": "merged_verbatim",
+    "target_section": "Documentation & Resources",
+    "verification": {
+      "status": "not_applicable_category_1",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": ""
+    }
+  },
+  {
+    "unit_id": "u0160",
+    "excerpt": "- Found a bug or have a feature request?\n  [Open an issue](https://github.com/aspose-pdf-foss/Aspose.PDF-FOSS-for-.NET/issues) on GitHub.",
+    "classification": "1_narrative_cta",
+    "disposition": "merged_verbatim",
+    "target_section": "Documentation & Resources",
+    "verification": {
+      "status": "not_applicable_category_1",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": ""
+    }
+  },
+  {
+    "unit_id": "u0161",
+    "excerpt": "<details>\n<summary>View In-Repo Documentation Guides</summary>",
+    "classification": "1_narrative_cta",
+    "disposition": "merged_verbatim",
+    "target_section": "Documentation & Resources",
+    "verification": {
+      "status": "not_applicable_category_1",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": ""
+    }
+  },
+  {
+    "unit_id": "u0162",
+    "excerpt": "| Guide | Description |\n|-------|-------------|\n| [Getting Started](docs/getting-started.md) | Installation, first program, core concepts (document lifecycle, 1-based page indexing, saving) |\n| [Working with Text](docs/working-with-text.md) | Extract, search, and replace text; build new text with `TextBuilder` / `TextParagraph`; tab stops |\n| [Working with Pages](docs/working-with-pages.md) | Add, delete, reorder, rotate, and resize pages; copy pages across documents; merge & split |\n| [Fonts](docs/fonts.md) | Standard 14, embedding & subsetting, custom fonts (`FontRepository`), substitution, inspection |\n| [Working with Forms](docs/working-with-forms.md) | Read, fill, and build AcroForm fields (text, checkbox, radio, choice, button, signature) |\n| [Working with Annotations](docs/working-with-annotations.md) | Read, create, and modify PDF annotations; watermarks; flatten |\n| [Bookmarks & Navigation](docs/bookmarks-and-navigation.md) | Outlines/bookmarks, named destinations, and page labels |\n| [Security and Encryption](docs/security-and-encryption.md) | Encrypt / decrypt (RC4 / AES-128 / AES-256), document permissions, digital signatures (PKCS#7) |\n| [Metadata & XMP](docs/metadata-and-xmp.md) | Document Info dictionary (Title/Author/…) and the XMP metadata packet |\n| [Converters](docs/converters.md) | PDF ↔ HTML, PDF ↔ Markdown, PDF ↔ SVG, PDF → plain text |\n| [Rendering](docs/rendering.md) | Render pages to PNG, JPEG, BMP, TIFF; SVG output; resolution + color depth control |\n| [Optimization](docs/optimization.md) | Compress images, subset fonts, link duplicate streams, PDF/A validation + conversion |\n| [Working with Tables](docs/working-with-tables.md) | Extract tabular data with `TableAbsorber`; build tables with `Table` / `Row` / `Cell` |\n| [Tagged PDF](docs/tagged-pdf.md) | Read and build `/StructTreeRoot` trees; `ITaggedContent` authoring API |\n| [Comparison](docs/comparison.md) | Side-by-side text comparison into a result PDF, graphical page diff, and the `Diff` edit model |\n| [Facades](docs/facades.md) | High-level task-oriented APIs (`PdfFileEditor`, `PdfFileSecurity`, `PdfFileSignature`, `PdfBookmarkEditor`, `PdfContentEditor`, ...) |\n| [API Reference](docs/api-reference.md) | Public classes organised by namespace, plus a \"not included vs Aspose.PDF for .NET\" list |",
+    "disposition": "merged_reframed",
+    "target_section": "Documentation & Resources",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "docs/getting-started.md"
+    }
+  },
+  {
+    "unit_id": "u0163",
+    "excerpt": "</details>",
+    "classification": "1_narrative_cta",
+    "disposition": "merged_verbatim",
+    "target_section": "Documentation & Resources",
+    "verification": {
+      "status": "not_applicable_category_1",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": ""
+    }
+  },
+  {
+    "unit_id": "u0164",
+    "excerpt": "- AI / LowCode workflows (`Aspose.Pdf.AI.*`, `Aspose.Pdf.LowCode.*`) are out of scope by design —\n  use Aspose.PDF for .NET for OpenAI / Llama-powered summarisation, OCR-aided extraction, and the\n  LowCode façade APIs.",
+    "disposition": "merged_verbatim",
+    "target_section": "Scope and Limitations",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/Aspose.Pdf.Foss.csproj"
+    }
+  },
+  {
+    "unit_id": "u0165",
+    "excerpt": "- Multithreading APIs (`Aspose.Pdf.Multithreading.*`) are not included; this edition is\n  single-threaded for a single `Document` instance.",
+    "disposition": "merged_verbatim",
+    "target_section": "Scope and Limitations",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/Aspose.Pdf.Foss.csproj"
+    }
+  },
+  {
+    "unit_id": "u0166",
+    "excerpt": "- Format converters are limited to PDF, HTML, SVG, Markdown, and XML — DOCX, EPUB, MHT, XPS, PCL,\n  LaTeX, DJVU, OFD, PostScript, and CGM conversion are not included.",
+    "disposition": "merged_verbatim",
+    "target_section": "Scope and Limitations",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/Converters/PdfToMarkdownConverter.cs"
+    }
+  },
+  {
+    "unit_id": "u0167",
+    "excerpt": "- `PdfViewer`'s `Print*` methods throw `PlatformNotSupportedException`; render to an image and\n  pass it to your own printing stack instead.",
+    "disposition": "merged_verbatim",
+    "target_section": "Scope and Limitations",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/Facades/PdfViewer.cs"
+    }
+  },
+  {
+    "unit_id": "u0168",
+    "excerpt": "- Basic digital signatures (sign / verify, PKCS#1, PKCS#7, DocMDP, certifying) work, but the\n  validation-options surface — `ValidationOptions`, `ValidationResult`, OCSP, network\n  timestamping, custom remote-sign delegates — is stored but not active.",
+    "disposition": "merged_verbatim",
+    "target_section": "Scope and Limitations",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/Security/CryptoAlgorithm.cs"
+    }
+  },
+  {
+    "unit_id": "u0169",
+    "excerpt": "- Advanced `PdfFileEditor` features (`MakeNUp` imposition, `MakeBooklet` from a `Stream` with\n  non-trivial margins, `ResizeContents` with custom imposition matrices) are accepted as input,\n  but the save path emits a simplified layout.",
+    "disposition": "merged_verbatim",
+    "target_section": "Scope and Limitations",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/Facades/PdfFileEditor.cs"
+    }
+  },
+  {
+    "unit_id": "u0170",
+    "excerpt": "- Dynamic XFA forms are read, laid out from their own content — field heights, per-edge border\n  chrome, captions, rich text — and can be flattened to real AcroForm pages; XFA datasets\n  round-trip through the AcroForm `/XFA` entry, sync with AcroForm fields, and export / import via\n  FDF, XFDF, and XML. Fine-grained authoring of individual XFA dataset fields is still limited.",
+    "disposition": "merged_reframed",
+    "target_section": "Scope and Limitations",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/Forms/Xfa/XfaFormEngine.cs"
+    }
+  },
+  {
+    "unit_id": "u0171",
+    "excerpt": "- `PDF3DAnnotation` content (artwork, views, cross-sections, lighting) is read and round-trips,\n  but the 3D content stream is not regenerated on save and the page renderer does not display the\n  3D model.",
+    "disposition": "merged_verbatim",
+    "target_section": "Scope and Limitations",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/Annotations/AnnotationSelector.cs"
+    }
+  },
+  {
+    "unit_id": "u0172",
+    "excerpt": "- Side-by-side comparison is text-based: it compares extracted text runs, so a change that leaves\n  the text identical — a recoloured heading, a moved image — does not register. Use\n  `GraphicalPdfComparer` for those, bearing in mind it is Windows only.",
+    "disposition": "merged_reframed",
+    "target_section": "Scope and Limitations",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/Comparison/Diff/DiffOperation.cs"
+    }
+  },
+  {
+    "unit_id": "u0173",
+    "excerpt": "- The structure tree is built and round-trips through `/StructTreeRoot`, but advanced PDF/UA-2\n  layout-aware tagging features are partial.",
+    "disposition": "merged_verbatim",
+    "target_section": "Scope and Limitations",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/Structure/Element.cs"
+    }
+  },
+  {
+    "unit_id": "u0174",
+    "excerpt": "- PDF/A level validation works, but certain PDF/A-2 / PDF/A-3 conversion fix-ups (transparency\n  flattening, embedded-file constraints, ICC profile downgrade) are stored but not applied.",
+    "disposition": "merged_verbatim",
+    "target_section": "Scope and Limitations",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/PdfCoreTypes.cs"
+    }
+  },
+  {
+    "unit_id": "u0175",
+    "excerpt": "- Complex colour spaces (`DeviceN` / `Separation` with more than 4 channels, ICC-based CMYK group\n  blending) render in approximate sRGB.",
+    "disposition": "merged_verbatim",
+    "target_section": "Scope and Limitations",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/Color/ColorSpace.cs"
+    }
+  },
+  {
+    "unit_id": "u0176",
+    "excerpt": "- Rendering output is pixel-close but not byte-identical to Aspose.PDF for .NET — sub-pixel glyph\n  positioning, image dithering, anti-aliasing weight, and widget-appearance details may differ\n  slightly.",
+    "disposition": "merged_verbatim",
+    "target_section": "Scope and Limitations",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/Devices/PageRenderer.cs"
+    }
+  },
+  {
+    "unit_id": "u0177",
+    "excerpt": "- `TiffDevice.BinarizeBradley` and `DocumentCollection.GetEnumerator()` are not yet implemented\n  and throw `NotImplementedException`.",
+    "disposition": "merged_verbatim",
+    "target_section": "Scope and Limitations",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/Devices/TiffDevice.cs"
+    }
+  },
+  {
+    "unit_id": "u0178",
+    "excerpt": "These limitations don't apply to\n[Aspose.PDF for .NET — Enterprise Edition](https://products.aspose.com/pdf/net/), which adds\nbroader format support and full feature coverage — AI / LowCode workflows, complete XFA authoring,\nadvanced digital-signature validation, multithreading, and conversion to many additional formats\n(DOCX, EPUB, XPS, PCL, PostScript, and more).",
+    "classification": "1_narrative_cta",
+    "disposition": "merged_verbatim",
+    "target_section": "Scope and Limitations",
+    "verification": {
+      "status": "not_applicable_category_1",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": ""
+    }
+  },
+  {
+    "unit_id": "u0179",
+    "excerpt": "The test project (`Aspose.Pdf.Foss.Tests`) is an xUnit suite; every runnable example in this\nREADME traces back to a real test method in `tests/` — including\n`tests/AnnotationCreationTests.cs`, `tests/Actions/PdfActionTests.cs`,\n`tests/ChoiceFieldOptionsTests.cs`, and `tests/Content/ContentExtractionTests.cs`. CI runs the\nsame restore/build/test sequence on Windows via\n[`.github/workflows/build.yml`](.github/workflows/build.yml).",
+    "disposition": "merged_verbatim",
+    "target_section": "Development and Testing",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "tests/Aspose.Pdf.Foss.Tests.csproj"
+    }
+  },
+  {
+    "unit_id": "u0180",
+    "excerpt": "This project is licensed under the [MIT License](LICENSE). The MIT License permits use, copying,\nmodification, distribution, sublicensing, and commercial use, provided its copyright and\npermission notice are retained. The software is provided without warranty.",
+    "disposition": "merged_verbatim",
+    "target_section": "License",
+    "classification": "3_branding_positioning",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "LICENSE"
+    }
+  },
+  {
+    "unit_id": "u0012",
+    "excerpt": "![Aspose.PDF FOSS for .NET at a glance](https://raw.githubusercontent.com/aspose-pdf-foss/Aspose.PDF-FOSS-for-.NET/main/docs/media/at-a-glance.png)",
+    "classification": "1_narrative_cta",
+    "disposition": "excluded",
+    "target_section": null,
+    "excluded_reason": "The candidates own At a Glance section already provides an equivalent product overview via a mermaid flowchart diagram; this raster PNG image is a redundant, differently-mechanized restatement of the same idea, not merged verbatim.",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "candidate_section_reference",
+      "evidence_ref": "At a Glance"
+    },
+    "salient_tokens": [
+      "Aspose.PDF FOSS for .NET",
+      "at a glance"
+    ]
+  },
+  {
+    "unit_id": "u0023",
+    "excerpt": "- Compare two documents or two pages: `SideBySidePdfComparer` writes a result PDF that sets both\n  versions side by side with deletions marked on the left and insertions on the right, with\n  whitespace handling, comparison / exclusion areas, and marker colours set through\n  `SideBySideComparisonOptions`; `GraphicalPdfComparer` diffs the rendered pixels of two pages\n  (Windows only), and the `Aspose.Pdf.Comparison.Diff` model sits under both.",
+    "classification": "2_mechanism_explanation",
+    "disposition": "merged_verbatim",
+    "target_section": "Key Capabilities",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/Comparison/SideBySideComparison/SideBySidePdfComparer.cs"
+    }
+  }
+]

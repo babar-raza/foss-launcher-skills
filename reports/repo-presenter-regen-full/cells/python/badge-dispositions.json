@@ -1,0 +1,30 @@
+[
+  {
+    "unit_id": "b0001",
+    "action": "superseded_by_duplicate",
+    "new_badge_unit_id": "b0001",
+    "category": "package_version",
+    "verification": {"status": "verified_redundant", "evidence_type": "candidate_section_reference", "evidence_ref": "candidate badge row: PyPI version badge (img.shields.io/pypi/v) linking pypi.org/project/aspose-cells-foss/"}
+  },
+  {
+    "unit_id": "b0002",
+    "action": "superseded_by_duplicate",
+    "new_badge_unit_id": "b0002",
+    "category": "language_version",
+    "verification": {"status": "verified_redundant", "evidence_type": "candidate_section_reference", "evidence_ref": "candidate badge row: identical image (img.shields.io/pypi/pyversions) and link target (pypi.org/project/aspose-cells-foss/) as the old badge"}
+  },
+  {
+    "unit_id": "b0003",
+    "action": "superseded_by_duplicate",
+    "new_badge_unit_id": "b0003",
+    "category": "license",
+    "verification": {"status": "verified_redundant", "evidence_type": "candidate_section_reference", "evidence_ref": "candidate badge row: License: MIT badge linking the real local License/LICENSE.txt path (stronger, verified target than the old badge's generic opensource.org/licenses/MIT link)"}
+  },
+  {
+    "unit_id": "b0004",
+    "action": "superseded_by_duplicate",
+    "new_badge_unit_id": "b0004",
+    "category": "contributor_count",
+    "verification": {"status": "verified_redundant", "evidence_type": "candidate_section_reference", "evidence_ref": "candidate badge row: identical image (img.shields.io/github/contributors) and link target (github.com/aspose-cells-foss/Aspose.Cells-FOSS-for-Python/graphs/contributors) as the old badge; category confirmed via checks.classify_badge() -- matched_signal 'contributors?' on alt_text"}
+  }
+]

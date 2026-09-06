@@ -1,0 +1,98 @@
+[
+  {
+    "unit_id": "s0001",
+    "heading": "At a glance",
+    "kind": "generic_structural_block",
+    "disposition": "merged_reframed",
+    "target_section": "At a Glance",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": ".github/workflows/build.yml"
+    }
+  },
+  {
+    "unit_id": "s0002",
+    "heading": "Text formatting",
+    "kind": "generic_structural_block",
+    "disposition": "merged_reframed",
+    "target_section": "Additional Examples",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/main/java/org/aspose/slides/foss/BasePortionFormat.java"
+    }
+  },
+  {
+    "unit_id": "s0003",
+    "heading": "Tables",
+    "kind": "generic_structural_block",
+    "disposition": "merged_reframed",
+    "target_section": "Additional Examples",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/main/java/org/aspose/slides/foss/Table.java"
+    }
+  },
+  {
+    "unit_id": "s0004",
+    "heading": "Connectors bound to shapes",
+    "kind": "generic_structural_block",
+    "disposition": "merged_reframed",
+    "target_section": "Additional Examples",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/main/java/org/aspose/slides/foss/Connector.java"
+    }
+  },
+  {
+    "unit_id": "s0005",
+    "heading": "Pictures",
+    "kind": "generic_structural_block",
+    "disposition": "merged_reframed",
+    "target_section": "Additional Examples",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/main/java/org/aspose/slides/foss/ImageCollection.java"
+    }
+  },
+  {
+    "unit_id": "s0006",
+    "heading": "Notes and comments",
+    "kind": "generic_structural_block",
+    "disposition": "merged_reframed",
+    "target_section": "Additional Examples",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/main/java/org/aspose/slides/foss/Comment.java"
+    }
+  },
+  {
+    "unit_id": "s0007",
+    "heading": "Streams",
+    "kind": "generic_structural_block",
+    "disposition": "merged_reframed",
+    "target_section": "Additional Examples",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/main/java/org/aspose/slides/foss/Presentation.java"
+    }
+  },
+  {
+    "unit_id": "s0008",
+    "heading": "A subset of slides",
+    "kind": "generic_structural_block",
+    "disposition": "merged_reframed",
+    "target_section": "Additional Examples",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/main/java/org/aspose/slides/foss/Presentation.java"
+    }
+  }
+]

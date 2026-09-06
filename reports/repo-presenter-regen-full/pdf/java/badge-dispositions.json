@@ -1,0 +1,46 @@
+[
+  {
+    "unit_id": "b0001",
+    "action": "preserved",
+    "new_badge_unit_id": "b0001",
+    "category": "ci_build_status",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": ".github/workflows/build.yml"
+    }
+  },
+  {
+    "unit_id": "b0002",
+    "action": "preserved",
+    "new_badge_unit_id": "b0002",
+    "category": "license",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "LICENSE"
+    }
+  },
+  {
+    "unit_id": "b0003",
+    "action": "preserved",
+    "new_badge_unit_id": "b0003",
+    "category": "package_version",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "pom.xml"
+    }
+  },
+  {
+    "unit_id": "b0004",
+    "action": "preserved",
+    "new_badge_unit_id": "b0004",
+    "category": "language_version",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "pom.xml"
+    }
+  }
+]

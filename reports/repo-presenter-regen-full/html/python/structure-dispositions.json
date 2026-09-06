@@ -1,0 +1,50 @@
+[
+  {
+    "unit_id": "s0001",
+    "heading": "At a Glance",
+    "disposition": "merged_reframed",
+    "target_section": "At a Glance",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/aspose_html/html_document.py"
+    }
+  },
+  {
+    "unit_id": "s0002",
+    "heading": "Query Elements By Tag Name",
+    "disposition": "merged_verbatim",
+    "target_section": "Additional Examples",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/aspose_html/dom/_document.py"
+    }
+  },
+  {
+    "unit_id": "s0003",
+    "heading": "Detect Character Encoding From Bytes",
+    "disposition": "merged_verbatim",
+    "target_section": "Additional Examples",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/aspose_html/encoding/detection.py"
+    }
+  },
+  {
+    "unit_id": "s0004",
+    "heading": "Execute JavaScript Against The DOM",
+    "disposition": "merged_verbatim",
+    "target_section": "Additional Examples",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/aspose_html/js/_quickjs_bridge.py"
+    }
+  }
+]

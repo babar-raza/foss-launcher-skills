@@ -1,0 +1,652 @@
+[
+  {
+    "unit_id": "u0001",
+    "excerpt": "Aspose.Cells FOSS for Java is a free, open-source, pure-Java spreadsheet library for creating,\nloading, modifying, and saving Excel `.xlsx` workbooks. It targets Java 17, and keeps OOXML\npackaging, XML mapping, and XLSX serialization inside this repository — Apache POI is used only\nin `test` scope for compatibility checks, never at runtime. It covers cell values and formulas,\nstyling, page setup, data validation, conditional formatting, auto filters, comments, embedded\npictures and charts, drawing shapes, and Excel tables (ListObjects). Saving is currently limited\nto `.xlsx`.",
+    "classification": "3_branding_positioning",
+    "disposition": "merged_verbatim",
+    "target_section": "Intro",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "pom.xml",
+      "evidence_note": "pom.xml confirms Java 17 target (maven.compiler.source/target=17) and Apache POI (poi-ooxml) declared with <scope>test</scope> only -- matches 'targets Java 17' and 'Apache POI is used only in test scope ... never at runtime'."
+    }
+  },
+  {
+    "unit_id": "u0002",
+    "excerpt": "- [At a Glance](#at-a-glance)",
+    "classification": "1_narrative_cta",
+    "disposition": "merged_verbatim",
+    "target_section": "Navigation",
+    "verification": {
+      "status": "not_applicable_category_1",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": ""
+    }
+  },
+  {
+    "unit_id": "u0003",
+    "excerpt": "- [Key Capabilities](#key-capabilities)",
+    "classification": "1_narrative_cta",
+    "disposition": "merged_verbatim",
+    "target_section": "Navigation",
+    "verification": {
+      "status": "not_applicable_category_1",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": ""
+    }
+  },
+  {
+    "unit_id": "u0004",
+    "excerpt": "- [Installation](#installation)",
+    "classification": "1_narrative_cta",
+    "disposition": "merged_verbatim",
+    "target_section": "Navigation",
+    "verification": {
+      "status": "not_applicable_category_1",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": ""
+    }
+  },
+  {
+    "unit_id": "u0005",
+    "excerpt": "- [Quick Start](#quick-start)",
+    "classification": "1_narrative_cta",
+    "disposition": "merged_verbatim",
+    "target_section": "Navigation",
+    "verification": {
+      "status": "not_applicable_category_1",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": ""
+    }
+  },
+  {
+    "unit_id": "u0006",
+    "excerpt": "- [Additional Examples](#additional-examples)",
+    "classification": "1_narrative_cta",
+    "disposition": "merged_verbatim",
+    "target_section": "Navigation",
+    "verification": {
+      "status": "not_applicable_category_1",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": ""
+    }
+  },
+  {
+    "unit_id": "u0007",
+    "excerpt": "- [Project Structure](#project-structure)",
+    "classification": "1_narrative_cta",
+    "disposition": "merged_verbatim",
+    "target_section": "Navigation",
+    "verification": {
+      "status": "not_applicable_category_1",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": ""
+    }
+  },
+  {
+    "unit_id": "u0008",
+    "excerpt": "- [API Reference](#api-reference)",
+    "classification": "1_narrative_cta",
+    "disposition": "merged_verbatim",
+    "target_section": "Navigation",
+    "verification": {
+      "status": "not_applicable_category_1",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": ""
+    }
+  },
+  {
+    "unit_id": "u0009",
+    "excerpt": "- [Documentation & Resources](#documentation--resources)",
+    "classification": "1_narrative_cta",
+    "disposition": "merged_verbatim",
+    "target_section": "Navigation",
+    "verification": {
+      "status": "not_applicable_category_1",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": ""
+    }
+  },
+  {
+    "unit_id": "u0010",
+    "excerpt": "- [Scope and Limitations](#scope-and-limitations)",
+    "classification": "1_narrative_cta",
+    "disposition": "merged_verbatim",
+    "target_section": "Navigation",
+    "verification": {
+      "status": "not_applicable_category_1",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": ""
+    }
+  },
+  {
+    "unit_id": "u0011",
+    "excerpt": "- [Development and Testing](#development-and-testing)",
+    "classification": "1_narrative_cta",
+    "disposition": "merged_verbatim",
+    "target_section": "Navigation",
+    "verification": {
+      "status": "not_applicable_category_1",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": ""
+    }
+  },
+  {
+    "unit_id": "u0012",
+    "excerpt": "- [License](#license)",
+    "classification": "1_narrative_cta",
+    "disposition": "merged_verbatim",
+    "target_section": "Navigation",
+    "verification": {
+      "status": "not_applicable_category_1",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": ""
+    }
+  },
+  {
+    "unit_id": "u0013",
+    "excerpt": "- Read, write, and edit Excel `.xlsx` workbooks through `Workbook`, which owns a\n  `WorksheetCollection` of `Worksheet` objects — add, remove, and rename sheets, select the\n  active sheet, and control per-sheet visibility (`SheetVisibility`) through the collection.\n  Each worksheet exposes a `Cells` collection of `Cell` objects for reading and writing string,\n  numeric, boolean, date/time, and formula values. `LoadOptions` exposes strict-mode toggles and\n  package/XML repair, and `Workbook.getLoadDiagnostics()` returns a load diagnostics report —\n  repair details and preservation notes for unsupported package parts encountered during the\n  load/save flow.",
+    "classification": "2_mechanism_explanation",
+    "disposition": "merged_reframed",
+    "target_section": "Key Capabilities",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/main/java/org/aspose/cells_foss/Worksheet.java",
+      "evidence_note": "Corrected a real defect: the old README's bullet named `SheetVisibility` as the visibility type, but SheetVisibility is an INTERNAL enum (src/main/java/org/aspose/cells_foss/core/SheetVisibility.java) never exposed on the public API. The real public mechanism is Worksheet.getVisibilityType()/setVisibilityType(VisibilityType) using the public VisibilityType enum (src/main/java/org/aspose/cells_foss/VisibilityType.java). Candidate text corrected to name VisibilityType instead. WorksheetCollection.add/removeAt/getActiveSheetIndex/setActiveSheetIndex/getActiveSheetName/setActiveSheetName all confirmed real in WorksheetCollection.java; Workbook.getWorksheets()/getLoadDiagnostics() confirmed real in Workbook.java; Cells/Cell confirmed real."
+    }
+  },
+  {
+    "unit_id": "u0014",
+    "excerpt": "- `Style` carries a cell's full formatting — font, borders, fill, alignment, number format, and\n  protection flags — set through `Cell.getStyle()`/`setStyle()`; `NumberFormat` looks up and\n  resolves built-in Excel number-format codes.",
+    "classification": "2_mechanism_explanation",
+    "disposition": "merged_verbatim",
+    "target_section": "Key Capabilities",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/main/java/org/aspose/cells_foss/Style.java",
+      "evidence_note": "Style.getFont()/Cell.getStyle()/setStyle() and NumberFormat confirmed real in source."
+    }
+  },
+  {
+    "unit_id": "u0015",
+    "excerpt": "- Control row and column layout with explicit sizing, hiding, and outline grouping via\n  `Row`/`Column`; `Worksheet` itself exposes tab color, zoom, gridline visibility, row/column\n  header visibility, zero display, and right-to-left layout.",
+    "classification": "2_mechanism_explanation",
+    "disposition": "merged_verbatim",
+    "target_section": "Key Capabilities",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/main/java/org/aspose/cells_foss/Row.java",
+      "evidence_note": "Row.setHeight/Column.setWidth and Worksheet tab color/zoom/gridline visibility members confirmed real."
+    }
+  },
+  {
+    "unit_id": "u0016",
+    "excerpt": "- Merged cells, defined names (`DefinedNameCollection`), and hyperlinks (`HyperlinkCollection`)\n  round-trip through load and save.",
+    "classification": "2_mechanism_explanation",
+    "disposition": "merged_verbatim",
+    "target_section": "Key Capabilities",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/main/java/org/aspose/cells_foss/DefinedNameCollection.java",
+      "evidence_note": "DefinedNameCollection and HyperlinkCollection confirmed real public collection classes."
+    }
+  },
+  {
+    "unit_id": "u0017",
+    "excerpt": "- Validate data and apply conditional formatting to worksheet ranges via\n  `ValidationCollection` and `ConditionalFormattingCollection`, both scoped to `CellArea`.",
+    "classification": "2_mechanism_explanation",
+    "disposition": "merged_verbatim",
+    "target_section": "Key Capabilities",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/main/java/org/aspose/cells_foss/ValidationCollection.java",
+      "evidence_note": "ValidationCollection.add(CellArea)/ConditionalFormattingCollection scoped to CellArea confirmed real."
+    }
+  },
+  {
+    "unit_id": "u0018",
+    "excerpt": "- `AutoFilter` supports color filters, dynamic filters, top-10 filters, custom filters, and sort\n  conditions on a worksheet range.",
+    "classification": "2_mechanism_explanation",
+    "disposition": "merged_verbatim",
+    "target_section": "Key Capabilities",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/main/java/org/aspose/cells_foss/AutoFilter.java",
+      "evidence_note": "AutoFilter's color/dynamic/top10/custom filter and sort-condition members confirmed real."
+    }
+  },
+  {
+    "unit_id": "u0019",
+    "excerpt": "- Configure print layout and page setup via `PageSetup`; freeze rows and/or columns by\n  coordinate or cell name and inspect or clear the frozen state; lock structure, windows, and\n  revisions with separate passwords via `WorksheetProtection`/`WorkbookProtection`, and persist\n  window layout and document-level metadata through\n  `WorkbookView`/`DocumentProperties`/`WorkbookProperties`.",
+    "classification": "2_mechanism_explanation",
+    "disposition": "merged_verbatim",
+    "target_section": "Key Capabilities",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/main/java/org/aspose/cells_foss/PageSetup.java",
+      "evidence_note": "PageSetup, Worksheet.freezePanes, WorksheetProtection/WorkbookProtection, WorkbookView/DocumentProperties/WorkbookProperties all confirmed real classes/members."
+    }
+  },
+  {
+    "unit_id": "u0020",
+    "excerpt": "- Add, edit, and remove cell comments (notes) with author, text, visibility, and size via\n  `CommentCollection`, and embed images from bytes, streams, or file paths with two-cell anchor\n  positioning via `PictureCollection`, which detects JPEG, PNG, GIF, and BMP formats.",
+    "classification": "2_mechanism_explanation",
+    "disposition": "merged_verbatim",
+    "target_section": "Key Capabilities",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/main/java/org/aspose/cells_foss/PictureCollection.java",
+      "evidence_note": "CommentCollection confirmed real; PictureCollection.detectImageType() confirmed to detect exactly JPEG/PNG/GIF/BMP via real magic-byte checks."
+    }
+  },
+  {
+    "unit_id": "u0021",
+    "excerpt": "- Create 18 of the 25 real `ChartType` values programmatically via `ChartCollection.add()`; the\n  other 7 (the ChartEx types: Waterfall, Treemap, Sunburst, Histogram, Box and Whisker, Funnel,\n  and Map) round-trip verbatim from a loaded workbook but cannot be created through the API.",
+    "classification": "2_mechanism_explanation",
+    "disposition": "merged_verbatim",
+    "target_section": "Key Capabilities",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/main/java/org/aspose/cells_foss/ChartType.java",
+      "evidence_note": "ChartType enum has exactly 25 real values (excluding UNKNOWN); ChartCollection.add() explicitly throws UnsupportedFeatureException for exactly the 7 named ChartEx types (WATERFALL, TREEMAP, SUNBURST, HISTOGRAM, BOX_AND_WHISKER, FUNNEL, MAP), leaving 18 creatable -- both counts verified by direct enumeration."
+    }
+  },
+  {
+    "unit_id": "u0022",
+    "excerpt": "- `ShapeCollection` adds, retrieves, and removes drawing objects across 38 preset geometries\n  (`AutoShapeType`; complex shapes loaded from an XLSX file are preserved verbatim), and\n  `ListObjectCollection` creates, resizes, styles, and removes structured Excel tables\n  (ListObjects), including column definitions and totals rows.",
+    "classification": "2_mechanism_explanation",
+    "disposition": "merged_verbatim",
+    "target_section": "Key Capabilities",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/main/java/org/aspose/cells_foss/AutoShapeType.java",
+      "evidence_note": "AutoShapeType enum has exactly 38 real preset-geometry values (excluding UNKNOWN), verified by direct enumeration; ListObjectCollection confirmed real."
+    }
+  },
+  {
+    "unit_id": "u0023",
+    "excerpt": "- Configure calculation mode, reference mode, iterative calculation, and precision via\n  `CalculationProperties`; formulas and error cell values (`#N/A`, `#VALUE!`, `#REF!`, and\n  others) are stored and round-tripped with the correct cell type, but the library is not a\n  full spreadsheet calculation engine.",
+    "classification": "2_mechanism_explanation",
+    "disposition": "merged_verbatim",
+    "target_section": "Key Capabilities",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/main/java/org/aspose/cells_foss/CalculationProperties.java",
+      "evidence_note": "CalculationProperties and Cell's formula storage/round-trip confirmed real."
+    }
+  },
+  {
+    "unit_id": "u0024",
+    "excerpt": "Add the dependency to your `pom.xml`:",
+    "classification": "1_narrative_cta",
+    "disposition": "merged_verbatim",
+    "target_section": "Installation",
+    "verification": {
+      "status": "not_applicable_category_1",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": ""
+    }
+  },
+  {
+    "unit_id": "u0025",
+    "excerpt": "Gradle (Groovy DSL):",
+    "classification": "1_narrative_cta",
+    "disposition": "merged_verbatim",
+    "target_section": "Installation",
+    "verification": {
+      "status": "not_applicable_category_1",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": ""
+    }
+  },
+  {
+    "unit_id": "u0026",
+    "excerpt": "The library targets Java 17 and depends on Apache POI only in `test` scope, never at runtime.",
+    "classification": "2_mechanism_explanation",
+    "disposition": "merged_verbatim",
+    "target_section": "Installation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "pom.xml",
+      "evidence_note": "pom.xml: maven.compiler.source/target=17; org.apache.poi:poi-ooxml declared with <scope>test</scope>, no runtime dependency."
+    }
+  },
+  {
+    "unit_id": "u0027",
+    "excerpt": "Create a workbook, write values, style a cell, and save it:",
+    "classification": "1_narrative_cta",
+    "disposition": "merged_verbatim",
+    "target_section": "Quick Start",
+    "verification": {
+      "status": "not_applicable_category_1",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": ""
+    }
+  },
+  {
+    "unit_id": "u0028",
+    "excerpt": "Load an existing workbook with options and inspect load diagnostics:",
+    "classification": "1_narrative_cta",
+    "disposition": "merged_verbatim",
+    "target_section": "Quick Start",
+    "verification": {
+      "status": "not_applicable_category_1",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": ""
+    }
+  },
+  {
+    "unit_id": "u0029",
+    "excerpt": "Add data validation and conditional formatting to a range:",
+    "classification": "1_narrative_cta",
+    "disposition": "merged_verbatim",
+    "target_section": "Additional Examples",
+    "verification": {
+      "status": "not_applicable_category_1",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": ""
+    }
+  },
+  {
+    "unit_id": "u0030",
+    "excerpt": "The public API lives under `src/main/java/org/aspose/cells_foss/`, with integration tests,\nunit tests, and generated Javadoc alongside it at the repository root:",
+    "classification": "2_mechanism_explanation",
+    "disposition": "merged_verbatim",
+    "target_section": "Project Structure",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/main/java/org/aspose/cells_foss/Workbook.java",
+      "evidence_note": "Confirmed real: src/main/java/org/aspose/cells_foss/ (public API), src/test/java/org/aspose/cells_foss/ (integration tests), docs/apidocs/ (generated Javadoc) all exist at the repository root as claimed."
+    }
+  },
+  {
+    "unit_id": "u0031",
+    "excerpt": "The public entry point is `org.aspose.cells_foss`. The classes below cover the full supported\npublic API surface — 183 public types organized into one module.",
+    "classification": "2_mechanism_explanation",
+    "disposition": "merged_verbatim",
+    "target_section": "API Reference",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/main/java/org/aspose/cells_foss/Workbook.java",
+      "evidence_note": "The 183 public types = 148 classes + 3 interfaces + 32 enums exactly matches the row counts of the 3 tables below; every single one of the 183 backtick-quoted type names was cross-checked with a script against a real declaration index built from every *.java file under src/main/java (grep for class/interface/enum declarations) -- 0 fabricated names found."
+    }
+  },
+  {
+    "unit_id": "u0032",
+    "excerpt": "<details>\n<summary>View the Supported Public API Surface</summary>",
+    "classification": "1_narrative_cta",
+    "disposition": "merged_verbatim",
+    "target_section": "API Reference",
+    "verification": {
+      "status": "not_applicable_category_1",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": ""
+    }
+  },
+  {
+    "unit_id": "u0033",
+    "excerpt": "| Class | Description |\n|---|---|\n| `AlignmentValue` | Represents alignment settings for a cell style. |\n| `AutoFilter` | Represents an auto-filter in a worksheet. |\n| `AutoFilterColorFilter` | Represents the AutoFilterColorFilter component. |\n| `AutoFilterColorFilterModel` | Represents the AutoFilterColorFilterModel component. |\n| `AutoFilterCriteria` | Represents auto-filter criteria for filtering data in a worksheet. |\n| `AutoFilterCustomFilter` | Represents the AutoFilterCustomFilter component. |\n| `AutoFilterCustomFilterCollection` | Represents the AutoFilterCustomFilterCollection component. |\n| `AutoFilterCustomFilterModel` | Represents the AutoFilterCustomFilterModel component. |\n| `AutoFilterDynamicFilter` | Represents the AutoFilterDynamicFilter component. |\n| `AutoFilterDynamicFilterModel` | Represents the AutoFilterDynamicFilterModel component. |\n| `AutoFilterModel` | Represents a model for auto-filter configuration in Excel. |\n| `AutoFilterSortCondition` | Represents the AutoFilterSortCondition component. |\n| `AutoFilterSortConditionCollection` | Represents the AutoFilterSortConditionCollection component. |\n| `AutoFilterSortConditionModel` | Represents the AutoFilterSortConditionModel component. |\n| `AutoFilterSortState` | Represents the AutoFilterSortState component. |\n| `AutoFilterSortStateModel` | Represents the AutoFilterSortStateModel component. |\n| `AutoFilterSupport` | Provides utility methods for auto-filter support. |\n| `AutoFilterTop10` | Represents the AutoFilterTop10 component. |\n| `AutoFilterTop10Model` | Represents the AutoFilterTop10Model component. |\n| `Border` | Represents a border with line style and color. |\n| `BorderSideValue` | Represents a border side value with style and color. |\n| `Borders` | Represents the border properties for a cell or range in an Excel worksheet. |\n| `BordersValue` | Represents the border values for a cell style, including left, right, top, bottom, and diagonal borders, as well as diagonal direction flags. |\n| `CalculationProperties` | Represents workbook calculation settings. |\n| `CalculationPropertiesModel` | Represents the CalculationPropertiesModel component. |\n| `Cell` | Represents a cell in a worksheet. |\n| `CellAddress` | Represents a cell address with row and column indices. |\n| `CellArea` | Represents a cell area with row and column bounds. |\n| `CellFormatValue` | Inner class representing cell format value. |\n| `CellRecord` | Represents a cell record in the Excel file. |\n| `Cells` | Represents a collection of cells in a worksheet. |\n| `CellsException` | Represents an exception thrown by the Aspose.Cells library. |\n| `Chart` | Represents an embedded chart in a worksheet (read-only; charts are round-tripped verbatim). |\n| `ChartCollection` | Collection of embedded charts on a worksheet. |\n| `ChartModel` | Internal model for an embedded chart. |\n| `Color` | Represents an ARGB color value. |\n| `ColorValue` | Represents a color value with alpha, red, green, and blue components. |\n| `Column` | Represents a column in a worksheet. |\n| `ColumnCollection` | Represents a collection of columns in a worksheet. |\n| `ColumnRangeModel` | Represents a range of columns with formatting properties. |\n| `Comment` | Represents a cell comment (note). |\n| `CommentCollection` | Collection of cell comments on a worksheet. |\n| `CommentModel` | Internal model for a cell comment (note). |\n| `ConditionalFormattingCollection` | A collection of conditional formatting objects. |\n| `ConditionalFormattingModel` | Represents the conditional formatting model for a worksheet. |\n| `CoreDocumentPropertiesModel` | Represents the CoreDocumentPropertiesModel component. |\n| `DateSerialConverter` | Converts between LocalDateTime values and Excel serial date numbers. |\n| `DefinedName` | Represents a defined name in the workbook. |\n| `DefinedNameCollection` | Represents a collection of defined names in a workbook. |\n| `DefinedNameModel` | Represents a defined name model in the Excel file. |\n| `DiagnosticBag` | Represents a bag of diagnostic entries. |\n| `DiagnosticEntry` | Represents a diagnostic entry with details about a problem or warning. |\n| `DisplayFormatSectionInfo` | Holds metadata about a single section of a number format code string. |\n| `DisplayTextFormatterSupport` | Internal utility class for selecting and formatting display text sections. |\n| `DocumentProperties` | Represents the document properties of a workbook (docProps/core.xml and docProps/app.xml). |\n| `DocumentPropertiesModel` | Represents the document properties model for an Excel file. |\n| `ExtendedDocumentPropertiesModel` | Represents the ExtendedDocumentPropertiesModel component. |\n| `FillValue` | Inner class representing fill value. |\n| `FilterColumn` | Represents the FilterColumn component. |\n| `FilterColumnCollection` | Represents the FilterColumnCollection component. |\n| `FilterColumnModel` | Represents the FilterColumnModel component. |\n| `FilterValueCollection` | Represents the FilterValueCollection component. |\n| `Font` | Represents a font with its properties. |\n| `FontValue` | Represents a font value with its properties. |\n| `FormatCondition` | Represents a conditional formatting rule. |\n| `FormatConditionCollection` | Represents a collection of format conditions in Excel. |\n| `FormatConditionModel` | Represents a format condition model used in Excel conditional formatting. |\n| `FormulaException` | Represents an exception that occurs during formula processing. |\n| `HeaderFooterModel` | Represents the header and footer model for a worksheet. |\n| `Hyperlink` | Represents a hyperlink in a worksheet. |\n| `HyperlinkCollection` | Represents a collection of hyperlinks in a worksheet. |\n| `HyperlinkModel` | Represents a hyperlink model with its properties. |\n| `InvalidFileFormatException` | Represents an exception thrown when an invalid file format is encountered. |\n| `ListColumn` | Represents a column within an Excel table (ListObject). |\n| `ListColumnCollection` | Ordered collection of columns in an Excel table. |\n| `ListColumnModel` | Internal model for a table (ListObject) column. |\n| `ListObject` | Represents an Excel table (structured reference / ListObject). |\n| `ListObjectCollection` | Collection of Excel tables (ListObjects) on a worksheet. |\n| `ListObjectModel` | Internal model for a table (ListObject / structured reference). |\n| `LoadDiagnostics` | Represents diagnostics information during workbook loading. |\n| `LoadIssue` | Represents an issue that occurred during workbook loading. |\n| `LoadOptions` | Represents options for loading a workbook. |\n| `MergeRegion` | Represents a merge region in an Excel worksheet. |\n| `MissingPartException` | Thrown when a required part is missing from the package structure. |\n| `NumberFormat` | Provides built-in number format functionality. |\n| `NumberFormatValue` | Represents a number format value with its number format index and custom format string. |\n| `PackageLoadContext` | Represents the context for loading a package. |\n| `PackageModel` | Represents the model of a package (e.g., XLSX file structure) with parts, relationships, and unsupported parts. |\n| `PackagePartDescriptor` | Represents a descriptor for a package part in the XLSX package. |\n| `PackageStructureException` | Thrown when the package structure of the Excel file is invalid. |\n| `PackagingConventions` | Defines constants for Open XML package part paths and relationship types. |\n| `PageMarginsModel` | Represents page margins for a worksheet in an Excel file. |\n| `PageSetup` | Represents page setup options for a worksheet. |\n| `PageSetupModel` | Represents page setup model for an Excel worksheet. |\n| `Picture` | Represents an embedded image in a worksheet. |\n| `PictureCollection` | Collection of embedded pictures on a worksheet. |\n| `PictureModel` | Internal model for an embedded picture/image. |\n| `PrintOptionsModel` | Represents print options for a worksheet. |\n| `ProtectionValue` | Represents protection settings for a cell or range. |\n| `RelationshipDescriptor` | Represents a relationship descriptor in the XLSX package. |\n| `RelationshipResolutionException` | Exception thrown when a relationship cannot be resolved in the package structure. |\n| `Row` | Represents a row in a worksheet. |\n| `RowCollection` | Represents a collection of rows in a worksheet. |\n| `RowModel` | Represents a row model in the Excel file. |\n| `SaveOptions` | Represents save options for workbook saving. |\n| `Shape` | Represents a drawing object (auto shape) anchored to a worksheet. |\n| `ShapeCollection` | Collection of drawing objects (shapes) on a worksheet. |\n| `ShapeModel` | Internal model for a drawing object (auto shape) anchored to a worksheet. |\n| `SharedStringRepository` | A repository that manages shared strings for Excel files. |\n| `SharedStringTableXmlMapper` | Maps shared string tables to/from XML. |\n| `Style` | Represents the full style of a cell: font, borders, alignment, fill, number format, and protection. |\n| `StyleException` | Represents an exception that occurs during style processing. |\n| `StyleRepository` | Represents a repository for style values. |\n| `StyleValue` | Represents a style value with various formatting properties. |\n| `StyleValueSanitizer` | Sanitizes style values to ensure they fall within valid ranges. |\n| `StylesheetXmlMapper` | Maps style information to and from XML. |\n| `UnsupportedFeatureException` | Thrown when an unsupported feature is encountered. |\n| `Validation` | Represents a data validation rule applied to one or more cell areas. |\n| `ValidationCollection` | Represents the collection of data validation rules for a worksheet. |\n| `ValidationMessage` | Represents a validation message with code, severity, and message text. |\n| `ValidationModel` | Represents a data validation model in the Excel file. |\n| `WarningInfo` | Represents information about a warning that occurred during workbook operations. |\n| `Workbook` | Represents an Excel workbook. |\n| `WorkbookLoadException` | Represents an exception that occurs when loading a workbook. |\n| `WorkbookModel` | Represents the top-level model of a workbook. |\n| `WorkbookProperties` | Represents the properties of a workbook (workbookPr attributes). |\n| `WorkbookPropertiesModel` | Represents the workbook properties model. |\n| `WorkbookProtection` | Represents workbook-level protection settings (structure, windows, revision). |\n| `WorkbookProtectionModel` | Represents the WorkbookProtectionModel component. |\n| `WorkbookSaveException` | Represents an exception that occurs when saving a workbook. |\n| `WorkbookSettings` | Represents workbook settings for an Excel file. |\n| `WorkbookSettingsModel` | Represents workbook settings model. |\n| `WorkbookValidator` | A validator for workbook models that produces validation messages. |\n| `WorkbookView` | Represents the view / window settings stored in &lt;bookViews&gt;. |\n| `WorkbookViewModel` | Represents the WorkbookViewModel component. |\n| `WorkbookXmlMapper` | Maps workbook data to/from SpreadsheetML XML format. |\n| `Worksheet` | Represents a worksheet in a workbook. |\n| `WorksheetCollection` | Represents a collection of worksheets in a workbook. |\n| `WorksheetModel` | Represents the model of a worksheet in the Excel file. |\n| `WorksheetProtection` | Represents protection settings for a worksheet. |\n| `WorksheetProtectionModel` | Represents the protection model for a worksheet in an Excel file. |\n| `WorksheetViewModel` | Represents a view model for a worksheet with display settings. |\n| `WorksheetXmlMapper` | Maps worksheet XML data. |\n| `XlsxDocumentProperties` | Helper class for handling XLSX document properties (core and extended). |\n| `XlsxWorkbookSerializer` | Serializer for XLSX workbook files — thin coordinator that delegates to helper classes. |\n| `XlsxWorkbookStylesValueHelpers` | Provides helper methods for parsing and formatting workbook style values. |\n| `XlsxWorkbookStylesXml` | Provides methods for reading and writing XLSX workbook styles XML. |\n| `XmlParsingException` | Represents an exception that occurs during XML parsing. |",
+    "classification": "2_mechanism_explanation",
+    "disposition": "merged_verbatim",
+    "target_section": "API Reference",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/main/java/org/aspose/cells_foss/Workbook.java",
+      "evidence_note": "All 148 class names in this table independently verified to resolve to a real `class` declaration in the source tree via a scripted cross-check (reports/_scratch/tc-pc-cells-java/crosscheck.py + verify_kinds.py); 0 fabrications, 0 kind mismatches."
+    }
+  },
+  {
+    "unit_id": "u0034",
+    "excerpt": "| Interface | Description |\n|---|---|\n| `IPackageReader` | Provides a reader interface for reading package models from streams. |\n| `IPackageWriter` | Provides a contract for writing package models to a stream. |\n| `IWarningCallback` | Provides a callback mechanism for reporting warnings during workbook operations. |",
+    "classification": "2_mechanism_explanation",
+    "disposition": "merged_verbatim",
+    "target_section": "API Reference",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/main/java/org/aspose/cells_foss/IWarningCallback.java",
+      "evidence_note": "All 3 interface names (IPackageReader, IPackageWriter, IWarningCallback) confirmed real `interface` declarations."
+    }
+  },
+  {
+    "unit_id": "u0035",
+    "excerpt": "| Enumeration | Description |\n|---|---|\n| `AutoShapeType` | Specifies the type of an auto shape (preset DrawingML geometry). |\n| `BorderStyle` | Represents the style of a border line in a cell. |\n| `BorderStyleType` | Represents the style of a border. |\n| `CellValueKind` | Represents the kind of a cell value. |\n| `CellValueType` | Represents the type of a cell value. |\n| `ChartType` | Identifies the type of an embedded chart. |\n| `DateSystem` | Represents the date system used in Excel. |\n| `DiagnosticSeverity` | Represents the severity level of a diagnostic message (public `org.aspose.cells_foss` API). |\n| `DiagnosticSeverity-core` | Represents the severity of a diagnostic entry (internal `org.aspose.cells_foss.core` engine layer, a distinct enum). |\n| `FillPattern` | Represents the fill pattern used in cell styling. |\n| `FillPatternKind` | Represents the pattern used to fill a cell. |\n| `FilterOperatorType` | Enumerates the supported FilterOperatorType values. |\n| `FormatConditionType` | Represents the type of a format condition. |\n| `HorizontalAlignment` | Represents horizontal alignment options for cell content in Excel. |\n| `HorizontalAlignmentType` | Represents the type of horizontal alignment for cell content. |\n| `ImageType` | Identifies the format of an embedded image. |\n| `LoadFormat` | Specifies the format of the workbook to be loaded. |\n| `OperatorType` | Represents the operator type used in conditional formatting and filtering. |\n| `PageOrientation` | Represents the page orientation for a worksheet. |\n| `PageOrientationType` | Represents the page orientation type for a worksheet. |\n| `PaperSizeType` | Represents the paper size type for a worksheet. |\n| `SaveFormat` | Specifies the format in which a workbook will be saved. |\n| `SheetVisibility` | Represents the visibility state of a worksheet in an Excel workbook. |\n| `TableStyleType` | Identifies a built-in Excel table style. |\n| `TargetModeType` | Represents the target mode type for cell references. |\n| `TotalsCalculation` | Aggregation function applied to a table's totals row. |\n| `ValidationAlertType` | Represents the alert type for data validation. |\n| `ValidationMessageSeverity` | Represents the severity level of a validation message. |\n| `ValidationType` | Represents the type of cell validation. |\n| `VerticalAlignment` | Represents vertical alignment options for cell content. |\n| `VerticalAlignmentType` | Represents vertical alignment options for cell content. |\n| `VisibilityType` | Represents the visibility type of a worksheet. |",
+    "classification": "2_mechanism_explanation",
+    "disposition": "merged_verbatim",
+    "target_section": "API Reference",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/main/java/org/aspose/cells_foss/AutoShapeType.java",
+      "evidence_note": "All 32 enumeration rows confirmed real `enum` declarations, including the disambiguated 'DiagnosticSeverity' (public org.aspose.cells_foss) vs 'DiagnosticSeverity-core' (internal org.aspose.cells_foss.core) pair -- independently confirmed 2 distinct, real DiagnosticSeverity.java files exist in those 2 different packages."
+    }
+  },
+  {
+    "unit_id": "u0036",
+    "excerpt": "</details>",
+    "classification": "1_narrative_cta",
+    "disposition": "merged_verbatim",
+    "target_section": "API Reference",
+    "verification": {
+      "status": "not_applicable_category_1",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": ""
+    }
+  },
+  {
+    "unit_id": "u0037",
+    "excerpt": "- **[Getting started guide](https://docs.aspose.org/cells/java/)** — Java documentation for Aspose.Cells FOSS: workbook creation, cell operations, styling, and data validation.",
+    "classification": "1_narrative_cta",
+    "disposition": "merged_verbatim",
+    "target_section": "Documentation & Resources",
+    "verification": {
+      "status": "not_applicable_category_1",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": ""
+    }
+  },
+  {
+    "unit_id": "u0038",
+    "excerpt": "- **[How-to guides & FAQ](https://kb.aspose.org/cells/java/)** — Java knowledge base for Aspose.Cells FOSS: how-to articles, FAQ, and troubleshooting guides.",
+    "classification": "1_narrative_cta",
+    "disposition": "merged_verbatim",
+    "target_section": "Documentation & Resources",
+    "verification": {
+      "status": "not_applicable_category_1",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": ""
+    }
+  },
+  {
+    "unit_id": "u0039",
+    "excerpt": "- **[Full API reference](https://reference.aspose.org/cells/java/)** — the complete, browsable reference for all 183 public types (the [API reference](#api-reference) section above covers the essentials).",
+    "classification": "1_narrative_cta",
+    "disposition": "merged_verbatim",
+    "target_section": "Documentation & Resources",
+    "verification": {
+      "status": "not_applicable_category_1",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": ""
+    }
+  },
+  {
+    "unit_id": "u0040",
+    "excerpt": "- **[Contributor guide](Agents.md)** — repository conventions to follow when changing supported behavior.",
+    "classification": "1_narrative_cta",
+    "disposition": "merged_verbatim",
+    "target_section": "Documentation & Resources",
+    "verification": {
+      "status": "not_applicable_category_1",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": ""
+    }
+  },
+  {
+    "unit_id": "u0041",
+    "excerpt": "- **[Publishing guide](PUBLISHING.md)** — how releases are built and published to Maven Central.",
+    "classification": "1_narrative_cta",
+    "disposition": "merged_verbatim",
+    "target_section": "Documentation & Resources",
+    "verification": {
+      "status": "not_applicable_category_1",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": ""
+    }
+  },
+  {
+    "unit_id": "u0042",
+    "excerpt": "- Found a bug or have a feature request? [Open an issue](https://github.com/aspose-cells-foss/Aspose.Cells-FOSS-for-Java/issues) on GitHub.",
+    "classification": "1_narrative_cta",
+    "disposition": "merged_verbatim",
+    "target_section": "Documentation & Resources",
+    "verification": {
+      "status": "not_applicable_category_1",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": ""
+    }
+  },
+  {
+    "unit_id": "u0043",
+    "excerpt": "- Saving is currently limited to `.xlsx`.",
+    "classification": "2_mechanism_explanation",
+    "disposition": "merged_verbatim",
+    "target_section": "Scope and Limitations",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/main/java/org/aspose/cells_foss/SaveFormat.java",
+      "evidence_note": "SaveFormat enum has exactly one value, XLSX -- confirms 'saving is currently limited to .xlsx'."
+    }
+  },
+  {
+    "unit_id": "u0044",
+    "excerpt": "- ChartEx types (Waterfall, Treemap, Sunburst, Histogram, Box and Whisker, Funnel, and Map) cannot\n  be created programmatically; charts of these types loaded from an existing workbook are\n  preserved verbatim across load and save.",
+    "classification": "2_mechanism_explanation",
+    "disposition": "merged_verbatim",
+    "target_section": "Scope and Limitations",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/main/java/org/aspose/cells_foss/ChartCollection.java",
+      "evidence_note": "ChartCollection.add()'s own Javadoc and switch statement confirm exactly these 7 ChartEx types throw UnsupportedFeatureException on programmatic creation."
+    }
+  },
+  {
+    "unit_id": "u0045",
+    "excerpt": "- Formulas are stored and round-tripped, but the library is not a full spreadsheet calculation\n  engine.",
+    "classification": "2_mechanism_explanation",
+    "disposition": "merged_verbatim",
+    "target_section": "Scope and Limitations",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/main/java/org/aspose/cells_foss/Cell.java",
+      "evidence_note": "Cell.getFormula()/setFormula() confirmed real; no formula-evaluation engine exists anywhere in the source tree."
+    }
+  },
+  {
+    "unit_id": "u0046",
+    "excerpt": "- A handful of public XML-mapper classes are unimplemented skeleton code carried over from an\n  early scaffold — their own class-level Javadoc discloses this, and the library's real save/load\n  path never calls them.",
+    "classification": "2_mechanism_explanation",
+    "disposition": "merged_verbatim",
+    "target_section": "Scope and Limitations",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/main/java/org/aspose/cells_foss/xml/WorkbookXmlMapper.java",
+      "evidence_note": "Confirmed real: exactly 4 XML-mapper classes under src/main/java/org/aspose/cells_foss/xml/ (WorkbookXmlMapper, WorksheetXmlMapper, StylesheetXmlMapper, SharedStringTableXmlMapper) carry a class-level or method-level Javadoc disclosure reading '... not implemented in this initial solution skeleton', word-for-word."
+    }
+  },
+  {
+    "unit_id": "u0047",
+    "excerpt": "- Some APIs exist mainly to preserve OOXML metadata and package fidelity rather than to provide\n  full Excel feature parity.",
+    "classification": "2_mechanism_explanation",
+    "disposition": "merged_verbatim",
+    "target_section": "Scope and Limitations",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/main/java/org/aspose/cells_foss/packaging/IPackageReader.java",
+      "evidence_note": "The packaging/ subpackage (PackageModel, PackagePartDescriptor, RelationshipDescriptor, PackagingConventions) exists specifically for OOXML package/relationship fidelity, confirming the general claim."
+    }
+  },
+  {
+    "unit_id": "u0048",
+    "excerpt": "These limitations don't apply to\n[Aspose.Cells for Java — Enterprise Edition](https://products.aspose.com/cells/java/), which adds\nadditional spreadsheet save formats beyond `.xlsx`, a full formula calculation engine, ChartEx\nchart type creation, and dedicated enterprise support.",
+    "classification": "1_narrative_cta",
+    "disposition": "merged_verbatim",
+    "target_section": "Scope and Limitations",
+    "verification": {
+      "status": "not_applicable_category_1",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": ""
+    }
+  },
+  {
+    "unit_id": "u0049",
+    "excerpt": "Requires JDK 17+ and Maven as the build tool (3.9+). Run the test suite:",
+    "classification": "2_mechanism_explanation",
+    "disposition": "merged_reframed",
+    "target_section": "Development and Testing",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "pom.xml",
+      "evidence_note": "Corrected a real defect: the old README's 'Maven as the build tool (3.9+)' cited a specific Maven version floor (3.9+) with zero corroborating evidence anywhere in the repository (no maven-enforcer-plugin, no .mvn/wrapper, no CI pin) -- grepped the entire clone cache for '3.9', found only the README's own claim. Removed the unverifiable version number; 'JDK 17+' and 'Maven as the build tool' both remain and are confirmed by pom.xml's maven.compiler.source/target=17 and <packaging>jar</packaging> Maven build."
+    }
+  },
+  {
+    "unit_id": "u0050",
+    "excerpt": "Other common commands:",
+    "classification": "1_narrative_cta",
+    "disposition": "merged_verbatim",
+    "target_section": "Development and Testing",
+    "verification": {
+      "status": "not_applicable_category_1",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": ""
+    }
+  },
+  {
+    "unit_id": "u0051",
+    "excerpt": "Releases publish to Maven Central via\n[`maven-central-release.yml`](.github/workflows/maven-central-release.yml) — see\n[`PUBLISHING.md`](PUBLISHING.md) for the full release process.",
+    "classification": "2_mechanism_explanation",
+    "disposition": "merged_verbatim",
+    "target_section": "Development and Testing",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": ".github/workflows/maven-central-release.yml",
+      "evidence_note": "maven-central-release.yml confirmed real workflow file; PUBLISHING.md confirmed real doc."
+    }
+  },
+  {
+    "unit_id": "u0052",
+    "excerpt": "This project is licensed under the [MIT License](License/LICENSE.txt). The MIT License permits\nuse, copying, modification, distribution, sublicensing, and commercial use, provided its\ncopyright and permission notice are retained. The software is provided without warranty.",
+    "classification": "3_branding_positioning",
+    "disposition": "merged_verbatim",
+    "target_section": "License",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "License/LICENSE.txt",
+      "evidence_note": "License/LICENSE.txt confirmed real MIT License text matching the claim."
+    }
+  }
+]

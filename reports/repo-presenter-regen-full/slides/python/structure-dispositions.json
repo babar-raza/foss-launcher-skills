@@ -1,0 +1,146 @@
+[
+  {
+    "unit_id": "s0001",
+    "heading": "At a Glance",
+    "kind": "generic_structural_block",
+    "disposition": "merged_reframed",
+    "target_section": "At a Glance",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "README.md"
+    }
+  },
+  {
+    "unit_id": "s0002",
+    "heading": "Quick Start",
+    "kind": "generic_structural_block",
+    "disposition": "merged_reframed",
+    "target_section": "Quick Start",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "aspose/slides_foss/Presentation.py"
+    }
+  },
+  {
+    "unit_id": "s0003",
+    "heading": "Shapes",
+    "kind": "generic_structural_block",
+    "disposition": "merged_reframed",
+    "target_section": "Additional Examples",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "aspose/slides_foss/ShapeCollection.py"
+    }
+  },
+  {
+    "unit_id": "s0004",
+    "heading": "Text Formatting",
+    "kind": "generic_structural_block",
+    "disposition": "merged_reframed",
+    "target_section": "Additional Examples",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "aspose/slides_foss/PortionFormat.py"
+    }
+  },
+  {
+    "unit_id": "s0005",
+    "heading": "Table",
+    "kind": "generic_structural_block",
+    "disposition": "merged_reframed",
+    "target_section": "Additional Examples",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "aspose/slides_foss/Table.py"
+    }
+  },
+  {
+    "unit_id": "s0006",
+    "heading": "Connector",
+    "kind": "generic_structural_block",
+    "disposition": "merged_reframed",
+    "target_section": "Additional Examples",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "aspose/slides_foss/Connector.py"
+    }
+  },
+  {
+    "unit_id": "s0007",
+    "heading": "Fill",
+    "kind": "generic_structural_block",
+    "disposition": "merged_reframed",
+    "target_section": "Additional Examples",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "aspose/slides_foss/FillFormat.py"
+    }
+  },
+  {
+    "unit_id": "s0008",
+    "heading": "Notes",
+    "kind": "generic_structural_block",
+    "disposition": "merged_reframed",
+    "target_section": "Additional Examples",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "aspose/slides_foss/NotesSlideManager.py"
+    }
+  },
+  {
+    "unit_id": "s0009",
+    "heading": "Comments",
+    "kind": "generic_structural_block",
+    "disposition": "merged_reframed",
+    "target_section": "Additional Examples",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "aspose/slides_foss/Comment.py"
+    }
+  },
+  {
+    "unit_id": "s0010",
+    "heading": "Document Properties",
+    "kind": "generic_structural_block",
+    "disposition": "merged_reframed",
+    "target_section": "Additional Examples",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "aspose/slides_foss/DocumentProperties.py"
+    }
+  },
+  {
+    "unit_id": "s0011",
+    "heading": "Slide Transition",
+    "kind": "generic_structural_block",
+    "disposition": "merged_reframed",
+    "target_section": "Additional Examples",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "aspose/slides_foss/slideshow/TransitionType.py"
+    }
+  },
+  {
+    "unit_id": "s0012",
+    "heading": "Group Shape",
+    "kind": "generic_structural_block",
+    "disposition": "merged_reframed",
+    "target_section": "Additional Examples",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "aspose/slides_foss/GroupShape.py"
+    }
+  }
+]

@@ -1577,6 +1577,20 @@ scripts:
     test_targets: [scripts/pipeline/tests/test_knowledge_git_migration.py]
     deprecated_since: null
     change_impact: "FRESH-001 (2026-08-14, new file): classifies knowledge/{family}/{platform}/ files against config/knowledge_tracking_policy.yaml (KEEP=git-tracked / DROP=stays gitignored / UNCLASSIFIED=fail-closed, never silently tracked or deleted). `audit` is read-only across the fleet; `apply` stages (git add, never commits) KEEP files for explicitly named products only. Never deletes anything on disk."
+  - path: scripts/pipeline/commands/ops/git_tracking_policy_sync.py
+    kind: entrypoint
+    lifecycle: active
+    canonical_impl_path: null
+    public_entrypoint: true
+    cli_contract: stable
+    owner_domain: governance
+    backing:
+      kind: skill
+      ref: git-tracking-policy
+    requires_test: true
+    test_targets: [scripts/pipeline/tests/test_git_tracking_policy_sync.py]
+    deprecated_since: null
+    change_impact: "S-125 (2026-09-06, new file): generates/verifies the managed .gitignore negation-chain block declared by config/git_tracking_policy.yaml -- the mirror-image of knowledge_git_migration.py's problem (default-IGNORE a root, selectively TRACK named children, e.g. reports/repo-presenter-regen-full/{family}/**, keyed off data/blog_family_routes.yaml). `--check` diffs the expected block against .gitignore's marked region; `--fix` writes it in place, also removing any now-redundant bare top-level ignore line for the policy root's first segment (a directory-match form that would otherwise block descent regardless of later negations)."
   - path: scripts/pipeline/lib/baseline_ledger.py
     kind: library
     lifecycle: active

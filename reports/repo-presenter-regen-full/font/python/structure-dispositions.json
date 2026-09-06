@@ -1,0 +1,29 @@
+[
+  {
+    "unit_id": "s0001",
+    "heading": "Variable Font Discovery",
+    "kind": "generic_structural_block",
+    "disposition": "merged_verbatim",
+    "target_section": "Additional Examples",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "README.md",
+      "evidence_note": "literal fenced block extracted from the old README and carried verbatim into Additional Examples (Variable Font Discovery / CLI block)."
+    }
+  },
+  {
+    "unit_id": "s0002",
+    "heading": "CLI Highlights",
+    "kind": "generic_structural_block",
+    "disposition": "corrected",
+    "target_section": "Additional Examples",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "testdata/Fonts/Roboto-Regular.ttf",
+      "evidence_note": "the old CLI block names Roboto.ttf, a file that exists nowhere in this tree; the candidate uses the real fixture testdata/Fonts/Roboto-Regular.ttf (as every Python example already does) so the block is self-consistent and executable -- runner v2 reported FIXTURE-UNAVAILABLE on Roboto.ttf live 2026-09-02; every other line is carried byte-for-byte"
+    },
+    "correction_reason": "the old CLI block names Roboto.ttf, a file that exists nowhere in this tree; the candidate uses the real fixture testdata/Fonts/Roboto-Regular.ttf (as every Python example already does) so the block is self-consistent and executable -- runner v2 reported FIXTURE-UNAVAILABLE on Roboto.ttf live 2026-09-02; every other line is carried byte-for-byte"
+  }
+]

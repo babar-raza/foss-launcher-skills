@@ -1,0 +1,1988 @@
+[
+  {
+    "unit_id": "u0001",
+    "excerpt": "Aspose.Words FOSS for Python is a free, open-source, MIT-licensed Python library for working with\nWord documents. It reads DOCX, DOC (Word 97-2003), RTF, Markdown, and plain-text files into a\nshared Light Document Model, and exports that model to DOCX, Markdown, PDF, or plain text — all\nwithout Microsoft Word or any COM/Office automation. It follows a compatible API shape (`Document`,\n`SaveFormat`) to the commercial Aspose.Words for Python.",
+    "salient_tokens": [
+      "Document",
+      "SaveFormat",
+      "FOSS",
+      "MIT",
+      "DOCX",
+      "DOC",
+      "RTF",
+      "PDF",
+      "COM",
+      "API"
+    ],
+    "classification": "2_mechanism_explanation",
+    "disposition": "merged_verbatim",
+    "target_section": "Intro",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "aspose/words_foss/document.py"
+    }
+  },
+  {
+    "unit_id": "u0002",
+    "excerpt": "- [At a Glance](#at-a-glance)",
+    "salient_tokens": [
+      "At a Glance",
+      "#at-a-glance"
+    ],
+    "classification": "1_narrative_cta",
+    "disposition": "merged_verbatim",
+    "target_section": "Navigation",
+    "verification": {
+      "status": "not_applicable_category_1",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": ""
+    }
+  },
+  {
+    "unit_id": "u0003",
+    "excerpt": "- [Key Capabilities](#key-capabilities)",
+    "salient_tokens": [
+      "Key Capabilities",
+      "#key-capabilities"
+    ],
+    "classification": "1_narrative_cta",
+    "disposition": "merged_verbatim",
+    "target_section": "Navigation",
+    "verification": {
+      "status": "not_applicable_category_1",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": ""
+    }
+  },
+  {
+    "unit_id": "u0004",
+    "excerpt": "- [Installation](#installation)",
+    "salient_tokens": [
+      "Installation",
+      "#installation"
+    ],
+    "classification": "1_narrative_cta",
+    "disposition": "merged_verbatim",
+    "target_section": "Navigation",
+    "verification": {
+      "status": "not_applicable_category_1",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": ""
+    }
+  },
+  {
+    "unit_id": "u0005",
+    "excerpt": "- [Dependencies](#dependencies)",
+    "salient_tokens": [
+      "Dependencies",
+      "#dependencies"
+    ],
+    "classification": "1_narrative_cta",
+    "disposition": "merged_verbatim",
+    "target_section": "Navigation",
+    "verification": {
+      "status": "not_applicable_category_1",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": ""
+    }
+  },
+  {
+    "unit_id": "u0006",
+    "excerpt": "- [Quick Start](#quick-start)",
+    "salient_tokens": [
+      "Quick Start",
+      "#quick-start"
+    ],
+    "classification": "1_narrative_cta",
+    "disposition": "merged_verbatim",
+    "target_section": "Navigation",
+    "verification": {
+      "status": "not_applicable_category_1",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": ""
+    }
+  },
+  {
+    "unit_id": "u0007",
+    "excerpt": "- [Additional Examples](#additional-examples)",
+    "salient_tokens": [
+      "Additional Examples",
+      "#additional-examples"
+    ],
+    "classification": "1_narrative_cta",
+    "disposition": "merged_verbatim",
+    "target_section": "Navigation",
+    "verification": {
+      "status": "not_applicable_category_1",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": ""
+    }
+  },
+  {
+    "unit_id": "u0008",
+    "excerpt": "- [API Reference](#api-reference)",
+    "salient_tokens": [
+      "API",
+      "API Reference",
+      "#api-reference"
+    ],
+    "classification": "1_narrative_cta",
+    "disposition": "merged_verbatim",
+    "target_section": "Navigation",
+    "verification": {
+      "status": "not_applicable_category_1",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": ""
+    }
+  },
+  {
+    "unit_id": "u0009",
+    "excerpt": "- [Documentation & Resources](#documentation--resources)",
+    "salient_tokens": [
+      "Documentation & Resources",
+      "#documentation--resources"
+    ],
+    "classification": "1_narrative_cta",
+    "disposition": "merged_verbatim",
+    "target_section": "Navigation",
+    "verification": {
+      "status": "not_applicable_category_1",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": ""
+    }
+  },
+  {
+    "unit_id": "u0010",
+    "excerpt": "- [Scope and Limitations](#scope-and-limitations)",
+    "salient_tokens": [
+      "Scope and Limitations",
+      "#scope-and-limitations"
+    ],
+    "classification": "1_narrative_cta",
+    "disposition": "merged_verbatim",
+    "target_section": "Navigation",
+    "verification": {
+      "status": "not_applicable_category_1",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": ""
+    }
+  },
+  {
+    "unit_id": "u0011",
+    "excerpt": "- [Development and Testing](#development-and-testing)",
+    "salient_tokens": [
+      "Development and Testing",
+      "#development-and-testing"
+    ],
+    "classification": "1_narrative_cta",
+    "disposition": "merged_verbatim",
+    "target_section": "Navigation",
+    "verification": {
+      "status": "not_applicable_category_1",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": ""
+    }
+  },
+  {
+    "unit_id": "u0012",
+    "excerpt": "- [License](#license)",
+    "salient_tokens": [
+      "License",
+      "#license"
+    ],
+    "classification": "1_narrative_cta",
+    "disposition": "merged_verbatim",
+    "target_section": "Navigation",
+    "verification": {
+      "status": "not_applicable_category_1",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": ""
+    }
+  },
+  {
+    "unit_id": "u0013",
+    "excerpt": "- Open any supported input with a single `Document(filepath)` constructor — the concrete reader is\n  chosen automatically from the `.docx`/`.doc`/`.rtf`/`.md`/`.txt` file extension.",
+    "salient_tokens": [
+      "Document(filepath)",
+      ".docx",
+      ".doc",
+      ".rtf",
+      ".md",
+      ".txt"
+    ],
+    "classification": "2_mechanism_explanation",
+    "disposition": "corrected",
+    "target_section": "Key Capabilities",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "aspose/words_foss/document.py"
+    },
+    "correction_reason": "Old README's own bullet named the constructor's first parameter as Document(filepath); the real constructor (document.py) names it source, not filepath -- corrected to Document(source) to match the real, callable signature.",
+    "ledger_migration_note": "2026-09-02 field migration: correction text moved from excluded_reason (pre-fix gate workaround) to correction_reason; disposition/verification untouched"
+  },
+  {
+    "unit_id": "u0014",
+    "excerpt": "- Read DOCX with a pure-Python parser built on the standard library `zipfile`/`xml.etree` modules —\n  no compiled dependencies.",
+    "salient_tokens": [
+      "zipfile",
+      "xml.etree",
+      "DOCX"
+    ],
+    "classification": "2_mechanism_explanation",
+    "disposition": "merged_verbatim",
+    "target_section": "Key Capabilities",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "aspose/words_foss/docx_reader/document_reader.py"
+    }
+  },
+  {
+    "unit_id": "u0015",
+    "excerpt": "- Read legacy Word 97-2003 `.doc` binary files via `olefile`, and RTF documents through the same\n  OLE2 delegation path.",
+    "salient_tokens": [
+      ".doc",
+      "olefile",
+      "RTF",
+      "OLE2"
+    ],
+    "classification": "2_mechanism_explanation",
+    "disposition": "merged_verbatim",
+    "target_section": "Key Capabilities",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "aspose/words_foss/doc_reader/doc_file_reader.py"
+    }
+  },
+  {
+    "unit_id": "u0016",
+    "excerpt": "- Parse Markdown on import with `MarkdownReader`, not just read it as literal text — headings, lists,\n  emphasis, tables, block quotes, fenced code blocks, links, and base64-embedded images all become\n  proper document-model nodes, so a loaded `.md` file converts to DOCX or PDF like any other input.",
+    "salient_tokens": [
+      "MarkdownReader",
+      ".md",
+      "DOCX",
+      "PDF"
+    ],
+    "classification": "2_mechanism_explanation",
+    "disposition": "merged_verbatim",
+    "target_section": "Key Capabilities",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "aspose/words_foss/markdown_reader.py"
+    }
+  },
+  {
+    "unit_id": "u0017",
+    "excerpt": "- Round-trip DOCX editing: `DocumentReader` builds a shared Light Document Model from an existing\n  `.docx`, and `LdmDocxWriter` writes it back out, preserving headers/footers, inline shapes and\n  images, bookmarks, and custom paragraph styles.",
+    "salient_tokens": [
+      "DocumentReader",
+      ".docx",
+      "LdmDocxWriter",
+      "DOCX"
+    ],
+    "classification": "2_mechanism_explanation",
+    "disposition": "merged_verbatim",
+    "target_section": "Key Capabilities",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "aspose/words_foss/docx_writer/writer.py"
+    }
+  },
+  {
+    "unit_id": "u0018",
+    "excerpt": "- Convert image-containing documents — inline images, captioned images, images in tables, and\n  images in headers/footers — to every output format: images embed as base64 data URIs in\n  Markdown by default, render through the built-in `ShapeRenderer` in PDF, and round-trip\n  losslessly through DOCX.",
+    "salient_tokens": [
+      "ShapeRenderer",
+      "URIs",
+      "PDF",
+      "DOCX"
+    ],
+    "classification": "2_mechanism_explanation",
+    "disposition": "merged_verbatim",
+    "target_section": "Key Capabilities",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "aspose/words_foss/pdf_writer/shape_renderer.py"
+    }
+  },
+  {
+    "unit_id": "u0019",
+    "excerpt": "- Export to Markdown with `LdmMarkdownWriter`: headings, bold/italic/underline/strikethrough runs,\n  ordered and nested unordered lists, tables, block quotes, code blocks, and hyperlinks, all tunable\n  through `MarkdownSaveOptions`.",
+    "salient_tokens": [
+      "LdmMarkdownWriter",
+      "MarkdownSaveOptions"
+    ],
+    "classification": "2_mechanism_explanation",
+    "disposition": "merged_verbatim",
+    "target_section": "Key Capabilities",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "aspose/words_foss/md_writer.py"
+    }
+  },
+  {
+    "unit_id": "u0020",
+    "excerpt": "- Export to PDF with `LdmPdfWriter` — a built-in paragraph, table, and shape renderer (backed by\n  `fpdf2`) that needs no external PDF engine or system fonts, configurable through `PdfSaveOptions`.",
+    "salient_tokens": [
+      "LdmPdfWriter",
+      "fpdf2",
+      "PdfSaveOptions",
+      "PDF"
+    ],
+    "classification": "2_mechanism_explanation",
+    "disposition": "merged_verbatim",
+    "target_section": "Key Capabilities",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "aspose/words_foss/pdf_writer/writer.py"
+    }
+  },
+  {
+    "unit_id": "u0021",
+    "excerpt": "- Extract plain text from any loaded document with `Document.get_text()`, or save it directly with\n  `SaveFormat.TEXT`.",
+    "salient_tokens": [
+      "Document.get_text()",
+      "SaveFormat.TEXT",
+      "SaveFormat",
+      "TEXT"
+    ],
+    "classification": "2_mechanism_explanation",
+    "disposition": "merged_verbatim",
+    "target_section": "Key Capabilities",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "aspose/words_foss/document.py"
+    }
+  },
+  {
+    "unit_id": "u0022",
+    "excerpt": "- Configure DOCX packaging through `OoxmlSaveOptions`: compression level, ECMA-376/ISO 29500\n  Transitional compliance, and pretty-printed XML.",
+    "salient_tokens": [
+      "OoxmlSaveOptions",
+      "DOCX",
+      "ECMA",
+      "ISO",
+      "XML"
+    ],
+    "classification": "2_mechanism_explanation",
+    "disposition": "merged_verbatim",
+    "target_section": "Key Capabilities",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "aspose/words_foss/saving.py"
+    }
+  },
+  {
+    "unit_id": "u0023",
+    "excerpt": "- Inspect the parsed document model directly — sections, paragraphs, runs, tables, styles, and\n  numbered/bulleted lists are all typed Pydantic models reachable from `Document.light_document_model`.",
+    "salient_tokens": [
+      "Document.light_document_model"
+    ],
+    "classification": "2_mechanism_explanation",
+    "disposition": "merged_verbatim",
+    "target_section": "Key Capabilities",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "aspose/words_foss/light_document_model.py"
+    }
+  },
+  {
+    "unit_id": "u0024",
+    "excerpt": "Install from PyPI:",
+    "salient_tokens": [
+      "PyPI"
+    ],
+    "classification": "1_narrative_cta",
+    "disposition": "merged_verbatim",
+    "target_section": "Installation",
+    "verification": {
+      "status": "not_applicable_category_1",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": ""
+    }
+  },
+  {
+    "unit_id": "u0025",
+    "excerpt": "Or install the latest nightly build directly from GitHub:",
+    "salient_tokens": [
+      "GitHub"
+    ],
+    "classification": "1_narrative_cta",
+    "disposition": "merged_verbatim",
+    "target_section": "Installation",
+    "verification": {
+      "status": "not_applicable_category_1",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": ""
+    }
+  },
+  {
+    "unit_id": "u0026",
+    "excerpt": "Requires Python 3.10 or later; runtime dependencies install automatically via pip — see\n[Dependencies](#dependencies) below for the full required and native-requirement breakdown.",
+    "salient_tokens": [
+      "3.10",
+      "Dependencies",
+      "#dependencies"
+    ],
+    "classification": "2_mechanism_explanation",
+    "disposition": "merged_verbatim",
+    "target_section": "Installation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "pyproject.toml"
+    }
+  },
+  {
+    "unit_id": "u0027",
+    "excerpt": "Verify the install:",
+    "salient_tokens": [],
+    "classification": "1_narrative_cta",
+    "disposition": "merged_verbatim",
+    "target_section": "Installation",
+    "verification": {
+      "status": "not_applicable_category_1",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": ""
+    }
+  },
+  {
+    "unit_id": "u0028",
+    "excerpt": "- `olefile` >=0.46 — reads legacy Word 97-2003 .doc binary files and RTF documents via OLE2 delegation.",
+    "salient_tokens": [
+      "olefile",
+      "RTF",
+      "OLE2",
+      "0.46"
+    ],
+    "classification": "5_dependency_claim",
+    "disposition": "merged_verbatim",
+    "target_section": "Dependencies",
+    "verification": {
+      "status": "verified_against_manifest",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "pyproject.toml"
+    }
+  },
+  {
+    "unit_id": "u0029",
+    "excerpt": "- `fpdf2` >=2.7.5 — backs the built-in PDF renderer.",
+    "salient_tokens": [
+      "fpdf2",
+      "PDF",
+      "2.7.5"
+    ],
+    "classification": "5_dependency_claim",
+    "disposition": "merged_verbatim",
+    "target_section": "Dependencies",
+    "verification": {
+      "status": "verified_against_manifest",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "pyproject.toml"
+    }
+  },
+  {
+    "unit_id": "u0030",
+    "excerpt": "- `pydantic` >=2.0.0 — the typed model layer for the parsed document model.",
+    "salient_tokens": [
+      "pydantic",
+      "2.0.0"
+    ],
+    "classification": "5_dependency_claim",
+    "disposition": "merged_verbatim",
+    "target_section": "Dependencies",
+    "verification": {
+      "status": "verified_against_manifest",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "pyproject.toml"
+    }
+  },
+  {
+    "unit_id": "u0031",
+    "excerpt": "- Requires Python 3.10 or later (tested through 3.12; `pyproject.toml` caps at `<3.13`).",
+    "salient_tokens": [
+      "pyproject.toml",
+      "<3.13",
+      "3.10",
+      "3.12",
+      "3.13"
+    ],
+    "classification": "5_dependency_claim",
+    "disposition": "merged_verbatim",
+    "target_section": "Dependencies",
+    "verification": {
+      "status": "verified_against_manifest",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "pyproject.toml"
+    }
+  },
+  {
+    "unit_id": "u0032",
+    "excerpt": "- `Pillow>=10.0.0` — used by the `dev` extra's example/test tooling for image-containing documents.",
+    "salient_tokens": [
+      "Pillow>=10.0.0",
+      "dev",
+      "10.0.0"
+    ],
+    "classification": "5_dependency_claim",
+    "disposition": "corrected",
+    "target_section": "Dependencies",
+    "verification": {
+      "status": "verified_against_manifest",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "pyproject.toml"
+    },
+    "correction_reason": "Old README's own Development Dependencies bullet wrapped name+version together in a single backtick span (Pillow>=10.0.0), unlike every other Dependencies bullet in this same README (Required Package Dependencies uses `name` version, name-only backticks). That formatting made check_dependency_development_claim_not_in_manifest's own name extractor (_bulleted_dependency_names, which only reads the backtick span before the first em-dash) read 'Pillow>=10.0.0' as one literal name, which does not match the manifest's real name 'Pillow' -- a false fabricated-dependency-claim finding on a genuinely real dev dependency (pyproject.toml's development bucket has Pillow>=10.0.0 verbatim). Corrected to the established `name` version template used by this README's own Required Package Dependencies subsection; the underlying fact (Pillow is a real dev dependency, version >=10.0.0) is unchanged.",
+    "ledger_migration_note": "2026-09-02 field migration: correction text moved from excluded_reason (pre-fix gate workaround) to correction_reason; disposition/verification untouched"
+  },
+  {
+    "unit_id": "u0033",
+    "excerpt": "- `pytest>=9.0.2` — the test runner used to execute `ApiExamples/`.",
+    "salient_tokens": [
+      "pytest>=9.0.2",
+      "ApiExamples/",
+      "ApiExamples",
+      "9.0.2"
+    ],
+    "classification": "5_dependency_claim",
+    "disposition": "corrected",
+    "target_section": "Dependencies",
+    "verification": {
+      "status": "verified_against_manifest",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "pyproject.toml"
+    },
+    "correction_reason": "Same real formatting defect as u0032 (Pillow), same fix: old README wrapped pytest>=9.0.2 together in one backtick span instead of this README's own established `name` version template, which made the fabricated-dependency-claim check misread the name and flag a real, manifest-verified dev dependency (pyproject.toml's development bucket has pytest>=9.0.2 verbatim) as fabricated. Corrected to the established template; the underlying fact is unchanged.",
+    "ledger_migration_note": "2026-09-02 field migration: correction text moved from excluded_reason (pre-fix gate workaround) to correction_reason; disposition/verification untouched"
+  },
+  {
+    "unit_id": "u0034",
+    "excerpt": "None of these are required to install or use the published package; they apply only when\ninstalling with `pip install -e \".[dev]\"` for local development and testing.",
+    "salient_tokens": [
+      "pip install -e \".[dev]\"",
+      ".[dev]"
+    ],
+    "classification": "1_narrative_cta",
+    "disposition": "merged_verbatim",
+    "target_section": "Dependencies",
+    "verification": {
+      "status": "not_applicable_category_1",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": ""
+    }
+  },
+  {
+    "unit_id": "u0035",
+    "excerpt": "Load a document and export it to Markdown:",
+    "salient_tokens": [],
+    "classification": "1_narrative_cta",
+    "disposition": "merged_verbatim",
+    "target_section": "Quick Start",
+    "verification": {
+      "status": "not_applicable_category_1",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": ""
+    }
+  },
+  {
+    "unit_id": "u0036",
+    "excerpt": "Export the same document to PDF:",
+    "salient_tokens": [
+      "PDF"
+    ],
+    "classification": "1_narrative_cta",
+    "disposition": "merged_verbatim",
+    "target_section": "Quick Start",
+    "verification": {
+      "status": "not_applicable_category_1",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": ""
+    }
+  },
+  {
+    "unit_id": "u0037",
+    "excerpt": "More runnable scripts — covering every input/output format combination, `MarkdownSaveOptions`, PDF\nexport, plain-text export, and image-containing documents — are collected in\n[`ApiExamples/`](ApiExamples/); see [Additional Examples](#additional-examples) below.",
+    "salient_tokens": [
+      "MarkdownSaveOptions",
+      "ApiExamples/",
+      "PDF",
+      "ApiExamples",
+      "`ApiExamples/`",
+      "Additional Examples",
+      "#additional-examples"
+    ],
+    "classification": "1_narrative_cta",
+    "disposition": "merged_verbatim",
+    "target_section": "Quick Start",
+    "verification": {
+      "status": "not_applicable_category_1",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": ""
+    }
+  },
+  {
+    "unit_id": "u0038",
+    "excerpt": "More real, runnable examples are collected below, matching the standalone scripts under\n[`ApiExamples/`](ApiExamples/).",
+    "salient_tokens": [
+      "ApiExamples/",
+      "ApiExamples",
+      "`ApiExamples/`"
+    ],
+    "classification": "1_narrative_cta",
+    "disposition": "merged_verbatim",
+    "target_section": "Additional Examples",
+    "verification": {
+      "status": "not_applicable_category_1",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": ""
+    }
+  },
+  {
+    "unit_id": "u0039",
+    "excerpt": "<details>\n<summary>View Additional Examples</summary>",
+    "salient_tokens": [],
+    "classification": "1_narrative_cta",
+    "disposition": "merged_verbatim",
+    "target_section": "Additional Examples",
+    "verification": {
+      "status": "not_applicable_category_1",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": ""
+    }
+  },
+  {
+    "unit_id": "u0040",
+    "excerpt": "| File | What it shows |\n|------|---------------|\n| `convert_document.py` | Every input format (DOCX, DOC, RTF, TXT, MD) to every output format (Markdown, PDF, TXT) |\n| `loading_document.py` | Loading documents from a file path and from a binary stream, with `LoadOptions` |\n| `loading_markdown.py` | Reading Markdown from in-memory content |\n| `working_with_markdown_save_options.py` | `MarkdownSaveOptions` — `export_underline_formatting`, `encoding`, `paragraph_break` |\n| `working_with_ooxml_save_options.py` | `OoxmlSaveOptions` for DOCX export — `pretty_format`, `compression_level`, `zip_64_mode` |\n| `working_with_pdf_save_options.py` | PDF export from all input formats |\n| `working_with_txt_save_options.py` | Plain-text export and `get_text()` |\n| `working_with_images.py` | Image-containing documents to all output formats |",
+    "salient_tokens": [
+      "convert_document.py",
+      "loading_document.py",
+      "LoadOptions",
+      "loading_markdown.py",
+      "working_with_markdown_save_options.py",
+      "MarkdownSaveOptions",
+      "export_underline_formatting",
+      "encoding",
+      "paragraph_break",
+      "working_with_ooxml_save_options.py",
+      "OoxmlSaveOptions",
+      "pretty_format",
+      "compression_level",
+      "zip_64_mode",
+      "working_with_pdf_save_options.py",
+      "working_with_txt_save_options.py",
+      "get_text()",
+      "working_with_images.py",
+      "DOCX",
+      "DOC",
+      "RTF",
+      "TXT",
+      "MD",
+      "PDF"
+    ],
+    "classification": "2_mechanism_explanation",
+    "disposition": "merged_verbatim",
+    "target_section": "Additional Examples",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "ApiExamples/loading_document.py"
+    }
+  },
+  {
+    "unit_id": "u0041",
+    "excerpt": "DOCX, DOC, and RTF are auto-detected from magic bytes; formats with no magic bytes (like Markdown)\nneed `LoadOptions.load_format` to disambiguate:",
+    "salient_tokens": [
+      "LoadOptions.load_format",
+      "DOCX",
+      "DOC",
+      "RTF",
+      "LoadOptions"
+    ],
+    "classification": "2_mechanism_explanation",
+    "disposition": "merged_verbatim",
+    "target_section": "Additional Examples",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "aspose/words_foss/document.py"
+    }
+  },
+  {
+    "unit_id": "u0042",
+    "excerpt": "Inline images, captioned images, images inside tables, and images in headers/footers all convert\ncleanly across every output format:",
+    "salient_tokens": [],
+    "classification": "2_mechanism_explanation",
+    "disposition": "merged_verbatim",
+    "target_section": "Additional Examples",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "aspose/words_foss/pdf_writer/shape_renderer.py"
+    }
+  },
+  {
+    "unit_id": "u0043",
+    "excerpt": "`MarkdownLoadOptions` (not the generic `LoadOptions`) loads Markdown directly from bytes or a\nstream — no file path required — and adds a `preserve_empty_lines` option that keeps blank lines\nwhich would otherwise collapse during parsing:",
+    "salient_tokens": [
+      "MarkdownLoadOptions",
+      "LoadOptions",
+      "preserve_empty_lines"
+    ],
+    "classification": "2_mechanism_explanation",
+    "disposition": "merged_verbatim",
+    "target_section": "Additional Examples",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "aspose/words_foss/document.py"
+    }
+  },
+  {
+    "unit_id": "u0044",
+    "excerpt": "A Markdown source with a base64-embedded image and links round-trips to real content, not\nliteral Markdown syntax — the image becomes a genuine embedded shape and each link becomes a real\nclickable hyperlink, in both DOCX and PDF output:",
+    "salient_tokens": [
+      "DOCX",
+      "PDF"
+    ],
+    "classification": "2_mechanism_explanation",
+    "disposition": "merged_verbatim",
+    "target_section": "Additional Examples",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "aspose/words_foss/md_import/document_builder.py"
+    }
+  },
+  {
+    "unit_id": "u0045",
+    "excerpt": "</details>",
+    "salient_tokens": [],
+    "classification": "1_narrative_cta",
+    "disposition": "merged_verbatim",
+    "target_section": "Additional Examples",
+    "verification": {
+      "status": "not_applicable_category_1",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": ""
+    }
+  },
+  {
+    "unit_id": "u0046",
+    "excerpt": "`Document` is the primary entry point: construct it from a file path, then call `save()` with a\n`SaveFormat` constant or a `MarkdownSaveOptions` / `PdfSaveOptions` / `OoxmlSaveOptions` instance —\nthe target format is otherwise inferred from the output file's extension. The library ships 146\npublic types across the DOC/DOCX/RTF/Markdown/Text readers, the DOCX/Markdown/PDF writers, and the\nshared Light Document Model, summarized in the module-grouped table below.",
+    "salient_tokens": [
+      "Document",
+      "save()",
+      "SaveFormat",
+      "MarkdownSaveOptions",
+      "PdfSaveOptions",
+      "OoxmlSaveOptions",
+      "DOC",
+      "DOCX",
+      "RTF",
+      "PDF"
+    ],
+    "classification": "2_mechanism_explanation",
+    "disposition": "merged_verbatim",
+    "target_section": "API Reference",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "aspose/words_foss/document.py"
+    }
+  },
+  {
+    "unit_id": "u0047",
+    "excerpt": "<details>\n<summary>View the Supported Public API Surface</summary>",
+    "salient_tokens": [
+      "API"
+    ],
+    "classification": "1_narrative_cta",
+    "disposition": "merged_verbatim",
+    "target_section": "API Reference",
+    "verification": {
+      "status": "not_applicable_category_1",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": ""
+    }
+  },
+  {
+    "unit_id": "u0048",
+    "excerpt": "| Class | Description |\n|---|---|\n| `Body` | Class with 2 properties. |\n| `BookmarkEnd` | Class with 2 properties. |\n| `BookmarkStart` | Marks the beginning of a Word bookmark (`<w:bookmarkStart>`). |\n| `Border` | Class with 3 properties. |\n| `Cell` | Class with 4 properties. |\n| `CellFormat` | Class with 14 properties. |\n| `ColorMode` | Color rendering mode. |\n| `CompressionLevel` | Compression level for OOXML files. |\n| `ConversionOptions` | Options for controlling DOCX to Markdown conversion. |\n| `DocList` | Class with 4 properties. |\n| `Document` | Represents a Word document. |\n| `Document-light_document_model` | Class with 2 methods and 13 properties. |\n| `DocumentFormatReader` | Protocol defining the interface all document readers must implement. |\n| `FieldEnd` | Class with 3 properties. |\n| `FieldSeparator` | Class with 2 properties. |\n| `FieldStart` | Class with 2 properties. |\n| `Font` | Class with 23 properties. |\n| `FrameFormat` | Floating text-frame definition. |\n| `HeaderFooter` | Class with 5 properties. |\n| `ImageData` | Class with 7 properties. |\n| `LdmMarkdownWriter` | Converts a `light_document_model.Document` to a Markdown string. |\n| `ListFormat` | Class with 3 properties. |\n| `ListLabel` | Snapshot of a list-item's rendered bullet/number label. |\n| `ListLevel` | Class with 9 properties. |\n| `ListLevelOverride` | One `<w:lvlOverride>` inside a concrete `<w:num>`. |\n| `LoadFormat` | Document load format constants. |\n| `MarkdownEmptyParagraphExportMode` | Controls how empty paragraphs are exported. |\n| `MarkdownExportAsHtml` | Controls which elements are exported as raw HTML. |\n| `MarkdownFileReader` | Reads Markdown (.md) files and yields one Paragraph per line. |\n| `MarkdownLinkExportMode` | Link export mode options. |\n| `MarkdownListExportMode` | List export mode options. |\n| `MarkdownSaveOptions` | Options for saving documents as Markdown. |\n| `OoxmlCompliance` | OOXML standards compliance level. |\n| `OoxmlSaveOptions` | Options for saving a document as DOCX (Office Open XML). |\n| `OutlineOptions` | Controls how outlines (bookmarks panel) are generated in the PDF. |\n| `PageSetup` | Class with 18 properties. |\n| `Paragraph` | A paragraph whose children — `Run`, `BookmarkStart` / `End`, `FieldStart` / `Separator` / `End` and inline `ShapeNode` — sit in a single ordered collection in document order. |\n| `ParagraphFormat` | Class with 35 properties. |\n| `ParagraphInfo` | Information about a paragraph's style and context. |\n| `PdfCompliance` | PDF standards compliance level. |\n| `PdfFontEmbeddingMode` | Font embedding mode in PDF. |\n| `PdfImageCompression` | Image compression in PDF. |\n| `PdfPageMode` | PDF page display mode. |\n| `PdfSaveOptions` | Options for saving documents as PDF. |\n| `PdfTextCompression` | Text compression in PDF. |\n| `PdfZoomBehavior` | Mirrors public API. |\n| `Row` | Class with 3 properties. |\n| `RowFormat` | Class with 7 properties. |\n| `RtfFileReader` | Reads RTF files (OLE2-format) and produces the same data structures as DocumentReader (for .docx) and DocFileReader (for .doc). |\n| `Run` | Class with 3 properties. |\n| `RunFormatting` | Text run formatting properties. |\n| `SaveFormat` | Document save format constants. |\n| `Section` | Class with 4 properties. |\n| `Shading` | Class with 2 properties. |\n| `ShapeNode` | Class with 25 properties. |\n| `Style` | Class with 11 properties. |\n| `TabStop` | Class with 4 properties. |\n| `TabStopCollection` | Class with 5 methods and 1 property. |\n| `Table` | Class with 11 properties. |\n| `Table-models` | Represents a table structure. |\n| `TableCell` | Represents a table cell. |\n| `TableContentAlignment` | Table content alignment options. |\n| `TableRow` | Represents a table row. |\n| `TableStyleFormat` | Table-level properties stored on table styles (`w:tblPr` inside `w:style`). |\n| `TextColumn` | Class with 2 properties. |\n| `TextColumns` | Class with 5 properties. |\n| `TextFileReader` | Reads plain-text (.txt) files and yields one Paragraph per line. |\n| `UnknownNode` | Class with 1 property. |\n| `Zip64Mode` | Controls when to use ZIP64 format extensions for OOXML files. |",
+    "salient_tokens": [
+      "Body",
+      "BookmarkEnd",
+      "BookmarkStart",
+      "<w:bookmarkStart>",
+      "Border",
+      "Cell",
+      "CellFormat",
+      "ColorMode",
+      "CompressionLevel",
+      "ConversionOptions",
+      "DocList",
+      "Document",
+      "Document-light_document_model",
+      "DocumentFormatReader",
+      "FieldEnd",
+      "FieldSeparator",
+      "FieldStart",
+      "Font",
+      "FrameFormat",
+      "HeaderFooter",
+      "ImageData",
+      "LdmMarkdownWriter",
+      "light_document_model.Document",
+      "ListFormat",
+      "ListLabel",
+      "ListLevel",
+      "ListLevelOverride",
+      "<w:lvlOverride>",
+      "<w:num>",
+      "LoadFormat",
+      "MarkdownEmptyParagraphExportMode",
+      "MarkdownExportAsHtml",
+      "MarkdownFileReader",
+      "MarkdownLinkExportMode",
+      "MarkdownListExportMode",
+      "MarkdownSaveOptions",
+      "OoxmlCompliance",
+      "OoxmlSaveOptions",
+      "OutlineOptions",
+      "PageSetup",
+      "Paragraph",
+      "Run",
+      "End",
+      "Separator",
+      "ShapeNode",
+      "ParagraphFormat",
+      "ParagraphInfo",
+      "PdfCompliance",
+      "PdfFontEmbeddingMode",
+      "PdfImageCompression",
+      "PdfPageMode",
+      "PdfSaveOptions",
+      "PdfTextCompression",
+      "PdfZoomBehavior",
+      "Row",
+      "RowFormat",
+      "RtfFileReader",
+      "RunFormatting",
+      "SaveFormat",
+      "Section",
+      "Shading",
+      "Style",
+      "TabStop",
+      "TabStopCollection",
+      "Table",
+      "Table-models",
+      "TableCell",
+      "TableContentAlignment",
+      "TableRow",
+      "TableStyleFormat",
+      "w:tblPr",
+      "w:style",
+      "TextColumn",
+      "TextColumns",
+      "TextFileReader",
+      "UnknownNode",
+      "Zip64Mode",
+      "OOXML",
+      "DOCX",
+      "lvlOverride",
+      "HTML",
+      "XML",
+      "PDF",
+      "API",
+      "RTF",
+      "OLE2",
+      "DocumentReader",
+      "DocFileReader",
+      "tblPr",
+      "ZIP64"
+    ],
+    "classification": "2_mechanism_explanation",
+    "disposition": "corrected",
+    "target_section": "API Reference",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "aspose/words_foss/light_document_model.py"
+    },
+    "correction_reason": "Old README table cells for 8 classes carried stale property counts that no longer match the real, current pydantic model field+property count in light_document_model.py (AST-verified, counting both AnnAssign fields and @property-decorated methods, matching the convention already used correctly for the other 57 rows in this same table): Body 2->4, Border 3->6, Font 23->32, ImageData 7->8, Row 3->4, RowFormat 7->6, Style 11->15, Table 11->15. The table also has one other genuine name/count discrepancy (ShapeNode, claimed 25 properties, does not exist as a real class -- the real class is Shape, 24 properties) that was intentionally NOT corrected here: fixing it locally would make this candidate diverge from content/reference.aspose.org/en/words/python/_index.md, which independently carries the exact same ShapeNode/25 claim (propagated from the same upstream error) and is out of scope for this taskcard (forbidden_paths: content/) -- reported as a real, separately-actionable finding requiring a coordinated fix across both the README and the reference.aspose.org page, not silently fixed one-sided here.",
+    "ledger_migration_note": "2026-09-02 field migration: correction text moved from excluded_reason (pre-fix gate workaround) to correction_reason; disposition/verification untouched"
+  },
+  {
+    "unit_id": "u0049",
+    "excerpt": "| Enumeration | Description |\n|---|---|\n| `CodeBlockStyle` | Code block style preference. |\n| `HeadingStyle` | Heading export style preference. |\n| `ListMarker` | Bullet list marker style. |",
+    "salient_tokens": [
+      "CodeBlockStyle",
+      "HeadingStyle",
+      "ListMarker"
+    ],
+    "classification": "2_mechanism_explanation",
+    "disposition": "merged_verbatim",
+    "target_section": "API Reference",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "aspose/words_foss/models.py"
+    }
+  },
+  {
+    "unit_id": "u0050",
+    "excerpt": "| Class | Description |\n|---|---|\n| `ListHandler` | Handles parsing and conversion of lists. |\n| `ParagraphConverter` | Handles conversion of paragraphs to Markdown. |\n| `TableConverter` | Handles conversion of tables to Markdown. |",
+    "salient_tokens": [
+      "ListHandler",
+      "ParagraphConverter",
+      "TableConverter"
+    ],
+    "classification": "2_mechanism_explanation",
+    "disposition": "merged_verbatim",
+    "target_section": "API Reference",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "aspose/words_foss/converters/list_handler.py"
+    }
+  },
+  {
+    "unit_id": "u0051",
+    "excerpt": "| Class | Description |\n|---|---|\n| `BlipInfo` | Parsed BSE (Blip Store Entry) with location of image data. |\n| `CharProps` | Properties extracted from CHPX for a text run. |\n| `ChildAnchorInfo` | Position of a child shape within its parent group's coordinate system. |\n| `DocFileReader` | Full DOC reader with LDM (Light Document Model) building capability. |\n| `DocFileReaderCore` | Core reader for Word 97-2003 (.doc) files. |\n| `DocTableBuilderMixin` | Mixin that adds table-building helpers to the DOC reader. |\n| `FibData` | Parsed FIB (File Information Block) data. |\n| `GroupShapeInfo` | Coordinate system of a shape group (from Spgr record). |\n| `ListDef` | Parsed list definition with full level information. |\n| `ListLevelData` | One parsed LVL record (measurements in points). |\n| `ParaProps` | Properties extracted from PAPX for a single paragraph. |\n| `ShapeAnchor` | Parsed SPA (Shape Address) from PlcSpaMom / PlcSpaHdr. |\n| `ShapeLineProps` | Escher line/fill properties for a shape (from FOpt records). |\n| `StyleData` | Properties parsed from a style definition (STSH UPX). |\n| `TableRowProps` | Properties extracted from PAPX SPRMs on table row-end paragraphs. |",
+    "salient_tokens": [
+      "BlipInfo",
+      "CharProps",
+      "ChildAnchorInfo",
+      "DocFileReader",
+      "DocFileReaderCore",
+      "DocTableBuilderMixin",
+      "FibData",
+      "GroupShapeInfo",
+      "ListDef",
+      "ListLevelData",
+      "ParaProps",
+      "ShapeAnchor",
+      "ShapeLineProps",
+      "StyleData",
+      "TableRowProps",
+      "BSE",
+      "CHPX",
+      "DOC",
+      "LDM",
+      "FIB",
+      "LVL",
+      "PAPX",
+      "SPA",
+      "PlcSpaMom",
+      "PlcSpaHdr",
+      "FOpt",
+      "STSH",
+      "UPX",
+      "SPRMs"
+    ],
+    "classification": "2_mechanism_explanation",
+    "disposition": "merged_verbatim",
+    "target_section": "API Reference",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "aspose/words_foss/doc_reader/doc_file_reader.py"
+    }
+  },
+  {
+    "unit_id": "u0052",
+    "excerpt": "| Class | Description |\n|---|---|\n| `CellBuilder` | Build `ldm.Cell` from a `<w:tc>` element. |\n| `CellData` | Table cell. |\n| `DocumentReader` | Reads DOCX documents and produces abstracted data structures. |\n| `FontBuilder` | Build a non-cascaded `ldm.Font` from one `<w:rPr>`. |\n| `FontResolver` | Compose a fully cascaded `ldm.Font`. |\n| `LdmBuilderMixin` | Mixin that adds `to_light_document` to `DocumentReader`. |\n| `ListBuilder` | Translate `<w:numbering>` into a list of `ldm.DocList`. |\n| `NumberingInfo` | Numbering definition. |\n| `NumberingLevel` | List level definition. |\n| `PageSetupBuilder` | Build `ldm.PageSetup` from a `<w:sectPr>` element. |\n| `ParagraphBuilder` | Build `ldm.Paragraph` from a `<w:p>` element. |\n| `ParagraphData` | Paragraph with style and content. |\n| `ParagraphFormatBuilder` | Build a non-cascaded `ldm.ParagraphFormat` from one `<w:pPr>`. |\n| `ParagraphFormatResolver` | Compose a fully cascaded `ldm.ParagraphFormat`. |\n| `ReaderContext` | Class extending Protocol. |\n| `RowBuilder` | Build `ldm.Row` from a `<w:tr>` element. |\n| `RowData` | Table row. |\n| `RunBuilder` | Build a single `ldm.Run` with a resolved font cascade. |\n| `RunData` | Text run with formatting. |\n| `SectionBuilder` | Split the body into `ldm.Section` objects at sectPr boundaries. |\n| `ShapeParserMixin` | Mixin providing drawing/shape parsing methods for DocumentReader. |\n| `StyleBuilder` | Translate `<w:styles>` into a list of `ldm.Style`. |\n| `StyleChainResolver` | Walk the `<w:basedOn>` graph for a styleId. |\n| `TableBuilder` | Build `ldm.Table` from a `<w:tbl>` element. |\n| `TableData` | Table structure. |",
+    "salient_tokens": [
+      "CellBuilder",
+      "ldm.Cell",
+      "<w:tc>",
+      "CellData",
+      "DocumentReader",
+      "FontBuilder",
+      "ldm.Font",
+      "<w:rPr>",
+      "FontResolver",
+      "LdmBuilderMixin",
+      "to_light_document",
+      "ListBuilder",
+      "<w:numbering>",
+      "ldm.DocList",
+      "NumberingInfo",
+      "NumberingLevel",
+      "PageSetupBuilder",
+      "ldm.PageSetup",
+      "<w:sectPr>",
+      "ParagraphBuilder",
+      "ldm.Paragraph",
+      "<w:p>",
+      "ParagraphData",
+      "ParagraphFormatBuilder",
+      "ldm.ParagraphFormat",
+      "<w:pPr>",
+      "ParagraphFormatResolver",
+      "ReaderContext",
+      "RowBuilder",
+      "ldm.Row",
+      "<w:tr>",
+      "RowData",
+      "RunBuilder",
+      "ldm.Run",
+      "RunData",
+      "SectionBuilder",
+      "ldm.Section",
+      "ShapeParserMixin",
+      "StyleBuilder",
+      "<w:styles>",
+      "ldm.Style",
+      "StyleChainResolver",
+      "<w:basedOn>",
+      "TableBuilder",
+      "ldm.Table",
+      "<w:tbl>",
+      "TableData",
+      "DOCX",
+      "rPr",
+      "DocList",
+      "PageSetup",
+      "sectPr",
+      "ParagraphFormat",
+      "pPr",
+      "basedOn",
+      "styleId"
+    ],
+    "classification": "2_mechanism_explanation",
+    "disposition": "merged_verbatim",
+    "target_section": "API Reference",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "aspose/words_foss/docx_reader/ldm_builder/mixin.py"
+    }
+  },
+  {
+    "unit_id": "u0053",
+    "excerpt": "| Class | Description |\n|---|---|\n| `BookmarkState` | Hands out monotonically increasing bookmark ids and pairs starts/ends across paragraphs. |\n| `DocxWriterLossyWarning` | Warns the caller that the writer is dropping known LDM constructs. |\n| `ImageEntry` | One image to add to `word/media/` plus its relationship row. |\n| `ImageRenderState` | Accumulator threaded through paragraph rendering for inline shapes. |\n| `LdmDocxWriter` | Convert an `ldm.Document` into a DOCX file. |",
+    "salient_tokens": [
+      "BookmarkState",
+      "DocxWriterLossyWarning",
+      "ImageEntry",
+      "word/media/",
+      "ImageRenderState",
+      "LdmDocxWriter",
+      "ldm.Document",
+      "LDM",
+      "DOCX"
+    ],
+    "classification": "2_mechanism_explanation",
+    "disposition": "merged_verbatim",
+    "target_section": "API Reference",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "aspose/words_foss/docx_writer/writer.py"
+    }
+  },
+  {
+    "unit_id": "u0054",
+    "excerpt": "| Class | Description |\n|---|---|\n| `CellMerge` | Specifies how a cell in a table is merged with other cells. |\n| `CellVerticalAlignment` | Specifies vertical justification of text inside a table cell. |\n| `HeightRule` | Specifies the rule for determining the height of an object. |\n| `LineSpacingRule` | Specifies values for line spacing. |\n| `LineStyle` | Specifies line style of a border. |\n| `NumberStyle` | Specifies the number style for a list, footnotes, endnotes, page numbers. |\n| `Orientation` | Specifies page orientation. |\n| `ParagraphAlignment` | Specifies text alignment in a paragraph. |\n| `SectionStart` | Specifies the type of break at the beginning of the section. |\n| `StyleIdentifier` | Locale-independent built-in style identifier. |\n| `StyleType` | Specifies type of the style. |\n| `TabAlignment` | Tab stop alignment. |\n| `TabLeader` | Tab stop leader character. |\n| `Underline` | Specifies type of the underline applied to a font. |\n| `WrapType` | Specifies how text is wrapped around a shape or picture. |",
+    "salient_tokens": [
+      "CellMerge",
+      "CellVerticalAlignment",
+      "HeightRule",
+      "LineSpacingRule",
+      "LineStyle",
+      "NumberStyle",
+      "Orientation",
+      "ParagraphAlignment",
+      "SectionStart",
+      "StyleIdentifier",
+      "StyleType",
+      "TabAlignment",
+      "TabLeader",
+      "Underline",
+      "WrapType"
+    ],
+    "classification": "2_mechanism_explanation",
+    "disposition": "merged_verbatim",
+    "target_section": "API Reference",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "aspose/words_foss/model/enums/table.py"
+    }
+  },
+  {
+    "unit_id": "u0055",
+    "excerpt": "| Class | Description |\n|---|---|\n| `ListInfo` | Information about a list. |\n| `ListLevelInfo` | Information about a list level. |\n| `NumberingParser` | Parser for DOCX numbering definitions. |\n| `ParsedStyle` | Parsed style information. |\n| `StyleParser` | Parser for DOCX style names and properties. |",
+    "salient_tokens": [
+      "ListInfo",
+      "ListLevelInfo",
+      "NumberingParser",
+      "ParsedStyle",
+      "StyleParser",
+      "DOCX"
+    ],
+    "classification": "2_mechanism_explanation",
+    "disposition": "merged_verbatim",
+    "target_section": "API Reference",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "aspose/words_foss/parsers/style_parser.py"
+    }
+  },
+  {
+    "unit_id": "u0056",
+    "excerpt": "| Class | Description |\n|---|---|\n| `LdmPdfWriter` | Converts a `light_document_model.Document` to a PDF file. |\n| `PDFWriterContext` | Protocol requiring a `PdfSaveOptions` options property. |\n| `ParagraphRenderer` | Renders LDM paragraphs into PDF. |\n| `RunRenderer` | Renders formatted runs (text segments with fonts, colors, links). |\n| `ShapeRenderer` | Renders shapes, images, and positioned elements. |\n| `TableRenderer` | Renders LDM tables into PDF. |",
+    "salient_tokens": [
+      "LdmPdfWriter",
+      "light_document_model.Document",
+      "PDFWriterContext",
+      "PdfSaveOptions",
+      "ParagraphRenderer",
+      "RunRenderer",
+      "ShapeRenderer",
+      "TableRenderer",
+      "PDF",
+      "LDM"
+    ],
+    "classification": "2_mechanism_explanation",
+    "disposition": "merged_verbatim",
+    "target_section": "API Reference",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "aspose/words_foss/pdf_writer/writer.py"
+    }
+  },
+  {
+    "unit_id": "u0057",
+    "excerpt": "- `Document(filepath=None, *, stream=None, data=None)` — loads a `.doc`, `.docx`, `.rtf`, `.txt`, or\n  `.md` file (or DOCX bytes/stream) and populates the Light Document Model immediately at\n  construction time.",
+    "salient_tokens": [
+      "Document(filepath=None, *, stream=None, data=None)",
+      ".doc",
+      ".docx",
+      ".rtf",
+      ".txt",
+      ".md",
+      "DOCX"
+    ],
+    "classification": "2_mechanism_explanation",
+    "disposition": "corrected",
+    "target_section": "API Reference",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "aspose/words_foss/document.py"
+    },
+    "correction_reason": "Old README's own Detailed Member Reference documented the constructor as Document(filepath=None, *, stream=None, data=None). The real signature (document.py) is Document(source=None, load_options=None, *, stream=None, data=None) -- the first param is named source, not filepath, and the real second positional param load_options (used correctly in this same README's own Quick Start/Additional Examples code, e.g. aw.Document(io.BytesIO(markdown_bytes), load_opts)) was missing from the documented signature entirely. Corrected to the real signature.",
+    "ledger_migration_note": "2026-09-02 field migration: correction text moved from excluded_reason (pre-fix gate workaround) to correction_reason; disposition/verification untouched"
+  },
+  {
+    "unit_id": "u0058",
+    "excerpt": "- `light_document_model: ldm.Document` — the underlying parsed model",
+    "salient_tokens": [
+      "light_document_model: ldm.Document"
+    ],
+    "classification": "2_mechanism_explanation",
+    "disposition": "merged_verbatim",
+    "target_section": "API Reference",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "aspose/words_foss/document.py"
+    }
+  },
+  {
+    "unit_id": "u0059",
+    "excerpt": "- `sections`, `first_section`, `last_section`, `styles`, `lists`, `page_count`",
+    "salient_tokens": [
+      "sections",
+      "first_section",
+      "last_section",
+      "styles",
+      "lists",
+      "page_count"
+    ],
+    "classification": "2_mechanism_explanation",
+    "disposition": "merged_verbatim",
+    "target_section": "API Reference",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "aspose/words_foss/document.py"
+    }
+  },
+  {
+    "unit_id": "u0060",
+    "excerpt": "- `get_text() -> str` — plain-text extraction",
+    "salient_tokens": [
+      "get_text() -> str"
+    ],
+    "classification": "2_mechanism_explanation",
+    "disposition": "merged_verbatim",
+    "target_section": "API Reference",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "aspose/words_foss/document.py"
+    }
+  },
+  {
+    "unit_id": "u0061",
+    "excerpt": "- `save(output_path, save_format_or_options=None)` — accepts a `SaveFormat` constant or a\n    `MarkdownSaveOptions` / `PdfSaveOptions` / `OoxmlSaveOptions` instance; otherwise the target\n    format is inferred from the output file's extension",
+    "salient_tokens": [
+      "save(output_path, save_format_or_options=None)",
+      "SaveFormat",
+      "MarkdownSaveOptions",
+      "PdfSaveOptions",
+      "OoxmlSaveOptions"
+    ],
+    "classification": "2_mechanism_explanation",
+    "disposition": "merged_verbatim",
+    "target_section": "API Reference",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "aspose/words_foss/document.py"
+    }
+  },
+  {
+    "unit_id": "u0062",
+    "excerpt": "- `SaveFormat`: `MARKDOWN`, `DOC` (reserved for API compatibility, not implemented — see\n  [Scope and Limitations](#scope-and-limitations)), `DOCX`, `TEXT`, `PDF`",
+    "salient_tokens": [
+      "SaveFormat",
+      "MARKDOWN",
+      "DOC",
+      "DOCX",
+      "TEXT",
+      "PDF",
+      "API",
+      "Scope and Limitations",
+      "#scope-and-limitations"
+    ],
+    "classification": "2_mechanism_explanation",
+    "disposition": "merged_verbatim",
+    "target_section": "API Reference",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "aspose/words_foss/document.py"
+    }
+  },
+  {
+    "unit_id": "u0063",
+    "excerpt": "- `LoadFormat`: `AUTO`, `DOC`, `DOCX`, `RTF`, `TEXT`, `MARKDOWN`",
+    "salient_tokens": [
+      "LoadFormat",
+      "AUTO",
+      "DOC",
+      "DOCX",
+      "RTF",
+      "TEXT",
+      "MARKDOWN"
+    ],
+    "classification": "2_mechanism_explanation",
+    "disposition": "merged_verbatim",
+    "target_section": "API Reference",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "aspose/words_foss/document.py"
+    }
+  },
+  {
+    "unit_id": "u0064",
+    "excerpt": "- `DocumentReader` (DOCX) — combines `LdmBuilderMixin` and `ShapeParserMixin`; `load_file()` /\n  `load_stream()` / `load_bytes()`, then `to_light_document()`",
+    "salient_tokens": [
+      "DocumentReader",
+      "LdmBuilderMixin",
+      "ShapeParserMixin",
+      "load_file()",
+      "load_stream()",
+      "load_bytes()",
+      "to_light_document()",
+      "DOCX"
+    ],
+    "classification": "2_mechanism_explanation",
+    "disposition": "merged_verbatim",
+    "target_section": "API Reference",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "aspose/words_foss/docx_reader/document_reader.py"
+    }
+  },
+  {
+    "unit_id": "u0065",
+    "excerpt": "- `DocFileReader` (DOC, Word 97-2003 binary) — combines `DocTableBuilderMixin` and\n  `DocFileReaderCore`, backed by `olefile`",
+    "salient_tokens": [
+      "DocFileReader",
+      "DocTableBuilderMixin",
+      "DocFileReaderCore",
+      "olefile",
+      "DOC"
+    ],
+    "classification": "2_mechanism_explanation",
+    "disposition": "merged_verbatim",
+    "target_section": "API Reference",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "aspose/words_foss/doc_reader/doc_file_reader.py"
+    }
+  },
+  {
+    "unit_id": "u0066",
+    "excerpt": "- `RtfFileReader` — OLE2-delegated RTF reader with the same `to_light_document()` contract",
+    "salient_tokens": [
+      "RtfFileReader",
+      "to_light_document()",
+      "OLE2",
+      "RTF"
+    ],
+    "classification": "2_mechanism_explanation",
+    "disposition": "merged_verbatim",
+    "target_section": "API Reference",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "aspose/words_foss/rtf_reader.py"
+    }
+  },
+  {
+    "unit_id": "u0067",
+    "excerpt": "- `MarkdownFileReader`, `TextFileReader` — yield one `Paragraph` per line",
+    "salient_tokens": [
+      "MarkdownFileReader",
+      "TextFileReader",
+      "Paragraph"
+    ],
+    "classification": "2_mechanism_explanation",
+    "disposition": "merged_verbatim",
+    "target_section": "API Reference",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "aspose/words_foss/text_reader.py"
+    }
+  },
+  {
+    "unit_id": "u0068",
+    "excerpt": "- `DocumentFormatReader` — the `Protocol` all four readers implement",
+    "salient_tokens": [
+      "DocumentFormatReader",
+      "Protocol"
+    ],
+    "classification": "2_mechanism_explanation",
+    "disposition": "merged_verbatim",
+    "target_section": "API Reference",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "aspose/words_foss/reader_factory.py"
+    }
+  },
+  {
+    "unit_id": "u0069",
+    "excerpt": "- `LdmMarkdownWriter.write(doc, output_path) -> str`",
+    "salient_tokens": [
+      "LdmMarkdownWriter.write(doc, output_path) -> str",
+      "LdmMarkdownWriter"
+    ],
+    "classification": "2_mechanism_explanation",
+    "disposition": "merged_verbatim",
+    "target_section": "API Reference",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "aspose/words_foss/md_writer.py"
+    }
+  },
+  {
+    "unit_id": "u0070",
+    "excerpt": "- `MarkdownSaveOptions` — `heading_style` (`HeadingStyle.ATX` / `SETEXT`), `list_marker`\n  (`ListMarker.DASH` / `ASTERISK` / `PLUS`), `code_block_style`, `table_content_alignment`,\n  `link_export_mode`, `export_as_html`, `export_underline_formatting`, `export_images_as_base64`,\n  `encoding`, `paragraph_break`",
+    "salient_tokens": [
+      "MarkdownSaveOptions",
+      "heading_style",
+      "HeadingStyle.ATX",
+      "SETEXT",
+      "list_marker",
+      "ListMarker.DASH",
+      "ASTERISK",
+      "PLUS",
+      "code_block_style",
+      "table_content_alignment",
+      "link_export_mode",
+      "export_as_html",
+      "export_underline_formatting",
+      "export_images_as_base64",
+      "encoding",
+      "paragraph_break",
+      "HeadingStyle",
+      "ATX",
+      "ListMarker",
+      "DASH"
+    ],
+    "classification": "2_mechanism_explanation",
+    "disposition": "merged_verbatim",
+    "target_section": "API Reference",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "aspose/words_foss/saving.py"
+    }
+  },
+  {
+    "unit_id": "u0071",
+    "excerpt": "- `LdmPdfWriter.write(doc, output_path) -> None`",
+    "salient_tokens": [
+      "LdmPdfWriter.write(doc, output_path) -> None",
+      "LdmPdfWriter"
+    ],
+    "classification": "2_mechanism_explanation",
+    "disposition": "merged_verbatim",
+    "target_section": "API Reference",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "aspose/words_foss/pdf_writer/writer.py"
+    }
+  },
+  {
+    "unit_id": "u0072",
+    "excerpt": "- `PdfSaveOptions` — `compliance`, `export_document_structure`, `image_compression`,\n  `jpeg_quality`, `zoom_factor`, `zoom_behavior`, `export_bookmarks_outline`, `outline_options`,\n  `display_doc_title` (all applied by the writer); `text_compression`, `embed_full_fonts`,\n  `use_core_fonts`, `font_embedding_mode`, `page_mode`, `color_mode`, `preserve_form_fields`, and\n  `memory_optimization` (accepted but not yet consumed — see\n  [Scope and Limitations](#scope-and-limitations))",
+    "salient_tokens": [
+      "PdfSaveOptions",
+      "compliance",
+      "export_document_structure",
+      "image_compression",
+      "jpeg_quality",
+      "zoom_factor",
+      "zoom_behavior",
+      "export_bookmarks_outline",
+      "outline_options",
+      "display_doc_title",
+      "text_compression",
+      "embed_full_fonts",
+      "use_core_fonts",
+      "font_embedding_mode",
+      "page_mode",
+      "color_mode",
+      "preserve_form_fields",
+      "memory_optimization",
+      "Scope and Limitations",
+      "#scope-and-limitations"
+    ],
+    "classification": "2_mechanism_explanation",
+    "disposition": "merged_verbatim",
+    "target_section": "API Reference",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "aspose/words_foss/saving.py"
+    }
+  },
+  {
+    "unit_id": "u0073",
+    "excerpt": "- `ParagraphRenderer`, `RunRenderer`, `TableRenderer`, `ShapeRenderer` — the internal rendering\n  pipeline `LdmPdfWriter` drives, built on `fpdf2`",
+    "salient_tokens": [
+      "ParagraphRenderer",
+      "RunRenderer",
+      "TableRenderer",
+      "ShapeRenderer",
+      "LdmPdfWriter",
+      "fpdf2"
+    ],
+    "classification": "2_mechanism_explanation",
+    "disposition": "merged_verbatim",
+    "target_section": "API Reference",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "aspose/words_foss/pdf_writer/shape_renderer.py"
+    }
+  },
+  {
+    "unit_id": "u0074",
+    "excerpt": "- `LdmDocxWriter.write(doc, output_path) -> None` / `write_to_bytes(doc) -> bytes`",
+    "salient_tokens": [
+      "LdmDocxWriter.write(doc, output_path) -> None",
+      "write_to_bytes(doc) -> bytes",
+      "LdmDocxWriter"
+    ],
+    "classification": "2_mechanism_explanation",
+    "disposition": "merged_verbatim",
+    "target_section": "API Reference",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "aspose/words_foss/docx_writer/writer.py"
+    }
+  },
+  {
+    "unit_id": "u0075",
+    "excerpt": "- `OoxmlSaveOptions` — `compliance` (`OoxmlCompliance.ECMA376_2006` / `ISO29500_2008_TRANSITIONAL`;\n  `ISO29500_2008_STRICT` is not implemented), `compression_level` (`CompressionLevel.NORMAL` /\n  `MAXIMUM` / `FAST` / `SUPER_FAST`), `zip_64_mode`, `pretty_format`",
+    "salient_tokens": [
+      "OoxmlSaveOptions",
+      "compliance",
+      "OoxmlCompliance.ECMA376_2006",
+      "ISO29500_2008_TRANSITIONAL",
+      "ISO29500_2008_STRICT",
+      "compression_level",
+      "CompressionLevel.NORMAL",
+      "MAXIMUM",
+      "FAST",
+      "SUPER_FAST",
+      "zip_64_mode",
+      "pretty_format",
+      "OoxmlCompliance",
+      "CompressionLevel",
+      "NORMAL"
+    ],
+    "classification": "2_mechanism_explanation",
+    "disposition": "merged_verbatim",
+    "target_section": "API Reference",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "aspose/words_foss/saving.py"
+    }
+  },
+  {
+    "unit_id": "u0076",
+    "excerpt": "- `DocxWriterLossyWarning` — a `UserWarning` subclass callers can opt into with\n  `warnings.simplefilter(\"error\", DocxWriterLossyWarning)`",
+    "salient_tokens": [
+      "DocxWriterLossyWarning",
+      "UserWarning",
+      "warnings.simplefilter(\"error\", DocxWriterLossyWarning)",
+      "error"
+    ],
+    "classification": "2_mechanism_explanation",
+    "disposition": "merged_verbatim",
+    "target_section": "API Reference",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "aspose/words_foss/docx_writer/writer.py"
+    }
+  },
+  {
+    "unit_id": "u0077",
+    "excerpt": "- `Document` (LDM) — `all_paragraphs`, `tables`, `all_tables`, `text`, `styles`, `lists`,\n  `sections`, `header_paragraphs`, `footer_paragraphs`, `find_style(name)`, `headings(max_level)`",
+    "salient_tokens": [
+      "Document",
+      "all_paragraphs",
+      "tables",
+      "all_tables",
+      "text",
+      "styles",
+      "lists",
+      "sections",
+      "header_paragraphs",
+      "footer_paragraphs",
+      "find_style(name)",
+      "headings(max_level)",
+      "LDM"
+    ],
+    "classification": "2_mechanism_explanation",
+    "disposition": "merged_verbatim",
+    "target_section": "API Reference",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "aspose/words_foss/light_document_model.py"
+    }
+  },
+  {
+    "unit_id": "u0078",
+    "excerpt": "- `Section` — `page_setup`, `body`, `headers_footers`",
+    "salient_tokens": [
+      "Section",
+      "page_setup",
+      "body",
+      "headers_footers"
+    ],
+    "classification": "2_mechanism_explanation",
+    "disposition": "merged_verbatim",
+    "target_section": "API Reference",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "aspose/words_foss/light_document_model.py"
+    }
+  },
+  {
+    "unit_id": "u0079",
+    "excerpt": "- `Paragraph` — `runs`, `paragraph_format`, `list_format`, `list_label`, `text`",
+    "salient_tokens": [
+      "Paragraph",
+      "runs",
+      "paragraph_format",
+      "list_format",
+      "list_label",
+      "text"
+    ],
+    "classification": "2_mechanism_explanation",
+    "disposition": "merged_verbatim",
+    "target_section": "API Reference",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "aspose/words_foss/light_document_model.py"
+    }
+  },
+  {
+    "unit_id": "u0080",
+    "excerpt": "- `Table` / `Row` / `Cell` — `rows`, `cells`, `cell_format`, `row_format`",
+    "salient_tokens": [
+      "Table",
+      "Row",
+      "Cell",
+      "rows",
+      "cells",
+      "cell_format",
+      "row_format"
+    ],
+    "classification": "2_mechanism_explanation",
+    "disposition": "merged_verbatim",
+    "target_section": "API Reference",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "aspose/words_foss/light_document_model.py"
+    }
+  },
+  {
+    "unit_id": "u0081",
+    "excerpt": "- `Style` — `paragraph_format`, `font`, `base_style_name`, `built_in`",
+    "salient_tokens": [
+      "Style",
+      "paragraph_format",
+      "font",
+      "base_style_name",
+      "built_in"
+    ],
+    "classification": "2_mechanism_explanation",
+    "disposition": "merged_verbatim",
+    "target_section": "API Reference",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "aspose/words_foss/light_document_model.py"
+    }
+  },
+  {
+    "unit_id": "u0082",
+    "excerpt": "- `Font` / `ParagraphFormat` / `PageSetup` — cascaded formatting attributes resolved during DOCX\n  read",
+    "salient_tokens": [
+      "Font",
+      "ParagraphFormat",
+      "PageSetup",
+      "DOCX"
+    ],
+    "classification": "2_mechanism_explanation",
+    "disposition": "merged_verbatim",
+    "target_section": "API Reference",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "aspose/words_foss/light_document_model.py"
+    }
+  },
+  {
+    "unit_id": "u0083",
+    "excerpt": "- `LineStyle`, `LineSpacingRule`, `HeightRule`, `CellMerge`, `CellVerticalAlignment`, `Orientation`,\n  `ParagraphAlignment`, `SectionStart`, `StyleType`, `StyleIdentifier`, `TabAlignment`, `TabLeader`,\n  `Underline`, `WrapType`",
+    "salient_tokens": [
+      "LineStyle",
+      "LineSpacingRule",
+      "HeightRule",
+      "CellMerge",
+      "CellVerticalAlignment",
+      "Orientation",
+      "ParagraphAlignment",
+      "SectionStart",
+      "StyleType",
+      "StyleIdentifier",
+      "TabAlignment",
+      "TabLeader",
+      "Underline",
+      "WrapType"
+    ],
+    "classification": "2_mechanism_explanation",
+    "disposition": "merged_verbatim",
+    "target_section": "API Reference",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "aspose/words_foss/model/enums/table.py"
+    }
+  },
+  {
+    "unit_id": "u0084",
+    "excerpt": "</details>",
+    "salient_tokens": [],
+    "classification": "1_narrative_cta",
+    "disposition": "merged_verbatim",
+    "target_section": "API Reference",
+    "verification": {
+      "status": "not_applicable_category_1",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": ""
+    }
+  },
+  {
+    "unit_id": "u0085",
+    "excerpt": "- **[Getting started guide](https://docs.aspose.org/words/python/)** — installation, walkthroughs, and feature guides for this library.",
+    "salient_tokens": [
+      "Getting started guide",
+      "https://docs.aspose.org/words/python/"
+    ],
+    "classification": "1_narrative_cta",
+    "disposition": "merged_verbatim",
+    "target_section": "Documentation & Resources",
+    "verification": {
+      "status": "not_applicable_category_1",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": ""
+    }
+  },
+  {
+    "unit_id": "u0086",
+    "excerpt": "- **[How-to guides & FAQ](https://kb.aspose.org/words/python/)** — task-focused answers for common Word-processing questions.",
+    "salient_tokens": [
+      "FAQ",
+      "How-to guides & FAQ",
+      "https://kb.aspose.org/words/python/"
+    ],
+    "classification": "1_narrative_cta",
+    "disposition": "merged_verbatim",
+    "target_section": "Documentation & Resources",
+    "verification": {
+      "status": "not_applicable_category_1",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": ""
+    }
+  },
+  {
+    "unit_id": "u0087",
+    "excerpt": "- **[Full API reference](https://reference.aspose.org/words/python/)** — the complete, browsable reference for all 146 public types (the [API reference](#api-reference) section above covers the essentials).",
+    "salient_tokens": [
+      "API",
+      "Full API reference",
+      "API reference",
+      "https://reference.aspose.org/words/python/",
+      "#api-reference"
+    ],
+    "classification": "1_narrative_cta",
+    "disposition": "merged_verbatim",
+    "target_section": "Documentation & Resources",
+    "verification": {
+      "status": "not_applicable_category_1",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": ""
+    }
+  },
+  {
+    "unit_id": "u0088",
+    "excerpt": "- The `ApiExamples/` scripts are written against the API this library shares with the commercial\n  [`aspose-words`](https://github.com/aspose-words/Aspose.Words-for-Python-via-.NET) package — the\n  same sources run there too, by replacing `aspose.words_foss` with `aspose.words` in the imports.",
+    "salient_tokens": [
+      "ApiExamples/",
+      "aspose-words",
+      "aspose.words_foss",
+      "aspose.words",
+      "ApiExamples",
+      "API",
+      "NET",
+      "`aspose-words`",
+      "https://github.com/aspose-words/Aspose.Words-for-Python-via-.NET"
+    ],
+    "classification": "1_narrative_cta",
+    "disposition": "merged_verbatim",
+    "target_section": "Documentation & Resources",
+    "verification": {
+      "status": "not_applicable_category_1",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": ""
+    }
+  },
+  {
+    "unit_id": "u0089",
+    "excerpt": "- Found a bug or have a feature request? [Open an issue](https://github.com/aspose-words-foss/Aspose.Words-FOSS-for-Python/issues) on GitHub.",
+    "salient_tokens": [
+      "FOSS",
+      "GitHub",
+      "Open an issue",
+      "https://github.com/aspose-words-foss/Aspose.Words-FOSS-for-Python/issues"
+    ],
+    "classification": "1_narrative_cta",
+    "disposition": "merged_verbatim",
+    "target_section": "Documentation & Resources",
+    "verification": {
+      "status": "not_applicable_category_1",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": ""
+    }
+  },
+  {
+    "unit_id": "u0090",
+    "excerpt": "- `SaveFormat.DOC` is defined as a save-format constant for API compatibility with the commercial\n  product, but `Document.save()` does not implement a DOC writer — `.doc` files can be read, not\n  written. Saving with an unsupported target raises `ValueError` (`Markdown`, `Text`, `PDF`, and\n  `DOCX` are the four save formats actually implemented).",
+    "salient_tokens": [
+      "SaveFormat.DOC",
+      "Document.save()",
+      ".doc",
+      "ValueError",
+      "Markdown",
+      "Text",
+      "PDF",
+      "DOCX",
+      "SaveFormat",
+      "DOC",
+      "API"
+    ],
+    "classification": "2_mechanism_explanation",
+    "disposition": "merged_verbatim",
+    "target_section": "Scope and Limitations",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "aspose/words_foss/document.py"
+    }
+  },
+  {
+    "unit_id": "u0091",
+    "excerpt": "- Saving DOCX with `OoxmlSaveOptions.compliance` set to `OoxmlCompliance.ISO29500_2008_STRICT` is\n  not implemented — the writer raises `NotImplementedError` rather than silently emitting\n  non-strict output. Use `ECMA376_2006` or `ISO29500_2008_TRANSITIONAL` instead, both of which this\n  edition treats as producing the same, compliant output.",
+    "salient_tokens": [
+      "OoxmlSaveOptions.compliance",
+      "OoxmlCompliance.ISO29500_2008_STRICT",
+      "NotImplementedError",
+      "ECMA376_2006",
+      "ISO29500_2008_TRANSITIONAL",
+      "DOCX",
+      "OoxmlSaveOptions",
+      "OoxmlCompliance"
+    ],
+    "classification": "2_mechanism_explanation",
+    "disposition": "merged_verbatim",
+    "target_section": "Scope and Limitations",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "aspose/words_foss/docx_writer/writer.py"
+    }
+  },
+  {
+    "unit_id": "u0092",
+    "excerpt": "- Of `PdfSaveOptions`'s 17 fields, 8 — `text_compression`, `embed_full_fonts`, `use_core_fonts`,\n  `font_embedding_mode`, `page_mode`, `color_mode`, `preserve_form_fields`, and\n  `memory_optimization` — exist for API forward-compatibility with the commercial Aspose.Words\n  API and are not yet consumed by the PDF writer.",
+    "salient_tokens": [
+      "PdfSaveOptions",
+      "text_compression",
+      "embed_full_fonts",
+      "use_core_fonts",
+      "font_embedding_mode",
+      "page_mode",
+      "color_mode",
+      "preserve_form_fields",
+      "memory_optimization",
+      "API",
+      "PDF"
+    ],
+    "classification": "2_mechanism_explanation",
+    "disposition": "merged_verbatim",
+    "target_section": "Scope and Limitations",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "aspose/words_foss/saving.py"
+    }
+  },
+  {
+    "unit_id": "u0093",
+    "excerpt": "For DOC writing, strict ISO 29500 compliance, and the additional load/save formats and page-layout\nfeatures beyond this edition's scope, see\n[Aspose.Words for Python — Enterprise Edition](https://products.aspose.com/words/python-net/),\nwhich adds the full commercial feature set on top of the same compatible document model.",
+    "salient_tokens": [
+      "DOC",
+      "ISO",
+      "Aspose.Words for Python — Enterprise Edition",
+      "https://products.aspose.com/words/python-net/"
+    ],
+    "classification": "1_narrative_cta",
+    "disposition": "merged_verbatim",
+    "target_section": "Scope and Limitations",
+    "verification": {
+      "status": "not_applicable_category_1",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": ""
+    }
+  },
+  {
+    "unit_id": "u0094",
+    "excerpt": "Install the development dependencies and run the example test suite:",
+    "salient_tokens": [],
+    "classification": "1_narrative_cta",
+    "disposition": "merged_verbatim",
+    "target_section": "Development and Testing",
+    "verification": {
+      "status": "not_applicable_category_1",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": ""
+    }
+  },
+  {
+    "unit_id": "u0095",
+    "excerpt": "Run an individual example script directly:",
+    "salient_tokens": [],
+    "classification": "1_narrative_cta",
+    "disposition": "merged_verbatim",
+    "target_section": "Development and Testing",
+    "verification": {
+      "status": "not_applicable_category_1",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": ""
+    }
+  },
+  {
+    "unit_id": "u0096",
+    "excerpt": "Test fixtures live under `tests/data/input/` (shared input files for `ApiExamples/`); generated\noutput is written to `ApiExamples/output/` (git-ignored).",
+    "salient_tokens": [
+      "tests/data/input/",
+      "ApiExamples/",
+      "ApiExamples/output/",
+      "ApiExamples"
+    ],
+    "classification": "2_mechanism_explanation",
+    "disposition": "merged_verbatim",
+    "target_section": "Development and Testing",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "tests/data/input/consecutive_images.docx"
+    }
+  },
+  {
+    "unit_id": "u0097",
+    "excerpt": "This project is licensed under the [MIT License](LICENSE). The MIT License permits use, copying,\nmodification, distribution, sublicensing, and commercial use, provided its copyright and permission\nnotice are retained. The software is provided without warranty.",
+    "salient_tokens": [
+      "MIT",
+      "LICENSE",
+      "MIT License"
+    ],
+    "classification": "2_mechanism_explanation",
+    "disposition": "merged_verbatim",
+    "target_section": "License",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "LICENSE"
+    }
+  }
+]

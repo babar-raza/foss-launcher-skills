@@ -1,0 +1,2357 @@
+[
+  {
+    "unit_id": "u0001",
+    "excerpt": "Quick links: [📚 Examples](examples/) • [📦 PyPI](https://pypi.org/project/aspose-note/)",
+    "salient_tokens": [
+      "PyPI"
+    ],
+    "classification": "1_narrative_cta",
+    "disposition": "excluded",
+    "verification": {
+      "status": "not_applicable_category_1"
+    },
+    "excluded_reason": "Pure narrative/structural lead-in or decorative bullet with no independent checkable fact of its own; per this skill's established scope decision, category-1 narrative/CTA prose stays out of scope."
+  },
+  {
+    "unit_id": "u0002",
+    "excerpt": "✅ **Official Aspose project** — **100% free & open-source**. Provides an Aspose.Note-compatible Python API for working with OneNote `.one` files.",
+    "salient_tokens": [
+      ".one",
+      "API",
+      "OneNote"
+    ],
+    "classification": "3_branding_positioning",
+    "disposition": "excluded",
+    "verification": {
+      "status": "verified_redundant",
+      "evidence_type": "candidate_section_reference",
+      "evidence_ref": "Intro"
+    },
+    "excluded_reason": "Branding/positioning claim ('Official Aspose project', '100% free & open-source'); its factual core (free, open-source, Aspose.Note-compatible API for OneNote .one files) is already stated in the new candidate's Intro paragraph."
+  },
+  {
+    "unit_id": "u0003",
+    "excerpt": "This repository provides a Python library with a **subset-compatible Aspose.Note for .NET-shaped public API** for reading Microsoft OneNote files (`.one`).",
+    "salient_tokens": [
+      ".one",
+      "NET",
+      "API",
+      "OneNote"
+    ],
+    "classification": "2_mechanism_explanation",
+    "disposition": "merged_reframed",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "pyproject.toml"
+    },
+    "target_section": "Intro"
+  },
+  {
+    "unit_id": "u0004",
+    "excerpt": "The goal is to offer a familiar surface (`aspose.note.*`) inspired by [Aspose.Note for .NET](https://products.aspose.com/note/net/), backed by this repository’s built-in MS-ONE/OneStore parser.",
+    "salient_tokens": [
+      "Aspose.Note-compatible DOM"
+    ],
+    "classification": "2_mechanism_explanation",
+    "disposition": "merged_reframed",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/aspose/note/_internal/ms_one/loader.py"
+    },
+    "target_section": "Key Capabilities",
+    "classification_basis": "CORRECTED 2026-08-20 (TC-RC-01-NOTE-PYTHON): retargeted from At a Glance (which has no prose, only the mermaid diagram -- salient tokens are never traceable there) to Key Capabilities, where this exact concept (an Aspose.Note-compatible DOM surface, parsed via the built-in MS-ONE/OneStore loader) is genuinely restated in the first bullet (line 58)."
+  },
+  {
+    "unit_id": "u0005",
+    "excerpt": "- ✅ Read `.one` from a file path or a binary stream",
+    "salient_tokens": [
+      ".one"
+    ],
+    "classification": "2_mechanism_explanation",
+    "disposition": "merged_reframed",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/aspose/note/model.py"
+    },
+    "target_section": "Key Capabilities"
+  },
+  {
+    "unit_id": "u0006",
+    "excerpt": "- ✅ Aspose-like DOM (Document/Page/Outline/…): traversal + type-based search",
+    "salient_tokens": [
+      "DOM"
+    ],
+    "classification": "2_mechanism_explanation",
+    "disposition": "merged_reframed",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/aspose/note/model.py"
+    },
+    "target_section": "Key Capabilities"
+  },
+  {
+    "unit_id": "u0007",
+    "excerpt": "- ✅ Content extraction",
+    "salient_tokens": [],
+    "classification": "1_narrative_cta",
+    "disposition": "excluded",
+    "verification": {
+      "status": "not_applicable_category_1"
+    },
+    "excluded_reason": "Pure narrative/structural lead-in or decorative bullet with no independent checkable fact of its own; per this skill's established scope decision, category-1 narrative/CTA prose stays out of scope."
+  },
+  {
+    "unit_id": "u0008",
+    "excerpt": "- ✅ Rich text with formatting runs (TextRun/TextStyle) and hyperlinks",
+    "salient_tokens": [
+      "TextRun",
+      "TextStyle"
+    ],
+    "classification": "2_mechanism_explanation",
+    "disposition": "merged_reframed",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/aspose/note/model.py"
+    },
+    "target_section": "Key Capabilities"
+  },
+  {
+    "unit_id": "u0009",
+    "excerpt": "- ✅ Images (bytes, file name, dimensions)",
+    "salient_tokens": [],
+    "classification": "2_mechanism_explanation",
+    "disposition": "merged_reframed",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/aspose/note/model.py"
+    },
+    "target_section": "Key Capabilities"
+  },
+  {
+    "unit_id": "u0010",
+    "excerpt": "- ✅ Attached files (bytes, file name)",
+    "salient_tokens": [],
+    "classification": "2_mechanism_explanation",
+    "disposition": "merged_reframed",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/aspose/note/model.py"
+    },
+    "target_section": "Key Capabilities"
+  },
+  {
+    "unit_id": "u0011",
+    "excerpt": "- ✅ Tables (rows/cells + cell content)",
+    "salient_tokens": [],
+    "classification": "2_mechanism_explanation",
+    "disposition": "merged_reframed",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/aspose/note/model.py"
+    },
+    "target_section": "Key Capabilities"
+  },
+  {
+    "unit_id": "u0012",
+    "excerpt": "- ✅ OneNote tags (NoteTag) on text/images/tables and tagged list content",
+    "salient_tokens": [
+      "OneNote",
+      "NoteTag"
+    ],
+    "classification": "2_mechanism_explanation",
+    "disposition": "merged_reframed",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/aspose/note/model.py"
+    },
+    "target_section": "Key Capabilities"
+  },
+  {
+    "unit_id": "u0013",
+    "excerpt": "- ✅ Numbered lists (NumberList) and nested outline elements",
+    "salient_tokens": [
+      "NumberList"
+    ],
+    "classification": "2_mechanism_explanation",
+    "disposition": "merged_reframed",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/aspose/note/model.py"
+    },
+    "target_section": "Key Capabilities"
+  },
+  {
+    "unit_id": "u0014",
+    "excerpt": "- ✅ PDF export via `Document.Save(..., SaveFormat.Pdf)` (uses ReportLab)",
+    "salient_tokens": [
+      "Document.Save(..., SaveFormat.Pdf)",
+      "PDF",
+      "SaveFormat",
+      "ReportLab"
+    ],
+    "classification": "2_mechanism_explanation",
+    "disposition": "merged_reframed",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/aspose/note/saving/options.py"
+    },
+    "target_section": "Key Capabilities"
+  },
+  {
+    "unit_id": "u0015",
+    "excerpt": "From PyPI:",
+    "salient_tokens": [
+      "PyPI"
+    ],
+    "classification": "redundant_with_existing",
+    "disposition": "excluded",
+    "verification": {
+      "status": "verified_redundant",
+      "evidence_type": "candidate_section_reference",
+      "evidence_ref": "Installation"
+    },
+    "excluded_reason": "Bare lead-in label for the PyPI install command; the fact (published on PyPI) is already stated in the candidate's own Installation section."
+  },
+  {
+    "unit_id": "u0016",
+    "excerpt": "With PDF export support:",
+    "salient_tokens": [
+      "PDF"
+    ],
+    "classification": "redundant_with_existing",
+    "disposition": "excluded",
+    "verification": {
+      "status": "verified_redundant",
+      "evidence_type": "candidate_section_reference",
+      "evidence_ref": "Installation"
+    },
+    "excluded_reason": "Bare lead-in label for the PDF-extra install command; already covered by the candidate's own Installation section."
+  },
+  {
+    "unit_id": "u0017",
+    "excerpt": "From a local checkout:",
+    "salient_tokens": [],
+    "classification": "1_narrative_cta",
+    "disposition": "excluded",
+    "verification": {
+      "status": "not_applicable_category_1"
+    },
+    "excluded_reason": "Pure narrative/structural lead-in or decorative bullet with no independent checkable fact of its own; per this skill's established scope decision, category-1 narrative/CTA prose stays out of scope."
+  },
+  {
+    "unit_id": "u0018",
+    "excerpt": "PDF export requires ReportLab:",
+    "salient_tokens": [
+      "PDF",
+      "ReportLab"
+    ],
+    "classification": "redundant_with_existing",
+    "disposition": "excluded",
+    "verification": {
+      "status": "verified_redundant",
+      "evidence_type": "candidate_section_reference",
+      "evidence_ref": "Installation"
+    },
+    "excluded_reason": "Bare lead-in label restating that PDF export needs ReportLab; already covered by the candidate's own Installation section."
+  },
+  {
+    "unit_id": "u0019",
+    "excerpt": "Semantic PDF golden tests require `pypdf` in addition to ReportLab:",
+    "salient_tokens": [
+      "pypdf",
+      "PDF",
+      "ReportLab"
+    ],
+    "classification": "redundant_with_existing",
+    "disposition": "excluded",
+    "verification": {
+      "status": "verified_redundant",
+      "evidence_type": "candidate_section_reference",
+      "evidence_ref": "Development and Testing"
+    },
+    "excluded_reason": "Bare lead-in label about the test-pdf extra; already covered by the candidate's Development and Testing section (test-pdf extra, PDF golden tests)."
+  },
+  {
+    "unit_id": "u0020",
+    "excerpt": "Golden PDFs are stored under `tests/goldens/pdf/` together with JSON manifests extracted from the generated PDF.\nThe test suite compares manifests, not raw PDF bytes, so it stays stable across platforms and ReportLab internals.\nThe PDF writer now uses deterministic Base-14 fonts by default. If you explicitly want to try Windows system fonts for local inspection, set `ASPOSE_NOTE_PDF_USE_SYSTEM_FONTS=1` before export.",
+    "salient_tokens": [
+      "tests/goldens/pdf/",
+      "ASPOSE_NOTE_PDF_USE_SYSTEM_FONTS=1",
+      "PDFs",
+      "JSON",
+      "PDF",
+      "ReportLab"
+    ],
+    "classification": "2_mechanism_explanation",
+    "disposition": "merged_reframed",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/aspose/note/saving/pdf_writer.py"
+    },
+    "target_section": "Development and Testing"
+  },
+  {
+    "unit_id": "u0021",
+    "excerpt": "Regenerate the baselines with:",
+    "salient_tokens": [],
+    "classification": "1_narrative_cta",
+    "disposition": "excluded",
+    "verification": {
+      "status": "not_applicable_category_1"
+    },
+    "excluded_reason": "Pure narrative/structural lead-in or decorative bullet with no independent checkable fact of its own; per this skill's established scope decision, category-1 narrative/CTA prose stays out of scope."
+  },
+  {
+    "unit_id": "u0022",
+    "excerpt": "To rebuild only selected cases:",
+    "salient_tokens": [],
+    "classification": "1_narrative_cta",
+    "disposition": "excluded",
+    "verification": {
+      "status": "not_applicable_category_1"
+    },
+    "excluded_reason": "Pure narrative/structural lead-in or decorative bullet with no independent checkable fact of its own; per this skill's established scope decision, category-1 narrative/CTA prose stays out of scope."
+  },
+  {
+    "unit_id": "u0023",
+    "excerpt": "Run the verification suite with:",
+    "salient_tokens": [],
+    "classification": "1_narrative_cta",
+    "disposition": "excluded",
+    "verification": {
+      "status": "not_applicable_category_1"
+    },
+    "excluded_reason": "Pure narrative/structural lead-in or decorative bullet with no independent checkable fact of its own; per this skill's established scope decision, category-1 narrative/CTA prose stays out of scope."
+  },
+  {
+    "unit_id": "u0024",
+    "excerpt": "On mismatch, generated PDFs and manifests are written to `tests/out/pdf_golden_failures/` for inspection.\nIf `PyMuPDF` is installed, the failing test also renders baseline/generated pages to PNG and writes visual diff artifacts into the same output tree.\nIf `PyMuPDF` is unavailable but `pdftoppm` is available on `PATH`, the tests use `pdftoppm` as a fallback renderer.",
+    "salient_tokens": [
+      "tests/out/pdf_golden_failures/",
+      "PyMuPDF",
+      "pdftoppm",
+      "PATH",
+      "PDFs",
+      "PNG"
+    ],
+    "classification": "2_mechanism_explanation",
+    "disposition": "merged_reframed",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "tests/_pdf_goldens.py"
+    },
+    "target_section": "Development and Testing"
+  },
+  {
+    "unit_id": "u0025",
+    "excerpt": "PyPI release page (maintainers): https://pypi.org/manage/project/aspose-note/releases/",
+    "salient_tokens": [
+      "PyPI"
+    ],
+    "classification": "redundant_with_existing",
+    "disposition": "excluded",
+    "verification": {
+      "status": "verified_redundant",
+      "evidence_type": "candidate_section_reference",
+      "evidence_ref": "Installation"
+    },
+    "excluded_reason": "A maintainer-only PyPI release-management URL, not relevant to integrators using this library; the general PyPI-publication fact is already covered in Installation."
+  },
+  {
+    "unit_id": "u0026",
+    "excerpt": "The supported public entry points are `aspose.note` and `aspose.note.saving`.\nEverything under `aspose.note._internal` is internal implementation detail and may change.",
+    "salient_tokens": [
+      "aspose.note",
+      "aspose.note.saving",
+      "aspose.note._internal"
+    ],
+    "classification": "2_mechanism_explanation",
+    "disposition": "merged_reframed",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/aspose/note/model.py"
+    },
+    "target_section": "API Reference"
+  },
+  {
+    "unit_id": "u0027",
+    "excerpt": "Below is the supported public surface across those entry points.",
+    "salient_tokens": [],
+    "classification": "1_narrative_cta",
+    "disposition": "excluded",
+    "verification": {
+      "status": "not_applicable_category_1"
+    },
+    "excluded_reason": "Pure narrative/structural lead-in or decorative bullet with no independent checkable fact of its own; per this skill's established scope decision, category-1 narrative/CTA prose stays out of scope."
+  },
+  {
+    "unit_id": "u0028",
+    "excerpt": "- `Document(source=None, load_options=None)`",
+    "salient_tokens": [
+      "Document(source=None, load_options=None)"
+    ],
+    "classification": "2_mechanism_explanation",
+    "disposition": "merged_reframed",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/aspose/note/model.py"
+    },
+    "target_section": "API Reference"
+  },
+  {
+    "unit_id": "u0029",
+    "excerpt": "- `DisplayName: str | None`",
+    "salient_tokens": [
+      "DisplayName: str | None",
+      "DisplayName"
+    ],
+    "classification": "2_mechanism_explanation",
+    "disposition": "merged_reframed",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/aspose/note/model.py"
+    },
+    "target_section": "API Reference"
+  },
+  {
+    "unit_id": "u0030",
+    "excerpt": "- `CreationTime: datetime | None`",
+    "salient_tokens": [
+      "CreationTime: datetime | None",
+      "CreationTime"
+    ],
+    "classification": "2_mechanism_explanation",
+    "disposition": "merged_reframed",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/aspose/note/model.py"
+    },
+    "target_section": "API Reference"
+  },
+  {
+    "unit_id": "u0031",
+    "excerpt": "- iteration: `for page in doc: ...`",
+    "salient_tokens": [
+      "for page in doc: ..."
+    ],
+    "classification": "2_mechanism_explanation",
+    "disposition": "merged_reframed",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/aspose/note/model.py"
+    },
+    "target_section": "API Reference"
+  },
+  {
+    "unit_id": "u0032",
+    "excerpt": "- `FileFormat -> FileFormat` (best-effort)",
+    "salient_tokens": [
+      "FileFormat -> FileFormat",
+      "FileFormat"
+    ],
+    "disposition": "corrected",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/aspose/note/model.py"
+    },
+    "target_section": "API Reference",
+    "classification_basis": "corrected 2026-09-04 -- previously misclassified merged_verbatim/merged_reframed; the text was deliberately, correctly changed from the pre-refresh original, not preserved or lightly reframed. See correction_reason.",
+    "correction_reason": "The pre-refresh original said \"(best-effort)\", vaguely implying a detection heuristic. Direct source read (aspose/note/model.py:1286-1287) confirms FileFormat is a hardcoded property returning FileFormat.OneNote2010 unconditionally -- no detection logic exists at all. Corrected to the more precise, source-verified \"always reports OneNote2010\" claim (already shipped in the live, merged PR #5 content) rather than the vague original wording.",
+    "classification": "2_mechanism_explanation"
+  },
+  {
+    "unit_id": "u0033",
+    "excerpt": "- `GetPageHistory(page) -> PageHistory`",
+    "salient_tokens": [
+      "GetPageHistory(page) -> PageHistory",
+      "GetPageHistory",
+      "PageHistory"
+    ],
+    "classification": "2_mechanism_explanation",
+    "disposition": "merged_reframed",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/aspose/note/model.py"
+    },
+    "target_section": "API Reference"
+  },
+  {
+    "unit_id": "u0034",
+    "excerpt": "- `DetectLayoutChanges()` (compatibility stub)",
+    "salient_tokens": [
+      "DetectLayoutChanges()",
+      "DetectLayoutChanges"
+    ],
+    "classification": "2_mechanism_explanation",
+    "disposition": "merged_reframed",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/aspose/note/model.py"
+    },
+    "target_section": "API Reference"
+  },
+  {
+    "unit_id": "u0035",
+    "excerpt": "- `Save(target, format_or_options=None)`",
+    "salient_tokens": [
+      "Save(target, format_or_options=None)"
+    ],
+    "classification": "2_mechanism_explanation",
+    "disposition": "merged_reframed",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/aspose/note/model.py"
+    },
+    "target_section": "API Reference"
+  },
+  {
+    "unit_id": "u0036",
+    "excerpt": "- supported: `SaveFormat.Pdf` only",
+    "salient_tokens": [
+      "SaveFormat.Pdf",
+      "SaveFormat"
+    ],
+    "classification": "2_mechanism_explanation",
+    "disposition": "merged_reframed",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/aspose/note/model.py"
+    },
+    "target_section": "API Reference"
+  },
+  {
+    "unit_id": "u0037",
+    "excerpt": "- `PageHistory`",
+    "salient_tokens": [
+      "PageHistory"
+    ],
+    "classification": "2_mechanism_explanation",
+    "disposition": "merged_reframed",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/aspose/note/model.py"
+    },
+    "target_section": "API Reference"
+  },
+  {
+    "unit_id": "u0038",
+    "excerpt": "- `Current: Page`",
+    "salient_tokens": [
+      "Current: Page"
+    ],
+    "classification": "2_mechanism_explanation",
+    "disposition": "merged_reframed",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/aspose/note/model.py"
+    },
+    "target_section": "API Reference"
+  },
+  {
+    "unit_id": "u0039",
+    "excerpt": "- `Count: int`, `IsReadOnly: bool`",
+    "salient_tokens": [
+      "Count: int",
+      "IsReadOnly: bool",
+      "IsReadOnly"
+    ],
+    "classification": "2_mechanism_explanation",
+    "disposition": "merged_reframed",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/aspose/note/model.py"
+    },
+    "target_section": "API Reference"
+  },
+  {
+    "unit_id": "u0040",
+    "excerpt": "- iteration/indexing over historical revisions only",
+    "salient_tokens": [],
+    "classification": "2_mechanism_explanation",
+    "disposition": "merged_reframed",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/aspose/note/model.py"
+    },
+    "target_section": "API Reference"
+  },
+  {
+    "unit_id": "u0041",
+    "excerpt": "- `DocumentVisitor` — base visitor for traversal:",
+    "salient_tokens": [
+      "DocumentVisitor"
+    ],
+    "classification": "2_mechanism_explanation",
+    "disposition": "merged_reframed",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/aspose/note/model.py"
+    },
+    "target_section": "API Reference"
+  },
+  {
+    "unit_id": "u0042",
+    "excerpt": "- `VisitDocumentStart/End`, `VisitPageStart/End`, `VisitTitleStart/End`, `VisitOutlineStart/End`,\n    `VisitOutlineElementStart/End`, `VisitRichTextStart/End`, `VisitImageStart/End`",
+    "salient_tokens": [
+      "VisitDocumentStart/End",
+      "VisitPageStart/End",
+      "VisitTitleStart/End",
+      "VisitOutlineStart/End",
+      "VisitOutlineElementStart/End",
+      "VisitRichTextStart/End",
+      "VisitImageStart/End",
+      "VisitDocumentStart",
+      "VisitPageStart",
+      "VisitTitleStart",
+      "VisitOutlineStart",
+      "VisitOutlineElementStart",
+      "VisitRichTextStart",
+      "VisitImageStart"
+    ],
+    "classification": "2_mechanism_explanation",
+    "disposition": "merged_reframed",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/aspose/note/model.py"
+    },
+    "target_section": "API Reference"
+  },
+  {
+    "unit_id": "u0043",
+    "excerpt": "- `Node`",
+    "salient_tokens": [
+      "Node"
+    ],
+    "classification": "2_mechanism_explanation",
+    "disposition": "merged_reframed",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/aspose/note/model.py"
+    },
+    "target_section": "API Reference"
+  },
+  {
+    "unit_id": "u0044",
+    "excerpt": "- `ParentNode`",
+    "salient_tokens": [
+      "ParentNode"
+    ],
+    "classification": "2_mechanism_explanation",
+    "disposition": "merged_reframed",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/aspose/note/model.py"
+    },
+    "target_section": "API Reference"
+  },
+  {
+    "unit_id": "u0045",
+    "excerpt": "- `Document` (property) — walk up to the root `Document`",
+    "salient_tokens": [
+      "Document"
+    ],
+    "classification": "2_mechanism_explanation",
+    "disposition": "merged_reframed",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/aspose/note/model.py"
+    },
+    "target_section": "API Reference"
+  },
+  {
+    "unit_id": "u0046",
+    "excerpt": "- `Accept(visitor)`",
+    "salient_tokens": [
+      "Accept(visitor)"
+    ],
+    "classification": "2_mechanism_explanation",
+    "disposition": "merged_reframed",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/aspose/note/model.py"
+    },
+    "target_section": "API Reference"
+  },
+  {
+    "unit_id": "u0047",
+    "excerpt": "- Container nodes (`Document`, `Page`, `Title`, `Outline`, `OutlineElement`, `Image`, `Table`, `TableRow`, `TableCell`)",
+    "salient_tokens": [
+      "Document",
+      "Page",
+      "Title",
+      "Outline",
+      "OutlineElement",
+      "Image",
+      "Table",
+      "TableRow",
+      "TableCell"
+    ],
+    "classification": "2_mechanism_explanation",
+    "disposition": "merged_reframed",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/aspose/note/model.py"
+    },
+    "target_section": "API Reference"
+  },
+  {
+    "unit_id": "u0048",
+    "excerpt": "- `FirstChild`, `LastChild`",
+    "salient_tokens": [
+      "FirstChild",
+      "LastChild"
+    ],
+    "classification": "2_mechanism_explanation",
+    "disposition": "merged_reframed",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/aspose/note/model.py"
+    },
+    "target_section": "API Reference"
+  },
+  {
+    "unit_id": "u0049",
+    "excerpt": "- `AppendChildLast(node)`, `AppendChildFirst(node)`, `InsertChild(index, node)`, `RemoveChild(node)`",
+    "salient_tokens": [
+      "AppendChildLast(node)",
+      "AppendChildFirst(node)",
+      "InsertChild(index, node)",
+      "RemoveChild(node)",
+      "AppendChildLast",
+      "AppendChildFirst",
+      "InsertChild",
+      "RemoveChild"
+    ],
+    "classification": "2_mechanism_explanation",
+    "disposition": "merged_reframed",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/aspose/note/model.py"
+    },
+    "target_section": "API Reference"
+  },
+  {
+    "unit_id": "u0050",
+    "excerpt": "- `GetEnumerator()` / iteration `for child in node: ...`",
+    "salient_tokens": [
+      "GetEnumerator()",
+      "for child in node: ...",
+      "GetEnumerator"
+    ],
+    "classification": "2_mechanism_explanation",
+    "disposition": "merged_reframed",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/aspose/note/model.py"
+    },
+    "target_section": "API Reference"
+  },
+  {
+    "unit_id": "u0051",
+    "excerpt": "- `GetChildNodes(Type) -> list[Type]` — recursive search by type",
+    "salient_tokens": [
+      "GetChildNodes(Type) -> list[Type]",
+      "GetChildNodes"
+    ],
+    "classification": "2_mechanism_explanation",
+    "disposition": "merged_reframed",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/aspose/note/model.py"
+    },
+    "target_section": "API Reference"
+  },
+  {
+    "unit_id": "u0052",
+    "excerpt": "- `Page`",
+    "salient_tokens": [
+      "Page"
+    ],
+    "classification": "2_mechanism_explanation",
+    "disposition": "merged_reframed",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/aspose/note/model.py"
+    },
+    "target_section": "API Reference"
+  },
+  {
+    "unit_id": "u0053",
+    "excerpt": "- `Title: Title | None`",
+    "salient_tokens": [
+      "Title: Title | None"
+    ],
+    "classification": "2_mechanism_explanation",
+    "disposition": "merged_reframed",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/aspose/note/model.py"
+    },
+    "target_section": "API Reference"
+  },
+  {
+    "unit_id": "u0054",
+    "excerpt": "- `Author: str | None`",
+    "salient_tokens": [
+      "Author: str | None"
+    ],
+    "classification": "2_mechanism_explanation",
+    "disposition": "merged_reframed",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/aspose/note/model.py"
+    },
+    "target_section": "API Reference"
+  },
+  {
+    "unit_id": "u0055",
+    "excerpt": "- `CreationTime: datetime | None`, `LastModifiedTime: datetime | None`",
+    "salient_tokens": [
+      "CreationTime: datetime | None",
+      "LastModifiedTime: datetime | None",
+      "CreationTime",
+      "LastModifiedTime"
+    ],
+    "classification": "2_mechanism_explanation",
+    "disposition": "merged_reframed",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/aspose/note/model.py"
+    },
+    "target_section": "API Reference"
+  },
+  {
+    "unit_id": "u0056",
+    "excerpt": "- `Level: int | None`",
+    "salient_tokens": [
+      "Level: int | None"
+    ],
+    "classification": "2_mechanism_explanation",
+    "disposition": "merged_reframed",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/aspose/note/model.py"
+    },
+    "target_section": "API Reference"
+  },
+  {
+    "unit_id": "u0057",
+    "excerpt": "- `Clone(deep=False) -> Page` (minimal clone)",
+    "salient_tokens": [
+      "Clone(deep=False) -> Page"
+    ],
+    "classification": "2_mechanism_explanation",
+    "disposition": "excluded",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/aspose/note/model.py"
+    },
+    "excluded_reason": "Old excerpt names Page.Clone's parameter as 'deep'; current source's canonical parameter name is 'cloneHistory' ('deep' survives only as a backward-compat kwarg alias). The candidate's own Detailed Member Reference uses the current canonical signature instead of carrying the deprecated name forward."
+  },
+  {
+    "unit_id": "u0058",
+    "excerpt": "- `Title`",
+    "salient_tokens": [
+      "Title"
+    ],
+    "classification": "2_mechanism_explanation",
+    "disposition": "merged_reframed",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/aspose/note/model.py"
+    },
+    "target_section": "API Reference"
+  },
+  {
+    "unit_id": "u0059",
+    "excerpt": "- `TitleText: RichText | None`",
+    "salient_tokens": [
+      "TitleText: RichText | None",
+      "TitleText",
+      "RichText"
+    ],
+    "classification": "2_mechanism_explanation",
+    "disposition": "merged_reframed",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/aspose/note/model.py"
+    },
+    "target_section": "API Reference"
+  },
+  {
+    "unit_id": "u0060",
+    "excerpt": "- `TitleDate: RichText | None`",
+    "salient_tokens": [
+      "TitleDate: RichText | None",
+      "TitleDate",
+      "RichText"
+    ],
+    "classification": "2_mechanism_explanation",
+    "disposition": "merged_reframed",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/aspose/note/model.py"
+    },
+    "target_section": "API Reference"
+  },
+  {
+    "unit_id": "u0061",
+    "excerpt": "- `TitleTime: RichText | None`",
+    "salient_tokens": [
+      "TitleTime: RichText | None",
+      "TitleTime",
+      "RichText"
+    ],
+    "classification": "2_mechanism_explanation",
+    "disposition": "merged_reframed",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/aspose/note/model.py"
+    },
+    "target_section": "API Reference"
+  },
+  {
+    "unit_id": "u0062",
+    "excerpt": "- `Outline`",
+    "salient_tokens": [
+      "Outline"
+    ],
+    "classification": "2_mechanism_explanation",
+    "disposition": "merged_reframed",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/aspose/note/model.py"
+    },
+    "target_section": "API Reference"
+  },
+  {
+    "unit_id": "u0063",
+    "excerpt": "- `HorizontalOffset`, `VerticalOffset`, `MaxWidth`",
+    "salient_tokens": [
+      "HorizontalOffset",
+      "VerticalOffset",
+      "MaxWidth"
+    ],
+    "classification": "2_mechanism_explanation",
+    "disposition": "merged_reframed",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/aspose/note/model.py"
+    },
+    "target_section": "API Reference"
+  },
+  {
+    "unit_id": "u0064",
+    "excerpt": "- `MaxHeight`, `MinWidth`, `ReservedWidth`, `IndentPosition`",
+    "salient_tokens": [
+      "MaxHeight",
+      "MinWidth",
+      "ReservedWidth",
+      "IndentPosition"
+    ],
+    "classification": "2_mechanism_explanation",
+    "disposition": "merged_reframed",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/aspose/note/model.py"
+    },
+    "target_section": "API Reference"
+  },
+  {
+    "unit_id": "u0065",
+    "excerpt": "- `DescendantsCannotBeMoved`, `LastModifiedTime`",
+    "salient_tokens": [
+      "DescendantsCannotBeMoved",
+      "LastModifiedTime"
+    ],
+    "classification": "2_mechanism_explanation",
+    "disposition": "merged_reframed",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/aspose/note/model.py"
+    },
+    "target_section": "API Reference"
+  },
+  {
+    "unit_id": "u0066",
+    "excerpt": "- `OutlineElement`",
+    "salient_tokens": [
+      "OutlineElement"
+    ],
+    "classification": "2_mechanism_explanation",
+    "disposition": "merged_reframed",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/aspose/note/model.py"
+    },
+    "target_section": "API Reference"
+  },
+  {
+    "unit_id": "u0067",
+    "excerpt": "- `NumberList: NumberList | None`",
+    "salient_tokens": [
+      "NumberList: NumberList | None",
+      "NumberList"
+    ],
+    "classification": "2_mechanism_explanation",
+    "disposition": "merged_reframed",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/aspose/note/model.py"
+    },
+    "target_section": "API Reference"
+  },
+  {
+    "unit_id": "u0068",
+    "excerpt": "- `RichText(Node)`",
+    "salient_tokens": [
+      "RichText(Node)",
+      "RichText"
+    ],
+    "classification": "2_mechanism_explanation",
+    "disposition": "merged_reframed",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/aspose/note/model.py"
+    },
+    "target_section": "API Reference"
+  },
+  {
+    "unit_id": "u0069",
+    "excerpt": "- `Text: str`",
+    "salient_tokens": [
+      "Text: str"
+    ],
+    "classification": "2_mechanism_explanation",
+    "disposition": "merged_reframed",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/aspose/note/model.py"
+    },
+    "target_section": "API Reference"
+  },
+  {
+    "unit_id": "u0070",
+    "excerpt": "- `TextRuns: list[TextRun]` — formatted segments",
+    "salient_tokens": [
+      "TextRuns: list[TextRun]",
+      "TextRuns",
+      "TextRun"
+    ],
+    "classification": "2_mechanism_explanation",
+    "disposition": "merged_reframed",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/aspose/note/model.py"
+    },
+    "target_section": "API Reference"
+  },
+  {
+    "unit_id": "u0071",
+    "excerpt": "- `ParagraphStyle: ParagraphStyle`",
+    "salient_tokens": [
+      "ParagraphStyle: ParagraphStyle",
+      "ParagraphStyle"
+    ],
+    "classification": "2_mechanism_explanation",
+    "disposition": "merged_reframed",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/aspose/note/model.py"
+    },
+    "target_section": "API Reference"
+  },
+  {
+    "unit_id": "u0072",
+    "excerpt": "- `Length: int`",
+    "salient_tokens": [
+      "Length: int"
+    ],
+    "classification": "2_mechanism_explanation",
+    "disposition": "merged_reframed",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/aspose/note/model.py"
+    },
+    "target_section": "API Reference"
+  },
+  {
+    "unit_id": "u0073",
+    "excerpt": "- `Alignment: HorizontalAlignment | None`",
+    "salient_tokens": [
+      "Alignment: HorizontalAlignment | None",
+      "HorizontalAlignment"
+    ],
+    "classification": "2_mechanism_explanation",
+    "disposition": "merged_reframed",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/aspose/note/model.py"
+    },
+    "target_section": "API Reference"
+  },
+  {
+    "unit_id": "u0074",
+    "excerpt": "- `Tags: list[NoteTag]`",
+    "salient_tokens": [
+      "Tags: list[NoteTag]",
+      "NoteTag"
+    ],
+    "classification": "2_mechanism_explanation",
+    "disposition": "merged_reframed",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/aspose/note/model.py"
+    },
+    "target_section": "API Reference"
+  },
+  {
+    "unit_id": "u0075",
+    "excerpt": "- `Append(text, style=None) -> RichText`",
+    "salient_tokens": [
+      "Append(text, style=None) -> RichText",
+      "RichText"
+    ],
+    "classification": "2_mechanism_explanation",
+    "disposition": "merged_reframed",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/aspose/note/model.py"
+    },
+    "target_section": "API Reference"
+  },
+  {
+    "unit_id": "u0076",
+    "excerpt": "- `Replace(old_value, new_value) -> RichText`",
+    "salient_tokens": [
+      "Replace(old_value, new_value) -> RichText",
+      "RichText"
+    ],
+    "classification": "2_mechanism_explanation",
+    "disposition": "merged_reframed",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/aspose/note/model.py"
+    },
+    "target_section": "API Reference"
+  },
+  {
+    "unit_id": "u0077",
+    "excerpt": "- `IndexOf(...) -> int`",
+    "salient_tokens": [
+      "IndexOf"
+    ],
+    "classification": "2_mechanism_explanation",
+    "disposition": "merged_reframed",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/aspose/note/model.py"
+    },
+    "target_section": "API Reference",
+    "classification_basis": "CORRECTED 2026-08-20 (TC-RC-01-NOTE-PYTHON): the old README abbreviated this signature with a literal '...' placeholder (IndexOf(...) -> int); the candidate correctly expanded it to the real parameter names (IndexOf(value, startIndex, count, comparison) -> int, readme.md:376) -- a legitimate merged_reframed, not a drop. Narrowed the tracked salient_tokens entry to the stable method name so the traceability check matches the real expanded signature instead of the old placeholder ellipsis."
+  },
+  {
+    "unit_id": "u0078",
+    "excerpt": "- `TextRun`",
+    "salient_tokens": [
+      "TextRun"
+    ],
+    "classification": "2_mechanism_explanation",
+    "disposition": "merged_reframed",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/aspose/note/model.py"
+    },
+    "target_section": "API Reference"
+  },
+  {
+    "unit_id": "u0079",
+    "excerpt": "- `Text: str`",
+    "salient_tokens": [
+      "Text: str"
+    ],
+    "classification": "redundant_with_existing",
+    "disposition": "excluded",
+    "verification": {
+      "status": "verified_redundant",
+      "evidence_type": "candidate_section_reference",
+      "evidence_ref": "API Reference"
+    },
+    "excluded_reason": "This excerpt's exact text is byte-identical to a sibling content unit already merged into API Reference (both real, distinct class members happen to share the same short generic property text) -- the candidate's Detailed Member Reference lists this member under its own real class separately; keeping a second 'merged' entry for identical text in the same section would be a duplicate."
+  },
+  {
+    "unit_id": "u0080",
+    "excerpt": "- `Style: TextStyle`",
+    "salient_tokens": [
+      "Style: TextStyle",
+      "TextStyle"
+    ],
+    "classification": "2_mechanism_explanation",
+    "disposition": "merged_reframed",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/aspose/note/model.py"
+    },
+    "target_section": "API Reference"
+  },
+  {
+    "unit_id": "u0081",
+    "excerpt": "- `ParagraphStyle`",
+    "salient_tokens": [
+      "ParagraphStyle"
+    ],
+    "classification": "2_mechanism_explanation",
+    "disposition": "merged_reframed",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/aspose/note/model.py"
+    },
+    "target_section": "API Reference"
+  },
+  {
+    "unit_id": "u0082",
+    "excerpt": "- default paragraph-level text formatting used by `RichText.ParagraphStyle`",
+    "salient_tokens": [
+      "RichText.ParagraphStyle",
+      "RichText",
+      "ParagraphStyle"
+    ],
+    "classification": "2_mechanism_explanation",
+    "disposition": "merged_reframed",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/aspose/note/model.py"
+    },
+    "target_section": "API Reference"
+  },
+  {
+    "unit_id": "u0083",
+    "excerpt": "- `TextStyle`",
+    "salient_tokens": [
+      "TextStyle"
+    ],
+    "classification": "2_mechanism_explanation",
+    "disposition": "merged_reframed",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/aspose/note/model.py"
+    },
+    "target_section": "API Reference"
+  },
+  {
+    "unit_id": "u0084",
+    "excerpt": "- `IsBold/IsItalic/IsUnderline/IsStrikethrough/IsSuperscript/IsSubscript: bool`",
+    "salient_tokens": [
+      "IsBold/IsItalic/IsUnderline/IsStrikethrough/IsSuperscript/IsSubscript: bool",
+      "IsBold",
+      "IsItalic",
+      "IsUnderline",
+      "IsStrikethrough",
+      "IsSuperscript",
+      "IsSubscript"
+    ],
+    "classification": "2_mechanism_explanation",
+    "disposition": "merged_reframed",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/aspose/note/model.py"
+    },
+    "target_section": "API Reference"
+  },
+  {
+    "unit_id": "u0085",
+    "excerpt": "- `IsHidden: bool`, `IsMathFormatting: bool`",
+    "salient_tokens": [
+      "IsHidden: bool",
+      "IsMathFormatting: bool",
+      "IsHidden",
+      "IsMathFormatting"
+    ],
+    "classification": "2_mechanism_explanation",
+    "disposition": "merged_reframed",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/aspose/note/model.py"
+    },
+    "target_section": "API Reference"
+  },
+  {
+    "unit_id": "u0086",
+    "excerpt": "- `FontName: str | None`, `FontSize: float | None`",
+    "salient_tokens": [
+      "FontName: str | None",
+      "FontSize: float | None",
+      "FontName",
+      "FontSize"
+    ],
+    "classification": "2_mechanism_explanation",
+    "disposition": "merged_reframed",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/aspose/note/model.py"
+    },
+    "target_section": "API Reference"
+  },
+  {
+    "unit_id": "u0087",
+    "excerpt": "- `FontColor: int | None`, `Highlight: int | None`",
+    "salient_tokens": [
+      "FontColor: int | None",
+      "Highlight: int | None",
+      "FontColor"
+    ],
+    "classification": "2_mechanism_explanation",
+    "disposition": "merged_reframed",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/aspose/note/model.py"
+    },
+    "target_section": "API Reference"
+  },
+  {
+    "unit_id": "u0088",
+    "excerpt": "- `Language: int | None`",
+    "salient_tokens": [
+      "Language: int | None"
+    ],
+    "classification": "2_mechanism_explanation",
+    "disposition": "merged_reframed",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/aspose/note/model.py"
+    },
+    "target_section": "API Reference"
+  },
+  {
+    "unit_id": "u0089",
+    "excerpt": "- `FontStyle: int`",
+    "salient_tokens": [
+      "FontStyle: int",
+      "FontStyle"
+    ],
+    "classification": "2_mechanism_explanation",
+    "disposition": "merged_reframed",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/aspose/note/model.py"
+    },
+    "target_section": "API Reference"
+  },
+  {
+    "unit_id": "u0090",
+    "excerpt": "- `IsHyperlink: bool`, `HyperlinkAddress: str | None`",
+    "salient_tokens": [
+      "IsHyperlink: bool",
+      "HyperlinkAddress: str | None",
+      "IsHyperlink",
+      "HyperlinkAddress"
+    ],
+    "classification": "2_mechanism_explanation",
+    "disposition": "merged_reframed",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/aspose/note/model.py"
+    },
+    "target_section": "API Reference"
+  },
+  {
+    "unit_id": "u0091",
+    "excerpt": "- `Image`",
+    "salient_tokens": [
+      "Image"
+    ],
+    "classification": "2_mechanism_explanation",
+    "disposition": "merged_reframed",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/aspose/note/model.py"
+    },
+    "target_section": "API Reference"
+  },
+  {
+    "unit_id": "u0092",
+    "excerpt": "- `FileName: str | None`, `Bytes: bytes`",
+    "salient_tokens": [
+      "FileName: str | None",
+      "Bytes: bytes",
+      "FileName"
+    ],
+    "classification": "2_mechanism_explanation",
+    "disposition": "merged_reframed",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/aspose/note/model.py"
+    },
+    "target_section": "API Reference"
+  },
+  {
+    "unit_id": "u0093",
+    "excerpt": "- `Width: float | None`, `Height: float | None`",
+    "salient_tokens": [
+      "Width: float | None",
+      "Height: float | None"
+    ],
+    "classification": "2_mechanism_explanation",
+    "disposition": "merged_reframed",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/aspose/note/model.py"
+    },
+    "target_section": "API Reference"
+  },
+  {
+    "unit_id": "u0094",
+    "excerpt": "- `AlternativeTextTitle: str | None`, `AlternativeTextDescription: str | None`",
+    "salient_tokens": [
+      "AlternativeTextTitle: str | None",
+      "AlternativeTextDescription: str | None",
+      "AlternativeTextTitle",
+      "AlternativeTextDescription"
+    ],
+    "classification": "2_mechanism_explanation",
+    "disposition": "merged_reframed",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/aspose/note/model.py"
+    },
+    "target_section": "API Reference"
+  },
+  {
+    "unit_id": "u0095",
+    "excerpt": "- `HyperlinkUrl: str | None`",
+    "salient_tokens": [
+      "HyperlinkUrl: str | None",
+      "HyperlinkUrl"
+    ],
+    "classification": "2_mechanism_explanation",
+    "disposition": "merged_reframed",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/aspose/note/model.py"
+    },
+    "target_section": "API Reference"
+  },
+  {
+    "unit_id": "u0096",
+    "excerpt": "- `Tags: list[NoteTag]`",
+    "salient_tokens": [
+      "Tags: list[NoteTag]",
+      "NoteTag"
+    ],
+    "classification": "redundant_with_existing",
+    "disposition": "excluded",
+    "verification": {
+      "status": "verified_redundant",
+      "evidence_type": "candidate_section_reference",
+      "evidence_ref": "API Reference"
+    },
+    "excluded_reason": "This excerpt's exact text is byte-identical to a sibling content unit already merged into API Reference (both real, distinct class members happen to share the same short generic property text) -- the candidate's Detailed Member Reference lists this member under its own real class separately; keeping a second 'merged' entry for identical text in the same section would be a duplicate."
+  },
+  {
+    "unit_id": "u0097",
+    "excerpt": "- `Replace(image) -> None` — replace image contents",
+    "salient_tokens": [
+      "Replace(image) -> None"
+    ],
+    "classification": "2_mechanism_explanation",
+    "disposition": "merged_reframed",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/aspose/note/model.py"
+    },
+    "target_section": "API Reference"
+  },
+  {
+    "unit_id": "u0098",
+    "excerpt": "- `AttachedFile(Node)`",
+    "salient_tokens": [
+      "AttachedFile(Node)",
+      "AttachedFile"
+    ],
+    "classification": "2_mechanism_explanation",
+    "disposition": "merged_reframed",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/aspose/note/model.py"
+    },
+    "target_section": "API Reference"
+  },
+  {
+    "unit_id": "u0099",
+    "excerpt": "- `FileName: str | None`, `Bytes: bytes`",
+    "salient_tokens": [
+      "FileName: str | None",
+      "Bytes: bytes",
+      "FileName"
+    ],
+    "classification": "redundant_with_existing",
+    "disposition": "excluded",
+    "verification": {
+      "status": "verified_redundant",
+      "evidence_type": "candidate_section_reference",
+      "evidence_ref": "API Reference"
+    },
+    "excluded_reason": "This excerpt's exact text is byte-identical to a sibling content unit already merged into API Reference (both real, distinct class members happen to share the same short generic property text) -- the candidate's Detailed Member Reference lists this member under its own real class separately; keeping a second 'merged' entry for identical text in the same section would be a duplicate."
+  },
+  {
+    "unit_id": "u0100",
+    "excerpt": "- `Tags: list[NoteTag]`",
+    "salient_tokens": [
+      "Tags: list[NoteTag]",
+      "NoteTag"
+    ],
+    "classification": "redundant_with_existing",
+    "disposition": "excluded",
+    "verification": {
+      "status": "verified_redundant",
+      "evidence_type": "candidate_section_reference",
+      "evidence_ref": "API Reference"
+    },
+    "excluded_reason": "This excerpt's exact text is byte-identical to a sibling content unit already merged into API Reference (both real, distinct class members happen to share the same short generic property text) -- the candidate's Detailed Member Reference lists this member under its own real class separately; keeping a second 'merged' entry for identical text in the same section would be a duplicate."
+  },
+  {
+    "unit_id": "u0101",
+    "excerpt": "- `Table`",
+    "salient_tokens": [
+      "Table"
+    ],
+    "classification": "2_mechanism_explanation",
+    "disposition": "merged_reframed",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/aspose/note/model.py"
+    },
+    "target_section": "API Reference"
+  },
+  {
+    "unit_id": "u0102",
+    "excerpt": "- `Columns: list[TableColumn]`",
+    "salient_tokens": [
+      "Columns: list[TableColumn]",
+      "TableColumn"
+    ],
+    "classification": "2_mechanism_explanation",
+    "disposition": "merged_reframed",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/aspose/note/model.py"
+    },
+    "target_section": "API Reference"
+  },
+  {
+    "unit_id": "u0103",
+    "excerpt": "- `IsBordersVisible: bool`",
+    "salient_tokens": [
+      "IsBordersVisible: bool",
+      "IsBordersVisible"
+    ],
+    "classification": "2_mechanism_explanation",
+    "disposition": "merged_reframed",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/aspose/note/model.py"
+    },
+    "target_section": "API Reference"
+  },
+  {
+    "unit_id": "u0104",
+    "excerpt": "- `Tags: list[NoteTag]`",
+    "salient_tokens": [
+      "Tags: list[NoteTag]",
+      "NoteTag"
+    ],
+    "classification": "redundant_with_existing",
+    "disposition": "excluded",
+    "verification": {
+      "status": "verified_redundant",
+      "evidence_type": "candidate_section_reference",
+      "evidence_ref": "API Reference"
+    },
+    "excluded_reason": "This excerpt's exact text is byte-identical to a sibling content unit already merged into API Reference (both real, distinct class members happen to share the same short generic property text) -- the candidate's Detailed Member Reference lists this member under its own real class separately; keeping a second 'merged' entry for identical text in the same section would be a duplicate."
+  },
+  {
+    "unit_id": "u0105",
+    "excerpt": "- `TableColumn`",
+    "salient_tokens": [
+      "TableColumn"
+    ],
+    "classification": "2_mechanism_explanation",
+    "disposition": "merged_reframed",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/aspose/note/model.py"
+    },
+    "target_section": "API Reference"
+  },
+  {
+    "unit_id": "u0106",
+    "excerpt": "- `Width: float | None`",
+    "salient_tokens": [
+      "Width: float | None"
+    ],
+    "classification": "2_mechanism_explanation",
+    "disposition": "merged_reframed",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/aspose/note/model.py"
+    },
+    "target_section": "API Reference"
+  },
+  {
+    "unit_id": "u0107",
+    "excerpt": "- `LockedWidth: bool`",
+    "salient_tokens": [
+      "LockedWidth: bool",
+      "LockedWidth"
+    ],
+    "classification": "2_mechanism_explanation",
+    "disposition": "merged_reframed",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/aspose/note/model.py"
+    },
+    "target_section": "API Reference"
+  },
+  {
+    "unit_id": "u0108",
+    "excerpt": "- `TableRow`, `TableCell`",
+    "salient_tokens": [
+      "TableRow",
+      "TableCell"
+    ],
+    "classification": "2_mechanism_explanation",
+    "disposition": "merged_reframed",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/aspose/note/model.py"
+    },
+    "target_section": "API Reference"
+  },
+  {
+    "unit_id": "u0109",
+    "excerpt": "- `NoteTag`",
+    "salient_tokens": [
+      "NoteTag"
+    ],
+    "classification": "2_mechanism_explanation",
+    "disposition": "merged_reframed",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/aspose/note/model.py"
+    },
+    "target_section": "API Reference"
+  },
+  {
+    "unit_id": "u0110",
+    "excerpt": "- `Label`, `Icon`, `Status`, `Highlight`, `CreationTime`, `CompletedTime`, `FontColor`",
+    "salient_tokens": [
+      "Label",
+      "Icon",
+      "Status",
+      "Highlight",
+      "CreationTime",
+      "CompletedTime",
+      "FontColor"
+    ],
+    "classification": "2_mechanism_explanation",
+    "disposition": "merged_reframed",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/aspose/note/model.py"
+    },
+    "target_section": "API Reference"
+  },
+  {
+    "unit_id": "u0111",
+    "excerpt": "- `CreateYellowStar()`, `CreateQuestionMark()` — convenience factories",
+    "salient_tokens": [
+      "CreateYellowStar()",
+      "CreateQuestionMark()",
+      "CreateYellowStar",
+      "CreateQuestionMark"
+    ],
+    "classification": "2_mechanism_explanation",
+    "disposition": "merged_reframed",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/aspose/note/model.py"
+    },
+    "target_section": "API Reference"
+  },
+  {
+    "unit_id": "u0112",
+    "excerpt": "- `NumberList`",
+    "salient_tokens": [
+      "NumberList"
+    ],
+    "classification": "2_mechanism_explanation",
+    "disposition": "merged_reframed",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/aspose/note/model.py"
+    },
+    "target_section": "API Reference"
+  },
+  {
+    "unit_id": "u0113",
+    "excerpt": "- `Format: str | None`, `NumberFormat: str | None`",
+    "salient_tokens": [
+      "Format: str | None",
+      "NumberFormat: str | None",
+      "NumberFormat"
+    ],
+    "classification": "2_mechanism_explanation",
+    "disposition": "merged_reframed",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/aspose/note/model.py"
+    },
+    "target_section": "API Reference"
+  },
+  {
+    "unit_id": "u0114",
+    "excerpt": "- `Font: str | None`, `FontSize: float | None`, `FontColor: int | None`",
+    "salient_tokens": [
+      "Font: str | None",
+      "FontSize: float | None",
+      "FontColor: int | None",
+      "FontSize",
+      "FontColor"
+    ],
+    "classification": "2_mechanism_explanation",
+    "disposition": "merged_reframed",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/aspose/note/model.py"
+    },
+    "target_section": "API Reference"
+  },
+  {
+    "unit_id": "u0115",
+    "excerpt": "- `IsBold: bool`, `IsItalic: bool`, `Restart: int | None`",
+    "salient_tokens": [
+      "IsBold: bool",
+      "IsItalic: bool",
+      "Restart: int | None",
+      "IsBold",
+      "IsItalic"
+    ],
+    "classification": "2_mechanism_explanation",
+    "disposition": "merged_reframed",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/aspose/note/model.py"
+    },
+    "target_section": "API Reference"
+  },
+  {
+    "unit_id": "u0116",
+    "excerpt": "- `GetNumberedListHeader(number) -> str`",
+    "salient_tokens": [
+      "GetNumberedListHeader(number) -> str",
+      "GetNumberedListHeader"
+    ],
+    "classification": "2_mechanism_explanation",
+    "disposition": "merged_reframed",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/aspose/note/model.py"
+    },
+    "target_section": "API Reference"
+  },
+  {
+    "unit_id": "u0117",
+    "excerpt": "- `LoadOptions`",
+    "salient_tokens": [
+      "LoadOptions"
+    ],
+    "classification": "2_mechanism_explanation",
+    "disposition": "merged_reframed",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/aspose/note/model.py"
+    },
+    "target_section": "API Reference"
+  },
+  {
+    "unit_id": "u0118",
+    "excerpt": "- `DocumentPassword: str | None` (password/encryption is **not supported**)",
+    "salient_tokens": [
+      "DocumentPassword: str | None",
+      "DocumentPassword"
+    ],
+    "classification": "2_mechanism_explanation",
+    "disposition": "merged_reframed",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/aspose/note/model.py"
+    },
+    "target_section": "API Reference"
+  },
+  {
+    "unit_id": "u0119",
+    "excerpt": "- `LoadHistory: bool`",
+    "salient_tokens": [
+      "LoadHistory: bool",
+      "LoadHistory"
+    ],
+    "classification": "2_mechanism_explanation",
+    "disposition": "merged_reframed",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/aspose/note/model.py"
+    },
+    "target_section": "API Reference"
+  },
+  {
+    "unit_id": "u0120",
+    "excerpt": "- `aspose.note.saving.SaveOptions` (base)",
+    "salient_tokens": [
+      "aspose.note.saving.SaveOptions",
+      "SaveOptions"
+    ],
+    "classification": "2_mechanism_explanation",
+    "disposition": "merged_reframed",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/aspose/note/saving/options.py"
+    },
+    "target_section": "API Reference"
+  },
+  {
+    "unit_id": "u0121",
+    "excerpt": "- abstract compatibility base type",
+    "salient_tokens": [],
+    "classification": "1_narrative_cta",
+    "disposition": "excluded",
+    "verification": {
+      "status": "not_applicable_category_1"
+    },
+    "excluded_reason": "Pure narrative/structural lead-in or decorative bullet with no independent checkable fact of its own; per this skill's established scope decision, category-1 narrative/CTA prose stays out of scope."
+  },
+  {
+    "unit_id": "u0122",
+    "excerpt": "- `SaveFormat: SaveFormat`",
+    "salient_tokens": [
+      "SaveFormat: SaveFormat",
+      "SaveFormat"
+    ],
+    "classification": "2_mechanism_explanation",
+    "disposition": "merged_reframed",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/aspose/note/saving/options.py"
+    },
+    "target_section": "API Reference"
+  },
+  {
+    "unit_id": "u0123",
+    "excerpt": "- `PageIndex: int`, `PageCount: int | None`, `FontsSubsystem`",
+    "salient_tokens": [
+      "PageIndex: int",
+      "PageCount: int | None",
+      "FontsSubsystem",
+      "PageIndex",
+      "PageCount"
+    ],
+    "classification": "2_mechanism_explanation",
+    "disposition": "merged_reframed",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/aspose/note/saving/options.py"
+    },
+    "target_section": "API Reference"
+  },
+  {
+    "unit_id": "u0124",
+    "excerpt": "- `aspose.note.saving.PdfSaveOptions(SaveOptions)` (subset)",
+    "salient_tokens": [
+      "aspose.note.saving.PdfSaveOptions(SaveOptions)",
+      "PdfSaveOptions",
+      "SaveOptions"
+    ],
+    "classification": "2_mechanism_explanation",
+    "disposition": "merged_reframed",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/aspose/note/saving/options.py"
+    },
+    "target_section": "API Reference"
+  },
+  {
+    "unit_id": "u0125",
+    "excerpt": "- `PageIndex: int`, `PageCount: int | None`",
+    "salient_tokens": [
+      "PageIndex: int",
+      "PageCount: int | None",
+      "PageIndex",
+      "PageCount"
+    ],
+    "classification": "2_mechanism_explanation",
+    "disposition": "merged_reframed",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/aspose/note/saving/options.py"
+    },
+    "target_section": "API Reference"
+  },
+  {
+    "unit_id": "u0126",
+    "excerpt": "- `ImageCompression`, `JpegQuality`, `PageSettings`, `PageSplittingAlgorithm`",
+    "salient_tokens": [
+      "ImageCompression",
+      "JpegQuality",
+      "PageSettings",
+      "PageSplittingAlgorithm"
+    ],
+    "classification": "2_mechanism_explanation",
+    "disposition": "merged_reframed",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/aspose/note/saving/options.py"
+    },
+    "target_section": "API Reference"
+  },
+  {
+    "unit_id": "u0127",
+    "excerpt": "- `SaveFormat`: `Pdf`",
+    "salient_tokens": [
+      "SaveFormat",
+      "Pdf"
+    ],
+    "classification": "2_mechanism_explanation",
+    "disposition": "merged_reframed",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/aspose/note/enums.py"
+    },
+    "target_section": "API Reference"
+  },
+  {
+    "unit_id": "u0128",
+    "excerpt": "- `FileFormat`: `OneNote2010`, `OneNoteOnline`, `OneNote2007`",
+    "salient_tokens": [
+      "FileFormat",
+      "OneNote2010",
+      "OneNoteOnline",
+      "OneNote2007"
+    ],
+    "classification": "2_mechanism_explanation",
+    "disposition": "merged_reframed",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/aspose/note/enums.py"
+    },
+    "target_section": "API Reference"
+  },
+  {
+    "unit_id": "u0129",
+    "excerpt": "- `HorizontalAlignment`: `Left`, `Center`, `Right`",
+    "salient_tokens": [
+      "HorizontalAlignment",
+      "Left",
+      "Center",
+      "Right"
+    ],
+    "classification": "2_mechanism_explanation",
+    "disposition": "merged_reframed",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/aspose/note/enums.py"
+    },
+    "target_section": "API Reference"
+  },
+  {
+    "unit_id": "u0130",
+    "excerpt": "- `NodeType`: `Document`, `Page`, `Outline`, `OutlineElement`, `RichText`, `Image`, `Table`, `AttachedFile`",
+    "salient_tokens": [
+      "NodeType",
+      "Document",
+      "Page",
+      "Outline",
+      "OutlineElement",
+      "RichText",
+      "Image",
+      "Table",
+      "AttachedFile"
+    ],
+    "classification": "2_mechanism_explanation",
+    "disposition": "merged_reframed",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/aspose/note/enums.py"
+    },
+    "target_section": "API Reference"
+  },
+  {
+    "unit_id": "u0131",
+    "excerpt": "- `FileCorruptedException`",
+    "salient_tokens": [
+      "FileCorruptedException"
+    ],
+    "classification": "2_mechanism_explanation",
+    "disposition": "merged_reframed",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/aspose/note/exceptions.py"
+    },
+    "target_section": "API Reference"
+  },
+  {
+    "unit_id": "u0132",
+    "excerpt": "- `IncorrectDocumentStructureException`",
+    "salient_tokens": [
+      "IncorrectDocumentStructureException"
+    ],
+    "classification": "2_mechanism_explanation",
+    "disposition": "merged_reframed",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/aspose/note/exceptions.py"
+    },
+    "target_section": "API Reference"
+  },
+  {
+    "unit_id": "u0133",
+    "excerpt": "- `IncorrectPasswordException`",
+    "salient_tokens": [
+      "IncorrectPasswordException"
+    ],
+    "classification": "2_mechanism_explanation",
+    "disposition": "merged_reframed",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/aspose/note/exceptions.py"
+    },
+    "target_section": "API Reference"
+  },
+  {
+    "unit_id": "u0134",
+    "excerpt": "- `UnsupportedFileFormatException` (has a `FileFormat` field)",
+    "salient_tokens": [
+      "UnsupportedFileFormatException",
+      "FileFormat"
+    ],
+    "classification": "2_mechanism_explanation",
+    "disposition": "merged_reframed",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/aspose/note/exceptions.py"
+    },
+    "target_section": "API Reference"
+  },
+  {
+    "unit_id": "u0135",
+    "excerpt": "- `UnsupportedSaveFormatException`",
+    "salient_tokens": [
+      "UnsupportedSaveFormatException"
+    ],
+    "classification": "2_mechanism_explanation",
+    "disposition": "merged_reframed",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/aspose/note/exceptions.py"
+    },
+    "target_section": "API Reference"
+  },
+  {
+    "unit_id": "u0136",
+    "excerpt": "More runnable scripts are available in [examples/](examples/) (MS OneNote `.one` samples).",
+    "salient_tokens": [
+      ".one",
+      "MS",
+      "OneNote"
+    ],
+    "classification": "2_mechanism_explanation",
+    "disposition": "merged_reframed",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/aspose/note/model.py"
+    },
+    "target_section": "Quick Start"
+  },
+  {
+    "unit_id": "u0137",
+    "excerpt": "- The implementation focuses on **reading** `.one` and building a DOM; writing back to `.one` is not implemented.",
+    "salient_tokens": [
+      ".one",
+      "DOM"
+    ],
+    "classification": "2_mechanism_explanation",
+    "disposition": "merged_reframed",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/aspose/note/model.py"
+    },
+    "target_section": "Scope and Limitations"
+  },
+  {
+    "unit_id": "u0138",
+    "excerpt": "- `DocumentPassword` / encrypted documents are not supported (raises `IncorrectPasswordException`).",
+    "salient_tokens": [
+      "DocumentPassword",
+      "IncorrectPasswordException"
+    ],
+    "classification": "2_mechanism_explanation",
+    "disposition": "merged_reframed",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/aspose/note/exceptions.py"
+    },
+    "target_section": "Scope and Limitations"
+  },
+  {
+    "unit_id": "u0139",
+    "excerpt": "- Saving formats other than PDF (HTML/images/ONE) are declared for compatibility but not implemented.",
+    "salient_tokens": [
+      "PDF",
+      "HTML",
+      "ONE"
+    ],
+    "classification": "2_mechanism_explanation",
+    "disposition": "excluded",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/aspose/note/saving/options.py"
+    },
+    "excluded_reason": "This claim is stale against current source: only PdfSaveOptions exists under saving/ (no Html/Image/One SaveOptions subclasses are declared anywhere), so 'declared for compatibility' is no longer accurate. The candidate states the current, verified fact instead (SaveFormat declares only Pdf)."
+  },
+  {
+    "unit_id": "u0140",
+    "excerpt": "If you need the full-featured Aspose product (writing/conversion, broader compatibility, etc.), see the official libraries:",
+    "salient_tokens": [],
+    "classification": "2_mechanism_explanation",
+    "disposition": "merged_reframed",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/aspose/note/model.py"
+    },
+    "target_section": "Scope and Limitations"
+  },
+  {
+    "unit_id": "u0141",
+    "excerpt": "- Aspose.Note for .NET",
+    "salient_tokens": [],
+    "classification": "redundant_with_existing",
+    "disposition": "excluded",
+    "verification": {
+      "status": "verified_redundant",
+      "evidence_type": "candidate_section_reference",
+      "evidence_ref": "Scope and Limitations"
+    },
+    "excluded_reason": "Per-platform 'official libraries' pointer; consolidated into the candidate's single, standardized Enterprise Edition paragraph rather than listing each commercial platform separately."
+  },
+  {
+    "unit_id": "u0142",
+    "excerpt": "- Product: https://products.aspose.com/note/net/",
+    "salient_tokens": [],
+    "classification": "redundant_with_existing",
+    "disposition": "excluded",
+    "verification": {
+      "status": "verified_redundant",
+      "evidence_type": "candidate_section_reference",
+      "evidence_ref": "Scope and Limitations"
+    },
+    "excluded_reason": "Per-platform Enterprise product link; consolidated into the candidate's single Enterprise Edition paragraph."
+  },
+  {
+    "unit_id": "u0143",
+    "excerpt": "- Documentation: https://docs.aspose.com/note/net/",
+    "salient_tokens": [],
+    "classification": "redundant_with_existing",
+    "disposition": "excluded",
+    "verification": {
+      "status": "verified_redundant",
+      "evidence_type": "candidate_section_reference",
+      "evidence_ref": "Scope and Limitations"
+    },
+    "excluded_reason": "Per-platform Enterprise docs link; consolidated into the candidate's single Enterprise Edition paragraph."
+  },
+  {
+    "unit_id": "u0144",
+    "excerpt": "- Aspose.Note for Java",
+    "salient_tokens": [],
+    "classification": "redundant_with_existing",
+    "disposition": "excluded",
+    "verification": {
+      "status": "verified_redundant",
+      "evidence_type": "candidate_section_reference",
+      "evidence_ref": "Scope and Limitations"
+    },
+    "excluded_reason": "Per-platform 'official libraries' pointer; consolidated into the candidate's single, standardized Enterprise Edition paragraph."
+  },
+  {
+    "unit_id": "u0145",
+    "excerpt": "- Product: https://products.aspose.com/note/java/",
+    "salient_tokens": [],
+    "classification": "redundant_with_existing",
+    "disposition": "excluded",
+    "verification": {
+      "status": "verified_redundant",
+      "evidence_type": "candidate_section_reference",
+      "evidence_ref": "Scope and Limitations"
+    },
+    "excluded_reason": "Per-platform Enterprise product link; consolidated into the candidate's single Enterprise Edition paragraph."
+  },
+  {
+    "unit_id": "u0146",
+    "excerpt": "- Documentation: https://docs.aspose.com/note/java/",
+    "salient_tokens": [],
+    "classification": "redundant_with_existing",
+    "disposition": "excluded",
+    "verification": {
+      "status": "verified_redundant",
+      "evidence_type": "candidate_section_reference",
+      "evidence_ref": "Scope and Limitations"
+    },
+    "excluded_reason": "Per-platform Enterprise docs link; consolidated into the candidate's single Enterprise Edition paragraph."
+  },
+  {
+    "unit_id": "u0147",
+    "excerpt": "Run tests:",
+    "salient_tokens": [],
+    "classification": "1_narrative_cta",
+    "disposition": "excluded",
+    "verification": {
+      "status": "not_applicable_category_1"
+    },
+    "excluded_reason": "Pure narrative/structural lead-in or decorative bullet with no independent checkable fact of its own; per this skill's established scope decision, category-1 narrative/CTA prose stays out of scope."
+  },
+  {
+    "unit_id": "u0148",
+    "excerpt": "Third-party license notices (e.g., ReportLab used for PDF export) are in [THIRD_PARTY_NOTICES.md](https://github.com/aspose-note/aspose-note-python/blob/main/THIRD_PARTY_NOTICES.md).",
+    "salient_tokens": [
+      "ReportLab",
+      "PDF"
+    ],
+    "classification": "2_mechanism_explanation",
+    "disposition": "merged_reframed",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "THIRD_PARTY_NOTICES.md"
+    },
+    "target_section": "License"
+  }
+]

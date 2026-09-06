@@ -1,0 +1,26 @@
+[
+  {
+    "unit_id": "b0001",
+    "action": "preserved",
+    "new_badge_unit_id": "b0001",
+    "category": "license",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "LICENSE",
+      "evidence_note": "MIT license badge, LICENSE file confirmed present; badge byte-identical old vs candidate."
+    }
+  },
+  {
+    "unit_id": "b0002",
+    "action": "preserved",
+    "new_badge_unit_id": "b0002",
+    "category": "contributor_count",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "pyproject.toml",
+      "evidence_note": "GitHub contributors-count badge targeting this repo's own URL; badge byte-identical old vs candidate."
+    }
+  }
+]

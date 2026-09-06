@@ -1,0 +1,26 @@
+[
+  {
+    "unit_id": "s0001",
+    "heading": "At a Glance",
+    "disposition": "merged_reframed",
+    "target_section": "At a Glance",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/Aspose.Email.Foss/Cfb/CfbReader.cs"
+    }
+  },
+  {
+    "unit_id": "s0002",
+    "heading": "Convert EML to MSG",
+    "disposition": "merged_verbatim",
+    "target_section": "Additional Examples",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/Aspose.Email.Foss/Msg/MapiMessage.cs"
+    }
+  }
+]

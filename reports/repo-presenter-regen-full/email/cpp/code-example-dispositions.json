@@ -1,0 +1,192 @@
+[
+  {
+    "unit_id": "c0001",
+    "disposition": "merged_verbatim",
+    "target_section": "At a Glance",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "include/aspose/email/foss/msg/mapi_message.hpp"
+    }
+  },
+  {
+    "unit_id": "c0002",
+    "disposition": "merged_verbatim",
+    "target_section": "Installation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "CMakeLists.txt"
+    }
+  },
+  {
+    "unit_id": "c0003",
+    "disposition": "merged_verbatim",
+    "target_section": "Installation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "CMakePresets.json"
+    }
+  },
+  {
+    "unit_id": "c0004",
+    "disposition": "merged_verbatim",
+    "target_section": "Installation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "CMakeLists.txt"
+    }
+  },
+  {
+    "unit_id": "c0005",
+    "disposition": "merged_verbatim",
+    "target_section": "Quick Start",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "include/aspose/email/foss/msg/msg_reader.hpp"
+    }
+  },
+  {
+    "unit_id": "c0006",
+    "disposition": "merged_verbatim",
+    "target_section": "Quick Start",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "include/aspose/email/foss/msg/mapi_message.hpp"
+    }
+  },
+  {
+    "unit_id": "c0007a",
+    "disposition": "merged_verbatim",
+    "target_section": "Additional Examples",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "examples/create_msg_and_eml.cpp"
+    }
+  },
+  {
+    "unit_id": "c0007b",
+    "disposition": "merged_verbatim",
+    "target_section": "Additional Examples",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "examples/create_msg_and_eml.cpp"
+    }
+  },
+  {
+    "unit_id": "c0007c",
+    "disposition": "merged_verbatim",
+    "target_section": "Additional Examples",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "examples/create_msg_and_eml.cpp"
+    }
+  },
+  {
+    "unit_id": "c0007d",
+    "disposition": "merged_verbatim",
+    "target_section": "Additional Examples",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "examples/create_msg_and_eml.cpp"
+    }
+  },
+  {
+    "unit_id": "c0007e",
+    "disposition": "merged_verbatim",
+    "target_section": "Additional Examples",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "examples/create_msg_and_eml.cpp"
+    }
+  },
+  {
+    "unit_id": "c0007f",
+    "disposition": "merged_verbatim",
+    "target_section": "Additional Examples",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "examples/create_msg_and_eml.cpp"
+    }
+  },
+  {
+    "unit_id": "c0007g",
+    "disposition": "merged_verbatim",
+    "target_section": "Additional Examples",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "examples/create_msg_and_eml.cpp"
+    }
+  },
+  {
+    "unit_id": "c0008a",
+    "disposition": "merged_verbatim",
+    "target_section": "Additional Examples",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "examples/msg_reader.cpp"
+    }
+  },
+  {
+    "unit_id": "c0008b",
+    "disposition": "merged_verbatim",
+    "target_section": "Additional Examples",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "examples/msg_reader.cpp"
+    }
+  },
+  {
+    "unit_id": "c0008c",
+    "disposition": "merged_verbatim",
+    "target_section": "Additional Examples",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "examples/msg_reader.cpp"
+    }
+  },
+  {
+    "unit_id": "c0008d",
+    "disposition": "merged_verbatim",
+    "target_section": "Additional Examples",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "examples/msg_reader.cpp"
+    }
+  },
+  {
+    "unit_id": "c0008e",
+    "disposition": "merged_verbatim",
+    "target_section": "Additional Examples",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "examples/msg_reader.cpp"
+    }
+  },
+  {
+    "unit_id": "c0009",
+    "disposition": "merged_verbatim",
+    "target_section": "Development and Testing",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "CMakeLists.txt"
+    }
+  }
+]

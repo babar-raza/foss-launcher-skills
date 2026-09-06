@@ -1,0 +1,974 @@
+[
+  {
+    "unit_id": "u0001",
+    "excerpt": "Aspose.HTML FOSS for Python is a free, open-source, MIT-licensed Python toolkit for parsing HTML into a standards-based DOM tree, applying CSS, and serializing markup back out. It provides WHATWG-style `HTMLDocument`/`Document`/`Element` APIs, CSS selector matching and CSSOM-based computed-style resolution, WHATWG `URL`/`URLSearchParams` handling, and byte-stream encoding detection, with an optional QuickJS-backed JavaScript execution bridge for running scripts against the parsed DOM.",
+    "disposition": "merged_reframed",
+    "target_section": "Intro",
+    "classification": "3_branding_positioning",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/aspose_html/../../pyproject.toml"
+    }
+  },
+  {
+    "unit_id": "u0002",
+    "excerpt": "- [At a Glance](#at-a-glance)",
+    "classification": "1_narrative_cta",
+    "disposition": "merged_verbatim",
+    "target_section": "Navigation",
+    "verification": {
+      "status": "not_applicable_category_1",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": ""
+    }
+  },
+  {
+    "unit_id": "u0003",
+    "excerpt": "- [Key Capabilities](#key-capabilities)",
+    "classification": "1_narrative_cta",
+    "disposition": "merged_verbatim",
+    "target_section": "Navigation",
+    "verification": {
+      "status": "not_applicable_category_1",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": ""
+    }
+  },
+  {
+    "unit_id": "u0004",
+    "excerpt": "- [Installation](#installation)",
+    "classification": "1_narrative_cta",
+    "disposition": "merged_verbatim",
+    "target_section": "Navigation",
+    "verification": {
+      "status": "not_applicable_category_1",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": ""
+    }
+  },
+  {
+    "unit_id": "u0005",
+    "excerpt": "- [Dependencies](#dependencies)",
+    "classification": "1_narrative_cta",
+    "disposition": "merged_verbatim",
+    "target_section": "Navigation",
+    "verification": {
+      "status": "not_applicable_category_1",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": ""
+    }
+  },
+  {
+    "unit_id": "u0006",
+    "excerpt": "- [Quick Start](#quick-start)",
+    "classification": "1_narrative_cta",
+    "disposition": "merged_verbatim",
+    "target_section": "Navigation",
+    "verification": {
+      "status": "not_applicable_category_1",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": ""
+    }
+  },
+  {
+    "unit_id": "u0007",
+    "excerpt": "- [Additional Examples](#additional-examples)",
+    "classification": "1_narrative_cta",
+    "disposition": "merged_verbatim",
+    "target_section": "Navigation",
+    "verification": {
+      "status": "not_applicable_category_1",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": ""
+    }
+  },
+  {
+    "unit_id": "u0008",
+    "excerpt": "- [API Reference](#api-reference)",
+    "classification": "1_narrative_cta",
+    "disposition": "merged_verbatim",
+    "target_section": "Navigation",
+    "verification": {
+      "status": "not_applicable_category_1",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": ""
+    }
+  },
+  {
+    "unit_id": "u0009",
+    "excerpt": "- [Documentation & Resources](#documentation--resources)",
+    "classification": "1_narrative_cta",
+    "disposition": "merged_verbatim",
+    "target_section": "Navigation",
+    "verification": {
+      "status": "not_applicable_category_1",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": ""
+    }
+  },
+  {
+    "unit_id": "u0010",
+    "excerpt": "- [Scope and Limitations](#scope-and-limitations)",
+    "classification": "1_narrative_cta",
+    "disposition": "merged_verbatim",
+    "target_section": "Navigation",
+    "verification": {
+      "status": "not_applicable_category_1",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": ""
+    }
+  },
+  {
+    "unit_id": "u0011",
+    "excerpt": "- [Development and Testing](#development-and-testing)",
+    "classification": "1_narrative_cta",
+    "disposition": "merged_verbatim",
+    "target_section": "Navigation",
+    "verification": {
+      "status": "not_applicable_category_1",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": ""
+    }
+  },
+  {
+    "unit_id": "u0012",
+    "excerpt": "- [License](#license)",
+    "classification": "1_narrative_cta",
+    "disposition": "merged_verbatim",
+    "target_section": "Navigation",
+    "verification": {
+      "status": "not_applicable_category_1",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": ""
+    }
+  },
+  {
+    "unit_id": "u0013",
+    "excerpt": "- Parse HTML strings, bytes, fragments, and files into a DOM document with `HTMLDocument.parse()`, `HTMLDocument.parse_fragment()`, and `HTMLDocument.load()`; the lower-level `Tokenizer` and `TreeBuilder` classes implement the WHATWG tokenization and tree-construction algorithms directly, for callers who need that level of control.",
+    "disposition": "merged_verbatim",
+    "target_section": "Key Capabilities",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/aspose_html/html_document.py"
+    }
+  },
+  {
+    "unit_id": "u0014",
+    "excerpt": "- Build, inspect, and mutate DOM trees — create and update nodes programmatically with `Document.create_element()` and `append_child()`; read and write element attributes, classes, datasets, inline styles, and text content; and query documents by ID, tag name, class name, and selector-oriented helpers such as `get_element_by_id()`, `get_elements_by_tag_name()`, `TreeWalker`, `NodeIterator`, and `Range`.",
+    "disposition": "merged_verbatim",
+    "target_section": "Key Capabilities",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/aspose_html/dom/_document.py"
+    }
+  },
+  {
+    "unit_id": "u0015",
+    "excerpt": "- Work with a broad set of specialized HTML element classes — `HTMLFormElement`, `HTMLInputElement`, `HTMLSelectElement`, `HTMLTableElement`, `HTMLMediaElement`, and dozens more — each exposing the element-specific properties defined by its HTML interface.",
+    "disposition": "merged_verbatim",
+    "target_section": "Key Capabilities",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/aspose_html/dom/html/_form_elements.py"
+    }
+  },
+  {
+    "unit_id": "u0016",
+    "excerpt": "- Serialize complete documents, fragments, and individual elements back to an HTML string with the `serialise()` function or `XMLSerializer`.",
+    "disposition": "merged_verbatim",
+    "target_section": "Key Capabilities",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/aspose_html/html_document.py"
+    }
+  },
+  {
+    "unit_id": "u0017",
+    "excerpt": "- Match CSS selectors and stylesheets against elements and resolve the cascade — specificity, inline-vs-author rules, `!important`, and inheritance — with `Element.get_computed_style()`; the CSSOM surface (`CSSStyleSheet`, `CSSStyleRule`, `CSSMediaRule`, and related rule types) models stylesheets structurally.",
+    "disposition": "merged_verbatim",
+    "target_section": "Key Capabilities",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/aspose_html/cssom/_stylesheet.py"
+    }
+  },
+  {
+    "unit_id": "u0018",
+    "excerpt": "- Validate and manipulate URLs with `URL`, read and edit query strings with `URLSearchParams`, and detect byte-stream character encodings (BOM and content sniffing) with `detect_encoding()`.",
+    "disposition": "merged_verbatim",
+    "target_section": "Key Capabilities",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/aspose_html/url/_url.py"
+    }
+  },
+  {
+    "unit_id": "u0019",
+    "excerpt": "- Execute JavaScript against a parsed DOM through `JSContext`, an optional QuickJS-backed bridge exposing `document.querySelector`, `window.getComputedStyle`, and similar read-only DOM proxies to script code; requires the `js` extra.",
+    "disposition": "merged_verbatim",
+    "target_section": "Key Capabilities",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/aspose_html/js/_quickjs_bridge.py"
+    }
+  },
+  {
+    "unit_id": "u0020",
+    "excerpt": "A PyPI package has not been published yet. Install from a source checkout by putting the source\ntree on `PYTHONPATH` directly — the same mechanism the repository's own test suite already relies\non (`pyproject.toml`'s `[tool.pytest.ini_options]` sets `pythonpath = [\"src\"]`):",
+    "disposition": "merged_reframed",
+    "target_section": "Installation",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/aspose_html/../../pyproject.toml"
+    }
+  },
+  {
+    "unit_id": "u0021",
+    "excerpt": "Then add `src/` to `PYTHONPATH` (Linux/macOS: `export PYTHONPATH=\"$PWD/src:$PYTHONPATH\"`;\nWindows: `set PYTHONPATH=%cd%\\src;%PYTHONPATH%`).",
+    "classification": "1_narrative_cta",
+    "disposition": "merged_verbatim",
+    "target_section": "Installation",
+    "verification": {
+      "status": "not_applicable_category_1",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": ""
+    }
+  },
+  {
+    "unit_id": "u0022",
+    "excerpt": "The distribution is named `aspose-html-foss`; the import package is `aspose_html`. The package\nrequires Python 3.10 or later; `skia-python` (used internally for text-layout metrics) is its one\nreal runtime dependency. JavaScript execution is optional — install `quickjs` directly to use it:",
+    "disposition": "merged_verbatim",
+    "target_section": "Installation",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/aspose_html/../../pyproject.toml"
+    }
+  },
+  {
+    "unit_id": "u0023",
+    "excerpt": "- `skia-python` >=87.0,<145 — used internally for text-layout metrics.",
+    "disposition": "merged_verbatim",
+    "target_section": "Dependencies",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/aspose_html/../../pyproject.toml"
+    }
+  },
+  {
+    "unit_id": "u0024",
+    "excerpt": "- `quickjs` >=1.19,<2 — enables the `JSContext` JavaScript execution bridge; gated behind the `js` extra, and the package builds and runs without it.",
+    "disposition": "merged_verbatim",
+    "target_section": "Dependencies",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/aspose_html/../../pyproject.toml"
+    }
+  },
+  {
+    "unit_id": "u0025",
+    "excerpt": "- Requires Python 3.10 or later.",
+    "disposition": "merged_verbatim",
+    "target_section": "Dependencies",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/aspose_html/../../pyproject.toml"
+    }
+  },
+  {
+    "unit_id": "u0026",
+    "excerpt": "- `pytest` >=8 — runs the test suite.",
+    "disposition": "merged_verbatim",
+    "target_section": "Dependencies",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/aspose_html/../../pyproject.toml"
+    }
+  },
+  {
+    "unit_id": "u0027",
+    "excerpt": "Parse HTML, update the DOM, and serialize the result:",
+    "classification": "1_narrative_cta",
+    "disposition": "merged_verbatim",
+    "target_section": "Quick Start",
+    "verification": {
+      "status": "not_applicable_category_1",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": ""
+    }
+  },
+  {
+    "unit_id": "u0028",
+    "excerpt": "Attach a stylesheet and resolve the computed style — the ID selector wins over the class rule:",
+    "disposition": "merged_verbatim",
+    "target_section": "Quick Start",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/aspose_html/cssom/_stylesheet.py"
+    }
+  },
+  {
+    "unit_id": "u0029",
+    "excerpt": "Runnable scripts are available in the [`examples`](examples/) directory.",
+    "classification": "1_narrative_cta",
+    "disposition": "merged_verbatim",
+    "target_section": "Additional Examples",
+    "verification": {
+      "status": "not_applicable_category_1",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": ""
+    }
+  },
+  {
+    "unit_id": "u0030",
+    "excerpt": "<details>\n<summary>View Additional Examples</summary>",
+    "classification": "1_narrative_cta",
+    "disposition": "merged_verbatim",
+    "target_section": "Additional Examples",
+    "verification": {
+      "status": "not_applicable_category_1",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": ""
+    }
+  },
+  {
+    "unit_id": "u0031",
+    "excerpt": "</details>",
+    "classification": "1_narrative_cta",
+    "disposition": "merged_verbatim",
+    "target_section": "Additional Examples",
+    "verification": {
+      "status": "not_applicable_category_1",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": ""
+    }
+  },
+  {
+    "unit_id": "u0032",
+    "excerpt": "The primary entry point is `HTMLDocument`, which parses HTML into a `Document` tree built from `Node`/`Element` and the specialized `HTMLElement` subclasses. The DOM tree can be queried and mutated directly, styled through the CSS/CSSOM surface, serialized back to markup, and optionally scripted through `JSContext`. The library exposes 243 public types in total, listed below by module, with curated highlights following.",
+    "disposition": "merged_reframed",
+    "target_section": "API Reference",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/aspose_html/html_document.py"
+    }
+  },
+  {
+    "unit_id": "u0033",
+    "excerpt": "<details>\n<summary>View the Supported Public API Surface</summary>",
+    "classification": "1_narrative_cta",
+    "disposition": "merged_verbatim",
+    "target_section": "API Reference",
+    "verification": {
+      "status": "not_applicable_category_1",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": ""
+    }
+  },
+  {
+    "unit_id": "u0034",
+    "excerpt": "| Class | Description |\n|---|---|\n| `HTMLDocument` | Top-level entry point for parsing HTML into a Document tree. |",
+    "disposition": "merged_verbatim",
+    "target_section": "API Reference",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/aspose_html/html_document.py"
+    }
+  },
+  {
+    "unit_id": "u0035",
+    "excerpt": "| Class | Description |\n|---|---|\n| `AttributeSelector` | Matches elements by attribute presence or value. |\n| `ClassSelector` | Matches elements whose class_list contains class_name: `.foo`. |\n| `ComplexNotPseudoClass` | Matches elements that do NOT match any selector in the argument list. |\n| `ComplexSelector` | A chain of CompoundSelectors joined by Combinators. |\n| `CompoundSelector` | A sequence of simple selectors that all apply to the same element. |\n| `HasPseudoClass` | Matches elements that have at least one relative match in their subtree. |\n| `IsPseudoClass` | Matches elements that match any selector in a forgiving selector list. |\n| `NthArgument` | Parsed An+B argument for :nth-child and related pseudo-classes. |\n| `NthFilteredChildPseudoClass` | Matches elements at An+B position among siblings filtered by a selector. |\n| `PseudoClassSelector` | A pseudo-class selector. |\n| `SelectorList` | The root AST node. |\n| `TypeSelector` | Matches elements by tag name: `div`. |\n| `UniversalSelector` | Matches any element: `*`. |\n| `WherePseudoClass` | Identical matching semantics to IsPseudoClass; always contributes 0 specificity. |",
+    "disposition": "merged_verbatim",
+    "target_section": "API Reference",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/aspose_html/css/_ast.py"
+    }
+  },
+  {
+    "unit_id": "u0036",
+    "excerpt": "| Class | Description |\n|---|---|\n| `AttributeOperator` | Attribute selector operator types (CSS Selectors Level 3). |\n| `Combinator` | Selector combinator types (CSS Selectors Level 3). |",
+    "disposition": "merged_verbatim",
+    "target_section": "API Reference",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/aspose_html/css/_ast.py"
+    }
+  },
+  {
+    "unit_id": "u0037",
+    "excerpt": "| Class | Description |\n|---|---|\n| `CSS` | Namespace class for CSS static utilities (CSS Conditional Rules §6). |\n| `CSSCounterStyleRule` | A `@counter-style` rule (CSS Counter Styles Level 3 §3, CSSOM §5.4 type 11). |\n| `CSSDeclarationBlock` | A small CSSStyleDeclaration-compatible declaration container. |\n| `CSSFontFaceRule` | A `@font-face` rule holding font descriptor declarations (CSS Fonts §4.4). |\n| `CSSImportRule` | An `@import` statement rule (CSSOM §6.7). |\n| `CSSKeyframeRule` | A single keyframe descriptor within a `@keyframes` rule (CSSOM Animations §7). |\n| `CSSKeyframesRule` | A `@keyframes` rule containing animation keyframe descriptors (CSSOM Animations §7). |\n| `CSSLayerBlockRule` | A CSS `@layer` block rule assigning child rules to a named cascade layer. |\n| `CSSLayerStatementRule` | A CSS `@layer` statement rule declaring cascade layer order. |\n| `CSSMediaRule` | Media rule scaffold for nested style rules. |\n| `CSSNamespaceRule` | A `@namespace` rule (CSSOM §6.6, type 10). |\n| `CSSPageRule` | CSS `@page` rule (CSSOM §6.4). |\n| `CSSPropertyRule` | CSS `@property` rule stub (CSS Properties and Values API §3). |\n| `CSSRule` | Base class for CSSOM rules. |\n| `CSSRuleList` | Ordered, live CSS rule collection. |\n| `CSSStyleRule` | Style rule (`selector { declarations }`). |\n| `CSSStyleSheet` | Minimal CSSOM stylesheet object (CSSOM §6.4). |\n| `CSSSupportsRule` | A `@supports` rule with a condition and nested style rules (CSS Conditional Rules §2). |",
+    "disposition": "merged_verbatim",
+    "target_section": "API Reference",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/aspose_html/cssom/__init__.py"
+    }
+  },
+  {
+    "unit_id": "u0038",
+    "excerpt": "| Class | Description |\n|---|---|\n| `AbortController` | Controls cancellation of operations via an `AbortSignal`. |\n| `AbortSignal` | Represents the signal half of an AbortController pair. |\n| `AbstractRange` | Read-only boundary-point contract shared by range-family APIs. |\n| `Attr` | An attribute attached to an Element. |\n| `BarProp` | Represents a browser toolbar object (WHATWG HTML §7.7.3). |\n| `BroadcastChannel` | Deterministic same-runtime BroadcastChannel fan-out delivery. |\n| `BrowsingContext` | Internal owner of navigation lifecycle/document state. |\n| `CDATASection` | A CDATA section node (extends Text per WHATWG DOM Standard). |\n| `CSSStyleDeclaration` | A live view of an element's inline style attribute. |\n| `CharacterData` | Abstract base for Text, Comment, CDATASection, and ProcessingInstruction. |\n| `Comment` | An HTML comment node. |\n| `ComputedStyleDeclaration` | Read-only resolved style declarations for an element. |\n| `Console` | Headless console stub exposing `log`, `info`, `warn`, `error`, and `debug` methods (WHATWG Console Standard). |\n| `Crypto` | Minimal stub for the Crypto interface (W3C Web Crypto API §10.1). |\n| `CustomElementRegistry` | Registers and resolves custom element constructors via `define()`, `get()`, and `when_defined()`. |\n| `CustomEvent` | An Event carrying an arbitrary detail payload. |\n| `DOMConfiguration` | Baseline DOMConfiguration compatibility surface. |\n| `DOMException` | Base for all DOM exceptions. |\n| `DOMImplementation` | Legacy DOMImplementation compatibility surface. |\n| `DOMParser` | Parse markup strings into DOM documents. |\n| `DOMRect` | An axis-aligned bounding rectangle (CSSOM View §7.1). |\n| `DOMRectList` | An immutable sequence of `DOMRect` objects (CSSOM View §7.2). |\n| `DOMStringMap` | A live dict-like view of an element's `data-*` custom attributes. |\n| `DOMTokenList` | A live, mutable set of space-separated tokens backed by an element attribute. |\n| `DataCloneError` | Raised when a value cannot be serialized by the structured clone algorithm. |\n| `Document` | The root of a DOM tree. |\n| `DocumentFragment` | A lightweight container for a sub-tree. |\n| `DocumentPosition` | Named constants for the bitmask returned by `Node.compare_document_position`. |\n| `DocumentType` | A document type declaration node (`<!DOCTYPE html>`). |\n| `Element` | An HTML or XML element node. |\n| `ErrorEvent` | Script error event (WHATWG HTML §8.1.3.6). |\n| `Event` | A DOM event object per WHATWG DOM §2.2. |\n| `EventTarget` | Base class for objects that can receive DOM events. |\n| `FocusEvent` | Focus transition event (WHATWG UI Events §5.4). |\n| `FormData` | Snapshot collection of form control name/value pairs. |\n| `HTMLAddressElement` | HTML `<address>` element. |\n| `HTMLAnchorElement` | HTML `<a>` anchor element. |\n| `HTMLAreaElement` | HTML `<area>` image-map hyperlink area. |\n| `HTMLArticleElement` | HTML `<article>` element. |\n| `HTMLAsideElement` | HTML `<aside>` element. |\n| `HTMLAudioElement` | HTML `<audio>` element. |\n| `HTMLBRElement` | HTML `<br>` line-break element (structural subclass). |\n| `HTMLBaseElement` | HTML `<base>` element. |\n| `HTMLBodyElement` | HTML `<body>` element (structural subclass). |\n| `HTMLButtonElement` | HTML `<button>` element. |\n| `HTMLCanvasElement` | HTML `<canvas>` element. |\n| `HTMLCollection` | A live, ordered collection of Element-type children only. |\n| `HTMLDListElement` | HTML `<dl>` definition list element. |\n| `HTMLDataElement` | HTML `<data>` element. |\n| `HTMLDataListElement` | HTML `<datalist>` element providing autocomplete suggestions. |\n| `HTMLDetailsElement` | HTML `<details>` disclosure widget element. |\n| `HTMLDialogElement` | HTML `<dialog>` modal/non-modal dialog element. |\n| `HTMLDivElement` | HTML `<div>` block container element. |\n| `HTMLElement` | Base class for all HTML-namespace element types. |\n| `HTMLEmbedElement` | HTML `<embed>` element. |\n| `HTMLFieldSetElement` | HTML `<fieldset>` element for grouping form controls. |\n| `HTMLFigCaptionElement` | HTML `<figcaption>` element. |\n| `HTMLFigureElement` | HTML `<figure>` element. |\n| `HTMLFooterElement` | HTML `<footer>` element. |\n| `HTMLFormElement` | HTML `<form>` element. |\n| `HTMLHRElement` | HTML `<hr>` thematic-break element (structural subclass). |\n| `HTMLHeadElement` | HTML `<head>` element (structural subclass). |\n| `HTMLHeaderElement` | HTML `<header>` element. |\n| `HTMLHeadingElement` | HTML heading element — covers `<h1>` through `<h6>`. |\n| `HTMLHtmlElement` | HTML `<html>` document element (structural subclass). |\n| `HTMLIFrameElement` | HTML `<iframe>` element. |\n| `HTMLImageElement` | HTML `<img>` image element. |\n| `HTMLInputElement` | HTML `<input>` form control element. |\n| `HTMLLIElement` | HTML `<li>` list item element. |\n| `HTMLLabelElement` | HTML `<label>` element. |\n| `HTMLLegendElement` | HTML `<legend>` element (WHATWG §4.10.4). |\n| `HTMLLinkElement` | HTML `<link>` element. |\n| `HTMLMainElement` | HTML `<main>` element. |\n| `HTMLMapElement` | HTML `<map>` element. |\n| `HTMLMarkElement` | HTML `<mark>` element. |\n| `HTMLMediaElement` | Base class for HTML media elements (`<audio>` / `<video>`). |\n| `HTMLMenuElement` | Represents an HTML `<menu>` element. |\n| `HTMLMetaElement` | HTML `<meta>` element. |\n| `HTMLMeterElement` | HTML `<meter>` element for displaying a scalar value in a range. |\n| `HTMLModElement` | HTML `<ins>`/`<del>` modification element. |\n| `HTMLNavElement` | HTML `<nav>` element. |\n| `HTMLNoScriptElement` | HTML `<noscript>` element. |\n| `HTMLOListElement` | HTML `<ol>` ordered list element. |\n| `HTMLObjectElement` | HTML `<object>` element. |\n| `HTMLOptGroupElement` | HTML `<optgroup>` element for grouping options in a select list. |\n| `HTMLOptionElement` | HTML `<option>` element representing a choice in a select list. |\n| `HTMLOptionsCollection` | Live collection of `<option>` elements for a `<select>`. |\n| `HTMLOutputElement` | HTML `<output>` element for displaying calculation results. |\n| `HTMLParagraphElement` | HTML `<p>` paragraph element. |\n| `HTMLParamElement` | HTML `<param>` element. |\n| `HTMLPictureElement` | HTML `<picture>` element (structural subclass). |\n| `HTMLPreElement` | HTML `<pre>` preformatted text element (structural subclass). |\n| `HTMLProgressElement` | HTML `<progress>` element showing task completion. |\n| `HTMLQuoteElement` | HTML `<blockquote>`/`<q>` quote element. |\n| `HTMLRubyElement` | HTML `<ruby>`/`<rt>`/`<rp>` element. |\n| `HTMLScriptElement` | HTML `<script>` element. |\n| `HTMLSectionElement` | HTML `<section>` element. |\n| `HTMLSelectElement` | HTML `<select>` element. |\n| `HTMLSmallElement` | HTML `<small>` element. |\n| `HTMLSourceElement` | HTML `<source>` element. |\n| `HTMLSpanElement` | HTML `<span>` inline container element. |\n| `HTMLStyleElement` | HTML `<style>` element. |\n| `HTMLSummaryElement` | Represents an HTML `<summary>` element. |\n| `HTMLTableCaptionElement` | HTML `<caption>` element. |\n| `HTMLTableCellElement` | HTML `<td>` or `<th>` element. |\n| `HTMLTableColElement` | HTML `<col>` or `<colgroup>` element. |\n| `HTMLTableElement` | HTML `<table>` element. |\n| `HTMLTableRowElement` | HTML `<tr>` element. |\n| `HTMLTableSectionElement` | HTML `<thead>`, `<tbody>`, or `<tfoot>` element. |\n| `HTMLTemplateElement` | HTML `<template>` element holding inert content. |\n| `HTMLTextAreaElement` | HTML `<textarea>` multi-line text input element. |\n| `HTMLTimeElement` | HTML `<time>` element. |\n| `HTMLTitleElement` | HTML `<title>` element. |\n| `HTMLTrackElement` | HTML `<track>` element. |\n| `HTMLUListElement` | HTML `<ul>` unordered list element. |\n| `HTMLUnknownElement` | Represents an element with an unrecognized tag name; constructible directly, though the parser's tag-registry dispatch does not produce it automatically. |\n| `HTMLVideoElement` | HTML `<video>` element. |\n| `HTMLWBRElement` | HTML `<wbr>` element. |\n| `HashChangeEvent` | Same-document fragment navigation event. |\n| `HierarchyRequestError` | Raised when the tree hierarchy is violated. |\n| `History` | In-memory session history for a Window. |\n| `InUseAttributeError` | Raised when an Attr is already in use by another element. |\n| `IndexSizeError` | Raised when an index or size is out of range. |\n| `InputEvent` | Text-input event (WHATWG Input Events Level 2 / WHATWG UI Events §5.6). |\n| `IntersectionObserver` | Headless IntersectionObserver API-shape stub. |\n| `IntersectionObserverEntry` | Headless IntersectionObserver entry stub. |\n| `InvalidCharacterError` | Raised when an invalid character is used. |\n| `InvalidStateError` | Raised when an operation is performed in an invalid state. |\n| `KeyboardEvent` | Keyboard event (WHATWG UI Events §5.3). |\n| `Location` | Browsing-context location object exposing URL components (`href`, `protocol`, `host`, `pathname`) plus `assign()`/`replace()`/`reload()` navigation stubs. |\n| `MediaQueryList` | MediaQueryList returned by `Window.match_media`. |\n| `MessageChannel` | Pair of linked `MessagePort` endpoints. |\n| `MessagePort` | Deterministic same-runtime MessagePort queue baseline. |\n| `MouseEvent` | Mouse or pointer event (WHATWG UI Events §5.2). |\n| `MutationObserver` | Observe DOM mutations on a target node. |\n| `MutationRecord` | One DOM mutation notification record. |\n| `NamedNodeMap` | An ordered map of Attr objects keyed by attribute name. |\n| `Navigator` | Browser-environment stub exposing user-agent, platform, and feature-detection properties (`user_agent`, `platform`, `languages`, `hardware_concurrency`). |\n| `NoModificationAllowedError` | Raised when a node cannot be modified in its current context. |\n| `Node` | Abstract base class for all WHATWG DOM nodes. |\n| `NodeFilter` | Constants for TreeWalker and NodeIterator filtering. |\n| `NodeIterator` | Flat, stateful iteration over DOM nodes matching a filter. |\n| `NodeList` | A live, ordered collection of Node objects. |\n| `NodeType` | Integer constants for the `node_type` property of DOM nodes. |\n| `NotFoundError` | Raised when a node is not found in the expected location. |\n| `NotSupportedError` | Raised when an operation is not supported. |\n| `ParseError` | A parse error recorded during tree construction. |\n| `Performance` | Minimal stub for the Performance interface. |\n| `PerformanceEntry` | A single performance timeline entry. |\n| `PerformanceTiming` | Legacy Navigation Timing Level 1 interface stub. |\n| `PopStateEvent` | History traversal event carrying the active entry state. |\n| `ProcessingInstruction` | A processing instruction node (e.g. `<?xml version=\"1.0\"?>`); `node_name` returns the target and `node_value`/`data` return the PI data. |\n| `Range` | A contiguous portion of a document tree (WHATWG DOM §5). |\n| `ResizeObserver` | Headless ResizeObserver API-shape stub. |\n| `ResizeObserverEntry` | Headless ResizeObserver entry stub. |\n| `Screen` | Browser screen geometry — all values are stubs (server-side context). |\n| `SecurityError` | Raised when an operation is blocked for security reasons. |\n| `Selection` | Document-scoped selection with single-range semantics. |\n| `StaticRange` | Immutable boundary-point range initialized from an init object. |\n| `Storage` | Key-value store implementing the WHATWG HTML §12 Storage interface. |\n| `StyleSheetList` | Live ordered stylesheet collection. |\n| `SubtleCrypto` | Stub for the SubtleCrypto interface (W3C Web Crypto API §10). |\n| `SyntaxError` | Raised when a string does not match the expected pattern or grammar. |\n| `Text` | A text node. |\n| `TreeWalker` | Cursor-style DOM traversal bounded to a root subtree. |\n| `UIEvent` | Base class for user-interface events (WHATWG UI Events §5.1). |\n| `ValidityState` | Constraint-validation flags for a form control. |\n| `VisualViewport` | CSSOM View §9 VisualViewport — all values are headless stubs. |\n| `Window` | Per-document window object with EventTarget behavior. |\n| `WindowEventLoop` | Internal task-source scheduler used by `Window`/`BrowsingContext`. |\n| `WrongDocumentError` | Raised when a node belongs to a different document. |\n| `XMLSerializer` | Serialise DOM nodes to strings. |",
+    "disposition": "merged_verbatim",
+    "target_section": "API Reference",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/aspose_html/dom/_abort_controller.py"
+    }
+  },
+  {
+    "unit_id": "u0039",
+    "excerpt": "| Class | Description |\n|---|---|\n| `EncodingDetectionResult` | Result of encoding detection and decoding for an HTML byte stream. |\n| `UnsupportedEncodingError` | Raised when the detected encoding has no Python codec. |",
+    "disposition": "merged_verbatim",
+    "target_section": "API Reference",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/aspose_html/encoding/detection.py"
+    }
+  },
+  {
+    "unit_id": "u0040",
+    "excerpt": "| Class | Description |\n|---|---|\n| `JSContext` | A JavaScript execution context backed by QuickJS, pre-wired to a DOM. |\n| `JSEvaluationError` | Raised when a JavaScript expression throws an exception. |\n| `ModuleLoadPolicy` | Constants governing how a JSContext resolves module specifiers. |\n| `ModuleNotFoundError` | Raised when a module specifier has no registered source. |\n| `ModuleRegistry` | Maps module specifiers to ES module source strings. |",
+    "disposition": "merged_verbatim",
+    "target_section": "API Reference",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/aspose_html/js/_quickjs_bridge.py"
+    }
+  },
+  {
+    "unit_id": "u0041",
+    "excerpt": "| Class | Description |\n|---|---|\n| `BlockFragment` | Geometry fragment for a block-level box. |\n| `BoxNode` | Single box-tree node produced by `build_box_tree`. |\n| `BoxRoot` | Root wrapper returned by `build_box_tree`. |\n| `BreakHints` | CSS fragmentation break hints (`break_before`, `break_after`, `break_inside`, `widows`, `orphans`) consumed by the layout engine. |\n| `ComputedStyle` | Immutable layout-facing snapshot of an element's resolved style. |\n| `Display` | Resolved display triple per CSS Display L3 §2. |\n| `EdgeSizes` | Logical edge sizes in CSS px units. |\n| `FragmentRoot` | Root wrapper for block-layout fragment output. |\n| `InlineTextFragment` | Positioned inline text fragment for a single shaped run. |\n| `LineFragment` | Single inline formatting context line box. |\n| `PageFragment` | Single paginated fragmentainer (page box) with ordered content. |\n| `PageMarginBoxes` | Placeholder page-margin-box container for later paint stages. |\n| `ShapedRun` | Shaped text-run payload with deterministic metrics. |",
+    "disposition": "merged_verbatim",
+    "target_section": "API Reference",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/aspose_html/layout/_fragment_tree.py"
+    }
+  },
+  {
+    "unit_id": "u0042",
+    "excerpt": "| Class | Description |\n|---|---|\n| `CharacterToken` | A character token carrying one or more Unicode characters. |\n| `CommentToken` | A comment token, e.g. `<!-- text -->`. |\n| `DoctypeToken` | A DOCTYPE token emitted by the WHATWG tokeniser. |\n| `EndTagToken` | An end tag token, e.g. `</div>`. |\n| `EofToken` | An end-of-file token. |\n| `StartTagToken` | A start tag token, e.g. `<div class=\"x\">`. |\n| `Tokenizer` | WHATWG HTML tokeniser (§13.2.5). |",
+    "disposition": "merged_verbatim",
+    "target_section": "API Reference",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/aspose_html/tokenizer/_tokens.py"
+    }
+  },
+  {
+    "unit_id": "u0043",
+    "excerpt": "| Class | Description |\n|---|---|\n| `TokenizerState` | All tokeniser states defined in WHATWG HTML Living Standard §13.2.5. |",
+    "disposition": "merged_verbatim",
+    "target_section": "API Reference",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/aspose_html/tokenizer/_states.py"
+    }
+  },
+  {
+    "unit_id": "u0044",
+    "excerpt": "| Class | Description |\n|---|---|\n| `ActiveFormattingList` | The list of active formatting elements as defined in §13.2.4.3. |\n| `StackOfOpenElements` | The stack of open elements as defined in §13.2.4.2. |\n| `TemplateInsertionModeStack` | The template insertion mode stack per §13.2.4.1. |\n| `TreeBuilder` | Drives the WHATWG tree construction algorithm. |",
+    "disposition": "merged_verbatim",
+    "target_section": "API Reference",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/aspose_html/tree/_active_formatting.py"
+    }
+  },
+  {
+    "unit_id": "u0045",
+    "excerpt": "| Class | Description |\n|---|---|\n| `InsertionMode` | The 23 WHATWG insertion modes (§13.2.6). |",
+    "disposition": "merged_verbatim",
+    "target_section": "API Reference",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/aspose_html/tree/_insertion_modes.py"
+    }
+  },
+  {
+    "unit_id": "u0046",
+    "excerpt": "| Class | Description |\n|---|---|\n| `URL` | WHATWG-style URL object with `parse()`/`can_parse()` and component properties (`href`, `protocol`, `host`, `search_params`). |\n| `URLParseError` | Raised when a string cannot be parsed as a URL. |\n| `URLSearchParams` | Ordered query-string pairs with duplicate-key support. |",
+    "disposition": "merged_verbatim",
+    "target_section": "API Reference",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/aspose_html/url/_url.py"
+    }
+  },
+  {
+    "unit_id": "u0047",
+    "excerpt": "- `HTMLDocument` — `parse(html, *, encoding=None, base_url=None)`, `parse_fragment(html, context_element=None, *, encoding=None)`, `load(path)`.",
+    "disposition": "merged_verbatim",
+    "target_section": "API Reference",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/aspose_html/html_document.py"
+    }
+  },
+  {
+    "unit_id": "u0048",
+    "excerpt": "- `parse_html(html, *, base_url=None) -> Document` / `TreeBuilder.run()` / `Tokenizer(text).tokenize()` — the lower-level parsing pipeline `HTMLDocument.parse()` is built on.",
+    "disposition": "merged_verbatim",
+    "target_section": "API Reference",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/aspose_html/tree/_builder.py"
+    }
+  },
+  {
+    "unit_id": "u0049",
+    "excerpt": "- `Document` — the root of a DOM tree; `create_element(tag_name)`, `create_text_node(data)`, `append_child(node)`, `get_element_by_id(id)`, `get_elements_by_tag_name(name)`, `attach_style_sheet(sheet)`.",
+    "disposition": "merged_verbatim",
+    "target_section": "API Reference",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/aspose_html/dom/_document.py"
+    }
+  },
+  {
+    "unit_id": "u0050",
+    "excerpt": "- `Element` — `get_attribute`/`set_attribute`/`remove_attribute`, `class_list` (`DOMTokenList`), `dataset` (`DOMStringMap`), `text_content`, `get_computed_style()`, `style` (`CSSStyleDeclaration`).",
+    "disposition": "merged_verbatim",
+    "target_section": "API Reference",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/aspose_html/dom/_element.py"
+    }
+  },
+  {
+    "unit_id": "u0051",
+    "excerpt": "- `Node` — abstract base for all tree members; `NodeList`, `HTMLCollection` — live node collections; `Attr`, `NamedNodeMap` — attribute nodes and their map.",
+    "disposition": "merged_verbatim",
+    "target_section": "API Reference",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/aspose_html/dom/_node.py"
+    }
+  },
+  {
+    "unit_id": "u0052",
+    "excerpt": "- `TreeWalker`, `NodeIterator`, `Range`, `StaticRange`, `Selection` — bounded traversal and range/selection APIs.",
+    "disposition": "merged_verbatim",
+    "target_section": "API Reference",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/aspose_html/dom/_traversal.py"
+    }
+  },
+  {
+    "unit_id": "u0053",
+    "excerpt": "- `Event`, `CustomEvent`, `MouseEvent`, `KeyboardEvent`, `FocusEvent`, `InputEvent`, `EventTarget`, `MutationObserver` — the DOM event and mutation-observation surface.",
+    "disposition": "merged_verbatim",
+    "target_section": "API Reference",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/aspose_html/dom/_event.py"
+    }
+  },
+  {
+    "unit_id": "u0054",
+    "excerpt": "- `css.parse` — parse selector and declaration text; selector AST classes (`ClassSelector`, `TypeSelector`, `AttributeSelector`, `PseudoClassSelector`, `ComplexSelector`, `CompoundSelector`, and others) model the parsed grammar.",
+    "disposition": "merged_verbatim",
+    "target_section": "API Reference",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/aspose_html/css/_ast.py"
+    }
+  },
+  {
+    "unit_id": "u0055",
+    "excerpt": "- `CSSStyleSheet`, `CSSStyleRule`, `CSSMediaRule`, `CSSFontFaceRule`, `CSSKeyframesRule`, and the other `CSSRule` subclasses — structural CSSOM stylesheet/rule objects.",
+    "disposition": "merged_verbatim",
+    "target_section": "API Reference",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/aspose_html/cssom/_rules.py"
+    }
+  },
+  {
+    "unit_id": "u0056",
+    "excerpt": "- `CSSStyleDeclaration`, `ComputedStyleDeclaration` — live inline styles and read-only resolved (cascade-computed) styles.",
+    "disposition": "merged_verbatim",
+    "target_section": "API Reference",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/aspose_html/dom/_style.py"
+    }
+  },
+  {
+    "unit_id": "u0057",
+    "excerpt": "- `URL` — `parse(input, base)`, `can_parse(input, base)`; `href`, `protocol`, `host`, `pathname`, `search`, `search_params` (`URLSearchParams`).",
+    "disposition": "merged_verbatim",
+    "target_section": "API Reference",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/aspose_html/url/_url.py"
+    }
+  },
+  {
+    "unit_id": "u0058",
+    "excerpt": "- `URLSearchParams` — ordered query-string pairs with duplicate-key support.",
+    "disposition": "merged_verbatim",
+    "target_section": "API Reference",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/aspose_html/url/_search_params.py"
+    }
+  },
+  {
+    "unit_id": "u0059",
+    "excerpt": "- `detect_encoding(data, *, override_encoding=None) -> EncodingDetectionResult` — WHATWG-sequence BOM/meta-charset/UTF-8-default sniffing; `get_canonical_name(label)` normalizes an encoding label.",
+    "disposition": "merged_verbatim",
+    "target_section": "API Reference",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/aspose_html/encoding/detection.py"
+    }
+  },
+  {
+    "unit_id": "u0060",
+    "excerpt": "- `JSContext(document)` — a QuickJS-backed execution context pre-wired to a `Document`; `evaluate(js_source)`, `register_module(specifier, source)`, `eval_module(source)`. Requires the `js` extra.",
+    "disposition": "merged_verbatim",
+    "target_section": "API Reference",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/aspose_html/js/_quickjs_bridge.py"
+    }
+  },
+  {
+    "unit_id": "u0061",
+    "excerpt": "- `ModuleRegistry`, `ModuleLoadPolicy` — maps module specifiers to ES module source and controls how `JSContext` resolves them.",
+    "disposition": "merged_verbatim",
+    "target_section": "API Reference",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/aspose_html/js/_module_loader.py"
+    }
+  },
+  {
+    "unit_id": "u0062",
+    "excerpt": "</details>",
+    "classification": "1_narrative_cta",
+    "disposition": "merged_verbatim",
+    "target_section": "API Reference",
+    "verification": {
+      "status": "not_applicable_category_1",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": ""
+    }
+  },
+  {
+    "unit_id": "u0063",
+    "excerpt": "- **[Getting started guide](https://docs.aspose.org/html/python/)** — installation, walkthroughs, and feature guides for this library.",
+    "classification": "1_narrative_cta",
+    "disposition": "merged_verbatim",
+    "target_section": "Documentation & Resources",
+    "verification": {
+      "status": "not_applicable_category_1",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": ""
+    }
+  },
+  {
+    "unit_id": "u0064",
+    "excerpt": "- **[How-to guides & FAQ](https://kb.aspose.org/html/python/)** — task-focused answers for common HTML/DOM/CSS-processing questions.",
+    "classification": "1_narrative_cta",
+    "disposition": "merged_verbatim",
+    "target_section": "Documentation & Resources",
+    "verification": {
+      "status": "not_applicable_category_1",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": ""
+    }
+  },
+  {
+    "unit_id": "u0065",
+    "excerpt": "- **[Full API reference](https://reference.aspose.org/html/python/)** — the complete, browsable reference for all 243 public types.",
+    "classification": "1_narrative_cta",
+    "disposition": "merged_verbatim",
+    "target_section": "Documentation & Resources",
+    "verification": {
+      "status": "not_applicable_category_1",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": ""
+    }
+  },
+  {
+    "unit_id": "u0066",
+    "excerpt": "- **[Public API surface](PUBLIC_API.md)** — the stable top-level entry points this library's compatibility guarantees cover.",
+    "classification": "1_narrative_cta",
+    "disposition": "merged_verbatim",
+    "target_section": "Documentation & Resources",
+    "verification": {
+      "status": "not_applicable_category_1",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": ""
+    }
+  },
+  {
+    "unit_id": "u0067",
+    "excerpt": "- **[Contributing guide](CONTRIBUTING.md)** — development setup, test commands, and contribution guidelines.",
+    "classification": "1_narrative_cta",
+    "disposition": "merged_verbatim",
+    "target_section": "Documentation & Resources",
+    "verification": {
+      "status": "not_applicable_category_1",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": ""
+    }
+  },
+  {
+    "unit_id": "u0068",
+    "excerpt": "- **[Security policy](SECURITY.md)** — how to report a vulnerability.",
+    "classification": "1_narrative_cta",
+    "disposition": "merged_verbatim",
+    "target_section": "Documentation & Resources",
+    "verification": {
+      "status": "not_applicable_category_1",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": ""
+    }
+  },
+  {
+    "unit_id": "u0069",
+    "excerpt": "- **[Changelog](CHANGELOG.md)** — notable changes to this package by version.",
+    "classification": "1_narrative_cta",
+    "disposition": "merged_verbatim",
+    "target_section": "Documentation & Resources",
+    "verification": {
+      "status": "not_applicable_category_1",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": ""
+    }
+  },
+  {
+    "unit_id": "u0070",
+    "excerpt": "- Found a bug or have a feature request? [Open an issue](https://github.com/aspose-html-foss/Aspose.HTML-FOSS-for-Python/issues) on GitHub.",
+    "classification": "1_narrative_cta",
+    "disposition": "merged_verbatim",
+    "target_section": "Documentation & Resources",
+    "verification": {
+      "status": "not_applicable_category_1",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": ""
+    }
+  },
+  {
+    "unit_id": "u0071",
+    "excerpt": "- CSS selector matching supports the core CSS Selectors Level 3 grammar, but several dynamic and legacy pseudo-classes are out of scope and raise `NotImplementedError` in the matcher and parser (`_matches_pseudo_class`, `_pseudo_not`), and single-colon legacy pseudo-element forms are not parsed.",
+    "disposition": "merged_verbatim",
+    "target_section": "Scope and Limitations",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/aspose_html/css/_ast.py"
+    }
+  },
+  {
+    "unit_id": "u0072",
+    "excerpt": "- `CSSRule.type` and `CSSRule.css_text` (the CSSOM base-rule stubs) are not implemented; concrete rule subclasses such as `CSSStyleRule` and `CSSMediaRule` expose their own real properties instead.",
+    "disposition": "merged_verbatim",
+    "target_section": "Scope and Limitations",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/aspose_html/cssom/_rules.py"
+    }
+  },
+  {
+    "unit_id": "u0073",
+    "excerpt": "- Form constraint validation (validity-state computation) and `HTMLImageElement.decode()` are present on the API surface but not yet implemented.",
+    "disposition": "merged_verbatim",
+    "target_section": "Scope and Limitations",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/aspose_html/dom/html/_form_elements.py"
+    }
+  },
+  {
+    "unit_id": "u0074",
+    "excerpt": "- The library builds internal layout structures (`BoxNode`, `FragmentRoot`, and related classes, using `skia-python` for text-run metrics) but does not yet expose a public API for rendering documents to an image or PDF.",
+    "disposition": "merged_verbatim",
+    "target_section": "Scope and Limitations",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/aspose_html/layout/_fragment_tree.py"
+    }
+  },
+  {
+    "unit_id": "u0075",
+    "excerpt": "- JavaScript execution (`JSContext`) requires the optional `quickjs` extra and exposes a read-only DOM proxy to script code; its dynamic `import()` bridge is not implemented, though static module registration via `ModuleRegistry` works.",
+    "disposition": "merged_verbatim",
+    "target_section": "Scope and Limitations",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/aspose_html/js/_quickjs_bridge.py"
+    }
+  },
+  {
+    "unit_id": "u0076",
+    "excerpt": "These limitations don't apply to [Aspose.HTML for Python — Enterprise Edition](https://products.aspose.com/html/python-net/), which adds full CSS selector and pseudo-class coverage, constraint validation, image and PDF rendering, and unrestricted JavaScript execution.",
+    "classification": "1_narrative_cta",
+    "disposition": "merged_verbatim",
+    "target_section": "Scope and Limitations",
+    "verification": {
+      "status": "not_applicable_category_1",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": ""
+    }
+  },
+  {
+    "unit_id": "u0077",
+    "excerpt": "The package needs no separate install step for testing — it uses the same source-checkout setup\nas [Installation](#installation) above, with `pytest` already configured to run directly against\nthe local checkout. Install the test and runtime dependencies, then run the suite:",
+    "disposition": "merged_verbatim",
+    "target_section": "Development and Testing",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/aspose_html/../../pyproject.toml"
+    }
+  },
+  {
+    "unit_id": "u0078",
+    "excerpt": "Install `quickjs` to also exercise the JavaScript-bridge tests and doctests:",
+    "disposition": "merged_verbatim",
+    "target_section": "Development and Testing",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/aspose_html/../../pyproject.toml"
+    }
+  },
+  {
+    "unit_id": "u0079",
+    "excerpt": "Without `quickjs` installed, `src/aspose_html/js/` is skipped automatically from doctest\ncollection and the tests under `tests/test_js/` skip via `pytest.importorskip(\"quickjs\")`; the\nSkia rendering-backend smoke test (`tests/test_render/test_skia_smoke.py`) is skipped the same way\nwhen `skia-python` is unavailable.",
+    "disposition": "merged_verbatim",
+    "target_section": "Development and Testing",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/aspose_html/js/_quickjs_bridge.py"
+    }
+  },
+  {
+    "unit_id": "u0080",
+    "excerpt": "Test coverage is organized by module: `test_html/`, `test_dom/`, `tokenizer/`, `test_tree/`, `test_css/`, `test_cssom/`, `test_layout/`, `test_url/`, `encoding/`, `test_js/`, `test_serialiser/`, `test_render/`, and `test_file_io.py`.",
+    "disposition": "merged_verbatim",
+    "target_section": "Development and Testing",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/aspose_html/../../pyproject.toml"
+    }
+  },
+  {
+    "unit_id": "u0081",
+    "excerpt": "This project is licensed under the [MIT License](LICENSE). The MIT License permits use, copying, modification, distribution, sublicensing, and commercial use, provided its copyright and permission notice are retained. The software is provided without warranty.",
+    "disposition": "merged_verbatim",
+    "target_section": "License",
+    "classification": "3_branding_positioning",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "LICENSE"
+    }
+  }
+]

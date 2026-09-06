@@ -1,0 +1,46 @@
+[
+  {
+    "unit_id": "b0001",
+    "action": "preserved",
+    "new_badge_unit_id": "b0001",
+    "category": "package_version",
+    "verification": {
+      "status": "verified_redundant",
+      "evidence_type": "candidate_section_reference",
+      "evidence_ref": "readme.md badge row (top of file)"
+    }
+  },
+  {
+    "unit_id": "b0002",
+    "action": "preserved",
+    "new_badge_unit_id": "b0002",
+    "category": "license",
+    "verification": {
+      "status": "verified_redundant",
+      "evidence_type": "candidate_section_reference",
+      "evidence_ref": "readme.md badge row (top of file)"
+    }
+  },
+  {
+    "unit_id": "b0003",
+    "action": "preserved",
+    "new_badge_unit_id": "b0003",
+    "category": "unknown",
+    "verification": {
+      "status": "verified_redundant",
+      "evidence_type": "candidate_section_reference",
+      "evidence_ref": "readme.md badge row (top of file)"
+    }
+  },
+  {
+    "unit_id": "b0004",
+    "action": "excluded",
+    "category": "banner",
+    "excluded_reason": "This is the hero banner image (the [![...](banner)](products.aspose.org link) at the top of the README), not an inline status badge -- tracked separately by check_banner_present/check_banner_asset_exists, not the badge-disposition system. The candidates own banner (self-hosted at products.aspose.org/media/pdf/net/banner-readme.png per this pipelines own convention) is the same concept, verified by those dedicated checks.",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "candidate_section_reference",
+      "evidence_ref": "readme.md banner line (top of file)"
+    }
+  }
+]

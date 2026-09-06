@@ -1,0 +1,110 @@
+[
+  {
+    "unit_id": "s0001",
+    "heading": "At a Glance",
+    "kind": "generic_structural_block",
+    "disposition": "merged_reframed",
+    "target_section": "At a Glance",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "README.md"
+    }
+  },
+  {
+    "unit_id": "s0002",
+    "heading": "Shapes",
+    "kind": "generic_structural_block",
+    "disposition": "merged_reframed",
+    "target_section": "Quick Start",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "include/Aspose/Slides/Foss/shape_collection.h"
+    }
+  },
+  {
+    "unit_id": "s0003",
+    "heading": "Text Formatting",
+    "kind": "generic_structural_block",
+    "disposition": "merged_reframed",
+    "target_section": "Additional Examples",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "include/Aspose/Slides/Foss/portion_format.h"
+    }
+  },
+  {
+    "unit_id": "s0004",
+    "heading": "Table",
+    "kind": "generic_structural_block",
+    "disposition": "merged_reframed",
+    "target_section": "Additional Examples",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "include/Aspose/Slides/Foss/table.h"
+    }
+  },
+  {
+    "unit_id": "s0005",
+    "heading": "Connector",
+    "kind": "generic_structural_block",
+    "disposition": "merged_reframed",
+    "target_section": "Additional Examples",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "include/Aspose/Slides/Foss/connector.h"
+    }
+  },
+  {
+    "unit_id": "s0006",
+    "heading": "Fill",
+    "kind": "generic_structural_block",
+    "disposition": "merged_reframed",
+    "target_section": "Additional Examples",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "include/Aspose/Slides/Foss/fill_format.h"
+    }
+  },
+  {
+    "unit_id": "s0007",
+    "heading": "Notes",
+    "kind": "generic_structural_block",
+    "disposition": "merged_reframed",
+    "target_section": "Additional Examples",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "include/Aspose/Slides/Foss/notes_slide_manager.h"
+    }
+  },
+  {
+    "unit_id": "s0008",
+    "heading": "Comments",
+    "kind": "generic_structural_block",
+    "disposition": "merged_reframed",
+    "target_section": "Additional Examples",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/Aspose.Slides.Foss/comment.cpp"
+    }
+  },
+  {
+    "unit_id": "s0009",
+    "heading": "Document Properties",
+    "kind": "generic_structural_block",
+    "disposition": "merged_reframed",
+    "target_section": "Additional Examples",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "include/Aspose/Slides/Foss/document_properties.h"
+    }
+  }
+]

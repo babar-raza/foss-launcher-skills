@@ -1,0 +1,79 @@
+[
+  {
+    "unit_id": "s0001",
+    "heading": "At a Glance",
+    "disposition": "merged_verbatim",
+    "target_section": "At a Glance",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "README.md"
+    }
+  },
+  {
+    "unit_id": "s0002",
+    "heading": "Extract Text From an Existing PDF",
+    "disposition": "merged_verbatim",
+    "target_section": "Additional Examples",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "README.md"
+    }
+  },
+  {
+    "unit_id": "s0003",
+    "heading": "Extract Images From a PDF",
+    "disposition": "merged_verbatim",
+    "target_section": "Additional Examples",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "README.md"
+    }
+  },
+  {
+    "unit_id": "s0004",
+    "heading": "Create and Save a PDF From Scratch",
+    "disposition": "merged_verbatim",
+    "target_section": "Additional Examples",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "README.md"
+    }
+  },
+  {
+    "unit_id": "s0005",
+    "heading": "Read and Update Fields in an Existing Form",
+    "disposition": "merged_verbatim",
+    "target_section": "Additional Examples",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "README.md"
+    }
+  },
+  {
+    "unit_id": "s0006",
+    "heading": "Append Multiple Form Fields to a Cell in Order",
+    "disposition": "merged_verbatim",
+    "target_section": "Additional Examples",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "README.md"
+    }
+  },
+  {
+    "unit_id": "s0007",
+    "heading": "Set and Read a Widget Annotation's Background Color",
+    "disposition": "merged_verbatim",
+    "target_section": "Additional Examples",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "README.md"
+    }
+  }
+]

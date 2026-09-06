@@ -1,0 +1,110 @@
+[
+  {
+    "unit_id": "s0001",
+    "heading": "Find Matching Text",
+    "disposition": "merged_verbatim",
+    "target_section": "Additional Examples",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/Text/TextFragmentAbsorber.cs"
+    }
+  },
+  {
+    "unit_id": "s0002",
+    "heading": "Add a Stamp Annotation",
+    "disposition": "merged_verbatim",
+    "target_section": "Additional Examples",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/Annotations/AnnotationCollection.cs"
+    }
+  },
+  {
+    "unit_id": "s0003",
+    "heading": "Inspect a Choice Field's Options",
+    "disposition": "merged_verbatim",
+    "target_section": "Additional Examples",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/Forms/Field.cs"
+    }
+  },
+  {
+    "unit_id": "s0004",
+    "heading": "Render a Page to SVG",
+    "disposition": "merged_verbatim",
+    "target_section": "Additional Examples",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/Devices/SvgDevice.cs"
+    }
+  },
+  {
+    "unit_id": "s0005",
+    "heading": "Find and Replace Text",
+    "disposition": "merged_verbatim",
+    "target_section": "Additional Examples",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/Text/TextFragmentAbsorber.cs"
+    }
+  },
+  {
+    "unit_id": "s0006",
+    "heading": "List Form Field Values",
+    "disposition": "merged_verbatim",
+    "target_section": "Additional Examples",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/Forms/Field.cs"
+    }
+  },
+  {
+    "unit_id": "s0007",
+    "heading": "Encrypt a PDF",
+    "disposition": "merged_verbatim",
+    "target_section": "Additional Examples",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/Document.cs"
+    }
+  },
+  {
+    "unit_id": "s0008",
+    "heading": "Convert HTML to PDF",
+    "disposition": "merged_verbatim",
+    "target_section": "Additional Examples",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/Html/HtmlFragment.cs"
+    }
+  },
+  {
+    "unit_id": "s0009",
+    "heading": "Render a Page to PNG",
+    "disposition": "merged_verbatim",
+    "target_section": "Additional Examples",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/Devices/PngDevice.cs"
+    }
+  }
+]

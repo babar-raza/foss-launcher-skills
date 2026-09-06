@@ -1,0 +1,16 @@
+[
+  {
+    "unit_id": "s0001",
+    "heading": "At a Glance",
+    "disposition": "merged_verbatim",
+    "target_section": "At a Glance",
+    "claimed_paths": null,
+    "excluded_reason": null,
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/aspose_barcode_foss/api.py",
+      "evidence_note": "Mermaid diagram is byte-identical between old README and candidate (confirmed via diff). Its 5 capability nodes (Code128/Code39/EAN-UPC/QR/render-to-SVG-or-PNG) and 2 output nodes are the same facts already independently verified by content units u0013-u0018."
+    }
+  }
+]

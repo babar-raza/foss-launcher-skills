@@ -1,0 +1,62 @@
+[
+  {
+    "unit_id": "s0001",
+    "heading": "At a Glance",
+    "disposition": "merged_reframed",
+    "target_section": "At a Glance",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/Aspose.Cells_FOSS/Cell.cs"
+    }
+  },
+  {
+    "unit_id": "s0002",
+    "heading": "Validate Cell Input",
+    "disposition": "merged_verbatim",
+    "target_section": "Additional Examples",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/Aspose.Cells_FOSS/ValidationCollection.cs"
+    }
+  },
+  {
+    "unit_id": "s0003",
+    "heading": "Highlight Data With Conditional Formatting",
+    "disposition": "merged_verbatim",
+    "target_section": "Additional Examples",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/Aspose.Cells_FOSS/ConditionalFormattingCollection.cs"
+    }
+  },
+  {
+    "unit_id": "s0004",
+    "heading": "Add Hyperlinks and Named Ranges",
+    "disposition": "merged_verbatim",
+    "target_section": "Additional Examples",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/Aspose.Cells_FOSS/HyperlinkCollection.cs"
+    }
+  },
+  {
+    "unit_id": "s0005",
+    "heading": "Create a Chart",
+    "disposition": "merged_verbatim",
+    "target_section": "Additional Examples",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/Aspose.Cells_FOSS/ChartCollection.cs"
+    }
+  }
+]

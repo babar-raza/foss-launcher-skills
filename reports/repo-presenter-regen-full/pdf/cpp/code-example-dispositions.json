@@ -1,0 +1,489 @@
+[
+  {
+    "unit_id": "c0001",
+    "heading_context": "At a Glance",
+    "language": "mermaid",
+    "api_call_fingerprint": [],
+    "disposition": "merged_reframed",
+    "target_section": "At a Glance",
+    "excluded_reason": null,
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "README.md"
+    }
+  },
+  {
+    "unit_id": "c0002",
+    "heading_context": "Installation",
+    "language": "cmake",
+    "api_call_fingerprint": [
+      "add_subdirectory",
+      "target_link_libraries"
+    ],
+    "disposition": "merged_verbatim",
+    "target_section": "Installation",
+    "excluded_reason": null,
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "README.md"
+    }
+  },
+  {
+    "unit_id": "c0003",
+    "heading_context": "Build From Source",
+    "language": "bash",
+    "api_call_fingerprint": [],
+    "disposition": "merged_verbatim",
+    "target_section": "Installation",
+    "excluded_reason": null,
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "README.md"
+    }
+  },
+  {
+    "unit_id": "c0004a",
+    "heading_context": "Quick Start",
+    "language": "cpp",
+    "api_call_fingerprint": [],
+    "disposition": "merged_verbatim",
+    "target_section": "Quick Start",
+    "excluded_reason": null,
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "README.md"
+    }
+  },
+  {
+    "unit_id": "c0004b",
+    "heading_context": "Quick Start",
+    "language": "cpp",
+    "api_call_fingerprint": [
+      "main",
+      "doc",
+      "doc.Pages",
+      "Count"
+    ],
+    "disposition": "merged_verbatim",
+    "target_section": "Quick Start",
+    "excluded_reason": null,
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "README.md"
+    }
+  },
+  {
+    "unit_id": "c0004c",
+    "heading_context": "Quick Start",
+    "language": "cpp",
+    "api_call_fingerprint": [
+      "absorber.Visit",
+      "absorber.Text"
+    ],
+    "disposition": "merged_verbatim",
+    "target_section": "Quick Start",
+    "excluded_reason": null,
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "README.md"
+    }
+  },
+  {
+    "unit_id": "c0004d",
+    "heading_context": "Quick Start",
+    "language": "cpp",
+    "api_call_fingerprint": [
+      "png",
+      "Resolution",
+      "out",
+      "png.Process",
+      "doc.Pages"
+    ],
+    "disposition": "merged_verbatim",
+    "target_section": "Quick Start",
+    "excluded_reason": null,
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "README.md"
+    }
+  },
+  {
+    "unit_id": "c0005a",
+    "heading_context": "Additional Examples",
+    "language": "cpp",
+    "api_call_fingerprint": [],
+    "disposition": "merged_verbatim",
+    "target_section": "Quick Start",
+    "excluded_reason": null,
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "README.md"
+    }
+  },
+  {
+    "unit_id": "c0005b",
+    "heading_context": "Additional Examples",
+    "language": "cpp",
+    "api_call_fingerprint": [],
+    "disposition": "merged_verbatim",
+    "target_section": "Additional Examples",
+    "excluded_reason": null,
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "README.md"
+    }
+  },
+  {
+    "unit_id": "c0005c",
+    "heading_context": "Additional Examples",
+    "language": "cpp",
+    "api_call_fingerprint": [
+      "doc.Pages",
+      "Add",
+      "page.SetPageSize"
+    ],
+    "disposition": "merged_verbatim",
+    "target_section": "Additional Examples",
+    "excluded_reason": null,
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "README.md"
+    }
+  },
+  {
+    "unit_id": "c0005d",
+    "heading_context": "Additional Examples",
+    "language": "cpp",
+    "api_call_fingerprint": [
+      "frag",
+      "frag.TextState",
+      "Font",
+      "FindFont",
+      "FontSize",
+      "frag.Position",
+      "Position",
+      "AppendText"
+    ],
+    "disposition": "merged_verbatim",
+    "target_section": "Additional Examples",
+    "excluded_reason": null,
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "README.md"
+    }
+  },
+  {
+    "unit_id": "c0005e",
+    "heading_context": "Additional Examples",
+    "language": "cpp",
+    "api_call_fingerprint": [
+      "doc.Save",
+      "table.ColumnWidths",
+      "table.Border",
+      "BorderInfo",
+      "table.Rows",
+      "Add",
+      "header.Cells",
+      "page.Paragraphs"
+    ],
+    "disposition": "merged_verbatim",
+    "target_section": "Additional Examples",
+    "excluded_reason": null,
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "README.md"
+    }
+  },
+  {
+    "unit_id": "c0005f",
+    "heading_context": "Additional Examples",
+    "language": "cpp",
+    "api_call_fingerprint": [
+      "doc.Save",
+      "g",
+      "g.Left",
+      "g.Top",
+      "g.Shapes",
+      "push_back",
+      "page.Paragraphs",
+      "Add"
+    ],
+    "disposition": "merged_verbatim",
+    "target_section": "Additional Examples",
+    "excluded_reason": null,
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "README.md"
+    }
+  },
+  {
+    "unit_id": "c0005g",
+    "heading_context": "Additional Examples",
+    "language": "cpp",
+    "api_call_fingerprint": [
+      "page.Artifacts",
+      "Add"
+    ],
+    "disposition": "merged_verbatim",
+    "target_section": "Additional Examples",
+    "excluded_reason": null,
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "README.md"
+    }
+  },
+  {
+    "unit_id": "c0005h",
+    "heading_context": "Additional Examples",
+    "language": "cpp",
+    "api_call_fingerprint": [
+      "doc.Save"
+    ],
+    "disposition": "merged_verbatim",
+    "target_section": "Additional Examples",
+    "excluded_reason": null,
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "README.md"
+    }
+  },
+  {
+    "unit_id": "c0006",
+    "heading_context": "Open a Password-Protected Document",
+    "language": "cpp",
+    "api_call_fingerprint": [
+      "locked",
+      "locked.IsEncrypted"
+    ],
+    "disposition": "merged_verbatim",
+    "target_section": "Additional Examples",
+    "excluded_reason": null,
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "README.md"
+    }
+  },
+  {
+    "unit_id": "c0007",
+    "heading_context": "Read and Update Document Metadata",
+    "language": "cpp",
+    "api_call_fingerprint": [
+      "main",
+      "doc",
+      "doc.Info",
+      "info.Title",
+      "info.Author",
+      "doc.SetTitle",
+      "doc.Save"
+    ],
+    "disposition": "merged_verbatim",
+    "target_section": "Additional Examples",
+    "excluded_reason": null,
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "README.md"
+    }
+  },
+  {
+    "unit_id": "c0008",
+    "heading_context": "Render Every Page to a Multi-Page TIFF",
+    "language": "cpp",
+    "api_call_fingerprint": [
+      "doc",
+      "tiff",
+      "Resolution",
+      "tiffOut",
+      "tiff.Process",
+      "doc.Pages",
+      "Count",
+      "TIFF",
+      "settings.Depth",
+      "indexed"
+    ],
+    "disposition": "merged_verbatim",
+    "target_section": "Additional Examples",
+    "excluded_reason": null,
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "README.md"
+    }
+  },
+  {
+    "unit_id": "c0009",
+    "heading_context": "Encrypt a Document With AES-256",
+    "language": "cpp",
+    "api_call_fingerprint": [
+      "main",
+      "doc",
+      "doc.Encrypt",
+      "Permissions",
+      "doc.Save"
+    ],
+    "disposition": "merged_verbatim",
+    "target_section": "Additional Examples",
+    "excluded_reason": null,
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "README.md"
+    }
+  },
+  {
+    "unit_id": "c0010",
+    "heading_context": "Sign a Document",
+    "language": "cpp",
+    "api_call_fingerprint": [
+      "signature"
+    ],
+    "disposition": "merged_verbatim",
+    "target_section": "Additional Examples",
+    "excluded_reason": null,
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "README.md"
+    }
+  },
+  {
+    "unit_id": "c0011",
+    "heading_context": "Add an Annotation",
+    "language": "cpp",
+    "api_call_fingerprint": [
+      "a",
+      "Rectangle",
+      "Save",
+      "a.Color",
+      "FromRgb",
+      "a.Contents",
+      "page.Annotations",
+      "Add"
+    ],
+    "disposition": "merged_verbatim",
+    "target_section": "Additional Examples",
+    "excluded_reason": null,
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "README.md"
+    }
+  },
+  {
+    "unit_id": "c0012",
+    "heading_context": "Build an AcroForm Field",
+    "language": "cpp",
+    "api_call_fingerprint": [
+      "name",
+      "Rectangle",
+      "Save",
+      "name.PartialName",
+      "name.Value",
+      "doc.Form",
+      "Add",
+      "Flatten"
+    ],
+    "disposition": "merged_verbatim",
+    "target_section": "Additional Examples",
+    "excluded_reason": null,
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "README.md"
+    }
+  },
+  {
+    "unit_id": "c0013",
+    "heading_context": "Build an Outline (Bookmark) Tree",
+    "language": "cpp",
+    "api_call_fingerprint": [
+      "doc.Outlines",
+      "item",
+      "Save",
+      "item.Title",
+      "item.Bold",
+      "item.Destination",
+      "XYZExplicitDestination",
+      "root.Add"
+    ],
+    "disposition": "merged_verbatim",
+    "target_section": "Additional Examples",
+    "excluded_reason": null,
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "README.md"
+    }
+  },
+  {
+    "unit_id": "c0014",
+    "heading_context": "Use a Facade (PdfConverter / PdfExtractor)",
+    "language": "cpp",
+    "api_call_fingerprint": [
+      "converter.BindPdf",
+      "converter.SaveAsTIFF",
+      "extractor.BindPdf",
+      "extractor.StartPage",
+      "extractor.EndPage",
+      "extractor.ExtractText",
+      "extractor.GetText"
+    ],
+    "disposition": "merged_verbatim",
+    "target_section": "Additional Examples",
+    "excluded_reason": null,
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "README.md"
+    }
+  },
+  {
+    "unit_id": "c0015",
+    "heading_context": "Project Structure",
+    "language": "",
+    "api_call_fingerprint": [
+      "headers",
+      "primitives"
+    ],
+    "disposition": "merged_verbatim",
+    "target_section": "Project Structure",
+    "excluded_reason": null,
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "README.md"
+    }
+  },
+  {
+    "unit_id": "c0016",
+    "heading_context": "Development and Testing",
+    "language": "bash",
+    "api_call_fingerprint": [
+      "cd build"
+    ],
+    "disposition": "merged_verbatim",
+    "target_section": "Development and Testing",
+    "excluded_reason": null,
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "README.md"
+    }
+  }
+]

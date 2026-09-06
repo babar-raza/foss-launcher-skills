@@ -1,0 +1,6 @@
+{
+  "baseline_commit": "6d97a522a9ed24708687911f1aabb76e2dea2da7",
+  "reason": "content-dispositions.json/structure-dispositions.json/code-example-dispositions.json (148/148 units) were built against this commit, verified: 0 coverage findings, 0 excerpt mismatches when re-checked against git show 6d97a522...:README.md. Live HEAD (41de2e8) is PR #5 (merged 2026-08-15T19:30:13Z by babar-raza, body: 'Automated, human-reviewed refresh via /readme-refresh run rr-20260815T191258Z-2545f6e86187'), a real, already-tracked publication (data/readme_published_state.json already records it). The local clone cache stayed pinned to 6d97a52 from 2026-05-11 through 2026-08-14 (git reflog) and only fetched 41de2e8 on 2026-08-28 -- 13 days after the disposition ledger was built (mtime 2026-08-20) against the still-old local HEAD. Comparing the ledger against the now-current 41de2e8 produces pure false-positive drift (135 excerpt mismatches + 13 dangling coverage findings vs. 0 against this pinned commit).",
+  "recorded_at": "2026-09-01T04:23:17.971183Z",
+  "recorded_by": "1b8927dd-48c8-4f8c-bb41-24dfbd5a4509"
+}

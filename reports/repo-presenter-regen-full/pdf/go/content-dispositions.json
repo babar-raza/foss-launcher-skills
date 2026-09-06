@@ -1,0 +1,2527 @@
+[
+  {
+    "unit_id": "u0001",
+    "excerpt": "A pure Go PDF library — no CGo, no native libraries, no third-party package dependencies\n(standard library only), MIT-licensed. It creates, edits, renders, signs, encrypts, converts, and\nvalidates PDF documents: split/merge/extract pages, extract and search text, fill and build\nAcroForms, draw text/vector graphics/tables, embed and subset fonts, apply digital signatures\n(PKCS#7, PAdES, timestamps), validate and convert PDF/A, author accessible Tagged PDF, and\nrender pages to images with a built-in rasterizer that has no third-party package dependencies of\nits own, convert to and from Markdown, HTML, and SVG, and query documents through a set of AI\ncopilots over any OpenAI-compatible endpoint.",
+    "salient_tokens": [
+      "PDF",
+      "CGo",
+      "MIT",
+      "AcroForms",
+      "PKCS",
+      "PAdES",
+      "HTML",
+      "SVG",
+      "AI",
+      "OpenAI"
+    ],
+    "classification": "2_mechanism_explanation",
+    "disposition": "merged_verbatim",
+    "target_section": "Intro",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "document.go"
+    }
+  },
+  {
+    "unit_id": "u0002",
+    "excerpt": "The API shape mirrors Aspose.PDF for .NET where natural, so concepts transfer directly for\ndevelopers coming from that library, and spec references throughout follow ISO 32000-1 (PDF 1.7)\nand ISO 32000-2 (PDF 2.0). This project is not to be confused with `aspose-pdf-go-cpp` (a CGo\nwrapper around a native library) — it is 100% Go source, `go get` and cross-compile anywhere.",
+    "salient_tokens": [
+      "aspose-pdf-go-cpp",
+      "go get",
+      "API",
+      "PDF",
+      "NET",
+      "ISO",
+      "CGo",
+      "1.7",
+      "2.0"
+    ],
+    "classification": "3_branding_positioning",
+    "disposition": "merged_verbatim",
+    "target_section": "Intro",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "document.go"
+    }
+  },
+  {
+    "unit_id": "u0003",
+    "excerpt": "- [At a Glance](#at-a-glance)",
+    "salient_tokens": [
+      "At a Glance",
+      "#at-a-glance"
+    ],
+    "classification": "2_mechanism_explanation",
+    "disposition": "merged_verbatim",
+    "target_section": "Navigation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "candidate_section_reference",
+      "evidence_ref": "Navigation"
+    }
+  },
+  {
+    "unit_id": "u0004",
+    "excerpt": "- [Key Capabilities](#key-capabilities)",
+    "salient_tokens": [
+      "Key Capabilities",
+      "#key-capabilities"
+    ],
+    "classification": "2_mechanism_explanation",
+    "disposition": "merged_verbatim",
+    "target_section": "Navigation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "candidate_section_reference",
+      "evidence_ref": "Navigation"
+    }
+  },
+  {
+    "unit_id": "u0005",
+    "excerpt": "- [Installation](#installation)",
+    "salient_tokens": [
+      "Installation",
+      "#installation"
+    ],
+    "classification": "2_mechanism_explanation",
+    "disposition": "merged_verbatim",
+    "target_section": "Navigation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "candidate_section_reference",
+      "evidence_ref": "Navigation"
+    }
+  },
+  {
+    "unit_id": "u0006",
+    "excerpt": "- [Dependencies](#dependencies)",
+    "salient_tokens": [
+      "Dependencies",
+      "#dependencies"
+    ],
+    "classification": "2_mechanism_explanation",
+    "disposition": "merged_verbatim",
+    "target_section": "Navigation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "candidate_section_reference",
+      "evidence_ref": "Navigation"
+    }
+  },
+  {
+    "unit_id": "u0007",
+    "excerpt": "- [Quick Start](#quick-start)",
+    "salient_tokens": [
+      "Quick Start",
+      "#quick-start"
+    ],
+    "classification": "2_mechanism_explanation",
+    "disposition": "merged_verbatim",
+    "target_section": "Navigation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "candidate_section_reference",
+      "evidence_ref": "Navigation"
+    }
+  },
+  {
+    "unit_id": "u0008",
+    "excerpt": "- [Feature Showcase](#feature-showcase)",
+    "salient_tokens": [
+      "Feature Showcase",
+      "#feature-showcase"
+    ],
+    "classification": "2_mechanism_explanation",
+    "disposition": "merged_verbatim",
+    "target_section": "Navigation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "candidate_section_reference",
+      "evidence_ref": "Navigation"
+    }
+  },
+  {
+    "unit_id": "u0009",
+    "excerpt": "- [Additional Examples](#additional-examples)",
+    "salient_tokens": [
+      "Additional Examples",
+      "#additional-examples"
+    ],
+    "classification": "2_mechanism_explanation",
+    "disposition": "merged_verbatim",
+    "target_section": "Navigation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "candidate_section_reference",
+      "evidence_ref": "Navigation"
+    }
+  },
+  {
+    "unit_id": "u0010",
+    "excerpt": "- [API Reference](#api-reference)",
+    "salient_tokens": [
+      "API",
+      "API Reference",
+      "#api-reference"
+    ],
+    "classification": "2_mechanism_explanation",
+    "disposition": "merged_verbatim",
+    "target_section": "Navigation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "candidate_section_reference",
+      "evidence_ref": "Navigation"
+    }
+  },
+  {
+    "unit_id": "u0011",
+    "excerpt": "- [Documentation & Resources](#documentation--resources)",
+    "salient_tokens": [
+      "Documentation & Resources",
+      "#documentation--resources"
+    ],
+    "classification": "2_mechanism_explanation",
+    "disposition": "merged_verbatim",
+    "target_section": "Navigation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "candidate_section_reference",
+      "evidence_ref": "Navigation"
+    }
+  },
+  {
+    "unit_id": "u0012",
+    "excerpt": "- [Scope and Limitations](#scope-and-limitations)",
+    "salient_tokens": [
+      "Scope and Limitations",
+      "#scope-and-limitations"
+    ],
+    "classification": "2_mechanism_explanation",
+    "disposition": "merged_verbatim",
+    "target_section": "Navigation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "candidate_section_reference",
+      "evidence_ref": "Navigation"
+    }
+  },
+  {
+    "unit_id": "u0013",
+    "excerpt": "- [Development and Testing](#development-and-testing)",
+    "salient_tokens": [
+      "Development and Testing",
+      "#development-and-testing"
+    ],
+    "classification": "2_mechanism_explanation",
+    "disposition": "merged_verbatim",
+    "target_section": "Navigation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "candidate_section_reference",
+      "evidence_ref": "Navigation"
+    }
+  },
+  {
+    "unit_id": "u0014",
+    "excerpt": "- [Third-Party Notices](#third-party-notices)",
+    "salient_tokens": [
+      "Third-Party Notices",
+      "#third-party-notices"
+    ],
+    "classification": "2_mechanism_explanation",
+    "disposition": "merged_verbatim",
+    "target_section": "Navigation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "candidate_section_reference",
+      "evidence_ref": "Navigation"
+    }
+  },
+  {
+    "unit_id": "u0015",
+    "excerpt": "- [License](#license)",
+    "salient_tokens": [
+      "License",
+      "#license"
+    ],
+    "classification": "2_mechanism_explanation",
+    "disposition": "merged_verbatim",
+    "target_section": "Navigation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "candidate_section_reference",
+      "evidence_ref": "Navigation"
+    }
+  },
+  {
+    "unit_id": "u0016",
+    "excerpt": "- **Page-level operations and metadata** — `Document.Split()` breaks a document into per-page\n  documents; `Extract` builds a new document from selected `PageRange`s without touching the\n  source; `Append` combines multiple PDFs into one by merging another document's pages in place;\n  `Rotate`/`SetRotation` turn pages, and `Reorder` rearranges them by an explicit 1-based index\n  slice (repeats and omissions both allowed); `Document.NUp`/`Document.Booklet` (`NUp`/`Booklet`)\n  impose pages onto larger sheets for N-up printing or saddle-stitch binding, each returning a new\n  document built from Form XObjects and leaving the source untouched; and blank PDFs can be\n  created from scratch with `NewDocument`/`NewDocumentFromFormat`. Each `*Page` exposes its own\n  `Number()`, `Size()` (a `PageSize{Width, Height}` in points), and `Rotation()` getters, and page\n  geometry (`MediaBox`/`CropBox`/`TrimBox`/`BleedBox`/`ArtBox`) is readable and, via\n  `SetMediaBox`/`SetCropBox`/`SetTrimBox`/`SetBleedBox`/`SetArtBox` (plus the `SetPageSize`\n  shorthand for resizing the MediaBox), writable without scaling existing content; the `/Info`\n  dictionary round-trips through `Document.Info()`/`SetInfo()`/`ClearInfo()` and a `DocumentInfo`\n  struct, distinct from the XMP metadata packet available via\n  `Document.XMP()`/`SetXMP()`/`ClearXMP()` (backed by the `/Catalog/Metadata` stream, with a raw\n  `XMPRaw()`/`SetXMPRaw()` escape hatch and `SyncInfoToXMP()` to mirror `/Info` into XMP); and the\n  `/PageLabels` numbering tree is written with `Document.SetPageLabels` (roman/decimal/alphabetic\n  styles, prefix, and start value per range) and read back per-page via `Page.Label()`.",
+    "salient_tokens": [
+      "Document.Split()",
+      "Extract",
+      "PageRange",
+      "Append",
+      "Rotate",
+      "SetRotation",
+      "Reorder",
+      "Document.NUp",
+      "Document.Booklet",
+      "NUp",
+      "Booklet",
+      "NewDocument",
+      "NewDocumentFromFormat",
+      "*Page",
+      "Number()",
+      "Size()",
+      "PageSize{Width, Height}",
+      "Rotation()",
+      "MediaBox",
+      "CropBox",
+      "TrimBox",
+      "BleedBox",
+      "ArtBox",
+      "SetMediaBox",
+      "SetCropBox",
+      "SetTrimBox",
+      "SetBleedBox",
+      "SetArtBox",
+      "SetPageSize",
+      "/Info",
+      "Document.Info()",
+      "SetInfo()",
+      "ClearInfo()",
+      "DocumentInfo",
+      "Document.XMP()",
+      "SetXMP()",
+      "ClearXMP()",
+      "/Catalog/Metadata",
+      "XMPRaw()",
+      "SetXMPRaw()",
+      "SyncInfoToXMP()",
+      "/PageLabels",
+      "Document.SetPageLabels",
+      "Page.Label()",
+      "PDFs",
+      "XObjects",
+      "PageSize",
+      "SetInfo",
+      "ClearInfo",
+      "XMP",
+      "SetXMP",
+      "ClearXMP",
+      "XMPRaw",
+      "SetXMPRaw",
+      "SyncInfoToXMP",
+      "PageLabels",
+      "SetPageLabels"
+    ],
+    "classification": "2_mechanism_explanation",
+    "disposition": "merged_verbatim",
+    "target_section": "Key Capabilities",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "document_pages.go"
+    }
+  },
+  {
+    "unit_id": "u0017",
+    "excerpt": "- **Encryption and digital signatures** — `Document.SetPassword(userPassword, ownerPassword)`\n  password-protects the document on save with AES-128 (`/CFM /AESV2`), AES-256 (`/CFM /AESV3`,\n  bumps the file to PDF 2.0), or RC4-128 and granular viewer permissions (print, copy, modify,\n  annotate, fill, accessibility, assemble); sign with a PKCS#7-detached signature\n  (SHA-256, RSA or ECDSA) that can be PAdES, a DocMDP certification, and/or carry an RFC 3161\n  trusted timestamp, over plain or already-encrypted documents, with support for multiple\n  incremental signatures and verification via `VerifySignatures`. Keys are passed as a standard\n  `crypto.Signer` plus `*x509.Certificate` — no `.p12` file required.",
+    "salient_tokens": [
+      "Document.SetPassword(userPassword, ownerPassword)",
+      "/CFM /AESV2",
+      "/CFM /AESV3",
+      "VerifySignatures",
+      "crypto.Signer",
+      "*x509.Certificate",
+      ".p12",
+      "SetPassword",
+      "userPassword",
+      "ownerPassword",
+      "AES",
+      "CFM",
+      "AESV2",
+      "AESV3",
+      "PDF",
+      "RC4",
+      "PKCS",
+      "SHA",
+      "RSA",
+      "ECDSA",
+      "PAdES",
+      "DocMDP",
+      "RFC",
+      "2.0"
+    ],
+    "classification": "2_mechanism_explanation",
+    "disposition": "merged_verbatim",
+    "target_section": "Key Capabilities",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "document.go"
+    }
+  },
+  {
+    "unit_id": "u0018",
+    "excerpt": "- **Content authoring with the Flow layout engine** — `Document.NewFlow` lays out paragraphs,\n  headings, images, tables, and lists top-to-bottom with automatic pagination; floating boxes\n  (absolute, in-flow, or floated with text wrap-around) and multi-column layout are built on the\n  same engine; `FlowOptions.Tagged` auto-tags every element for a one-call PDF/UA-conformant\n  document.",
+    "salient_tokens": [
+      "Document.NewFlow",
+      "FlowOptions.Tagged",
+      "NewFlow",
+      "FlowOptions",
+      "PDF",
+      "UA"
+    ],
+    "classification": "2_mechanism_explanation",
+    "disposition": "merged_verbatim",
+    "target_section": "Key Capabilities",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "flow.go"
+    }
+  },
+  {
+    "unit_id": "u0019",
+    "excerpt": "- **Tables and vector graphics** — `pdf.NewTable()` builds multi-page tables with repeating\n  header rows (auto-fit or explicit `Row.SetHeight`), cell merging via\n  `Cell.SetColSpan`/`SetRowSpan`, per-cell styling, and image cells via `Cell.SetImage`, rendered\n  onto a page with `(*Page).AddTable(t, rect)`; `(*Page).DrawLine`/`DrawRectangle`/`DrawCircle`/\n  `DrawPath` and friends draw first-class vector content directly on a page, and a `Path` fluent\n  builder (`MoveTo`/`LineTo`/`CurveTo`/`QuadTo`/`Arc`/`Close`) covers arbitrary shapes; fills\n  support solid colours, `ShapeStyle.FillGradient` (linear or radial), and\n  `Document.CreateTilingPattern(w, h)` repeating-motif tiling patterns.",
+    "salient_tokens": [
+      "pdf.NewTable()",
+      "Row.SetHeight",
+      "Cell.SetColSpan",
+      "SetRowSpan",
+      "Cell.SetImage",
+      "(*Page).AddTable(t, rect)",
+      "(*Page).DrawLine",
+      "DrawRectangle",
+      "DrawCircle",
+      "DrawPath",
+      "Path",
+      "MoveTo",
+      "LineTo",
+      "CurveTo",
+      "QuadTo",
+      "Arc",
+      "Close",
+      "ShapeStyle.FillGradient",
+      "Document.CreateTilingPattern(w, h)",
+      "NewTable",
+      "SetHeight",
+      "SetColSpan",
+      "SetImage",
+      "AddTable",
+      "DrawLine",
+      "ShapeStyle",
+      "FillGradient",
+      "CreateTilingPattern"
+    ],
+    "classification": "2_mechanism_explanation",
+    "disposition": "merged_verbatim",
+    "target_section": "Key Capabilities",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "table.go"
+    }
+  },
+  {
+    "unit_id": "u0020",
+    "excerpt": "- **AcroForms** — read, and build from scratch every standard field type with\n  `AddTextField`/`AddCheckbox`/`AddRadioGroup`/`AddComboBox`/`AddListBox`/`AddPushButton` (plus\n  the typed password/file-select/rich-text/number/date variants — behavior flags exposed as `/Ff`\n  on the underlying field dictionary) and remove one with `RemoveField`; `Field.SetStyle`/`Style()` control widget appearance (border, background, font),\n  and `(*ButtonField).SetAppearance` gives push buttons distinct normal/rollover/down captions\n  and an icon; field values round-trip as typed JSON, FDF, and XFDF for template-fill and\n  Acrobat-interoperable data interchange.",
+    "salient_tokens": [
+      "AddTextField",
+      "AddCheckbox",
+      "AddRadioGroup",
+      "AddComboBox",
+      "AddListBox",
+      "AddPushButton",
+      "/Ff",
+      "RemoveField",
+      "Field.SetStyle",
+      "Style()",
+      "(*ButtonField).SetAppearance",
+      "AcroForms",
+      "SetStyle",
+      "ButtonField",
+      "SetAppearance",
+      "JSON",
+      "FDF",
+      "XFDF"
+    ],
+    "classification": "2_mechanism_explanation",
+    "disposition": "merged_verbatim",
+    "target_section": "Key Capabilities",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "form_style.go"
+    }
+  },
+  {
+    "unit_id": "u0021",
+    "excerpt": "- **Annotations, bookmarks, and redaction** — the full ISO 32000-1 markup/drawing annotation\n  family with auto-regenerated appearance streams, hierarchical outlines (`OutlineItemCollection`)\n  and named destinations with all 8 PDF destination types, and mark-then-apply redaction that\n  irreversibly removes text, images, and paths from the marked regions. `Document.Flatten()`/\n  `Form.Flatten()` bake interactive fields and annotations into static page content so the\n  result renders identically but is no longer editable.",
+    "salient_tokens": [
+      "OutlineItemCollection",
+      "Document.Flatten()",
+      "Form.Flatten()",
+      "ISO",
+      "PDF"
+    ],
+    "classification": "2_mechanism_explanation",
+    "disposition": "merged_verbatim",
+    "target_section": "Key Capabilities",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "flatten.go"
+    }
+  },
+  {
+    "unit_id": "u0022",
+    "excerpt": "- **Tagged PDF and PDF/UA accessibility** — `Document.TaggedContent()` builds a logical structure\n  tree as content is drawn (`TagContent`, `AddTaggedTable`, `AddTaggedList`), and\n  `Document.ValidatePDFUA()` reports the PDF/UA-1 prerequisites still missing.",
+    "salient_tokens": [
+      "Document.TaggedContent()",
+      "TagContent",
+      "AddTaggedTable",
+      "AddTaggedList",
+      "Document.ValidatePDFUA()",
+      "PDF",
+      "UA",
+      "TaggedContent",
+      "ValidatePDFUA"
+    ],
+    "classification": "2_mechanism_explanation",
+    "disposition": "merged_verbatim",
+    "target_section": "Key Capabilities",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "tagged.go"
+    }
+  },
+  {
+    "unit_id": "u0023",
+    "excerpt": "- **PDF/A and structural validation** — `Validate` checks structural integrity;\n  `ValidatePDFA(PDFA1B/2B/3B/1A/2A/3A)` reports archival-conformance violations; `ConvertToPDFA`\n  moves a document toward conformance in one call (strips encryption/JavaScript, embeds\n  non-embedded Standard-14 fonts, adds an sRGB ICC OutputIntent, writes the `pdfaid` XMP packet).",
+    "salient_tokens": [
+      "Validate",
+      "ValidatePDFA(PDFA1B/2B/3B/1A/2A/3A)",
+      "ConvertToPDFA",
+      "pdfaid",
+      "PDF",
+      "ValidatePDFA",
+      "PDFA1B",
+      "JavaScript",
+      "sRGB",
+      "ICC",
+      "OutputIntent",
+      "XMP"
+    ],
+    "classification": "2_mechanism_explanation",
+    "disposition": "merged_verbatim",
+    "target_section": "Key Capabilities",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "validate.go"
+    }
+  },
+  {
+    "unit_id": "u0024",
+    "excerpt": "- **Rendering to raster images** — a pure-Go anti-aliased renderer with no third-party package\n  dependencies of its own (its own rasterizer — no `golang.org/x/image`, no cgo) draws vector\n  graphics, images (including CCITT fax, JBIG2, and JPEG2000 (`/JPXDecode`) scans), and text\n  (embedded and non-embedded via a `FontRepository` covering `.ttc`/`.otf` faces, including\n  non-embedded CJK) to PNG, JPEG, GIF, BMP, and single- or multi-page\n  TIFF via `Page.RenderImage`/`RenderPNG`/`RenderTIFF`/… and `Document.RenderTIFF`.",
+    "salient_tokens": [
+      "golang.org/x/image",
+      "/JPXDecode",
+      "FontRepository",
+      ".ttc",
+      ".otf",
+      "Page.RenderImage",
+      "RenderPNG",
+      "RenderTIFF",
+      "Document.RenderTIFF",
+      "CCITT",
+      "JBIG2",
+      "JPEG2000",
+      "JPXDecode",
+      "CJK",
+      "PNG",
+      "JPEG",
+      "GIF",
+      "BMP",
+      "TIFF",
+      "RenderImage"
+    ],
+    "classification": "2_mechanism_explanation",
+    "disposition": "merged_reframed",
+    "target_section": "Key Capabilities",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "render_fontrepo.go"
+    }
+  },
+  {
+    "unit_id": "u0025",
+    "excerpt": "- **HTML, SVG, and Markdown conversion** — `SaveHTML` exports a single-file HTML document with no\n  external assets in four modes (faithful raster, visible text, native SVG-per-page, and\n  reflowable), including fillable AcroForm controls; in text/native modes, embedded TrueType/\n  OpenType fonts are re-wrapped as WOFF `@font-face` data URLs with a browser cmap synthesized\n  from the font's `/ToUnicode` mapping, so text renders in the document's real faces. `SaveSVG`\n  exports standalone true-vector SVG pages with all binary parts embedded as `data:` URLs by\n  default, or externalized via `ResourceWriter`, and `AddSVG` imports SVG 1.1 content (shapes,\n  gradients, clipping, masks) back onto a page; `MarkdownToDocument` renders CommonMark + GFM as a\n  paginated PDF (652/652 on the official test suite), `Flow.AddMarkdown` mixes Markdown into a\n  Flow document, `Page.AddMarkdown(md, rect)` draws it into a `Rectangle` on an existing page, and\n  `SaveMarkdown` re-assembles a PDF as GFM Markdown.",
+    "salient_tokens": [
+      "SaveHTML",
+      "@font-face",
+      "/ToUnicode",
+      "SaveSVG",
+      "data:",
+      "ResourceWriter",
+      "AddSVG",
+      "MarkdownToDocument",
+      "Flow.AddMarkdown",
+      "Page.AddMarkdown(md, rect)",
+      "Rectangle",
+      "SaveMarkdown",
+      "HTML",
+      "SVG",
+      "AcroForm",
+      "TrueType",
+      "OpenType",
+      "WOFF",
+      "URLs",
+      "ToUnicode",
+      "CommonMark",
+      "GFM",
+      "PDF",
+      "AddMarkdown",
+      "1.1"
+    ],
+    "classification": "2_mechanism_explanation",
+    "disposition": "merged_verbatim",
+    "target_section": "Key Capabilities",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "markdown.go"
+    }
+  },
+  {
+    "unit_id": "u0026",
+    "excerpt": "- **Stamps and watermarks** — `Document.AddTextWatermark`/`AddSVGWatermark` overlay a text or SVG\n  watermark across selected pages (or every page); `(*Page).AddStamp`/`(*Document).AddStamp` place\n  a `TextStamp`, `ImageStamp`, or `PageNumberStamp` on one or more pages.",
+    "salient_tokens": [
+      "Document.AddTextWatermark",
+      "AddSVGWatermark",
+      "(*Page).AddStamp",
+      "(*Document).AddStamp",
+      "TextStamp",
+      "ImageStamp",
+      "PageNumberStamp",
+      "AddTextWatermark",
+      "SVG",
+      "AddStamp"
+    ],
+    "classification": "2_mechanism_explanation",
+    "disposition": "merged_verbatim",
+    "target_section": "Key Capabilities",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "text_add.go"
+    }
+  },
+  {
+    "unit_id": "u0027",
+    "excerpt": "- **Table detection and Office/eBook conversion** — `TableAbsorber` (`Visit(page)` then\n  `TableList()`) recognizes ruled and borderless tables directly from a page's vector geometry (no\n  rasterization), with conservative guards so ordinary prose, lists, TOCs, and code listings are\n  never mistaken for tables. This feeds `Document.SaveDocx`/`WriteDocx` (a pure-stdlib OOXML\n  writer producing styled runs, heading styles, hyperlinks, and lists, plus real Word tables —\n  `EnhancedFlow`, the default mode — from detected table structure), `Document.SaveXlsx`/\n  `WriteXlsx` (detected tables become Excel worksheets with real numeric cells, merged cells, and\n  header shading, or a full-page cell-per-line mode), and `Document.SaveEpub`/`WriteEpub` (a\n  reflowable, spec-correct OCF-container EPUB 3 book with chapters split at headings and a real\n  navigation TOC).",
+    "salient_tokens": [
+      "TableAbsorber",
+      "Visit(page)",
+      "TableList()",
+      "Document.SaveDocx",
+      "WriteDocx",
+      "EnhancedFlow",
+      "Document.SaveXlsx",
+      "WriteXlsx",
+      "Document.SaveEpub",
+      "WriteEpub",
+      "eBook",
+      "TableList",
+      "TOCs",
+      "SaveDocx",
+      "OOXML",
+      "SaveXlsx",
+      "SaveEpub",
+      "OCF",
+      "EPUB",
+      "TOC"
+    ],
+    "classification": "2_mechanism_explanation",
+    "disposition": "merged_verbatim",
+    "target_section": "Key Capabilities",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "docx_write.go"
+    }
+  },
+  {
+    "unit_id": "u0028",
+    "excerpt": "- **AI copilots** — the `ai` subpackage adds document summarization (`SummaryCopilot`), OCR of\n  scanned pages with a `MakeSearchable` pipeline that writes recognized text back as an invisible,\n  selectable layer, document Q&A with conversation history (`ChatCopilot`), and automatic\n  `/Alt` text generation for tagged figures (`ImageDescriptionCopilot`), over any\n  OpenAI-compatible endpoint.",
+    "salient_tokens": [
+      "ai",
+      "SummaryCopilot",
+      "MakeSearchable",
+      "ChatCopilot",
+      "/Alt",
+      "ImageDescriptionCopilot",
+      "OCR",
+      "OpenAI"
+    ],
+    "classification": "2_mechanism_explanation",
+    "disposition": "merged_verbatim",
+    "target_section": "Key Capabilities",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "ai/summary.go"
+    }
+  },
+  {
+    "unit_id": "u0029",
+    "excerpt": "- **Text extraction, fonts, and optimization** — extract text in visual or raw reading order\n  (`TextExtractOptions{Mode: TextExtractRaw}`) with full layout info, recover paragraph/column\n  structure (`Paragraphs()`), search and replace text in place, embed and subset TrueType/\n  OpenType fonts (`.ttf`/`.otf`/`.ttc`) — `Document.LoadFont`/`Document.LoadFontByName(\"Calibri\",\n  bold, italic)` resolve faces by family name via a pluggable `FontRepository`, and\n  `Document.SubsetFonts()` rebuilds each embedded font's own glyph tables (`glyf`/`loca`/`hmtx`/\n  `CIDToGIDMap`) down to only the glyphs actually used; `Document.RemoveUnusedObjects()` deletes\n  every object unreachable from any page and returns the removed count on its own, or fold that\n  same cleanup into a larger pass with the unified `Document.Optimize` pass\n  (`DefaultOptimizationOptions()` is the safe, lossless preset — remove unused objects, subset\n  fonts, Flate-compress and dedupe streams; opt into lossy image recompression via\n  `OptimizationOptions.Images`) or the image-only `Document.OptimizeImages(OptimizeImageOptions)`\n  pass (max DPI downscaling, JPEG quality, and PNG→JPEG conversion); reduce file size further with\n  `Document.SaveLinearized`/`WriteToLinearized` (linearized/fast-web-view output per ISO 32000-1\n  Annex F, so viewers can render page 1 before the whole file downloads), or `ConvertToGrayscale`.",
+    "salient_tokens": [
+      "TextExtractOptions{Mode: TextExtractRaw}",
+      "Paragraphs()",
+      ".ttf",
+      ".otf",
+      ".ttc",
+      "Document.LoadFont",
+      "Document.LoadFontByName(\"Calibri\",\n  bold, italic)",
+      "FontRepository",
+      "Document.SubsetFonts()",
+      "glyf",
+      "loca",
+      "hmtx",
+      "CIDToGIDMap",
+      "Document.RemoveUnusedObjects()",
+      "Document.Optimize",
+      "DefaultOptimizationOptions()",
+      "OptimizationOptions.Images",
+      "Document.OptimizeImages(OptimizeImageOptions)",
+      "Document.SaveLinearized",
+      "WriteToLinearized",
+      "ConvertToGrayscale",
+      "TextExtractOptions",
+      "TextExtractRaw",
+      "TrueType",
+      "OpenType",
+      "LoadFont",
+      "LoadFontByName",
+      "SubsetFonts",
+      "RemoveUnusedObjects",
+      "DefaultOptimizationOptions",
+      "OptimizationOptions",
+      "OptimizeImages",
+      "OptimizeImageOptions",
+      "DPI",
+      "JPEG",
+      "PNG",
+      "SaveLinearized",
+      "ISO",
+      "Calibri"
+    ],
+    "classification": "2_mechanism_explanation",
+    "disposition": "merged_reframed",
+    "target_section": "Key Capabilities",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "render_fontrepo.go"
+    }
+  },
+  {
+    "unit_id": "u0030",
+    "excerpt": "Requires Go 1.24 or newer. The module has no transitive dependencies — everything is built on\nthe Go standard library, including the PDF parser/writer, the raster renderer, the SVG and\nMarkdown engines, and the PKCS#7/CMS signing code.",
+    "salient_tokens": [
+      "PDF",
+      "SVG",
+      "PKCS",
+      "CMS",
+      "1.24"
+    ],
+    "classification": "5_dependency_claim",
+    "disposition": "merged_verbatim",
+    "target_section": "Installation",
+    "verification": {
+      "status": "verified_against_manifest",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "go.mod"
+    }
+  },
+  {
+    "unit_id": "u0031",
+    "excerpt": "No required third-party package dependencies.",
+    "salient_tokens": [],
+    "classification": "5_dependency_claim",
+    "disposition": "merged_verbatim",
+    "target_section": "Dependencies",
+    "verification": {
+      "status": "verified_against_manifest",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "go.mod"
+    }
+  },
+  {
+    "unit_id": "u0032",
+    "excerpt": "- Go 1.24 or later (`go.mod`'s own `go 1.24` directive).",
+    "salient_tokens": [
+      "go.mod",
+      "go 1.24",
+      "1.24"
+    ],
+    "classification": "5_dependency_claim",
+    "disposition": "merged_verbatim",
+    "target_section": "Dependencies",
+    "verification": {
+      "status": "verified_against_manifest",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "go.mod"
+    }
+  },
+  {
+    "unit_id": "u0033",
+    "excerpt": "See [`_examples/`](_examples/) for full runnable programs covering text, forms, annotations,\ntables, vector graphics, SVG, and the end-to-end `feature_showcase` demo, or short focused API\nsnippets under \"Examples\" on [pkg.go.dev](https://pkg.go.dev/github.com/aspose-pdf-foss/aspose-pdf-foss-for-go).",
+    "salient_tokens": [
+      "_examples/",
+      "feature_showcase",
+      "SVG",
+      "API",
+      "Examples",
+      "`_examples/`",
+      "pkg.go.dev",
+      "https://pkg.go.dev/github.com/aspose-pdf-foss/aspose-pdf-foss-for-go"
+    ],
+    "classification": "2_mechanism_explanation",
+    "disposition": "merged_verbatim",
+    "target_section": "Quick Start",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "_examples/feature_showcase/main.go"
+    }
+  },
+  {
+    "unit_id": "u0034",
+    "excerpt": "[**docs/feature_showcase.pdf**](docs/feature_showcase.pdf) is a single 14-page PDF generated by\n[`_examples/feature_showcase`](_examples/feature_showcase/main.go) that walks nearly every\ncapability above in one document — a clickable table of contents (built with `Page.AddTOC`),\nstyled AcroForm fields, the full\nannotation gallery, redactions, multi-page tables, vector graphics, and a meta \"Rendering & Imposition\"\npage whose thumbnails are renders of the document itself, produced by this library's own renderer.\nCross-cutting metadata — bookmarks, named destinations, page labels, and Info + XMP\nmetadata — is set once and carried through the whole document. The showcase itself is\ndeliberately left unencrypted so it previews inline on GitHub and opens in every viewer;\nencryption (RC4 / AES-128 / AES-256) is covered in\n[Encryption and Signing](#encryption-and-signing) below. Regenerate it locally with\n`go run ./_examples/feature_showcase`.",
+    "salient_tokens": [
+      "_examples/feature_showcase",
+      "Page.AddTOC",
+      "go run ./_examples/feature_showcase",
+      "PDF",
+      "AddTOC",
+      "AcroForm",
+      "XMP",
+      "GitHub",
+      "RC4",
+      "AES",
+      "Rendering & Imposition",
+      "**docs/feature_showcase.pdf**",
+      "`_examples/feature_showcase`",
+      "Encryption and Signing",
+      "docs/feature_showcase.pdf",
+      "_examples/feature_showcase/main.go",
+      "#encryption-and-signing"
+    ],
+    "classification": "2_mechanism_explanation",
+    "disposition": "merged_verbatim",
+    "target_section": "Feature Showcase",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "_examples/feature_showcase/main.go"
+    }
+  },
+  {
+    "unit_id": "u0035",
+    "excerpt": "The most representative example beyond Quick Start is building a document from scratch with the\nFlow layout engine — an additive layer over the Rectangle-based drawing API that computes the\nrectangles for you — rather than editing an existing one.",
+    "salient_tokens": [
+      "API"
+    ],
+    "classification": "2_mechanism_explanation",
+    "disposition": "merged_verbatim",
+    "target_section": "Additional Examples",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "flow.go"
+    }
+  },
+  {
+    "unit_id": "u0036",
+    "excerpt": "`NewFlow` returns a `*Flow` that lays chained `AddParagraph`/`AddHeading`/`AddImage`/`AddTable`/\n`AddList` calls out top-to-bottom, paginating automatically; `Render()` returns the number of\npages produced. `FlowOptions.Tagged` auto-tags every element for a one-call PDF/UA-conformant\ndocument.",
+    "salient_tokens": [
+      "NewFlow",
+      "*Flow",
+      "AddParagraph",
+      "AddHeading",
+      "AddImage",
+      "AddTable",
+      "AddList",
+      "Render()",
+      "FlowOptions.Tagged",
+      "FlowOptions",
+      "PDF",
+      "UA"
+    ],
+    "classification": "2_mechanism_explanation",
+    "disposition": "merged_verbatim",
+    "target_section": "Additional Examples",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "flow.go"
+    }
+  },
+  {
+    "unit_id": "u0037",
+    "excerpt": "<details>\n<summary>View Additional Code Examples</summary>",
+    "salient_tokens": [],
+    "classification": "1_narrative_cta",
+    "disposition": "merged_verbatim",
+    "target_section": "Additional Examples",
+    "verification": {
+      "status": "not_applicable_category_1",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": ""
+    }
+  },
+  {
+    "unit_id": "u0038",
+    "excerpt": "</details>",
+    "salient_tokens": [],
+    "classification": "1_narrative_cta",
+    "disposition": "merged_verbatim",
+    "target_section": "Additional Examples",
+    "verification": {
+      "status": "not_applicable_category_1",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": ""
+    }
+  },
+  {
+    "unit_id": "u0039",
+    "excerpt": "The public API lives in the single root package `asposepdf` (imported as `pdf`), centered on\n`Document` — opened via `Open`/`OpenStream`/`OpenWithPassword`/`OpenStreamWithPassword` (the\nstream forms take any `io.Reader`) and serialized via `Document.WriteTo` (implements\n`io.WriterTo`, so it writes to any `io.Writer`); its `Pages()` method returns live `*Page` views,\nand nearly every mutating method (rotation, reorder, metadata, passwords, …) modifies the\nreceiver in place; `Split` and `Extract` are the two exceptions, each returning a fresh, fully\nindependent `*Document`. AI copilots live in the separate `ai` subpackage so the root package\nstays free of network code.",
+    "salient_tokens": [
+      "asposepdf",
+      "pdf",
+      "Document",
+      "Open",
+      "OpenStream",
+      "OpenWithPassword",
+      "OpenStreamWithPassword",
+      "io.Reader",
+      "Document.WriteTo",
+      "io.WriterTo",
+      "io.Writer",
+      "Pages()",
+      "*Page",
+      "Split",
+      "Extract",
+      "*Document",
+      "ai",
+      "API",
+      "WriteTo",
+      "WriterTo"
+    ],
+    "classification": "2_mechanism_explanation",
+    "disposition": "merged_verbatim",
+    "target_section": "API Reference",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "document.go"
+    }
+  },
+  {
+    "unit_id": "u0040",
+    "excerpt": "<details>\n<summary>View the Full Core API Surface</summary>",
+    "salient_tokens": [
+      "API"
+    ],
+    "classification": "1_narrative_cta",
+    "disposition": "merged_verbatim",
+    "target_section": "API Reference",
+    "verification": {
+      "status": "not_applicable_category_1",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": ""
+    }
+  },
+  {
+    "unit_id": "u0041",
+    "excerpt": "| Class | Description |\n|---|---|\n| `AIClient` | AIClient is the contract every copilot consumes: one call, one chat completion. |\n| `APIError` | APIError is returned when the AI endpoint answers with a non-2xx status. |\n| `Action` | Action is the common interface implemented by every concrete action type. |\n| `ActionType` | ActionType identifies the kind of action attached to an annotation (typically a LinkAnnotation's /A entry). |\n| `Annotation` | Annotation is the common interface implemented by every concrete annotation type. |\n| `AnnotationCollection` | AnnotationCollection is the live, ordered set of annotations attached to a single page. |\n| `AnnotationType` | AnnotationType identifies the kind of annotation. |\n| `BmpDevice` | BmpDevice renders a page to BMP. |\n| `BookletBinding` | BookletBinding selects the binding edge of a booklet. |\n| `BookletOptions` | BookletOptions configures Booklet imposition. |\n| `BorderEffect` | BorderEffect controls the /BE/S entry per ISO 32000-1 §12.5.4 Table 167. |\n| `BorderInfo` | BorderInfo describes a border drawn around a table or cell. |\n| `BorderSide` | BorderSide is a bitmask selecting which sides of a rectangular border are drawn. |\n| `BorderStyle` | BorderStyle controls the /BS dict for drawing annotations per ISO 32000-1 §12.5.4 Table 168. |\n| `ButtonAppearance` | ButtonAppearance configures a push button's rich appearance: separate captions for the normal / rollover / down states, an optional icon image, and face/border/text colours. |\n| `ButtonField` | ButtonField is a push button — action only, no value semantics. |\n| `ButtonIconPosition` | ButtonIconPosition controls how a push button lays out its icon and caption — the /MK /TP entry per ISO 32000-1 §12.5.6.19 Table 189. |\n| `CaretAnnotation` | CaretAnnotation marks a point of text insertion or deletion, drawn as an upward caret (\"^\") filled with the annotation colour; an optional paragraph symbol is set with `SetSymbol(pdf.CaretSymbolParagraph)`. |\n| `CaretSymbol` | CaretSymbol is the /Sy entry of a Caret annotation per ISO 32000-1 §12.5.6.11 Table 180 — an optional symbol drawn together with the caret to associate it with an editing action. |\n| `Cell` | Cell is a single cell within a Row. |\n| `CertifyPermission` | CertifyPermission is the DocMDP permission level of a certification signature (ISO 32000-1 §12.8.2.2 Table 254). |\n| `ChatCopilot` | ChatCopilot answers questions about a document, keeping conversation history. |\n| `ChatOptions` | ChatOptions configures a ChatCopilot. |\n| `CheckboxField` | CheckboxField is a checkbox with on/off state. |\n| `ChoiceOption` | ChoiceOption is one option of a ComboBoxField or ListBoxField. |\n| `CircleAnnotation` | CircleAnnotation draws an elliptical annotation. |\n| `Color` | Color represents an RGBA color with values in [0, 1]. |\n| `ComboBoxField` | ComboBoxField is a single-select dropdown choice field. |\n| `CompletionRequest` | CompletionRequest describes one chat-completion call. |\n| `CompletionResponse` | CompletionResponse is the model's reply. |\n| `DateField` | DateField is a text field with a JavaScript date-format action and a format mask (e.g. \"mm/dd/yyyy\"). |\n| `Destination` | Destination is the common interface for all explicit destinations. |\n| `DestinationFit` | DestinationFit — [page /Fit]. |\n| `DestinationFitB` | DestinationFitB — [page /FitB]. |\n| `DestinationFitBH` | DestinationFitBH — [page /FitBH top]. |\n| `DestinationFitBV` | DestinationFitBV — [page /FitBV left]. |\n| `DestinationFitH` | DestinationFitH — [page /FitH top]. |\n| `DestinationFitR` | DestinationFitR — [page /FitR left bottom right top]. |\n| `DestinationFitV` | DestinationFitV — [page /FitV left]. |\n| `DestinationType` | DestinationType identifies the destination flavor. |\n| `DestinationXYZ` | DestinationXYZ — [page /XYZ left top zoom]. |\n| `Document` | Document is a PDF document. |\n| `DocumentInfo` | DocumentInfo contains document information from the PDF Info dictionary. |\n| `EmbeddedFile` | EmbeddedFile is one attachment: a /Filespec dictionary with an embedded stream. |\n| `EmbeddedFiles` | EmbeddedFiles is the document's collection of attached (embedded) files — the /Catalog/Names/EmbeddedFiles name tree (ISO 32000-1 §7.11.4). |\n| `EncryptionAlgorithm` | EncryptionAlgorithm selects the cipher and security-handler revision used by (*Document).SetEncryption. |\n| `EncryptionOptions` | EncryptionOptions bundles every knob that controls how a document is encrypted when saved. |\n| `Field` | Field is the common interface implemented by every concrete form field type (TextBoxField, CheckboxField, RadioButtonField, etc.). |\n| `FieldStyle` | FieldStyle is the visual styling applied to a form field's widget(s). |\n| `FigureAlt` | FigureAlt is a /Figure structure element that has no alternate text, paired with the image it brackets (when resolvable). |\n| `FileAttachmentAnnotation` | FileAttachmentAnnotation embeds a file in the document and shows an icon at the annotation's /Rect. |\n| `FileAttachmentIcon` | FileAttachmentIcon names per ISO 32000-1 §12.5.6.15 Table 178. |\n| `FileSelectBoxField` | FileSelectBoxField is a text field whose value is a file path (FileSelect flag), used to attach a local file on submit. |\n| `FloatSide` | FloatSide selects which edge a floated box hugs while text wraps around it. |\n| `FloatingBox` | FloatingBox is a positioned content container (Tier 2 of the flow model): a box with an optional border, background and padding that lays its own content (paragraphs, headings, images, lists) inside its width. |\n| `Flow` | Flow is a document generator that lays content out top-to-bottom and paginates automatically — the \"flow\" counterpart to the Rectangle-based drawing API. |\n| `FlowOptions` | FlowOptions configures a Flow. |\n| `Font` | Font is implemented by standard 14 fonts and embedded TTF fonts. |\n| `Form` | Form is the document's AcroForm view. |\n| `FormFieldType` | FormFieldType identifies the kind of form field. |\n| `FreeTextAnnotation` | FreeTextAnnotation displays text directly on the page, rendered into /AP/N using an embedded font. |\n| `FreeTextIntent` | FreeTextIntent per ISO 32000-1 §12.5.6.6 /IT entry. |\n| `GenericAnnotation` | GenericAnnotation is the catch-all surface for /Subtype values this release does not yet model (Stamp, FreeText, Ink, etc.). |\n| `GifDevice` | GifDevice renders a page to GIF. |\n| `GoToAction` | GoToAction navigates to a page within the same document. |\n| `GoToURIAction` | GoToURIAction opens a URI in the user's default handler (typically a web browser). |\n| `Gradient` | Gradient is a fill that varies colour across a shape: either a LinearGradient or a RadialGradient. |\n| `GradientStop` | GradientStop is one colour stop in a gradient, positioned at Offset (0 at the gradient's start, 1 at its end). |\n| `HAlign` | HAlign specifies horizontal text alignment within a rectangle. |\n| `HTMLMode` | HTMLMode selects how SaveHTML / WriteHTML represents page text. |\n| `HTMLSaveOptions` | HTMLSaveOptions configures SaveHTML / WriteHTML. |\n| `HighlightAnnotation` | HighlightAnnotation marks a region with semi-transparent highlight color. |\n| `Image` | Image holds an extracted image with its encoded data and metadata. |\n| `ImageColorSpace` | ImageColorSpace describes the original color space of the image in the PDF. |\n| `ImageDescriptionCopilot` | ImageDescriptionCopilot describes images with a vision model. |\n| `ImageDescriptionOptions` | ImageDescriptionOptions configures an ImageDescriptionCopilot. |\n| `ImageFormat` | ImageFormat describes the output format of an extracted image. |\n| `ImageInfo` | ImageInfo holds metadata about an image found on a page without decoding pixel data. |\n| `ImageStamp` | ImageStamp overlays a raster image (PNG or JPEG), stretched to fill Rect. |\n| `ImageToDocumentOptions` | ImageToDocumentOptions controls page sizing for ImageToDocument. |\n| `InkAnnotation` | InkAnnotation draws a series of free-form strokes — typically used to represent handwritten ink. |\n| `JSONExportOptions` | JSONExportOptions controls (*Form).ExportJSON / WriteJSON. |\n| `JavaScriptAction` | JavaScriptAction holds a JavaScript snippet attached to an annotation. |\n| `JavaScriptCollection` | JavaScriptCollection is the document-level JavaScript store, backed by the /Catalog/Names/JavaScript name tree (ISO 32000-1 §7.7.4 / §8.5.1). |\n| `JpegDevice` | JpegDevice renders a page to JPEG. |\n| `LLMOCREngine` | LLMOCREngine recognizes text by sending the page image to a vision-capable chat model. |\n| `LLMOCROptions` | LLMOCROptions configures the vision-model OCR engine. |\n| `Layer` | Layer is one Optional Content Group (OCG) in the document, created with `Document.AddLayer(name)`, bracketed on a page with `Page.BeginLayer`/`EndLayer`, and toggled with `Layer.SetVisible`. |\n| `LineAnnotation` | LineAnnotation draws a straight line between two points, with optional line endings on each end (arrows, circles, etc. |\n| `LineCap` | LineCap is the /J line cap style per ISO 32000-1 §8.4.3.3 Table 54. |\n| `LineEndingStyle` | LineEndingStyle is one of the 10 line-ending shapes per ISO 32000-1 §12.5.6.7 Table 176, used in /Line annotations' /LE entry. |\n| `LineJoin` | LineJoin is the /j line join style per ISO 32000-1 §8.4.3.4 Table 55. |\n| `LineStyle` | LineStyle describes how a stroked path is drawn. |\n| `LinearGradient` | LinearGradient interpolates colour along the line from (X1, Y1) to (X2, Y2). |\n| `LinkAnnotation` | LinkAnnotation is a clickable region. |\n| `LinkHighlightMode` | LinkHighlightMode controls the visual feedback when the link is activated by the user (the /H entry per ISO 32000-1 §12.5.6.5). |\n| `ListBoxField` | ListBoxField is a single- or multi-select list choice field. |\n| `MarginInfo` | MarginInfo describes margins or padding in points: Top / Right / Bottom / Left. |\n| `MarkdownOptions` | MarkdownOptions configures Markdown rendering. |\n| `MarkdownSaveOptions` | MarkdownSaveOptions configures SaveMarkdown / WriteMarkdown. |\n| `MarkupParagraph` | MarkupParagraph is a run of consecutive lines forming one paragraph. |\n| `MarkupSection` | MarkupSection is a column of paragraphs (left-to-right across the page). |\n| `Message` | Message is a single chat message. |\n| `MessageImage` | MessageImage is an inline image attached to a message, sent as a base64 data: URL. |\n| `NUpOptions` | NUpOptions configures NUp imposition. |\n| `NUpOrder` | NUpOrder controls the order in which source pages fill the grid cells of an N-up sheet. |\n| `NamedAction` | NamedAction triggers a built-in viewer command (FirstPage, Print, ...). |\n| `NamedActionType` | NamedActionType identifies one of the standard viewer commands supported by /Named actions per ISO 32000-1 §12.6.4.11. |\n| `NamedDestination` | NamedDestination wraps a name reference into the document's NamedDestinations collection. |\n| `NamedDestinations` | NamedDestinations is a name-to-destination map per ISO 32000-1 §12.3.2.3. |\n| `NumberField` | NumberField is a text field with a JavaScript number-format action, so viewers display and validate the value as a formatted number. |\n| `NumberFormatOptions` | NumberFormatOptions configures a NumberField's display formatting (maps to Acrobat's AFNumber_Format). |\n| `OCRBox` | OCRBox is a rectangle in image pixel space: origin at the top-left corner, Y increasing downward (the usual raster convention — distinct from PDF user space on purpose). |\n| `OCREngine` | OCREngine recognizes text on one page image. |\n| `OCRLine` | OCRLine is one physical text line. |\n| `OCRResult` | OCRResult is the recognized content of one page image. |\n| `OCRWord` | OCRWord is word-level detail within a line, for engines that provide it. |\n| `OcrCopilot` | OcrCopilot recognizes text on scanned pages. |\n| `OcrOptions` | OcrOptions configures an OcrCopilot. |\n| `OpenAIClient` | OpenAIClient talks to an OpenAI-compatible chat-completions endpoint using only the standard library. |\n| `OpenAIClientOptions` | OpenAIClientOptions configures NewOpenAIClient. |\n| `OptimizationOptions` | OptimizationOptions selects which reductions Document.Optimize applies. |\n| `OptimizationResult` | OptimizationResult reports what Document.Optimize changed. |\n| `OptimizeImageOptions` | OptimizeImageOptions controls image optimization behavior. |\n| `OutlineItemCollection` | OutlineItemCollection represents an outline entry and the collection of its children. |\n| `PDFAFormat` | PDFAFormat identifies a PDF/A conformance level. |\n| `PDFAIssue` | PDFAIssue describes a single PDF/A conformance violation. |\n| `PDFAValidationReport` | PDFAValidationReport is returned by (*Document).ValidatePDFA. |\n| `PDFUAIssue` | PDFUAIssue describes a single PDF/UA (accessibility) conformance violation. |\n| `PDFUAValidationReport` | PDFUAValidationReport is returned by (*Document).ValidatePDFUA. |\n| `Page` | Page is a live view of a single page within a Document. |\n| `PageFormat` | PageFormat describes a page size in points (1/72 inch). |\n| `PageLabelRange` | PageLabelRange describes a contiguous run of pages that share a numbering style. |\n| `PageLabelStyle` | PageLabelStyle is the numbering style applied within a PageLabelRange. |\n| `PageMarkup` | PageMarkup is the structured text of one page. |\n| `PageNumberStamp` | PageNumberStamp stamps the page number (and optionally the total), formatted by Format. |\n| `PageRange` | PageRange specifies an inclusive range of pages (1-based). |\n| `PageSize` | PageSize holds the width and height of a PDF page in points (1/72 inch). |\n| `PasswordBoxField` | PasswordBoxField is a text field whose input is masked (Password flag). |\n| `Path` | Path is a sequence of MoveTo/LineTo/CurveTo/Close operations defining an arbitrary 2D path in PDF user space (origin at page bottom-left, Y up). |\n| `PdfPageStamp` | PdfPageStamp overlays (or underlays) a page from another PDF document as a stamp — the source page is imported once as a Form XObject and drawn into the stamp's Rect, scaled to fit while preserving aspect ratio, positioned by HAlign/VAlign, and honoring Opacity, RotateAngle and Background. |\n| `Permissions` | Permissions controls what a viewer allows on an encrypted PDF. |\n| `PngDevice` | PngDevice renders a page to PNG at a fixed resolution. |\n| `Point` | Point is a single point in PDF user-space coordinates. |\n| `PolygonAnnotation` | PolygonAnnotation draws a closed polygon through a `[]pdf.Point` list of vertices, with a stroked border and optional interior fill. |\n| `PolylineAnnotation` | PolylineAnnotation draws an open polyline through a `[]pdf.Point` list of vertices, with a stroked border, optional line endings at the first and last vertex, and optional interior fill for closed endings. |\n| `QuadPoint` | QuadPoint is one quadrilateral within a markup annotation's /QuadPoints array. |\n| `RadialGradient` | RadialGradient interpolates colour from the focal point (FX, FY) out to the circle centred at (CX, CY) with radius R. |\n| `RadioButtonField` | RadioButtonField is a group of mutually exclusive options. |\n| `RadioButtonOptionField` | RadioButtonOptionField is one of the option widgets inside a RadioButtonField. |\n| `RadioItem` | RadioItem describes one widget inside a radio group. |\n| `Rectangle` | Rectangle represents a PDF rectangle [llx, lly, urx, ury] in points (1/72 inch). |\n| `RedactAnnotation` | RedactAnnotation marks regions for redaction. |\n| `RenderOptions` | RenderOptions controls page rasterization. |\n| `ReplaceOptions` | ReplaceOptions tunes how ReplaceText matches the search text. |\n| `ResetFormAction` | ResetFormAction resets named form fields to their /DV defaults. |\n| `Resolution` | Resolution is a rendering resolution in DPI. |\n| `RichTextBoxField` | RichTextBoxField is a text field that carries a rich-text value (RichText flag + /RV) in addition to its plain /V. |\n| `RotationAngle` | RotationAngle represents a valid PDF page rotation in clockwise degrees. |\n| `Row` | Row is a single row within a Table. |\n| `SVG` | SVG is the pre-parsed SVG document. |\n| `SVGFontResolver` | SVGFontResolver maps an SVG font-family + style to a `pdf.Font`. |\n| `SVGSaveOptions` | SVGSaveOptions configures SaveSVG / WriteSVG. |\n| `SearchOptions` | SearchOptions tunes how SearchText interprets the query. |\n| `ShapeStyle` | ShapeStyle combines a stroke (LineStyle) with an optional fill color. |\n| `SignOptions` | SignOptions configures a digital signature. |\n| `SignatureAppearance` | SignatureAppearance controls the visible signature block's content and styling. |\n| `SignatureVerification` | SignatureVerification is the result of verifying one digital signature. |\n| `SquareAnnotation` | SquareAnnotation draws a rectangular annotation with stroked border and optional interior fill. |\n| `SquigglyAnnotation` | SquigglyAnnotation draws a wavy underline under text (typically used for spell-check style hints). |\n| `Stamp` | Stamp is content overlaid on (or behind) a page: a TextStamp, an ImageStamp, or a PageNumberStamp. |\n| `StampAnnotation` | StampAnnotation is a rubber-stamp annotation. |\n| `StampName` | StampName names per ISO 32000-1 §12.5.6.13 Table 184. |\n| `StrikeOutAnnotation` | StrikeOutAnnotation draws a horizontal line through text. |\n| `StructElement` | StructElement is a node in the logical structure tree. |\n| `StructType` | StructType is a PDF standard structure type (ISO 32000-1 §14.8.4), used as the /S value of a structure element. |\n| `SubmitFormAction` | SubmitFormAction submits form field values to a URL. |\n| `SubmitFormFlags` | SubmitFormFlags is the /Flags bitfield for a /SubmitForm action per ISO 32000-1 Table 237. |\n| `SummaryCopilot` | SummaryCopilot produces document summaries with an AI model. |\n| `SummaryOptions` | SummaryOptions configures a SummaryCopilot. |\n| `TOCEntry` | TOCEntry is one line of a table of contents: a title, an indent level (0 = top level), and the page it points at. |\n| `TOCOptions` | TOCOptions controls how a table of contents is rendered. |\n| `Table` | Table is a transient builder for a tabular layout drawn onto a Page. |\n| `TaggedContent` | TaggedContent is the facade for authoring a Tagged PDF (ISO 32000-1 §14.8): it owns the document's logical structure tree and sets the catalog marks PDF/UA requires. |\n| `TextAnnotation` | TextAnnotation is a sticky-note annotation. |\n| `TextBoxField` | TextBoxField is a single- or multi-line text input. |\n| `TextExtractOptions` | TextExtractOptions configures ExtractText. |\n| `TextExtractionMode` | TextExtractionMode selects how ExtractText orders the extracted text. |\n| `TextFragment` | TextFragment represents a contiguous run of text with uniform font. |\n| `TextIcon` | TextIcon names per ISO 32000-1 §12.5.6.4 Table 172, used in /Subtype /Text annotations' /Name entry. |\n| `TextLine` | TextLine represents a horizontal line of text fragments at a common Y position. |\n| `TextMatch` | TextMatch is a single occurrence located by SearchText. |\n| `TextRecognitionResult` | TextRecognitionResult is the recognized text of one processed page. |\n| `TextStamp` | TextStamp overlays a line (or wrapped block) of text. |\n| `TextStyle` | TextStyle defines reusable text formatting properties. |\n| `TiffDevice` | TiffDevice renders pages to TIFF. |\n| `TilingPattern` | TilingPattern is a repeating fill (PatternType 1, ISO 32000-1 §8.7.3.1): a small cell of content tiled across whatever shape it fills. |\n| `UnderlineAnnotation` | UnderlineAnnotation draws a horizontal line under text. |\n| `Usage` | Usage reports token counts when the provider returns them. |\n| `VAlign` | VAlign specifies vertical text alignment within a rectangle. |\n| `ValidationIssue` | ValidationIssue describes a single problem found in a PDF file. |\n| `ValidationReport` | ValidationReport is returned by Validate and summarises the structural integrity of a PDF. |\n| `WidgetAnnotation` | WidgetAnnotation is the read-only view of a form widget annotation surfaced through AnnotationCollection. |\n| `XForm` | XForm is a reusable Form XObject (ISO 32000-1 §8.10) — an independent content stream (with its own resources) that can be placed on any number of pages and positions with a single Do invocation. Create one with `Document.CreateForm(w, h)` and draw into it via `Canvas()`, place it with `Page.AddForm(form, rect)`, list a page's existing forms with `Page.Forms()`, or copy one (with its whole resource graph) from another document with `Document.ImportForm`. |\n| `XMPMetadata` | XMPMetadata is the document's XMP packet modelled as common schema fields plus a list of arbitrary Custom properties. |\n| `XMPProperty` | XMPProperty is a single simple (string-valued) XMP property in an arbitrary namespace. |",
+    "salient_tokens": [
+      "AIClient",
+      "APIError",
+      "Action",
+      "ActionType",
+      "Annotation",
+      "AnnotationCollection",
+      "AnnotationType",
+      "BmpDevice",
+      "BookletBinding",
+      "BookletOptions",
+      "BorderEffect",
+      "BorderInfo",
+      "BorderSide",
+      "BorderStyle",
+      "ButtonAppearance",
+      "ButtonField",
+      "ButtonIconPosition",
+      "CaretAnnotation",
+      "SetSymbol(pdf.CaretSymbolParagraph)",
+      "CaretSymbol",
+      "Cell",
+      "CertifyPermission",
+      "ChatCopilot",
+      "ChatOptions",
+      "CheckboxField",
+      "ChoiceOption",
+      "CircleAnnotation",
+      "Color",
+      "ComboBoxField",
+      "CompletionRequest",
+      "CompletionResponse",
+      "DateField",
+      "Destination",
+      "DestinationFit",
+      "DestinationFitB",
+      "DestinationFitBH",
+      "DestinationFitBV",
+      "DestinationFitH",
+      "DestinationFitR",
+      "DestinationFitV",
+      "DestinationType",
+      "DestinationXYZ",
+      "Document",
+      "DocumentInfo",
+      "EmbeddedFile",
+      "EmbeddedFiles",
+      "EncryptionAlgorithm",
+      "EncryptionOptions",
+      "Field",
+      "FieldStyle",
+      "FigureAlt",
+      "FileAttachmentAnnotation",
+      "FileAttachmentIcon",
+      "FileSelectBoxField",
+      "FloatSide",
+      "FloatingBox",
+      "Flow",
+      "FlowOptions",
+      "Font",
+      "Form",
+      "FormFieldType",
+      "FreeTextAnnotation",
+      "FreeTextIntent",
+      "GenericAnnotation",
+      "GifDevice",
+      "GoToAction",
+      "GoToURIAction",
+      "Gradient",
+      "GradientStop",
+      "HAlign",
+      "HTMLMode",
+      "HTMLSaveOptions",
+      "HighlightAnnotation",
+      "Image",
+      "ImageColorSpace",
+      "ImageDescriptionCopilot",
+      "ImageDescriptionOptions",
+      "ImageFormat",
+      "ImageInfo",
+      "ImageStamp",
+      "ImageToDocumentOptions",
+      "InkAnnotation",
+      "JSONExportOptions",
+      "JavaScriptAction",
+      "JavaScriptCollection",
+      "JpegDevice",
+      "LLMOCREngine",
+      "LLMOCROptions",
+      "Layer",
+      "Document.AddLayer(name)",
+      "Page.BeginLayer",
+      "EndLayer",
+      "Layer.SetVisible",
+      "LineAnnotation",
+      "LineCap",
+      "LineEndingStyle",
+      "LineJoin",
+      "LineStyle",
+      "LinearGradient",
+      "LinkAnnotation",
+      "LinkHighlightMode",
+      "ListBoxField",
+      "MarginInfo",
+      "MarkdownOptions",
+      "MarkdownSaveOptions",
+      "MarkupParagraph",
+      "MarkupSection",
+      "Message",
+      "MessageImage",
+      "NUpOptions",
+      "NUpOrder",
+      "NamedAction",
+      "NamedActionType",
+      "NamedDestination",
+      "NamedDestinations",
+      "NumberField",
+      "NumberFormatOptions",
+      "OCRBox",
+      "OCREngine",
+      "OCRLine",
+      "OCRResult",
+      "OCRWord",
+      "OcrCopilot",
+      "OcrOptions",
+      "OpenAIClient",
+      "OpenAIClientOptions",
+      "OptimizationOptions",
+      "OptimizationResult",
+      "OptimizeImageOptions",
+      "OutlineItemCollection",
+      "PDFAFormat",
+      "PDFAIssue",
+      "PDFAValidationReport",
+      "PDFUAIssue",
+      "PDFUAValidationReport",
+      "Page",
+      "PageFormat",
+      "PageLabelRange",
+      "PageLabelStyle",
+      "PageMarkup",
+      "PageNumberStamp",
+      "PageRange",
+      "PageSize",
+      "PasswordBoxField",
+      "Path",
+      "PdfPageStamp",
+      "Permissions",
+      "PngDevice",
+      "Point",
+      "PolygonAnnotation",
+      "[]pdf.Point",
+      "PolylineAnnotation",
+      "QuadPoint",
+      "RadialGradient",
+      "RadioButtonField",
+      "RadioButtonOptionField",
+      "RadioItem",
+      "Rectangle",
+      "RedactAnnotation",
+      "RenderOptions",
+      "ReplaceOptions",
+      "ResetFormAction",
+      "Resolution",
+      "RichTextBoxField",
+      "RotationAngle",
+      "Row",
+      "SVG",
+      "SVGFontResolver",
+      "pdf.Font",
+      "SVGSaveOptions",
+      "SearchOptions",
+      "ShapeStyle",
+      "SignOptions",
+      "SignatureAppearance",
+      "SignatureVerification",
+      "SquareAnnotation",
+      "SquigglyAnnotation",
+      "Stamp",
+      "StampAnnotation",
+      "StampName",
+      "StrikeOutAnnotation",
+      "StructElement",
+      "StructType",
+      "SubmitFormAction",
+      "SubmitFormFlags",
+      "SummaryCopilot",
+      "SummaryOptions",
+      "TOCEntry",
+      "TOCOptions",
+      "Table",
+      "TaggedContent",
+      "TextAnnotation",
+      "TextBoxField",
+      "TextExtractOptions",
+      "TextExtractionMode",
+      "TextFragment",
+      "TextIcon",
+      "TextLine",
+      "TextMatch",
+      "TextRecognitionResult",
+      "TextStamp",
+      "TextStyle",
+      "TiffDevice",
+      "TilingPattern",
+      "UnderlineAnnotation",
+      "Usage",
+      "VAlign",
+      "ValidationIssue",
+      "ValidationReport",
+      "WidgetAnnotation",
+      "XForm",
+      "Document.CreateForm(w, h)",
+      "Canvas()",
+      "Page.AddForm(form, rect)",
+      "Page.Forms()",
+      "Document.ImportForm",
+      "XMPMetadata",
+      "XMPProperty",
+      "AI",
+      "BMP",
+      "BE",
+      "ISO",
+      "BS",
+      "MK",
+      "TP",
+      "SetSymbol",
+      "CaretSymbolParagraph",
+      "DocMDP",
+      "RGBA",
+      "JavaScript",
+      "FitB",
+      "FitBH",
+      "FitBV",
+      "FitH",
+      "FitR",
+      "FitV",
+      "XYZ",
+      "PDF",
+      "SetEncryption",
+      "FileSelect",
+      "API",
+      "TTF",
+      "AcroForm",
+      "AP",
+      "IT",
+      "FreeText",
+      "GIF",
+      "URI",
+      "SaveHTML",
+      "WriteHTML",
+      "PNG",
+      "JPEG",
+      "ImageToDocument",
+      "ExportJSON",
+      "WriteJSON",
+      "OCR",
+      "OCG",
+      "AddLayer",
+      "BeginLayer",
+      "SetVisible",
+      "LE",
+      "SaveMarkdown",
+      "WriteMarkdown",
+      "URL",
+      "NUp",
+      "FirstPage",
+      "OpenAI",
+      "NewOpenAIClient",
+      "ValidatePDFA",
+      "UA",
+      "ValidatePDFUA",
+      "MoveTo",
+      "LineTo",
+      "CurveTo",
+      "XObject",
+      "RotateAngle",
+      "QuadPoints",
+      "FX",
+      "FY",
+      "CX",
+      "CY",
+      "ReplaceText",
+      "DV",
+      "DPI",
+      "RichText",
+      "RV",
+      "SaveSVG",
+      "WriteSVG",
+      "SearchText",
+      "SubmitForm",
+      "ExtractText",
+      "TIFF",
+      "PatternType",
+      "CreateForm",
+      "AddForm",
+      "ImportForm",
+      "XMP",
+      "12.5.4",
+      "12.5.6.19",
+      "12.5.6.11",
+      "12.8.2.2",
+      "7.11.4",
+      "12.5.6.15",
+      "12.5.6.6",
+      "7.7.4",
+      "8.5.1",
+      "8.4.3.3",
+      "12.5.6.7",
+      "8.4.3.4",
+      "12.5.6.5",
+      "12.6.4.11",
+      "12.3.2.3",
+      "12.5.6.13",
+      "14.8.4",
+      "14.8",
+      "12.5.6.4",
+      "8.7.3.1",
+      "8.10",
+      "mm/dd/yyyy"
+    ],
+    "classification": "2_mechanism_explanation",
+    "disposition": "merged_verbatim",
+    "target_section": "API Reference",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "document.go"
+    }
+  },
+  {
+    "unit_id": "u0042",
+    "excerpt": "- `Permissions` fields map to ISO 32000-1 §7.6.3.2 Table 22 bits 3–12; the library encodes them\n  with the Adobe convention (reserved bits set high). In `EncryptionOptions`, `Permissions` is a\n  pointer so `nil` means \"grant all\", distinguishing that default from an explicit\n  `&Permissions{}`, which denies everything.",
+    "salient_tokens": [
+      "Permissions",
+      "EncryptionOptions",
+      "nil",
+      "&Permissions{}",
+      "ISO",
+      "7.6.3.2",
+      "grant all"
+    ],
+    "classification": "2_mechanism_explanation",
+    "disposition": "merged_verbatim",
+    "target_section": "API Reference",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "encrypt.go"
+    }
+  },
+  {
+    "unit_id": "u0043",
+    "excerpt": "- `Document.Sign` covers the whole file with one PKCS#7-detached signature, invisible by default\n  or visible via `Visible`/`Rect`/`Page`/`SignatureAppearance`; `PAdES` switches the subfilter to\n  `ETSI.CAdES.detached`, `Certify` adds a DocMDP certification, and `TimestampURL` embeds an RFC\n  3161 timestamp. Re-signing an already-signed document appends an incremental update so the\n  earlier signature stays valid. `Document.VerifySignatures` returns `Valid`, `IntegrityOK`,\n  `CoversWholeDocument`, and the signer `Certificate` per signature field — trust-chain validation\n  against your own store is the caller's responsibility.",
+    "salient_tokens": [
+      "Document.Sign",
+      "Visible",
+      "Rect",
+      "Page",
+      "SignatureAppearance",
+      "PAdES",
+      "ETSI.CAdES.detached",
+      "Certify",
+      "TimestampURL",
+      "Document.VerifySignatures",
+      "Valid",
+      "IntegrityOK",
+      "CoversWholeDocument",
+      "Certificate",
+      "PKCS",
+      "ETSI",
+      "CAdES",
+      "DocMDP",
+      "RFC",
+      "VerifySignatures"
+    ],
+    "classification": "2_mechanism_explanation",
+    "disposition": "merged_verbatim",
+    "target_section": "API Reference",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "sign.go"
+    }
+  },
+  {
+    "unit_id": "u0044",
+    "excerpt": "- Field values containing non-ASCII characters are encoded as UTF-16BE with a BOM. `Form.Export/\n  ImportJSON` round-trips every field as typed JSON keyed by full name (checkbox → bool, list box\n  → array); `Form.Export/ImportFDF` and `Form.Export/ImportXFDF` provide the same round-trip in\n  Acrobat-interoperable FDF and XFDF.",
+    "salient_tokens": [
+      "Form.Export/\n  ImportJSON",
+      "Form.Export/ImportFDF",
+      "Form.Export/ImportXFDF",
+      "ASCII",
+      "UTF",
+      "BOM",
+      "ImportJSON",
+      "JSON",
+      "ImportFDF",
+      "ImportXFDF",
+      "FDF",
+      "XFDF"
+    ],
+    "classification": "2_mechanism_explanation",
+    "disposition": "merged_verbatim",
+    "target_section": "API Reference",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "form.go"
+    }
+  },
+  {
+    "unit_id": "u0045",
+    "excerpt": "- Every widget's `/AP` appearance stream is pre-generated and regenerated on every value or style\n  change, so fields render identically across Acrobat, Foxit, browser viewers, MuPDF, and Poppler\n  without depending on `/AcroForm/NeedAppearances`.",
+    "salient_tokens": [
+      "/AP",
+      "/AcroForm/NeedAppearances",
+      "AP",
+      "MuPDF",
+      "AcroForm",
+      "NeedAppearances"
+    ],
+    "classification": "2_mechanism_explanation",
+    "disposition": "merged_verbatim",
+    "target_section": "API Reference",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "form.go"
+    }
+  },
+  {
+    "unit_id": "u0046",
+    "excerpt": "- `Document.Outlines()` is the root `OutlineItemCollection`; `NewOutlineItemCollection(doc)`\n  constructs an unattached entry with an `IList`-equivalent surface (`Add`/`Insert`/`Remove`/\n  `RemoveAt`/`At`/`Count`/`All`). All 8 destination types (XYZ/Fit/FitH/FitV/FitR/FitB/FitBH/\n  FitBV) are supported; `Action` and `Destination` may both be set (viewers honor `/Dest` first).",
+    "salient_tokens": [
+      "Document.Outlines()",
+      "OutlineItemCollection",
+      "NewOutlineItemCollection(doc)",
+      "IList",
+      "Add",
+      "Insert",
+      "Remove",
+      "RemoveAt",
+      "At",
+      "Count",
+      "All",
+      "Action",
+      "Destination",
+      "/Dest",
+      "NewOutlineItemCollection",
+      "XYZ",
+      "FitH",
+      "FitV",
+      "FitR",
+      "FitB",
+      "FitBH",
+      "FitBV"
+    ],
+    "classification": "2_mechanism_explanation",
+    "disposition": "merged_verbatim",
+    "target_section": "API Reference",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "outline.go"
+    }
+  },
+  {
+    "unit_id": "u0047",
+    "excerpt": "- `Document.NamedDestinations()` reads both `/Catalog/Dests` (legacy) and `/Catalog/Names/Dests`\n  (modern), writing modern-only with automatic migration on save.",
+    "salient_tokens": [
+      "Document.NamedDestinations()",
+      "/Catalog/Dests",
+      "/Catalog/Names/Dests",
+      "NamedDestinations"
+    ],
+    "classification": "2_mechanism_explanation",
+    "disposition": "merged_verbatim",
+    "target_section": "API Reference",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "named_destinations.go"
+    }
+  },
+  {
+    "unit_id": "u0048",
+    "excerpt": "- `Document.GenerateTOC` builds a clickable table of contents from the outline tree and inserts it\n  as new page(s) at the front; `Page.AddTOC` renders a caller-supplied entry list into a\n  rectangle, auto-paginating on overflow. `TOCOptions` controls the heading, per-level indent, and\n  whether page numbers, dotted leaders, and links are drawn. A runnable example lives in\n  [`_examples/toc`](_examples/toc).",
+    "salient_tokens": [
+      "Document.GenerateTOC",
+      "Page.AddTOC",
+      "TOCOptions",
+      "_examples/toc",
+      "GenerateTOC",
+      "AddTOC",
+      "`_examples/toc`"
+    ],
+    "classification": "2_mechanism_explanation",
+    "disposition": "merged_verbatim",
+    "target_section": "API Reference",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "toc.go"
+    }
+  },
+  {
+    "unit_id": "u0049",
+    "excerpt": "- `Document.JavaScript()` returns the document-level named-script collection, backed by the\n  `/Catalog/Names/JavaScript` name tree (ISO 32000-1 §7.7.4 / §8.5.1) — `Add(name, script)`,\n  `Get(name)`, `Has(name)`, `Remove(name)`, `Names()`, `Count()`, and `Clear()` manage it\n  directly. This is distinct from the action-level `JavaScriptAction` that fires on an\n  annotation click, not on the document-open event.",
+    "salient_tokens": [
+      "Document.JavaScript()",
+      "/Catalog/Names/JavaScript",
+      "Add(name, script)",
+      "Get(name)",
+      "Has(name)",
+      "Remove(name)",
+      "Names()",
+      "Count()",
+      "Clear()",
+      "JavaScriptAction",
+      "JavaScript",
+      "ISO",
+      "7.7.4",
+      "8.5.1"
+    ],
+    "classification": "2_mechanism_explanation",
+    "disposition": "merged_verbatim",
+    "target_section": "API Reference",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "javascript.go"
+    }
+  },
+  {
+    "unit_id": "u0050",
+    "excerpt": "- `Document.OpenAction()`/`Document.SetOpenAction(act)`/`Document.RemoveOpenAction()` read, set,\n  and clear the `/Catalog/OpenAction` entry (ISO 32000-1 §12.3.2 / §12.6.1) — the action a viewer\n  runs when the document opens (GoTo, JavaScript, Named, …). A `GoTo` open action is bound to the\n  document, so its destination resolves to a 1-based page number on read; both round-trip through\n  `Save` and coexist with named destinations. Document-level JavaScript executes in the\n  recipient's viewer when the file is opened — embed only scripts you authored or audited.",
+    "salient_tokens": [
+      "Document.OpenAction()",
+      "Document.SetOpenAction(act)",
+      "Document.RemoveOpenAction()",
+      "/Catalog/OpenAction",
+      "GoTo",
+      "Save",
+      "OpenAction",
+      "SetOpenAction",
+      "RemoveOpenAction",
+      "ISO",
+      "JavaScript",
+      "12.3.2",
+      "12.6.1"
+    ],
+    "classification": "2_mechanism_explanation",
+    "disposition": "merged_verbatim",
+    "target_section": "API Reference",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "open_action.go"
+    }
+  },
+  {
+    "unit_id": "u0051",
+    "excerpt": "- `Document.DeletePages(pageNums ...int)` removes one or more 1-based pages in place — page\n  numbers are de-duplicated and validated before anything is removed, so a call that would remove\n  every page returns an error and leaves the document unchanged; `Document.DeletePage(n)` is the\n  single-page convenience form.",
+    "salient_tokens": [
+      "Document.DeletePages(pageNums ...int)",
+      "Document.DeletePage(n)",
+      "DeletePages",
+      "pageNums",
+      "DeletePage"
+    ],
+    "classification": "2_mechanism_explanation",
+    "disposition": "merged_verbatim",
+    "target_section": "API Reference",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "document_pages.go"
+    }
+  },
+  {
+    "unit_id": "u0052",
+    "excerpt": "- `Document.AddBlankPage(width, height)`/`Document.AddBlankPageFromFormat(format)` append a blank\n  page to the end of an already-open document; `Document.InsertBlankPage(position, width,\n  height)`/`Document.InsertBlankPageFromFormat(position, format)` insert one at a specific\n  1-based position instead — distinct from building a whole new document from scratch via\n  `NewFlow`.",
+    "salient_tokens": [
+      "Document.AddBlankPage(width, height)",
+      "Document.AddBlankPageFromFormat(format)",
+      "Document.InsertBlankPage(position, width,\n  height)",
+      "Document.InsertBlankPageFromFormat(position, format)",
+      "NewFlow",
+      "AddBlankPage",
+      "AddBlankPageFromFormat",
+      "InsertBlankPage",
+      "InsertBlankPageFromFormat"
+    ],
+    "classification": "2_mechanism_explanation",
+    "disposition": "merged_verbatim",
+    "target_section": "API Reference",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "document_new.go"
+    }
+  },
+  {
+    "unit_id": "u0053",
+    "excerpt": "- `TextStyle.RTL` (or simply including RTL characters) enables right-to-left/bidirectional layout\n  for drawn text: a pure-Go Unicode Bidi Algorithm (UAX #9) implementation reorders each line\n  into visual order, keeping embedded numbers and Latin runs left-to-right, and RTL paragraphs\n  right-align by default. Arabic contextual shaping (connected letterforms plus lam-alef\n  ligatures via Presentation Forms-B) renders proper Arabic with any font that covers the block,\n  including the bundled DejaVu Sans.",
+    "salient_tokens": [
+      "TextStyle.RTL",
+      "TextStyle",
+      "RTL",
+      "UAX",
+      "DejaVu"
+    ],
+    "classification": "2_mechanism_explanation",
+    "disposition": "merged_verbatim",
+    "target_section": "API Reference",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "color.go"
+    }
+  },
+  {
+    "unit_id": "u0054",
+    "excerpt": "- `AddSVG`/`AddSVGFromStream` render a parsed SVG onto a page: basic shapes, the full SVG 1.1\n  path syntax, transforms, `viewBox`/`preserveAspectRatio`, 147 CSS named colors, linear/radial\n  gradients (`gradientUnits`/`gradientTransform`), `<text>`/`<tspan>` with font styling and a\n  pluggable `SVGFontResolver` for non-Latin text, `<image>` (data URIs), `<defs>`/`<use>`/\n  `<symbol>`, `<clipPath>` (clipping paths compile to PDF `W`/`W*` operators), `<mask>` (soft\n  masks via a PDF Form XObject transparency group + ExtGState `/SMask`, honoring\n  `maskUnits`/`maskContentUnits`), CSS `<style>` blocks, `<filter feDropShadow>`, and `<marker>`\n  (`marker-start`/`marker-mid`/`marker-end` rotate via `orient=auto` along the path tangent, using\n  `refX`/`refY` anchors). Unsupported and skipped silently: `<textPath>`, vertical writing\n  modes, external `<image href>`, real Gaussian blur, and em/ex/% length units.",
+    "salient_tokens": [
+      "AddSVG",
+      "AddSVGFromStream",
+      "viewBox",
+      "preserveAspectRatio",
+      "gradientUnits",
+      "gradientTransform",
+      "<text>",
+      "<tspan>",
+      "SVGFontResolver",
+      "<image>",
+      "<defs>",
+      "<use>",
+      "<symbol>",
+      "<clipPath>",
+      "W",
+      "W*",
+      "<mask>",
+      "/SMask",
+      "maskUnits",
+      "maskContentUnits",
+      "<style>",
+      "<filter feDropShadow>",
+      "<marker>",
+      "marker-start",
+      "marker-mid",
+      "marker-end",
+      "orient=auto",
+      "refX",
+      "refY",
+      "<textPath>",
+      "<image href>",
+      "SVG",
+      "CSS",
+      "URIs",
+      "clipPath",
+      "PDF",
+      "XObject",
+      "ExtGState",
+      "SMask",
+      "feDropShadow",
+      "textPath",
+      "1.1"
+    ],
+    "classification": "2_mechanism_explanation",
+    "disposition": "merged_verbatim",
+    "target_section": "API Reference",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "svg.go"
+    }
+  },
+  {
+    "unit_id": "u0055",
+    "excerpt": "- `Page.Annotations()` returns the page's `AnnotationCollection`, with `Add`/`At`/`Delete`/\n  `DeleteAt` managing the list directly.",
+    "salient_tokens": [
+      "Page.Annotations()",
+      "AnnotationCollection",
+      "Add",
+      "At",
+      "Delete",
+      "DeleteAt"
+    ],
+    "classification": "2_mechanism_explanation",
+    "disposition": "merged_verbatim",
+    "target_section": "API Reference",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "page.go"
+    }
+  },
+  {
+    "unit_id": "u0056",
+    "excerpt": "- Supported subtypes: `Link` (with GoToURI/GoTo/Named/SubmitForm/ResetForm/JavaScript actions),\n  `Highlight`, `Underline`, `StrikeOut`, `Squiggly`, `Square`, `Circle`, `Line`, `Ink`, `Text`,\n  `FreeText` (Plain/Callout/Typewriter intents), `Stamp` (14 predefined visuals or a custom\n  image), `Polygon`/`Polyline`, `Caret`, `FileAttachment`, and `Redact`. Existing form widgets\n  surface as read-only `WidgetAnnotation`; mutate them through the `Form` API instead.",
+    "salient_tokens": [
+      "Link",
+      "Highlight",
+      "Underline",
+      "StrikeOut",
+      "Squiggly",
+      "Square",
+      "Circle",
+      "Line",
+      "Ink",
+      "Text",
+      "FreeText",
+      "Stamp",
+      "Polygon",
+      "Polyline",
+      "Caret",
+      "FileAttachment",
+      "Redact",
+      "WidgetAnnotation",
+      "Form",
+      "GoToURI",
+      "GoTo",
+      "SubmitForm",
+      "ResetForm",
+      "JavaScript",
+      "API"
+    ],
+    "classification": "2_mechanism_explanation",
+    "disposition": "merged_verbatim",
+    "target_section": "API Reference",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "stamp.go"
+    }
+  },
+  {
+    "unit_id": "u0057",
+    "excerpt": "- `FileAttachmentAnnotation` shows one of four icons (`Paperclip` default, `Graph`, `PushPin`,\n  `Tag`); the embedded file's MIME type is auto-detected from its extension.",
+    "salient_tokens": [
+      "FileAttachmentAnnotation",
+      "Paperclip",
+      "Graph",
+      "PushPin",
+      "Tag",
+      "MIME"
+    ],
+    "classification": "2_mechanism_explanation",
+    "disposition": "merged_verbatim",
+    "target_section": "API Reference",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "annotation_fileattachment.go"
+    }
+  },
+  {
+    "unit_id": "u0058",
+    "excerpt": "- Border styles (`Solid`/`Dashed`/`Beveled`/`Inset`/`Underline`) and 10 line-ending shapes are\n  available on the drawing types; every property setter immediately regenerates the annotation's\n  `/AP/N` appearance stream, so no `/NeedAppearances` flag is needed.",
+    "salient_tokens": [
+      "Solid",
+      "Dashed",
+      "Beveled",
+      "Inset",
+      "Underline",
+      "/AP/N",
+      "/NeedAppearances",
+      "AP",
+      "NeedAppearances"
+    ],
+    "classification": "2_mechanism_explanation",
+    "disposition": "merged_verbatim",
+    "target_section": "API Reference",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "form.go"
+    }
+  },
+  {
+    "unit_id": "u0059",
+    "excerpt": "- `Document.ApplyRedactions()` removes text glyphs, image XObjects, and paths inside a\n  `Redact` annotation's `/QuadPoints`; `ValidateRedactions()` is a recommended pre-flight\n  parseability check. `NewJavaScriptAction` carries a documented security warning — embedded\n  JavaScript executes in the recipient's viewer.",
+    "salient_tokens": [
+      "Document.ApplyRedactions()",
+      "Redact",
+      "/QuadPoints",
+      "ValidateRedactions()",
+      "NewJavaScriptAction",
+      "ApplyRedactions",
+      "XObjects",
+      "QuadPoints",
+      "ValidateRedactions",
+      "JavaScript"
+    ],
+    "classification": "2_mechanism_explanation",
+    "disposition": "merged_verbatim",
+    "target_section": "API Reference",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "redact_apply.go"
+    }
+  },
+  {
+    "unit_id": "u0060",
+    "excerpt": "- `TextStamp`, `ImageStamp`, `PageNumberStamp`, and `PdfPageStamp` (which stamps in a page from\n  another PDF) overlay or underlay content via `(*Page/*Document).AddStamp`, with `Opacity`,\n  centre-pivot `RotateAngle`, alignment, and a `Background` behind-content flag;\n  `PageNumberStamp.Format` uses `{0}`/`{1}` placeholders for the page number and total (e.g.\n  `\"Page {0} of {1}\"`).",
+    "salient_tokens": [
+      "TextStamp",
+      "ImageStamp",
+      "PageNumberStamp",
+      "PdfPageStamp",
+      "(*Page/*Document).AddStamp",
+      "Opacity",
+      "RotateAngle",
+      "Background",
+      "PageNumberStamp.Format",
+      "{0}",
+      "{1}",
+      "\"Page {0} of {1}\"",
+      "PDF",
+      "AddStamp",
+      "Page {0} of {1}"
+    ],
+    "classification": "2_mechanism_explanation",
+    "disposition": "merged_verbatim",
+    "target_section": "API Reference",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "stamp.go"
+    }
+  },
+  {
+    "unit_id": "u0061",
+    "excerpt": "- `Validate` is a structural-integrity check only (`INVALID_HEADER`/`XREF_ERROR`/`OBJECT_ERROR`/\n  `PAGE_TREE_ERROR`/`STREAM_ERROR`/`ENCRYPTED` issue codes) — not a PDF/A or PDF/UA conformance\n  check.",
+    "salient_tokens": [
+      "Validate",
+      "INVALID_HEADER",
+      "XREF_ERROR",
+      "OBJECT_ERROR",
+      "PAGE_TREE_ERROR",
+      "STREAM_ERROR",
+      "ENCRYPTED",
+      "PDF",
+      "UA"
+    ],
+    "classification": "2_mechanism_explanation",
+    "disposition": "merged_verbatim",
+    "target_section": "API Reference",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "validate.go"
+    }
+  },
+  {
+    "unit_id": "u0062",
+    "excerpt": "- `ValidatePDFA(PDFA1B/2B/3B/1A/2A/3A)` inspects the XMP `pdfaid` identifier, font embedding,\n  encryption, JavaScript/Launch actions, the ICC OutputIntent against device colour, transparency\n  (PDF/A-1), annotation flags, and metadata compression; the \"a\" levels additionally require a\n  Tagged PDF (structure tree + `/Lang`).",
+    "salient_tokens": [
+      "ValidatePDFA(PDFA1B/2B/3B/1A/2A/3A)",
+      "pdfaid",
+      "/Lang",
+      "ValidatePDFA",
+      "PDFA1B",
+      "XMP",
+      "JavaScript",
+      "ICC",
+      "OutputIntent",
+      "PDF"
+    ],
+    "classification": "2_mechanism_explanation",
+    "disposition": "merged_verbatim",
+    "target_section": "API Reference",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "validate_pdfa.go"
+    }
+  },
+  {
+    "unit_id": "u0063",
+    "excerpt": "- `ConvertToPDFA` strips encryption and JavaScript, removes embedded files for PDF/A-1, sets\n  annotation print flags, auto-embeds non-embedded Standard-14 fonts (and other non-embedded\n  simple fonts drawn with `AddText`) with bundled metric-compatible clones, adds a pure-Go sRGB\n  ICC OutputIntent, and writes a `pdfaid` XMP packet — then returns a report of whatever still\n  fails. `Symbol`/`ZapfDingbats` and composite (Type0/CJK) fonts are not auto-fixed; confirm full\n  conformance with a dedicated validator such as veraPDF.",
+    "salient_tokens": [
+      "ConvertToPDFA",
+      "AddText",
+      "pdfaid",
+      "Symbol",
+      "ZapfDingbats",
+      "JavaScript",
+      "PDF",
+      "sRGB",
+      "ICC",
+      "OutputIntent",
+      "XMP",
+      "CJK",
+      "veraPDF"
+    ],
+    "classification": "2_mechanism_explanation",
+    "disposition": "merged_verbatim",
+    "target_section": "API Reference",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "pdfa_convert.go"
+    }
+  },
+  {
+    "unit_id": "u0064",
+    "excerpt": "- `ValidatePDFUA` checks the PDF/UA-1 (ISO 14289-1) prerequisites: a Tagged PDF with\n  `/StructTreeRoot` + `/ParentTree`, a declared `/Lang`, a displayed title, alternate text on\n  every figure/formula, and accessibility not blocked by encryption.",
+    "salient_tokens": [
+      "ValidatePDFUA",
+      "/StructTreeRoot",
+      "/ParentTree",
+      "/Lang",
+      "PDF",
+      "UA",
+      "ISO",
+      "StructTreeRoot",
+      "ParentTree"
+    ],
+    "classification": "2_mechanism_explanation",
+    "disposition": "merged_verbatim",
+    "target_section": "API Reference",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "validate_pdfua.go"
+    }
+  },
+  {
+    "unit_id": "u0065",
+    "excerpt": "- `AddTaggedTable` renders a `Table` and builds its `/Table → /TR → /TH`/`/TD` structure in one\n  call (repeating header rows become `/TH`); `AddTaggedList` does the same for bulleted/numbered\n  lists. Decoration (headers, footers, page numbers) is marked as an artifact so it stays out of\n  the structure tree.",
+    "salient_tokens": [
+      "AddTaggedTable",
+      "Table",
+      "/Table → /TR → /TH",
+      "/TD",
+      "/TH",
+      "AddTaggedList",
+      "TR",
+      "TH",
+      "TD"
+    ],
+    "classification": "2_mechanism_explanation",
+    "disposition": "merged_verbatim",
+    "target_section": "API Reference",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "table.go"
+    }
+  },
+  {
+    "unit_id": "u0066",
+    "excerpt": "- The renderer draws vector graphics (paths, Gray/RGB/CMYK/Separation/DeviceN colour, shadings,\n  tiling patterns, clipping, alpha, soft masks, blend modes), images (Image XObjects, stencil\n  masks, CCITT Group 3/4 fax, JBIG2 bilevel scans, JPEG2000 colour scans including MRC\n  stencil-masked layers), and text (embedded TrueType/CFF/Type3, non-embedded fonts via bundled\n  metric-compatible substitutes, non-embedded CJK via predefined Adobe CMaps rendered from\n  installed system fonts), and annotation appearances (AcroForm field widgets, stamps,\n  highlights, free text, …) to PNG/JPEG/GIF/BMP/TIFF at a default 150 DPI over the CropBox.\n  Unsupported elements (mesh shadings, isolated/knockout transparency groups, non-embedded\n  Symbol) are skipped so a page always renders. Embedded fonts render via `/FontFile3` (CFF/\n  Type1C and CID-keyed) and TrueType tables; non-embedded fonts resolve through a `FontRepository`\n  covering exact/installed fonts including `.ttc` collections and `.otf`/CFF; JPEG2000 colour\n  scans (`/JPXDecode`) are decoded including MRC high-resolution stencil-masked foreground layers.",
+    "salient_tokens": [
+      "/FontFile3",
+      "FontRepository",
+      ".ttc",
+      ".otf",
+      "/JPXDecode",
+      "RGB",
+      "CMYK",
+      "DeviceN",
+      "XObjects",
+      "CCITT",
+      "JBIG2",
+      "JPEG2000",
+      "MRC",
+      "TrueType",
+      "CFF",
+      "CJK",
+      "CMaps",
+      "AcroForm",
+      "PNG",
+      "JPEG",
+      "GIF",
+      "BMP",
+      "TIFF",
+      "DPI",
+      "CropBox",
+      "FontFile3",
+      "CID",
+      "JPXDecode"
+    ],
+    "classification": "2_mechanism_explanation",
+    "disposition": "merged_reframed",
+    "target_section": "API Reference",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "render_fontrepo.go"
+    }
+  },
+  {
+    "unit_id": "u0067",
+    "excerpt": "- `SaveHTML`/`WriteHTML` export one single-file HTML document with no external assets and no\n  JavaScript; text is selectable and Ctrl+F-searchable in every mode, link annotations become\n  clickable `<a>` overlays, and `InteractiveForms` turns AcroForm fields into real browser\n  controls.",
+    "salient_tokens": [
+      "SaveHTML",
+      "WriteHTML",
+      "<a>",
+      "InteractiveForms",
+      "HTML",
+      "JavaScript",
+      "AcroForm"
+    ],
+    "classification": "2_mechanism_explanation",
+    "disposition": "merged_verbatim",
+    "target_section": "API Reference",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "html_export.go"
+    }
+  },
+  {
+    "unit_id": "u0068",
+    "excerpt": "- `SaveSVG`/`WriteSVG` export standalone true-vector SVG with real Bézier paths, native strokes,\n  and glyph-outline text (no font dependencies); `SVGSaveOptions.DPI` (default 150) sets the\n  resolution of the small raster patches used only where shadings/patterns/soft masks can't be\n  expressed in SVG.",
+    "salient_tokens": [
+      "SaveSVG",
+      "WriteSVG",
+      "SVGSaveOptions.DPI",
+      "SVG",
+      "SVGSaveOptions",
+      "DPI"
+    ],
+    "classification": "2_mechanism_explanation",
+    "disposition": "merged_verbatim",
+    "target_section": "API Reference",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "svg_export.go"
+    }
+  },
+  {
+    "unit_id": "u0069",
+    "excerpt": "- `MarkdownToDocument`/`FromStream` render headings, styled bold/italic/code/link runs, task\n  checkboxes, block quotes, code cards, and GFM tables into a paginated PDF; `MarkdownOptions.\n  FontFamily`/`CodeFontFamily` (or explicit `LoadFont` faces) cover non-Latin text. `SaveMarkdown`/\n  `WriteMarkdown` reverse the process, inferring headings from font size and recovering\n  bold/italic/code runs, links, and nested lists — tables are not yet reconstructed and flow as\n  paragraphs.",
+    "salient_tokens": [
+      "MarkdownToDocument",
+      "FromStream",
+      "MarkdownOptions.\n  FontFamily",
+      "CodeFontFamily",
+      "LoadFont",
+      "SaveMarkdown",
+      "WriteMarkdown",
+      "GFM",
+      "PDF",
+      "MarkdownOptions",
+      "FontFamily"
+    ],
+    "classification": "2_mechanism_explanation",
+    "disposition": "merged_verbatim",
+    "target_section": "API Reference",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "markdown.go"
+    }
+  },
+  {
+    "unit_id": "u0070",
+    "excerpt": "- `ai.NewSummaryCopilot` produces plain-text or, with `ai.SummaryOptions.Markdown` set,\n  Markdown-rendered document summaries — the model is asked to format the summary as Markdown,\n  which is then rendered through the same `MarkdownToDocument` pipeline used elsewhere;\n  `ai.NewOcrCopilot` recognizes scanned pages (auto-detected by low extractable text plus a\n  dominant full-page image) and its `MakeSearchable` method writes the recognized text back as an\n  invisible, selectable layer; `ai.NewChatCopilot` answers questions about a document with\n  conversation history; `ai.NewImageDescriptionCopilot.FillAltTexts` fills missing `/Alt` text on\n  a tagged document's figures. All four work over any OpenAI-compatible endpoint (OpenAI, LiteLLM,\n  Ollama, …) and are implemented with the standard library only.",
+    "salient_tokens": [
+      "ai.NewSummaryCopilot",
+      "ai.SummaryOptions.Markdown",
+      "MarkdownToDocument",
+      "ai.NewOcrCopilot",
+      "MakeSearchable",
+      "ai.NewChatCopilot",
+      "ai.NewImageDescriptionCopilot.FillAltTexts",
+      "/Alt",
+      "NewSummaryCopilot",
+      "SummaryOptions",
+      "NewOcrCopilot",
+      "NewChatCopilot",
+      "NewImageDescriptionCopilot",
+      "FillAltTexts",
+      "OpenAI",
+      "LiteLLM"
+    ],
+    "classification": "2_mechanism_explanation",
+    "disposition": "merged_verbatim",
+    "target_section": "API Reference",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "ai/imagedesc.go"
+    }
+  },
+  {
+    "unit_id": "u0071",
+    "excerpt": "- `SearchText` (literal, case-insensitive, or RE2 regex, with an optional region) returns\n  per-match bounding boxes built from per-glyph positions; `ReplaceText` redraws the replacement\n  at the same baseline/size/colour in a metric-compatible Standard-14 face. Both match within a\n  single text line only.",
+    "salient_tokens": [
+      "SearchText",
+      "ReplaceText",
+      "RE2"
+    ],
+    "classification": "2_mechanism_explanation",
+    "disposition": "merged_verbatim",
+    "target_section": "API Reference",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "text_search.go"
+    }
+  },
+  {
+    "unit_id": "u0072",
+    "excerpt": "- `Document.ExtractImages()`/`Page.ExtractImages()` decode every image on all pages (or one page)\n  as JPEG (DCTDecode passthrough) or PNG, across DeviceRGB/DeviceGray/DeviceCMYK/Indexed/ICCBased\n  color spaces with soft masks applied as PNG alpha; `Document.ImageInfos()`/`Page.ImageInfos()`\n  list the same images' position, size, and color space *without* decoding pixel data, for fast,\n  selective extraction (call `.Extract()` on just the ones you need). `AddImage`/\n  `AddImageFromStream` (a file path or an `io.Reader`, respectively; an Image XObject either way)\n  is the recommended default for anything larger than a tiny icon, where `AddInlineImage` is more\n  appropriate.",
+    "salient_tokens": [
+      "Document.ExtractImages()",
+      "Page.ExtractImages()",
+      "Document.ImageInfos()",
+      "Page.ImageInfos()",
+      ".Extract()",
+      "AddImage",
+      "AddImageFromStream",
+      "io.Reader",
+      "AddInlineImage",
+      "ExtractImages",
+      "JPEG",
+      "DCTDecode",
+      "PNG",
+      "DeviceRGB",
+      "DeviceGray",
+      "DeviceCMYK",
+      "ICCBased",
+      "ImageInfos",
+      "XObject"
+    ],
+    "classification": "2_mechanism_explanation",
+    "disposition": "merged_verbatim",
+    "target_section": "API Reference",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "image.go"
+    }
+  },
+  {
+    "unit_id": "u0073",
+    "excerpt": "- `ImageToDocument(path, opts...)`/`ImageToDocumentFromStream(r, opts...)` build a brand-new\n  single-page `*Document` from a standalone JPEG or PNG file, with `ImageToDocumentOptions`\n  controlling explicit `PageWidth`/`PageHeight` and margins (0 = size the page from the image's\n  own DPI). An already-placed page image can be swapped in place with `ImageInfo.Replace(path)`/\n  `.ReplaceFromStream(r)` (format auto-detected from magic bytes; position and size on the page\n  stay unchanged even if the new image's own dimensions differ) or removed entirely with\n  `ImageInfo.Remove()` (deletes the XObject reference and its drawing operators from the page;\n  page-level images only, not ones nested inside a Form XObject).",
+    "salient_tokens": [
+      "ImageToDocument(path, opts...)",
+      "ImageToDocumentFromStream(r, opts...)",
+      "*Document",
+      "ImageToDocumentOptions",
+      "PageWidth",
+      "PageHeight",
+      "ImageInfo.Replace(path)",
+      ".ReplaceFromStream(r)",
+      "ImageInfo.Remove()",
+      "ImageToDocument",
+      "ImageToDocumentFromStream",
+      "JPEG",
+      "PNG",
+      "DPI",
+      "ImageInfo",
+      "ReplaceFromStream",
+      "XObject"
+    ],
+    "classification": "2_mechanism_explanation",
+    "disposition": "merged_verbatim",
+    "target_section": "API Reference",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "image_replace.go"
+    }
+  },
+  {
+    "unit_id": "u0074",
+    "excerpt": "</details>",
+    "salient_tokens": [],
+    "classification": "1_narrative_cta",
+    "disposition": "merged_verbatim",
+    "target_section": "API Reference",
+    "verification": {
+      "status": "not_applicable_category_1",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": ""
+    }
+  },
+  {
+    "unit_id": "u0075",
+    "excerpt": "- **[Getting started guide](https://docs.aspose.org/pdf/go/)** — installation, walkthroughs, and feature guides for this library.",
+    "salient_tokens": [
+      "Getting started guide",
+      "https://docs.aspose.org/pdf/go/"
+    ],
+    "classification": "1_narrative_cta",
+    "disposition": "merged_verbatim",
+    "target_section": "Documentation & Resources",
+    "verification": {
+      "status": "not_applicable_category_1",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": ""
+    }
+  },
+  {
+    "unit_id": "u0076",
+    "excerpt": "- **[How-to guides & FAQ](https://kb.aspose.org/pdf/go/)** — task-focused answers for common PDF-processing questions.",
+    "salient_tokens": [
+      "FAQ",
+      "PDF",
+      "How-to guides & FAQ",
+      "https://kb.aspose.org/pdf/go/"
+    ],
+    "classification": "1_narrative_cta",
+    "disposition": "merged_verbatim",
+    "target_section": "Documentation & Resources",
+    "verification": {
+      "status": "not_applicable_category_1",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": ""
+    }
+  },
+  {
+    "unit_id": "u0077",
+    "excerpt": "- **[Full API reference](https://reference.aspose.org/pdf/go/)** — the complete, browsable reference for the public API surface (the [API reference](#api-reference) section above covers the essentials).",
+    "salient_tokens": [
+      "API",
+      "Full API reference",
+      "API reference",
+      "https://reference.aspose.org/pdf/go/",
+      "#api-reference"
+    ],
+    "classification": "1_narrative_cta",
+    "disposition": "merged_verbatim",
+    "target_section": "Documentation & Resources",
+    "verification": {
+      "status": "not_applicable_category_1",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": ""
+    }
+  },
+  {
+    "unit_id": "u0078",
+    "excerpt": "- **[Contributing guide](CONTRIBUTING.md)** — development setup and how to submit changes.",
+    "salient_tokens": [
+      "CONTRIBUTING",
+      "Contributing guide",
+      "CONTRIBUTING.md"
+    ],
+    "classification": "1_narrative_cta",
+    "disposition": "merged_verbatim",
+    "target_section": "Documentation & Resources",
+    "verification": {
+      "status": "not_applicable_category_1",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": ""
+    }
+  },
+  {
+    "unit_id": "u0079",
+    "excerpt": "- **[Changelog](CHANGELOG.md)** — release history and notable changes.",
+    "salient_tokens": [
+      "CHANGELOG",
+      "CHANGELOG.md"
+    ],
+    "classification": "1_narrative_cta",
+    "disposition": "merged_verbatim",
+    "target_section": "Documentation & Resources",
+    "verification": {
+      "status": "not_applicable_category_1",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": ""
+    }
+  },
+  {
+    "unit_id": "u0080",
+    "excerpt": "- Found a bug or have a feature request? [Open an issue](https://github.com/aspose-pdf-foss/aspose-pdf-foss-for-go/issues) on GitHub.",
+    "salient_tokens": [
+      "GitHub",
+      "Open an issue",
+      "https://github.com/aspose-pdf-foss/aspose-pdf-foss-for-go/issues"
+    ],
+    "classification": "1_narrative_cta",
+    "disposition": "merged_verbatim",
+    "target_section": "Documentation & Resources",
+    "verification": {
+      "status": "not_applicable_category_1",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": ""
+    }
+  },
+  {
+    "unit_id": "u0081",
+    "excerpt": "- Viewer permissions (`Permissions`/`SetPermissions`) are enforced by PDF viewers, not by this\n  library — the encryption bitfield is written into the file, but the library itself is not a\n  DRM mechanism.",
+    "salient_tokens": [
+      "Permissions",
+      "SetPermissions",
+      "PDF",
+      "DRM"
+    ],
+    "classification": "2_mechanism_explanation",
+    "disposition": "merged_verbatim",
+    "target_section": "Scope and Limitations",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "encrypt.go"
+    }
+  },
+  {
+    "unit_id": "u0082",
+    "excerpt": "- Linearization (`SaveLinearized`/`WriteToLinearized`) cannot be combined with encryption or\n  digital signing in the same document.",
+    "salient_tokens": [
+      "SaveLinearized",
+      "WriteToLinearized"
+    ],
+    "classification": "2_mechanism_explanation",
+    "disposition": "merged_verbatim",
+    "target_section": "Scope and Limitations",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "linearize.go"
+    }
+  },
+  {
+    "unit_id": "u0083",
+    "excerpt": "- `ConvertToPDFA` auto-embeds non-embedded Standard-14 fonts but does not auto-fix\n  `Symbol`/`ZapfDingbats`, composite (Type0/CJK) fonts, or PDF/A-1 transparency; confirm full\n  conformance with a dedicated validator such as veraPDF.",
+    "salient_tokens": [
+      "ConvertToPDFA",
+      "Symbol",
+      "ZapfDingbats",
+      "CJK",
+      "PDF",
+      "veraPDF"
+    ],
+    "classification": "2_mechanism_explanation",
+    "disposition": "merged_verbatim",
+    "target_section": "Scope and Limitations",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "pdfa_convert.go"
+    }
+  },
+  {
+    "unit_id": "u0084",
+    "excerpt": "- The built-in renderer does not support mesh shadings (PDF shading types 4-7); other shading\n  types, patterns, and blend modes render normally.",
+    "salient_tokens": [
+      "PDF"
+    ],
+    "classification": "2_mechanism_explanation",
+    "disposition": "merged_verbatim",
+    "target_section": "Scope and Limitations",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "render_shading.go"
+    }
+  },
+  {
+    "unit_id": "u0085",
+    "excerpt": "- `ConvertToGrayscale` maps device colours, images, and shadings/patterns to their luminance grey\n  in place, but Separation/DeviceN, Indexed, and PostScript/sampled shading functions are\n  best-effort only.",
+    "salient_tokens": [
+      "ConvertToGrayscale",
+      "DeviceN",
+      "PostScript"
+    ],
+    "classification": "2_mechanism_explanation",
+    "disposition": "merged_verbatim",
+    "target_section": "Scope and Limitations",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "grayscale.go"
+    }
+  },
+  {
+    "unit_id": "u0086",
+    "excerpt": "- `MarkdownToDocument` has no syntax highlighting yet; `SaveMarkdown` does not reconstruct tables\n  from a PDF (cell text flows as paragraphs) and caps inferred heading levels at 3.",
+    "salient_tokens": [
+      "MarkdownToDocument",
+      "SaveMarkdown",
+      "PDF"
+    ],
+    "classification": "2_mechanism_explanation",
+    "disposition": "merged_verbatim",
+    "target_section": "Scope and Limitations",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "markdown.go"
+    }
+  },
+  {
+    "unit_id": "u0087",
+    "excerpt": "- `SearchText` and `ReplaceText` match within a single text line only — a query that straddles a\n  line break is not found.",
+    "salient_tokens": [
+      "SearchText",
+      "ReplaceText"
+    ],
+    "classification": "2_mechanism_explanation",
+    "disposition": "merged_verbatim",
+    "target_section": "Scope and Limitations",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "text_search.go"
+    }
+  },
+  {
+    "unit_id": "u0088",
+    "excerpt": "- Scanned pages are auto-detected (no extractable text plus a dominant full-page image);\n  `OcrOptions.Pages`/`All` override the default selection when auto-detection guesses wrong. The\n  bundled `LLMOCREngine` returns line-level OCR text with no coordinates, so\n  `MakeSearchable` positions the hidden searchable text on an even grid rather than exact\n  per-word boxes; implement the one-method `ai.OCREngine` interface over an engine that reports\n  word boxes (e.g. Tesseract or a cloud OCR service) for exact alignment. For non-Latin text,\n  pass a Unicode font via `OcrOptions.Font` (see `Document.LoadFont`).",
+    "salient_tokens": [
+      "OcrOptions.Pages",
+      "All",
+      "LLMOCREngine",
+      "MakeSearchable",
+      "ai.OCREngine",
+      "OcrOptions.Font",
+      "Document.LoadFont",
+      "OcrOptions",
+      "OCR",
+      "OCREngine",
+      "LoadFont"
+    ],
+    "classification": "2_mechanism_explanation",
+    "disposition": "merged_verbatim",
+    "target_section": "Scope and Limitations",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "font_api.go"
+    }
+  },
+  {
+    "unit_id": "u0089",
+    "excerpt": "- The AI copilots (summarization, OCR, chat, alt-text) send extracted document text and/or\n  rendered page images to the configured endpoint. For sensitive documents, point the client at a\n  local endpoint (e.g. Ollama) — the same client code works unchanged.",
+    "salient_tokens": [
+      "AI",
+      "OCR"
+    ],
+    "classification": "2_mechanism_explanation",
+    "disposition": "merged_verbatim",
+    "target_section": "Scope and Limitations",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "ai/client.go"
+    }
+  },
+  {
+    "unit_id": "u0090",
+    "excerpt": "- `Table` does not yet support content-driven auto-fit column widths, per-side border dash\n  patterns, or a `RowSpan` group splitting across a page break.",
+    "salient_tokens": [
+      "Table",
+      "RowSpan"
+    ],
+    "classification": "2_mechanism_explanation",
+    "disposition": "merged_verbatim",
+    "target_section": "Scope and Limitations",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "table.go"
+    }
+  },
+  {
+    "unit_id": "u0091",
+    "excerpt": "These limitations don't apply to\n[Aspose.PDF for Go — Enterprise Edition](https://products.aspose.com/pdf/go-cpp/), which adds\nthe full Aspose.PDF facade surface, broader format coverage, and commercial support.",
+    "salient_tokens": [
+      "PDF",
+      "Enterprise Edition",
+      "facade surface",
+      "https://products.aspose.com/pdf/"
+    ],
+    "classification": "1_narrative_cta",
+    "disposition": "merged_reframed",
+    "target_section": "Scope and Limitations",
+    "verification": {
+      "status": "not_applicable_category_1",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": ""
+    }
+  },
+  {
+    "unit_id": "u0092",
+    "excerpt": "Standalone runnable example programs live in `_examples/<name>/main.go` (excluded from\n`go build ./...`/`go test ./...` by their leading underscore); run one directly with\n`go run ./_examples/<name>`. Short, focused API examples live as `ExampleXxx` functions in\n`examples_test.go`, validated by `go test` via their `// Output:` comments and surfaced on\npkg.go.dev next to each documented function. Test PDF fixtures live flat under `testdata/`.",
+    "salient_tokens": [
+      "_examples/<name>/main.go",
+      "go build ./...",
+      "go test ./...",
+      "go run ./_examples/<name>",
+      "ExampleXxx",
+      "examples_test.go",
+      "go test",
+      "// Output:",
+      "testdata/",
+      "API",
+      "PDF"
+    ],
+    "classification": "2_mechanism_explanation",
+    "disposition": "merged_verbatim",
+    "target_section": "Development and Testing",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "examples_test.go"
+    }
+  },
+  {
+    "unit_id": "u0093",
+    "excerpt": "The compiled library links against nothing but the Go standard library, and every PDF primitive\n— the parser, writer, raster renderer, SVG and Markdown engines, and the PKCS#7/CMS signing code\n— is implemented from scratch within the module. It bundles Latin-subset copies of four\nmetric-compatible open fonts (Arimo, Tinos, Cousine, and Carlito), used to render the PDF\nStandard-14 fonts and Calibri when no embedded or system font is available, licensed under the\nSIL Open Font License 1.1 — see [fonts/LICENSE.txt](fonts/LICENSE.txt).",
+    "salient_tokens": [
+      "PDF",
+      "SVG",
+      "PKCS",
+      "CMS",
+      "SIL",
+      "LICENSE",
+      "1.1",
+      "fonts/LICENSE.txt"
+    ],
+    "classification": "2_mechanism_explanation",
+    "disposition": "merged_verbatim",
+    "target_section": "Third-Party Notices",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "fonts/LICENSE.txt"
+    }
+  },
+  {
+    "unit_id": "u0094",
+    "excerpt": "This project is licensed under the [MIT License](LICENSE). The MIT License permits use, copying,\nmodification, distribution, sublicensing, and commercial use, provided its copyright and\npermission notice are retained. The software is provided without warranty.",
+    "salient_tokens": [
+      "MIT",
+      "LICENSE",
+      "MIT License"
+    ],
+    "classification": "2_mechanism_explanation",
+    "disposition": "merged_verbatim",
+    "target_section": "License",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "LICENSE"
+    }
+  },
+  {
+    "unit_id": "u0095",
+    "excerpt": "The library also bundles the Arimo, Tinos, Cousine, and Carlito font families under the SIL Open\nFont License 1.1, used to render the PDF Standard-14 fonts (and Calibri) when no embedded or\nsystem font is available — see [fonts/LICENSE.txt](fonts/LICENSE.txt) (SPDX: `MIT AND OFL-1.1`\nfor the distribution as a whole). The MIT license above covers the library's own code.",
+    "salient_tokens": [
+      "MIT AND OFL-1.1",
+      "SIL",
+      "PDF",
+      "LICENSE",
+      "SPDX",
+      "MIT",
+      "AND",
+      "OFL",
+      "1.1",
+      "fonts/LICENSE.txt"
+    ],
+    "classification": "redundant_with_existing",
+    "disposition": "excluded",
+    "target_section": null,
+    "excluded_reason": "This restates the Third-Party Notices section's own bundled-font (Arimo/Tinos/Cousine/Carlito, SIL OFL 1.1) disclosure for readers who land directly on License; the substantive, individually-verified claim belongs to u0093.",
+    "verification": {
+      "status": "verified_redundant",
+      "evidence_type": "candidate_section_reference",
+      "evidence_ref": "Third-Party Notices"
+    }
+  }
+]
