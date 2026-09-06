@@ -504,3 +504,154 @@ def test_process_markdown_files_circuit_breaker_resets_on_success(tmp_path, monk
     result = get_keywords.process_markdown_files_by_families(["cad"], str(tmp_path), str(output_dir))
     assert call_count["n"] == 6, "all 6 files must be processed -- no consecutive-failure run ever occurred"
     assert len(result["cad"]) == 3
+
+
+class TestPassesGroundingGate:
+    """SEO-SCHEMA-A-BARCODE-CELLS-PLATFORM-LICENSE-REMEDIATION: the hard
+    verify-and-retry gate generalized from the earlier remediation's rework
+    fix (zero tolerance for any banned term, minimum required-term ratio)."""
+
+    def test_empty_phrases_fail(self):
+        assert get_keywords._passes_grounding_gate([], ["python"], [".net"], 0.7) is False
+
+    def test_any_banned_term_anywhere_fails_even_if_required_terms_met(self):
+        phrases = ["python excel reader", "python .net wrapper for excel"]
+        assert get_keywords._passes_grounding_gate(phrases, ["python"], [".net"], 0.5) is False
+
+    def test_required_ratio_met_passes(self):
+        phrases = ["python excel reader", "python csv export", "generic excel tips"]
+        # 2 of 3 mention "python" -> 0.67 >= 0.5
+        assert get_keywords._passes_grounding_gate(phrases, ["python"], [".net"], 0.5) is True
+
+    def test_required_ratio_not_met_fails(self):
+        phrases = ["python excel reader", "generic excel tips", "generic csv tips"]
+        # 1 of 3 mention "python" -> 0.33 < 0.5
+        assert get_keywords._passes_grounding_gate(phrases, ["python"], [".net"], 0.5) is False
+
+    def test_no_required_terms_only_checks_banned(self):
+        phrases = ["free mit license", "open source excel library"]
+        assert get_keywords._passes_grounding_gate(phrases, [], ["pricing", "subscription"], 0.7) is True
+
+    def test_banned_term_substring_match_is_case_insensitive_via_prelowered_input(self):
+        # Callers pass already-lowercased banned terms; the gate lowercases
+        # phrases itself, so a mixed-case phrase still matches.
+        phrases = ["Aspose.Cells C# Tutorial"]
+        assert get_keywords._passes_grounding_gate(phrases, [], ["c#"], 0.7) is False
+
+
+class TestRegenerateGroundedKeywords:
+    """SEO-SCHEMA-A-BARCODE-CELLS-PLATFORM-LICENSE-REMEDIATION: reusable
+    grounded regeneration with a verify-and-retry gate, so a future resolver
+    for the same defect class (page/font's license.md misrepresentation)
+    does not have to reinvent this mechanism from scratch."""
+
+    def _fake_genai(self, monkeypatch, texts):
+        """texts: a list of response strings, one per successive call."""
+        import types
+
+        calls = {"n": 0}
+
+        class _FakeResponse:
+            def __init__(self, text):
+                self.text = text
+
+        class _FakeModel:
+            def __init__(self, *a, **kw):
+                pass
+
+            def generate_content(self, prompt):
+                idx = min(calls["n"], len(texts) - 1)
+                calls["n"] += 1
+                return _FakeResponse(texts[idx])
+
+        fake_genai = types.SimpleNamespace(GenerativeModel=_FakeModel)
+        monkeypatch.setitem(sys.modules, "google", types.SimpleNamespace(generativeai=fake_genai))
+        monkeypatch.setitem(sys.modules, "google.generativeai", fake_genai)
+        monkeypatch.setattr(get_keywords.time, "sleep", lambda *a, **kw: None)
+        return calls
+
+    def test_first_attempt_passes_gate_returns_phrases(self, monkeypatch):
+        self._fake_genai(monkeypatch, ["python barcode reader\npython qr code generator"])
+        result = get_keywords.regenerate_grounded_keywords(
+            "How to Render Barcodes", "python", "barcode",
+        )
+        assert result == ["python barcode reader", "python qr code generator"]
+
+    def test_first_attempt_fails_gate_retries_and_returns_second_attempt(self, monkeypatch):
+        calls = self._fake_genai(
+            monkeypatch,
+            [
+                "c# barcode reader\nvb.net qr code generator",  # fails: banned terms present
+                "python barcode reader\npython qr code generator",  # passes
+            ],
+        )
+        result = get_keywords.regenerate_grounded_keywords(
+            "How to Render Barcodes", "python", "barcode", max_attempts=3,
+        )
+        assert result == ["python barcode reader", "python qr code generator"]
+        assert calls["n"] == 2
+
+    def test_all_attempts_fail_gate_returns_none(self, monkeypatch):
+        self._fake_genai(monkeypatch, ["c# barcode reader\nvb.net qr code generator"])
+        result = get_keywords.regenerate_grounded_keywords(
+            "How to Render Barcodes", "python", "barcode", max_attempts=2,
+        )
+        assert result is None
+
+    def test_extra_context_and_custom_banned_terms_enforced(self, monkeypatch):
+        # A license.md-style regeneration: a "pricing" mention must be
+        # rejected even though it isn't in the default platform denylist.
+        calls = self._fake_genai(
+            monkeypatch,
+            [
+                "cpp mit license pricing tier",  # fails: custom banned term "pricing"
+                "cpp mit license free open source",  # passes
+            ],
+        )
+        result = get_keywords.regenerate_grounded_keywords(
+            "License", "cpp", "cells",
+            extra_context="This page states the product is MIT licensed and free.",
+            required_terms=["license", "mit", "free"],
+            banned_terms=list(get_keywords._DEFAULT_PLATFORM_BANNED_TERMS) + ["pricing"],
+            max_attempts=3,
+        )
+        assert result == ["cpp mit license free open source"]
+        assert calls["n"] == 2
+
+    def test_gemini_exception_does_not_crash_and_retries(self, monkeypatch):
+        import types
+
+        class _FakeModelRaisesOnce:
+            _n = {"count": 0}
+
+            def __init__(self, *a, **kw):
+                pass
+
+            def generate_content(self, prompt):
+                _FakeModelRaisesOnce._n["count"] += 1
+                if _FakeModelRaisesOnce._n["count"] == 1:
+                    raise RuntimeError("simulated API failure")
+                class _R:
+                    text = "python barcode reader\npython qr code generator"
+                return _R()
+
+        fake_genai = types.SimpleNamespace(GenerativeModel=_FakeModelRaisesOnce)
+        monkeypatch.setitem(sys.modules, "google", types.SimpleNamespace(generativeai=fake_genai))
+        monkeypatch.setitem(sys.modules, "google.generativeai", fake_genai)
+        monkeypatch.setattr(get_keywords.time, "sleep", lambda *a, **kw: None)
+
+        result = get_keywords.regenerate_grounded_keywords(
+            "How to Render Barcodes", "python", "barcode", max_attempts=3,
+        )
+        assert result == ["python barcode reader", "python qr code generator"]
+
+    def test_metrics_recording_exception_never_breaks_regeneration(self, monkeypatch):
+        self._fake_genai(monkeypatch, ["python barcode reader\npython qr code generator"])
+        monkeypatch.setattr(
+            get_keywords.llm_metrics_adapter, "record_gemini_call",
+            lambda *a, **kw: (_ for _ in ()).throw(RuntimeError("metrics boom")),
+        )
+        result = get_keywords.regenerate_grounded_keywords(
+            "How to Render Barcodes", "python", "barcode",
+        )
+        assert result == ["python barcode reader", "python qr code generator"]

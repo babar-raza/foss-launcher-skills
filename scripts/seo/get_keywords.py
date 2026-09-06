@@ -434,6 +434,141 @@ def get_keywords_from_gemini(page_title, platform="net"):
     return None  # unreachable, but explicit
 
 
+_PLATFORM_LABELS = {
+    "net": ".NET",
+    "java": "Java",
+    "python": "Python",
+    "cpp": "C++",
+    "go": "Go",
+    "rust": "Rust",
+    "typescript": "TypeScript",
+    "nodejs": "Node.js",
+    "php": "PHP",
+}
+
+# Default denylist for regenerate_grounded_keywords(): the cross-platform
+# vocabulary that has now been found, twice (SEO-SCHEMA-A-GENERATION-
+# CONTAMINATION-REMEDIATION, then SEO-SCHEMA-A-BARCODE-CELLS-PLATFORM-
+# LICENSE-REMEDIATION), leaking onto non-.NET pages from the original
+# Schema A bootstrap generation. Kept broader than the first remediation's
+# ad hoc list (which missed "c#"/"windows forms"/"openxml sdk"/etc. and let
+# 43 of 51 real cells.json offenders slip past its own re-review) precisely
+# because a narrow, hand-picked term list is what let this recur.
+_DEFAULT_PLATFORM_BANNED_TERMS = (
+    ".net", "c#", "csharp", "vb.net", "asp.net", "dotnet", "winforms",
+    "windows forms", "blazor", "datagridview", "gridview", "openxml sdk",
+    "rdlc", "codeplex", "maui", "epplus", "closedxml", "ironxl", "syncfusion",
+)
+
+
+def _family_description(family):
+    """Best-effort English one-line product description for `family`, read
+    from data/family_descriptions.json (the same registry canonical_families()
+    already treats as authoritative). Returns "" if unavailable rather than
+    raising -- grounding is a quality improvement, not a hard dependency."""
+    try:
+        raw = json.loads((_REPO_ROOT / "data" / "family_descriptions.json").read_text(encoding="utf-8"))
+        return raw.get(family, {}).get("en", "")
+    except (OSError, json.JSONDecodeError, AttributeError):
+        return ""
+
+
+def _passes_grounding_gate(phrases, required_terms, banned_terms, min_required_ratio):
+    """The hard structural verify-and-retry check generalized from the
+    rework fix in SEO-SCHEMA-A-GENERATION-CONTAMINATION-REMEDIATION: zero
+    tolerance for any banned term anywhere, plus a minimum fraction of
+    phrases carrying at least one required term (e.g. the real platform
+    name), never a soft "should be relevant" instruction alone."""
+    if not phrases:
+        return False
+    lowered = [p.lower() for p in phrases]
+    for banned in banned_terms:
+        if any(banned in p for p in lowered):
+            return False
+    if required_terms:
+        hits = sum(1 for p in lowered if any(req in p for req in required_terms))
+        if hits / len(lowered) < min_required_ratio:
+            return False
+    return True
+
+
+def regenerate_grounded_keywords(
+    page_title, platform, family, *, extra_context="", num_keywords=10,
+    required_terms=None, banned_terms=None, min_required_ratio=0.7,
+    max_attempts=3,
+):
+    """Regenerate one Schema A entry's keyword list with explicit product
+    and platform grounding, verified against a hard pass/fail gate before
+    being accepted (never a single ungated LLM call). Generalizes the ad hoc
+    fix built for SEO-SCHEMA-A-GENERATION-CONTAMINATION-REMEDIATION
+    (product-grounded prompt + competitor denylist + verify-and-retry) into
+    a reusable function, per that card's own disclosed finding that the
+    prompt-template gap likely affects any family, not just the two it
+    covered.
+
+    `extra_context` carries real, page-specific facts the caller wants
+    grounded into the prompt (e.g. the page's actual license terms, to fix
+    a misrepresentation defect) -- never invented by this function itself.
+    Returns a list[str] of keyword phrases, or None if every attempt fails
+    the gate (caller must not fall back to the ungated raw response).
+    """
+    import google.generativeai as genai  # lazy: optional heavy dependency
+
+    platform_label = _PLATFORM_LABELS.get(platform, platform) if platform else None
+    family_desc = _family_description(family)
+    banned = list(banned_terms) if banned_terms is not None else list(_DEFAULT_PLATFORM_BANNED_TERMS)
+    required = list(required_terms) if required_terms is not None else (
+        [platform_label.lower()] if platform_label else []
+    )
+
+    grounding = []
+    if family_desc:
+        grounding.append(f"Product context: {family_desc}")
+    if platform_label:
+        grounding.append(f"This exact page is about the {platform_label} platform ONLY -- not any other platform.")
+    if extra_context:
+        grounding.append(extra_context)
+
+    prompt = (
+        f"Generate exactly {num_keywords} concise SEO keyword phrases for the product page "
+        f"titled '{page_title}'.\n"
+        + "\n".join(grounding) + "\n"
+        "STRICT RULES:\n"
+        "- Every phrase must be genuinely, specifically relevant to the page topic and platform above.\n"
+        "- Do not invent facts beyond what is stated above.\n"
+        "- Never use any of these words or phrases, in any form: " + ", ".join(banned) + ".\n"
+        "Output exactly one keyword phrase per line, no numbering, no bullets, no explanations."
+    )
+
+    model = genai.GenerativeModel("gemini-flash-lite-latest")
+    for attempt in range(1, max_attempts + 1):
+        _call_start = time.monotonic()
+        try:
+            response = model.generate_content(prompt)
+            _latency_ms = int((time.monotonic() - _call_start) * 1000)
+            phrases = [line.strip() for line in response.text.split("\n") if line.strip()]
+            _prompt_tokens, _completion_tokens = llm_metrics_adapter.extract_gemini_token_usage(response)
+            passed = _passes_grounding_gate(phrases, required, banned, min_required_ratio)
+            _emit_gemini_metrics(
+                "CS-010", _metrics_consumer_id, "success" if passed else "retry",
+                model="gemini-flash-lite-latest", prompt_tokens=_prompt_tokens,
+                completion_tokens=_completion_tokens, latency_ms=_latency_ms,
+            )
+            time.sleep(_RPM_PACING_SECONDS)
+            if passed:
+                return phrases
+        except Exception as e:
+            _latency_ms = int((time.monotonic() - _call_start) * 1000)
+            logging.error(f"regenerate_grounded_keywords: Gemini call failed for '{page_title}' (attempt {attempt}): {e}")
+            _emit_gemini_metrics(
+                "CS-010", _metrics_consumer_id, "failure",
+                model="gemini-flash-lite-latest", latency_ms=_latency_ms,
+                redacted_error_summary=str(e),
+            )
+            time.sleep(_RPM_PACING_SECONDS)
+    return None
+
+
 # Consecutive-failure circuit breaker: found live, 2026-07-31/08-01 --
 # without this, a sustained quota exhaustion (not a transient blip) meant
 # ~8.5 hours and 48 consecutive pages each burning their full 5-attempt,
