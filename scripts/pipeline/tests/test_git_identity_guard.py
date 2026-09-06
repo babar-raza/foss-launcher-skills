@@ -23,9 +23,27 @@ this test suite except the one that caused this incident).
 """
 from __future__ import annotations
 
+import importlib.util
 import subprocess
+from pathlib import Path
 
-from conftest import _snapshot_local_git_identity
+# Bare `from conftest import ...` is ambiguous once more than one same-named
+# conftest.py is collected in the same pytest run (this repo also has
+# scripts/pipeline/tests/content_eval/conftest.py) -- Python's sys.modules
+# cache resolves the bare "conftest" name to whichever one was imported
+# first, not necessarily this directory's own. Load THIS directory's
+# conftest.py by its exact file path, under a module name that can never
+# collide with any other "conftest", so collection order can never matter.
+# A local re-implementation was deliberately rejected: this test's whole
+# purpose is regression coverage for the REAL _snapshot_local_git_identity
+# the production _guard_shared_git_identity fixture uses, and a duplicate
+# copy would silently drift out of sync with it over time.
+_conftest_spec = importlib.util.spec_from_file_location(
+    "test_git_identity_guard_conftest", Path(__file__).resolve().parent / "conftest.py",
+)
+_conftest = importlib.util.module_from_spec(_conftest_spec)
+_conftest_spec.loader.exec_module(_conftest)
+_snapshot_local_git_identity = _conftest._snapshot_local_git_identity
 
 
 def _git(*args: str, cwd) -> subprocess.CompletedProcess:
