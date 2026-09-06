@@ -2484,6 +2484,91 @@ def test_audit_portfolio_skips_product_with_no_candidate_yet(tmp_path):
     assert result["skipped"] == [{"family": "testfam2", "platform": "testplat2", "reason": "no candidate file yet"}]
 
 
+def _advance_upstream_and_fetch(repo_root, upstream_dir, *, content):
+    """Add a real second commit to the fixture's upstream repo and fetch it into the clone
+    cache _make_scratch_repo already cloned -- so ancestry checks in the clone cache can
+    resolve both the original HEAD and this new commit. Returns the new sha."""
+    (upstream_dir / "README.md").write_text(content, encoding="utf-8")
+    _run_git(["add", "."], upstream_dir)
+    _run_git(["commit", "-q", "-m", "v2"], upstream_dir)
+    new_sha = _run_git(["rev-parse", "HEAD"], upstream_dir)
+    clone_cache_dir = repo_root / "runs" / ".clone_cache" / "aspose_testfam_testplat"
+    _run_git(["fetch", "-q", "origin"], clone_cache_dir)
+    return new_sha
+
+
+def test_audit_portfolio_corrupt_disagreement_is_none_when_sources_agree(tmp_path):
+    """Baseline: _make_scratch_repo writes no data/upstream_baselines.json entry at all for
+    testfam/testplat, so the durable sources trivially agree (only model.yaml is present)."""
+    repo_root, _ = _make_scratch_repo(tmp_path)
+    rr.configure(repo_root=repo_root)
+    _write_candidate(repo_root, _GOOD_CANDIDATE)
+
+    result = rr.audit_portfolio()
+
+    assert result["products"][0]["corrupt_disagreement"] is None
+    assert result["corrupt_disagreement_count"] == 0
+
+
+def test_audit_portfolio_surfaces_corrupt_disagreement_as_projection_stale(tmp_path):
+    """ST-188 follow-on: reproduces the real note/python shape -- model.yaml correctly holds
+    the NEWER commit; data/upstream_baselines.json was simply never regenerated. Must be
+    advisory-only: clean/hard_gate_findings must be completely unaffected."""
+    repo_root, upstream_dir = _make_scratch_repo(tmp_path)
+    rr.configure(repo_root=repo_root)
+    _write_candidate(repo_root, _GOOD_CANDIDATE)
+    old_sha = _run_git(["rev-parse", "HEAD"], upstream_dir)  # matches model.yaml's fixture default
+    new_sha = _advance_upstream_and_fetch(repo_root, upstream_dir, content=_OLD_UPSTREAM_README + "\nv2\n")
+    model_path = repo_root / "knowledge" / "testfam" / "testplat" / "merged" / "model.yaml"
+    model_path.write_text(
+        f"family: testfam\nplatform: testplat\nrepo_sha: {new_sha}\nstale_since: null\n",
+        encoding="utf-8",
+    )
+    (repo_root / "data" / "upstream_baselines.json").write_text(
+        json.dumps({"testfam/testplat": old_sha}), encoding="utf-8",
+    )
+
+    result = rr.audit_portfolio()
+
+    product = result["products"][0]
+    assert product["corrupt_disagreement"]["status"] == "PROJECTION_STALE"
+    assert product["corrupt_disagreement"]["safe_to_rebuild"] is True
+    assert product["corrupt_disagreement"]["model_sha"] == new_sha
+    assert product["corrupt_disagreement"]["projection_sha"] == old_sha
+    assert result["corrupt_disagreement_count"] == 1
+    # The non-negotiable contract: this is advisory telemetry, never a verdict on the candidate.
+    assert product["clean"] is True
+    assert product["hard_gate_findings"] == {}
+    assert product["verification_status"] == "verified"
+
+
+def test_audit_portfolio_surfaces_corrupt_disagreement_as_model_stale(tmp_path):
+    """ST-188 follow-on: reproduces the real pdf/go shape -- model.yaml holds an OLDER commit;
+    the projection (standing in for the live clone/upstream having already moved on) is newer.
+    Must be advisory-only here too, and safe_to_rebuild must be False (rebuild-all would be
+    actively harmful in this direction)."""
+    repo_root, upstream_dir = _make_scratch_repo(tmp_path)
+    rr.configure(repo_root=repo_root)
+    _write_candidate(repo_root, _GOOD_CANDIDATE)
+    # model.yaml is left untouched -- still holds the fixture's original HEAD sha.
+    new_sha = _advance_upstream_and_fetch(repo_root, upstream_dir, content=_OLD_UPSTREAM_README + "\nv2\n")
+    (repo_root / "data" / "upstream_baselines.json").write_text(
+        json.dumps({"testfam/testplat": new_sha}), encoding="utf-8",
+    )
+
+    result = rr.audit_portfolio()
+
+    product = result["products"][0]
+    assert product["corrupt_disagreement"]["status"] == "MODEL_STALE"
+    assert product["corrupt_disagreement"]["safe_to_rebuild"] is False
+    assert product["corrupt_disagreement"]["projection_sha"] == new_sha
+    assert result["corrupt_disagreement_count"] == 1
+    # The non-negotiable contract, restated for the opposite-direction case: still advisory-only.
+    assert product["clean"] is True
+    assert product["hard_gate_findings"] == {}
+    assert product["verification_status"] == "verified"
+
+
 def test_audit_portfolio_excludes_inactive_and_registry_excluded_products(tmp_path):
     repo_root, _ = _make_scratch_repo(tmp_path)
     rr.configure(repo_root=repo_root)

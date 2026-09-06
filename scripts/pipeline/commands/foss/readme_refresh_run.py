@@ -4134,6 +4134,17 @@ def audit_portfolio(*, family: "str | None" = None, platform: "str | None" = Non
     allowed (read-only review) but the result carries a `non_canonical` tag; any unregistered
     tree is refused outright (stale-path protection). The result also carries
     `candidate_tree` so no audit output is ever ambiguous about which store it describes.
+
+    ST-188 follow-on (2026-09-06): each product also carries `corrupt_disagreement` --
+    `freshness_guard.classify_baseline_disagreement()`'s verdict on whether `merged/model.yaml`
+    disagrees with its derived `data/upstream_baselines.json`/`data/knowledge_state.json`
+    projections (`None` when they agree). This is advisory telemetry for a real blind spot: that
+    disagreement is otherwise only ever surfaced deep inside a real `plan()` call (as a hard
+    `CORRUPT` failure), never by this read-only sweep -- a product could show `clean: true` here
+    while its next real `plan()` call would hard-block. It deliberately never feeds `indeterminate`
+    or `clean`; a non-null value only means "look at this before relying on a fresh `plan()` call
+    for this product," not "this candidate has a content defect." The result also carries a
+    portfolio-level `corrupt_disagreement_count` rollup.
     """
     non_canonical_tag = _validate_candidate_tree_for_audit()
     products = _load_products()
@@ -4221,6 +4232,19 @@ def audit_portfolio(*, family: "str | None" = None, platform: "str | None" = Non
         # baseline, folded into the same existing indeterminate vocabulary rather than a parallel
         # boolean every downstream consumer would separately need to learn about.
         clone_cache_incomplete = bool(result.get("clone_cache_completeness", {}).get("findings"))
+        # ST-188 follow-on (2026-09-06): advisory-only telemetry for a real, separate blind spot
+        # -- freshness_guard.is_generation_allowed()'s CORRUPT gate (merged/model.yaml disagreeing
+        # with its derived data/upstream_baselines.json / data/knowledge_state.json projections)
+        # is only ever exercised inside plan(), never by _run_deterministic_checks, so it was
+        # previously invisible here: a product could show clean:true in this very sweep while its
+        # next real plan() call would hard-block on CORRUPT. Confirmed live for pdf/go and
+        # note/python. Deliberately NEVER folded into `indeterminate`/`clean` below -- unlike
+        # baseline_coverage, this is telemetry surfacing a distinct risk class, not a verdict on
+        # this candidate's own content; a future refactor "harmonizing" the two would be a real
+        # regression, which is exactly why it has its own dedicated non-regression test.
+        corrupt_disagreement = freshness_guard.classify_baseline_disagreement(
+            fam, plat, clone_cache_path=clone_cache,
+        )
         indeterminate = bool(
             clone_cache_incomplete
             or (
@@ -4253,6 +4277,7 @@ def audit_portfolio(*, family: "str | None" = None, platform: "str | None" = Non
             "candidate_drift": candidate_drift,
             "disposition_tracking": disposition_tracking,
             "baseline_coverage": baseline_coverage,
+            "corrupt_disagreement": corrupt_disagreement,
         })
 
     clean_count = sum(1 for p in product_results if p["clean"])
@@ -4262,6 +4287,9 @@ def audit_portfolio(*, family: "str | None" = None, platform: "str | None" = Non
     indeterminate_count = sum(
         1 for p in product_results if p["verification_status"] == "indeterminate"
     )
+    corrupt_disagreement_count = sum(
+        1 for p in product_results if p["corrupt_disagreement"] is not None
+    )
     return {
         "products": product_results,
         "result_schema_version": 2,
@@ -4269,6 +4297,7 @@ def audit_portfolio(*, family: "str | None" = None, platform: "str | None" = Non
         "indeterminate_count": indeterminate_count,
         "clean_count": clean_count,
         "dirty_count": len(product_results) - clean_count,
+        "corrupt_disagreement_count": corrupt_disagreement_count,
         "total": len(product_results),
         "skipped": skipped,
         "candidate_tree": _candidate_tree_name,

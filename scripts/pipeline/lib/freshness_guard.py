@@ -368,6 +368,162 @@ def _check_baseline_reachability(
 
 
 # ---------------------------------------------------------------------------
+# Disagreement classification (ST-188 follow-on, 2026-09-06): _durable_sources_agree()
+# correctly hard-fails CORRUPT the moment model.yaml and its derived projections disagree,
+# but gives no signal at all about WHICH side is stale -- confirmed live this session that
+# this is not a hypothetical distinction: pdf/go and note/python were both found disagreeing
+# on the same day, for OPPOSITE reasons (pdf/go: model.yaml itself is behind live upstream;
+# note/python: the projections never got regenerated after a legitimate model.yaml update).
+# A single "just run rebuild-all on CORRUPT" auto-heal would silently make the pdf/go-class
+# case worse (overwriting the correct, current projection value with model.yaml's stale one)
+# while fixing the note/python-class case -- so this function exists to tell the two apart
+# before anything touches either file, using the same local-clone-cache ancestry primitives
+# _check_baseline_reachability() above already relies on.
+# ---------------------------------------------------------------------------
+
+DISAGREEMENT_PROJECTION_STALE = "PROJECTION_STALE"
+DISAGREEMENT_MODEL_STALE = "MODEL_STALE"
+DISAGREEMENT_DIVERGENT_OR_UNKNOWN = "DIVERGENT_OR_UNKNOWN"
+DISAGREEMENT_STATUSES = frozenset({
+    DISAGREEMENT_PROJECTION_STALE, DISAGREEMENT_MODEL_STALE, DISAGREEMENT_DIVERGENT_OR_UNKNOWN,
+})
+
+
+def _is_ancestor(repo_path: Path, ancestor_sha: str, descendant_sha: str) -> "bool | None":
+    """True/False from `git merge-base --is-ancestor`; None (never a silent False) when this
+    could not be determined at all (bad/unresolvable SHA, git failure, timeout) -- callers must
+    treat None as "can't tell", not as a negative answer."""
+    try:
+        result = subprocess.run(
+            ["git", "-C", str(repo_path), "merge-base", "--is-ancestor", ancestor_sha, descendant_sha],
+            capture_output=True, timeout=10,
+        )
+        return result.returncode == 0 if result.returncode in (0, 1) else None
+    except Exception:
+        return None
+
+
+def classify_baseline_disagreement(
+    family: str, platform: str, *, clone_cache_path: "Path | None" = None,
+) -> "dict | None":
+    """Explains a _durable_sources_agree() == False (CORRUPT) result for one product.
+
+    Returns None when the durable sources actually agree (mirrors _check_baseline_
+    reachability()'s own "None = not applicable" convention above) -- there is nothing to
+    classify. Otherwise returns a dict:
+        {"status": one of DISAGREEMENT_STATUSES, "reason": str, "safe_to_rebuild": bool,
+         "model_sha": str | None, "projection_sha": str | None}
+
+    `safe_to_rebuild` is True ONLY for PROJECTION_STALE (model.yaml is ahead; the projections
+    -- data/upstream_baselines.json / data/knowledge_state.json -- are simply behind and can be
+    safely regenerated FROM model.yaml via regen_baseline_projections.rebuild_one/rebuild_all).
+    MODEL_STALE means the opposite -- model.yaml itself is behind the value the projections (and
+    the local clone) agree on -- and running rebuild-all there would overwrite a correct,
+    current projection value with a stale one; the real fix is a fresh re-scout/truth-merge to
+    bring model.yaml's own extracted knowledge current, not a projection rebuild.
+    DIVERGENT_OR_UNKNOWN covers every case this function cannot safely resolve (no local clone
+    cache available, an unresolvable SHA, the two projections disagreeing with each other, or a
+    genuine fork where neither SHA is a git ancestor of the other) -- always fail-safe, never a
+    guess, and safe_to_rebuild is always False for it.
+
+    Deliberately local-clone-cache-only: never makes a live `git ls-remote` network call. This
+    function answers a closed question -- which of two ALREADY-RECORDED SHAs is downstream of
+    the other -- that `git merge-base` settles directly; confirming the winning SHA is ALSO still
+    current relative to today's live upstream is check_freshness(mode="strict")'s separate job.
+    Pass `clone_cache_path` explicitly (as audit_portfolio does, via its own already-resolved
+    per-product clone-cache path) rather than relying on this module's own core.clone_cache
+    default, which is configured independently of this module's configure() seam and will not
+    see a test's scratch repo_root.
+    """
+    agree, present = _durable_sources_agree(family, platform)
+    if agree:
+        return None
+
+    model_sha = present.get("model.yaml")
+    upstream_sha = present.get("upstream_baselines.json")
+    state_sha = present.get("knowledge_state.json")
+
+    if not model_sha:
+        return {
+            "status": DISAGREEMENT_DIVERGENT_OR_UNKNOWN, "safe_to_rebuild": False,
+            "reason": "no model.yaml repo_sha present to compare against",
+            "model_sha": None, "projection_sha": None,
+        }
+    if upstream_sha and state_sha and upstream_sha != state_sha:
+        return {
+            "status": DISAGREEMENT_DIVERGENT_OR_UNKNOWN, "safe_to_rebuild": False,
+            "reason": "the two projections (upstream_baselines.json, knowledge_state.json) "
+                      "disagree with each other, not just with model.yaml -- looks like a "
+                      "partial/interrupted regen; refusing to guess which one to trust",
+            "model_sha": model_sha, "projection_sha": None,
+        }
+    projection_sha = upstream_sha or state_sha
+    if not projection_sha or projection_sha == model_sha:
+        return {
+            "status": DISAGREEMENT_DIVERGENT_OR_UNKNOWN, "safe_to_rebuild": False,
+            "reason": "could not isolate a single distinct projection SHA to compare",
+            "model_sha": model_sha, "projection_sha": projection_sha,
+        }
+
+    if clone_cache_path is not None:
+        repo_path = clone_cache_path
+        if not (repo_path / ".git").is_dir():
+            return {
+                "status": DISAGREEMENT_DIVERGENT_OR_UNKNOWN, "safe_to_rebuild": False,
+                "reason": f"no local clone cache at {repo_path}",
+                "model_sha": model_sha, "projection_sha": projection_sha,
+            }
+    else:
+        try:
+            from core.clone_cache import clone_path, clone_exists
+        except Exception:
+            return {
+                "status": DISAGREEMENT_DIVERGENT_OR_UNKNOWN, "safe_to_rebuild": False,
+                "reason": "core.clone_cache unavailable",
+                "model_sha": model_sha, "projection_sha": projection_sha,
+            }
+        if not clone_exists(family, platform):
+            return {
+                "status": DISAGREEMENT_DIVERGENT_OR_UNKNOWN, "safe_to_rebuild": False,
+                "reason": "no local clone cache available to determine ancestry",
+                "model_sha": model_sha, "projection_sha": projection_sha,
+            }
+        repo_path = clone_path(family, platform)
+
+    model_ancestor = _is_ancestor(repo_path, model_sha, projection_sha)
+    projection_ancestor = _is_ancestor(repo_path, projection_sha, model_sha)
+
+    if model_ancestor is None or projection_ancestor is None:
+        return {
+            "status": DISAGREEMENT_DIVERGENT_OR_UNKNOWN, "safe_to_rebuild": False,
+            "reason": "git ancestry could not be determined for one or both SHAs",
+            "model_sha": model_sha, "projection_sha": projection_sha,
+        }
+    if model_ancestor and not projection_ancestor:
+        return {
+            "status": DISAGREEMENT_MODEL_STALE, "safe_to_rebuild": False,
+            "reason": f"model.yaml's repo_sha ({model_sha[:10]}) is an ancestor of the "
+                      f"projections' value ({projection_sha[:10]}) -- model.yaml is behind; "
+                      f"do NOT run rebuild-all, a real re-scout is needed",
+            "model_sha": model_sha, "projection_sha": projection_sha,
+        }
+    if projection_ancestor and not model_ancestor:
+        return {
+            "status": DISAGREEMENT_PROJECTION_STALE, "safe_to_rebuild": True,
+            "reason": f"the projections' value ({projection_sha[:10]}) is an ancestor of "
+                      f"model.yaml's repo_sha ({model_sha[:10]}) -- projections are simply "
+                      f"behind; safe to regenerate via rebuild_one/rebuild_all",
+            "model_sha": model_sha, "projection_sha": projection_sha,
+        }
+    return {
+        "status": DISAGREEMENT_DIVERGENT_OR_UNKNOWN, "safe_to_rebuild": False,
+        "reason": "neither SHA is a git ancestor of the other -- real fork/divergent history, "
+                  "needs manual review",
+        "model_sha": model_sha, "projection_sha": projection_sha,
+    }
+
+
+# ---------------------------------------------------------------------------
 # Regen lock / failure-marker inspection
 # ---------------------------------------------------------------------------
 

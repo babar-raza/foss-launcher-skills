@@ -1889,10 +1889,25 @@ def promote(family: str, platform: str, knowledge_root=None, *, merged_dir_overr
     # promote() itself.
     try:
         from commands.ops.regen_baseline_projections import rebuild_one
-        rebuild_one(
+        _rebuild_ok = rebuild_one(
             family, platform, merged_model,
             run_id=f"promote-{datetime.now(timezone.utc).strftime('%Y%m%dT%H%M%SZ')}",
         )
+        if not _rebuild_ok:
+            # ST-188 follow-on (2026-09-06): rebuild_one's own bool result was previously
+            # discarded here -- a regen failure was silently invisible to anyone not reading
+            # stderr line-by-line. This does not fail promote() (same non-fatal philosophy as
+            # above), but a discarded projection rebuild leaves model.yaml and its projections
+            # disagreeing -- exactly the CORRUPT-eligible condition audit_portfolio's
+            # `corrupt_disagreement` advisory field now surfaces on the next portfolio sweep, so
+            # this failure will not stay invisible indefinitely even without a dedicated marker.
+            print(
+                f"ERROR: baseline projection rebuild returned False for {family}/{platform} -- "
+                f"data/upstream_baselines.json / data/knowledge_state.json were NOT updated to "
+                f"match the just-written merged/model.yaml. This will show up as "
+                f"corrupt_disagreement on the next `audit-portfolio` run; consider re-running "
+                f"`regen_baseline_projections.py rebuild-all` now instead of waiting for it."
+            )
     except Exception as _ks_exc:
         print(f"WARNING: baseline projection rebuild failed (non-fatal): {_ks_exc}")
 

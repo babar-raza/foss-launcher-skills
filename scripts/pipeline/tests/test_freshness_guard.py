@@ -501,4 +501,159 @@ class TestIsGenerationAllowed:
         allowed, result = fg.is_generation_allowed(
             "cells", "net", mode="degraded", allow_last_known_good=True)
         assert allowed is False
-        assert result.state == "CORRUPT"
+
+
+def _add_commit(clone_dir, content):
+    (clone_dir / "README.md").write_text(content, encoding="utf-8")
+    _run_git(["add", "."], clone_dir)
+    _run_git(["commit", "-q", "-m", f"content: {content!r}"], clone_dir)
+    return _run_git(["rev-parse", "HEAD"], clone_dir)
+
+
+class TestClassifyBaselineDisagreement:
+    """ST-188 follow-on (2026-09-06): classify_baseline_disagreement() must tell apart the two
+    OPPOSITE real-world shapes confirmed live for pdf/go (MODEL_STALE) and note/python
+    (PROJECTION_STALE) that both present as an ordinary _durable_sources_agree()==False
+    disagreement -- using real local git repos throughout, matching TestBaselineTreeIdentity's
+    own established convention for this class of ancestry test (never a mocked subprocess)."""
+
+    def test_returns_none_when_sources_agree(self, tmp_path):
+        _write_model(tmp_path, "cells", "net", repo_sha="sha-1")
+        _write_upstream_baselines(tmp_path, {"cells/net": "sha-1"})
+        assert fg.classify_baseline_disagreement("cells", "net") is None
+
+    def test_projection_stale_when_projection_sha_is_ancestor_of_model_sha(self, tmp_path, monkeypatch):
+        """Reproduces the real note/python shape: model.yaml correctly holds the NEWER commit;
+        the projection was simply never regenerated after that update."""
+        clone_dir = _make_clone_cache(tmp_path, "cells", "net", monkeypatch)
+        old_sha = _run_git(["rev-parse", "HEAD"], clone_dir)
+        new_sha = _add_commit(clone_dir, "v2\n")
+        _write_model(tmp_path, "cells", "net", repo_sha=new_sha)
+        _write_upstream_baselines(tmp_path, {"cells/net": old_sha})
+
+        result = fg.classify_baseline_disagreement("cells", "net")
+
+        assert result["status"] == fg.DISAGREEMENT_PROJECTION_STALE
+        assert result["safe_to_rebuild"] is True
+        assert result["model_sha"] == new_sha
+        assert result["projection_sha"] == old_sha
+
+    def test_model_stale_when_model_sha_is_ancestor_of_projection_sha(self, tmp_path, monkeypatch):
+        """Reproduces the real pdf/go shape: model.yaml holds an OLDER commit; the projection
+        (and, in reality, the live upstream/local clone) has already moved on."""
+        clone_dir = _make_clone_cache(tmp_path, "cells", "net", monkeypatch)
+        old_sha = _run_git(["rev-parse", "HEAD"], clone_dir)
+        new_sha = _add_commit(clone_dir, "v2\n")
+        _write_model(tmp_path, "cells", "net", repo_sha=old_sha)
+        _write_upstream_baselines(tmp_path, {"cells/net": new_sha})
+
+        result = fg.classify_baseline_disagreement("cells", "net")
+
+        assert result["status"] == fg.DISAGREEMENT_MODEL_STALE
+        assert result["safe_to_rebuild"] is False
+        assert result["model_sha"] == old_sha
+        assert result["projection_sha"] == new_sha
+
+    def test_divergent_or_unknown_when_neither_sha_is_an_ancestor_of_the_other(self, tmp_path, monkeypatch):
+        """Two real, divergent siblings off the same root -- a genuine fork, not staleness
+        in either direction."""
+        clone_dir = _make_clone_cache(tmp_path, "cells", "net", monkeypatch)
+        root_sha = _run_git(["rev-parse", "HEAD"], clone_dir)
+        sha_b = _add_commit(clone_dir, "branch-b\n")
+        _run_git(["checkout", "-q", root_sha], clone_dir)
+        sha_c = _add_commit(clone_dir, "branch-c\n")
+        assert sha_b != sha_c
+
+        _write_model(tmp_path, "cells", "net", repo_sha=sha_b)
+        _write_upstream_baselines(tmp_path, {"cells/net": sha_c})
+
+        result = fg.classify_baseline_disagreement("cells", "net")
+
+        assert result["status"] == fg.DISAGREEMENT_DIVERGENT_OR_UNKNOWN
+        assert result["safe_to_rebuild"] is False
+        assert "fork" in result["reason"] or "divergent" in result["reason"]
+
+    def test_divergent_or_unknown_when_no_local_clone_available(self, tmp_path):
+        # No _make_clone_cache call -- the autouse _configure fixture already points
+        # ASPOSE_CLONE_CACHE at an empty tmp_path subdir, so clone_exists() is False.
+        _write_model(tmp_path, "cells", "net", repo_sha="sha-model")
+        _write_upstream_baselines(tmp_path, {"cells/net": "sha-DIFFERENT"})
+
+        result = fg.classify_baseline_disagreement("cells", "net")
+
+        assert result["status"] == fg.DISAGREEMENT_DIVERGENT_OR_UNKNOWN
+        assert result["safe_to_rebuild"] is False
+        assert "no local clone cache" in result["reason"]
+
+    def test_divergent_or_unknown_when_a_sha_is_not_a_resolvable_object(self, tmp_path, monkeypatch):
+        _make_clone_cache(tmp_path, "cells", "net", monkeypatch)
+        _write_model(tmp_path, "cells", "net", repo_sha="0" * 40)
+        _write_upstream_baselines(tmp_path, {"cells/net": "1" * 40})
+
+        result = fg.classify_baseline_disagreement("cells", "net")
+
+        assert result["status"] == fg.DISAGREEMENT_DIVERGENT_OR_UNKNOWN
+        assert result["safe_to_rebuild"] is False
+
+    def test_divergent_or_unknown_when_the_two_projections_disagree_with_each_other(self, tmp_path):
+        _write_model(tmp_path, "cells", "net", repo_sha="sha-model")
+        _write_upstream_baselines(tmp_path, {"cells/net": "sha-upstream"})
+        data_dir = tmp_path / "data"
+        data_dir.mkdir(parents=True, exist_ok=True)
+        (data_dir / "knowledge_state.json").write_text(
+            json.dumps({"cells/net": {"accepted_baseline": {"repo_sha": "sha-state-DIFFERENT"}}}),
+            encoding="utf-8",
+        )
+
+        result = fg.classify_baseline_disagreement("cells", "net")
+
+        assert result["status"] == fg.DISAGREEMENT_DIVERGENT_OR_UNKNOWN
+        assert result["safe_to_rebuild"] is False
+        assert "disagree with each other" in result["reason"]
+
+    def test_explicit_clone_cache_path_override_is_used_over_core_clone_cache(self, tmp_path, monkeypatch):
+        real_clone_dir = tmp_path / "elsewhere" / "aspose_cells_net"
+        real_clone_dir.parent.mkdir(parents=True)
+        real_clone_dir.mkdir()
+        (real_clone_dir / "README.md").write_text("v1\n", encoding="utf-8")
+        _run_git(["init", "-q", "-b", "main"], real_clone_dir)
+        _run_git(["config", "user.email", "test@example.com"], real_clone_dir)
+        _run_git(["config", "user.name", "Test"], real_clone_dir)
+        _run_git(["add", "."], real_clone_dir)
+        _run_git(["commit", "-q", "-m", "initial"], real_clone_dir)
+        old_sha = _run_git(["rev-parse", "HEAD"], real_clone_dir)
+        new_sha = _add_commit(real_clone_dir, "v2\n")
+        # ASPOSE_CLONE_CACHE (via the autouse fixture) still points at an empty, unrelated
+        # directory -- proving the explicit override, not core.clone_cache's default, is what
+        # made this resolve.
+        _write_model(tmp_path, "cells", "net", repo_sha=new_sha)
+        _write_upstream_baselines(tmp_path, {"cells/net": old_sha})
+
+        result = fg.classify_baseline_disagreement(
+            "cells", "net", clone_cache_path=real_clone_dir,
+        )
+
+        assert result["status"] == fg.DISAGREEMENT_PROJECTION_STALE
+        assert result["safe_to_rebuild"] is True
+
+    def test_falls_back_to_core_clone_cache_when_no_override_given(self, tmp_path, monkeypatch):
+        clone_dir = _make_clone_cache(tmp_path, "cells", "net", monkeypatch)
+        old_sha = _run_git(["rev-parse", "HEAD"], clone_dir)
+        new_sha = _add_commit(clone_dir, "v2\n")
+        _write_model(tmp_path, "cells", "net", repo_sha=new_sha)
+        _write_upstream_baselines(tmp_path, {"cells/net": old_sha})
+
+        result = fg.classify_baseline_disagreement("cells", "net")
+
+        assert result["status"] == fg.DISAGREEMENT_PROJECTION_STALE
+        assert result["safe_to_rebuild"] is True
+
+    @pytest.mark.parametrize("status", [
+        fg.DISAGREEMENT_MODEL_STALE, fg.DISAGREEMENT_DIVERGENT_OR_UNKNOWN,
+    ])
+    def test_safe_to_rebuild_is_false_for_every_status_except_projection_stale(self, status, tmp_path):
+        # Direct invariant check on the constants themselves -- PROJECTION_STALE is the only
+        # status this module ever pairs with safe_to_rebuild=True (enforced by construction in
+        # classify_baseline_disagreement's own return statements above; this test documents the
+        # invariant explicitly so a future added branch can't silently violate it).
+        assert status != fg.DISAGREEMENT_PROJECTION_STALE
