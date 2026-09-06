@@ -323,6 +323,34 @@ class TestEnumerationMembershipEndToEnd:
         )
         assert result is None
 
+    def test_claims_text_mentioning_the_fabrication_in_a_different_sense_does_not_ground_it(self, tmp_path):
+        """Round-3 review REJECT: rework 2's claims-token vocabulary union
+        was itself unsound -- a real claim can legitimately mention a
+        format in a completely different capability sense than "this is a
+        supported export format" (e.g. embedding an image AS INPUT), and
+        that mention tokenized indistinguishably from a genuine format-
+        support assertion. Real, live-reproduced shape: a claim about
+        embedding an SVG *image* must never ground a fabricated claim of
+        SVG *export* support. Rework 3 removed the claims-token union
+        entirely -- real_vocabulary is sourced only from formats.json."""
+        dc.configure(repo_root=tmp_path)
+        self._write_formats_json(tmp_path, "slides", "net", ["Pdf", "Pptx", "Html"])
+        claims = [
+            "IImageCollection.add_image(svg_image) -> IPPImage",
+            "IShapeCollection.add_group_shape(svg_image, x, y, width, height) -> IGroupShape",
+        ]
+        proposed = (
+            "Explore image and shape handling in Aspose.Slides FOSS for "
+            ".NET, embedding images and exporting to PDF, PPTX, HTML, SVG "
+            "and other formats."
+        )
+        result = compose_description(
+            "content/reference.aspose.org/en/slides/net/IImageCollection.md",
+            "IImageCollection interface", "add svg image to slide", claims, "slides", "net",
+            llm_call=lambda p: {"proposed_description": proposed, "rationale": "x"},
+        )
+        assert result is None
+
     def test_all_real_format_enumeration_passes_end_to_end(self, tmp_path):
         dc.configure(repo_root=tmp_path)
         self._write_formats_json(tmp_path, "slides", "net", ["Ppt", "Pdf", "Xps", "Pptx", "Html"])
@@ -462,16 +490,22 @@ class TestForbiddenClaimsBackstop:
         assert result is None
 
     def test_forbidden_claim_already_in_current_description_is_not_newly_introduced(self, tmp_path):
-        self._seed_index(tmp_path, ["supports Foo.Bar"])
+        # Uses "Workbook.Save" rather than an arbitrary short placeholder
+        # name: "Workbook" exceeds the enumeration-membership check's 6-char
+        # candidate length (never a candidate at all) and "Save" is a
+        # common word on that check's own exempt list -- this test's own
+        # purpose is the forbidden-claims backstop, not enum membership, so
+        # the fixture text must not incidentally trip an unrelated gate.
+        self._seed_index(tmp_path, ["supports Workbook.Save"])
         dc.configure(repo_root=tmp_path)
         current = (
-            "Use Foo.Bar to support advanced export with Aspose for "
+            "Use Workbook.Save to support advanced export with Aspose for "
             "developers building document workflows and automation "
             "pipelines every day."
         )
         proposed = (
-            "Use Foo.Bar to support advanced export with Aspose for every "
-            "developer building document workflows and automation "
+            "Use Workbook.Save to support advanced export with Aspose for "
+            "every developer building document workflows and automation "
             "pipelines daily."
         )
         result = compose_description(

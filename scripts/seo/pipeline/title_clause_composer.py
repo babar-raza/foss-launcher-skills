@@ -343,6 +343,30 @@ _ENUM_UNIVERSAL_EXEMPT = frozenset({
 # philosophy), which is an acceptable, disclosed residual limitation
 # rather than a safety gap: it can only make the composer occasionally
 # too conservative, never let a fabrication through.
+#
+# **Rework 3** [round-3 independent review, agentId `ab143c9e5f0654f34`,
+# REJECT]: "real file-format names are essentially never actual dictionary
+# words" is FALSE for at least 10 real cases in this exact portfolio --
+# the reviewer's own scan of every real `formats.json` found `doc`,
+# `images`, `insert`, `none`, `points`, `run`, `start`, `text`, `verify`,
+# and `words` are all real, functional format members for at least one
+# real family (confirmed live: "DOC" is a real `functional: true`
+# SaveFormat member for words/python). A blanket, family-blind exemption
+# meant a fabricated claim of one of these words on an UNRELATED family
+# (whose own real formats.json genuinely has no such member) was never
+# checked at all, since the static exemption fires before the family-
+# scoped `real_vocabulary` check ever runs. Removed all 10 from this list
+# below -- they are now checked normally against each page's own real,
+# family-scoped vocabulary like any other candidate (correctly passing on
+# the family where they are genuinely real, correctly failing everywhere
+# else). Accepted trade-off: these 10 specific words, used in their
+# ordinary English sense on an unrelated family's page, may now
+# occasionally be over-conservatively rejected if they happen to appear as
+# a bare 2-6 char token with no other real anchor nearby -- disclosed,
+# fail-closed, matching this module's own philosophy. A future addition to
+# this list should be checked against every real `formats.json` `format`
+# value first (no automated CI gate for this exists yet -- consider filing
+# one rather than manually re-deriving this list's safety by inspection).
 _ENUM_COMMON_WORDS = frozenset({
     # articles, pronouns, conjunctions, prepositions
     "a", "an", "the", "it", "its", "this", "that", "you", "your", "our",
@@ -355,7 +379,7 @@ _ENUM_COMMON_WORDS = frozenset({
     "not", "no", "yes", "do", "does", "did", "has", "have", "had", "can",
     "could", "will", "would", "shall", "should", "may", "might", "must",
     "one", "two", "all", "any", "each", "every", "more", "most", "less",
-    "least", "many", "much", "some", "none", "such", "both", "only",
+    "least", "many", "much", "some", "such", "both", "only",
     "just", "also", "very", "well", "up", "down", "out", "off", "again",
     "here", "there", "now", "today", "still", "even", "too",
     # common verbs (short forms/inflections)
@@ -363,23 +387,23 @@ _ENUM_COMMON_WORDS = frozenset({
     "reads", "write", "export", "import", "create", "creates", "open",
     "opens", "close", "closes", "load", "loads", "save", "saves", "build",
     "builds", "learn", "learns", "offer", "offers", "allow", "allows",
-    "enable", "enables", "work", "works", "run", "runs", "add", "adds",
-    "start", "started", "explore", "manage", "handle", "handles",
+    "enable", "enables", "work", "works", "runs", "add", "adds",
+    "started", "explore", "manage", "handle", "handles",
     "provide", "provides", "let", "lets", "give", "gives", "help", "helps",
     "need", "needs", "want", "wants", "keep", "keeps", "find", "finds",
     "show", "shows", "try", "tries", "look", "looks", "call", "calls",
     "return", "returns",
     # common nouns/adjectives in product/technical descriptions
     "file", "files", "data", "tool", "tools", "code", "apps", "app",
-    "web", "docs", "doc", "kit", "kits", "lib", "libs", "core", "item",
+    "web", "docs", "kit", "kits", "lib", "libs", "core", "item",
     "items", "list", "lists", "type", "types", "class", "value", "values",
     "page", "pages", "site", "sites", "way", "ways", "time", "guide",
     "user", "users", "input", "output", "project", "format", "class",
     "field", "method", "object", "module", "sample", "sample", "basic",
     "extra", "part", "parts", "step", "steps", "level", "levels", "size",
-    "range", "point", "points", "group", "groups", "index", "table",
+    "range", "point", "group", "groups", "index", "table",
     "sheet", "sheets", "cell", "cells", "row", "rows", "column", "columns",
-    "text", "image", "images", "audio", "video", "media", "print", "view",
+    "image", "audio", "video", "media", "print", "view",
     "views", "model", "models", "server", "client", "cloud", "local",
     "batch", "async", "sync", "test", "tests", "log", "logs", "config",
     "asset", "assets", "task", "tasks", "case", "cases",
@@ -392,10 +416,10 @@ _ENUM_COMMON_WORDS = frozenset({
     "clause", "built", "based", "using", "native", "robust", "simple",
     "avoid", "needed", "unlike", "unless", "either", "whole", "entire",
     "common", "direct", "remote", "mobile", "hybrid", "advance", "beyond",
-    "word", "words", "easily", "quickly", "fully", "truly", "rarely",
+    "word", "easily", "quickly", "fully", "truly", "rarely",
     "barely", "surely", "simply", "partly", "actual", "person", "people",
-    "detail", "return", "select", "define", "assign", "insert", "delete",
-    "update", "toggle", "adjust", "expand", "reduce", "verify", "ensure",
+    "detail", "return", "select", "define", "assign", "delete",
+    "update", "toggle", "adjust", "expand", "reduce", "ensure",
     "daily", "weekly", "yearly", "hourly", "always", "months", "month",
     "years", "year", "week", "hours", "hour", "days",
 })

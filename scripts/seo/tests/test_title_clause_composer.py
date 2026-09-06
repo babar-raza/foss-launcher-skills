@@ -270,7 +270,8 @@ class TestEnumerationMembershipRound1BypassesFixed:
         is the caller's sole responsibility, this function has no opinion
         on where it came from). The actual fix for bypass 3 is that
         description_composer.py's call site sources real_vocabulary only
-        from formats.json + claims, never from grounded_keyword_signal or
+        from formats.json (rework 3: not even claims text -- round-3 review
+        found that also unsound), never from grounded_keyword_signal or
         current_description -- see
         test_description_composer.py::TestEnumerationMembershipEndToEnd::
         test_bypass_3_keyword_signal_mentioning_the_fabrication_does_not_
@@ -282,6 +283,37 @@ class TestEnumerationMembershipRound1BypassesFixed:
         # never building such a vocabulary from untrusted grounding text.
         assert check_enumeration_membership(composed, self._REAL_FORMATS | {"svg"})
         assert not check_enumeration_membership(composed, self._REAL_FORMATS)
+
+
+class TestEnumerationMembershipRound3FormatCollisionWordsFixed:
+    """Round-3 independent review (agentId ab143c9e5f0654f34) REJECT:
+    _ENUM_COMMON_WORDS used to blanket-exempt words that are ALSO real,
+    functional format members for at least one real family (confirmed
+    live: "doc" is a real SaveFormat member for words/python). The
+    exemption was family-blind, so a fabricated claim of one of these
+    words on an UNRELATED family was never checked. Removed from the
+    common-word list; now checked normally against each page's own real,
+    family-scoped vocabulary like any other candidate."""
+
+    def test_previously_exempt_collision_word_is_now_checked_normally(self):
+        # "doc" is no longer blanket-exempt -- with no real vocabulary
+        # containing it, a bare mention now correctly fails closed.
+        assert not check_enumeration_membership("Exports to DOC for archival.", set())
+        assert not check_enumeration_membership("Exports to TEXT for archival.", set())
+
+    def test_collision_word_still_passes_when_genuinely_real_for_this_family(self):
+        # On the one real family where "doc" genuinely is a member, it
+        # still passes -- the fix routes it through the normal, correct,
+        # family-scoped real_vocabulary check instead of a blanket global
+        # exemption, it does not turn "doc" into something always rejected.
+        assert check_enumeration_membership("Exports to DOC for archival.", {"doc"})
+
+    def test_collision_word_fabricated_on_an_unrelated_family_is_caught(self):
+        """The exact class of live bypass round 3 found: "DOC" fabricated
+        on a family whose own real vocabulary has no such member."""
+        real_3d_formats = {"obj", "fbx", "stl", "gltf"}
+        composed = "Convert 3D models exporting to OBJ, FBX, STL, glTF, DOC and other formats today."
+        assert not check_enumeration_membership(composed, real_3d_formats)
 
 
 # ---------------------------------------------------------------------------

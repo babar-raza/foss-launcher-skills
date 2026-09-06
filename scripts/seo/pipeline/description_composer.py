@@ -42,25 +42,31 @@ one FABRICATED one ("SVG", confirmed absent from `claims.json` and
 anchors already cleared its floor. A wider aggregate floor cannot fix this
 (it can never distinguish "N real + 1 fake" from "N+1 real"), so this is a
 SEPARATE, additional gate: `title_clause_composer.check_enumeration_
-membership()` scans the WHOLE composed text, position-independently, for
-ALL-CAPS-shaped candidate tokens (how format names/extensions are
-conventionally written in prose -- PPT, PDF, XPS, SVG, HTML) and requires
-every one to be a member of a real, closed vocabulary -- `formats.json`'s
-real member list (`load_real_format_names()`), with `platform` passed as a
-caller-supplied exemption (e.g. "NET" is never itself a claimed format).
-**Rework 1** [round-1 independent review, agentId `a4a1df659bd8597df`,
-REJECT]: the original design instead detected enumerations SYNTACTICALLY
-(a comma/and-or-joined run of 3+ tokens, checked only inside a detected
-run) and unioned the composer's own grounding-text tokens into the real
-vocabulary. The reviewer live-reproduced 3 real bypasses against real
-production data -- a terminator word followed by non-comma-joined trailing
-prose, a list split across a sentence boundary, and vocabulary
-contamination via the keyword signal merely mentioning the fabricated
-word -- all closed by discarding syntactic detection for the current,
-position-independent scan and dropping the grounding-text union entirely
-(see `title_clause_composer.py`'s own rework note for full detail). Never
-modifies `check_grounding_preservation` itself, which stays proven and
-reused as-is.
+membership()` scans the WHOLE composed text, position-independently and
+case-insensitively, for short (2-6 char) candidate tokens and requires
+every non-exempt one to be a member of a real, closed vocabulary --
+`formats.json`'s real member list (`load_real_format_names()`) ONLY, with
+`family` and `platform` passed as caller-supplied exemptions (e.g. "NET"
+or this family's own product-name acronym, e.g. "PDF", are never
+themselves claimed formats but legitimately appear as branding in prose).
+Never modifies `check_grounding_preservation` itself, which stays proven
+and reused as-is.
+
+This took 3 independent-review rounds to reach a sound design (mirroring
+Contract C's own multi-round history) -- each prior attempt to broaden
+the real vocabulary beyond formats.json alone (unioning grounding text,
+then unioning claims text) was independently found to reopen the same
+class of hole via a different channel: round 1's syntactic run-detector
+had 3 real bypasses (a terminator word before non-comma-joined trailing
+prose, a sentence-boundary split, and keyword-signal contamination);
+rework 1's ALL-CAPS-only scan regressed case coverage (PascalCase/
+lowercase fabrications evaded it); rework 2's claims-token union let a
+claim about a format used as INPUT (e.g. embedding an SVG image) ground a
+fabricated claim of that format as OUTPUT/export. See
+`title_clause_composer.py`'s own rework notes and
+`reports/evidence/MT064-2026-09-05-SEO-KEYWORD-UTILIZATION-ENGINE/
+it-0061-20260906T1900Z/review_verdict_round{1,2,3}.json` for full detail
+on each round's findings.
 
 **Numeral-must-trace rule**: any digit sequence (a number, a scale claim, a
 version number) appearing in composed description text must trace to a real
@@ -184,7 +190,7 @@ REPO_ROOT = _DEFAULT_REPO_ROOT
 # cached "approved" candidate rather than silently serving stale-era output
 # forever. Callers (recommend.py) pass this to consult_before_llm_call()/
 # record_result() as composer_version -- never compute it themselves.
-COMPOSER_VERSION = "5"
+COMPOSER_VERSION = "6"
 
 
 def configure(*, repo_root: "Path | str | None" = None) -> None:
@@ -458,30 +464,6 @@ def load_real_format_names(
         return set()
 
 
-# Same tokenizer shape as title_clause_composer.py's own _TOKEN_RE --
-# duplicated per this codebase's established convention (every module that
-# needs it defines its own copy, see that module's own docstring) rather
-# than reaching into another module's private name.
-_CLAIMS_VOCAB_TOKEN_RE = re.compile(r"[a-z0-9]+")
-
-
-def _tokenize_claims(claims: "list[str]") -> "set[str]":
-    """Real, already-vetted claim TEXT tokens (from claims.json via
-    load_page_claims -- never raw, uncontrolled search-query/keyword text)
-    -- unioned into check_enumeration_membership's real_vocabulary so a
-    legitimately claim-cited short API/class-name mention (e.g. "Cell",
-    "Row", not a file-format name at all) is never wrongly flagged as an
-    unverified format. Deliberately does NOT include grounded_keyword_
-    signal or current_description -- SEO-CHECK-GROUNDING-PRESERVATION-
-    ENTITY-COVERAGE-RESOLVER-1's round-1 review proved unioning arbitrary,
-    uncontrolled keyword-signal text let a fabricated word ride in as
-    "grounded" merely by being mentioned in a search-query string. Claims
-    are structurally different: already resolved against and vetted by
-    claims.json for this exact page, the same trust level check_grounding_
-    preservation's own reused grounding_text already treats as authoritative."""
-    return set(_CLAIMS_VOCAB_TOKEN_RE.findall(" ".join(claims).lower())) if claims else set()
-
-
 # ---------------------------------------------------------------------------
 # Numeral-must-trace rule
 # ---------------------------------------------------------------------------
@@ -657,28 +639,37 @@ def compose_description(
     # unchecked -- confirmed live against a real LLM candidate for
     # SaveFormat.md. This is a real, closed-vocabulary per-entity gate, not
     # a modification to the reused aggregate check. Rework 1 (round-1
-    # review REJECT): real_vocabulary is UNIONED WITH CLAIMS TOKENS ONLY --
-    # never with grounded_keyword_signal or current_description, which
-    # round 1 proved let an SEO keyword signal merely mentioning a
-    # fabricated format name (e.g. "svg export options") make it pass as
-    # "grounded". Claims are structurally different from raw keyword text:
-    # already resolved against and vetted by claims.json for this exact
-    # page (load_page_claims's own job), so a legitimately claim-cited
-    # short API/class-name mention (e.g. "Cell", not a file format at all)
-    # is never wrongly flagged just because it is short -- self-caught live
-    # during rework 2's own test-writing (a pre-existing test using a
-    # cited "Foo.Bar" class mention was itself falsely rejected once the
-    # keyword-signal union was removed, before this claims-only union was
-    # added back). `platform` AND `family` are both also passed as caller-
-    # supplied exemptions: `platform` because "NET"/"CPP" are never
-    # themselves claimed formats but legitimately appear in prose; `family`
-    # because a family whose own slug reads as a short acronym in prose
-    # (e.g. "PDF", "3D") appears in virtually every one of that family's
-    # own real page descriptions as unavoidable product-name branding
-    # ("Aspose.PDF for Python") rather than a claimed enumerated format --
-    # also self-caught live (the existing _GOOD_DESC fixture text was
-    # itself falsely rejected by the pre-exemption version of this gate).
-    enum_vocabulary = load_real_format_names(family, platform, repo_root=root) | _tokenize_claims(claims)
+    # review REJECT): real_vocabulary is SOURCED ONLY FROM formats.json --
+    # never grounded_keyword_signal, current_description, OR claims text.
+    # Round 1 proved unioning the keyword signal let it merely mention a
+    # fabricated format name (e.g. "svg export options") and pass as
+    # "grounded". Rework 2 tried reintroducing a claims-only union (claims
+    # being already-vetted per-page evidence, unlike raw keyword text) to
+    # fix a legitimate-claim-mention false positive -- round-2 review
+    # (agentId `ab143c9e5f0654f34`, round 3, REJECT) proved this was ALSO
+    # unsound: a claim's TEXT can legitimately mention a format in a
+    # completely different capability sense than "this is a supported
+    # export format" (e.g. a real claim about embedding an SVG *image* as
+    # input tokenizes indistinguishably from a claim about SVG *export*
+    # support), so a page whose real claims merely mention a format as
+    # input becomes permanently blind to a fabricated claim of exporting
+    # that same format -- confirmed structural across most of the real
+    # portfolio, not a one-off. Rework 3 reverts to formats.json-only,
+    # accepting as a disclosed, narrow residual limitation that an unusual
+    # short (2-6 char) claim-cited API/class-name mention with no
+    # independent format-vocabulary backing may be over-conservatively
+    # rejected -- fail-closed, matching this module's own established
+    # philosophy, and preferable to the claims-laundering hole it replaces.
+    # `platform` AND `family` are both passed as caller-supplied
+    # exemptions: `platform` because "NET"/"CPP" are never themselves
+    # claimed formats but legitimately appear in prose; `family` because a
+    # family whose own slug reads as a short acronym in prose (e.g. "PDF",
+    # "3D") appears in virtually every one of that family's own real page
+    # descriptions as unavoidable product-name branding ("Aspose.PDF for
+    # Python") rather than a claimed enumerated format -- self-caught live
+    # (the existing _GOOD_DESC fixture text was itself falsely rejected by
+    # the pre-exemption version of this gate).
+    enum_vocabulary = load_real_format_names(family, platform, repo_root=root)
     enum_exempt = {t for t in (family, platform) if t}
     if not title_clause_composer.check_enumeration_membership(
         proposed, enum_vocabulary, exempt=enum_exempt,
