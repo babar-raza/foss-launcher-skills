@@ -125,6 +125,14 @@ except ImportError as exc:
         "Run from repo root: python scripts/seo/pipeline/apply.py"
     )
 
+try:
+    from scripts.seo.pipeline import observe_experiments  # type: ignore  # noqa: E402
+except ImportError as exc:
+    sys.exit(
+        f"apply.py: cannot import observe_experiments.py — {exc}\n"
+        "Run from repo root: python scripts/seo/pipeline/apply.py"
+    )
+
 # ---------------------------------------------------------------------------
 # Logging
 # ---------------------------------------------------------------------------
@@ -554,6 +562,16 @@ def run_apply(patches: list[dict], dry_run: bool) -> None:
     # bound reference -- makes this correct regardless of which import
     # convention the caller uses.
     execution_invariants.configure(repo_root=_REPO_ROOT)
+
+    # observe_experiments.py (Contract H) is not one of execution_invariants'
+    # own forwarding targets (that function's own forwarding list is
+    # Contract J's two targets, recommendation_memory/autonomy_state) --
+    # this file only ever imports observe_experiments via one dotted path
+    # (`scripts.seo.pipeline`, matching this file's own established
+    # convention for autonomy_state/change_budget/execution_invariants), so
+    # there is no module-identity split to guard against for this call.
+    observe_experiments.configure(repo_root=_REPO_ROOT)
+
     # The other 13 named invariants are deliberately NOT duplicated here:
     # invariants 9-11 are already enforced by this function's own
     # pre-existing, independently-reviewed gates (gate 0 above, gate 2.5
@@ -703,6 +721,16 @@ def run_apply(patches: list[dict], dry_run: bool) -> None:
             # Dry-run is handled by run_dry_run(); this path shouldn't be reached
             continue
 
+        # --- Observation supersession check (Contract H, v14 Sec.m) ---
+        # Before writing a NEW change to a (page_path, field), close out any
+        # still-open observation experiment on that exact pair so a later
+        # change's effect is never misattributed to an earlier,
+        # already-superseded one (e.g. a human manually overrides something
+        # mid-window). Never blocks the write -- purely bookkeeping.
+        for _field in ("seoTitle", "description"):
+            if _field in changed_fields:
+                observe_experiments.check_experiment_supersession(page_path, _field)
+
         # --- Re-serialize (round-trip preserving) ---
         try:
             new_raw = _reconstruct(new_fm, body)
@@ -796,6 +824,28 @@ def run_apply(patches: list[dict], dry_run: bool) -> None:
                 counts["title"] += 1
             if "description" in changed_fields:
                 counts["description"] += 1
+
+        # --- Open a new observation experiment (Contract H) ---
+        # publish_revision=None (see observe_experiments.py's own module
+        # docstring): apply.py itself never commits -- a separate governed
+        # step does, after this function returns -- so the real commit SHA
+        # is genuinely unknown here. The record starts `awaiting_commit`;
+        # whatever wraps apply.py + the commit step together in the real
+        # production topology must call attach_publish_revision() once the
+        # SHA is known (disclosed, out of this card's own allowed_paths).
+        # Only seoTitle/description are observed -- tags are outside
+        # Contract H's own stated scope (a generalization of the title-
+        # pilot's proven shape, itself title/description-only).
+        fields_upd = patch.get("fields_to_update", {})
+        for _field in ("seoTitle", "description"):
+            if _field in changed_fields:
+                observe_experiments.record_experiment_start(
+                    page_path, _field,
+                    old_value=original_fm.get(_field),
+                    new_value=fields_upd.get(_field),
+                    family=family,
+                    mechanism="title_description_writes",
+                )
 
     # --- Record actual applied volume into change-budget history (Contract G) ---
     # Only real, applied counts are ever recorded -- never the pre-flight's

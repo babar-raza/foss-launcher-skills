@@ -89,8 +89,21 @@ def _basic_patch(page_path: str, **fields) -> dict:
 
 @pytest.fixture(autouse=True)
 def _patch_repo_root(tmp_path, monkeypatch):
-    """Point apply.py's REPO_ROOT-relative file access at tmp_path."""
+    """Point apply.py's REPO_ROOT-relative file access at tmp_path.
+
+    Also explicitly configures observe_experiments.py to the same tmp_path
+    and resets it afterward -- unlike change_budget/execution_invariants,
+    which run_apply() itself re-syncs on every call, observe_experiments's
+    own module-level REPO_ROOT is otherwise only synced from inside
+    run_apply() (never run_dry_run()), so a test that calls run_dry_run()
+    and then inspects observe_experiments state would otherwise silently
+    read whatever tmp_path a PRIOR test's run_apply() call last configured
+    -- the same ST-021-class cross-test state leak this mission has found
+    and fixed for recommendation_memory.py at least twice already."""
     monkeypatch.setattr(apply_mod, "_REPO_ROOT", tmp_path)
+    apply_mod.observe_experiments.configure(repo_root=tmp_path)
+    yield
+    apply_mod.observe_experiments.configure()
 
 
 @pytest.fixture(autouse=True)
@@ -442,3 +455,85 @@ class TestChangeBudgetGuard:
 
         history_path = tmp_path / "reports" / "seo" / "change_budget_history.json"
         assert not history_path.exists()
+
+
+class TestObservationExperimentIntegration:
+    """SEO-METADATA-OBSERVATION-LOOP (Contract H): a successful real write
+    opens a new observation experiment (status `awaiting_commit` --
+    apply.py itself never commits, see observe_experiments.py's own module
+    docstring); a second write to the same (page_path, field) supersedes
+    the still-open experiment from the first write. A rejected-governance
+    or dry-run entry must never open one."""
+
+    def test_successful_write_opens_a_new_experiment(self, tmp_path):
+        page = "content/docs.aspose.org/en/x/index.md"
+        _write_fixture(tmp_path, page, _DOCS_FM)
+        patch_dict = _basic_patch(page, description="New description.")
+
+        apply_mod.run_apply([patch_dict], dry_run=False)
+
+        state = apply_mod.observe_experiments.load_experiments()
+        experiments = list(state["experiments"].values())
+        assert len(experiments) == 1
+        entry = experiments[0]
+        assert entry["page_path"] == page
+        assert entry["field"] == "description"
+        assert entry["old_value"] == "Original description."
+        assert entry["new_value"] == "New description."
+        assert entry["status"] == "awaiting_commit"
+        assert entry["publish_revision"] is None
+
+    def test_dry_run_never_opens_an_experiment(self, tmp_path):
+        page = "content/docs.aspose.org/en/x/index.md"
+        _write_fixture(tmp_path, page, _DOCS_FM)
+        patch_dict = _basic_patch(page, description="New description.")
+
+        apply_mod.run_dry_run([patch_dict])
+
+        state = apply_mod.observe_experiments.load_experiments()
+        assert state["experiments"] == {}
+
+    def test_a_rejected_governance_gate_never_opens_an_experiment(self, tmp_path):
+        page = "content/docs.aspose.org/en/x/index.md"
+        _write_fixture(tmp_path, page, _DOCS_FM)
+        patch_dict = _basic_patch(page, description="New description.")
+        patch_dict["requires_human_review"] = True
+
+        apply_mod.run_apply([patch_dict], dry_run=False)
+
+        state = apply_mod.observe_experiments.load_experiments()
+        assert state["experiments"] == {}
+
+    def test_seotitle_and_description_open_separate_experiments(self, tmp_path):
+        page = "content/blog.aspose.org/x/index.md"
+        _write_fixture(tmp_path, page, _BLOG_FM)
+        patch_dict = _basic_patch(
+            page, seoTitle="A Whole New Blog Post Title For SEO", description="New description.",
+        )
+
+        apply_mod.run_apply([patch_dict], dry_run=False)
+
+        state = apply_mod.observe_experiments.load_experiments()
+        fields = {e["field"] for e in state["experiments"].values()}
+        assert fields == {"seoTitle", "description"}
+
+    def test_a_second_write_to_the_same_field_supersedes_the_first_experiment(self, tmp_path):
+        page = "content/docs.aspose.org/en/x/index.md"
+        _write_fixture(tmp_path, page, _DOCS_FM)
+        first_patch = _basic_patch(page, description="First new description that is long enough now.")
+        apply_mod.run_apply([first_patch], dry_run=False)
+
+        state = apply_mod.observe_experiments.load_experiments()
+        first_id = next(iter(state["experiments"]))
+        assert state["experiments"][first_id]["status"] == "awaiting_commit"
+
+        second_patch = _basic_patch(page, description="Second, genuinely different description text now.")
+        apply_mod.run_apply([second_patch], dry_run=False)
+
+        state2 = apply_mod.observe_experiments.load_experiments()
+        assert state2["experiments"][first_id]["status"] == "superseded_before_window_end"
+        assert state2["experiments"][first_id]["decision"] == "superseded"
+        assert len(state2["experiments"]) == 2
+        new_entry = next(e for cid, e in state2["experiments"].items() if cid != first_id)
+        assert new_entry["status"] == "awaiting_commit"
+        assert new_entry["old_value"] == "First new description that is long enough now."
