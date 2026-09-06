@@ -446,3 +446,42 @@ class TestConfigureReachesTheRealInternallyBoundReferences:
         finally:
             apply_mod.execution_invariants.configure()
             apply_mod.change_budget.configure()
+
+
+class TestApplyPyRealBareInvocationImportsCleanly:
+    """SEO-EXECUTION-INVARIANTS' third independent review found a severe,
+    pre-existing defect that had been invisible across all three review
+    rounds: apply.py's real production/CI entry point -- invoked exactly
+    as Aspose/aspose.org-workflows' own seo-apply.yml invokes it
+    (`python scripts/seo/pipeline/apply.py [--dry-run]`, no PYTHONPATH set
+    anywhere in that job) -- crashed on import before reaching any
+    Contract J gate, because apply.py's own sys.path bootstrap never
+    included `scripts/seo/`, which execution_invariants.py's own internal
+    `from seo.pipeline import ...` / `from pipeline import ...` fallback
+    needs to resolve. Every prior test in this suite ran apply.py only
+    through pytest, whose own sys.path insertions silently masked the
+    gap -- this test deliberately does NOT go through pytest's import
+    machinery: it spawns a real subprocess with PYTHONPATH explicitly
+    unset, matching the real CI invocation exactly."""
+
+    def test_dry_run_with_no_pythonpath_set_does_not_crash_on_import(self):
+        import os
+        import subprocess
+
+        repo_root = Path(__file__).resolve().parents[3]
+        apply_script = repo_root / "scripts" / "seo" / "pipeline" / "apply.py"
+        python_exe = repo_root / ".venv" / "Scripts" / "python.exe"
+        if not python_exe.exists():
+            python_exe = repo_root / ".venv" / "bin" / "python"
+
+        env = dict(os.environ)
+        env.pop("PYTHONPATH", None)
+
+        result = subprocess.run(
+            [str(python_exe), str(apply_script), "--dry-run"],
+            cwd=str(repo_root), capture_output=True, text=True,
+            encoding="utf-8", errors="replace", timeout=60, env=env,
+        )
+        assert "cannot import execution_invariants.py" not in result.stderr, result.stderr
+        assert "No module named" not in result.stderr, result.stderr
+        assert result.returncode == 0, f"stdout={result.stdout!r} stderr={result.stderr!r}"

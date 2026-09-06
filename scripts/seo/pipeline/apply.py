@@ -68,6 +68,21 @@ if str(_REPO_ROOT) not in sys.path:
 if str(_MAIN_PIPELINE) not in sys.path:
     sys.path.insert(0, str(_MAIN_PIPELINE))
 
+# Required for execution_invariants.py's own internal `from seo.pipeline
+# import ...` / `from pipeline import ...` fallback to resolve when THIS
+# file is invoked directly (e.g. the real seo-apply.yml CI workflow's
+# `python scripts/seo/pipeline/apply.py --dry-run`, which sets no
+# PYTHONPATH at all) -- mirrors the identical, already-proven-working
+# sys.path entry recommend.py's own bootstrap already has for the exact
+# same import chain. Found live by SEO-EXECUTION-INVARIANTS' third
+# independent review: apply.py's real production/CI entry point crashed
+# on import before this fix, undetected by every prior review round
+# because those all ran apply.py only through pytest, which supplies its
+# own sys.path entries and silently papered over the gap.
+_SEO_SCRIPTS = _REPO_ROOT / "scripts" / "seo"
+if str(_SEO_SCRIPTS) not in sys.path:
+    sys.path.insert(0, str(_SEO_SCRIPTS))
+
 try:
     from ruamel.yaml import YAML
     from ruamel.yaml.error import YAMLError
