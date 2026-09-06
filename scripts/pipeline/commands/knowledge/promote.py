@@ -46,6 +46,7 @@ import yaml
 from core.constants import _TEST_PATH_PATTERNS, _INTERNAL_PATH_PATTERNS
 from extraction.formats import _FAMILY_FORMAT_ALLOWLISTS, _FAMILY_PYTHON_PRIMARY_FMT
 from commands.launch.site_planner import _FAMILY_SUBPKG_LABELS, _ROOT_LABELS
+from lib.example_verification.code_fences import normalize_content
 from lib.bundle_manifest import (
     BUNDLE_SCHEMA_VERSION,
     GENERATOR_SEMVER,
@@ -1087,6 +1088,23 @@ def _promote_snippets(scout_dir: Path, merged_dir: Path) -> int:
         merged_entry = dict(entry)
         merged_entry["id"] = f"snippet_{i:03d}"
         merged_entry["provenance"] = "scout"
+        # C6 (MT065-2026-09-06-EXAMPLE-VERIFICATION-CENTRALIZATION): "verify at the
+        # source" -- a deterministic content-hash proof, computed here (no execution --
+        # promote() runs under acquire_regen_lock with an atomic staging swap, and 6
+        # test_promote_*.py suites call it for real). sha256_norm lets a page's own code
+        # block inherit this snippet's proof via an exact-hash lookup even after cosmetic
+        # drift (indentation, line endings) -- see lib/example_verification/code_fences.py
+        # and audit/snippets.py's rewritten verify_snippet_coverage.
+        if src_file and (merged_snip / src_file).exists():
+            try:
+                _snippet_text = (merged_snip / src_file).read_text(encoding="utf-8")
+                merged_entry["code_sha256"] = {
+                    "exact": hashlib.sha256(_snippet_text.encode("utf-8")).hexdigest(),
+                    "norm": hashlib.sha256(
+                        normalize_content(_snippet_text).encode("utf-8")).hexdigest(),
+                }
+            except (OSError, UnicodeDecodeError):
+                pass
         if _public_class_names:
             merged_entry["classes_used"] = [
                 c for c in merged_entry.get("classes_used", [])

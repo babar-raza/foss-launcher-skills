@@ -954,12 +954,64 @@ def gate_l14_grade_non_regression(family: str, platform: str) -> GateResult:
 
 
 def gate_l15_snippet_syntax(family: str, platform: str) -> GateResult:
-    """L-15: All snippets must be syntactically valid (basic check).
+    """L-15: prefer real compile/execute proof over a bracket count, once it exists.
 
-    Checks that snippet files in knowledge/{family}/{platform}/merged/snippets/
-    are non-empty and have balanced braces/brackets.
+    MT065-2026-09-06-EXAMPLE-VERIFICATION-CENTRALIZATION/C6: reads each
+    snippet_index.json entry's `execution_proof` field -- the real tier/status the
+    post-promote proof sweep records (built on `promote.py:_promote_snippets`'s new
+    code_sha256 field) -- and requires every *proven* snippet to meet this platform's
+    contract `max_tier`. That sweep hasn't run for any product yet, so until at least
+    one snippet in a product's index carries `execution_proof`, this gate falls back
+    UNCHANGED to the original +/-2 bracket-balance heuristic over the snippets directory
+    -- this is a real, currently-active launch gate for every already-launched product,
+    and silently downgrading it to SKIP portfolio-wide before the sweep exists would be a
+    regression, not a rewrite (the "keep both old and new, no regression" posture C3
+    used for the same reason). Old behavior stays exactly reachable and tested
+    (test_gate_l01_l07.py::TestGateL15SnippetSyntax, unchanged) until a later sweep makes
+    the new path the real one for a given product.
     """
+    import json  # noqa: PLC0415
+
+    from lib.example_verification.registry import PLATFORM_CONTRACT  # noqa: PLC0415
+
     snippets_dir = _KNOWLEDGE_ROOT / family / platform / "merged" / "snippets"
+    index_path = snippets_dir / "snippets_index.json"
+    entries: list = []
+    if index_path.exists():
+        try:
+            entries = json.loads(index_path.read_text(encoding="utf-8"))
+        except (json.JSONDecodeError, OSError):
+            entries = []
+
+    proven = [
+        e for e in entries
+        if isinstance(e, dict) and isinstance(e.get("execution_proof"), dict)
+    ]
+
+    if proven:
+        contract = PLATFORM_CONTRACT.get(platform)
+        want_tier = contract.max_tier if contract else 3
+        shortfalls: list[str] = []
+        for e in proven:
+            proof = e["execution_proof"]
+            tier = proof.get("tier", 0)
+            if tier < want_tier:
+                why = proof.get("stale_by") or proof.get("reason") or f"tier {tier} < {want_tier}"
+                shortfalls.append(f"{e.get('id', '?')}: {why}")
+
+        if shortfalls:
+            return GateResult(
+                "L-15", "Snippet syntax", STATUS_WARN,
+                f"{len(shortfalls)} of {len(proven)} proven snippet(s) below contract tier {want_tier}",
+                extra_lines=[f"  {s}" for s in shortfalls[:10]],
+            )
+        return GateResult(
+            "L-15", "Snippet syntax", STATUS_PASS,
+            f"all {len(proven)} proven snippet(s) meet contract tier {want_tier} "
+            f"({len(entries) - len(proven)} not yet swept)",
+        )
+
+    # Pre-sweep fallback: the original bracket-balance heuristic, unchanged.
     if not snippets_dir.exists():
         return GateResult(
             "L-15", "Snippet syntax", STATUS_SKIP,

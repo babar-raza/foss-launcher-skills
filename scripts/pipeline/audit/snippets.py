@@ -20,15 +20,24 @@ if _LIB_DIR not in sys.path:
     sys.path.insert(0, _LIB_DIR)
 
 from token_ops import Finding  # noqa: E402
+from lib.example_verification.code_fences import enumerate_code_blocks  # noqa: E402
 
 
 def verify_snippet_coverage(filepath, knowledge) -> list:
     """Check whether code blocks in content have matching verified snippets.
 
-    This is an advisory (INFO-level) check.  For each fenced code block in
-    the markdown file, it extracts class and method tokens and checks if any
-    snippet in the snippet index contains the same classes/methods.  If no
-    match is found, an INFO finding is emitted.
+    This is an advisory (INFO/WARN-level) check, off by default (see
+    `audit/runner.py`'s `--check-snippets` flag). MT065-2026-09-06-EXAMPLE-
+    VERIFICATION-CENTRALIZATION/C6: was a fuzzy `classes_used`/`methods_used`
+    token-intersection heuristic; now an exact `sha256_norm` lookup into the
+    snippet index's `code_sha256.norm` field (set by `promote.py:
+    _promote_snippets`), per the governing plan's "verify at the source,
+    inherit at the page" design. `code_sha256` is only populated for
+    products (re)promoted after this taskcard -- until a portfolio-wide
+    post-promote sweep has run, most products' indexes won't have it yet,
+    so this SKIPs loudly (one INFO finding, not a silent no-op) rather than
+    falling back to the old fuzzy match, which this check is meant to
+    replace, not supplement.
 
     Only runs when the knowledge model has a populated snippet_index.
     """
@@ -41,34 +50,45 @@ def verify_snippet_coverage(filepath, knowledge) -> list:
     except OSError:
         return findings
 
-    lines = text.splitlines()
-    in_code = False
-    code_start = 0
-    code_lines = []
+    norm_hash_index: dict[str, dict] = {}
+    for entry in knowledge.snippet_index:
+        if not isinstance(entry, dict):
+            continue
+        code_sha = entry.get("code_sha256")
+        if isinstance(code_sha, dict) and code_sha.get("norm"):
+            norm_hash_index[code_sha["norm"]] = entry
 
-    for line_no, line in enumerate(lines, 1):
-        stripped = line.strip()
-        if stripped.startswith("```"):
-            if in_code:
-                # End of code block — analyze it
-                code_text = "\n".join(code_lines)
-                if code_text.strip():
-                    _check_code_block_snippets(
-                        code_text, code_start, filepath, knowledge, findings)
-                in_code = False
-                code_lines = []
-            else:
-                in_code = True
-                code_start = line_no
-                code_lines = []
-        elif in_code:
-            code_lines.append(line)
+    if not norm_hash_index:
+        findings.append(Finding(
+            "INFO", filepath, 0,
+            "Snippet coverage check SKIPPED: this product's snippet index has no "
+            "code_sha256 yet -- run the post-promote proof sweep to populate it",
+            "",
+        ))
+        return findings
+
+    for block in enumerate_code_blocks(text):
+        if not block.content.strip():
+            continue
+        if block.sha256_norm in norm_hash_index:
+            continue  # exact match against a verified snippet -- nothing to report
+        findings.append(Finding(
+            "WARN", filepath, block.start_line,
+            f"Code block at line {block.start_line} has no matching verified snippet "
+            "(exact-hash lookup against this product's snippet index)",
+            "Consider extracting code from repo examples instead of generating"
+        ))
 
     return findings
 
 
 def _check_code_block_snippets(code_text, line_no, filepath, knowledge, findings):
-    """Check a single code block against snippet index entries."""
+    """The pre-C6 fuzzy classes_used/methods_used heuristic. No longer called by
+    `verify_snippet_coverage` (replaced by the exact sha256_norm lookup above), but kept
+    here -- unused -- because `audit/__init__.py` re-exports it and that file is outside
+    this taskcard's allowed_paths (scripts/pipeline/audit/__init__.py is not listed for
+    C6); deleting this function would break that import. A follow-on taskcard/commit that
+    touches audit/__init__.py should remove both the function and the re-export together."""
     # Extract class/method references from the code block
     block_classes = set()
     block_methods = set()
