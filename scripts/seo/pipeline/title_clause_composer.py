@@ -340,8 +340,27 @@ def check_grounding_preservation(composed: str, raw_source_text: str) -> bool:
 # lowercase mid-sentence) remains a disclosed, narrow residual limitation
 # -- genuinely unnatural LLM phrasing for a long compound identifier,
 # unlike the short-token lowercase case round 2 found realistic.
-_ENUM_SHORT_CANDIDATE_RE = re.compile(r"\b(?=[A-Za-z0-9]*[A-Za-z])[A-Za-z0-9+]{2,6}\b")
-_ENUM_LONG_CANDIDATE_RE = re.compile(r"\b[A-Z][A-Za-z0-9]{6,29}\b")
+#
+# **Rework 5** [round-5 independent review, agentId `a93883f7ded3e9031`,
+# REJECT]: neither character class included "_" -- but "_" IS a `\w`
+# character for Python regex's own `\b` purposes, so a word-boundary
+# anchor can never fire on EITHER side of it. Any underscore-joined token
+# (real or fabricated) was therefore entirely invisible to BOTH regexes,
+# not merely split at the underscore. Confirmed real, not contrived:
+# `3d/python` (22 members) and `font/python` (1 member) use exactly this
+# underscore-joined ALL-CAPS convention for real format values
+# ("GLTF_BINARY", "MAYA_ASCII", "MAYA_BINARY", "FBX7700_BINARY"), and this
+# pipeline's own real generated content
+# (`content/reference.aspose.org/en/3d/python/FileFormat.md`) already
+# writes these verbatim. Live-reproduced: a fabricated "MAYA_TEXT" passed
+# undetected alongside real GLTF_BINARY/MAYA_ASCII/MAYA_BINARY on a real
+# 3d/python page. Added "_" to both character classes -- `real_vocabulary`
+# already stores format values with underscores intact (lowercased, via
+# `load_real_format_names()`), so a whole underscore-joined token now
+# matches or fails exactly like any other candidate, no other logic
+# change needed.
+_ENUM_SHORT_CANDIDATE_RE = re.compile(r"\b(?=[A-Za-z0-9_]*[A-Za-z])[A-Za-z0-9_+]{2,6}\b")
+_ENUM_LONG_CANDIDATE_RE = re.compile(r"\b[A-Z][A-Za-z0-9_]{6,29}\b")
 
 # Acronyms that are never themselves a file/document format, however
 # plausible-looking -- confirmed common in real Aspose FOSS prose

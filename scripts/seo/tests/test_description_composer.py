@@ -373,6 +373,32 @@ class TestEnumerationMembershipEndToEnd:
         )
         assert result is None
 
+    def test_underscore_joined_fabrication_does_not_ground_end_to_end(self, tmp_path):
+        """Round-5 review REJECT, real end-to-end reproduction: "_" is a
+        \\w character, so \\b word-boundary anchors could never fire
+        around it -- any underscore-joined token (real or fabricated) was
+        entirely invisible to the check. Real, live-confirmed shape:
+        3d/python uses exactly this underscore-joined ALL-CAPS convention
+        for real format values (GLTF_BINARY, MAYA_ASCII, MAYA_BINARY)."""
+        dc.configure(repo_root=tmp_path)
+        self._write_formats_json(
+            tmp_path, "3d", "python",
+            ["GLTF", "GLTF_BINARY", "MAYA_ASCII", "MAYA_BINARY", "STL_BINARY", "OBJ"],
+        )
+        proposed = (
+            "Explore the SaveFormat enum in Aspose.3D FOSS for Python, "
+            "enabling export to GLTF_BINARY, MAYA_ASCII, MAYA_BINARY, "
+            "MAYA_TEXT and other formats."
+        )
+        result = compose_description(
+            "content/reference.aspose.org/en/3d/python/FileFormat.md",
+            "SaveFormat enum", "3d save format export",
+            ["SaveFormat lists the supported output formats for 3D scenes."],
+            "3d", "python",
+            llm_call=lambda p: {"proposed_description": proposed, "rationale": "x"},
+        )
+        assert result is None
+
     def test_all_real_format_enumeration_passes_end_to_end(self, tmp_path):
         dc.configure(repo_root=tmp_path)
         self._write_formats_json(tmp_path, "slides", "net", ["Ppt", "Pdf", "Xps", "Pptx", "Html"])

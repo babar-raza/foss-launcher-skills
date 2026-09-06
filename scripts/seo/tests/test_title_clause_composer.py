@@ -367,6 +367,44 @@ class TestEnumerationMembershipRound4LongCandidatesFixed:
         )
 
 
+class TestEnumerationMembershipRound5UnderscoreTokensFixed:
+    """Round-5 independent review (agentId a93883f7ded3e9031) REJECT: "_"
+    is a \\w character for Python regex's own \\b purposes, so a word-
+    boundary anchor could never fire on either side of it -- any
+    underscore-joined token (real or fabricated) was entirely invisible to
+    both candidate regexes, not merely split at the underscore. Real,
+    live-confirmed shape: 3d/python and font/python use exactly this
+    underscore-joined ALL-CAPS convention for real format values
+    (GLTF_BINARY, MAYA_ASCII, MAYA_BINARY, FBX7700_BINARY), and this
+    pipeline's own real generated content already writes these verbatim."""
+
+    _REAL_3D_FORMATS = {"gltf", "gltf_binary", "maya_ascii", "maya_binary", "stl_binary", "obj"}
+
+    def test_fabricated_underscore_joined_token_is_now_caught(self):
+        composed = (
+            "Explore the SaveFormat enum in Aspose.3D FOSS for Python, "
+            "enabling export to GLTF_BINARY, MAYA_ASCII, MAYA_BINARY, "
+            "MAYA_TEXT and other formats."
+        )
+        assert not check_enumeration_membership(composed, self._REAL_3D_FORMATS, exempt={"3d", "python"})
+
+    def test_genuine_underscore_joined_real_formats_pass(self):
+        composed = (
+            "Explore the SaveFormat enum in Aspose.3D FOSS for Python, "
+            "enabling export to GLTF_BINARY, MAYA_ASCII and MAYA_BINARY "
+            "formats today."
+        )
+        assert check_enumeration_membership(composed, self._REAL_3D_FORMATS, exempt={"3d", "python"})
+
+    def test_fabrication_is_caught_with_and_without_the_underscore(self):
+        """Confirms the underscore itself was the exploit mechanism, not
+        some other unrelated difference between the fake and real tokens."""
+        with_underscore = "Exports to GLTF_BINARY, MAYA_ASCII and MAYA_TEXT formats."
+        without_underscore = "Exports to GLTFBINARY, MAYAASCII and MAYATEXT formats."
+        assert not check_enumeration_membership(with_underscore, self._REAL_3D_FORMATS)
+        assert not check_enumeration_membership(without_underscore, self._REAL_3D_FORMATS)
+
+
 # ---------------------------------------------------------------------------
 # Acceptance check: over-length-retries-then-falls-back
 # ---------------------------------------------------------------------------
