@@ -184,7 +184,7 @@ REPO_ROOT = _DEFAULT_REPO_ROOT
 # cached "approved" candidate rather than silently serving stale-era output
 # forever. Callers (recommend.py) pass this to consult_before_llm_call()/
 # record_result() as composer_version -- never compute it themselves.
-COMPOSER_VERSION = "4"
+COMPOSER_VERSION = "5"
 
 
 def configure(*, repo_root: "Path | str | None" = None) -> None:
@@ -458,6 +458,30 @@ def load_real_format_names(
         return set()
 
 
+# Same tokenizer shape as title_clause_composer.py's own _TOKEN_RE --
+# duplicated per this codebase's established convention (every module that
+# needs it defines its own copy, see that module's own docstring) rather
+# than reaching into another module's private name.
+_CLAIMS_VOCAB_TOKEN_RE = re.compile(r"[a-z0-9]+")
+
+
+def _tokenize_claims(claims: "list[str]") -> "set[str]":
+    """Real, already-vetted claim TEXT tokens (from claims.json via
+    load_page_claims -- never raw, uncontrolled search-query/keyword text)
+    -- unioned into check_enumeration_membership's real_vocabulary so a
+    legitimately claim-cited short API/class-name mention (e.g. "Cell",
+    "Row", not a file-format name at all) is never wrongly flagged as an
+    unverified format. Deliberately does NOT include grounded_keyword_
+    signal or current_description -- SEO-CHECK-GROUNDING-PRESERVATION-
+    ENTITY-COVERAGE-RESOLVER-1's round-1 review proved unioning arbitrary,
+    uncontrolled keyword-signal text let a fabricated word ride in as
+    "grounded" merely by being mentioned in a search-query string. Claims
+    are structurally different: already resolved against and vetted by
+    claims.json for this exact page, the same trust level check_grounding_
+    preservation's own reused grounding_text already treats as authoritative."""
+    return set(_CLAIMS_VOCAB_TOKEN_RE.findall(" ".join(claims).lower())) if claims else set()
+
+
 # ---------------------------------------------------------------------------
 # Numeral-must-trace rule
 # ---------------------------------------------------------------------------
@@ -633,21 +657,28 @@ def compose_description(
     # unchecked -- confirmed live against a real LLM candidate for
     # SaveFormat.md. This is a real, closed-vocabulary per-entity gate, not
     # a modification to the reused aggregate check. Rework 1 (round-1
-    # review REJECT): real_vocabulary is now SOURCED ONLY from formats.json
-    # -- no longer unioned with grounding_text tokens, which round 1 proved
-    # let an SEO keyword signal merely mentioning a fabricated format name
-    # (e.g. "svg export options") make it pass as "grounded". `platform`
-    # AND `family` are both passed as caller-supplied exemptions: `platform`
-    # because "NET"/"CPP" are never themselves claimed formats but
-    # legitimately appear in prose; `family` because a family whose own
-    # slug reads as an ALL-CAPS acronym in prose (e.g. "PDF", "3D") appears
-    # in virtually every one of that family's own real page descriptions as
-    # unavoidable product-name branding ("Aspose.PDF for Python") rather
-    # than a claimed enumerated format -- self-caught live during this
-    # rework's own test-writing: the existing _GOOD_DESC fixture text
-    # ("...using Aspose.PDF for Python...") was itself falsely rejected by
-    # the pre-exemption version of this gate before this fix.
-    enum_vocabulary = load_real_format_names(family, platform, repo_root=root)
+    # review REJECT): real_vocabulary is UNIONED WITH CLAIMS TOKENS ONLY --
+    # never with grounded_keyword_signal or current_description, which
+    # round 1 proved let an SEO keyword signal merely mentioning a
+    # fabricated format name (e.g. "svg export options") make it pass as
+    # "grounded". Claims are structurally different from raw keyword text:
+    # already resolved against and vetted by claims.json for this exact
+    # page (load_page_claims's own job), so a legitimately claim-cited
+    # short API/class-name mention (e.g. "Cell", not a file format at all)
+    # is never wrongly flagged just because it is short -- self-caught live
+    # during rework 2's own test-writing (a pre-existing test using a
+    # cited "Foo.Bar" class mention was itself falsely rejected once the
+    # keyword-signal union was removed, before this claims-only union was
+    # added back). `platform` AND `family` are both also passed as caller-
+    # supplied exemptions: `platform` because "NET"/"CPP" are never
+    # themselves claimed formats but legitimately appear in prose; `family`
+    # because a family whose own slug reads as a short acronym in prose
+    # (e.g. "PDF", "3D") appears in virtually every one of that family's
+    # own real page descriptions as unavoidable product-name branding
+    # ("Aspose.PDF for Python") rather than a claimed enumerated format --
+    # also self-caught live (the existing _GOOD_DESC fixture text was
+    # itself falsely rejected by the pre-exemption version of this gate).
+    enum_vocabulary = load_real_format_names(family, platform, repo_root=root) | _tokenize_claims(claims)
     enum_exempt = {t for t in (family, platform) if t}
     if not title_clause_composer.check_enumeration_membership(
         proposed, enum_vocabulary, exempt=enum_exempt,

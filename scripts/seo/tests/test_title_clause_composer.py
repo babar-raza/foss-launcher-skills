@@ -173,16 +173,17 @@ class TestCheckEnumerationMembership:
         composed = "Exports to PPT, FAKE for testing."
         assert not check_enumeration_membership(composed, self._REAL_FORMATS)
 
-    def test_ordinary_prose_with_no_all_caps_tokens_never_flagged(self):
-        """Plain mixed-case prose words, even short ones, are never
-        candidates -- only genuinely ALL-CAPS tokens are checked."""
-        composed = "Learn about the SaveFormat enum in Aspose Slides for the library today."
+    def test_ordinary_prose_with_no_unusual_tokens_never_flagged(self):
+        """Plain prose built entirely from common words (plus the
+        universally-exempt "Aspose"/"enum") never trips the check, however
+        many short candidate-shaped tokens it contains."""
+        composed = "Learn about the SaveFormat enum in Aspose for the library today."
         assert check_enumeration_membership(composed, self._REAL_FORMATS)
 
-    def test_terminator_word_and_trailing_category_noun_never_matched(self):
-        """"other"/"formats" are ordinary mixed-case English words -- never
-        ALL-CAPS candidates, so they were never going to be checked either
-        way; this just confirms the redesign doesn't regress that."""
+    def test_common_wrap_up_words_never_flagged(self):
+        """"other"/"useful"/"formats"/"today" are ordinary common English
+        words (or, for "formats", simply too long to match the candidate
+        regex) -- never flagged regardless of casing or position."""
         composed = "Exports to PPT, PDF, XPS and other useful formats today."
         assert check_enumeration_membership(composed, self._REAL_FORMATS)
 
@@ -193,24 +194,34 @@ class TestCheckEnumerationMembership:
     def test_no_all_caps_tokens_passes_regardless_of_vocabulary(self):
         assert check_enumeration_membership("A short natural clause.", set())
 
-    def test_lowercase_or_mixed_case_format_mentions_are_not_candidates(self):
-        """Only the conventional ALL-CAPS prose form is checked -- a lower/
-        mixed-case mention is simply not a candidate token at all (not a
-        pass via case-folding, a non-match)."""
-        composed = "Exports to ppt, Pdf and Xps for archival."
-        assert check_enumeration_membership(composed, set())  # nothing to check
+    def test_lowercase_and_pascal_case_format_mentions_are_checked_too(self):
+        """Rework 2 (round-2 review fix): detection is case-insensitive --
+        a fabricated format written in lowercase or PascalCase (matching
+        formats.json's own convention) is checked exactly like an ALL-CAPS
+        one, not silently exempted by casing alone."""
+        assert check_enumeration_membership("Exports to ppt, pdf and xps for archival.", self._REAL_FORMATS)
+        assert check_enumeration_membership("Exports to Ppt, Pdf and Xps for archival.", self._REAL_FORMATS)
+        assert not check_enumeration_membership("Exports to ppt, pdf and fake for archival.", self._REAL_FORMATS)
+        assert not check_enumeration_membership("Exports to Ppt, Pdf and Fake for archival.", self._REAL_FORMATS)
 
     def test_universal_exempt_acronym_never_checked(self):
         composed = "Built on the Aspose FOSS SDK API for real projects."
         assert check_enumeration_membership(composed, set())
 
     def test_caller_supplied_exempt_token_never_checked(self):
-        """"NET" is already on the universal exempt list (.NET is common
-        enough to bake in); use a platform label that is NOT, to prove the
-        per-call `exempt` parameter itself does the work."""
         composed = "Available for the CPP platform today."
         assert not check_enumeration_membership(composed, set())  # CPP not exempt by default
         assert check_enumeration_membership(composed, set(), exempt={"cpp"})
+
+    def test_net_is_no_longer_globally_exempt(self):
+        """Round-2 review finding: "NET" used to sit on the STATIC
+        universal exempt list, exempting it on every page regardless of
+        that page's actual platform. It must now only be exempt when the
+        caller explicitly supplies it (e.g. description_composer.py passing
+        the current page's own platform)."""
+        composed = "Available for the NET platform today."
+        assert not check_enumeration_membership(composed, set())
+        assert check_enumeration_membership(composed, set(), exempt={"net"})
 
     def test_digit_leading_fabricated_token_is_still_checked(self):
         """Round-1 review secondary finding: the original leading-letter-
@@ -254,13 +265,17 @@ class TestEnumerationMembershipRound1BypassesFixed:
 
     def test_bypass_3_vocabulary_never_contaminated_by_grounding_text(self):
         """check_enumeration_membership itself takes real_vocabulary as an
-        explicit parameter -- this proves the FUNCTION treats a vocabulary
-        containing "svg" as grounding it (expected: real_vocabulary is the
-        caller's sole responsibility). The actual fix for bypass 3 is that
-        description_composer.py's call site no longer unions grounding-text
-        tokens into that vocabulary at all -- see
-        TestEnumerationMembershipEndToEnd in test_description_composer.py
-        for the real, end-to-end non-contamination proof."""
+        explicit parameter -- this proves the FUNCTION treats whatever
+        vocabulary it is given as authoritative (expected: real_vocabulary
+        is the caller's sole responsibility, this function has no opinion
+        on where it came from). The actual fix for bypass 3 is that
+        description_composer.py's call site sources real_vocabulary only
+        from formats.json + claims, never from grounded_keyword_signal or
+        current_description -- see
+        test_description_composer.py::TestEnumerationMembershipEndToEnd::
+        test_bypass_3_keyword_signal_mentioning_the_fabrication_does_not_
+        ground_it for the real, end-to-end, non-contamination proof
+        (round-2 review finding: this proof was missing from rework 1)."""
         composed = "Exports to PPT, PDF, XPS and SVG for archival."
         # A vocabulary that (incorrectly, hypothetically) included "svg"
         # would of course pass -- the real fix is description_composer.py

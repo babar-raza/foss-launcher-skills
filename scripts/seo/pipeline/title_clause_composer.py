@@ -286,16 +286,36 @@ def check_grounding_preservation(composed: str, raw_source_text: str) -> bool:
 # file/document format (FOSS, API, SDK, ...), plus a caller-supplied
 # per-call exemption (e.g. this page's own platform label, "NET"/"C++" --
 # never itself a claimed format).
+#
+# **Rework 2** [round-2 independent review, agentId `abc3f6ebf0818fed8`,
+# REJECT]: rework 1 scoped candidate detection to ALL-CAPS-shaped tokens
+# only, as its false-positive control (ordinary mixed-case prose words
+# never match). The reviewer live-reproduced a real regression: a
+# fabricated format written in PascalCase (matching `formats.json`'s own
+# convention, e.g. "Svg") or fully lowercase ("svg") evaded detection
+# entirely, even though round 1's syntax-based design was genuinely case-
+# insensitive on this axis. This rework restores full case-insensitivity
+# -- detection no longer depends on casing at all -- and replaces ALL-CAPS
+# shape as the false-positive control with a substantially larger, curated
+# common-English-word exempt list (`_ENUM_COMMON_WORDS`): real file-format
+# names/extensions are essentially never actual dictionary words, so a
+# short (2-6 char) token that IS a common English word is safe to exempt
+# outright, while an unusual short token that is NOT a common word and NOT
+# a real vocabulary member stays suspicious regardless of how it is cased.
+# Also drops "net" from the STATIC universal exempt list (round-2 finding:
+# it was exempted globally on every page regardless of the page's actual
+# platform, contradicting the documented platform-scoped intent) -- a
+# `.NET` page's own `platform` exemption already covers it correctly.
 # ---------------------------------------------------------------------------
 
-# ALL-CAPS-shaped candidate tokens: 2-6 chars, letters/digits/"+" (covers
-# "C++"), must contain at least one letter (excludes bare numbers like a
-# version "365" or a year). Checked unconditionally across the whole
-# composed text -- deliberately NOT gated behind first detecting
-# "this looks like an enumeration" (see rework note above: a syntax-based
-# detector has real, LLM-plausible blind spots a position-independent scan
-# does not).
-_ENUM_CANDIDATE_RE = re.compile(r"\b(?=[A-Z0-9]*[A-Z])[A-Z0-9+]{2,6}\b")
+# Candidate tokens: 2-6 chars, letters/digits/"+" (covers "C++"), must
+# contain at least one letter (excludes bare numbers like a version "365"
+# or a year). Case-insensitive by construction (re.IGNORECASE) -- checked
+# unconditionally across the whole composed text, deliberately NOT gated
+# behind first detecting "this looks like an enumeration" (see rework
+# note above: a syntax-based detector has real, LLM-plausible blind spots
+# a position-independent scan does not).
+_ENUM_CANDIDATE_RE = re.compile(r"\b(?=[A-Za-z0-9]*[A-Za-z])[A-Za-z0-9+]{2,6}\b")
 
 # Acronyms that are never themselves a file/document format, however
 # plausible-looking -- confirmed common in real Aspose FOSS prose
@@ -303,36 +323,105 @@ _ENUM_CANDIDATE_RE = re.compile(r"\b(?=[A-Z0-9]*[A-Z])[A-Z0-9+]{2,6}\b")
 # that is also plausibly a real format somewhere in this product line
 # (HTML, XML, CSV, JSON, PNG, JPG, GIF, ... all stay OUT on purpose -- those
 # always get checked against the real per-family vocabulary, never
-# blanket-exempted just because they are common tech terms too).
+# blanket-exempted just because they are common tech terms too). "net" is
+# deliberately NOT here (rework 2) -- a `.NET` page's own `platform`
+# exemption covers it, correctly scoped to only that platform's pages.
 _ENUM_UNIVERSAL_EXEMPT = frozenset({
     "foss", "api", "sdk", "cli", "url", "sql", "http", "https", "rest",
     "ui", "ux", "os", "ide", "gui", "jwt", "oauth", "saas", "ai", "ml",
     "gpu", "cpu", "ram", "ssd", "vm", "ci", "cd", "npm", "pip", "git",
-    "net", "seo", "id", "faq",
+    "seo", "id", "faq", "aspose", "enum", "enums",
+})
+
+# Ordinary short (2-6 char) common English words -- real file-format
+# names/extensions are essentially never actual dictionary words, so any
+# short token that IS one of these is safe to exempt outright regardless
+# of casing (rework 2's false-positive control, replacing rework 1's
+# ALL-CAPS-only shape restriction). Not exhaustive by design -- an unusual
+# but genuine short English word absent from this list fails closed (a
+# doubt-driven rejection, matching this module's own established
+# philosophy), which is an acceptable, disclosed residual limitation
+# rather than a safety gap: it can only make the composer occasionally
+# too conservative, never let a fabrication through.
+_ENUM_COMMON_WORDS = frozenset({
+    # articles, pronouns, conjunctions, prepositions
+    "a", "an", "the", "it", "its", "this", "that", "you", "your", "our",
+    "their", "his", "her", "them", "they", "we", "us", "he", "she",
+    "to", "in", "on", "of", "for", "and", "or", "but", "so", "if", "as",
+    "is", "are", "be", "was", "were", "been", "with", "by", "at", "from",
+    "via", "per", "into", "onto", "over", "under", "than", "then", "when",
+    "where", "what", "which", "while", "about", "above", "below", "across",
+    "along", "among", "around", "before", "behind", "between", "within",
+    "not", "no", "yes", "do", "does", "did", "has", "have", "had", "can",
+    "could", "will", "would", "shall", "should", "may", "might", "must",
+    "one", "two", "all", "any", "each", "every", "more", "most", "less",
+    "least", "many", "much", "some", "none", "such", "both", "only",
+    "just", "also", "very", "well", "up", "down", "out", "off", "again",
+    "here", "there", "now", "today", "still", "even", "too",
+    # common verbs (short forms/inflections)
+    "use", "uses", "used", "get", "gets", "make", "makes", "made", "read",
+    "reads", "write", "export", "import", "create", "creates", "open",
+    "opens", "close", "closes", "load", "loads", "save", "saves", "build",
+    "builds", "learn", "learns", "offer", "offers", "allow", "allows",
+    "enable", "enables", "work", "works", "run", "runs", "add", "adds",
+    "start", "started", "explore", "manage", "handle", "handles",
+    "provide", "provides", "let", "lets", "give", "gives", "help", "helps",
+    "need", "needs", "want", "wants", "keep", "keeps", "find", "finds",
+    "show", "shows", "try", "tries", "look", "looks", "call", "calls",
+    "return", "returns",
+    # common nouns/adjectives in product/technical descriptions
+    "file", "files", "data", "tool", "tools", "code", "apps", "app",
+    "web", "docs", "doc", "kit", "kits", "lib", "libs", "core", "item",
+    "items", "list", "lists", "type", "types", "class", "value", "values",
+    "page", "pages", "site", "sites", "way", "ways", "time", "guide",
+    "user", "users", "input", "output", "project", "format", "class",
+    "field", "method", "object", "module", "sample", "sample", "basic",
+    "extra", "part", "parts", "step", "steps", "level", "levels", "size",
+    "range", "point", "points", "group", "groups", "index", "table",
+    "sheet", "sheets", "cell", "cells", "row", "rows", "column", "columns",
+    "text", "image", "images", "audio", "video", "media", "print", "view",
+    "views", "model", "models", "server", "client", "cloud", "local",
+    "batch", "async", "sync", "test", "tests", "log", "logs", "config",
+    "asset", "assets", "task", "tasks", "case", "cases",
+    "free", "open", "easy", "fast", "best", "new", "high", "low", "full",
+    "real", "true", "live", "safe", "modern", "light", "quick", "clean",
+    "clear", "exact", "basic", "wide", "broad", "rich", "key", "main",
+    "top", "old", "hot", "cool", "big", "small", "long", "short", "smart",
+    "solid", "unique", "custom", "public", "single", "multi", "prior",
+    "final", "extra", "same", "other", "others", "own", "useful", "short",
+    "clause", "built", "based", "using", "native", "robust", "simple",
+    "avoid", "needed", "unlike", "unless", "either", "whole", "entire",
+    "common", "direct", "remote", "mobile", "hybrid", "advance", "beyond",
+    "word", "words", "easily", "quickly", "fully", "truly", "rarely",
+    "barely", "surely", "simply", "partly", "actual", "person", "people",
+    "detail", "return", "select", "define", "assign", "insert", "delete",
+    "update", "toggle", "adjust", "expand", "reduce", "verify", "ensure",
+    "daily", "weekly", "yearly", "hourly", "always", "months", "month",
+    "years", "year", "week", "hours", "hour", "days",
 })
 
 
 def check_enumeration_membership(
     composed: str, real_vocabulary: "set[str]", *, exempt: "set[str] | None" = None,
 ) -> bool:
-    """Every ALL-CAPS-shaped 2-6 character token in `composed` (how file-
-    format names/extensions are conventionally written in prose -- PPT,
-    PDF, XPS, SVG, HTML) must be a member of `real_vocabulary` (must
-    already be lowercase -- a real, closed vocabulary the caller supplies,
-    e.g. `formats.json`'s real member list) UNLESS it is a universally-
-    known non-format acronym (`_ENUM_UNIVERSAL_EXEMPT`) or one of the
-    caller's own `exempt` tokens (e.g. this page's own platform label --
-    never itself a claimed format). Checked across the WHOLE text
-    unconditionally, independent of position or surrounding punctuation --
-    see the rework note above for why syntax-based enumeration detection
-    was replaced. Returns True (nothing to check, or every candidate
-    passed) or False (at least one non-exempt ALL-CAPS candidate is absent
-    from the real vocabulary -- reject, matching this module's own "any
-    doubt -> None" fallback philosophy). Never raises; a real_vocabulary of
-    None/empty set makes every non-exempt candidate fail closed rather than
-    silently pass unchecked."""
+    """Every short (2-6 character) candidate token in `composed`, checked
+    CASE-INSENSITIVELY, must be a member of `real_vocabulary` (must already
+    be lowercase -- a real, closed vocabulary the caller supplies, e.g.
+    `formats.json`'s real member list) UNLESS it is a common English word
+    (`_ENUM_COMMON_WORDS`), a universally-known non-format acronym
+    (`_ENUM_UNIVERSAL_EXEMPT`), or one of the caller's own `exempt` tokens
+    (e.g. this page's own family/platform slug -- never itself a claimed
+    format). Checked across the WHOLE text unconditionally, independent of
+    position, surrounding punctuation, OR casing -- see the rework notes
+    above for why syntax-based detection and ALL-CAPS-only shape were both
+    replaced. Returns True (nothing to check, or every candidate passed)
+    or False (at least one non-exempt candidate is absent from the real
+    vocabulary -- reject, matching this module's own "any doubt -> None"
+    fallback philosophy). Never raises; a real_vocabulary of None/empty set
+    makes every non-exempt candidate fail closed rather than silently pass
+    unchecked."""
     vocabulary = real_vocabulary or set()
-    exempt_set = _ENUM_UNIVERSAL_EXEMPT | {e.lower() for e in (exempt or set())}
+    exempt_set = _ENUM_UNIVERSAL_EXEMPT | _ENUM_COMMON_WORDS | {e.lower() for e in (exempt or set())}
     for m in _ENUM_CANDIDATE_RE.finditer(composed):
         token = m.group(0).lower()
         if token in exempt_set:

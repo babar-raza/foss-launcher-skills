@@ -295,6 +295,34 @@ class TestEnumerationMembershipEndToEnd:
         )
         assert result is None
 
+    def test_bypass_3_keyword_signal_mentioning_the_fabrication_does_not_ground_it(self, tmp_path):
+        """Round-1 review REJECT, real end-to-end reproduction (missing
+        from the original rework -- round-2 review flagged this gap):
+        grounded_keyword_signal is raw, uncontrolled SEO keyword-research
+        text, never a verified claim. Merely mentioning "svg" in the
+        keyword signal must never make a fabricated SVG format pass as
+        "grounded" -- real_vocabulary is sourced only from formats.json and
+        claims, never from the keyword signal or current_description."""
+        dc.configure(repo_root=tmp_path)
+        self._write_formats_json(
+            tmp_path, "slides", "net",
+            ["Ppt", "Pdf", "Xps", "Pptx", "Ppsx", "Tiff", "Odp", "Pptm", "Ppsm",
+             "Potx", "Potm", "Html", "Swf", "Otp", "Pps", "Pot", "Fodp", "Gif",
+             "Html5", "Md", "Xml"],
+        )
+        proposed = (
+            "Explore the SaveFormat enum in Aspose.Slides FOSS for .NET, "
+            "enabling export of presentations to PPT, PDF, XPS, PPTX, HTML, "
+            "SVG and other formats."
+        )
+        claims = ["Class SaveFormat defined in src/Export/SaveFormat.cs"]
+        result = compose_description(
+            "content/reference.aspose.org/en/slides/net/SaveFormat.md",
+            "`SaveFormat` enum", "svg export options", claims, "slides", "net",
+            llm_call=lambda p: {"proposed_description": proposed, "rationale": "x"},
+        )
+        assert result is None
+
     def test_all_real_format_enumeration_passes_end_to_end(self, tmp_path):
         dc.configure(repo_root=tmp_path)
         self._write_formats_json(tmp_path, "slides", "net", ["Ppt", "Pdf", "Xps", "Pptx", "Html"])
