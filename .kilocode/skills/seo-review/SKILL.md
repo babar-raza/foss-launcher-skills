@@ -97,7 +97,8 @@ underlying query has.
 text — Google frequently generates its own title or snippet from page content when it
 judges the supplied one less relevant to a specific query. This is expected, documented
 behavior on Google's side, not a pipeline defect. Contract H's post-publication
-observation window (`observe_experiments.py`) therefore measures the real, observable
+observation window (`SEO-METADATA-OBSERVATION-LOOP` — not yet shipped as of this
+writing; see `registry.yaml`) will therefore need to measure the real, observable
 outcome (position/CTR), never whether the literal string survived unedited — a flat or
 negative result can mean Google substituted the snippet, not that this review's decision
 was wrong. Do not treat "Google rewrote it" as a finding against this skill's APPROVE
