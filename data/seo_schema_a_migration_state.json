@@ -42,12 +42,23 @@
       "status": "done"
     },
     "cells": {
+      "status": "done"
+    },
+    "slides": {
       "status": "in_progress",
       "migrated_source_paths": [
-        "content/kb.aspose.org/en/cells/_index.md",
-        "content/kb.aspose.org/en/cells/cpp/_index.md",
-        "content/kb.aspose.org/en/cells/cpp/faq.md",
-        "content/kb.aspose.org/en/cells/cpp/how-to-create-cells-foss-model-cpp.md"
+        "content/kb.aspose.org/en/slides/_index.md",
+        "content/kb.aspose.org/en/slides/cpp/_index.md",
+        "content/kb.aspose.org/en/slides/cpp/faq.md",
+        "content/kb.aspose.org/en/slides/cpp/how-to-add-comments-cpp.md",
+        "content/kb.aspose.org/en/slides/cpp/how-to-add-images-cpp.md",
+        "content/kb.aspose.org/en/slides/cpp/how-to-add-shapes-cpp.md",
+        "content/kb.aspose.org/en/slides/cpp/how-to-apply-3d-effects-cpp.md",
+        "content/kb.aspose.org/en/slides/cpp/how-to-build-package-cpp.md",
+        "content/kb.aspose.org/en/slides/cpp/how-to-connect-shapes-cpp.md",
+        "content/kb.aspose.org/en/slides/cpp/how-to-create-presentations-cpp.md",
+        "content/kb.aspose.org/en/slides/cpp/how-to-extract-xml-cpp.md",
+        "content/kb.aspose.org/en/slides/cpp/how-to-format-text-cpp.md"
       ]
     }
   },
