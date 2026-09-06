@@ -449,9 +449,20 @@ def _gen_high_recommendations(
     desc_ok = signals.get("description_ok", True)
 
     if not desc_ok and current_desc and litellm_key and not llm_skipped and not placement_blocks_llm:
+        # Loaded before the consult call (not just before generation) so the
+        # signal hash itself is sensitive to a claims change -- Contract C's
+        # own explicit hash formula (v14 design doc line 674) includes
+        # sorted(claim_ids); a page whose cited claims changed since the
+        # last run must regenerate, not silently reuse a proposal grounded
+        # in claims that no longer apply (Defect A, round-1 independent
+        # review, agentId a45b555463d284f22).
+        page_claims = description_composer.load_page_claims(
+            page_path, family, platform, repo_root=_REPO_ROOT,
+        )
         desc_consult = recommendation_memory.consult_before_llm_call(
             page_path, "description", current_value=current_desc,
             primary_kw=primary_kw, family=family, platform=platform,
+            claim_ids=page_claims, composer_version=description_composer.COMPOSER_VERSION,
         )
         if not desc_consult["should_call_llm"]:
             cached = desc_consult["cached_proposal"]
@@ -465,9 +476,6 @@ def _gen_high_recommendations(
                     "signal state — not regenerating a new guess until it changes."
                 )
         else:
-            page_claims = description_composer.load_page_claims(
-                page_path, family, platform, repo_root=_REPO_ROOT,
-            )
             candidate = description_composer.compose_description(
                 page_path, current_desc, primary_kw, page_claims, family, platform,
                 min_chars=_DESC_MIN, max_chars=_DESC_MAX,

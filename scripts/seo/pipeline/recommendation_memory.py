@@ -6,7 +6,9 @@ scheduled run.
 Before recommend.py's `_gen_high_recommendations`/`_gen_medium_recommendations`
 would call `_call_llm` for a given (page_path, field): look up the hash of
 exactly what that call's prompt is built from (the current field text, the
-primary keyword, and family/platform). No entry -> generate fresh. An
+primary keyword, family/platform, and -- for description_composer.py's
+callers only -- the page's own cited claim_ids and the composer's own
+version string, per Contract C's explicit hash formula). No entry -> generate fresh. An
 existing entry whose hash matches and whose outcome is `pending`/`approved`/
 `applied` -> reuse the cached proposal, no LLM call. An existing entry whose
 hash matches and whose outcome is `rejected_by_s116`/`requires_human_review`
@@ -83,17 +85,42 @@ def _store_path() -> Path:
 
 
 def compute_signal_hash(*, current_value: "str | None", primary_kw: "str | None",
-                         family: "str | None", platform: "str | None") -> str:
+                         family: "str | None", platform: "str | None",
+                         claim_ids: "list[str] | None" = None,
+                         composer_version: "str | None" = None) -> str:
     """Tier-1 deterministic: byte-identical input always produces the
     byte-identical hash. Covers exactly what recommend.py's prompt builders
     take as grounding context for a field rewrite -- the current field
-    text, the primary keyword, and family/platform."""
+    text, the primary keyword, and family/platform.
+
+    `claim_ids`/`composer_version` extend this per Contract C (v14 design
+    doc line 674): `grounded_source_hash = hash(current_description,
+    sorted(claim_ids), primary_query, composer_version)`. **Added after
+    SEO-DESCRIPTION-COMPOSER's round-1 independent review (Defect A,
+    agentId a45b555463d284f22)**: the original signature omitted both,
+    meaning a cached "pending" description proposal never invalidated when
+    the page's own cited claims changed, or when description_composer.py's
+    own prompt/logic was deployed-updated -- exactly the staleness the v14
+    design doc's own rationale for including them warns about ("a deployed
+    fix to this module's own prompt/logic would never invalidate a
+    previously-cached 'approved' candidate, silently serving stale-era
+    output forever"). Both default to None (empty-list-equivalent) since
+    only description_composer.py's callers have a real value for either --
+    recommend.py's raw seoTitle rewrite path has neither concept and passes
+    neither; that caller's hash is unaffected in shape, only in the fixed
+    two extra keys now always present in the canonical dict (a one-time,
+    harmless cache-schema change -- no real production cache exists yet).
+    `claim_ids` is sorted here, not left to the caller, since callers build
+    it in claims.json/frontmatter-list order, which is not guaranteed
+    stable and must never spuriously change the hash on its own."""
     canonical = json.dumps(
         {
             "current_value": current_value,
             "primary_kw": primary_kw,
             "family": family,
             "platform": platform,
+            "claim_ids": sorted(claim_ids) if claim_ids else [],
+            "composer_version": composer_version,
         },
         sort_keys=True,
         ensure_ascii=True,
@@ -144,13 +171,19 @@ def get_entry(page_path: str, field: str) -> "dict | None":
 
 def consult_before_llm_call(page_path: str, field: str, *, current_value: "str | None",
                              primary_kw: "str | None", family: "str | None",
-                             platform: "str | None") -> dict:
+                             platform: "str | None",
+                             claim_ids: "list[str] | None" = None,
+                             composer_version: "str | None" = None) -> dict:
     """Returns {"should_call_llm": bool, "signal_hash": str, "reason": str,
     "cached_proposal": dict|None}. Never raises -- any internal failure
     defaults to should_call_llm=True (generate fresh), the same always-safe
-    fallback recommend.py already has for every other failure mode."""
+    fallback recommend.py already has for every other failure mode.
+
+    claim_ids/composer_version are forwarded to compute_signal_hash() --
+    see that function's own docstring (Contract C, Defect A fix)."""
     signal_hash = compute_signal_hash(
         current_value=current_value, primary_kw=primary_kw, family=family, platform=platform,
+        claim_ids=claim_ids, composer_version=composer_version,
     )
     try:
         entry = get_entry(page_path, field)

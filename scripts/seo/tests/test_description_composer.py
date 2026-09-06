@@ -329,6 +329,30 @@ class TestLoadPageClaims:
         result = load_page_claims("content/docs.aspose.org/en/fam/plat/x.md", "fam", "plat", repo_root=tmp_path)
         assert result == ["Widget.build() creates a widget."]
 
+    def test_apis_fallback_is_anchored_to_claim_owner_not_unscoped_substring(self, tmp_path):
+        """Defect B (round-1 independent review, agentId a45b555463d284f22):
+        an earlier version matched the apis: symbol as a raw substring
+        anywhere in a claim's text, live-reproduced to pull 108 unrelated
+        pdf/python claims for the bare symbol "Page" (TiffPage.dpi,
+        RasterizedPage.to_jpeg(), PageCollection.contains(), render_page(...)
+        -- none of which are the real Page class). This fixture reproduces
+        that exact contamination shape at a small scale and proves the
+        anchored (claim-owner) match rejects all of it while still matching
+        the genuine Page.* claims."""
+        self._write_claims_json(tmp_path, [
+            {"claim_id": "CLM-1", "text": "Page.render(dpi) -> RasterizedPage"},
+            {"claim_id": "CLM-2", "text": "TiffPage.dpi field of type float"},
+            {"claim_id": "CLM-3", "text": "RasterizedPage.to_jpeg(path) -> None"},
+            {"claim_id": "CLM-4", "text": "PageCollection.item(index) -> Page"},
+            {"claim_id": "CLM-5", "text": "render_page(doc, index) -> Page"},
+        ])
+        self._write_page(
+            tmp_path, "content/docs.aspose.org/en/fam/plat/x.md",
+            evidence_claims=["CLM-STALE"], evidence_apis=["Page"],
+        )
+        result = load_page_claims("content/docs.aspose.org/en/fam/plat/x.md", "fam", "plat", repo_root=tmp_path)
+        assert result == ["Page.render(dpi) -> RasterizedPage"]
+
     def test_no_evidence_block_returns_empty(self, tmp_path):
         page = tmp_path / "content/docs.aspose.org/en/fam/plat/x.md"
         page.parent.mkdir(parents=True, exist_ok=True)
@@ -499,3 +523,29 @@ class TestRecommendIntegration:
         assert call_count == 1
         recommend._gen_high_recommendations(opp, litellm_key="fake-key")
         assert call_count == 1, "an unchanged signal must reuse the cached proposal, never re-call the composer's LLM"
+
+    def test_changed_page_claims_triggers_a_fresh_composer_llm_call(self, monkeypatch):
+        """Defect A (round-1 independent review, agentId a45b555463d284f22):
+        closes the exact test-coverage gap the reviewer flagged -- the
+        sibling test above proves cache-reuse when NOTHING changed, but
+        never proved a claims change (e.g. the knowledge model regenerating
+        between two scheduled runs) actually invalidates the cache. This
+        drives it end-to-end through the real recommend.py call path, not
+        just recommendation_memory.py's own lower-level unit tests."""
+        claims_by_call = iter([["First claim text."], ["Second, different claim text."]])
+        monkeypatch.setattr(dc, "load_page_claims", lambda *a, **kw: next(claims_by_call))
+
+        call_count = 0
+
+        def fake_call_llm(prompt, model, schema, litellm_key):
+            nonlocal call_count
+            call_count += 1
+            return {"proposed_description": _GOOD_DESC, "rationale": "Composer-generated."}
+
+        monkeypatch.setattr(recommend, "_call_llm", fake_call_llm)
+
+        opp = _desc_opp()
+        recommend._gen_high_recommendations(opp, litellm_key="fake-key")
+        assert call_count == 1
+        recommend._gen_high_recommendations(opp, litellm_key="fake-key")
+        assert call_count == 2, "a genuinely changed set of cited claims must regenerate, never reuse a stale cache entry"

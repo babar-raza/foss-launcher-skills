@@ -68,6 +68,39 @@ class TestComputeSignalHash:
         h2 = rm.compute_signal_hash(family="cells", **base)
         assert h1 != h2
 
+    # -- Contract C hash formula (v14 line 674), Defect A fix (round-1
+    # independent review, agentId a45b555463d284f22): claim_ids and
+    # composer_version must both be real, load-bearing hash dimensions --
+    # a page whose cited claims changed, or a deployed composer-logic
+    # change, must invalidate a previously-cached proposal.
+
+    def test_differs_when_claim_ids_change(self):
+        base = dict(current_value="Desc", primary_kw="q", family="pdf", platform="python")
+        h1 = rm.compute_signal_hash(claim_ids=["A claim."], **base)
+        h2 = rm.compute_signal_hash(claim_ids=["A different claim."], **base)
+        assert h1 != h2
+
+    def test_differs_when_composer_version_changes(self):
+        base = dict(current_value="Desc", primary_kw="q", family="pdf", platform="python")
+        h1 = rm.compute_signal_hash(composer_version="1", **base)
+        h2 = rm.compute_signal_hash(composer_version="2", **base)
+        assert h1 != h2
+
+    def test_claim_ids_order_does_not_affect_hash(self):
+        """Sorted internally -- callers build this list in claims.json/
+        frontmatter-list order, which is not guaranteed stable."""
+        base = dict(current_value="Desc", primary_kw="q", family="pdf", platform="python")
+        h1 = rm.compute_signal_hash(claim_ids=["A claim.", "B claim."], **base)
+        h2 = rm.compute_signal_hash(claim_ids=["B claim.", "A claim."], **base)
+        assert h1 == h2
+
+    def test_omitted_claim_ids_and_composer_version_default_consistently(self):
+        """A caller with neither concept (recommend.py's raw seoTitle path)
+        gets a stable, deterministic hash -- not None-vs-omitted drift."""
+        base = dict(current_value="Title", primary_kw="q", family="words", platform="python")
+        assert rm.compute_signal_hash(**base) == rm.compute_signal_hash(claim_ids=None, composer_version=None, **base)
+        assert rm.compute_signal_hash(**base) == rm.compute_signal_hash(claim_ids=[], composer_version=None, **base)
+
 
 # ---------------------------------------------------------------------------
 # load_memory / consult_before_llm_call
@@ -158,6 +191,50 @@ class TestConsultBeforeLlmCall:
         result = rm.consult_before_llm_call("content/a.md", "description", **self._KW)
         assert result["should_call_llm"] is True
         assert result["reason"] == "no_prior_entry"
+
+
+class TestConsultBeforeLlmCallClaimIdsAndComposerVersion:
+    """Contract C hash formula (Defect A fix, round-1 independent review,
+    agentId a45b555463d284f22): a cached description proposal must
+    invalidate when the page's own cited claims change, or when the
+    composer's own version bumps -- not just when current_value/primary_kw/
+    family/platform change."""
+
+    _KW = dict(current_value="Old Desc", primary_kw="aspose pdf python",
+               family="pdf", platform="python")
+
+    def test_unchanged_claim_ids_and_approved_outcome_skips_llm_call(self):
+        h = rm.compute_signal_hash(claim_ids=["Claim A."], composer_version="1", **self._KW)
+        rm.record_result("content/a.md", "description", h,
+                          {"proposed_description": "D2", "rationale": "r"}, outcome="approved")
+        result = rm.consult_before_llm_call(
+            "content/a.md", "description", claim_ids=["Claim A."], composer_version="1", **self._KW,
+        )
+        assert result["should_call_llm"] is False
+        assert result["cached_proposal"]["proposed_description"] == "D2"
+
+    def test_changed_claim_ids_triggers_regeneration_despite_unchanged_text(self):
+        h = rm.compute_signal_hash(claim_ids=["Claim A."], composer_version="1", **self._KW)
+        rm.record_result("content/a.md", "description", h,
+                          {"proposed_description": "D2", "rationale": "r"}, outcome="approved")
+        # current_value/primary_kw/family/platform are all byte-identical to
+        # the cached entry -- only the page's own cited claims changed
+        # (e.g. the knowledge model regenerated). Must still regenerate.
+        result = rm.consult_before_llm_call(
+            "content/a.md", "description", claim_ids=["Claim B."], composer_version="1", **self._KW,
+        )
+        assert result["should_call_llm"] is True
+        assert result["reason"] == "signal_changed"
+
+    def test_composer_version_bump_triggers_regeneration_despite_unchanged_claims(self):
+        h = rm.compute_signal_hash(claim_ids=["Claim A."], composer_version="1", **self._KW)
+        rm.record_result("content/a.md", "description", h,
+                          {"proposed_description": "D2", "rationale": "r"}, outcome="approved")
+        result = rm.consult_before_llm_call(
+            "content/a.md", "description", claim_ids=["Claim A."], composer_version="2", **self._KW,
+        )
+        assert result["should_call_llm"] is True
+        assert result["reason"] == "signal_changed"
 
 
 # ---------------------------------------------------------------------------

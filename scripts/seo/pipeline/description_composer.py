@@ -66,9 +66,26 @@ real, observed drift pattern: the knowledge model regenerates periodically
 and some pages' claim_ids go stale while others stay valid -- confirmed live
 across several real pages, from fully-resolved to partially-resolved to
 zero-resolved), is its own frontmatter `apis:` list (present on every
-skill-generated page): claims whose `text` mentions one of those symbols. An
-empty result is a legitimate, fail-closed outcome (makes every downstream
-grounding/numeral check maximally strict), never fabricated.
+skill-generated page): claims whose `text` is OWNED BY one of those symbols
+-- anchored at the start of the claim text (`^SYMBOL\b`), matching
+`claims.json`'s own convention that a claim's text begins with its owning
+symbol ("Page.render(...)", "PageCollection.item(...) -> Page"). **Hardened
+after independent review, round 1**: the original unscoped
+substring-containment version demonstrably pulled in unrelated claims for a
+short, common bare symbol -- live-reproduced against real `pdf/python` data,
+the symbol `"Page"` matched 108 claims spanning multiple unrelated
+classes/functions (`TiffPage.dpi`, `RasterizedPage.to_jpeg()`,
+`PageCollection.contains()`, `render_page(...)`) since `"Page"` is a
+substring of all of them. An unanchored word-boundary match alone
+(`\bPage\b`, searched anywhere) closed most of this (39 -> 5 wrongly-owned
+matches) but still let a bare `"Page"` match another claim's unrelated
+RETURN-TYPE mention (`"PageCollection.item(index) -> Page"`) -- a residual
+leak found during this fix's own re-verification. Anchoring the match to
+the claim's own owner (start-of-string) closes it completely (0 wrongly-
+owned matches, confirmed live) while still matching every genuine
+`"SYMBOL.member(...)"`/`"SYMBOL manages..."` claim. An empty result is a
+legitimate, fail-closed outcome (makes every downstream grounding/numeral
+check maximally strict), never fabricated.
 """
 from __future__ import annotations
 
@@ -98,6 +115,15 @@ if str(_PIPELINE_ROOT) not in sys.path:
 from lib.forbidden_claims_check import load_forbidden_claims, newly_introduced as _forbidden_newly_introduced  # noqa: E402
 
 REPO_ROOT = _DEFAULT_REPO_ROOT
+
+# A bump here must accompany any change to this module's own prompt text or
+# validation logic -- recommendation_memory.py's compute_signal_hash() folds
+# this into the grounded-signal hash (Contract C, v14 design doc line 674)
+# specifically so a deployed logic change invalidates every previously-
+# cached "approved" candidate rather than silently serving stale-era output
+# forever. Callers (recommend.py) pass this to consult_before_llm_call()/
+# record_result() as composer_version -- never compute it themselves.
+COMPOSER_VERSION = "1"
 
 
 def configure(*, repo_root: "Path | str | None" = None) -> None:
@@ -214,7 +240,18 @@ def load_page_claims(
         apis = evidence.get("apis") if isinstance(evidence, dict) else None
         if isinstance(apis, list) and apis:
             api_set = {str(a) for a in apis if a}
-            return [text for text in index.values() if any(a in text for a in api_set)]
+            # Anchored at the START of the claim text, not merely present
+            # anywhere in it -- claims.json's own convention is that a
+            # claim's text begins with its owning symbol ("Page.render(...)",
+            # "PageCollection.item(...) -> Page", "PageCollection manages...").
+            # An unanchored match still let a bare "Page" match anywhere it
+            # appeared, including as another claim's unrelated RETURN-TYPE
+            # mention ("PageCollection.item(index) -> Page") -- a real,
+            # live-reproduced residual leak found during this fix's own
+            # verification. Anchoring to the claim's own owner eliminates it
+            # while still matching every genuine "SYMBOL.member(...)" claim.
+            patterns = [re.compile(r"^" + re.escape(a) + r"\b") for a in api_set]
+            return [text for text in index.values() if any(p.search(text) for p in patterns)]
         return []
     except Exception:
         return []
