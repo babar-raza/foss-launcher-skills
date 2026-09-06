@@ -3877,6 +3877,55 @@ def test_verify_examples_still_uses_the_stub_for_the_existing_testplat_fixture(t
     result = json.loads(result_path.read_text(encoding="utf-8"))
     assert result["runner"] == "default_stub"
     assert all(b["reason"] == "TOOLCHAIN-UNAVAILABLE" for b in result["block_statuses"])
+
+
+def test_verify_examples_dispatches_through_language_runners_for_a_registered_platform(tmp_path, monkeypatch):
+    """Closes the one real coverage gap an independent reviewer found in C7's initial tests:
+    the tests above prove the dispatch DECISION in isolation, and prove verify_examples() is
+    unchanged for the (unregistered) "testplat" platform, but nothing drove verify_examples()
+    itself through a platform that DOES resolve to a real entry in `_LANGUAGE_RUNNERS`. Building
+    a full second scratch-repo fixture for an actual "python"/"typescript" platform would
+    duplicate _make_scratch_repo's registry/knowledge/clone-cache fixture data wholesale (the
+    reason the tests above chose not to) -- so instead, this temporarily registers the existing,
+    already-fixtured "testplat" platform as a `_LANGUAGE_RUNNERS` key (monkeypatch.setitem on a
+    plain module-level dict -- T4/permitted, not a T2 internal-function replacement) and proves
+    the REAL verify_examples() call path selects it over `_default_verification_runner`, using a
+    fast, network-free double instead of the real (slow, real-venv) python_verification_runner."""
+    monkeypatch.setenv("AGENT_SESSION_ID", "test-session-c7-dispatch-e2e")
+    repo_root, _upstream_dir = _make_scratch_repo(tmp_path)
+    rr.configure(repo_root=repo_root, command_runner=_fake_gh_command_runner())
+
+    def _stub_registered_runner(candidate_path: Path, factpack: dict) -> dict:
+        text = candidate_path.read_text(encoding="utf-8") if candidate_path.is_file() else ""
+        block_count = text.count("```") // 2
+        return {
+            "runner": "stub_registered_runner",
+            "blocks_found": block_count,
+            "block_statuses": [
+                {"index": i, "status": "COMPILED+RAN CLEAN"} for i in range(block_count)
+            ],
+            "all_named": True,
+        }
+
+    monkeypatch.setitem(rr._LANGUAGE_RUNNERS, "testplat", _stub_registered_runner)
+
+    manifest = rr.start_run("testfam", "testplat")
+    run_id = manifest["run_id"]
+    rr.plan_run("testfam", "testplat", run_id)
+    _write_candidate(repo_root, _GOOD_CANDIDATE)
+    rr.ingest_candidate("testfam", "testplat", run_id)
+    manifest = rr.verify_examples("testfam", "testplat", run_id)
+    assert manifest["state"] == "AWAITING_REVIEW"
+
+    result_path = rr._run_root("testfam", "testplat", run_id) / "verification" / "result.json"
+    result = json.loads(result_path.read_text(encoding="utf-8"))
+    assert result["runner"] == "stub_registered_runner"
+    assert all(b["status"] == "COMPILED+RAN CLEAN" for b in result["block_statuses"])
+
+
+# --- TC-HARDEN-01 (MT033): python_verification_runner ---------------------------------------
+#
+# Real acquire->execute->classify is the check (never mocked) -- but the network-dependent half
 # (a real `pip install` from PyPI) is deliberately NOT exercised here, to keep the committed
 # suite fast and network-independent, matching this plan's own established practice (the
 # original 2026-08-03/04 verification sprint was itself a real, manual, one-time pass, never a

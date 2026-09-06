@@ -4733,14 +4733,17 @@ def _default_verification_runner(candidate_path: Path, factpack: dict) -> dict:
 
 # TC-HARDEN-01 (MT033): the first real per-language verification runner -- Python, per the
 # plan's own sequencing recommendation (most products of any language, cheapest disposable-venv
-# setup already documented in the Verification pass section). Deliberately opt-in, not a
-# replacement for `_default_verification_runner` -- the module's own "pluggable seam" design
-# (`configure(verification_runner=...)`) already anticipated exactly this shape, and swapping the
-# hardcoded default would add real venv/network cost to every existing test and CLI invocation
-# silently, including the 6 languages this pass does not touch. Wired into the real CLI path via
-# `verify-examples --python-runner` (see main()), not left reachable only from a test import --
-# the same "a gate must be reachable from the real production path" lesson TC-HARDEN-12 already
-# named for a different function.
+# setup already documented in the Verification pass section). Originally opt-in only, wired into
+# the real CLI path via `verify-examples --python-runner` (see main()), not left reachable only
+# from a test import -- the same "a gate must be reachable from the real production path" lesson
+# TC-HARDEN-12 already named for a different function.
+#
+# C7 (MT065-2026-09-06-EXAMPLE-VERIFICATION-CENTRALIZATION): `verify_examples()` now dispatches
+# to this runner AUTOMATICALLY for platform="python" (see `_LANGUAGE_RUNNERS`, defined right
+# before `verify_examples()`) -- the "add real venv/network cost silently" concern this comment
+# used to warn about is the exact RC2 bug that motivated the change: leaving it opt-in-only meant
+# a caller who forgot `--python-runner` got the honest stub instead, silently, for a real Python
+# product. `--python-runner` is kept only as an explicit override (see its own --help text).
 _ANY_LANG_CODE_BLOCK_RE = re.compile(r"```(\w*)\n(.*?)```", re.DOTALL)
 
 
@@ -6102,21 +6105,29 @@ def main(argv: "list[str] | None" = None) -> int:
                 help="This edit was scoped to only the At a Glance mermaid block itself.",
             )
         if name == "verify-examples":
-            # TC-HARDEN-01 (MT033): opt-in real Python execution -- omitting this flag keeps the
-            # honest, side-effect-free stub (every block BLOCKED-WITH-REASON:
-            # TOOLCHAIN-UNAVAILABLE), matching every prior invocation's behavior exactly.
+            # TC-HARDEN-01 (MT033): explicit real-runner override, kept for parity/debugging.
+            # C7 (MT065-2026-09-06-EXAMPLE-VERIFICATION-CENTRALIZATION): as of this taskcard,
+            # verify_examples() already dispatches to the real Python/TypeScript runners
+            # automatically for platform="python"/"typescript" (see `_LANGUAGE_RUNNERS`) --
+            # omitting these flags is NO LONGER side-effect-free for those two platforms. These
+            # flags now only matter for forcing the real runner on a platform that wouldn't
+            # otherwise get one, or for explicitness in scripts/CI that predate the auto-dispatch.
             cmd.add_argument(
                 "--python-runner", action="store_true",
-                help="Use the real Python verification runner (real venv + pip install + "
-                     "execute `python`-tagged blocks) instead of the honest stub. Every "
-                     "other language's blocks still report TOOLCHAIN-UNAVAILABLE.",
+                help="Force the real Python verification runner (real venv + pip install + "
+                     "execute `python`-tagged blocks). Redundant for platform=\"python\" runs, "
+                     "which already get this runner automatically since C7 -- kept for explicit "
+                     "override use. Every other language's blocks still report "
+                     "TOOLCHAIN-UNAVAILABLE.",
             )
             cmd.add_argument(
                 "--typescript-runner", action="store_true",
-                help="TC-25: use the real TypeScript verification runner (disposable npm "
+                help="TC-25: force the real TypeScript verification runner (disposable npm "
                      "install + tsc --noEmit + tsx execution against `typescript`/`ts`-tagged "
-                     "blocks) instead of the honest stub. Every other language's blocks still "
-                     "report TOOLCHAIN-UNAVAILABLE. Mutually exclusive with --python-runner.",
+                     "blocks). Redundant for platform=\"typescript\" runs, which already get "
+                     "this runner automatically since C7 -- kept for explicit override use. "
+                     "Every other language's blocks still report TOOLCHAIN-UNAVAILABLE. "
+                     "Mutually exclusive with --python-runner.",
             )
 
     p_approve = sub.add_parser("approve")
