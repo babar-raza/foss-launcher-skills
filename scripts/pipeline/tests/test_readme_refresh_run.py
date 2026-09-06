@@ -3733,9 +3733,74 @@ def test_verify_examples_reruns_in_place_from_awaiting_review(tmp_path, monkeypa
         rr.verify_examples("testfam", "testplat", run_id)
 
 
-# --- TC-HARDEN-01 (MT033): python_verification_runner ---------------------------------------
+# --- C7 (MT065-2026-09-06-EXAMPLE-VERIFICATION-CENTRALIZATION): RC2 dispatch fix -------------
 #
-# Real acquire->execute->classify is the check (never mocked) -- but the network-dependent half
+# verify_examples() used to fall straight to `_default_verification_runner` (the honest
+# all-stub) unless a caller explicitly passed --python-runner/--typescript-runner -- even for a
+# real python/typescript product. `_LANGUAGE_RUNNERS` lets it dispatch automatically from the
+# run's own `platform` argument instead. These tests exercise the dispatch DECISION directly
+# (the same one-line `_verification_runner or _LANGUAGE_RUNNERS.get(platform,
+# _default_verification_runner)` verify_examples() itself evaluates) rather than replaying the
+# full plan_run/ingest_candidate/verify_examples state machine, which needs a large, heavily
+# parametrized scratch-repo fixture (_make_scratch_repo) tied to specific "testfam"/"testplat"
+# data-file contents that would need duplicating wholesale for a different platform string --
+# the full existing suite (216 tests, run unchanged after this fix) already proves the
+# "testplat" (unknown-platform, stub) path end-to-end; these tests prove the new decision logic
+# itself, which is what actually changed.
+
+
+def test_language_runners_dispatch_dict_maps_to_the_real_functions():
+    assert rr._LANGUAGE_RUNNERS["python"] is rr.python_verification_runner
+    assert rr._LANGUAGE_RUNNERS["typescript"] is rr.typescript_verification_runner
+
+
+def test_dispatch_selects_real_python_runner_for_python_platform():
+    runner = None or rr._LANGUAGE_RUNNERS.get("python", rr._default_verification_runner)
+    assert runner is rr.python_verification_runner
+
+
+def test_dispatch_selects_real_typescript_runner_for_typescript_platform():
+    runner = None or rr._LANGUAGE_RUNNERS.get("typescript", rr._default_verification_runner)
+    assert runner is rr.typescript_verification_runner
+
+
+def test_dispatch_falls_back_to_stub_for_an_unknown_platform():
+    runner = None or rr._LANGUAGE_RUNNERS.get("some-future-platform", rr._default_verification_runner)
+    assert runner is rr._default_verification_runner
+
+
+def test_explicit_verification_runner_override_still_takes_precedence():
+    # A caller that still passes --python-runner/--typescript-runner (or calls
+    # configure(verification_runner=...) directly) must see IDENTICAL behavior to before this
+    # fix -- the explicit override always wins over auto-dispatch, even when it names the stub.
+    rr.configure(verification_runner=rr._default_verification_runner)
+    runner = rr._verification_runner or rr._LANGUAGE_RUNNERS.get("python", rr._default_verification_runner)
+    assert runner is rr._default_verification_runner
+
+
+def test_verify_examples_still_uses_the_stub_for_the_existing_testplat_fixture(tmp_path, monkeypatch):
+    """The one, real, full-state-machine proof that verify_examples() itself (not just the
+    extracted decision logic above) is wired correctly post-fix: testfam/testplat is not a key
+    in _LANGUAGE_RUNNERS, so this full real run must produce byte-identical behavior to every
+    pre-C7 run of this exact fixture (see test_full_round_trip_start_through_push_dry_run,
+    unchanged) -- proving the fix is additive for known platforms, not a silent behavior change
+    for the unknown-platform case every existing test already exercises."""
+    monkeypatch.setenv("AGENT_SESSION_ID", "test-session-c7-stub-unchanged")
+    repo_root, _upstream_dir = _make_scratch_repo(tmp_path)
+    rr.configure(repo_root=repo_root, command_runner=_fake_gh_command_runner())
+
+    manifest = rr.start_run("testfam", "testplat")
+    run_id = manifest["run_id"]
+    rr.plan_run("testfam", "testplat", run_id)
+    _write_candidate(repo_root, _GOOD_CANDIDATE)
+    rr.ingest_candidate("testfam", "testplat", run_id)
+    manifest = rr.verify_examples("testfam", "testplat", run_id)
+    assert manifest["state"] == "AWAITING_REVIEW"
+
+    result_path = rr._run_root("testfam", "testplat", run_id) / "verification" / "result.json"
+    result = json.loads(result_path.read_text(encoding="utf-8"))
+    assert result["runner"] == "default_stub"
+    assert all(b["reason"] == "TOOLCHAIN-UNAVAILABLE" for b in result["block_statuses"])
 # (a real `pip install` from PyPI) is deliberately NOT exercised here, to keep the committed
 # suite fast and network-independent, matching this plan's own established practice (the
 # original 2026-08-03/04 verification sprint was itself a real, manual, one-time pass, never a

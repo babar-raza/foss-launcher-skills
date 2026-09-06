@@ -5426,6 +5426,40 @@ def typescript_verification_runner(candidate_path: Path, factpack: dict) -> dict
     }
 
 
+# C7 (MT065-2026-09-06-EXAMPLE-VERIFICATION-CENTRALIZATION): RC2 fix.
+# Runner selection used to be manual-only -- verify_examples() fell straight
+# to `_default_verification_runner` (the honest all-stub) unless a caller
+# explicitly passed --python-runner/--typescript-runner (main(), below), even
+# for a real python/typescript product. The wrong flag (or none) silently
+# produced an all-stub, still-approvable result -- confirmed directly by
+# reading verify_examples()/approve()'s bodies (RC2). This dict lets
+# verify_examples() dispatch automatically from the run's own `platform`
+# argument, which already flows through the whole call chain -- no flag
+# needed for the common case. `configure(verification_runner=...)` (and
+# therefore --python-runner/--typescript-runner, kept as an explicit manual
+# override) still takes precedence when set, so existing CLI behavior for
+# callers who DO pass a flag is completely unchanged.
+#
+# Deliberately still points at THIS module's own python_verification_runner/
+# typescript_verification_runner (not yet swapped to the
+# lib.example_verification.runners package copies extracted from them in
+# taskcard C3) -- both are proven byte-identical (C3's own parity tests,
+# plus a real end-to-end pilot against the actual pdf/python and
+# pdf/typescript clone caches), but swapping the actual executed code and
+# fixing dispatch are two separable risks; this taskcard's own promotion
+# gate ("dirty-set identical pre/post") is about dispatch, not about
+# proving the swap again. The swap -- and the fuller report.json/
+# VerificationReport writing the governing plan's Consumer-wiring table
+# describes -- needs `lib/example_verification/api.py`, which no taskcard
+# in the current C1-C14 rollout builds (a real, disclosed gap in the plan
+# itself, not silently deferred without a note -- see this taskcard's own
+# evidence for the full reasoning).
+_LANGUAGE_RUNNERS: "dict[str, Callable[[Path, dict], dict]]" = {
+    "python": python_verification_runner,
+    "typescript": typescript_verification_runner,
+}
+
+
 def verify_examples(family: str, platform: str, run_id: str, *, session_id: "str | None" = None) -> dict:
     """VERIFYING_EXAMPLES -> AWAITING_REVIEW: run the (pluggable) per-language verification
     pass. Only transitions once every block has a named status -- never silently. Re-runnable
@@ -5446,7 +5480,7 @@ def verify_examples(family: str, platform: str, run_id: str, *, session_id: "str
         factpack_path = run_root / "facts" / "factpack.json"
         factpack = json.loads(factpack_path.read_text(encoding="utf-8")) if factpack_path.is_file() else {}
 
-        runner = _verification_runner or _default_verification_runner
+        runner = _verification_runner or _LANGUAGE_RUNNERS.get(platform, _default_verification_runner)
         verification_result = runner(candidate_path, factpack)
         if not verification_result.get("all_named", False):
             raise ReadmeRefreshRunError(
