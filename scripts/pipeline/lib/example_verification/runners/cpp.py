@@ -88,6 +88,26 @@ STDERR) was also confirmed live against a real `cl.exe` invocation on a
 deliberately broken 3-line fragment before being encoded into a regex --
 unlike C13's Rust runner, this one's error-format assumption IS
 live-verified, since a real toolchain exists here.
+
+**Disclosed, real generalization gap (independent-review finding, round
+1)**: `CppRunner` takes `extra_cmake_args` precisely because a bare
+default build is not safe to assume works uniformly across all 3 real
+CMakeLists.txt-declaring products. Only `slides/cpp`'s args (above) have
+actually been run live. Reading the other two products' own
+`CMakeLists.txt` (not run, just read, before this disclosure was written):
+`email/cpp` defaults `ASPOSE_EMAIL_FOSS_BUILD_TESTS` to `ON` (needs
+`-DASPOSE_EMAIL_FOSS_BUILD_TESTS=OFF` for a lean build, mirroring
+slides/cpp's own option); `pdf/cpp` unconditionally `FetchContent`s
+googletest and unconditionally `add_subdirectory(examples)`s with no
+option to disable either -- a bare `CppRunner("pdf")` would need a real,
+heavier build (a full test suite plus an examples tree) that has never
+been exercised end-to-end. Not a bug in what shipped -- `acquire()`/
+`compile()` behave identically and correctly regardless of which product
+is named -- but a real, disclosed limit on what "this runner covers 3
+products" actually means today: a future caller of `CppRunner("pdf")` or
+`CppRunner("email")` should supply and live-verify its own
+`extra_cmake_args` before trusting the result, the same way this taskcard
+did for slides/cpp.
 """
 from __future__ import annotations
 
@@ -95,6 +115,7 @@ import os
 import re
 import shutil
 import subprocess
+import tempfile
 from dataclasses import dataclass
 from pathlib import Path
 
@@ -102,11 +123,39 @@ from ..policy import clone_cache_path, Policy, ProductContext
 
 _VSWHERE_STANDARD_PATH = r"C:\Program Files (x86)\Microsoft Visual Studio\Installer\vswhere.exe"
 
+# Independent-review finding (round 1), reproduced live: a product whose
+# CMakeLists.txt uses FetchContent (e.g. slides/cpp's pugixml/miniz) does a
+# real, uncached git clone into a fresh build_dir on every call -- one real
+# 5-attempt sample hit a genuine transient network failure once. Pointing
+# every call at this same persistent, shared cache dir (never inside a
+# disposable `work_dir`) lets a repeat build reuse an already-fetched
+# dependency instead of re-cloning and re-risking a transient failure.
+_FETCHCONTENT_CACHE_DIR = Path(tempfile.gettempdir()) / "aspose-example-verification-fetchcontent"
+
+
+def _with_fetchcontent_cache_dir(extra_cmake_args: "list[str]") -> "list[str]":
+    """Append `-DFETCHCONTENT_BASE_DIR=...` pointing at the shared cache
+    dir above, unless the caller already supplied one (never overridden)."""
+    if any(a.startswith("-DFETCHCONTENT_BASE_DIR=") for a in extra_cmake_args):
+        return extra_cmake_args
+    return [*extra_cmake_args, f"-DFETCHCONTENT_BASE_DIR={_FETCHCONTENT_CACHE_DIR}"]
+
 # MSVC's own, well-documented diagnostic format -- confirmed live against a
 # real cl.exe invocation before writing this regex (see module docstring):
 # "C:\path\to\file.cpp(2): error C2059: syntax error: ';'" -- printed to
 # STDOUT, not STDERR.
-_MSVC_ERROR_LOCATION_RE = re.compile(r'^(.+?\.(?:cpp|cc|cxx|h|hpp)):?\((\d+)\)\s*:\s*error', re.MULTILINE)
+#
+# Independent-review finding (round 1): the original pattern required the
+# literal word "error" immediately after the location, so it silently
+# missed two real MSVC/linker failure shapes, confirmed live with a real
+# cmake --build: `fatal error C1083: Cannot open include file...` (still a
+# real compiler diagnostic, MSVC just prefixes some errors "fatal") and
+# `document.obj : error LNK2019: unresolved external symbol ...` (a real
+# linker diagnostic -- never uses the `file(line):` shape at all, since a
+# linker error names an object file, not a source line). Both now count.
+_MSVC_ERROR_LOCATION_RE = re.compile(
+    r'^(.+?\.(?:cpp|cc|cxx|h|hpp)):?\((\d+)\)\s*:\s*(?:fatal\s+)?error', re.MULTILINE)
+_MSVC_LINKER_ERROR_RE = re.compile(r'error\s+LNK\d+', re.MULTILINE)
 
 
 @dataclass(frozen=True, slots=True)
@@ -125,10 +174,14 @@ def _msvc_env() -> "_MsvcEnv | None":
     """Local, fixed re-implementation of `toolchain.msvc_env()` -- see this
     module's own docstring for the two real, live-confirmed bugs in the
     shared version this works around (`-products *`/`-requires` product
-    filtering, and `shell=True` instead of a pre-quoted list element).
-    Not cached across calls the way the shared version is (this runner
-    only ever calls it once per instance, from `acquire()`, itself already
-    cached -- see `CppRunner.__init__`)."""
+    filtering, and `shell=True` instead of a pre-quoted list element). Not
+    cached at the MODULE level (unlike the shared `toolchain.msvc_env()`,
+    which caches process-wide) -- `CppRunner` caches its own result at the
+    INSTANCE level instead (see `CppRunner.acquire()`); independent-review
+    finding (round 1): an earlier draft's docstring claimed this already
+    happened, but `acquire()` called this function fresh on every single
+    invocation (once per block, not once per instance) -- fixed there, not
+    here, since this bare function has no instance to cache against."""
     vswhere = _find_vswhere()
     if vswhere is None:
         return None
@@ -195,20 +248,42 @@ class CppRunner:
         self._extra_cmake_args = extra_cmake_args or []
         self._build_ran = False  # the real configure+build runs at most once per instance
         self._build_failure: "dict | None" = None  # None = last (only) build was clean
+        self._msvc_env_computed = False  # independent-review finding (round 1): _msvc_env()
+        self._msvc_env_cache: "_MsvcEnv | None" = None  # was being re-run on every block
 
     def starts_chain(self, code: str) -> bool:
         """True (fresh, self-contained example) when the block declares its
-        own `#include`, `using namespace`, or `int main(`; False (continues
-        the previous block's chain) otherwise. Confirmed against real
-        content: every real cpp code block under `content/docs.aspose.org/
-        en/slides/cpp/developer-guide/` re-declares its own `#include`
-        lines rather than relying on a prior block's -- the same
-        self-contained shape `GoRunner`'s heuristic confirms for Go."""
+        own `#include`, `using namespace`, `int main(`, a preprocessor
+        directive (`#define`/`#pragma`/`#if`/...), or a top-level
+        declaration (`namespace`/`extern "C"`/`class`/`struct`/`template`);
+        False (continues the previous block's chain) otherwise. The
+        `#include` case is confirmed against real content: every real cpp
+        code block under `content/docs.aspose.org/en/slides/cpp/developer-
+        guide/` re-declares its own `#include` lines rather than relying on
+        a prior block's -- the same self-contained shape `GoRunner`'s
+        heuristic confirms for Go.
+
+        Independent-review finding (round 1): the original version only
+        recognized `#include`/`using namespace`/`int main`, so a fresh,
+        self-contained `#define`/`#pragma once`/`namespace {...}`/`extern
+        "C" {...}`/standalone `class`/`struct` block would have been
+        misclassified as a chain continuation. No real cpp content uses
+        these shapes today (grepped before fixing), so this was untested
+        rather than live-wrong -- but since this runner shares one library-
+        level verdict across the whole chain regardless, a misclassified
+        `starts_chain()` only matters for which block gets blamed
+        (`DEPENDS-ON-FAILED-BLOCK`) after a real build failure, not whether
+        the run succeeds."""
         for line in code.splitlines():
             stripped = line.strip()
             if not stripped or stripped.startswith(("//", "/*")):
                 continue
-            return stripped.startswith(("#include", "using namespace", "int main"))
+            if stripped.startswith("#"):
+                return True
+            return stripped.startswith((
+                "using namespace", "int main", "namespace", 'extern "C"',
+                "class ", "class{", "struct ", "struct{", "template",
+            ))
         return True
 
     def acquire(self, work_dir: Path, policy: Policy, product: ProductContext) -> dict:
@@ -216,8 +291,11 @@ class CppRunner:
         scope is explicitly "the CMakeLists.txt-declaring subset" -- a
         product without one is a genuine, honest "can't do this here", not
         a per-block concern to defer to compile(). Also resolves the real
-        MSVC environment once (see `_msvc_env()` above) -- both are cached
-        on the instance, since neither is something to redo per block."""
+        MSVC environment -- cached on the INSTANCE after the first call
+        (independent-review finding, round 1: an earlier draft called
+        `_msvc_env()` fresh on every single invocation -- once per block,
+        not once per instance -- re-running two real subprocess spawns
+        (vswhere + vcvarsall) for no reason; now computed at most once)."""
         source_dir = clone_cache_path(self._family, "cpp")
         if not (source_dir / "CMakeLists.txt").is_file():
             return {"ok": False, "detail": f"no CMakeLists.txt for {self._family}/cpp -- out of this runner's scope"}
@@ -225,7 +303,10 @@ class CppRunner:
         ninja_exe = shutil.which("ninja")
         if cmake_exe is None or ninja_exe is None:
             return {"ok": False, "detail": "cmake or ninja not found on PATH"}
-        msvc = _msvc_env()
+        if not self._msvc_env_computed:
+            self._msvc_env_cache = _msvc_env()
+            self._msvc_env_computed = True
+        msvc = self._msvc_env_cache
         if msvc is None:
             return {"ok": False, "detail": "MSVC build environment could not be captured (vswhere/vcvarsall)"}
         return {
@@ -247,9 +328,10 @@ class CppRunner:
         work_dir = acquired["work_dir"]
         build_dir = work_dir / "build"
         full_env = {**os.environ, **acquired["msvc_env"]}
+        fetchcontent_args = _with_fetchcontent_cache_dir(self._extra_cmake_args)
         configure = subprocess.run(
             [acquired["cmake_exe"], "-S", str(acquired["source_dir"]), "-B", str(build_dir),
-             "-G", "Ninja", "-DCMAKE_BUILD_TYPE=Release", *self._extra_cmake_args],
+             "-G", "Ninja", "-DCMAKE_BUILD_TYPE=Release", *fetchcontent_args],
             capture_output=True, text=True, encoding="utf-8", errors="replace",
             timeout=300, env=full_env,
         )
@@ -290,12 +372,14 @@ class CppRunner:
         genuine compile error necessarily cites one of that library's own
         real source files. There is no "own wrapper" basename to exclude,
         so `context` (kept only for `LanguageRunner` protocol parity) is
-        unused: any MSVC-shaped file citation means UPSTREAM-BROKEN (a
-        real defect in the library's own source, exactly what a real
-        compile of real source is supposed to catch); no citation at all
-        means an ordinary COMPILE-ERROR (e.g. a CMake configure-time
-        error, never a compiler diagnostic)."""
+        unused: any MSVC-shaped compiler OR linker diagnostic means
+        UPSTREAM-BROKEN (a real defect in the library's own source or its
+        own link step, exactly what a real compile+link of real source is
+        supposed to catch); no such diagnostic at all means an ordinary
+        COMPILE-ERROR (e.g. a CMake configure-time error, never a compiler
+        or linker diagnostic). A plain `warning C####` line (no `error`)
+        deliberately does not count either way."""
         tail = (output or "").strip()[-4000:]
-        if _MSVC_ERROR_LOCATION_RE.search(tail):
+        if _MSVC_ERROR_LOCATION_RE.search(tail) or _MSVC_LINKER_ERROR_RE.search(tail):
             return "UPSTREAM-BROKEN", tail
         return "COMPILE-ERROR", tail

@@ -21,7 +21,9 @@ from lib.example_verification.runners.base import BaseRunner
 from lib.example_verification.runners.cpp import (
     CppRunner,
     _msvc_env,
+    _with_fetchcontent_cache_dir,
     _MSVC_ERROR_LOCATION_RE,
+    _MSVC_LINKER_ERROR_RE,
 )
 
 # The real MSVC diagnostic line this module's classify() parses -- captured
@@ -76,6 +78,22 @@ class TestStartsChain:
         runner = CppRunner(family="no-such-family")
         assert runner.starts_chain("// a comment\n#include <iostream>")
 
+    @pytest.mark.parametrize("code", [
+        "#define FOO 1\nint x = FOO;",
+        "#pragma once\nclass Foo {};",
+        "namespace Foo {\nint x;\n}",
+        'extern "C" {\nvoid foo();\n}',
+        "class Foo {\npublic:\n    int x;\n};",
+        "struct Foo {\n    int x;\n};",
+    ])
+    def test_other_real_self_contained_openers_start_a_new_chain(self, code):
+        """Independent-review finding (round 1): a fresh, self-contained
+        #define/#pragma/namespace/extern "C"/class/struct block was
+        previously misclassified as a chain continuation since only
+        #include/using namespace/int main were recognized."""
+        runner = CppRunner(family="no-such-family")
+        assert runner.starts_chain(code)
+
 
 class TestClassify:
     def test_real_msvc_error_format_is_upstream_broken(self):
@@ -98,6 +116,44 @@ class TestClassify:
         reason, _ = runner.classify("CMake Error at CMakeLists.txt:5 (message):\n  something failed\n")
         assert reason == "COMPILE-ERROR"
 
+    def test_fatal_error_is_upstream_broken(self):
+        """Independent-review finding (round 1): the original regex
+        required the literal word "error" immediately after the location,
+        so a real MSVC `fatal error C####` (e.g. a missing include file --
+        still a genuine defect in the library's own source) was silently
+        classified as an ordinary COMPILE-ERROR instead."""
+        runner = CppRunner(family="no-such-family")
+        output = "main.cpp(5): fatal error C1083: Cannot open include file: 'foo.h': No such file or directory"
+        reason, _ = runner.classify(output)
+        assert reason == "UPSTREAM-BROKEN"
+
+    def test_linker_error_is_upstream_broken(self):
+        """Independent-review finding (round 1): a real MSVC linker
+        diagnostic (LNK####) never uses the `file(line):` shape at all --
+        it names an object file, not a source line -- so the original
+        regex silently missed a genuine unresolved-symbol defect."""
+        runner = CppRunner(family="no-such-family")
+        output = "document.obj : error LNK2019: unresolved external symbol foo referenced in function bar"
+        assert _MSVC_LINKER_ERROR_RE.search(output)
+        reason, _ = runner.classify(output)
+        assert reason == "UPSTREAM-BROKEN"
+
+    def test_plain_warning_does_not_false_positive(self):
+        runner = CppRunner(family="no-such-family")
+        output = "main.cpp(3): warning C4101: 'x': unreferenced local variable"
+        reason, _ = runner.classify(output)
+        assert reason == "COMPILE-ERROR"
+
+
+class TestFetchContentCacheDir:
+    def test_appends_cache_dir_when_not_already_supplied(self):
+        args = _with_fetchcontent_cache_dir([])
+        assert any(a.startswith("-DFETCHCONTENT_BASE_DIR=") for a in args)
+
+    def test_never_overrides_a_caller_supplied_cache_dir(self):
+        args = _with_fetchcontent_cache_dir(["-DFETCHCONTENT_BASE_DIR=/custom/path"])
+        assert args == ["-DFETCHCONTENT_BASE_DIR=/custom/path"]
+
 
 class TestAcquire:
     def test_family_without_cmakelists_reports_out_of_scope(self, tmp_path):
@@ -117,6 +173,19 @@ class TestAcquire:
         assert result["ok"] is True
         assert result["source_dir"].name == "aspose_slides_cpp"
         assert "INCLUDE" in result["msvc_env"]
+
+    def test_msvc_env_is_resolved_at_most_once_per_instance(self, tmp_path):
+        """Independent-review finding (round 1): an earlier draft called
+        `_msvc_env()` (two real subprocess spawns: vswhere + vcvarsall)
+        fresh on every single `acquire()` call -- once per block, not once
+        per instance, contradicting this module's own docstring claim.
+        Confirmed fixed: the SAME cached `_MsvcEnv` object is reused."""
+        runner = CppRunner(family="slides")
+        product = ProductContext(family="slides", platform="cpp")
+        first = runner.acquire(tmp_path, Policy(), product)
+        second = runner.acquire(tmp_path, Policy(), product)
+        assert runner._msvc_env_computed is True
+        assert first["msvc_env"] is second["msvc_env"]
 
 
 class TestRealBuildIntegration:
