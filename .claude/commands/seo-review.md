@@ -81,8 +81,8 @@ genuinely ambiguous (see Step 4).
 | Check | Kind | On fail |
 |---|---|---|
 | Length bounds (`seoTitle` 50-70 chars, `description` 130-160 chars — `safety.py`'s own thresholds) | Deterministic | REJECT |
-| Template conformance (matches the peer group's entry in `scripts/pipeline/config/title_templates.yaml`, once that registry exists — until then, skip this row) | Deterministic | REJECT |
-| Duplicate check (title does not collide with an already-`APPROVE`d sibling in this same review batch, or with a known live duplicate from `check_duplicate_titles.py`, once it exists) | Deterministic | REJECT |
+| Template conformance — call `title_templates.check_conformance(title, page_type, family=..., platform=..., class_name=..., category=...)` (`scripts/seo/pipeline/title_templates.py`) against the live `scripts/pipeline/config/title_templates.yaml` registry. If the page's `page_type` has no registered entry yet, this row does not apply — record SKIP (not REJECT) and continue to the next row | Deterministic | REJECT (SKIP if `page_type` unregistered) |
+| Duplicate check — the proposed title must not collide with an already-`APPROVE`d sibling in this same review batch, AND must not appear as an existing key in `check_duplicate_titles.find_duplicate_titles()`'s live result (`scripts/ci/checks/check_duplicate_titles.py`) unless it is identical to the page's own current title (i.e. not a NEW collision this patch would introduce). The tool's checked-in baseline (`scripts/ci/config/duplicate_titles_baseline.json`) grandfathers 1,097 pre-existing groups — this row is about new collisions this recommendation would create, not that pre-existing debt | Deterministic | REJECT |
 | Evidence-block immutability (patch touches nothing under `evidence:`) | Deterministic | REJECT |
 | Claim/format grounding — **independently re-verified against `knowledge/{family}/{platform}/merged/claims.json` and `formats.json`, not the generating step's own citation** | Agent judgment | REJECT if fabricated; ESCALATE if genuinely ambiguous |
 | `auto_updatable` (skip entirely, never even reaches APPROVE/REJECT — filtered upstream by `apply.py`, but double-check here as defense in depth) | Deterministic | SKIP (not a rejection — expected) |
@@ -91,6 +91,17 @@ A query string is evidence of **demand**, never evidence that a claim is **true*
 recommendation whose wording implies a capability not present in `claims.json`/
 `formats.json` is REJECT, full stop — it does not matter how much search volume the
 underlying query has.
+
+**Google may substitute the snippet.** Approving a `seoTitle`/`description` here and
+`apply.py` publishing it does not guarantee Google's search results display that exact
+text — Google frequently generates its own title or snippet from page content when it
+judges the supplied one less relevant to a specific query. This is expected, documented
+behavior on Google's side, not a pipeline defect. Contract H's post-publication
+observation window (`observe_experiments.py`) therefore measures the real, observable
+outcome (position/CTR), never whether the literal string survived unedited — a flat or
+negative result can mean Google substituted the snippet, not that this review's decision
+was wrong. Do not treat "Google rewrote it" as a finding against this skill's APPROVE
+decisions; it is a known, unavoidable characteristic of the channel being optimized.
 
 ### 3. Present the decision record
 
