@@ -23,6 +23,16 @@ from typing import Any
 
 _REPO_ROOT = Path(__file__).resolve().parents[4]
 _KNOWLEDGE_BASE = _REPO_ROOT / "knowledge"
+_DEFAULT_CLONE_CACHE_ROOT = _REPO_ROOT / "runs" / ".clone_cache"
+
+
+def clone_cache_path(family: str, platform: str, root: "Path | None" = None) -> Path:
+    """Same layout S-120 already uses (`_product_clone_cache`,
+    readme_refresh_run.py:368-369): `{root}/aspose_{family}_{platform}`,
+    defaulting to this repo's real clone-cache root (`runs/.clone_cache`,
+    itself a `configure()`-seam global in readme_refresh_run.py)."""
+    base = root if root is not None else _DEFAULT_CLONE_CACHE_ROOT
+    return base / f"aspose_{family}_{platform}"
 
 # Per-platform default timeouts (Round 3 G) -- overridable per call, and
 # later per-product via a factpack's own `verification.timeouts` (Phase 2
