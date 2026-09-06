@@ -156,44 +156,117 @@ class TestCheckEnumerationMembership:
         assert check_enumeration_membership(composed, self._REAL_FORMATS)
 
     def test_fabricated_last_item_before_and_is_caught(self):
-        """The fabricated item as the literal last Oxford-comma-joined item,
-        not just mid-list -- must still be checked, not skipped."""
         composed = "Exports to PPT, PDF, and FAKE for archival."
         assert not check_enumeration_membership(composed, self._REAL_FORMATS)
 
-    def test_two_item_list_is_never_checked(self):
-        """Only a 3+-item run is a genuine enumeration signal -- 2 comma-
-        joined words is far too weak a signal to safely reject on (ordinary
-        prose can produce this by accident)."""
-        composed = "Exports to PPT, NOTREAL for testing."
+    def test_single_fabricated_item_with_no_enumeration_syntax_is_still_caught(self):
+        """A single ALL-CAPS candidate token is checked unconditionally --
+        no comma/and-or list is needed to trigger the check at all, since
+        detection is position-independent, not run-based."""
+        composed = "Exports to FAKE for archival purposes."
+        assert not check_enumeration_membership(composed, self._REAL_FORMATS)
+
+    def test_two_item_list_is_still_checked(self):
+        """Unlike the reworked-away syntactic run-detector, a 2-item list
+        is fully checked too -- detection no longer depends on run length
+        at all, only on the ALL-CAPS shape of each candidate."""
+        composed = "Exports to PPT, FAKE for testing."
+        assert not check_enumeration_membership(composed, self._REAL_FORMATS)
+
+    def test_ordinary_prose_with_no_all_caps_tokens_never_flagged(self):
+        """Plain mixed-case prose words, even short ones, are never
+        candidates -- only genuinely ALL-CAPS tokens are checked."""
+        composed = "Learn about the SaveFormat enum in Aspose Slides for the library today."
         assert check_enumeration_membership(composed, self._REAL_FORMATS)
 
-    def test_ordinary_prose_with_no_enumeration_never_flagged(self):
-        """Plain whitespace-separated words, even short ones, must never be
-        mistaken for a comma/and-or-joined enumeration."""
-        composed = "Learn about the SaveFormat enum in Aspose Slides for the FOSS NET library today."
-        assert check_enumeration_membership(composed, self._REAL_FORMATS)
-
-    def test_terminator_word_stops_the_run_without_being_checked_itself(self):
-        """"other"/"more"/etc. close a real enumeration with a generic
-        category noun -- neither the terminator word nor whatever follows
-        it (e.g. "formats") may be swept into the checked run, or a fully
-        real, correctly-grounded candidate would be falsely rejected."""
+    def test_terminator_word_and_trailing_category_noun_never_matched(self):
+        """"other"/"formats" are ordinary mixed-case English words -- never
+        ALL-CAPS candidates, so they were never going to be checked either
+        way; this just confirms the redesign doesn't regress that."""
         composed = "Exports to PPT, PDF, XPS and other useful formats today."
         assert check_enumeration_membership(composed, self._REAL_FORMATS)
 
-    def test_empty_vocabulary_fails_a_real_enumeration_closed(self):
-        """No real vocabulary supplied -> every 3+-item run fails closed,
-        matching this module's own 'any doubt -> reject' philosophy."""
-        composed = "Exports to PPT, PDF, XPS for archival."
+    def test_empty_vocabulary_fails_any_all_caps_candidate_closed(self):
+        composed = "Exports to PPT for archival."
         assert not check_enumeration_membership(composed, set())
 
-    def test_no_enumeration_at_all_passes_regardless_of_vocabulary(self):
+    def test_no_all_caps_tokens_passes_regardless_of_vocabulary(self):
         assert check_enumeration_membership("A short natural clause.", set())
 
-    def test_case_insensitive_membership(self):
-        composed = "Exports to ppt, Pdf, XPS for archival."
-        assert check_enumeration_membership(composed, self._REAL_FORMATS)
+    def test_lowercase_or_mixed_case_format_mentions_are_not_candidates(self):
+        """Only the conventional ALL-CAPS prose form is checked -- a lower/
+        mixed-case mention is simply not a candidate token at all (not a
+        pass via case-folding, a non-match)."""
+        composed = "Exports to ppt, Pdf and Xps for archival."
+        assert check_enumeration_membership(composed, set())  # nothing to check
+
+    def test_universal_exempt_acronym_never_checked(self):
+        composed = "Built on the Aspose FOSS SDK API for real projects."
+        assert check_enumeration_membership(composed, set())
+
+    def test_caller_supplied_exempt_token_never_checked(self):
+        """"NET" is already on the universal exempt list (.NET is common
+        enough to bake in); use a platform label that is NOT, to prove the
+        per-call `exempt` parameter itself does the work."""
+        composed = "Available for the CPP platform today."
+        assert not check_enumeration_membership(composed, set())  # CPP not exempt by default
+        assert check_enumeration_membership(composed, set(), exempt={"cpp"})
+
+    def test_digit_leading_fabricated_token_is_still_checked(self):
+        """Round-1 review secondary finding: the original leading-letter-
+        required regex mis-tokenized "3DS", accidentally evading detection
+        entirely. The reworked candidate regex has no such requirement."""
+        composed = "Exports to PPT, PDF, XPS and 3DS for archival."
+        assert not check_enumeration_membership(composed, self._REAL_FORMATS)
+
+    def test_digit_leading_real_token_passes_when_in_vocabulary(self):
+        composed = "Exports to PPT and 3DS for archival."
+        assert check_enumeration_membership(composed, self._REAL_FORMATS | {"3ds"})
+
+
+# ---------------------------------------------------------------------------
+# Round-1 independent review REJECT (agentId a4a1df659bd8597df): 3 real,
+# live-reproduced bypasses of the original syntax-based run-detector, all
+# plausible natural LLM phrasings. Locked in as permanent regression tests.
+# ---------------------------------------------------------------------------
+
+
+class TestEnumerationMembershipRound1BypassesFixed:
+    _REAL_FORMATS = {"ppt", "pdf", "xps", "pptx", "html"}
+
+    def test_bypass_1_terminator_then_non_comma_joined_trailing_fabrication(self):
+        """"...and other formats like SVG." -- SVG previously evaded
+        detection entirely because it was never comma/and-or-joined to
+        anything after the terminator "other" closed the run."""
+        composed = "Exports to PPT, PDF, XPS and other formats like SVG."
+        assert not check_enumeration_membership(composed, self._REAL_FORMATS)
+
+    def test_bypass_1_variant_including_phrasing(self):
+        composed = "Exports to PPT, PDF, XPS and other formats, including SVG."
+        assert not check_enumeration_membership(composed, self._REAL_FORMATS)
+
+    def test_bypass_2_enumeration_split_across_a_sentence_boundary(self):
+        """"PPT and PDF. Also supports XPS and SVG." -- "Also" was itself a
+        terminator, splitting one real+fabricated set into two sub-3
+        fragments neither of which reached the old run-length-3 threshold."""
+        composed = "Supports PPT and PDF. Also supports XPS and SVG."
+        assert not check_enumeration_membership(composed, self._REAL_FORMATS)
+
+    def test_bypass_3_vocabulary_never_contaminated_by_grounding_text(self):
+        """check_enumeration_membership itself takes real_vocabulary as an
+        explicit parameter -- this proves the FUNCTION treats a vocabulary
+        containing "svg" as grounding it (expected: real_vocabulary is the
+        caller's sole responsibility). The actual fix for bypass 3 is that
+        description_composer.py's call site no longer unions grounding-text
+        tokens into that vocabulary at all -- see
+        TestEnumerationMembershipEndToEnd in test_description_composer.py
+        for the real, end-to-end non-contamination proof."""
+        composed = "Exports to PPT, PDF, XPS and SVG for archival."
+        # A vocabulary that (incorrectly, hypothetically) included "svg"
+        # would of course pass -- the real fix is description_composer.py
+        # never building such a vocabulary from untrusted grounding text.
+        assert check_enumeration_membership(composed, self._REAL_FORMATS | {"svg"})
+        assert not check_enumeration_membership(composed, self._REAL_FORMATS)
 
 
 # ---------------------------------------------------------------------------

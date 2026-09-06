@@ -42,13 +42,25 @@ one FABRICATED one ("SVG", confirmed absent from `claims.json` and
 anchors already cleared its floor. A wider aggregate floor cannot fix this
 (it can never distinguish "N real + 1 fake" from "N+1 real"), so this is a
 SEPARATE, additional gate: `title_clause_composer.check_enumeration_
-membership()` detects a 3+-item comma/and/or-joined run of short tokens
-(the syntactic shape a format-name enumeration actually takes) and requires
-every item in it to be a member of a real, closed vocabulary --
-`formats.json`'s real member list (`load_real_format_names()`) unioned with
-the grounding text's own tokens (so a legitimately grounded non-format item
-still passes). Never modifies `check_grounding_preservation` itself, which
-stays proven and reused as-is.
+membership()` scans the WHOLE composed text, position-independently, for
+ALL-CAPS-shaped candidate tokens (how format names/extensions are
+conventionally written in prose -- PPT, PDF, XPS, SVG, HTML) and requires
+every one to be a member of a real, closed vocabulary -- `formats.json`'s
+real member list (`load_real_format_names()`), with `platform` passed as a
+caller-supplied exemption (e.g. "NET" is never itself a claimed format).
+**Rework 1** [round-1 independent review, agentId `a4a1df659bd8597df`,
+REJECT]: the original design instead detected enumerations SYNTACTICALLY
+(a comma/and-or-joined run of 3+ tokens, checked only inside a detected
+run) and unioned the composer's own grounding-text tokens into the real
+vocabulary. The reviewer live-reproduced 3 real bypasses against real
+production data -- a terminator word followed by non-comma-joined trailing
+prose, a list split across a sentence boundary, and vocabulary
+contamination via the keyword signal merely mentioning the fabricated
+word -- all closed by discarding syntactic detection for the current,
+position-independent scan and dropping the grounding-text union entirely
+(see `title_clause_composer.py`'s own rework note for full detail). Never
+modifies `check_grounding_preservation` itself, which stays proven and
+reused as-is.
 
 **Numeral-must-trace rule**: any digit sequence (a number, a scale claim, a
 version number) appearing in composed description text must trace to a real
@@ -172,7 +184,7 @@ REPO_ROOT = _DEFAULT_REPO_ROOT
 # cached "approved" candidate rather than silently serving stale-era output
 # forever. Callers (recommend.py) pass this to consult_before_llm_call()/
 # record_result() as composer_version -- never compute it themselves.
-COMPOSER_VERSION = "3"
+COMPOSER_VERSION = "4"
 
 
 def configure(*, repo_root: "Path | str | None" = None) -> None:
@@ -457,19 +469,6 @@ def _extract_numbers(text: "str | None") -> "set[str]":
     return set(_NUMBER_RE.findall(text)) if text else set()
 
 
-# Same tokenizer shape as title_clause_composer.py's own _TOKEN_RE (which
-# itself matches analyze.py's Track-2 heuristic) -- duplicated per this
-# codebase's own established convention (title_clause_composer.py's own
-# docstring: "reused, not reinvented" refers to the SHAPE, not a shared
-# import; every module that needs it defines its own copy) rather than
-# reaching into another module's underscore-prefixed private name.
-_ENUM_VOCAB_TOKEN_RE = re.compile(r"[a-z0-9]+")
-
-
-def _tokenize_for_enum_vocabulary(text: "str | None") -> "set[str]":
-    return set(_ENUM_VOCAB_TOKEN_RE.findall(text.lower())) if text else set()
-
-
 def numerals_trace(composed: str, grounding_text: str) -> bool:
     """Every digit sequence in composed must appear, verbatim, somewhere in
     grounding_text -- ungrounded-by-default. A composed candidate with no
@@ -633,12 +632,26 @@ def compose_description(
     # ONE other enumerated item (e.g. a fabricated format name) completely
     # unchecked -- confirmed live against a real LLM candidate for
     # SaveFormat.md. This is a real, closed-vocabulary per-entity gate, not
-    # a modification to the reused aggregate check.
-    enum_vocabulary = (
-        load_real_format_names(family, platform, repo_root=root)
-        | _tokenize_for_enum_vocabulary(grounding_text)
-    )
-    if not title_clause_composer.check_enumeration_membership(proposed, enum_vocabulary):
+    # a modification to the reused aggregate check. Rework 1 (round-1
+    # review REJECT): real_vocabulary is now SOURCED ONLY from formats.json
+    # -- no longer unioned with grounding_text tokens, which round 1 proved
+    # let an SEO keyword signal merely mentioning a fabricated format name
+    # (e.g. "svg export options") make it pass as "grounded". `platform`
+    # AND `family` are both passed as caller-supplied exemptions: `platform`
+    # because "NET"/"CPP" are never themselves claimed formats but
+    # legitimately appear in prose; `family` because a family whose own
+    # slug reads as an ALL-CAPS acronym in prose (e.g. "PDF", "3D") appears
+    # in virtually every one of that family's own real page descriptions as
+    # unavoidable product-name branding ("Aspose.PDF for Python") rather
+    # than a claimed enumerated format -- self-caught live during this
+    # rework's own test-writing: the existing _GOOD_DESC fixture text
+    # ("...using Aspose.PDF for Python...") was itself falsely rejected by
+    # the pre-exemption version of this gate before this fix.
+    enum_vocabulary = load_real_format_names(family, platform, repo_root=root)
+    enum_exempt = {t for t in (family, platform) if t}
+    if not title_clause_composer.check_enumeration_membership(
+        proposed, enum_vocabulary, exempt=enum_exempt,
+    ):
         return None
 
     if not numerals_trace(proposed, grounding_text):

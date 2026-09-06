@@ -311,11 +311,17 @@ class TestEnumerationMembershipEndToEnd:
         )
         assert result is not None
 
-    def test_no_formats_json_falls_back_to_grounding_text_tokens_only(self, tmp_path):
-        """A family/platform with no real formats.json (load_real_format_
-        names returns an empty set) must not crash -- an enumeration is
-        then checked purely against grounding-text tokens, and ordinary
-        non-enumeration candidates are unaffected either way."""
+    def test_family_and_platform_own_names_never_flagged_as_unverified_formats(self, tmp_path):
+        """Self-caught live while writing this rework's own tests: _GOOD_DESC
+        ("...using Aspose.PDF for Python...") mentions the family's own
+        product-name acronym "PDF" -- with no real formats.json (empty
+        vocabulary) and no family/platform exemption, this fixture text
+        would itself be falsely rejected by the enumeration-membership gate,
+        even though "PDF" here is unavoidable branding text, not a claimed
+        enumerated format. A family whose slug reads as an ALL-CAPS acronym
+        in prose (pdf, 3d) appears this way in virtually every one of that
+        family's own real page descriptions. Proves the family/platform
+        exemption fixes this without needing any real formats.json at all."""
         dc.configure(repo_root=tmp_path)
         result = compose_description(
             "content/docs.aspose.org/en/pdf/python/x.md", _CURRENT_DESC, _KW, _CLAIMS, "pdf", "python",
@@ -324,6 +330,22 @@ class TestEnumerationMembershipEndToEnd:
         assert result == DescriptionCandidate(
             text=_GOOD_DESC, rationale="Improves clarity and includes the primary keyword."
         )
+
+    def test_family_exemption_does_not_become_a_blanket_bypass(self, tmp_path):
+        """The family/platform exemption covers only the family's/
+        platform's OWN literal slug -- an unrelated fabricated format
+        mentioned on a page in that same family is still fully checked."""
+        dc.configure(repo_root=tmp_path)
+        self._write_formats_json(tmp_path, "pdf", "python", ["Docx", "Xlsx"])
+        proposed = (
+            "Convert PDF documents to Word using Aspose.PDF for Python, "
+            "with reliable output to DOCX, XLSX and FAKE for every project."
+        )
+        result = compose_description(
+            "content/docs.aspose.org/en/pdf/python/x.md", _CURRENT_DESC, _KW, _CLAIMS, "pdf", "python",
+            llm_call=lambda p: {"proposed_description": proposed, "rationale": "x"},
+        )
+        assert result is None
 
     def test_load_real_format_names_reads_real_fixture(self, tmp_path):
         self._write_formats_json(tmp_path, "slides", "net", ["Ppt", "Pdf"])
