@@ -60,7 +60,16 @@ _JAVAC_LOCATION_RE = re.compile(r'([\w./\\-]+\.java):\d+:')
 # "at Main.main(Main.java:3)". Confirmed via a real java call.
 _JAVA_STACK_LOCATION_RE = re.compile(r'\(([\w./\\-]+\.java):\d+\)')
 
-_CLASS_DECL_RE = re.compile(r'^\s*(?:public\s+)?(?:final\s+)?class\s+(\w+)', re.MULTILINE)
+_CLASS_DECL_RE = re.compile(r'^\s*(public\s+)?(?:final\s+)?class\s+(\w+)', re.MULTILINE)
+_BLOCK_COMMENT_RE = re.compile(r'/\*.*?\*/', re.DOTALL)
+_LINE_COMMENT_RE = re.compile(r'//.*$', re.MULTILINE)
+
+
+def _strip_comments(code: str) -> str:
+    """A `class X` mention inside a comment (a line comment, or explanatory
+    prose in a block comment) must never be mistaken for a real declaration
+    -- independent-reviewer finding, fixed here."""
+    return _LINE_COMMENT_RE.sub('', _BLOCK_COMMENT_RE.sub('', code))
 
 
 def _discover_java_toolchain() -> "tuple[str, str, str] | None":
@@ -92,17 +101,61 @@ def _discover_java_toolchain() -> "tuple[str, str, str] | None":
 
 
 def _needs_wrap(code: str) -> bool:
-    return _CLASS_DECL_RE.search(code) is None
+    return _CLASS_DECL_RE.search(_strip_comments(code)) is None
 
 
 def _class_name_for(code: str) -> str:
-    m = _CLASS_DECL_RE.search(code)
-    return m.group(1) if m else "Main"
+    """Java requires a file to be named after its PUBLIC class, if one
+    exists -- independent-reviewer finding, fixed here: the original version
+    returned the FIRST `class` match regardless of modifier, which silently
+    picked a helper class's name (and thus the wrong file/invoked-class
+    name) for a block declaring a helper class before its real, public one.
+    Comment-stripped first, so a `class X` mention in a comment is never
+    mistaken for a declaration."""
+    matches = _CLASS_DECL_RE.findall(_strip_comments(code))
+    if not matches:
+        return "Main"
+    for is_public, name in matches:
+        if is_public:
+            return name
+    return matches[0][1]
 
 
 def _wrap_fragment(code: str) -> str:
-    indented = "\n".join("        " + line for line in code.splitlines())
+    """Independent-reviewer finding, fixed here: the original version
+    indented the ENTIRE fragment -- including any leading `import`
+    statement -- straight into the generated `main()` method body, which is
+    illegal Java (imports must precede the class declaration). Now hoists
+    leading `import`/comment lines above the class the same way `GoRunner.
+    _wrap_fragment` hoists Go's own leading `import` block, matching the
+    real shape of this repo's Quick Start snippets (an import of the
+    product's own class, then a few statements using it) -- confirmed live:
+    this exact shape (an import line followed by code) is what
+    `starts_chain()` itself is designed to recognize as a valid chain
+    start."""
+    import_lines: list[str] = []
+    body_lines: list[str] = []
+    past_imports = False
+    for line in code.splitlines():
+        stripped = line.strip()
+        if not past_imports:
+            if stripped.startswith("//"):
+                import_lines.append(line)
+                continue
+            if stripped.startswith("import ") and stripped.endswith(";"):
+                import_lines.append(line)
+                continue
+            if stripped.startswith("package ") and stripped.endswith(";"):
+                continue  # a package decl doesn't apply to the synthetic Main class
+            if stripped == "" and not body_lines and not import_lines:
+                continue  # skip blank lines before the body starts
+            past_imports = True
+        body_lines.append(line)
+
+    import_block = ("\n".join(import_lines) + "\n\n") if import_lines else ""
+    indented = "\n".join("        " + line for line in body_lines)
     return (
+        f"{import_block}"
         "public class Main {\n"
         "    public static void main(String[] args) throws Exception {\n"
         f"{indented}\n"

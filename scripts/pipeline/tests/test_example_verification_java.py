@@ -170,6 +170,53 @@ class TestCompileRealJavac:
         assert result is None
         assert (acquired["work_dir"] / "Widget.class").is_file()
 
+    def test_an_import_led_fragment_compiles(self, tmp_path):
+        """Independent-reviewer finding, fixed: the original _wrap_fragment indented
+        the ENTIRE fragment -- including a leading `import` -- straight into the
+        generated main() method body, which is illegal Java (imports must precede the
+        class declaration). This is the exact shape starts_chain() itself is designed
+        to recognize as a valid chain start -- and the realistic shape of virtually
+        every real Java Quick Start snippet (an import of the product's own class)."""
+        runner, acquired = _acquired(tmp_path)
+        code = (
+            "import java.util.List;\n\n"
+            "List<String> items = new java.util.ArrayList<>();\n"
+            "System.out.println(items);"
+        )
+        result = runner.compile(acquired, code, 0)
+        assert result is None, result
+
+    def test_a_helper_class_before_the_public_class_keeps_the_public_name(self, tmp_path):
+        """Independent-reviewer finding, fixed: _class_name_for used to return the
+        FIRST `class` match regardless of modifier, silently picking a helper class's
+        name (and thus the wrong file/invoked-class name) instead of the real, public
+        one Java actually requires the file to be named after."""
+        runner, acquired = _acquired(tmp_path)
+        code = (
+            "class Helper {\n"
+            "    static void help() {}\n"
+            "}\n\n"
+            "public class Widget {\n"
+            "    public static void main(String[] args) {\n"
+            "        System.out.println(\"hi\");\n"
+            "    }\n"
+            "}\n"
+        )
+        result = runner.compile(acquired, code, 0)
+        assert result is None, result
+        assert (acquired["work_dir"] / "Widget.class").is_file()
+
+    def test_a_class_mention_inside_a_comment_does_not_suppress_wrapping(self, tmp_path):
+        """Independent-reviewer finding, fixed: _CLASS_DECL_RE used to match a `class X`
+        mention inside a comment (prose, not a real declaration), which incorrectly
+        skipped wrapping a bare fragment -- a real compile failure ("illegal start of
+        expression" on the comment-adjacent code) for what should be an ordinary,
+        wrappable statement fragment."""
+        runner, acquired = _acquired(tmp_path)
+        code = '// class Widget usage pattern.\nSystem.out.println("hi");'
+        result = runner.compile(acquired, code, 0)
+        assert result is None, result
+
 
 class TestExecuteRealJava:
     def test_clean_stdlib_fragment_runs_and_passes(self, tmp_path):
