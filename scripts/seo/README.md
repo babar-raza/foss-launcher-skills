@@ -211,6 +211,16 @@ gh secret set LITELLM_KEY --repo Aspose/aspose.org-workflows
 gh secret set GH_TOKEN --repo Aspose/aspose.org-workflows
 ```
 
+### Rotation cadence
+
+| Secret | Cadence | Why |
+|--------|---------|-----|
+| `GH_TOKEN` / `REPO_TOKEN` | 90 days | Real incident precedent: this PAT silently expired 2026-03-23 and went undetected until 2026-08-09 — see the token-liveness finding this rotation policy exists to close |
+| `GOOGLE_API_KEY` | 180 days | Lower blast radius than a `repo`-scope PAT (Gemini-only, no repo write access) |
+| `LITELLM_KEY` | 180 days | Degrades gracefully to Track 1-only if absent, per the table above — lower urgency than the two write-capable secrets |
+
+Full rotate → confirm → revoke runbook: [`docs/reference/secrets-rotation.md`](../../docs/reference/secrets-rotation.md).
+
 ---
 
 ## 7. GSC Service Account Access (Phase 0a — Complete)
