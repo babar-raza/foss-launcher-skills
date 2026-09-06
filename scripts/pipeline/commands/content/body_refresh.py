@@ -805,13 +805,28 @@ def _example_regeneration(
     anywhere in this portfolio). Hard-requiring it today would make this function
     ALWAYS fall through to the removal-marker branch for the entire portfolio -- a
     real regression relative to even the buggy old behavior, on an LLM-driven
-    content-refresh path. `code_sha256` (real, populated by every `promote()` run
-    since C6) is used as the baseline "this is real, verified-at-the-source,
-    promoted upstream code" bar instead; `execution_proof.tier` is read as an
-    ADDITIONAL ranking signal when present (prefer the highest tier), exactly as the
-    plan describes, but never as a hard gate -- the same "degrade gracefully, don't
-    silently weaken behavior for the whole portfolio before the dependency exists"
-    reasoning C5's own L-15 rewrite used for the identical gap."""
+    content-refresh path. `code_sha256` (populated by every `promote()` run FROM
+    NOW ON, since C6, commit 907ba11f62) is used as the baseline "this is real,
+    verified-at-the-source, promoted upstream code" bar instead; `execution_proof.
+    tier` is read as an ADDITIONAL ranking signal when present (prefer the highest
+    tier), exactly as the plan describes, but never as a hard gate -- the same
+    "degrade gracefully, don't silently weaken behavior for the whole portfolio
+    before the dependency exists" reasoning C5's own L-15 rewrite used for the
+    identical gap.
+
+    Independent-reviewer finding, disclosed explicitly here (round 1): as of this
+    writing, ZERO of this portfolio's ~32 real `snippets_index.json` files have a
+    `code_sha256` entry anywhere -- no product has been re-promoted since C6 landed.
+    `body_impact.py` routes BOTH `API_REMOVED` and `API_RENAMED` example-containing
+    sections through this function, so in PRACTICE, right now, every real
+    example-containing change of either type falls straight through to the
+    removal-marker branch (never a real substitution) until whichever product it
+    touches is re-promoted. This is the correct, INTENDED, safer behavior given the
+    alternative (the old bug: silently injecting unverified code) -- not a defect --
+    but it means this fix is currently a strict "stop injecting wrong code" safety
+    net, not yet a working "inject the right code" feature, for any real run today.
+    That second half activates automatically, with no further code change, the
+    moment a touched product is next re-promoted."""
     symbol = change.get("symbol", "")
     change_type = change.get("change_type", "")
 
