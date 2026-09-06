@@ -52,10 +52,13 @@ plan's C5 consumer-wiring row):
 """
 from __future__ import annotations
 
+import os
 import re
+import shutil
+import subprocess
 from pathlib import Path
 
-from ..policy import clone_cache_path
+from ..policy import clone_cache_path, Policy, ProductContext
 
 _REPO_ROOT = Path(__file__).resolve().parents[5]
 
@@ -195,9 +198,20 @@ def _has_top_level_main(code: str) -> bool:
     return bool(re.search(r"^[ \t]*func\s+main\s*\(", code, re.MULTILINE))
 
 
-def _infer_imports(code: str) -> list[str]:
+def _infer_imports(
+    code: str, extra_heuristics: "list[tuple[re.Pattern, str]] | None" = None,
+) -> list[str]:
+    """`extra_heuristics` defaults to the module-level `_EXTRA_IMPORT_HEURISTICS`
+    global (the CLI's own single-shot-process convention, mutated by
+    `check_go_code_blocks.py`'s `main()`); pass an explicit list instead to avoid
+    that shared, process-wide mutable state -- `GoRunner` (below) does this, since
+    a single process may construct runners for more than one family/product and
+    must not have one instance's alias heuristic leak into another's."""
+    heuristics = _IMPORT_HEURISTICS + (
+        extra_heuristics if extra_heuristics is not None else _EXTRA_IMPORT_HEURISTICS
+    )
     imports: list[str] = []
-    for pattern, import_line in _IMPORT_HEURISTICS + _EXTRA_IMPORT_HEURISTICS:
+    for pattern, import_line in heuristics:
         if pattern.search(code):
             imports.append(f'\t{import_line}')
     if re.search(r'\bfmt\.', code):
@@ -207,7 +221,9 @@ def _infer_imports(code: str) -> list[str]:
     return imports
 
 
-def _wrap_fragment(code: str) -> str:
+def _wrap_fragment(
+    code: str, extra_heuristics: "list[tuple[re.Pattern, str]] | None" = None,
+) -> str:
     if _has_leading_import(code):
         # Block already has import declarations — extract them and wrap
         # only the non-import body in func main().
@@ -236,7 +252,7 @@ def _wrap_fragment(code: str) -> str:
                 past_imports = True
             body_lines.append(line)
         body = "\n".join(body_lines)
-        extra = _infer_imports(body)
+        extra = _infer_imports(body, extra_heuristics)
         # Merge user imports with inferred ones (avoid duplicates)
         existing = "\n".join(import_lines)
         merged: list[str] = []
@@ -269,15 +285,167 @@ def _wrap_fragment(code: str) -> str:
         return f"package main\n\n{all_imports}\nfunc main() {{\n{indented}\n}}\n"
 
     if _has_top_level_main(code):
-        imports = _infer_imports(code)
+        imports = _infer_imports(code, extra_heuristics)
         import_block = ""
         if imports:
             import_block = "import (\n" + "\n".join(imports) + "\n)\n\n"
         return f"package main\n\n{import_block}{code}\n"
 
-    imports = _infer_imports(code)
+    imports = _infer_imports(code, extra_heuristics)
     import_block = ""
     if imports:
         import_block = "import (\n" + "\n".join(imports) + "\n)\n\n"
     indented = "\n".join("\t" + line for line in code.splitlines())
     return f"package main\n\n{import_block}func main() {{\n{indented}\n}}\n"
+
+
+def _needs_wrap(code: str) -> bool:
+    return not re.search(r"^\s*package\s+\w+", code, re.MULTILINE)
+
+
+def _write_go_module(
+    work_dir: Path, wrapped_code: str, module_path: str, replace_path: "str | None", go_version: str,
+) -> None:
+    """Same scratch go.mod/main.go shape `check_go_code_blocks.py:_vet_block`
+    already uses -- a disposable module the checker itself generates, never a
+    real project's own go.mod."""
+    go_mod_lines = [f"module check_block\n\ngo {go_version}\n"]
+    if replace_path:
+        # A module path with a major-version suffix (/vN, N>=2 -- Go's semantic
+        # import versioning convention) requires the required version's own major
+        # component to match that suffix (e.g. `.../v26` must be required at
+        # `v26.x.y`, not `v0.0.0`) -- found live on cells/go.
+        major_suffix = re.search(r"/v(\d+)$", module_path)
+        placeholder_version = f"v{major_suffix.group(1)}.0.0" if major_suffix else "v0.0.0"
+        go_mod_lines.append(
+            f"\nrequire {module_path} {placeholder_version}\n"
+            f"replace {module_path} => {replace_path}\n"
+        )
+    (work_dir / "go.mod").write_text("".join(go_mod_lines), encoding="utf-8")
+    (work_dir / "main.go").write_text(wrapped_code, encoding="utf-8")
+
+
+def _exec_go(argv: list[str], work_dir: Path, timeout: float) -> "tuple[str, str]":
+    """("OK"|"FAILED"|"TIMEOUT", output). GOFLAGS=-mod=mod: a fresh go.mod
+    referencing a local `replace` target has no go.sum entry yet; without this,
+    the command refuses with "updates to go.mod needed" instead of running."""
+    env = {**os.environ, "GOFLAGS": "-mod=mod"}
+    try:
+        result = subprocess.run(
+            argv, capture_output=True, text=True, encoding="utf-8", errors="replace",
+            cwd=str(work_dir), timeout=timeout, env=env,
+        )
+    except subprocess.TimeoutExpired:
+        return "TIMEOUT", ""
+    if result.returncode != 0:
+        return "FAILED", (result.stderr or result.stdout or "").strip()
+    return "OK", (result.stdout or "").strip()
+
+
+class GoRunner:
+    """C5 checkpoint 2: the first concrete `runners/base.py` `LanguageRunner`
+    implementation -- syntax (tier 1, handled generically by `BaseRunner` via
+    `syntax.py`, not here) -> compile (tier 2, `go vet`, the same check
+    `check_go_code_blocks.py` already runs) -> execute (tier 3, `go run`, a real
+    new capability this taskcard adds). One instance = one product (`family` is
+    fixed at construction), so the alias import heuristic resolved from that
+    product's own `model.yaml` is kept on the INSTANCE (`_extra_heuristics`),
+    never mutating the module-level `_EXTRA_IMPORT_HEURISTICS` global
+    `check_go_code_blocks.py`'s single-shot CLI process relies on -- a process
+    that constructs runners for more than one family (this class's own test
+    suite does) must not have one instance's alias leak into another's.
+
+    Disclosed scope limit: only the unpublished/local-clone acquire path (a
+    go.mod `replace` directive against `runs/.clone_cache/`) is implemented --
+    matching what `check_go_code_blocks.py` has always done, and what both real
+    Go products (cells/go, pdf/go) actually need today. The plan's `published:
+    go get {module}@{version}` (a real proxy.golang.org resolve) branch is not
+    built: neither real product is published this way, and there is no fixture
+    to prove that path against without inventing one. `acquire()` reports
+    `{"ok": False}` for a family with no resolvable local clone rather than
+    silently attempting a network call that has never been tested here."""
+
+    canonical_lang = "go"
+    ceiling_tier = 3
+
+    def __init__(self, family: str, go_version: str = "1.24") -> None:
+        self._family = family
+        self._go_version = go_version
+        resolved = _resolve_go_module_for_family(family)
+        if resolved:
+            alias, import_path, self._module_path = resolved
+            self._extra_heuristics: "list[tuple[re.Pattern, str]]" = [
+                (re.compile(rf"\b{re.escape(alias)}\."), f'{alias} "{import_path}"'),
+            ]
+        else:
+            self._module_path = _PDF_GO_MODULE
+            self._extra_heuristics = []
+
+    def starts_chain(self, code: str) -> bool:
+        """First non-comment line is `package`/`import` -- per the governing
+        plan's own Go chain-start heuristic."""
+        for line in code.splitlines():
+            stripped = line.strip()
+            if not stripped or stripped.startswith("//"):
+                continue
+            return stripped.startswith(("package ", "import "))
+        return True
+
+    def acquire(self, work_dir: Path, policy: Policy, product: ProductContext) -> dict:
+        """Unlike Python's real venv creation, there is no environment-setup
+        step here that can genuinely fail -- a block that only uses stdlib
+        (`fmt`/`os`) needs no replace directive at all, and `_write_go_module`
+        already treats a `None` replace_path as "omit the replace block", the
+        same way `check_go_code_blocks.py:_vet_block` always has. So this
+        always succeeds; `replace_path` is simply `None` when this product has
+        no resolvable local clone, and compile()/execute() below will fail
+        (correctly, at the vet/run stage) only if the code actually references
+        an unresolved product import."""
+        replace_path = _find_module_replace_path(self._module_path, family=self._family)
+        return {
+            "ok": True, "work_dir": work_dir,
+            "module_path": self._module_path, "replace_path": replace_path,
+        }
+
+    def compile(self, acquired: dict, code: str, index: int) -> "dict | None":
+        go_exe = shutil.which("go")
+        if go_exe is None:
+            return {"reason": "TOOLCHAIN-UNAVAILABLE", "detail": "go not found on PATH"}
+        wrapped = _wrap_fragment(code, self._extra_heuristics) if _needs_wrap(code) else code
+        work_dir = acquired["work_dir"]
+        _write_go_module(work_dir, wrapped, acquired["module_path"], acquired.get("replace_path"), self._go_version)
+        outcome, detail = _exec_go([go_exe, "vet", "./..."], work_dir, 30)
+        if outcome == "OK":
+            return None
+        if outcome == "TIMEOUT":
+            return {"reason": "TIMEOUT", "detail": "go vet timed out (module not cached)"}
+        reason, tail = self.classify(detail, {"stage": "compile", "replace_path": acquired.get("replace_path")})
+        return {"reason": reason, "detail": tail}
+
+    def execute(self, acquired: dict, code: str, index: int) -> dict:
+        go_exe = shutil.which("go")
+        if go_exe is None:
+            return {"status": "BLOCKED-WITH-REASON", "reason": "TOOLCHAIN-UNAVAILABLE",
+                     "detail": "go not found on PATH"}
+        wrapped = _wrap_fragment(code, self._extra_heuristics) if _needs_wrap(code) else code
+        work_dir = acquired["work_dir"]
+        _write_go_module(work_dir, wrapped, acquired["module_path"], acquired.get("replace_path"), self._go_version)
+        outcome, detail = _exec_go([go_exe, "run", "main.go"], work_dir, 60)
+        if outcome == "OK":
+            return {"status": "PASS"}
+        if outcome == "TIMEOUT":
+            return {"status": "BLOCKED-WITH-REASON", "reason": "TIMEOUT", "detail": "go run timed out"}
+        reason, tail = self.classify(detail, {"stage": "execute", "replace_path": acquired.get("replace_path")})
+        return {"status": "BLOCKED-WITH-REASON", "reason": reason, "detail": tail}
+
+    def classify(self, output: str, context: "dict | None" = None) -> "tuple[str, str]":
+        """Distinguishes a real defect in the UPSTREAM package's own source
+        (the error cites a file inside the replaced clone directory) from an
+        ordinary COMPILE-ERROR/RUNTIME-ERROR in the block's own generated
+        wrapper (`main.go`)."""
+        tail = (output or "").strip()[-2000:]
+        replace_path = (context or {}).get("replace_path")
+        if replace_path and replace_path in tail:
+            return "UPSTREAM-BROKEN", tail
+        stage = (context or {}).get("stage", "compile")
+        return ("COMPILE-ERROR" if stage == "compile" else "RUNTIME-ERROR"), tail
