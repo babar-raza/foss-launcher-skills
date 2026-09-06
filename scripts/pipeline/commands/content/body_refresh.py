@@ -55,6 +55,7 @@ from datetime import datetime, timezone
 from typing import Any
 
 from core.fs import atomic_write
+from example_verification.code_fences import enumerate_code_blocks
 
 # ── Update type constants ──────────────────────────────────────────────────
 
@@ -731,38 +732,145 @@ def _table_row_reconciliation(section_text: str, change: dict) -> str:
     return "".join(result)
 
 
-def _example_regeneration(section_text: str, change: dict, snippets_dir: Path | None) -> str:
-    """Replace code block referencing old symbol with updated content or removal marker."""
+# MT065-2026-09-06-EXAMPLE-VERIFICATION-CENTRALIZATION/C10: real per-platform snippet
+# file extension + the fence tag to emit on a substitution -- verified against every
+# platform with real snippet data on disk (cells/net -> .cs, pdf/python -> .py,
+# slides/java -> .java, slides/cpp -> .cpp, 3d/typescript -> .ts, cells/go -> .go);
+# rust has no real product yet on this machine (no rustup installed, per the governing
+# plan's own toolchain inventory) so its entry is by pattern, unverified against real
+# content. Falls back to the pre-fix hardcoded net/csharp default for an unknown
+# platform, never a KeyError.
+_PLATFORM_SNIPPET_EXT: dict[str, tuple[str, str]] = {
+    "python": (".py", "python"),
+    "typescript": (".ts", "typescript"),
+    "go": (".go", "go"),
+    "net": (".cs", "csharp"),
+    "java": (".java", "java"),
+    "cpp": (".cpp", "cpp"),
+    "rust": (".rs", "rust"),
+}
+
+
+def _replace_symbol_block(
+    section_text: str, symbol: str, fence_tag: "str | None", replacement: str,
+) -> "str | None":
+    """Replace the SPECIFIC fenced code block that references `symbol` -- never just
+    the first block in the section. Independent-reviewer-class bug this fixes: the
+    original code's `re.sub(r"```[^\\n]*\\n.*?```", ..., count=1)` replaced whichever
+    fence came first in the WHOLE section, symbol-referencing or not -- a section with
+    more than one code block could have an unrelated first example silently
+    overwritten while the real, symbol-referencing block was left untouched. Uses the
+    canonical tokenizer (never a second ad hoc fence regex) to find the block whose
+    own content actually contains `symbol`. Returns `None` (caller's cue to fall back)
+    if no block in the section references `symbol` at all -- there is nothing correct
+    to replace."""
+    blocks = enumerate_code_blocks(section_text)
+    target = next((b for b in blocks if symbol in b.content), None)
+    if target is None:
+        return None
+    lines = section_text.splitlines(keepends=True)
+    before = "".join(lines[:target.start_line - 1])
+    after = "".join(lines[target.end_line:])
+    new_block = f"```{fence_tag}\n{replacement.strip()}\n```\n" if fence_tag else replacement.strip() + "\n"
+    return before + new_block + after
+
+
+def _example_regeneration(
+    section_text: str, change: dict, snippets_dir: "Path | None", *,
+    platform: str = "", snippets_index: "list[dict] | None" = None,
+) -> str:
+    """Replace the code block referencing the old symbol with a verified replacement,
+    or a removal marker when no verified replacement exists -- never unverified code.
+
+    MT065-2026-09-06-EXAMPLE-VERIFICATION-CENTRALIZATION/C10: two real bugs fixed
+    (both named in the governing plan's own consumer-wiring row for this function):
+    1. Candidate snippets were selected from a HARDCODED `*.cs` glob regardless of the
+       page's actual platform, in raw, non-deterministic filesystem order, with NO
+       verification that the "replacement" was ever real, promoted, upstream code --
+       any local file merely not mentioning the old symbol qualified. Now filters by
+       the real platform's own extension (`_PLATFORM_SNIPPET_EXT`), sorts
+       deterministically, and requires the candidate to have a `code_sha256` entry in
+       `snippets_index` (C6's real "verify at the source" content-hash proof) --
+       see the honest-limit note below for why `execution_proof.tier` isn't a hard
+       filter.
+    2. The replacement itself silently overwrote the FIRST fence in the section
+       regardless of whether it referenced the old symbol -- see
+       `_replace_symbol_block`'s own docstring. Now replaces only the block that
+       actually contains `symbol`.
+
+    Honest limit, disclosed: the plan's own consumer-wiring row asks for
+    `execution_proof.tier >= 2` as a selection filter -- but no product's snippet
+    index has `execution_proof` populated anywhere yet (the post-promote proof sweep
+    that would populate it, deferred at C6's own closure, still doesn't exist
+    anywhere in this portfolio). Hard-requiring it today would make this function
+    ALWAYS fall through to the removal-marker branch for the entire portfolio -- a
+    real regression relative to even the buggy old behavior, on an LLM-driven
+    content-refresh path. `code_sha256` (real, populated by every `promote()` run
+    since C6) is used as the baseline "this is real, verified-at-the-source,
+    promoted upstream code" bar instead; `execution_proof.tier` is read as an
+    ADDITIONAL ranking signal when present (prefer the highest tier), exactly as the
+    plan describes, but never as a hard gate -- the same "degrade gracefully, don't
+    silently weaken behavior for the whole portfolio before the dependency exists"
+    reasoning C5's own L-15 rewrite used for the identical gap."""
     symbol = change.get("symbol", "")
     change_type = change.get("change_type", "")
 
     if not symbol:
         return section_text
 
-    # Try to find a replacement snippet from snippets/
-    if snippets_dir and snippets_dir.exists():
-        # Look for a snippet file that doesn't reference the old symbol
-        for snip_file in snippets_dir.glob("*.cs"):
-            snip = snip_file.read_text(encoding="utf-8")
-            if symbol not in snip:
-                # Use this snippet as replacement
-                return re.sub(
-                    r"```[^\n]*\n.*?```",
-                    f"```csharp\n{snip.strip()}\n```",
-                    section_text,
-                    flags=re.DOTALL,
-                    count=1,
-                )
+    ext, fence_tag = _PLATFORM_SNIPPET_EXT.get(platform, (".cs", "csharp"))
 
-    # Fallback: remove code block containing the removed symbol
+    replacement_snip: "str | None" = None
+    if snippets_dir and snippets_dir.exists():
+        index_by_file: dict[str, dict] = {
+            entry["file"]: entry
+            for entry in (snippets_index or [])
+            if isinstance(entry, dict) and entry.get("file")
+        }
+        candidates: list[tuple[int, str, str]] = []
+        for snip_file in sorted(snippets_dir.glob(f"*{ext}")):
+            entry = index_by_file.get(snip_file.name)
+            if not entry or not entry.get("code_sha256"):
+                continue  # never substitute a snippet with no proof of provenance
+            try:
+                snip = snip_file.read_text(encoding="utf-8")
+            except OSError:
+                continue
+            if symbol in snip:
+                continue
+            proof = entry.get("execution_proof")
+            tier = proof.get("tier", 0) if isinstance(proof, dict) else 0
+            candidates.append((tier, snip_file.name, snip))
+        # Highest execution_proof tier first (0 for every real product today -- see
+        # the honest-limit note above); filename as a fully deterministic tie-break,
+        # never raw filesystem/glob order.
+        candidates.sort(key=lambda c: (-c[0], c[1]))
+        if candidates:
+            replacement_snip = candidates[0][2]
+
+    if replacement_snip is not None:
+        replaced = _replace_symbol_block(section_text, symbol, fence_tag, replacement_snip)
+        if replaced is not None:
+            return replaced
+
     if change_type in ("API_REMOVED",):
-        result = re.sub(
+        return re.sub(
             r"```[^\n]*\n[^`]*" + re.escape(symbol) + r"[^`]*```",
             f"<!-- Example removed: {symbol} API no longer available -->",
             section_text,
             flags=re.DOTALL,
         )
-        return result
+
+    if replacement_snip is None:
+        # No verified replacement exists for any other change type either -- never
+        # leave a stale/unverified example in place silently; mark it for manual
+        # attention instead of guessing.
+        removed = _replace_symbol_block(
+            section_text, symbol, None,
+            f"<!-- Example removed: no verified replacement available for {symbol} -->",
+        )
+        if removed is not None:
+            return removed
 
     return section_text
 
@@ -1377,9 +1485,21 @@ def _apply_section_update(
         return fm + new_body, strategy
 
     if strategy == UT_EXAMPLE:
-        snippets_dir = Path("knowledge") / context.get("family", "") / context.get("platform", "") / "merged" / "snippets"
+        platform = context.get("platform", "")
+        snippets_dir = Path("knowledge") / context.get("family", "") / platform / "merged" / "snippets"
+        snippets_index: list[dict] = []
+        index_path = snippets_dir / "snippets_index.json"
+        if index_path.exists():
+            try:
+                loaded = json.loads(index_path.read_text(encoding="utf-8"))
+                if isinstance(loaded, list):
+                    snippets_index = loaded
+            except (json.JSONDecodeError, OSError):
+                pass
         fm, body = _split_frontmatter_raw(page_content)
-        new_body = _example_regeneration(body, change, snippets_dir)
+        new_body = _example_regeneration(
+            body, change, snippets_dir, platform=platform, snippets_index=snippets_index,
+        )
         return fm + new_body, strategy
 
     if strategy == UT_REWRITE:

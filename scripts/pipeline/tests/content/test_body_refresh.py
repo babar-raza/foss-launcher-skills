@@ -440,6 +440,205 @@ def test_api_removed_code_block_regenerated(tmp_path):
     assert len(receipts) == 1
 
 
+# ── C10 (MT065-2026-09-06-EXAMPLE-VERIFICATION-CENTRALIZATION):
+# _example_regeneration verified-snippet selection ────────────────────────
+
+def _index_entry(file: str, *, tier: int | None = None) -> dict:
+    entry: dict = {"file": file, "code_sha256": {"norm": f"norm-{file}", "exact": f"exact-{file}"}}
+    if tier is not None:
+        entry["execution_proof"] = {"tier": tier}
+    return entry
+
+
+def test_replaces_only_the_block_that_references_the_symbol(tmp_path):
+    """The core second bug this taskcard fixes: a section with MORE THAN ONE code
+    block must have only the symbol-referencing block replaced -- the original
+    `re.sub(..., count=1)` blindly overwrote whichever fence came first."""
+    snippets_dir = tmp_path / "snippets"
+    snippets_dir.mkdir()
+    (snippets_dir / "new.cs").write_text("var doc = new NewDocument();\ndoc.Save();", encoding="utf-8")
+    (snippets_dir / "snippets_index.json").write_text(
+        json.dumps([_index_entry("new.cs")]), encoding="utf-8"
+    )
+    snippets_index = json.loads((snippets_dir / "snippets_index.json").read_text(encoding="utf-8"))
+
+    section_text = (
+        "## Example\n\n"
+        '```csharp\nConsole.WriteLine("unrelated, first block");\n```\n\n'
+        "```csharp\nvar doc = new OldDocument();\ndoc.Save();\n```\n"
+    )
+    change = {"symbol": "OldDocument", "change_type": "API_RENAMED"}
+
+    result = br._example_regeneration(
+        section_text, change, snippets_dir, platform="net", snippets_index=snippets_index,
+    )
+
+    assert "unrelated, first block" in result  # untouched
+    assert "OldDocument" not in result
+    assert "NewDocument" in result
+
+
+def test_never_substitutes_a_snippet_with_no_verified_code_sha256(tmp_path):
+    """A local file that merely doesn't mention the old symbol must never qualify
+    on its own -- only a snippet the index actually proves came from a real,
+    promoted, upstream source (a code_sha256 entry) is ever substituted."""
+    snippets_dir = tmp_path / "snippets"
+    snippets_dir.mkdir()
+    (snippets_dir / "a_unverified.cs").write_text("var doc = new NewDocument(); // unverified", encoding="utf-8")
+    (snippets_dir / "b_verified.cs").write_text("var doc = new NewDocument(); // verified", encoding="utf-8")
+    (snippets_dir / "snippets_index.json").write_text(
+        json.dumps([_index_entry("b_verified.cs")]), encoding="utf-8"  # a_unverified.cs has NO entry
+    )
+    snippets_index = json.loads((snippets_dir / "snippets_index.json").read_text(encoding="utf-8"))
+
+    section_text = "```csharp\nvar doc = new OldDocument();\n```\n"
+    change = {"symbol": "OldDocument", "change_type": "API_RENAMED"}
+
+    result = br._example_regeneration(
+        section_text, change, snippets_dir, platform="net", snippets_index=snippets_index,
+    )
+
+    assert "// verified" in result
+    assert "unverified" not in result
+
+
+def test_no_verified_candidate_produces_a_removal_marker_for_any_change_type(tmp_path):
+    """"Never unverified code": when NO candidate has a code_sha256 proof, the
+    example must be marked for manual attention, not left stale or guessed at --
+    even for a change_type other than API_REMOVED, which the old code's fallback
+    branch didn't handle at all (it just returned section_text unchanged)."""
+    snippets_dir = tmp_path / "snippets"
+    snippets_dir.mkdir()  # empty -- no snippets at all
+    section_text = "```csharp\nvar doc = new OldDocument();\n```\n"
+    change = {"symbol": "OldDocument", "change_type": "API_RENAMED"}  # deliberately not API_REMOVED
+
+    result = br._example_regeneration(
+        section_text, change, snippets_dir, platform="net", snippets_index=[],
+    )
+
+    assert "var doc = new OldDocument();" not in result  # the actual, unverified code is gone
+    assert "no verified replacement available for OldDocument" in result
+
+
+def test_prefers_the_highest_execution_proof_tier_when_present(tmp_path):
+    """Once a real post-promote sweep populates execution_proof somewhere, the
+    highest-tier candidate must win -- proven here with a synthetic index entry,
+    since no real product has execution_proof populated anywhere yet (C6's own
+    disclosed gap)."""
+    snippets_dir = tmp_path / "snippets"
+    snippets_dir.mkdir()
+    (snippets_dir / "a_tier1.cs").write_text("var doc = new NewDocument(); // tier1", encoding="utf-8")
+    (snippets_dir / "b_tier3.cs").write_text("var doc = new NewDocument(); // tier3", encoding="utf-8")
+    (snippets_dir / "snippets_index.json").write_text(
+        json.dumps([_index_entry("a_tier1.cs", tier=1), _index_entry("b_tier3.cs", tier=3)]),
+        encoding="utf-8",
+    )
+    snippets_index = json.loads((snippets_dir / "snippets_index.json").read_text(encoding="utf-8"))
+
+    section_text = "```csharp\nvar doc = new OldDocument();\n```\n"
+    change = {"symbol": "OldDocument", "change_type": "API_RENAMED"}
+
+    result = br._example_regeneration(
+        section_text, change, snippets_dir, platform="net", snippets_index=snippets_index,
+    )
+
+    assert "// tier3" in result
+    assert "tier1" not in result
+
+
+def test_candidate_selection_is_deterministic_not_filesystem_glob_order(tmp_path):
+    """RC21's own second half: unsorted Path.glob() made "the first snippet without
+    the old symbol" filesystem-order dependent. Creates the alphabetically-LATER
+    file first on disk (some filesystems return glob() results in creation order)
+    and confirms the alphabetically-first one still wins."""
+    snippets_dir = tmp_path / "snippets"
+    snippets_dir.mkdir()
+    (snippets_dir / "z_created_first.cs").write_text("var doc = new NewDocument(); // z", encoding="utf-8")
+    (snippets_dir / "a_created_second.cs").write_text("var doc = new NewDocument(); // a", encoding="utf-8")
+    (snippets_dir / "snippets_index.json").write_text(
+        json.dumps([_index_entry("z_created_first.cs"), _index_entry("a_created_second.cs")]),
+        encoding="utf-8",
+    )
+    snippets_index = json.loads((snippets_dir / "snippets_index.json").read_text(encoding="utf-8"))
+
+    section_text = "```csharp\nvar doc = new OldDocument();\n```\n"
+    change = {"symbol": "OldDocument", "change_type": "API_RENAMED"}
+
+    result = br._example_regeneration(
+        section_text, change, snippets_dir, platform="net", snippets_index=snippets_index,
+    )
+
+    assert "// a" in result
+    assert "// z" not in result
+
+
+def test_selects_the_platform_specific_extension_not_hardcoded_cs(tmp_path):
+    """RC21's first half: the old code globbed `*.cs` unconditionally regardless of
+    the page's real platform. A python page must never pick up a .cs candidate."""
+    snippets_dir = tmp_path / "snippets"
+    snippets_dir.mkdir()
+    (snippets_dir / "wrong_platform.cs").write_text("var doc = new NewDocument();", encoding="utf-8")
+    (snippets_dir / "right.py").write_text("doc = NewDocument()", encoding="utf-8")
+    (snippets_dir / "snippets_index.json").write_text(
+        json.dumps([_index_entry("wrong_platform.cs"), _index_entry("right.py")]),
+        encoding="utf-8",
+    )
+    snippets_index = json.loads((snippets_dir / "snippets_index.json").read_text(encoding="utf-8"))
+
+    section_text = "```python\ndoc = OldDocument()\n```\n"
+    change = {"symbol": "OldDocument", "change_type": "API_RENAMED"}
+
+    result = br._example_regeneration(
+        section_text, change, snippets_dir, platform="python", snippets_index=snippets_index,
+    )
+
+    assert "```python" in result
+    assert "NewDocument" in result
+    assert "new NewDocument()" not in result  # the .cs candidate's own syntax
+
+
+def test_api_removed_still_uses_its_own_specific_removal_marker_text(tmp_path):
+    """The pre-existing API_REMOVED-specific marker text is preserved when no
+    verified snippet exists AND the change_type really is API_REMOVED -- more
+    precise than the new generic marker for this one, already-handled case."""
+    snippets_dir = tmp_path / "snippets"
+    snippets_dir.mkdir()  # empty -- no snippets at all
+    section_text = "```csharp\nvar doc = new OldDocument();\n```\n"
+    change = {"symbol": "OldDocument", "change_type": "API_REMOVED"}
+
+    result = br._example_regeneration(
+        section_text, change, snippets_dir, platform="net", snippets_index=[],
+    )
+
+    assert "OldDocument API no longer available" in result
+
+
+def test_api_removed_code_block_regenerated_end_to_end_still_works(tmp_path):
+    """Regression guard: the pre-existing end-to-end test above
+    (test_api_removed_code_block_regenerated) exercises this exact path with no
+    snippets_dir/snippets_index at all -- confirming the new keyword-only
+    platform/snippets_index parameters don't break the real _apply_section_update
+    call site, which now also loads and threads a real snippets_index.json when
+    one exists (there isn't one in that fixture, so this stays a no-op)."""
+    page_content = (
+        "---\ntitle: Test\n---\n\n## Example\n\n"
+        "```csharp\nvar doc = new OldDocument();\ndoc.Save();\n```\n"
+    )
+    page = _make_page(tmp_path, "content/docs.aspose.org/en/pdf/net/page.md", page_content)
+
+    writes: list[tuple] = []
+    br.configure(safe_write_fn=lambda p, c, **kw: writes.append((str(p), c)) or True)
+
+    change = _make_change("CHG-001", "OldDocument", "API_REMOVED")
+    impact = _make_impact(str(page), "CHG-001", "example", br.UT_EXAMPLE)
+    _setup_reports(tmp_path, "pdf", "net", [impact], [change])
+
+    receipts = _run("pdf", "net", execute=True)
+    assert len(receipts) == 1
+    assert writes
+    assert "OldDocument API no longer available" in writes[0][1]
+
+
 def test_api_removed_table_row_removed(tmp_path):
     """TABLE_ROW_RECONCILIATION removes rows containing removed API."""
     page_content = (
