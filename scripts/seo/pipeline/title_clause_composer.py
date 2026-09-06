@@ -382,9 +382,27 @@ def check_grounding_preservation(composed: str, raw_source_text: str) -> bool:
 # short/long tiers' own character classes -- the underscore tier now
 # owns every underscore-containing candidate exclusively, avoiding
 # duplicate/overlapping matches across tiers.
+#
+# **Rework 7** [round-7 independent review, agentId `a8415fbf915158f66`,
+# REJECT]: the underscore tier's own upper bound (`{2,30}`) was reused
+# from the long tier's cap without re-deriving it for underscore-joined
+# RECOMBINATIONS. Because "_" is a `\w` character, no tier can match any
+# fragment of an underscore-connected run longer than its own cap (there
+# is no interior `\b` to anchor a partial match on) -- so a 31+ character
+# underscore-joined fabrication was entirely invisible to ALL THREE
+# tiers, the same failure shape as rounds 4-6 just at this tier's own
+# untested upper boundary. Live-reproduced: a natural recombination of
+# real 3d/python fragments ("MICROSOFT_3MF" + the real, frequently-
+# repeated "_BINARY" suffix + one qualifier word = 31 chars) passed
+# undetected. Fix: remove the upper bound entirely for this tier -- the
+# same reasoning that removed its casing requirement (underscores
+# essentially never appear in ordinary English prose, so there is no
+# false-positive risk from ordinary long prose to control) applies
+# equally to length; there is no length past which an underscore-joined
+# token becomes a plausible ordinary English phrase requiring exemption.
 _ENUM_SHORT_CANDIDATE_RE = re.compile(r"\b(?=[A-Za-z0-9]*[A-Za-z])[A-Za-z0-9+]{2,6}\b")
 _ENUM_LONG_CANDIDATE_RE = re.compile(r"\b[A-Z][A-Za-z0-9]{6,29}\b")
-_ENUM_UNDERSCORE_CANDIDATE_RE = re.compile(r"\b(?=[A-Za-z0-9_]*[A-Za-z])(?=[A-Za-z0-9_]*_)[A-Za-z0-9_]{2,30}\b")
+_ENUM_UNDERSCORE_CANDIDATE_RE = re.compile(r"\b(?=[A-Za-z0-9_]*[A-Za-z])(?=[A-Za-z0-9_]*_)[A-Za-z0-9_]{2,}\b")
 
 # Acronyms that are never themselves a file/document format, however
 # plausible-looking -- confirmed common in real Aspose FOSS prose
@@ -524,9 +542,10 @@ def check_enumeration_membership(
     checked fully case-insensitively; long (7-30 char) tokens must start
     with an uppercase letter (real format identifiers this long are
     essentially always written capitalized); underscore-containing tokens
-    (2-30 chars) are checked fully case-insensitively regardless of
-    length (underscores essentially never appear in ordinary English
-    prose, so their mere presence is itself a safe signal with no
+    (2+ chars, no upper bound) are checked fully case-insensitively
+    regardless of length (underscores essentially never appear in
+    ordinary English prose, so their mere presence is itself a safe
+    signal with no
     false-positive risk to control via casing). Checked across the WHOLE
     text unconditionally, independent of position or surrounding
     punctuation -- see the rework notes above for why syntax-based

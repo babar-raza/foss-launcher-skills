@@ -425,6 +425,33 @@ class TestEnumerationMembershipEndToEnd:
         )
         assert result is None
 
+    def test_31_char_underscore_fabrication_does_not_ground_end_to_end(self, tmp_path):
+        """Round-7 review REJECT, real end-to-end reproduction: the
+        underscore tier's own {2,30} upper bound (reused from the long
+        tier's cap without re-deriving it) made a 31+ char underscore-
+        joined fabrication invisible to all three tiers -- real, live-
+        confirmed shape: a natural recombination of the real 3d/python
+        member "MICROSOFT_3MF" with the real "_BINARY" suffix convention."""
+        dc.configure(repo_root=tmp_path)
+        self._write_formats_json(
+            tmp_path, "3d", "python",
+            ["GLTF", "GLTF_BINARY", "MAYA_ASCII", "MAYA_BINARY", "MICROSOFT_3MF", "FBX7700_BINARY"],
+        )
+        proposed = (
+            "Explore the SaveFormat enum in Aspose.3D FOSS for Python, "
+            "export to GLTF_BINARY, MAYA_ASCII, MAYA_BINARY and "
+            "MICROSOFT_3MF_COMPRESSED_BINARY today."
+        )
+        assert len("MICROSOFT_3MF_COMPRESSED_BINARY") == 31
+        result = compose_description(
+            "content/reference.aspose.org/en/3d/python/FileFormat.md",
+            "SaveFormat enum", "3d save format export",
+            ["SaveFormat lists the supported output formats for 3D scenes."],
+            "3d", "python",
+            llm_call=lambda p: {"proposed_description": proposed, "rationale": "x"},
+        )
+        assert result is None
+
     def test_all_real_format_enumeration_passes_end_to_end(self, tmp_path):
         dc.configure(repo_root=tmp_path)
         self._write_formats_json(tmp_path, "slides", "net", ["Ppt", "Pdf", "Xps", "Pptx", "Html"])

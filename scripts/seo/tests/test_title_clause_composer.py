@@ -451,6 +451,47 @@ class TestEnumerationMembershipRound6LowercaseUnderscoreTokensFixed:
         )
 
 
+class TestEnumerationMembershipRound7UnboundedUnderscoreLengthFixed:
+    """Round-7 independent review (agentId a8415fbf915158f66) REJECT: the
+    underscore tier's own {2,30} upper bound was reused from the long
+    tier's cap without re-deriving it for underscore-joined
+    RECOMBINATIONS. Because "_" is a \\w character, no tier can match any
+    fragment of a too-long underscore-connected run (no interior \\b
+    exists) -- a 31+ char underscore-joined fabrication was entirely
+    invisible to all three tiers simultaneously, the same failure shape
+    as rounds 4-6 recurring at this tier's own untested upper boundary.
+    Real, live-confirmed shape: a natural recombination of the real
+    3d/python member "MICROSOFT_3MF" with the real, frequently-repeated
+    "_BINARY" suffix convention plus one qualifier word. Fixed by
+    removing the underscore tier's upper bound entirely -- the same
+    reasoning that removed its casing requirement (underscores never
+    appear in ordinary prose, so there is no length past which an
+    underscore-joined token becomes a plausible ordinary phrase needing
+    exemption)."""
+
+    _REAL_3D_FORMATS = {
+        "gltf", "gltf_binary", "maya_ascii", "maya_binary", "microsoft_3mf", "fbx7700_binary",
+    }
+
+    def test_31_char_underscore_fabrication_is_now_caught(self):
+        composed = (
+            "Explore the SaveFormat enum in Aspose.3D FOSS for Python, "
+            "export to GLTF_BINARY, MAYA_ASCII, MAYA_BINARY and "
+            "MICROSOFT_3MF_COMPRESSED_BINARY today."
+        )
+        assert len("MICROSOFT_3MF_COMPRESSED_BINARY") == 31
+        assert not check_enumeration_membership(composed, self._REAL_3D_FORMATS, exempt={"3d", "python"})
+
+    def test_arbitrarily_long_genuine_underscore_format_still_passes(self):
+        long_real = "a_very_long_but_entirely_real_underscore_joined_format_name"
+        composed = f"Exports to GLTF_BINARY and {long_real.upper()} formats today."
+        assert check_enumeration_membership(composed, self._REAL_3D_FORMATS | {long_real})
+
+    def test_arbitrarily_long_fabrication_is_still_caught(self):
+        composed = "Exports to GLTF_BINARY and A_VERY_LONG_ENTIRELY_FABRICATED_FORMAT_NAME formats today."
+        assert not check_enumeration_membership(composed, self._REAL_3D_FORMATS)
+
+
 # ---------------------------------------------------------------------------
 # Acceptance check: over-length-retries-then-falls-back
 # ---------------------------------------------------------------------------
