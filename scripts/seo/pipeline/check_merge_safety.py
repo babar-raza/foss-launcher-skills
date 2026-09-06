@@ -9,7 +9,10 @@ BEFORE any auto-merge decision:
   3. Every changed entry has only {pageTitle, sourcePath, keywords,
      title_ready_variants, schema_version} keys (catches the 2026-03-27
      contamination shape -- stray tags/pluginDescriptions -- while accepting
-     SEO-SCHEMA-A-DUAL-FIELD-GENERATION's two new, optional, additive keys).
+     SEO-SCHEMA-A-DUAL-FIELD-GENERATION's two new, optional, additive keys),
+     AND every title_ready_variants value stays within the generation
+     prompt's own <=6-word bound (SEO-DUAL-FIELD-VARIANT-LENGTH-GATE-
+     RESOLVER-1 -- values were never checked before, only keys).
   4. No family's entry count decreases vs the base ref.
   5. Change-budget guard (Contract G, SEO-CHANGE-BUDGET-GUARD): the number of
      entries actually changed (added or modified, by sourcePath) in each
@@ -50,6 +53,17 @@ except ImportError:
 # refresh PR that touches any regenerated entry would fail Gate 3 and lose
 # its auto-merge eligibility.
 _ALLOWED_ENTRY_KEYS = {"pageTitle", "sourcePath", "keywords", "title_ready_variants", "schema_version"}
+
+# Must match validate.py's own _MAX_TITLE_READY_VARIANT_WORDS and
+# get_keywords.py's own _MAX_VARIANT_WORDS. Gate 3 previously checked only
+# entry-level KEYS, never the title_ready_variants VALUES -- confirmed live
+# to have let a real refresh PR (#81) merge 254 variants across
+# keywords/{cells,slides}.json that exceed this bound (up to 8 words),
+# because validate.py's own drop-and-flag behavior (Gate 1) never fails the
+# process (it is a report generator, not a hard gate) and nothing else
+# checked variant length at merge time (SEO-DUAL-FIELD-VARIANT-LENGTH-GATE-
+# RESOLVER-1).
+_MAX_TITLE_READY_VARIANT_WORDS = 6
 
 # SEO-SCHEMA-A-WORKFLOW-UPDATE Migration Plan v2: the one-time platform-label
 # migration persists its resumable progress in this single extra file. Gate 2
@@ -96,7 +110,11 @@ def check_scope(changed_files):
 
 
 def check_entry_shape(changed_files, repo_root):
-    """Gate 3: every changed entry has only the 3 allowed keys."""
+    """Gate 3: every changed entry has only the 5 allowed keys, and every
+    title_ready_variants value stays within the generation prompt's own
+    stated word limit (SEO-DUAL-FIELD-VARIANT-LENGTH-GATE-RESOLVER-1 --
+    previously checked keys only, never values, letting a real refresh PR
+    merge 254 over-length variants)."""
     violations = []
     for rel_path in changed_files:
         payload = _load_at_ref("HEAD", rel_path, repo_root)
@@ -110,6 +128,14 @@ def check_entry_shape(changed_files, repo_root):
             extra = set(entry.keys()) - _ALLOWED_ENTRY_KEYS
             if extra:
                 violations.append(f"{rel_path}[{i}]: unexpected keys {sorted(extra)}")
+            variants = entry.get("title_ready_variants")
+            if isinstance(variants, dict):
+                for phrase, variant in variants.items():
+                    if isinstance(variant, str) and len(variant.split()) > _MAX_TITLE_READY_VARIANT_WORDS:
+                        violations.append(
+                            f"{rel_path}[{i}]: title_ready_variants[{phrase!r}] exceeds "
+                            f"{_MAX_TITLE_READY_VARIANT_WORDS} words ({len(variant.split())})"
+                        )
     return (not violations), violations
 
 

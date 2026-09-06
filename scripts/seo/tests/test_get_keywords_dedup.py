@@ -150,6 +150,30 @@ def test_parse_gemini_keyword_response_tolerates_missing_pipe():
     assert variants == {"keyword one": "Keyword One Title", "keyword three": "Keyword Three Title"}
 
 
+def test_parse_gemini_keyword_response_drops_over_length_variant_keeps_phrase():
+    """SEO-DUAL-FIELD-VARIANT-LENGTH-GATE-RESOLVER-1: a variant exceeding
+    _MAX_VARIANT_WORDS (6) must be dropped, never truncated -- the phrase
+    itself is kept exactly like the existing missing-pipe tolerance case.
+    Live-reproduced shape: real over-length variants found in
+    keywords/cells.json (e.g. "Open Source Library To Write Excel In C++",
+    8 words)."""
+    text = (
+        "keyword one|Keyword One Title\n"
+        "keyword two|Open Source Library To Write Excel In C Plus Plus\n"
+        "keyword three|Keyword Three Title"
+    )
+    phrases, variants = get_keywords._parse_gemini_keyword_response(text)
+    assert phrases == ["keyword one", "keyword two", "keyword three"]
+    assert variants == {"keyword one": "Keyword One Title", "keyword three": "Keyword Three Title"}
+    assert "keyword two" not in variants
+
+
+def test_parse_gemini_keyword_response_keeps_variant_at_exactly_the_word_limit():
+    text = "keyword one|One Two Three Four Five Six"
+    phrases, variants = get_keywords._parse_gemini_keyword_response(text)
+    assert variants == {"keyword one": "One Two Three Four Five Six"}
+
+
 def test_get_keywords_from_gemini_returns_keywords_with_variants(monkeypatch):
     class _FakeResponse:
         text = "quick start guide|Quick Start Guide\nsetup tutorial|Setup Tutorial"

@@ -295,6 +295,16 @@ class KeywordsWithVariants(list):
         self.title_variants = title_variants or {}
 
 
+# Must match validate.py's own _MAX_TITLE_READY_VARIANT_WORDS and the
+# generation prompt's own stated "(at most 6 words...)" instruction below --
+# the LLM does not reliably honor that instruction on its own (confirmed
+# live, SEO-DUAL-FIELD-VARIANT-LENGTH-GATE-RESOLVER-1: 254 real variants
+# across keywords/cells.json + keywords/slides.json exceeded it, up to 8
+# words), so this is enforced structurally at parse time, not just asked
+# for in the prompt.
+_MAX_VARIANT_WORDS = 6
+
+
 def _parse_gemini_keyword_response(keywords_text):
     """Parse Gemini's response into (phrases, title_variants).
 
@@ -304,7 +314,12 @@ def _parse_gemini_keyword_response(keywords_text):
     the pipe/variant on a given line: the phrase is still kept, just without
     a variant for that one line, rather than the whole line being discarded --
     a formatting slip on the new, optional half of the response must never
-    regress keyword generation itself.
+    regress keyword generation itself. The same tolerance now also applies to
+    a variant that ignores the prompt's own word-count instruction: dropped
+    (never truncated -- truncation risks silently changing a phrase's
+    meaning), not the whole phrase (SEO-DUAL-FIELD-VARIANT-LENGTH-GATE-
+    RESOLVER-1) -- a missing variant for one phrase is already a normal,
+    tolerated outcome of this same function, never a retry-worthy failure.
     """
     phrases = []
     variants = {}
@@ -319,7 +334,7 @@ def _parse_gemini_keyword_response(keywords_text):
             if not phrase:
                 continue
             phrases.append(phrase)
-            if variant:
+            if variant and len(variant.split()) <= _MAX_VARIANT_WORDS:
                 variants[phrase] = variant
         else:
             phrases.append(line)
