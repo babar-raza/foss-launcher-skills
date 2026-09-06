@@ -261,6 +261,42 @@ class TestCompileRealJavac:
         assert result is None, result
         assert (acquired["work_dir"] / "Widget.class").is_file()
 
+    def test_a_same_line_comment_followed_by_real_code_keeps_that_code(self, tmp_path):
+        """Independent-reviewer finding (round 3), fixed: the round-2 hoisting fix
+        unconditionally hoisted an ENTIRE line starting with `/*`, even when real code
+        follows the comment's own closing `*/` later on that same line -- silently
+        dropping that trailing code from the generated program instead of keeping it as
+        body content (`/* note */ code;` is ordinary, legal Java inside a method)."""
+        runner, acquired = _acquired(tmp_path)
+        code = '/* explanation */ System.out.println("hi from after the comment");'
+        result = runner.execute(acquired, code, 0)
+        assert result == {"status": "PASS"}
+
+    def test_a_class_mention_inside_a_text_block_does_not_corrupt_class_name_detection(self, tmp_path):
+        """Independent-reviewer finding (round 3), fixed: _strip_comments preserved
+        string/char literal CONTENT verbatim (round 2's fix), which correctly stopped
+        comment-like characters inside a literal from corrupting the scan, but left a
+        `class X` mention EMBEDDED inside a literal's own content (e.g. a Java 15+ text
+        block storing example source as documentation text) fully visible to the later
+        class-detection scan -- reproducing the exact "wrong class picked" defect via a
+        third, different trigger shape."""
+        runner, acquired = _acquired(tmp_path)
+        code = (
+            'class Helper {\n'
+            '    static String exampleDoc = """\n'
+            'public class Evil\n'
+            '""";\n'
+            '}\n'
+            'public class Widget {\n'
+            '    public static void main(String[] a) {\n'
+            '        System.out.println(Helper.exampleDoc);\n'
+            '    }\n'
+            '}\n'
+        )
+        result = runner.compile(acquired, code, 0)
+        assert result is None, result
+        assert (acquired["work_dir"] / "Widget.class").is_file()
+
 
 class TestExecuteRealJava:
     def test_clean_stdlib_fragment_runs_and_passes(self, tmp_path):
