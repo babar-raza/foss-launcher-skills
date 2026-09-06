@@ -217,6 +217,50 @@ class TestCompileRealJavac:
         result = runner.compile(acquired, code, 0)
         assert result is None, result
 
+    def test_a_block_comment_led_import_compiles(self, tmp_path):
+        """Independent-reviewer finding (round 2), fixed: the first version of
+        _wrap_fragment's hoisting loop only recognized `//` line comments as skippable
+        preamble -- a leading `/* ... */` block comment stopped hoisting early, landing
+        the import back inside main() and reproducing the exact "illegal start of
+        expression" bug the first fix claimed to have closed."""
+        runner, acquired = _acquired(tmp_path)
+        code = (
+            "/* Uses the product's List API */\n"
+            "import java.util.List;\n\n"
+            "List<String> items = new java.util.ArrayList<>();\n"
+            "System.out.println(items);"
+        )
+        result = runner.compile(acquired, code, 0)
+        assert result is None, result
+
+    def test_a_string_literal_containing_comment_syntax_does_not_corrupt_class_name_detection(self, tmp_path):
+        """Independent-reviewer finding (round 2), fixed: _strip_comments's block-comment
+        regex was not string-literal-aware -- a string literal containing `/*` with no
+        REAL closing `*/` of its own (e.g. `"/* unterminated"`) let the non-greedy regex
+        span from inside that literal all the way to an unrelated, LATER real `*/`
+        elsewhere in the block (a real trailing comment is required to reproduce this --
+        with no real `*/` anywhere after the literal, the naive regex has nothing to
+        close on and never matches at all, which is why this exact shape is needed, not
+        a simpler one). That deleted real code (including the real `public class
+        Widget` declaration) along with it, so _class_name_for picked the WRONG
+        (non-public) class -- reproducing the exact "class X is public, should be
+        declared in a file named X.java" bug the first fix claimed to have closed."""
+        runner, acquired = _acquired(tmp_path)
+        code = (
+            'class Helper {\n'
+            '    static String note() { return "/* unterminated"; }\n'
+            '}\n\n'
+            'public class Widget {\n'
+            '    public static void main(String[] args) {\n'
+            '        /* a real trailing comment */\n'
+            '        System.out.println(Helper.note());\n'
+            '    }\n'
+            '}\n'
+        )
+        result = runner.compile(acquired, code, 0)
+        assert result is None, result
+        assert (acquired["work_dir"] / "Widget.class").is_file()
+
 
 class TestExecuteRealJava:
     def test_clean_stdlib_fragment_runs_and_passes(self, tmp_path):

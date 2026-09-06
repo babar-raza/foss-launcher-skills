@@ -61,15 +61,34 @@ _JAVAC_LOCATION_RE = re.compile(r'([\w./\\-]+\.java):\d+:')
 _JAVA_STACK_LOCATION_RE = re.compile(r'\(([\w./\\-]+\.java):\d+\)')
 
 _CLASS_DECL_RE = re.compile(r'^\s*(public\s+)?(?:final\s+)?class\s+(\w+)', re.MULTILINE)
-_BLOCK_COMMENT_RE = re.compile(r'/\*.*?\*/', re.DOTALL)
-_LINE_COMMENT_RE = re.compile(r'//.*$', re.MULTILINE)
+
+# String/char literals ALWAYS matched first (leftmost alternative that can match at a
+# given position wins in Python's re) so a `/*`/`//` sequence INSIDE a literal (e.g.
+# `"/* not a comment */"`) is consumed as part of the literal, never mistaken for the
+# start of a real comment -- independent-reviewer finding (round 2): the original
+# `_strip_comments` matched `/\*.*?\*/` completely literal-unaware, so a string literal
+# containing an unterminated-looking `/*` let the non-greedy regex span all the way to
+# an unrelated, LATER real `*/`, deleting real code (including a real `public class`
+# declaration) along with it.
+_JAVA_STRING_OR_COMMENT_RE = re.compile(
+    r'"(?:\\.|[^"\\])*"'
+    r"|'(?:\\.|[^'\\])*'"
+    r'|/\*.*?\*/'
+    r'|//[^\n]*',
+    re.DOTALL,
+)
 
 
 def _strip_comments(code: str) -> str:
     """A `class X` mention inside a comment (a line comment, or explanatory
     prose in a block comment) must never be mistaken for a real declaration
-    -- independent-reviewer finding, fixed here."""
-    return _LINE_COMMENT_RE.sub('', _BLOCK_COMMENT_RE.sub('', code))
+    -- independent-reviewer finding, fixed here. String/char literals are
+    matched and preserved verbatim (see `_JAVA_STRING_OR_COMMENT_RE`'s own
+    docstring) rather than being blind to what they contain."""
+    def _replace(m: "re.Match[str]") -> str:
+        text = m.group(0)
+        return text if text[0] in ('"', "'") else ''
+    return _JAVA_STRING_OR_COMMENT_RE.sub(_replace, code)
 
 
 def _discover_java_toolchain() -> "tuple[str, str, str] | None":
@@ -132,13 +151,31 @@ def _wrap_fragment(code: str) -> str:
     product's own class, then a few statements using it) -- confirmed live:
     this exact shape (an import line followed by code) is what
     `starts_chain()` itself is designed to recognize as a valid chain
-    start."""
+    start.
+
+    Independent-reviewer finding (round 2), fixed here: the first version of
+    this hoisting only recognized `//` line comments as skippable preamble
+    -- a leading `/* ... */` block comment (which can itself span multiple
+    lines) stopped hoisting early, landing the import back inside `main()`.
+    `in_block_comment` tracks an open, not-yet-closed `/*` across lines the
+    same way a real Java tokenizer would."""
     import_lines: list[str] = []
     body_lines: list[str] = []
     past_imports = False
+    in_block_comment = False
     for line in code.splitlines():
         stripped = line.strip()
         if not past_imports:
+            if in_block_comment:
+                import_lines.append(line)
+                if "*/" in stripped:
+                    in_block_comment = False
+                continue
+            if stripped.startswith("/*"):
+                import_lines.append(line)
+                if "*/" not in stripped[2:]:
+                    in_block_comment = True
+                continue
             if stripped.startswith("//"):
                 import_lines.append(line)
                 continue
