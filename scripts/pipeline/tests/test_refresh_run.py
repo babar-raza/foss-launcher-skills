@@ -2877,6 +2877,56 @@ def test_verify_records_truth_audit_as_advisory_not_blocking(tmp_path: Path):
     assert manifest["state"] == "READY_TO_COMMIT"
 
 
+def test_verify_records_example_execution_as_advisory_not_blocking(tmp_path: Path):
+    """MT065-2026-09-06-EXAMPLE-VERIFICATION-CENTRALIZATION/C9: the same advisory
+    posture as truth_audit above -- "example_execution" (smoke_test.py, S-63) must be
+    recorded in the manifest but must NEVER block READY_TO_COMMIT, even on a FAIL. No
+    portfolio-wide measurement of real pages under this check exists yet (see
+    ADVISORY_VALIDATION_FIELDS' own comment), so this cannot safely be a hard gate.
+    Unlike truth_audit (the single-shot `commands` dict), this field runs through
+    scoped_commands' chunking loop -- the fake runner matches on smoke_test.py's own
+    script name the same way test_verify_run_chunks_every_scoped_validator_for_a_large_
+    scope does."""
+    def _runner_with_failing_example_execution(
+        args: list[str], **_: object,
+    ) -> subprocess.CompletedProcess[str]:
+        if args[:3] == ["git", "rev-parse", "HEAD"]:
+            return subprocess.CompletedProcess(args, 0, HEAD_SHA + "\n", "")
+        if any("smoke_test.py" in str(a) for a in args):
+            return subprocess.CompletedProcess(
+                args, 2, "", "FAIL: 1 block(s) have syntax errors"
+            )
+        return subprocess.CompletedProcess(args, 0, "", "")
+
+    refresh_run.configure(
+        repo_root=tmp_path,
+        command_runner=_runner_with_failing_example_execution,
+        source_sha_resolver=lambda _f, _p: MODEL_SHA,
+        now=lambda: datetime(2026, 7, 25, tzinfo=timezone.utc),
+    )
+
+    manifest = refresh_run.create_run(
+        "pdf", "net", mode="upstream", run_id="RUN-VERIFY-EE", session_id="session-1",
+    )
+    manifest["target_model_sha"] = MODEL_SHA
+    manifest["target_source_sha"] = MODEL_SHA
+    manifest["scope"]["digest"] = "sha256:scope"
+    manifest["scope"]["paths"] = ["content/docs.aspose.org/en/pdf/net/page.md"]
+    refresh_run._transition(manifest, "PLANNED")
+    refresh_run._transition(manifest, "APPLYING")
+    manifest["receipt_refs"] = ["receipts/RCP-001.yaml"]
+    manifest["page_decision_ref"] = "page_decisions.jsonl"
+    refresh_run._transition(manifest, "VALIDATING")
+    _write_run_evidence(tmp_path, manifest)
+
+    refresh_run.verify_run(manifest)
+
+    assert manifest["validation"]["example_execution"] == "FAIL"
+    assert manifest["validation"]["content_audit"] == "PASS"
+    # The advisory FAIL must not have blocked the state transition.
+    assert manifest["state"] == "READY_TO_COMMIT"
+
+
 def test_advisory_validation_fields_excluded_from_bind_commit_gate(tmp_path: Path):
     """The same advisory exclusion must hold at commit-binding time, not just
     verify_run() -- both not_pass checks read manifest['validation']. Reuses
@@ -3726,7 +3776,11 @@ def test_verify_run_chunks_every_scoped_validator_for_a_large_scope(tmp_path: Pa
     existing 40-per-chunk mechanism (already used by content_audit/
     link_validation). This is the load-bearing regression test: a scope
     of 85 paths must produce 3 chunks (40+40+5) for every scoped validator,
-    never one call carrying all 85 paths at once."""
+    never one call carrying all 85 paths at once. "example_execution"
+    (smoke_test.py, added C9) joined scoped_commands after this test was
+    first written, so it's included here too -- this test's whole point is
+    proving chunking for EVERY scoped validator, not just the four
+    original ones."""
     scope_paths = [
         f"content/reference.aspose.org/en/pdf/net/Class{i:03d}.md" for i in range(85)
     ]
@@ -3746,6 +3800,7 @@ def test_verify_run_chunks_every_scoped_validator_for_a_large_scope(tmp_path: Pa
 
     scoped_scripts = (
         "audit.py", "link_validator.py", "triage_confirm.py", "seo_stability_check.py",
+        "smoke_test.py",
     )
     max_paths_per_call: dict[str, int] = {}
 

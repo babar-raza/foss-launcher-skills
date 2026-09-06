@@ -70,7 +70,15 @@ VALIDATION_FIELDS = (
 # verdict visible and durable. Phase 2 (a real, differential gate that blocks only
 # on FAILs a run's own diff introduced, not pre-existing debt) is a separate,
 # future, backlog-tracked change gated on TRUTH-AUDIT-DEBT-001's closure.
-ADVISORY_VALIDATION_FIELDS = ("truth_audit",)
+# MT065-2026-09-06-EXAMPLE-VERIFICATION-CENTRALIZATION/C9: "example_execution" runs
+# smoke_test.py (S-63, tier <=2 -- compile/type-check only, never executes code) over
+# this run's own scope, the same "advisory first" posture the governing plan's Round 4
+# Decision 5 states for every new example-verification consumer ("advisory first, then
+# hard -- per consumer, each in its own commit, after one recorded portfolio
+# measurement"). No portfolio-wide measurement of how many pages would newly WARN/FAIL
+# exists yet, so this cannot safely be a hard gate today -- the same reasoning
+# truth_audit's own comment above gives, not a new one invented for this field.
+ADVISORY_VALIDATION_FIELDS = ("truth_audit", "example_execution")
 NEXT_STATES = {
     "CREATED": {"INPUTS_PINNED", "BLOCKED", "ABANDONED"},
     "INPUTS_PINNED": {"PLANNED", "BLOCKED", "ABANDONED"},
@@ -2534,6 +2542,28 @@ def verify_run(manifest: dict[str, Any]) -> dict[str, Any]:
                 "--intentional-renames",
                 ",".join(manifest.get("intentional_renames") or []),
             ],
+        ),
+        # MT065-2026-09-06-EXAMPLE-VERIFICATION-CENTRALIZATION/C9: smoke_test.py (S-63)
+        # over this run's own scope, auto-detecting each file's languages from its own
+        # fence tags (bare `--files` with no family/platform, per RC22's fix) rather
+        # than assuming a single platform for the whole chunk -- a run's scope can span
+        # more than one platform's pages. `--json` for a machine-parseable exit
+        # (0=PASS, 1=WARN, 2=FAIL, matching the generic PASS/UNKNOWN(3)/else-FAIL
+        # mapping this loop already applies uniformly to every scoped validator; WARN
+        # and FAIL both count as not-PASS here, acceptable since this field is
+        # advisory-only, see ADVISORY_VALIDATION_FIELDS). Deliberately the CLI's
+        # default `--max-tier` (2, syntax + Python mypy type-check) -- `--max-tier 3`
+        # isn't even a valid choice yet (`choices=("1", "2")` -- real per-block
+        # execution isn't wired into this CLI's dispatch, see smoke_test.py's own
+        # module docstring), so this doesn't pass `--max-tier` at all and lets the
+        # CLI's own default apply.
+        "example_execution": (
+            [
+                python,
+                str(_repo_root / "scripts/pipeline/commands/diagnostics/smoke_test.py"),
+                "--files",
+            ],
+            ["--json"],
         ),
     }
     # Keep Windows command lines bounded while still validating the exact run
