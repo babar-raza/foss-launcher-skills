@@ -416,3 +416,113 @@ class TestNonPythonBlocks:
         """All expected aliases are present in _TS_LANG_MAP."""
         for tag in ("java", "csharp", "cs", "c#", "typescript", "ts", "cpp", "c++"):
             assert tag in _TS_LANG_MAP, f"Missing: {tag}"
+
+
+# ---------------------------------------------------------------------------
+# C4: --max-tier
+# ---------------------------------------------------------------------------
+
+
+class TestMaxTier:
+    def test_max_tier_2_is_unchanged_default_behavior(self, tmp_path):
+        """C4's own promotion gate: max_tier=2 (the default) must be
+        byte-identical to this module's pre-C4 behavior -- a type error
+        still produces a WARN, matching TestMypyAbsent's existing fixture."""
+        md = _write_md(tmp_path, "```python\nx: int = 'not an int'\n```\n")
+        result = check_file(md, max_tier=2)
+        # Whatever mypy would report here (WARN if installed, PASS if not)
+        # must be identical to calling check_file() with no max_tier at all.
+        result_default = check_file(md)
+        assert result == result_default
+
+    def test_max_tier_1_skips_mypy_never_warns_on_type_error(self, tmp_path):
+        md = _write_md(tmp_path, "```python\nx: int = 'not an int'\n```\n")
+        result = check_file(md, max_tier=1)
+        assert result.results[0].status == "PASS"
+        assert result.warn_count == 0
+
+    def test_max_tier_1_still_fails_real_syntax_errors(self, tmp_path):
+        md = _write_md(tmp_path, "```python\ndef f(:\n```\n")
+        result = check_file(md, max_tier=1)
+        assert result.results[0].status == "FAIL"
+
+    def test_max_tier_1_does_not_change_non_python_behavior(self, tmp_path):
+        # Non-Python languages have no separate compile tier today --
+        # max_tier only changes Python's own mypy step.
+        md = _write_md(tmp_path, "```java\npublic class Foo { void bar() {} }\n```\n")
+        r1 = check_file(md, langs=frozenset({"java"}), max_tier=1)
+        r2 = check_file(md, langs=frozenset({"java"}), max_tier=2)
+        assert r1 == r2
+
+
+# ---------------------------------------------------------------------------
+# C4: --json report
+# ---------------------------------------------------------------------------
+
+
+class TestJsonReport:
+    def test_json_report_matches_text_report_exit_code(self, tmp_path, capsys):
+        md = _write_md(tmp_path, "```python\ndef f(:\n```\n")
+        result = check_file(md)
+        text_code = smoke_test.print_report([result])
+        capsys.readouterr()
+        json_code = smoke_test.print_json_report([result])
+        assert json_code == text_code == 2
+
+    def test_json_report_is_valid_json_with_expected_shape(self, tmp_path, capsys):
+        import json as _json
+        md = _write_md(tmp_path, "```python\nprint(1)\n```\n")
+        result = check_file(md)
+        smoke_test.print_json_report([result])
+        captured = capsys.readouterr()
+        report = _json.loads(captured.out)
+        assert report["files_checked"] == 1
+        assert report["blocks_checked"] == 1
+        assert report["pass_count"] == 1
+        assert report["fail_count"] == 0
+        assert report["files"][0]["file"] == str(md)
+        assert report["files"][0]["results"][0]["status"] == "PASS"
+
+
+# ---------------------------------------------------------------------------
+# C4/RC22: auto-detecting languages for a bare --files invocation
+# ---------------------------------------------------------------------------
+
+
+class TestDetectLangsInFiles:
+    def test_python_only_file_detects_python(self, tmp_path):
+        md = _write_md(tmp_path, "```python\nprint(1)\n```\n")
+        assert smoke_test._detect_langs_in_files([md]) == frozenset({"python"})
+
+    def test_java_file_detects_java_not_python(self, tmp_path):
+        """RC22 regression test: eval-page.md's step 2b documents this CLI
+        as checking 'all platforms', but a bare --files invocation used to
+        hardcode frozenset({'python'}) regardless of the file's real
+        content -- a Java-only page's Java blocks were silently never
+        smoke-tested via that call path."""
+        md = _write_md(tmp_path, "```java\npublic class Foo {}\n```\n")
+        assert smoke_test._detect_langs_in_files([md]) == frozenset({"java"})
+
+    def test_mixed_language_file_detects_both(self, tmp_path):
+        md = _write_md(
+            tmp_path,
+            "```python\nprint(1)\n```\n\n```java\npublic class Foo {}\n```\n",
+        )
+        assert smoke_test._detect_langs_in_files([md]) == frozenset({"python", "java"})
+
+    def test_no_known_language_falls_back_to_python(self, tmp_path):
+        md = _write_md(tmp_path, "```yaml\nkey: value\n```\n")
+        assert smoke_test._detect_langs_in_files([md]) == frozenset({"python"})
+
+    def test_no_fences_at_all_falls_back_to_python(self, tmp_path):
+        md = _write_md(tmp_path, "just prose, no code blocks\n")
+        assert smoke_test._detect_langs_in_files([md]) == frozenset({"python"})
+
+    def test_bare_files_invocation_now_checks_java_content(self, tmp_path):
+        """End-to-end proof of the RC22 fix via the real check_file() path
+        a bare `--files` CLI invocation actually takes."""
+        md = _write_md(tmp_path, "```java\npublic class Foo { void bar( {\n```\n")
+        langs = smoke_test._detect_langs_in_files([md])
+        result = check_file(md, langs=langs)
+        assert result.blocks_checked == 1
+        assert result.results[0].status == "FAIL"  # real Java syntax error, now actually seen

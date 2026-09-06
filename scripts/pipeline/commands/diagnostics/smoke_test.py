@@ -298,12 +298,22 @@ def check_file(
     md_path: Path,
     canonical_import: str = "",
     langs: frozenset[str] | None = None,
+    *,
+    max_tier: int = 2,
 ) -> SmokeResult:
     """Check code blocks in a Markdown file.
 
     langs: set of language tags to extract (default: frozenset({"python"})).
-    Python blocks: py_compile syntax + optional mypy type check.
-    Non-Python blocks (java/csharp/typescript/cpp): tree-sitter syntax only.
+    Python blocks: py_compile syntax + (max_tier>=2 only) optional mypy type
+    check. Non-Python blocks (java/csharp/typescript/cpp/go/rust): tree-sitter
+    syntax only, at every tier (there is no separate compile step for these
+    today; max_tier only changes Python's own behavior).
+
+    max_tier: 1 = syntax-only (skip mypy even for Python); 2 (default,
+    unchanged from this module's original behavior) = syntax + Python mypy
+    type-check. C4's own promotion gate requires max_tier=2 (the default)
+    to remain byte-identical to this module's pre-C4 behavior -- confirmed
+    by every existing test in test_smoke_test.py passing unchanged.
     """
     if langs is None:
         langs = frozenset({"python"})
@@ -331,6 +341,17 @@ def check_file(
                     message=f"SyntaxError: {syntax_msg}",
                 ))
                 fail_count += 1
+                continue
+
+            if max_tier < 2:
+                results.append(BlockResult(
+                    file=str(md_path),
+                    block_index=idx,
+                    start_line=start_line,
+                    status="PASS",
+                    message="",
+                ))
+                pass_count += 1
                 continue
 
             # Step 2: type check (WARN only — never FAIL)
@@ -409,7 +430,7 @@ def check_file(
 # ---------------------------------------------------------------------------
 
 
-def check_product(family: str, platform: str) -> list[SmokeResult]:
+def check_product(family: str, platform: str, *, max_tier: int = 2) -> list[SmokeResult]:
     """Check code blocks across all content files for a product.
 
     Language tags are auto-detected from platform using _PLATFORM_LANGS.
@@ -441,7 +462,7 @@ def check_product(family: str, platform: str) -> list[SmokeResult]:
 
     results = []
     for path in sorted(paths):
-        result = check_file(path, canonical_import, langs)
+        result = check_file(path, canonical_import, langs, max_tier=max_tier)
         if result.blocks_checked > 0:
             results.append(result)
 
@@ -451,6 +472,17 @@ def check_product(family: str, platform: str) -> list[SmokeResult]:
 # ---------------------------------------------------------------------------
 # Reporting
 # ---------------------------------------------------------------------------
+
+
+def _exit_code_for(total_fail: int, total_warn: int) -> int:
+    """The one, shared 0/1/2 exit-code rule -- both print_report() and
+    print_json_report() must return the exact same code for the same
+    results (C4's promotion gate: exit codes 0/1/2 preserved)."""
+    if total_fail > 0:
+        return 2
+    if total_warn > 0:
+        return 1
+    return 0
 
 
 def print_report(all_results: list[SmokeResult]) -> int:
@@ -478,19 +510,89 @@ def print_report(all_results: list[SmokeResult]) -> int:
                 continue
             print(f"  [{br.status}] block {br.block_index} (line {br.start_line}): {br.message}")
 
-    if total_fail > 0:
+    exit_code = _exit_code_for(total_fail, total_warn)
+    if exit_code == 2:
         print(f"\nRESULT: FAIL — {total_fail} block(s) have syntax errors")
-        return 2
-    if total_warn > 0:
+    elif exit_code == 1:
         print(f"\nRESULT: WARN — {total_warn} block(s) have type warnings")
-        return 1
-    print(f"\nRESULT: PASS — all {total_blocks} block(s) are clean")
-    return 0
+    else:
+        print(f"\nRESULT: PASS — all {total_blocks} block(s) are clean")
+    return exit_code
+
+
+def print_json_report(all_results: list[SmokeResult]) -> int:
+    """Same data as print_report(), as machine-readable JSON on stdout.
+    Returns the identical exit code print_report() would for the same
+    results (see _exit_code_for)."""
+    import json as _json
+
+    total_blocks = sum(r.blocks_checked for r in all_results)
+    total_pass = sum(r.pass_count for r in all_results)
+    total_warn = sum(r.warn_count for r in all_results)
+    total_fail = sum(r.fail_count for r in all_results)
+
+    report = {
+        "files_checked": len(all_results),
+        "blocks_checked": total_blocks,
+        "pass_count": total_pass,
+        "warn_count": total_warn,
+        "fail_count": total_fail,
+        "files": [
+            {
+                "file": smoke.file,
+                "blocks_checked": smoke.blocks_checked,
+                "pass_count": smoke.pass_count,
+                "warn_count": smoke.warn_count,
+                "fail_count": smoke.fail_count,
+                "results": [
+                    {
+                        "block_index": br.block_index,
+                        "start_line": br.start_line,
+                        "status": br.status,
+                        "message": br.message,
+                    }
+                    for br in smoke.results
+                ],
+            }
+            for smoke in all_results
+        ],
+    }
+    print(_json.dumps(report, indent=2, sort_keys=True))
+    return _exit_code_for(total_fail, total_warn)
 
 
 # ---------------------------------------------------------------------------
 # CLI
 # ---------------------------------------------------------------------------
+
+
+# C4: every language this module knows how to syntax-check at all --
+# derived the same way _PLATFORM_LANGS/_TS_LANG_MAP are (registry.py +
+# syntax.py), used only to scope auto-detection for a bare `--files`
+# invocation (never changes _PLATFORM_LANGS/_TS_LANG_MAP themselves).
+_ALL_KNOWN_LANGS: frozenset[str] = frozenset({"python"}) | frozenset(_TS_LANG_MAP.keys())
+
+
+def _detect_langs_in_files(paths: "list[Path]") -> frozenset[str]:
+    """RC22 fix: eval-page.md's step 2b documents this CLI as checking
+    "all platforms — Python, Java, C#, TypeScript, C++, Rust", but its own
+    invocation is a bare `--files {path}` with no `--lang`/platform --
+    which this module's own prior default silently resolved to
+    `frozenset({"python"})` only, regardless of the file's real content
+    (confirmed live: the doc's claim and the code's actual default
+    disagreed). Scans each file's own fence tags and returns the subset
+    this module can syntax-check; falls back to `{"python"}` only when a
+    file has no fenced code at all (or none in a known language), so a
+    plain python-only page's smoke-test still behaves exactly as before."""
+    present: set[str] = set()
+    for path in paths:
+        try:
+            text = path.read_text(encoding="utf-8", errors="replace")
+        except OSError:
+            continue
+        present.update(m.group(1).lower() for m in _CODE_FENCE_ANY_RE.finditer(text))
+    detected = frozenset(present) & _ALL_KNOWN_LANGS
+    return detected or frozenset({"python"})
 
 
 def main() -> int:
@@ -514,16 +616,32 @@ def main() -> int:
         help=(
             "Language tag(s) to check, comma-separated "
             "(e.g. java,csharp,typescript,cpp,python). "
-            "Default: auto-detected from platform, or 'python' for --files without platform."
+            "Default: auto-detected from platform, or from each file's own "
+            "fence tags for --files without a platform."
         ),
     )
+    parser.add_argument(
+        "--max-tier", choices=("1", "2"), default="2",
+        help=(
+            "1 = syntax-only (no Python mypy type-check); "
+            "2 (default) = current behavior (syntax + Python mypy type-check). "
+            "Tier 3 (real execution) is not wired into this CLI yet -- "
+            "see lib/example_verification/runners/ for the real per-language "
+            "runners, not yet dispatched from here (a later taskcard's scope)."
+        ),
+    )
+    parser.add_argument(
+        "--json", action="store_true",
+        help="Emit a machine-readable JSON report instead of the human-readable one.",
+    )
     args = parser.parse_args()
+    max_tier = int(args.max_tier)
 
     # Resolve language set
     if args.lang:
         langs: frozenset[str] = frozenset(t.strip().lower() for t in args.lang.split(","))
     elif args.files and not (args.family_or_files and args.platform):
-        langs = frozenset({"python"})
+        langs = _detect_langs_in_files([Path(f) for f in args.files])
     elif args.family_or_files and args.platform:
         langs = _PLATFORM_LANGS.get(args.platform, frozenset({"python"}))
     else:
@@ -533,13 +651,15 @@ def main() -> int:
         canonical_import = ""
         if "python" in langs and args.family_or_files and args.platform:
             canonical_import = _get_canonical_import(args.family_or_files, args.platform)
-        results = [check_file(Path(f), canonical_import, langs) for f in args.files]
+        results = [check_file(Path(f), canonical_import, langs, max_tier=max_tier) for f in args.files]
     elif args.family_or_files and args.platform:
-        results = check_product(args.family_or_files, args.platform)
+        results = check_product(args.family_or_files, args.platform, max_tier=max_tier)
     else:
         parser.print_help()
         return 1
 
+    if args.json:
+        return print_json_report(results)
     return print_report(results)
 
 
