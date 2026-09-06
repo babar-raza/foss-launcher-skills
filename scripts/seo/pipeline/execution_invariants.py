@@ -24,13 +24,22 @@ invariants remain SKIPPED, and callers that need a stronger guarantee
 should check ``report.skipped`` themselves.
 
 Wired for real (this card) into ``apply.py``'s and ``recommend.py``'s own
-top-level entry points for the invariants that are both genuinely
-run-scoped (not per-candidate) and safely computable without either
-duplicating an already-tested existing gate or adding a new hard live-
-network dependency to every single pipeline run:
-- invariant 13 (recommendation-memory store integrity) -- new in this card.
-- invariant 14 (no unresolved suspension for the batch's own families) --
-  new in this card, using a read-only autonomy_state helper.
+top-level entry points:
+- invariant 13 (recommendation-memory store integrity) -- new, explicit
+  code in BOTH `apply.py` (Governance gate 0.5) and `recommend.py`
+  (`run_recommendations()`'s own top).
+- invariant 14 (no unresolved suspension) -- new, explicit code in
+  `recommend.py` only (per-family: an opportunity for a SUSPENDED family
+  is skipped, not the whole run refused), using `no_unresolved_suspension()`
+  below. `apply.py` gets this invariant for free as a side effect of its
+  own PRE-EXISTING per-patch autonomy-eligibility gate (a SUSPENDED family
+  is never `AUTONOMOUSLY_ELIGIBLE`) -- no new code was added there for
+  invariant 14 specifically, since `recommend.py` (which had ZERO
+  autonomy-state awareness of any kind before this card) was the real gap:
+  without this, a SUSPENDED family's pages kept generating fresh LLM
+  proposals and populating recommendation-memory, directly against
+  Contract J's stop-the-line intent, even though `apply.py` would
+  correctly refuse to ever WRITE them.
 
 Invariants 9-11 (change budget, cross-mechanism budget, autonomy
 eligibility) are already enforced by `apply.py`'s own pre-existing,
@@ -78,6 +87,7 @@ class InvariantContext:
     grounding_evidence_nonempty: "bool | None" = None
     intent_platform_matches_structural_platform: "bool | None" = None
     naturalness_status: "str | None" = None  # "pass" | "warn" | "fail"
+    naturalness_warn_cleared: "bool | None" = None  # paired with the above (mirrors 8)
     metadata_consistency_open_warn: "bool | None" = None
     requires_human_review: "bool | None" = None  # paired with the above
 
@@ -155,7 +165,7 @@ def check_invariants(context: InvariantContext, *, family: "str | None" = None,
             "intent platform matches the page's own structural platform",
             "intent platform mismatches the page's own structural platform (Finding #84)",
         ),
-        _naturalness_result(context.naturalness_status),
+        _naturalness_result(context.naturalness_status, context.naturalness_warn_cleared),
         _metadata_consistency_result(context.metadata_consistency_open_warn, context.requires_human_review),
         _result(
             "9_change_budget_not_exceeded", context.change_budget_ok,
@@ -184,13 +194,29 @@ def check_invariants(context: InvariantContext, *, family: "str | None" = None,
     return InvariantReport(family=family, mechanism=mechanism, results=results)
 
 
-def _naturalness_result(status: "str | None") -> InvariantResult:
+def _naturalness_result(status: "str | None", warn_cleared: "bool | None") -> InvariantResult:
+    """Design text (§4k #7): 'PASS or WARN-with-clearance, never FAIL' --
+    a bare, uncleared WARN is NOT sufficient, mirroring invariant 8's own
+    open-warn-needs-review pairing and matching the one real production
+    caller of this exact pattern today, title_clause_composer.py, which
+    treats an uncleared WARN the same as FAIL (no clearance queue exists
+    for it to route to)."""
     name = "7_naturalness_not_fail"
     if status is None:
         return InvariantResult(name, "SKIPPED", "not evaluated at this call site")
     if status == "fail":
         return InvariantResult(name, "FAIL", "naturalness evaluator returned FAIL")
-    return InvariantResult(name, "PASS", f"naturalness evaluator returned {status!r} (never FAIL)")
+    if status == "pass":
+        return InvariantResult(name, "PASS", "naturalness evaluator returned PASS")
+    if status == "warn":
+        if warn_cleared:
+            return InvariantResult(name, "PASS", "naturalness evaluator returned WARN, with clearance")
+        return InvariantResult(
+            name, "FAIL",
+            "naturalness evaluator returned WARN without clearance -- an uncleared WARN "
+            "is not sufficient (Finding #79)",
+        )
+    return InvariantResult(name, "FAIL", f"unrecognized naturalness status {status!r}")
 
 
 def _metadata_consistency_result(open_warn: "bool | None", requires_human_review: "bool | None") -> InvariantResult:

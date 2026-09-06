@@ -35,6 +35,7 @@ def _passing_context(**overrides) -> ei.InvariantContext:
         grounding_evidence_nonempty=True,
         intent_platform_matches_structural_platform=True,
         naturalness_status="pass",
+        naturalness_warn_cleared=None,
         metadata_consistency_open_warn=False,
         requires_human_review=False,
         change_budget_ok=True,
@@ -105,10 +106,23 @@ class TestFourteenNegativeChecks:
         assert report.passed is False
         assert _status_of(report, "7_naturalness_not_fail") == "FAIL"
 
-    def test_7_naturalness_warn_still_passes(self):
-        """WARN is explicitly not a failure per the design ('PASS or
-        WARN-with-clearance, never FAIL') -- only FAIL is."""
-        report = ei.check_invariants(_passing_context(naturalness_status="warn"))
+    def test_7_naturalness_warn_without_clearance_fails(self):
+        """The design's exact wording is 'PASS or WARN-with-clearance,
+        never FAIL' -- a bare, uncleared WARN is NOT sufficient (mirrors
+        invariant 8's own open-warn-needs-review pairing, and matches the
+        real production behavior of title_clause_composer.py, which has no
+        clearance queue to route an uncleared WARN to and falls back
+        exactly like a FAIL)."""
+        report = ei.check_invariants(_passing_context(
+            naturalness_status="warn", naturalness_warn_cleared=False,
+        ))
+        assert report.passed is False
+        assert _status_of(report, "7_naturalness_not_fail") == "FAIL"
+
+    def test_7_naturalness_warn_with_clearance_passes(self):
+        report = ei.check_invariants(_passing_context(
+            naturalness_status="warn", naturalness_warn_cleared=True,
+        ))
         assert _status_of(report, "7_naturalness_not_fail") == "PASS"
 
     def test_8_open_metadata_consistency_warn_without_review(self):
@@ -251,3 +265,110 @@ class TestNoUnresolvedSuspension:
             lambda *a, **kw: (_ for _ in ()).throw(OSError("boom")),
         )
         assert ei.no_unresolved_suspension(["words"], "title_description_writes") is False
+
+
+class TestRecommendInvariant14RealIntegration:
+    """recommend.py had ZERO autonomy-state awareness before this card
+    (the second independent reviewer's real, non-blocking-in-apply.py-but-
+    real-in-recommend.py finding). These tests drive the REAL
+    run_recommendations() end to end against a real opportunities.json
+    fixture and a real autonomy_state SUSPENDED transition -- not a mock
+    of the gate itself."""
+
+    def test_suspended_family_opportunities_are_skipped_not_generated(self, tmp_path, monkeypatch):
+        import json as _json
+        import seo.pipeline.recommend as recommend
+
+        monkeypatch.setattr(recommend, "_REPO_ROOT", tmp_path)
+
+        opp_path = tmp_path / "opportunities.json"
+        opp_path.write_text(_json.dumps({
+            "run_at": "2026-09-06",
+            "opportunities": [
+                {
+                    "page_path": "content/docs.aspose.org/en/words/python/a.md",
+                    "opportunity_level": "HIGH",
+                    "family": "words",
+                    "platform": "python",
+                    "signals": {
+                        "primary_query": "aspose words python", "matched_keywords": ["aspose words python"],
+                        "title_aligned": False, "description_ok": True, "tag_gap_count": 0,
+                    },
+                    "seo_fields": {"seo_title": "Old Title", "description": "Old desc", "tags": []},
+                },
+                {
+                    "page_path": "content/docs.aspose.org/en/pdf/python/b.md",
+                    "opportunity_level": "HIGH",
+                    "family": "pdf",
+                    "platform": "python",
+                    "signals": {
+                        "primary_query": "aspose pdf python", "matched_keywords": ["aspose pdf python"],
+                        "title_aligned": False, "description_ok": True, "tag_gap_count": 0,
+                    },
+                    "seo_fields": {"seo_title": "Old Title 2", "description": "Old desc 2", "tags": []},
+                },
+            ],
+        }), encoding="utf-8")
+        out_path = tmp_path / "recommendations.json"
+
+        autonomy_state.configure(repo_root=tmp_path)
+        recommendation_memory.configure(repo_root=tmp_path)
+        try:
+            autonomy_state.transition(
+                "words", "title_description_writes", autonomy_state.STATUS_REVIEW_PENDING,
+                reason="test setup", actor="test",
+            )
+            autonomy_state.transition(
+                "words", "title_description_writes", autonomy_state.STATUS_HUMAN_CLEARED,
+                reason="test setup", actor="test",
+            )
+            autonomy_state.transition(
+                "words", "title_description_writes", autonomy_state.STATUS_AUTONOMOUSLY_ELIGIBLE,
+                reason="test setup", actor="test",
+            )
+            autonomy_state.suspend("words", "title_description_writes", reason="test suspend")
+
+            doc = recommend.run_recommendations(opportunities_path=opp_path, output_path=out_path)
+
+            assert doc["total_input_opportunities"] == 1, "the SUSPENDED family's opportunity must be filtered before generation"
+            pages = {r["page_path"] for r in doc["recommendations"]}
+            assert "content/docs.aspose.org/en/words/python/a.md" not in pages
+            assert "content/docs.aspose.org/en/pdf/python/b.md" in pages
+        finally:
+            autonomy_state.configure()
+            recommendation_memory.configure()
+
+    def test_no_suspension_state_at_all_generates_for_every_family(self, tmp_path, monkeypatch):
+        """The common case (no autonomy state file exists yet) must not be
+        misread as 'everything suspended' -- no_unresolved_suspension()
+        already proves this for the bare function; this proves it holds
+        through the real recommend.py call site too."""
+        import json as _json
+        import seo.pipeline.recommend as recommend
+
+        monkeypatch.setattr(recommend, "_REPO_ROOT", tmp_path)
+        opp_path = tmp_path / "opportunities.json"
+        opp_path.write_text(_json.dumps({
+            "run_at": "2026-09-06",
+            "opportunities": [{
+                "page_path": "content/docs.aspose.org/en/words/python/a.md",
+                "opportunity_level": "HIGH",
+                "family": "words",
+                "platform": "python",
+                "signals": {
+                    "primary_query": "aspose words python", "matched_keywords": ["aspose words python"],
+                    "title_aligned": False, "description_ok": True, "tag_gap_count": 0,
+                },
+                "seo_fields": {"seo_title": "Old Title", "description": "Old desc", "tags": []},
+            }],
+        }), encoding="utf-8")
+        out_path = tmp_path / "recommendations.json"
+
+        autonomy_state.configure(repo_root=tmp_path)
+        recommendation_memory.configure(repo_root=tmp_path)
+        try:
+            doc = recommend.run_recommendations(opportunities_path=opp_path, output_path=out_path)
+            assert doc["total_input_opportunities"] == 1
+        finally:
+            autonomy_state.configure()
+            recommendation_memory.configure()

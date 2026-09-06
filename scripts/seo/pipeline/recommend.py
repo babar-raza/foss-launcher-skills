@@ -65,6 +65,11 @@ try:
 except ImportError:
     from pipeline import execution_invariants  # noqa: E402
 
+try:
+    from seo.pipeline import autonomy_state  # noqa: E402
+except ImportError:
+    from pipeline import autonomy_state  # noqa: E402
+
 # ---------------------------------------------------------------------------
 # Logging
 # ---------------------------------------------------------------------------
@@ -812,6 +817,18 @@ def run_recommendations(
     if output_path is None:
         output_path = RECOMMENDATIONS_PATH
 
+    # Sync recommendation_memory.py's and autonomy_state.py's own module-
+    # level repo roots to this module's own _REPO_ROOT -- _REPO_ROOT is a
+    # test seam (see test_metrics_recommend_adapter.py's own monkeypatch
+    # conventions), and without this an isolated test run would silently
+    # read/consult the REAL, shared reports/seo/recommendation_memory.json
+    # and data/seo_autonomy_state.json instead of its own tmp_path (the
+    # exact test-isolation hazard SEO-EXECUTION-INVARIANTS' first
+    # independent review found in apply.py's equivalent gate and this
+    # module now avoids by construction).
+    recommendation_memory.configure(repo_root=_REPO_ROOT)
+    autonomy_state.configure(repo_root=_REPO_ROOT)
+
     # --- Governance gate: execution invariants (Contract J), invariant 13
     # "recommendation_memory_readable_and_schema_matched" --- read-only,
     # fails open on a merely-missing store (load_memory() bootstraps empty),
@@ -840,6 +857,34 @@ def run_recommendations(
     doc = json.loads(opportunities_path.read_text(encoding="utf-8"))
     all_opps: list[dict] = doc.get("opportunities", [])
     run_at = doc.get("run_at", date.today().isoformat())
+
+    # --- Governance gate: execution invariants (Contract J), invariant 14
+    # "no_unresolved_suspension_for_family_mechanism" --- per-family, never
+    # a blanket refusal of the whole run: an opportunity whose family is
+    # currently SUSPENDED for title_description_writes is skipped, not
+    # generated. apply.py would refuse to WRITE these anyway (its own
+    # pre-existing autonomy-eligibility gate), but before this fix
+    # recommend.py had zero autonomy-state awareness of any kind and kept
+    # burning LLM calls / populating recommendation-memory with fresh
+    # proposals for an already-stopped family -- directly against Contract
+    # J's stop-the-line intent (found by this card's first independent
+    # review).
+    _families_present = sorted({o.get("family") for o in all_opps if o.get("family")})
+    _suspended_families = {
+        family for family in _families_present
+        if not execution_invariants.no_unresolved_suspension([family], "title_description_writes")
+    }
+    if _suspended_families:
+        _skipped_count = sum(1 for o in all_opps if o.get("family") in _suspended_families)
+        _LOG.warning(
+            "Contract J invariant 14: skipping %d opportunit(y/ies) for SUSPENDED famil(y/ies) %s",
+            _skipped_count, sorted(_suspended_families),
+        )
+        print(
+            f"Skipping {_skipped_count} opportunit(y/ies) for SUSPENDED famil(y/ies) "
+            f"{sorted(_suspended_families)} (Contract J invariant 14)"
+        )
+        all_opps = [o for o in all_opps if o.get("family") not in _suspended_families]
 
     print(f"Loaded {len(all_opps)} total opportunities from {opportunities_path}")
 
