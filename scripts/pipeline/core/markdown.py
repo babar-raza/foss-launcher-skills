@@ -36,9 +36,8 @@ _FRONTMATTER_WRITER_RE = re.compile(r"^(---\s*\n)(.*?)(\n---\s*(?:\n|$))", re.DO
 # Convenience alias — matches the name used in knowledge_core.py callers
 _FRONTMATTER_RE = _FRONTMATTER_READER_RE
 
-# Section heading and code fence patterns
+# Section heading pattern
 _HEADING_RE = re.compile(r"^#{1,6}\s+(.+)$", re.MULTILINE)
-_CODE_FENCE_RE = re.compile(r"^```(\w*)\n(.*?)^```", re.DOTALL | re.MULTILINE)
 
 
 def extract_frontmatter_body(text: str) -> str | None:
