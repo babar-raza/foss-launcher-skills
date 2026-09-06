@@ -102,6 +102,14 @@ except ImportError as exc:
         "Run from repo root: python scripts/seo/pipeline/apply.py"
     )
 
+try:
+    from scripts.seo.pipeline import execution_invariants  # type: ignore  # noqa: E402
+except ImportError as exc:
+    sys.exit(
+        f"apply.py: cannot import execution_invariants.py — {exc}\n"
+        "Run from repo root: python scripts/seo/pipeline/apply.py"
+    )
+
 # ---------------------------------------------------------------------------
 # Logging
 # ---------------------------------------------------------------------------
@@ -507,6 +515,36 @@ def run_apply(patches: list[dict], dry_run: bool) -> None:
             print(f"Apply refused by change-budget guard: {budget_reason}")
             print("=" * 60)
             return
+
+    # --- Governance gate 0.5: execution invariants (Contract J), invariant
+    # 13 "recommendation_memory_readable_and_schema_matched" ---
+    # Batch-level, before any write; read-only (never blocked by a missing
+    # store -- recommendation_memory.load_memory() itself fails open to a
+    # bootstrap-empty, valid shape) so this only ever refuses on a genuine
+    # schema-version mismatch, never on the store simply not existing yet.
+    # The other 13 named invariants are deliberately NOT duplicated here:
+    # invariants 9-11 are already enforced by this function's own
+    # pre-existing, independently-reviewed gates (gate 0 above, gate 2.5
+    # below) -- adding a second, parallel check for the identical condition
+    # through execution_invariants' own un-mocked autonomy_state/
+    # change_budget calls would risk silently diverging from the tested
+    # gates' real behavior for zero safety gain. Invariant 12 is disclosed,
+    # not checked, in this module's own docstring (no persisted drift state
+    # to consult without a new live network call). Invariants 1-8 are
+    # per-candidate and have no real data available at this batch-level
+    # call site.
+    if not dry_run and not execution_invariants.recommendation_memory_is_ok():
+        log.error(
+            "REFUSE BATCH: execution-invariants gate blocked this run — "
+            "recommendation-memory store is unreadable or schema-version-mismatched "
+            "(Contract J invariant 13)"
+        )
+        print()
+        print("=" * 60)
+        print("Apply refused by execution-invariants gate: recommendation-memory "
+              "store failed invariant 13 (readable + schema-version-matched)")
+        print("=" * 60)
+        return
 
     applied_by_family: dict[str, dict[str, int]] = {}
 

@@ -1,0 +1,253 @@
+"""Tests for scripts/seo/pipeline/execution_invariants.py (SEO-EXECUTION-
+INVARIANTS, Contract J).
+
+The acceptance bar this card sets for itself (design authority:
+check-keywords-this-data-curious-feather.md §4k) is explicit: one negative
+test PER named invariant (14 total), each proving check_invariants()
+actually reports FAIL for that specific invariant when its context field
+is forced to the failing value, with every other field held at a
+realistic PASSING baseline -- never a generic "it fails closed" claim
+without the test behind it.
+"""
+from __future__ import annotations
+
+import sys
+from pathlib import Path
+
+import pytest
+
+_SCRIPTS = Path(__file__).resolve().parents[2]
+if str(_SCRIPTS) not in sys.path:
+    sys.path.insert(0, str(_SCRIPTS))
+
+from seo.pipeline import execution_invariants as ei  # noqa: E402
+from seo.pipeline import autonomy_state, recommendation_memory  # noqa: E402
+
+
+def _passing_context(**overrides) -> ei.InvariantContext:
+    """A realistic baseline where all 14 invariants pass. Each negative
+    test overrides exactly one field to its failing value."""
+    base = dict(
+        schema_classification_ok=True,
+        keyword_provenance_present=True,
+        page_mapping_unambiguous=True,
+        page_intent_resolvable=True,
+        grounding_evidence_nonempty=True,
+        intent_platform_matches_structural_platform=True,
+        naturalness_status="pass",
+        metadata_consistency_open_warn=False,
+        requires_human_review=False,
+        change_budget_ok=True,
+        cross_mechanism_budget_ok=True,
+        dry_run=False,
+        autonomy_eligible=True,
+        workflow_drift_in_sync=True,
+        recommendation_memory_ok=True,
+        no_unresolved_suspension=True,
+    )
+    base.update(overrides)
+    return ei.InvariantContext(**base)
+
+
+def _status_of(report: ei.InvariantReport, name: str) -> str:
+    return next(r.status for r in report.results if r.name == name)
+
+
+class TestAllPassingBaseline:
+    def test_full_passing_context_reports_passed_true(self):
+        report = ei.check_invariants(_passing_context())
+        assert report.passed is True
+        assert report.failed == []
+        assert report.skipped == []
+        assert len(report.results) == 14
+
+    def test_all_none_context_is_all_skipped_and_reports_passed(self):
+        """SKIPPED never counts as a failure -- a caller with no data for
+        any invariant gets an honest all-SKIPPED report, not a false FAIL."""
+        report = ei.check_invariants(ei.InvariantContext())
+        assert report.passed is True
+        assert len(report.skipped) == 14
+
+
+class TestFourteenNegativeChecks:
+    def test_1_schema_classification_fails(self):
+        report = ei.check_invariants(_passing_context(schema_classification_ok=False))
+        assert report.passed is False
+        assert _status_of(report, "1_schema_classification_succeeds") == "FAIL"
+
+    def test_2_keyword_provenance_missing(self):
+        report = ei.check_invariants(_passing_context(keyword_provenance_present=False))
+        assert report.passed is False
+        assert _status_of(report, "2_keyword_provenance_present") == "FAIL"
+
+    def test_3_page_mapping_ambiguous(self):
+        report = ei.check_invariants(_passing_context(page_mapping_unambiguous=False))
+        assert report.passed is False
+        assert _status_of(report, "3_page_mapping_unambiguous") == "FAIL"
+
+    def test_4_page_intent_unresolvable(self):
+        report = ei.check_invariants(_passing_context(page_intent_resolvable=False))
+        assert report.passed is False
+        assert _status_of(report, "4_page_intent_resolvable") == "FAIL"
+
+    def test_5_grounding_evidence_empty(self):
+        report = ei.check_invariants(_passing_context(grounding_evidence_nonempty=False))
+        assert report.passed is False
+        assert _status_of(report, "5_grounding_evidence_nonempty") == "FAIL"
+
+    def test_6_intent_platform_mismatch(self):
+        report = ei.check_invariants(_passing_context(intent_platform_matches_structural_platform=False))
+        assert report.passed is False
+        assert _status_of(report, "6_intent_platform_matches_page_structural_platform") == "FAIL"
+
+    def test_7_naturalness_fail(self):
+        report = ei.check_invariants(_passing_context(naturalness_status="fail"))
+        assert report.passed is False
+        assert _status_of(report, "7_naturalness_not_fail") == "FAIL"
+
+    def test_7_naturalness_warn_still_passes(self):
+        """WARN is explicitly not a failure per the design ('PASS or
+        WARN-with-clearance, never FAIL') -- only FAIL is."""
+        report = ei.check_invariants(_passing_context(naturalness_status="warn"))
+        assert _status_of(report, "7_naturalness_not_fail") == "PASS"
+
+    def test_8_open_metadata_consistency_warn_without_review(self):
+        report = ei.check_invariants(_passing_context(
+            metadata_consistency_open_warn=True, requires_human_review=False,
+        ))
+        assert report.passed is False
+        assert _status_of(report, "8_no_open_metadata_consistency_warn_without_review") == "FAIL"
+
+    def test_8_open_warn_with_review_already_true_passes(self):
+        report = ei.check_invariants(_passing_context(
+            metadata_consistency_open_warn=True, requires_human_review=True,
+        ))
+        assert _status_of(report, "8_no_open_metadata_consistency_warn_without_review") == "PASS"
+
+    def test_9_change_budget_exceeded(self):
+        report = ei.check_invariants(_passing_context(change_budget_ok=False))
+        assert report.passed is False
+        assert _status_of(report, "9_change_budget_not_exceeded") == "FAIL"
+
+    def test_10_cross_mechanism_budget_exceeded(self):
+        report = ei.check_invariants(_passing_context(cross_mechanism_budget_ok=False))
+        assert report.passed is False
+        assert _status_of(report, "10_cross_mechanism_change_budget_not_exceeded") == "FAIL"
+
+    def test_11_autonomy_not_eligible_and_not_dry_run(self):
+        report = ei.check_invariants(_passing_context(dry_run=False, autonomy_eligible=False))
+        assert report.passed is False
+        assert _status_of(report, "11_autonomy_state_eligible_or_dry_run") == "FAIL"
+
+    def test_11_dry_run_passes_even_when_not_eligible(self):
+        """Contract J explicitly permits --dry-run regardless of autonomy
+        state -- this is the one invariant with a documented override."""
+        report = ei.check_invariants(_passing_context(dry_run=True, autonomy_eligible=False))
+        assert _status_of(report, "11_autonomy_state_eligible_or_dry_run") == "PASS"
+
+    def test_12_workflow_drift_not_in_sync(self):
+        report = ei.check_invariants(_passing_context(workflow_drift_in_sync=False))
+        assert report.passed is False
+        assert _status_of(report, "12_workflow_drift_state_in_sync_and_fresh") == "FAIL"
+
+    def test_13_recommendation_memory_not_ok(self):
+        report = ei.check_invariants(_passing_context(recommendation_memory_ok=False))
+        assert report.passed is False
+        assert _status_of(report, "13_recommendation_memory_readable_and_schema_matched") == "FAIL"
+
+    def test_14_unresolved_suspension_exists(self):
+        report = ei.check_invariants(_passing_context(no_unresolved_suspension=False))
+        assert report.passed is False
+        assert _status_of(report, "14_no_unresolved_suspension_for_family_mechanism") == "FAIL"
+
+    def test_forcing_one_invariant_false_never_flips_a_different_one(self):
+        """Each negative test above already checks its own invariant failed;
+        this additionally proves the OTHER 13 stay PASS -- a real isolation
+        proof, not just 14 independent assertions that could coincidentally
+        all pass even if the engine cross-contaminated results."""
+        report = ei.check_invariants(_passing_context(change_budget_ok=False))
+        failed_names = {r.name for r in report.failed}
+        assert failed_names == {"9_change_budget_not_exceeded"}
+
+
+class TestRecommendationMemoryIsOk:
+    @pytest.fixture(autouse=True)
+    def _isolated(self, tmp_path):
+        recommendation_memory.configure(repo_root=tmp_path)
+        yield tmp_path
+        recommendation_memory.configure()
+
+    def test_true_when_bootstrap_empty(self):
+        assert ei.recommendation_memory_is_ok() is True
+
+    def test_true_after_a_real_write(self, _isolated):
+        recommendation_memory.record_result("content/a.md", "seoTitle", "h", {"proposed_title": "T"})
+        assert ei.recommendation_memory_is_ok() is True
+
+    def test_false_on_schema_version_mismatch(self, _isolated):
+        store = _isolated / "reports" / "seo" / "recommendation_memory.json"
+        store.parent.mkdir(parents=True, exist_ok=True)
+        store.write_text('{"schema_version": 999, "entries": {}}', encoding="utf-8")
+        assert ei.recommendation_memory_is_ok() is False
+
+    def test_never_raises_on_internal_failure(self, monkeypatch):
+        monkeypatch.setattr(
+            recommendation_memory, "load_memory",
+            lambda: (_ for _ in ()).throw(OSError("boom")),
+        )
+        assert ei.recommendation_memory_is_ok() is False
+
+
+class TestNoUnresolvedSuspension:
+    @pytest.fixture(autouse=True)
+    def _isolated(self, tmp_path):
+        autonomy_state.configure(repo_root=tmp_path)
+        yield tmp_path
+        autonomy_state.configure()
+
+    def test_true_when_no_state_exists_yet(self):
+        assert ei.no_unresolved_suspension(["words"], "title_description_writes") is True
+
+    def test_true_then_false_via_a_real_suspend_transition(self, _isolated):
+        """Drives a real family through the actual legal state chain
+        (UNREVIEWED -> ... -> AUTONOMOUSLY_ELIGIBLE -> SUSPENDED) rather
+        than monkeypatching get_status -- proves the real integration with
+        autonomy_state.py's own transition rules, not just this module's
+        own reading logic."""
+        autonomy_state.transition(
+            "words", "title_description_writes", autonomy_state.STATUS_REVIEW_PENDING,
+            reason="test setup", actor="test",
+        )
+        autonomy_state.transition(
+            "words", "title_description_writes", autonomy_state.STATUS_HUMAN_CLEARED,
+            reason="test setup", actor="test",
+        )
+        autonomy_state.transition(
+            "words", "title_description_writes", autonomy_state.STATUS_AUTONOMOUSLY_ELIGIBLE,
+            reason="test setup", actor="test",
+        )
+        assert ei.no_unresolved_suspension(["words"], "title_description_writes") is True
+
+        autonomy_state.suspend("words", "title_description_writes", reason="test suspend")
+        assert ei.no_unresolved_suspension(["words"], "title_description_writes") is False
+
+    def test_false_when_a_family_is_suspended(self, _isolated, monkeypatch):
+        monkeypatch.setattr(
+            autonomy_state, "get_status",
+            lambda family, mechanism, state=None: autonomy_state.STATUS_SUSPENDED,
+        )
+        assert ei.no_unresolved_suspension(["words"], "title_description_writes") is False
+
+    def test_true_when_no_family_is_suspended(self, monkeypatch):
+        monkeypatch.setattr(
+            autonomy_state, "get_status",
+            lambda family, mechanism, state=None: autonomy_state.STATUS_HUMAN_CLEARED,
+        )
+        assert ei.no_unresolved_suspension(["words", "pdf"], "title_description_writes") is True
+
+    def test_never_raises_on_internal_failure(self, monkeypatch):
+        monkeypatch.setattr(
+            autonomy_state, "load_state",
+            lambda *a, **kw: (_ for _ in ()).throw(OSError("boom")),
+        )
+        assert ei.no_unresolved_suspension(["words"], "title_description_writes") is False

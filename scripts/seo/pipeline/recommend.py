@@ -60,6 +60,11 @@ try:
 except ImportError:
     from pipeline import recommendation_memory  # noqa: E402
 
+try:
+    from seo.pipeline import execution_invariants  # noqa: E402
+except ImportError:
+    from pipeline import execution_invariants  # noqa: E402
+
 # ---------------------------------------------------------------------------
 # Logging
 # ---------------------------------------------------------------------------
@@ -806,6 +811,20 @@ def run_recommendations(
         opportunities_path = OPPORTUNITIES_PATH
     if output_path is None:
         output_path = RECOMMENDATIONS_PATH
+
+    # --- Governance gate: execution invariants (Contract J), invariant 13
+    # "recommendation_memory_readable_and_schema_matched" --- read-only,
+    # fails open on a merely-missing store (load_memory() bootstraps empty),
+    # only refuses on a genuine schema-version mismatch. See
+    # execution_invariants.py's own module docstring for why the other 13
+    # named invariants are not duplicated at this call site.
+    if not execution_invariants.recommendation_memory_is_ok():
+        print(
+            "ERROR: recommendation-memory store failed Contract J invariant 13 "
+            "(readable + schema-version-matched) — refusing to generate recommendations",
+            file=sys.stderr,
+        )
+        sys.exit(1)
 
     # ------------------------------------------------------------------
     # 1. Load opportunities.json
