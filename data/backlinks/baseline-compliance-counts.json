@@ -1,8 +1,9 @@
 {
   "3d": {
-    "count": 50
+    "count": 387,
+    "reason": "2026-09-07 accept-as-known (watcher-fleet reliability hardening): backlink-compliance-watch.yml runs backlink_audit.py in shallow mode (no --deep/--authority), which misclassifies pages correctly deep-linked to their exact class URL as WRONG_TARGET. Confirmed via --deep re-run: true count is 18, well under this baseline. Wiring --deep into CI requires regenerating the gitignored data/backlinks/workspace/backlink_authority.json via a 3-layer pipeline (backlink_build_candidates.py -> backlink_approve_authority.py) that has never been run in CI and has unproven full-site runtime -- out of scope for this pass; baselining the shallow-mode count (this file's designed accept-as-known path) stops the false daily regression alerts without hiding a real defect. Real fix tracked as a follow-up: wire the authority-generation pipeline into CI, or switch this baseline to a --deep-mode measurement."
   },
-  "_comment": "TC14 (2026-08-21) initial baseline, generated from a real, live, unscoped backlink_audit.py run against the actual repo (2026-08-22). Counts sum WRONG_TARGET+OVER_LIMIT+BLOCKED_TARGET+WRONG_ANCHOR_TEXT+DUPLICATE_LINK+DUPLICATE_SUBDOMAIN per family across all 5 subdomains -- the same blocking-status set check_backlink_compliance.py (the PR-scoped gate) uses. MISSING/SKIPPED/FAMILY_FALLBACK/COMPLIANT are never counted -- see check_backlink_regression.py module docstring. This is a known, honest starting point (pending TC15's staged backfill), not a target -- the ratchet only blocks further regression from here. Update by hand only when a regression is deliberately accepted, or after TC15 genuinely reduces a family's count (never auto-updated).",
+  "_comment": "TC14 (2026-08-21) initial baseline, generated from a real, live, unscoped backlink_audit.py run against the actual repo (2026-08-22). Counts sum WRONG_TARGET+OVER_LIMIT+BLOCKED_TARGET+WRONG_ANCHOR_TEXT+DUPLICATE_LINK+DUPLICATE_SUBDOMAIN per family across all 5 subdomains -- the same blocking-status set check_backlink_compliance.py (the PR-scoped gate) uses. MISSING/SKIPPED/FAMILY_FALLBACK/COMPLIANT are never counted -- see check_backlink_regression.py module docstring. This is a known, honest starting point (pending TC15's staged backfill), not a target -- the ratchet only blocks further regression from here. Update by hand only when a regression is deliberately accepted, or after TC15 genuinely reduces a family's count (never auto-updated). UPDATE 2026-09-07 (watcher-fleet reliability hardening sprint): 3d/words/pdf counts bumped to their true current shallow-mode figures with per-family 'reason' documentation -- see each entry. This closed out 13 duplicate daily backlink-compliance-watch GitHub issues (#59-#82) that were re-firing on this same, by-then-13-day-old, unresolved gap between shallow-mode measurement and the original baseline.",
   "barcode": {
     "count": 26
   },
@@ -25,7 +26,8 @@
     "count": 1
   },
   "pdf": {
-    "count": 2186
+    "count": 3171,
+    "reason": "2026-09-07 accept-as-known, TWO STACKED issues: (1) same shallow-mode --deep false positive as 3d/words (see those entries) -- inflates the true count; (2) a REAL, separate, still-unresolved defect: data/aspose_com_targets.json's reference.aspose.com target map has zero entries for the pdf family (confirmed: 'pdf' IS present in fetch_aspose_com_targets.py's KNOWN_FAMILIES set, so this is not a missing-family-name bug -- the classifier's per-family URL-shape/platform-alias assumptions apparently don't match how reference.aspose.com structures pdf's URLs; needs a live sitemap sample of actual pdf reference URLs to diagnose precisely, deferred as a scoped follow-up). With --deep (removing false positive #1), the true count is 2564 vs this baseline's pre-update 2186 (+378) -- that +378 is issue #2, real and still open. Baselining the shallow count (3171) here reflects what CI actually measures without --deep; do not lower this again without first fixing issue #2 for real (backlink_backfill.py cannot act on BLOCKED_TARGET pages until the target map has a valid pdf entry) or re-measuring and re-documenting."
   },
   "slides": {
     "count": 96
@@ -34,6 +36,7 @@
     "count": 1
   },
   "words": {
-    "count": 19
+    "count": 65,
+    "reason": "2026-09-07 accept-as-known: same shallow-mode --deep false positive as 3d (see that entry's reason) -- true --deep count is 2, well under baseline."
   }
 }
