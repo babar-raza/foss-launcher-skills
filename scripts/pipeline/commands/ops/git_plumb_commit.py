@@ -444,9 +444,12 @@ def _redact_credentials(text: str) -> str:
     return _CREDENTIAL_URL_RE.sub("://<redacted>@", text)
 
 
-def _git(args: list[str], *, repo_root: Path, check: bool = True) -> "subprocess.CompletedProcess":
+def _git(
+    args: list[str], *, repo_root: Path, check: bool = True,
+    env: "dict[str, str] | None" = None,
+) -> "subprocess.CompletedProcess":
     result = _COMMAND_RUNNER(
-        ["git", *args], cwd=str(repo_root), capture_output=True, **_TEXT_KW,
+        ["git", *args], cwd=str(repo_root), capture_output=True, **_TEXT_KW, env=env,
     )
     if check and result.returncode != 0:
         safe_args = _redact_credentials(" ".join(args))
@@ -455,6 +458,58 @@ def _git(args: list[str], *, repo_root: Path, check: bool = True) -> "subprocess
             f"git {safe_args} failed (exit {result.returncode}): {safe_stderr}"
         )
     return result
+
+
+_GIT_IDENTITY_ENV_KEYS = (
+    "GIT_AUTHOR_NAME", "GIT_AUTHOR_EMAIL", "GIT_COMMITTER_NAME", "GIT_COMMITTER_EMAIL",
+)
+# The well-known GitHub Actions bot identity (user id 41898282) -- the same
+# convention GitHub's own tooling uses for bot-authored commits. Used ONLY as
+# a last-resort fallback when git cannot otherwise resolve a commit identity;
+# see _resolve_commit_identity_env.
+_FALLBACK_COMMIT_NAME = "github-actions[bot]"
+_FALLBACK_COMMIT_EMAIL = "41898282+github-actions[bot]@users.noreply.github.com"
+
+
+def _resolve_commit_identity_env(repo_root: Path) -> "dict[str, str] | None":
+    """Env override for `commit-tree` that supplies a fallback commit identity
+    ONLY when one cannot otherwise be resolved -- returns None (meaning: run
+    with the caller's own environment, completely unmodified) whenever
+    GIT_AUTHOR_*/GIT_COMMITTER_* are already set in the environment, or
+    `git config user.name`/`user.email` already resolve (local or global
+    scope). This is purely additive: it can never override an
+    already-configured identity, including this repo's own interactive-
+    session convention of a human author plus a Co-Authored-By trailer.
+
+    Root-cause fix, 2026-09-07 (watcher-fleet reliability hardening): both
+    `commit-tree` call sites in this module previously ran with no identity
+    override at all, so any runner with no git identity configured (a fresh
+    CI runner, in particular) failed every single commit attempt with
+    "Author identity unknown" (exit 128) -- confirmed live for
+    `upstream-monitor.yml`'s scheduled job, which as a direct result had
+    never once successfully committed `data/upstream_drift_state.json` or
+    `data/fleet_freshness_snapshot.json`. Fixed centrally here, in the one
+    module every CI committer already uses, rather than patched into that
+    one workflow's YAML -- every current and future caller benefits.
+    """
+    if any(os.environ.get(k) for k in _GIT_IDENTITY_ENV_KEYS):
+        return None
+    name = _COMMAND_RUNNER(
+        ["git", "config", "user.name"], cwd=str(repo_root), capture_output=True, **_TEXT_KW,
+    )
+    email = _COMMAND_RUNNER(
+        ["git", "config", "user.email"], cwd=str(repo_root), capture_output=True, **_TEXT_KW,
+    )
+    if (name.returncode == 0 and name.stdout.strip()
+            and email.returncode == 0 and email.stdout.strip()):
+        return None
+    return {
+        **os.environ,
+        "GIT_AUTHOR_NAME": _FALLBACK_COMMIT_NAME,
+        "GIT_AUTHOR_EMAIL": _FALLBACK_COMMIT_EMAIL,
+        "GIT_COMMITTER_NAME": _FALLBACK_COMMIT_NAME,
+        "GIT_COMMITTER_EMAIL": _FALLBACK_COMMIT_EMAIL,
+    }
 
 
 def _gitignored_files(files: list[str], *, repo_root: Path) -> list[str]:
@@ -1116,7 +1171,7 @@ def reconcile(
     )
     merge_commit_sha = _git(
         ["commit-tree", tree_sha, "-p", remote_tip, "-p", commit_sha, "-m", merge_message],
-        repo_root=root,
+        repo_root=root, env=_resolve_commit_identity_env(root),
     ).stdout.strip()
 
     _git(["update-ref", f"refs/heads/{branch}", merge_commit_sha], repo_root=root)
@@ -1400,6 +1455,7 @@ def plumb_commit(
 
     commit_sha = _git(
         ["commit-tree", tree_sha, "-p", head_sha, "-m", message], repo_root=root,
+        env=_resolve_commit_identity_env(root),
     ).stdout.strip()
 
     # Advance the local branch ref unconditionally, regardless of --push --
