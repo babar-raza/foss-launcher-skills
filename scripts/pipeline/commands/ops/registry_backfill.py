@@ -202,7 +202,21 @@ def backfill_entry(family: str, platform: str, *, fetch=None) -> "dict | None":
                 f"recorded as not-yet-published with the best available candidate name."
             ),
             "method": f"{registry_type}-backfill-scan",
-            "consecutive_checks_agreeing": 1,
+            # 0, not 1 (2026-09-07 fix): this one-time backfill check is scouting/
+            # population, not a watch-cycle observation -- package_publish_watch.py's
+            # debounce counts INDEPENDENT SCHEDULED-WATCH observations toward its
+            # 2-required threshold, and a backfilled entry has had zero of those. A
+            # seed of 1 let this single backfill check silently stand in for one of
+            # the two required watch-cycle observations, so the watcher's very first
+            # real run (which independently rechecks and agrees) already satisfied
+            # "2 checks agree" -- confirmed live as the root cause of 13 registry
+            # entries (3d/python, cells/typescript, words/net among them) re-firing
+            # an identical GitHub issue every single day for 5-9 days once each went
+            # live, because nothing ever marks a fired finding as consumed under CI's
+            # --no-persist-counters mode. 0 makes a freshly-backfilled entry behave
+            # exactly like an organically-added one: no watch-cycle observation has
+            # actually happened yet, which is literally true.
+            "consecutive_checks_agreeing": 0,
             "identity_basis": None,
         },
         "owner_match": None,
@@ -229,7 +243,14 @@ def _build_entry(registry_type, candidate, result, identity_basis, checked_at,
                 + "."
             ),
             "method": result.method,
-            "consecutive_checks_agreeing": 1,
+            # 0, not 1 (2026-09-07 fix, see the sibling branch above for the full
+            # explanation): a one-time backfill check is scouting, not a watch-cycle
+            # observation. Largely inert here since this branch already sets
+            # published=True (package_publish_watch.py's debounce only gates the
+            # false->true transition, via this same field), but kept consistent
+            # with the sibling branch rather than leaving one of the two write
+            # sites carrying the old, since-proven-wrong seed value.
+            "consecutive_checks_agreeing": 0,
             "identity_basis": identity_basis,
         },
         "owner_match": None,

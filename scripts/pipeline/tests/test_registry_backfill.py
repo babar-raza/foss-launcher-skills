@@ -88,6 +88,45 @@ def test_search_fallback_finds_non_conforming_name_with_corroboration(tmp_path):
     assert entry["verification"]["published"] is True
 
 
+def test_backfill_entry_starts_debounce_counter_at_zero_not_one(tmp_path):
+    """Regression test (2026-09-07): a one-time backfill check is scouting,
+    not a watch-cycle observation -- consecutive_checks_agreeing must start
+    at 0 for BOTH branches (published True and False), never the old seed
+    of 1. A seed of 1 let this single backfill check silently count as one
+    of package_publish_watch.py's two required independent watch-cycle
+    observations, so the very first real scheduled-watch run (which
+    independently re-checks and agrees) already satisfied "2 checks agree"
+    -- confirmed live as the root cause of 13 registry entries (3d/python,
+    cells/typescript, words/net among them) re-firing an identical GitHub
+    issue every single day for 5-9 days once each went live."""
+    fetch_published = _fake_fetch_by_url({
+        "pypi/aspose-note-foss/json": (404, b""),
+        "pypi/aspose-note/json": (
+            200,
+            b'{"info": {"author": "Aspose", "project_urls": '
+            b'{"Repository": "https://github.com/aspose-note-foss/x"}}}',
+        ),
+        "pypi/aspose_note/json": (404, b""),
+        "pypi/asposenote/json": (404, b""),
+    })
+    published_entry = sut.backfill_entry("note", "python", fetch=fetch_published)
+    assert published_entry["verification"]["published"] is True
+    assert published_entry["verification"]["consecutive_checks_agreeing"] == 0
+
+    fetch_unpublished = _fake_fetch_by_url({
+        "pypi/aspose-page-foss/json": (404, b""),
+        "pypi/aspose-page/json": (
+            200,
+            b'{"info": {"author": "SomeCommercialVendor", "home_page": "https://products.aspose.com/page/python-net/"}}',
+        ),
+        "pypi/aspose_page/json": (404, b""),
+        "pypi/asposepage/json": (404, b""),
+    })
+    unpublished_entry = sut.backfill_entry("page", "python", fetch=fetch_unpublished)
+    assert unpublished_entry["verification"]["published"] is False
+    assert unpublished_entry["verification"]["consecutive_checks_agreeing"] == 0
+
+
 def test_search_hit_without_corroboration_is_rejected(tmp_path):
     """Real page/python case: the naming-convention guess doesn't resolve,
     and a search hit (the unrelated commercial aspose-page) has no foss
