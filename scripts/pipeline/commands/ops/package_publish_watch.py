@@ -340,6 +340,19 @@ def apply_proposal(data: dict[str, Any], proposal: dict[str, Any], *, checked_at
         "evidence_note": f"package-publish-watch live check confirmed via {proposal['method']}, {checked_at}",
         "method": proposal["method"],
     }
+    # Durable remediation-state tracking (2026-09-07, watcher-fleet reliability
+    # hardening, Phase 3): the registry previously recorded only DETECTION state
+    # (published True/False) -- the moment a proposal was applied, whether content
+    # healing was still owed existed only as prose in the triggering GitHub issue,
+    # which is exactly why 3d/python's 392-file/509-mention content healing sat
+    # untracked after its own registry flip (confirmed live 2026-09-02 -> still
+    # pending 2026-09-07 with zero durable record of that fact anywhere but a
+    # closed issue's comment). Setting this here, in the same atomic write as the
+    # publish-state flip, means the two can never diverge silently again.
+    entry["content_healing_status"] = (
+        "pending" if proposal.get("content_healing_needed") else "not_needed"
+    )
+    entry["content_healing_status_set_at"] = checked_at
     return entry
 
 

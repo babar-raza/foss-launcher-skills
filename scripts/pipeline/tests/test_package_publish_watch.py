@@ -286,6 +286,36 @@ def test_apply_proposal_flips_state_correctly():
     assert entry["verification"]["verified_owner"] == "Aspose"
 
 
+def test_apply_proposal_sets_content_healing_status_atomically():
+    """Regression test (2026-09-07): content_healing_status must be set in
+    the SAME call as the publish-state flip, never left for a separate,
+    memorable-or-forgettable step -- this is the fix for 3d/python's content
+    healing sitting untracked after its own registry flip."""
+    data = {
+        "cells": {"python": _entry(consecutive=2)},
+        "3d": {"python": _entry(consecutive=2)},
+    }
+    needs_healing = {
+        "family": "cells", "platform": "python",
+        "candidate": {"name": "aspose-cells-foss"},
+        "evidence_url": "https://pypi.org/x", "method": "pypi-json-api",
+        "verified_owner": "Aspose", "content_healing_needed": True,
+    }
+    no_healing_needed = {
+        "family": "3d", "platform": "python",
+        "candidate": {"name": "aspose-3d-foss"},
+        "evidence_url": "https://pypi.org/y", "method": "pypi-json-api",
+        "verified_owner": "Aspose", "content_healing_needed": False,
+    }
+    sut.apply_proposal(data, needs_healing, checked_at="2026-09-07")
+    sut.apply_proposal(data, no_healing_needed, checked_at="2026-09-07")
+
+    assert data["cells"]["python"]["content_healing_status"] == "pending"
+    assert data["cells"]["python"]["content_healing_status_set_at"] == "2026-09-07"
+    assert data["3d"]["python"]["content_healing_status"] == "not_needed"
+    assert data["3d"]["python"]["content_healing_status_set_at"] == "2026-09-07"
+
+
 def test_apply_proposal_is_not_called_by_run_watch(tmp_path):
     """Design invariant (matches test_publish_watcher.py's own test of the
     same name): the automatic path never writes verification.published --
