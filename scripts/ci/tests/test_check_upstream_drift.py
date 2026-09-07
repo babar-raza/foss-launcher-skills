@@ -183,9 +183,40 @@ class TestFileOrUpdateIssue:
 
         runner = MagicMock(side_effect=_side_effect)
         cud.file_or_update_issue(self.FINDING, repo="org/repo", runner=runner)
-        create_cmd = [c[0][0] for c in runner.call_args_list if "create" in c[0][0]][0]
+        create_cmd = [
+            c[0][0] for c in runner.call_args_list
+            if c[0][0][1] == "issue" and c[0][0][2] == "create"
+        ][0]
         assert "upstream-drift" in create_cmd
         assert "product:cells-net" in create_cmd
+
+    def test_ensures_product_label_exists_before_create(self, tmp_path):
+        """The label-creation call must happen, and must precede `gh issue
+        create` -- this is the fix for the confirmed live bug where `gh
+        issue create --label product:{family}-{platform}` failed silently
+        because that label had never been provisioned in the repo."""
+        def _side_effect(cmd, **kw):
+            if cmd[1] == "issue" and cmd[2] == "list":
+                return _cp(stdout="[]")
+            if cmd[1] == "issue" and cmd[2] == "create":
+                return _cp(stdout="https://github.com/org/repo/issues/1")
+            return _cp(returncode=1)
+
+        runner = MagicMock(side_effect=_side_effect)
+        cud.file_or_update_issue(self.FINDING, repo="org/repo", runner=runner)
+        calls = [c[0][0] for c in runner.call_args_list]
+        label_create_calls = [
+            c for c in calls if c[1] == "label" and c[2] == "create"
+        ]
+        assert len(label_create_calls) == 1
+        assert "product:cells-net" in label_create_calls[0]
+        issue_create_idx = next(
+            i for i, c in enumerate(calls) if c[1] == "issue" and c[2] == "create"
+        )
+        label_create_idx = next(
+            i for i, c in enumerate(calls) if c[1] == "label" and c[2] == "create"
+        )
+        assert label_create_idx < issue_create_idx
 
 
 class TestDriftStatePersistence:

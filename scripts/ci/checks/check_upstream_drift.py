@@ -207,6 +207,33 @@ def _product_label(family: str, platform: str) -> str:
     return f"product:{family}-{platform}"
 
 
+def _ensure_label_exists(label: str, *, repo: str, runner: CommandRunner) -> None:
+    """Idempotently create `label` in `repo` if it doesn't already exist.
+
+    Root cause fix (2026-09-07): `gh issue create --label product:{family}-
+    {platform}` requires every named label to pre-exist -- unlike a raw
+    POST to the issues REST API, the `gh` CLI validates labels client-side
+    first. Since no `product:*` label has ever existed in this repo, every
+    single `file_or_update_issue()` create-path call has failed silently
+    (caught by the bare `if result.returncode == 0` check below, with no
+    further signal) since this dedup mechanism was introduced -- confirmed
+    live: real drift found on 2026-08-24 and 2026-08-31 was detected
+    correctly but never surfaced as an issue anywhere. `gh label create`
+    exits 1 with "label ... already exists" for a label that's already
+    there, which is the expected, harmless outcome on every call after the
+    first for a given product -- both outcomes are treated as success here;
+    only the label's absence blocked issue creation, never its presence.
+    """
+    try:
+        runner(
+            ["gh", "label", "create", label, "--repo", repo, "--color", "5319e7"],
+            capture_output=True, text=True, timeout=30,
+            encoding="utf-8", errors="replace",
+        )
+    except (subprocess.TimeoutExpired, FileNotFoundError):
+        pass
+
+
 def find_existing_issue(family: str, platform: str, *, repo: str, runner: CommandRunner) -> "int | None":
     """Search open issues carrying BOTH ISSUE_LABEL and this product's label.
     Returns the issue number, or None if no such issue is open."""
@@ -279,6 +306,7 @@ def file_or_update_issue(
         return {"action": "failed", "issue_number": existing}
 
     title = f"Upstream drift: {family}/{platform} — {(finding.get('head') or 'unknown')[:10]}"
+    _ensure_label_exists(_product_label(family, platform), repo=repo, runner=runner)
     try:
         result = runner(
             ["gh", "issue", "create", "--repo", repo, "--title", title, "--body", body,
