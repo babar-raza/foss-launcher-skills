@@ -1,0 +1,82 @@
+{
+  "cells/net": {
+    "checked_at": "2026-09-07T10:16:44.781045Z",
+    "consecutive_weeks_flagged": 2,
+    "head_sha": "941814fd138dc28cf47123d48194f329f283498d",
+    "last_issue_number": 84,
+    "level": "HIGH",
+    "stored_sha": "6ee32c08a6090a778fab03e66afac731859f93a9"
+  },
+  "font/python": {
+    "checked_at": "2026-09-07T10:16:44.781045Z",
+    "consecutive_weeks_flagged": 2,
+    "head_sha": "c4c453b861596d20b3348dbc8d3b70c591e6fd70",
+    "last_issue_number": 85,
+    "level": "MEDIUM",
+    "stored_sha": "136b6e20c3916ac4c8efac0714948a4136b491a3"
+  },
+  "pdf/net": {
+    "checked_at": "2026-09-07T10:16:44.781045Z",
+    "consecutive_weeks_flagged": 2,
+    "head_sha": "b7172877651413cff57a8bfe41fb8a8befb2406b",
+    "last_issue_number": 86,
+    "level": "HIGH",
+    "stored_sha": "663783d18ec1c00efbd9b56a0a6ea20e4671d92b"
+  },
+  "pdf/python": {
+    "checked_at": "2026-09-07T10:16:44.781045Z",
+    "consecutive_weeks_flagged": 2,
+    "head_sha": "109e26a10e37541528afb5e3ae6b04516c1c0359",
+    "last_issue_number": 87,
+    "level": "HIGH",
+    "stored_sha": "2c89b3f812e31e59d0cd85036bb018a9f3262758"
+  },
+  "pdf/typescript": {
+    "checked_at": "2026-09-07T10:16:44.781045Z",
+    "consecutive_weeks_flagged": 2,
+    "head_sha": "92446cce4a639215de3027226fcdff50eff3bcf5",
+    "last_issue_number": 88,
+    "level": "HIGH",
+    "stored_sha": "04e7b50a3dc37427e5e7d72147dd0baf62ccbb9f"
+  },
+  "slides/cpp": {
+    "checked_at": "2026-09-07T10:16:44.781045Z",
+    "consecutive_weeks_flagged": 2,
+    "head_sha": "733de4bf72fa33d16ee153779e8ee924ea1faebe",
+    "last_issue_number": 89,
+    "level": "HIGH",
+    "stored_sha": "25adb25c8796f06d9b89cd5f8093e490091195ef"
+  },
+  "slides/java": {
+    "checked_at": "2026-09-07T10:16:44.781045Z",
+    "consecutive_weeks_flagged": 2,
+    "head_sha": "a03b119a38e1061f1345a094fc2db7f5e7db5494",
+    "last_issue_number": 90,
+    "level": "HIGH",
+    "stored_sha": "9968c5b42525919f50bca3cdbcedd3ae1dc382c4"
+  },
+  "slides/net": {
+    "checked_at": "2026-09-07T10:16:44.781045Z",
+    "consecutive_weeks_flagged": 2,
+    "head_sha": "82edb8a450b6cc2006affb1451f69f15d6fe636b",
+    "last_issue_number": 91,
+    "level": "HIGH",
+    "stored_sha": "bd19e16057b628310b4a04330585d366cb40e9b7"
+  },
+  "slides/python": {
+    "checked_at": "2026-09-07T10:16:44.781045Z",
+    "consecutive_weeks_flagged": 2,
+    "head_sha": "becd199a776682785768c60c778558d975b0c2f9",
+    "last_issue_number": 92,
+    "level": "HIGH",
+    "stored_sha": "ffaf6355fdc7f0b7a66680d742051e809a9d8c5f"
+  },
+  "words/net": {
+    "checked_at": "2026-09-07T10:16:44.781045Z",
+    "consecutive_weeks_flagged": 2,
+    "head_sha": "0d3f1add920f5294d726b4f286c2d6ba7c3ae22c",
+    "last_issue_number": 93,
+    "level": "HIGH",
+    "stored_sha": "572fc748b45fe5efce5d93d0684c5ac78fc8affe"
+  }
+}
