@@ -43,6 +43,10 @@ ALLOWED_PREFIXES: tuple[str, ...] = (
     "content/products.aspose.org/",
     "content/reference.aspose.org/",
     "content/www.aspose.org/",
+    # releases.aspose.org — FOSS GitHub+package-manager directory page
+    # (themes/releases + configs/releases.aspose.org.toml). Added 2026-09-09
+    # under override token 20260909-173516-themes-releases.
+    "content/releases.aspose.org/",
     "knowledge/",
     "reports/",
     # Hugo-managed registry data — written by update_product_registry.py.

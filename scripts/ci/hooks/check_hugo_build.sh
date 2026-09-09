@@ -17,7 +17,7 @@
 set -euo pipefail
 
 REPO_ROOT="$(cd "$(dirname "$0")/../../.." && pwd)"
-ALL_SITES="products.aspose.org docs.aspose.org kb.aspose.org reference.aspose.org blog.aspose.org"
+ALL_SITES="products.aspose.org docs.aspose.org kb.aspose.org reference.aspose.org blog.aspose.org releases.aspose.org"
 REQUESTED_SITES="${1:-$ALL_SITES}"
 
 EXIT=0
