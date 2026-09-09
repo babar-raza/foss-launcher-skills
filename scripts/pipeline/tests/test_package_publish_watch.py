@@ -636,3 +636,212 @@ def test_cli_exit_code_reflects_proposals(tmp_path):
     result = CheckResult(published=True, ambiguous=False, evidence_url="u", method="m")
     exit_code = sut.main(["--no-persist-counters"], adapters={"pypi": _fake_adapter(result)})
     assert exit_code == 1
+
+
+def _schema_valid_entry(**kwargs):
+    """run_auto_apply() validates the WHOLE registry via validate_package_registry()
+    before writing -- _entry()/_published_entry() above are deliberately minimal
+    (fine for the debounce/proposal-shape tests they were built for, which never
+    validate the full entry), so auto-apply tests need the required fields those
+    helpers omit (candidate_owner, owner_match, and every _VERIFICATION_REQUIRED_FIELDS key)."""
+    entry = _entry(**kwargs)
+    entry["candidate_owner"] = "asposefoss"
+    entry["owner_match"] = None
+    entry["verification"].setdefault("verified_at", None)
+    entry["verification"].setdefault("verified_owner", None)
+    entry["verification"].setdefault("evidence_url", None)
+    entry["verification"].setdefault("method", None)
+    return entry
+
+
+def _schema_valid_published_entry(**kwargs):
+    entry = _published_entry(**kwargs)
+    entry["candidate_owner"] = "asposefoss"
+    entry["owner_match"] = None
+    entry["verification"].setdefault("verified_at", "2026-01-01")
+    entry["verification"].setdefault("verified_owner", None)
+    entry["verification"].setdefault("method", "pypi-json-api")
+    return entry
+
+
+class TestRunAutoApply:
+    """Mission MT066-2026-09-09-PACKAGE-INSTALL-RECONCILIATION, Phase 3."""
+
+    def _write(self, tmp_path, data):
+        data_path = tmp_path / "package_registry.json"
+        data_path.write_text(json.dumps(data), encoding="utf-8")
+        sut.configure(data_path=data_path)
+        return data_path
+
+    def test_applies_corroborated_publish_proposal_and_writes(self, tmp_path):
+        data = {"cells": {"python": _schema_valid_entry(consecutive=1)}}  # "aspose-cells-foss" -- foss substring
+        data_path = self._write(tmp_path, data)
+        result = CheckResult(published=True, ambiguous=False, evidence_url="https://pypi.org/x", method="pypi-json-api")
+        outcome = sut.run_auto_apply(adapters={"pypi": _fake_adapter(result)}, scan_fn=lambda: {"excluded_but_still_live": []})
+        assert outcome["wrote_changes"] is True
+        assert len(outcome["applied"]) == 1
+        on_disk = json.loads(data_path.read_text(encoding="utf-8"))
+        assert on_disk["cells"]["python"]["verification"]["published"] is True
+
+    def test_never_applies_uncorroborated_even_under_auto_apply(self, tmp_path):
+        entry = {
+            "registry_type": "pypi",
+            "candidate": {"name": "aspose-note"},  # no "foss" substring
+            "candidate_owner": "asposefoss",
+            "verification": {
+                "published": False, "consecutive_checks_agreeing": 1,
+                "verified_at": None, "verified_owner": None, "evidence_url": None, "method": None,
+            },
+            "owner_match": None,
+        }
+        data = {"note": {"python": entry}}
+        data_path = self._write(tmp_path, data)
+        result = CheckResult(
+            published=True, ambiguous=False, evidence_url="https://pypi.org/x",
+            method="pypi-json-api", project_url="https://unrelated.example/",
+        )
+        outcome = sut.run_auto_apply(adapters={"pypi": _fake_adapter(result)}, scan_fn=lambda: {"excluded_but_still_live": []})
+        assert outcome["applied"] == []
+        assert len(outcome["uncorroborated"]) == 1
+        on_disk = json.loads(data_path.read_text(encoding="utf-8"))
+        # counter mutation alone may still be written, but published must stay False
+        assert on_disk["note"]["python"]["verification"]["published"] is False
+
+    def test_applies_version_update_proposal_and_writes(self, tmp_path):
+        entry = {
+            "registry_type": "pypi",
+            "candidate": {"name": "aspose-cells-foss", "version": "26.7.0"},
+            "candidate_owner": "asposefoss",
+            "verification": {
+                "published": True, "consecutive_version_checks_agreeing": 1,
+                "verified_at": "2026-01-01", "verified_owner": None,
+                "evidence_url": "https://pypi.org/x", "method": "pypi-json-api",
+            },
+            "owner_match": None,
+        }
+        data = {"cells": {"python": entry}}
+        data_path = self._write(tmp_path, data)
+        result = CheckResult(published=True, ambiguous=False, evidence_url="u", method="m", version="26.8.0")
+        outcome = sut.run_auto_apply(adapters={"pypi": _fake_adapter(result)}, scan_fn=lambda: {"excluded_but_still_live": []})
+        assert outcome["wrote_changes"] is True
+        on_disk = json.loads(data_path.read_text(encoding="utf-8"))
+        assert on_disk["cells"]["python"]["candidate"]["version"] == "26.8.0"
+
+    def test_drift_and_exclusion_findings_never_auto_applied(self, tmp_path):
+        """Explicit design invariant: no --auto-apply mode ever touches these."""
+        data = {"cells": {"python": _schema_valid_published_entry(consecutive_absent=1)}}
+        data_path = self._write(tmp_path, data)
+        result = CheckResult(published=False, ambiguous=False, evidence_url="u", method="m")
+        outcome = sut.run_auto_apply(
+            adapters={"pypi": _fake_adapter(result)},
+            scan_fn=lambda: {"excluded_but_still_live": ["cells/typescript"]},
+        )
+        assert len(outcome["drift_proposals"]) == 1
+        assert outcome["excluded_but_still_live"] == ["cells/typescript"]
+        on_disk = json.loads(data_path.read_text(encoding="utf-8"))
+        assert on_disk["cells"]["python"]["verification"]["published"] is True  # never auto-reverted
+
+    def test_no_op_when_nothing_changes(self, tmp_path):
+        # Every counter this run's 4 check_* calls could touch (version-update AND
+        # drift, since this entry is published:true) is pre-set to 0 -- a prior run
+        # already established this tracking state -- otherwise the FIRST-ever check
+        # legitimately adds that key (real, meaningful new tracking state, not
+        # spurious), which is not the "nothing changes" scenario this test means to
+        # exercise.
+        entry = _schema_valid_entry(published=True)
+        entry["verification"]["consecutive_version_checks_agreeing"] = 0
+        entry["verification"]["consecutive_checks_absent"] = 0
+        data = {"cells": {"python": entry}}
+        data_path = self._write(tmp_path, data)
+        original_bytes = data_path.read_text(encoding="utf-8")
+        result = CheckResult(published=True, ambiguous=False, evidence_url="u", method="m")
+        outcome = sut.run_auto_apply(adapters={"pypi": _fake_adapter(result)}, scan_fn=lambda: {"excluded_but_still_live": []})
+        assert outcome["wrote_changes"] is False
+        assert data_path.read_text(encoding="utf-8") == original_bytes
+
+    def test_circuit_breaker_caps_combined_publish_and_version_proposals(self, tmp_path):
+        data = {
+            "cells": {"python": _schema_valid_entry(consecutive=1)},
+            "3d": {"python": _schema_valid_entry(consecutive=1)},
+        }
+        # Give both a distinct family name pattern all containing "foss" already.
+        data["3d"]["python"]["candidate"]["name"] = "aspose-3d-foss"
+        data_path = self._write(tmp_path, data)
+        result = CheckResult(published=True, ambiguous=False, evidence_url="u", method="m")
+        outcome = sut.run_auto_apply(
+            adapters={"pypi": _fake_adapter(result)}, max_apply=1,
+            scan_fn=lambda: {"excluded_but_still_live": []},
+        )
+        assert len(outcome["applied"]) == 1
+        assert len(outcome["skipped_capped"]) == 1
+        assert outcome["wrote_changes"] is True
+
+    def test_validation_failure_aborts_entire_write(self, tmp_path):
+        data = {
+            "cells": {"python": _schema_valid_entry(consecutive=1)},
+            "broken": {"java": {"registry_type": "not-a-real-type"}},
+        }
+        data_path = self._write(tmp_path, data)
+        original_bytes = data_path.read_text(encoding="utf-8")
+        result = CheckResult(published=True, ambiguous=False, evidence_url="u", method="m")
+        outcome = sut.run_auto_apply(adapters={"pypi": _fake_adapter(result)}, scan_fn=lambda: {"excluded_but_still_live": []})
+        assert outcome["wrote_changes"] is False
+        assert outcome["applied"] == []
+        assert outcome["validation_errors"] != []
+        assert data_path.read_text(encoding="utf-8") == original_bytes
+
+    def test_cli_auto_apply_writes_github_output(self, tmp_path, monkeypatch):
+        output_path = tmp_path / "github_output.txt"
+        monkeypatch.setenv("GITHUB_OUTPUT", str(output_path))
+        data = {"cells": {"python": _schema_valid_entry(consecutive=1)}}
+        self._write(tmp_path, data)
+        result = CheckResult(published=True, ambiguous=False, evidence_url="u", method="m")
+        exit_code = sut.main(["--auto-apply"], adapters={"pypi": _fake_adapter(result)},
+                              scan_fn=lambda: {"excluded_but_still_live": []})
+        assert exit_code == 1
+        assert "wrote_changes=true" in output_path.read_text(encoding="utf-8")
+
+    def test_idempotency_check_survives_on_disk_formatting_drift(self, tmp_path):
+        """Real bug found while writing this test suite: comparing raw bytes
+        (json.dumps(data, indent=2) == original_bytes) reports "changed" for a
+        purely cosmetic reformatting -- e.g. the on-disk file compact (no
+        indent, as written here) vs. this module's own indent=2 output -- with
+        zero semantic difference, which would cause a spurious commit every
+        single run forever. The fix compares parsed structural equality
+        instead. This test's own _write() helper already uses compact
+        json.dumps(data) with no indent, deliberately mismatched from
+        run_auto_apply()'s indent=2 -- if the comparison ever regresses back
+        to a raw byte compare, this test starts failing again."""
+        entry = _schema_valid_entry(published=True)
+        entry["verification"]["consecutive_version_checks_agreeing"] = 0
+        entry["verification"]["consecutive_checks_absent"] = 0
+        data = {"cells": {"python": entry}}
+        data_path = tmp_path / "package_registry.json"
+        data_path.write_text(json.dumps(data), encoding="utf-8")  # compact, no indent -- deliberate
+        sut.configure(data_path=data_path)
+        original_bytes = data_path.read_text(encoding="utf-8")
+        result = CheckResult(published=True, ambiguous=False, evidence_url="u", method="m")
+        outcome = sut.run_auto_apply(adapters={"pypi": _fake_adapter(result)}, scan_fn=lambda: {"excluded_but_still_live": []})
+        assert outcome["wrote_changes"] is False
+        assert data_path.read_text(encoding="utf-8") == original_bytes
+
+    def test_cli_auto_apply_still_reports_uncorroborated_via_issue_body(self, tmp_path, capsys):
+        entry = {
+            "registry_type": "pypi",
+            "candidate": {"name": "aspose-note"},
+            "candidate_owner": "asposefoss",
+            "verification": {
+                "published": False, "consecutive_checks_agreeing": 1,
+                "verified_at": None, "verified_owner": None, "evidence_url": None, "method": None,
+            },
+            "owner_match": None,
+        }
+        data = {"note": {"python": entry}}
+        self._write(tmp_path, data)
+        result = CheckResult(published=True, ambiguous=False, evidence_url="https://pypi.org/x",
+                              method="pypi-json-api", project_url="https://unrelated.example/")
+        exit_code = sut.main(["--auto-apply"], adapters={"pypi": _fake_adapter(result)},
+                              scan_fn=lambda: {"excluded_but_still_live": []})
+        assert exit_code == 1
+        out = capsys.readouterr().out
+        assert "Package Identity Needs Manual Review" in out

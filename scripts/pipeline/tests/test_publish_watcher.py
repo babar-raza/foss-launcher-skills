@@ -264,6 +264,141 @@ def test_run_version_watch_never_writes(tmp_path):
         sut.configure(data_path=None)
 
 
+class TestRunAutoApply:
+    """Mission MT066-2026-09-09-PACKAGE-INSTALL-RECONCILIATION, Phase 3."""
+
+    def _write(self, tmp_path, data=None):
+        data_path = tmp_path / "package_registry.json"
+        data_path.write_text(json.dumps(data if data is not None else _fake_data()), encoding="utf-8")
+        sut.configure(data_path=data_path)
+        return data_path
+
+    def test_applies_unpublished_to_published_and_writes(self, tmp_path):
+        data_path = self._write(tmp_path)
+        try:
+            result = sut.run_auto_apply(live_checker=lambda g, a: "2.0.0" if a == "aspose-fictional-foss" else None)
+            assert result["wrote_changes"] is True
+            assert len(result["applied"]) == 1
+            on_disk = json.loads(data_path.read_text(encoding="utf-8"))
+            assert on_disk["fictional"]["java"]["verification"]["published"] is True
+            assert on_disk["fictional"]["java"]["candidate"]["version"] == "2.0.0"
+        finally:
+            sut.configure(data_path=None)
+
+    def test_applies_version_update_and_writes(self, tmp_path):
+        data_path = self._write(tmp_path)
+        try:
+            result = sut.run_auto_apply(live_checker=lambda g, a: "26.7.0" if a == "aspose-cells-foss" else None)
+            assert result["wrote_changes"] is True
+            on_disk = json.loads(data_path.read_text(encoding="utf-8"))
+            assert on_disk["cells"]["java"]["candidate"]["version"] == "26.7.0"
+        finally:
+            sut.configure(data_path=None)
+
+    def test_no_op_when_nothing_resolves(self, tmp_path):
+        data_path = self._write(tmp_path)
+        original_bytes = data_path.read_text(encoding="utf-8")
+        try:
+            result = sut.run_auto_apply(live_checker=lambda g, a: None)
+            assert result["wrote_changes"] is False
+            assert result["applied"] == []
+            assert data_path.read_text(encoding="utf-8") == original_bytes
+        finally:
+            sut.configure(data_path=None)
+
+    def test_idempotent_rerun_produces_no_second_write(self, tmp_path):
+        """Applying the same live state twice must write once, then no-op."""
+        data_path = self._write(tmp_path)
+        try:
+            checker = lambda g, a: "2.0.0" if a == "aspose-fictional-foss" else None  # noqa: E731
+            first = sut.run_auto_apply(live_checker=checker)
+            assert first["wrote_changes"] is True
+            after_first = data_path.read_text(encoding="utf-8")
+
+            second = sut.run_auto_apply(live_checker=checker)
+            assert second["wrote_changes"] is False  # already published, nothing left to apply
+            assert data_path.read_text(encoding="utf-8") == after_first
+        finally:
+            sut.configure(data_path=None)
+
+    def test_circuit_breaker_caps_applied_count(self, tmp_path):
+        data = _fake_data()
+        data["another"] = {"java": {
+            "registry_type": "maven",
+            "candidate": {"group_id": "org.aspose", "artifact_id": "aspose-another-foss", "version": "1.0.0"},
+            "candidate_owner": "org.aspose",
+            "verification": {"published": False, "verified_at": None, "verified_owner": None,
+                              "evidence_url": None, "method": None},
+            "owner_match": None,
+        }}
+        data_path = self._write(tmp_path, data=data)
+        try:
+            # Both "fictional" and "another" resolve live -- cap at 1 to force an overflow.
+            result = sut.run_auto_apply(
+                live_checker=lambda g, a: "2.0.0" if a in ("aspose-fictional-foss", "aspose-another-foss") else None,
+                max_apply=1,
+            )
+            assert result["wrote_changes"] is True
+            assert len(result["applied"]) == 1
+            assert len(result["skipped_capped"]) == 1
+        finally:
+            sut.configure(data_path=None)
+
+    def test_validation_failure_aborts_the_entire_write(self, tmp_path):
+        """A pre-existing, unrelated data-quality problem elsewhere in the file
+        must abort the WHOLE write, even though the actual proposal being
+        applied is itself perfectly valid -- 'nothing partial is ever persisted'."""
+        data = _fake_data()
+        data["broken"] = {"java": {"registry_type": "not-a-real-registry-type"}}  # missing required fields too
+        data_path = self._write(tmp_path, data=data)
+        original_bytes = data_path.read_text(encoding="utf-8")
+        try:
+            result = sut.run_auto_apply(live_checker=lambda g, a: "2.0.0" if a == "aspose-fictional-foss" else None)
+            assert result["wrote_changes"] is False
+            assert result["applied"] == []
+            assert result["validation_errors"] != []
+            assert data_path.read_text(encoding="utf-8") == original_bytes  # untouched
+        finally:
+            sut.configure(data_path=None)
+
+    def test_github_output_written_when_env_var_present(self, tmp_path, monkeypatch):
+        output_path = tmp_path / "github_output.txt"
+        monkeypatch.setenv("GITHUB_OUTPUT", str(output_path))
+        data_path = self._write(tmp_path)
+        try:
+            sut.configure(data_path=data_path, live_checker=lambda g, a: "2.0.0" if a == "aspose-fictional-foss" else None)
+            exit_code = sut.main(["--auto-apply"])
+            assert exit_code == 1  # applied a proposal -> still reports it for visibility
+            content = output_path.read_text(encoding="utf-8")
+            assert "wrote_changes=true" in content
+        finally:
+            sut.configure(data_path=None, live_checker=None)
+
+    def test_cli_auto_apply_reports_overflow_via_normal_issue_path(self, tmp_path, capsys):
+        data = _fake_data()
+        data["another"] = {"java": {
+            "registry_type": "maven",
+            "candidate": {"group_id": "org.aspose", "artifact_id": "aspose-another-foss", "version": "1.0.0"},
+            "candidate_owner": "org.aspose",
+            "verification": {"published": False, "verified_at": None, "verified_owner": None,
+                              "evidence_url": None, "method": None},
+            "owner_match": None,
+        }}
+        data_path = self._write(tmp_path, data=data)
+        try:
+            sut.configure(
+                data_path=data_path,
+                live_checker=lambda g, a: "2.0.0" if a in ("aspose-fictional-foss", "aspose-another-foss") else None,
+            )
+            exit_code = sut.main(["--auto-apply", "--max-auto-apply", "1"])
+            assert exit_code == 1
+            out = capsys.readouterr().out
+            assert "circuit breaker reached" in out
+            assert "Action Required" in out  # the overflow's issue body still gets printed
+        finally:
+            sut.configure(data_path=None, live_checker=None)
+
+
 def test_cli_exit_code_reflects_findings(tmp_path, capsys):
     data_path = tmp_path / "package_registry.json"
     data_path.write_text(json.dumps(_fake_data()), encoding="utf-8")

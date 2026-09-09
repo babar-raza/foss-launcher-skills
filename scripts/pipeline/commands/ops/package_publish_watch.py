@@ -62,6 +62,7 @@ Exit codes:
 from __future__ import annotations
 
 import json
+import os
 import sys
 from datetime import datetime, timezone
 from pathlib import Path
@@ -78,6 +79,19 @@ from package_registries import apply_debounce, is_corroborated_match, REQUIRED_C
 from package_registries import pypi, nuget, npm, go, cargo  # noqa: E402
 from audit.package_install_literal import verify_package_install_literals  # noqa: E402
 from commands.ops import registry_coverage_scan  # noqa: E402
+from package_registry_data import validate_package_registry  # noqa: E402
+
+DEFAULT_MAX_AUTO_APPLY = 5
+
+
+def _write_github_output(key: str, value: str) -> None:
+    """Best-effort write to $GITHUB_OUTPUT if running inside a GitHub Actions
+    step; a no-op (never raises) outside that environment."""
+    path = os.environ.get("GITHUB_OUTPUT")
+    if not path:
+        return
+    with open(path, "a", encoding="utf-8") as f:
+        f.write(f"{key}={value}\n")
 
 _DEFAULT_REPO_ROOT = Path(__file__).resolve().parents[4]
 _DEFAULT_DATA_PATH = _DEFAULT_REPO_ROOT / "data" / "package_registry.json"
@@ -415,9 +429,9 @@ def apply_version_update_proposal(
 ) -> dict[str, Any]:
     """Mutate `data` in place to reflect a confirmed steady-state version
     update, for the 5 non-Maven registries -- mirrors publish_watcher.py's
-    apply_version_update_proposal(). Not called by the automatic scheduled
-    run (Phase 2 is detection-only); a human-reviewed follow-up action, same
-    as apply_proposal()."""
+    apply_version_update_proposal(). Called automatically by run_auto_apply()
+    (Phase 3) when --auto-apply is set; otherwise a human-reviewed follow-up
+    action via the issue this module files, same as apply_proposal()."""
     checked_at = checked_at or datetime.now(timezone.utc).date().isoformat()
     entry = data[proposal["family"]][proposal["platform"]]
     entry["candidate"] = {**entry.get("candidate", {}), "version": proposal["live_version"]}
@@ -565,9 +579,11 @@ def _literal_content_scope(family: str, platform: str, entry: dict[str, Any]) ->
 
 
 def apply_proposal(data: dict[str, Any], proposal: dict[str, Any], *, checked_at: "str | None" = None) -> dict[str, Any]:
-    """Mutate `data` in place to reflect a confirmed proposal. NOT called by
-    the automatic scheduled run -- the pure state-transition function for the
-    human-reviewed follow-up, mirroring publish_watcher.py's apply_proposal()."""
+    """Mutate `data` in place to reflect a confirmed proposal. Called
+    automatically by run_auto_apply() (Phase 3) when --auto-apply is set;
+    otherwise the pure state-transition function for the human-reviewed
+    follow-up via the issue this module files, mirroring publish_watcher.py's
+    apply_proposal()."""
     checked_at = checked_at or datetime.now(timezone.utc).date().isoformat()
     entry = data[proposal["family"]][proposal["platform"]]
     entry["candidate"] = proposal["candidate"]
@@ -656,6 +672,105 @@ def run_watch(
     return proposals, uncorroborated, version_proposals, drift_proposals, data
 
 
+def run_auto_apply(
+    *, adapters: "dict[str, Any] | None" = None, max_apply: int = DEFAULT_MAX_AUTO_APPLY,
+    scan_fn: "Callable[[], dict[str, Any]] | None" = None,
+) -> dict[str, Any]:
+    """Detect and apply eligible proposals for the 5 non-Maven registries
+    (Mission MT066-2026-09-09-PACKAGE-INSTALL-RECONCILIATION, Phase 3),
+    against a single in-memory copy of the registry, then atomically write it.
+
+    Only two of the five check directions are ever eligible for auto-apply:
+    `proposals` (from check_unpublished_entries -- already gated by both
+    debounce AND identity corroboration) and `version_proposals` (from
+    check_published_entries_for_version_update). The other three --
+    `uncorroborated`, `drift_proposals`, and `excluded_but_still_live` -- are
+    NEVER auto-applied regardless of this flag, matching the plan's explicit,
+    already-justified safety design ("never auto-flip published back to
+    false", and an uncorroborated identity always needs a human). They are
+    always returned for the caller to report via the existing issue-filing
+    path, unchanged.
+
+    Debounce/version counters are persisted as part of the SAME atomic write
+    as any applied proposal (superseding --no-persist-counters, which has no
+    meaning once --auto-apply's own validate-then-write discipline governs
+    what gets persisted) -- this mirrors Maven's run_auto_apply() exactly.
+    """
+    adapters = adapters if adapters is not None else _ADAPTERS
+    original_bytes = DATA_PATH.read_text(encoding="utf-8")
+    original_data = json.loads(original_bytes)
+    data = json.loads(original_bytes)
+
+    proposals, uncorroborated = check_unpublished_entries(data, adapters=adapters)
+    version_proposals = check_published_entries_for_version_update(data, adapters=adapters)
+    drift_proposals = check_published_entries_for_drift(data, adapters=adapters)
+    excluded_but_still_live = check_exclusion_reconciliation(scan_fn=scan_fn)
+
+    tagged = [("publish", p) for p in proposals] + [("version", p) for p in version_proposals]
+    applied: list[dict[str, Any]] = []
+    skipped_capped: list[dict[str, Any]] = []
+    for kind, proposal in tagged:
+        if len(applied) >= max_apply:
+            skipped_capped.append(proposal)
+            continue
+        if kind == "publish":
+            apply_proposal(data, proposal)
+        else:
+            apply_version_update_proposal(data, proposal)
+        applied.append(proposal)
+
+    result: dict[str, Any] = {
+        "applied": applied,
+        "skipped_capped": skipped_capped,
+        "proposals": proposals,
+        "uncorroborated": uncorroborated,
+        "version_proposals": version_proposals,
+        "drift_proposals": drift_proposals,
+        "excluded_but_still_live": excluded_but_still_live,
+        "wrote_changes": False,
+        "validation_errors": [],
+    }
+
+    # Even with nothing applied, the debounce-counter mutations above (from all
+    # four check_* calls) still need persisting -- same as the non-auto-apply
+    # default (persist-counters) path. Validate-then-write covers this too.
+    errors = validate_package_registry(data)
+    if errors:
+        result["applied"] = []
+        result["validation_errors"] = errors
+        return result
+
+    if data == original_data:
+        # Structural (parsed) comparison, deliberately not a raw-bytes compare:
+        # the on-disk file's existing formatting is not guaranteed to match
+        # json.dumps(..., indent=2)'s exact output (key order aside, dict
+        # equality ignores it; whitespace/newline conventions do not survive a
+        # byte compare) -- a byte-level check would report "changed" for a
+        # purely cosmetic reformatting with zero semantic difference, causing a
+        # spurious commit. Real content equality is what actually matters here.
+        return result
+    new_bytes = json.dumps(data, indent=2) + "\n"
+
+    tmp_path = DATA_PATH.with_name(DATA_PATH.name + ".tmp")
+    tmp_path.write_text(new_bytes, encoding="utf-8")
+    reparsed = json.loads(tmp_path.read_text(encoding="utf-8"))
+    reparse_errors = validate_package_registry(reparsed)
+    if reparse_errors:
+        tmp_path.unlink(missing_ok=True)
+        result["applied"] = []
+        result["validation_errors"] = reparse_errors
+        return result
+    os.replace(tmp_path, DATA_PATH)
+    final_errors = validate_package_registry(json.loads(DATA_PATH.read_text(encoding="utf-8")))
+    if final_errors:
+        result["applied"] = []
+        result["validation_errors"] = final_errors
+        return result
+
+    result["wrote_changes"] = True
+    return result
+
+
 def main(
     argv: "list[str] | None" = None, *, adapters: "dict[str, Any] | None" = None,
     scan_fn: "Callable[[], dict[str, Any]] | None" = None,
@@ -671,7 +786,64 @@ def main(
     parser.add_argument("--issue-body-out", metavar="PATH", help="Write the GitHub issue body to this path if any proposals are found")
     parser.add_argument("--no-persist-counters", action="store_true",
                          help="Skip writing updated debounce counters back to DATA_PATH (dry-run/test use)")
+    parser.add_argument("--auto-apply", action="store_true",
+                         help="Apply eligible publish/version-update proposals and atomically write "
+                              "data/package_registry.json instead of only reporting them (Mission "
+                              "MT066-2026-09-09-PACKAGE-INSTALL-RECONCILIATION, Phase 3). Identity-"
+                              "uncorroborated findings, drift, and exclusion reconciliation are NEVER "
+                              "auto-applied regardless of this flag -- always issue-only. Supersedes "
+                              "--no-persist-counters (counters persist as part of the same atomic write).")
+    parser.add_argument("--max-auto-apply", type=int, default=DEFAULT_MAX_AUTO_APPLY, metavar="N",
+                         help=f"Registry-level circuit breaker: at most N proposals applied per run (default {DEFAULT_MAX_AUTO_APPLY})")
     args = parser.parse_args(argv)
+
+    if args.auto_apply:
+        result = run_auto_apply(adapters=adapters, max_apply=args.max_auto_apply, scan_fn=scan_fn)
+        _write_github_output("wrote_changes", "true" if result["wrote_changes"] else "false")
+
+        if result["validation_errors"]:
+            print("package_publish_watch --auto-apply: validation FAILED after applying proposals -- "
+                  "the entire write was aborted, data/package_registry.json is untouched.")
+            for err in result["validation_errors"]:
+                print(f"  - {err}")
+            return 1
+
+        applied_keys = {(p["family"], p["platform"]) for p in result["applied"]}
+        remaining_proposals = [p for p in result["proposals"] if (p["family"], p["platform"]) not in applied_keys]
+        remaining_version = [p for p in result["version_proposals"] if (p["family"], p["platform"]) not in applied_keys]
+
+        if result["applied"]:
+            print(f"package_publish_watch --auto-apply: applied {len(result['applied'])} proposal(s); "
+                  f"wrote_changes={result['wrote_changes']}")
+        if result["skipped_capped"]:
+            print(f"package_publish_watch --auto-apply: circuit breaker reached -- "
+                  f"{len(result['skipped_capped'])} proposal(s) deferred to issue-filing below")
+
+        bodies = []
+        if remaining_proposals:
+            bodies.append(format_issue_body(remaining_proposals))
+        if remaining_version:
+            bodies.append(format_version_update_issue_body(remaining_version))
+        if result["uncorroborated"]:
+            bodies.append(format_uncorroborated_body(result["uncorroborated"]))
+        if result["drift_proposals"] or result["excluded_but_still_live"]:
+            bodies.append(format_drift_and_reconciliation_body(result["drift_proposals"], result["excluded_but_still_live"]))
+
+        if bodies:
+            body = "\n\n".join(bodies)
+            print(body)
+            if args.issue_body_out:
+                Path(args.issue_body_out).write_text(body, encoding="utf-8")
+            return 1
+
+        if result["applied"]:
+            return 1  # applied changes are still worth surfacing in workflow logs/exit code
+
+        print("package_publish_watch: no unpublished entry resolves live (with debounce satisfied) yet, "
+              "no already-published entry has a newer live version, no unconfirmed identity findings, "
+              "no published entry has drifted away, no exclusion/content reconciliation findings. "
+              "Nothing to report.")
+        return 0
 
     proposals, uncorroborated, version_proposals, drift_proposals, updated_data = run_watch(adapters=adapters)
     excluded_but_still_live = check_exclusion_reconciliation(scan_fn=scan_fn)

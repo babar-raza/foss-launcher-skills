@@ -48,6 +48,7 @@ Exit codes:
 from __future__ import annotations
 
 import json
+import os
 import sys
 import urllib.error
 import urllib.request
@@ -56,10 +57,29 @@ from pathlib import Path
 from typing import Any, Callable
 from xml.etree import ElementTree
 
+_PIPELINE_ROOT = Path(__file__).resolve().parents[2]
+_LIB_DIR = str(_PIPELINE_ROOT / "lib")
+if _LIB_DIR not in sys.path:
+    sys.path.insert(0, _LIB_DIR)
+from package_registry_data import validate_package_registry  # noqa: E402
+
 _DEFAULT_REPO_ROOT = Path(__file__).resolve().parents[4]
 _DEFAULT_DATA_PATH = _DEFAULT_REPO_ROOT / "data" / "package_registry.json"
 DATA_PATH = _DEFAULT_DATA_PATH
 _LIVE_CHECKER: "Callable[[str, str], str | None] | None" = None
+
+DEFAULT_MAX_AUTO_APPLY = 5
+
+
+def _write_github_output(key: str, value: str) -> None:
+    """Best-effort write to $GITHUB_OUTPUT if running inside a GitHub Actions
+    step; a no-op (never raises) outside that environment, e.g. under pytest
+    or a local manual run."""
+    path = os.environ.get("GITHUB_OUTPUT")
+    if not path:
+        return
+    with open(path, "a", encoding="utf-8") as f:
+        f.write(f"{key}={value}\n")
 
 
 def configure(
@@ -190,9 +210,9 @@ def apply_version_update_proposal(
     """Mutate `data` in place to reflect a confirmed version-update proposal.
 
     Distinct from apply_proposal() (which flips published:false -> true) --
-    this updates candidate.version on an ALREADY-published entry. Not called by
-    the automatic scheduled run; a human-reviewed follow-up action, same as
-    apply_proposal().
+    this updates candidate.version on an ALREADY-published entry. Called
+    automatically by run_auto_apply() (Phase 3) when --auto-apply is set;
+    otherwise a human-reviewed follow-up action, same as apply_proposal().
     """
     checked_at = checked_at or datetime.now(timezone.utc).date().isoformat()
     entry = data[proposal["family"]][proposal["platform"]]
@@ -248,9 +268,11 @@ def format_version_update_issue_body(proposals: list[dict[str, Any]]) -> str:
 def apply_proposal(data: dict[str, Any], proposal: dict[str, Any], *, checked_at: "str | None" = None) -> dict[str, Any]:
     """Mutate `data` in place to reflect a confirmed proposal.
 
-    NOT called by the automatic scheduled run (see module docstring) -- this is the
-    pure state-transition function used by tests and by a human-reviewed follow-up
-    action after reading the issue this module's CLI helps generate.
+    Called automatically by run_auto_apply() (Mission
+    MT066-2026-09-09-PACKAGE-INSTALL-RECONCILIATION, Phase 3) when
+    --auto-apply is set; otherwise the pure state-transition function used by
+    tests and by a human-reviewed follow-up action after reading the issue
+    this module's CLI helps generate.
     """
     checked_at = checked_at or datetime.now(timezone.utc).date().isoformat()
     entry = data[proposal["family"]][proposal["platform"]]
@@ -329,13 +351,164 @@ def run_version_watch(*, live_checker: "Callable[[str, str], str | None] | None"
     return check_published_families_for_new_version(data, checker)
 
 
+def run_auto_apply(
+    *, live_checker: "Callable[[str, str], str | None] | None" = None,
+    max_apply: int = DEFAULT_MAX_AUTO_APPLY,
+) -> dict[str, Any]:
+    """Detect and apply eligible Maven proposals (Mission
+    MT066-2026-09-09-PACKAGE-INSTALL-RECONCILIATION, Phase 3) against a SINGLE
+    in-memory copy of the registry, then atomically write it -- never partially.
+
+    Both check_unpublished_families() and check_published_families_for_new_version()
+    are run against the same `data` object (both are pure/non-mutating, so this
+    is safe) so their proposals can be applied together and validated as one
+    whole-file change, rather than two separate reads/writes racing each other.
+
+    Registry-level circuit breaker: at most `max_apply` proposals (across BOTH
+    kinds combined) are applied in one run -- a guard against a systemic
+    adapter bug flipping many entries at once. Proposals beyond the cap are
+    returned in `skipped_capped`, unapplied, for the caller to report via the
+    existing issue-filing path (unchanged behavior for the overflow).
+
+    Returns a result dict (never raises for an ordinary detection/validation
+    outcome):
+        applied            -- proposals actually applied this run
+        skipped_capped     -- proposals found but not applied (circuit breaker)
+        unpublished_proposals / version_proposals -- full raw detection output
+        wrote_changes      -- True only if data/package_registry.json was
+                               actually rewritten on disk
+        validation_errors  -- non-empty only if validation aborted the ENTIRE
+                               write (nothing was persisted in that case)
+    """
+    checker = live_checker if live_checker is not None else (_LIVE_CHECKER or default_live_checker)
+    original_bytes = DATA_PATH.read_text(encoding="utf-8")
+    original_data = json.loads(original_bytes)
+    data = json.loads(original_bytes)
+
+    unpublished_proposals = check_unpublished_families(data, checker)
+    version_proposals = check_published_families_for_new_version(data, checker)
+
+    tagged = [("unpublished", p) for p in unpublished_proposals] + [("version", p) for p in version_proposals]
+    applied: list[dict[str, Any]] = []
+    skipped_capped: list[dict[str, Any]] = []
+    for kind, proposal in tagged:
+        if len(applied) >= max_apply:
+            skipped_capped.append(proposal)
+            continue
+        if kind == "unpublished":
+            apply_proposal(data, proposal)
+        else:
+            apply_version_update_proposal(data, proposal)
+        applied.append(proposal)
+
+    result: dict[str, Any] = {
+        "applied": applied,
+        "skipped_capped": skipped_capped,
+        "unpublished_proposals": unpublished_proposals,
+        "version_proposals": version_proposals,
+        "wrote_changes": False,
+        "validation_errors": [],
+    }
+
+    if not applied:
+        return result
+
+    # Validate the WHOLE mutated dict before persisting anything -- a validator
+    # failure aborts the entire write, never a partial one.
+    errors = validate_package_registry(data)
+    if errors:
+        result["applied"] = []  # nothing was actually persisted; report as not-applied
+        result["validation_errors"] = errors
+        return result
+
+    if data == original_data:
+        # Idempotent no-op: the applied proposal(s) set fields identical to what
+        # was already recorded (e.g. re-running after a crash between write and
+        # commit) -- never write or signal a commit when nothing actually
+        # changed. Deliberately a structural (parsed) comparison, not a raw-bytes
+        # one: the on-disk file's formatting is not guaranteed to match
+        # json.dumps(..., indent=2)'s exact output, and a byte compare would
+        # report "changed" for a purely cosmetic reformatting with zero semantic
+        # difference, causing a spurious commit.
+        return result
+    new_bytes = json.dumps(data, indent=2) + "\n"
+
+    tmp_path = DATA_PATH.with_name(DATA_PATH.name + ".tmp")
+    tmp_path.write_text(new_bytes, encoding="utf-8")
+    reparsed = json.loads(tmp_path.read_text(encoding="utf-8"))
+    reparse_errors = validate_package_registry(reparsed)
+    if reparse_errors:
+        tmp_path.unlink(missing_ok=True)
+        result["applied"] = []
+        result["validation_errors"] = reparse_errors
+        return result
+    os.replace(tmp_path, DATA_PATH)
+    # Re-read + re-validate the real path once more before ever reporting success.
+    final_errors = validate_package_registry(json.loads(DATA_PATH.read_text(encoding="utf-8")))
+    if final_errors:
+        # Should be unreachable (we just validated identical bytes) -- but if the
+        # filesystem lied to us somehow, never claim success on unverified data.
+        result["applied"] = []
+        result["validation_errors"] = final_errors
+        return result
+
+    result["wrote_changes"] = True
+    return result
+
+
 def main(argv: "list[str] | None" = None) -> int:
     import argparse
 
     parser = argparse.ArgumentParser(prog="publish_watcher")
     parser.add_argument("--issue-body-out", metavar="PATH", help="Write the GitHub issue body to this path if any proposals are found")
     parser.add_argument("--version-issue-body-out", metavar="PATH", help="Write the steady-state version-update issue body to this path if any proposals are found")
+    parser.add_argument("--auto-apply", action="store_true",
+                         help="Apply eligible proposals and atomically write data/package_registry.json "
+                              "instead of only reporting them (Mission MT066-2026-09-09-PACKAGE-INSTALL-RECONCILIATION, Phase 3)")
+    parser.add_argument("--max-auto-apply", type=int, default=DEFAULT_MAX_AUTO_APPLY, metavar="N",
+                         help=f"Registry-level circuit breaker: at most N proposals applied per run (default {DEFAULT_MAX_AUTO_APPLY})")
     args = parser.parse_args(argv)
+
+    if args.auto_apply:
+        result = run_auto_apply(max_apply=args.max_auto_apply)
+        _write_github_output("wrote_changes", "true" if result["wrote_changes"] else "false")
+
+        if result["validation_errors"]:
+            print("publish_watcher --auto-apply: validation FAILED after applying proposals -- "
+                  "the entire write was aborted, data/package_registry.json is untouched.")
+            for err in result["validation_errors"]:
+                print(f"  - {err}")
+            return 1
+
+        applied_keys = {(p["family"], p["platform"]) for p in result["applied"]}
+        remaining_unpublished = [p for p in result["unpublished_proposals"]
+                                  if (p["family"], p["platform"]) not in applied_keys]
+        remaining_version = [p for p in result["version_proposals"]
+                              if (p["family"], p["platform"]) not in applied_keys]
+
+        if result["applied"]:
+            print(f"publish_watcher --auto-apply: applied {len(result['applied'])} proposal(s); "
+                  f"wrote_changes={result['wrote_changes']}")
+        if result["skipped_capped"]:
+            print(f"publish_watcher --auto-apply: circuit breaker reached -- "
+                  f"{len(result['skipped_capped'])} proposal(s) deferred to issue-filing below")
+
+        # Overflow beyond the circuit breaker still gets reported the normal way.
+        if remaining_unpublished:
+            print(format_issue_body(remaining_unpublished))
+            if args.issue_body_out:
+                Path(args.issue_body_out).write_text(format_issue_body(remaining_unpublished), encoding="utf-8")
+        if remaining_version:
+            print(format_version_update_issue_body(remaining_version))
+            if args.version_issue_body_out:
+                Path(args.version_issue_body_out).write_text(
+                    format_version_update_issue_body(remaining_version), encoding="utf-8")
+
+        if not result["applied"] and not remaining_unpublished and not remaining_version:
+            print("publish_watcher: no unpublished family resolves live yet, and no already-published "
+                  "family has a newer live version. Nothing to report.")
+            return 0
+        return 1
 
     proposals = run_watch()
     version_proposals = run_version_watch()
