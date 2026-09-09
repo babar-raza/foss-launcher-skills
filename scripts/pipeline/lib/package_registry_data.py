@@ -140,6 +140,24 @@ def validate_package_entry(entry: dict[str, Any], context: str = "entry") -> lis
     if owner_match is not None and not isinstance(owner_match, bool):
         errors.append(f"{context}.owner_match: must be a boolean or null")
 
+    # `conflict` (Mission MT066-2026-09-09-PACKAGE-INSTALL-RECONCILIATION) is
+    # optional -- absent or null means "no unresolved identity conflict for
+    # this entry", the overwhelmingly common case. Only validate its shape
+    # when actually present.
+    if "conflict" in entry and entry["conflict"] is not None:
+        conflict = entry["conflict"]
+        if not isinstance(conflict, dict):
+            errors.append(f"{context}.conflict: must be an object or null")
+        else:
+            _check_required(conflict, ("candidates", "note"), f"{context}.conflict", errors)
+            if "candidates" in conflict and not (
+                isinstance(conflict["candidates"], list)
+                and all(isinstance(c, str) for c in conflict["candidates"])
+            ):
+                errors.append(f"{context}.conflict.candidates: must be a list of strings")
+            if "note" in conflict and not (isinstance(conflict["note"], str) and conflict["note"].strip()):
+                errors.append(f"{context}.conflict.note: must be a non-empty string")
+
     return errors
 
 

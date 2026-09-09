@@ -38,6 +38,14 @@ class CheckResult(NamedTuple):
     verified_owner: str | None = None
     project_url: str | None = None  # project/homepage/repository URL from the registry's own API response
     candidate_name: str | None = None  # the actual name this result was checked against (set by search())
+    version: str | None = None  # live latest version observed this check (Mission MT066-2026-09-09-PACKAGE-INSTALL-RECONCILIATION,
+    # Phase 1) -- distinct from data/package_registry.json's candidate.version, which is the last
+    # *recorded* value; callers compare the two to detect drift (mirrors publish_watcher.py's
+    # existing Maven-only check_published_families_for_new_version() pattern, generalized here).
+    # None when the registry has nothing to report (404/ambiguous) or the check didn't ask for it.
+    yanked: bool = False  # True when the reported `version` is specifically marked yanked/withdrawn by
+    # the registry (currently only crates.io populates this) -- distinct from published=False: a
+    # yanked version is discouraged, not gone, and must not be treated as a removal signal.
 
 
 REQUIRED_CONSECUTIVE_CHECKS = 2

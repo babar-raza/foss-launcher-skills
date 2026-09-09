@@ -55,6 +55,18 @@ def check_published(candidate: dict, *, fetch=None) -> CheckResult:
     if resp.status_code != 200:
         return CheckResult(published=False, ambiguous=True, evidence_url=url, method="nuget-flatcontainer-api")
 
+    # flatcontainer's `versions` array is documented as ascending-sorted -- the
+    # last entry is the latest published version. A parse failure here must not
+    # break published detection (mirrors the registration-metadata failure mode
+    # below), so it's isolated in its own try/except.
+    version = None
+    try:
+        versions = json.loads(resp.body).get("versions") or []
+        if versions:
+            version = versions[-1]
+    except (json.JSONDecodeError, AttributeError):
+        pass
+
     authors, project_url = _fetch_registration_metadata(package_id, fetch=fetch)
     return CheckResult(
         published=True,
@@ -64,6 +76,7 @@ def check_published(candidate: dict, *, fetch=None) -> CheckResult:
         verified_owner=authors,
         project_url=project_url,
         candidate_name=package_id,
+        version=version,
     )
 
 

@@ -94,19 +94,26 @@ def test_all_31_launched_products_are_registered():
     assert total_pairs == 32
 
 
-def test_words_net_uses_naming_convention_fallback_and_is_unpublished():
-    """Regression pin (TC-MT015-07): words/net is this mission's own worked
-    example -- a product launched on aspose.org before its NuGet package
-    exists. Its candidate must come from the naming-convention fallback
-    (package_manifest.py has nothing to extract from the real .csproj), and
-    it must honestly reflect the currently-true unpublished state, matching
-    the live content across all 4 subdomains."""
+def test_words_net_uses_naming_convention_fallback_and_is_now_published():
+    """Regression pin (TC-MT015-07, updated 2026-09-09 -- pre-existing stale
+    test found and fixed while working an unrelated Phase-1 taskcard under
+    Mission MT066-2026-09-09-PACKAGE-INSTALL-RECONCILIATION): words/net was
+    originally this mission's own worked example of a product launched on
+    aspose.org before its NuGet package existed. It has since actually been
+    published for real (commit 5a62662be3, 2026-09-04: package-publish-watch
+    confirmed Aspose.Words.FOSS live on NuGet, 26.2.0/26.3.0) -- this test
+    asserted the old, now-false 'still unpublished' state and would have
+    stayed silently wrong indefinitely. The naming-convention-fallback
+    candidate itself is still correct (that's how the identity was
+    originally sourced, before any live check existed) and owner_match is
+    still honestly null (no owner-match check has run, independent of the
+    publish check that did)."""
     data = _load()
     entry = data["words"]["net"]
     assert entry["registry_type"] == "nuget"
     assert entry["candidate"]["name"] == "Aspose.Words.FOSS"
     assert entry["scout_source"] == "naming-convention-fallback"
-    assert entry["verification"]["published"] is False
+    assert entry["verification"]["published"] is True
     assert entry["owner_match"] is None
 
 
@@ -397,6 +404,70 @@ class TestIdentityBasisValidation:
         data = _load()
         errors = validate_package_registry(data)
         assert errors == []
+
+
+class TestConflictField:
+    """Mission MT066-2026-09-09-PACKAGE-INSTALL-RECONCILIATION, Phase 1: the
+    new optional `conflict` field, non-null only when candidate discovery
+    found multiple plausible identity hits it could not safely resolve."""
+
+    def test_absent_conflict_is_valid(self):
+        entry = _minimal_entry()
+        assert validate_package_entry(entry) == []
+
+    def test_null_conflict_is_valid(self):
+        entry = _minimal_entry()
+        entry["conflict"] = None
+        assert validate_package_entry(entry) == []
+
+    def test_well_formed_conflict_is_valid(self):
+        entry = _minimal_entry()
+        entry["conflict"] = {
+            "candidates": ["aspose-x", "aspose-x-foss-mirror"],
+            "note": "Two hits, neither corroborated by project_url; needs human review",
+        }
+        assert validate_package_entry(entry) == []
+
+    def test_conflict_must_be_object_or_null(self):
+        entry = _minimal_entry()
+        entry["conflict"] = "aspose-x"
+        errors = validate_package_entry(entry)
+        assert any("conflict" in e and "object or null" in e for e in errors)
+
+    def test_conflict_missing_candidates_is_rejected(self):
+        entry = _minimal_entry()
+        entry["conflict"] = {"note": "missing candidates list"}
+        errors = validate_package_entry(entry)
+        assert any("candidates" in e for e in errors)
+
+    def test_conflict_missing_note_is_rejected(self):
+        entry = _minimal_entry()
+        entry["conflict"] = {"candidates": ["a", "b"]}
+        errors = validate_package_entry(entry)
+        assert any("note" in e for e in errors)
+
+    def test_conflict_candidates_must_be_list_of_strings(self):
+        entry = _minimal_entry()
+        entry["conflict"] = {"candidates": [1, 2], "note": "bad shape"}
+        errors = validate_package_entry(entry)
+        assert any("candidates" in e and "list of strings" in e for e in errors)
+
+    def test_conflict_note_must_be_non_empty(self):
+        entry = _minimal_entry()
+        entry["conflict"] = {"candidates": ["a"], "note": "   "}
+        errors = validate_package_entry(entry)
+        assert any("note" in e and "non-empty" in e for e in errors)
+
+    def test_no_current_registry_entry_carries_a_conflict(self):
+        """Regression pin: today, zero entries should have an unresolved
+        conflict -- if this ever fails, it means a real one was found and
+        should be triaged, not silently normalized away."""
+        data = _load()
+        for family, platforms in data.items():
+            if family.startswith("_"):
+                continue
+            for platform, entry in platforms.items():
+                assert entry.get("conflict") is None, f"{family}/{platform} has an unresolved conflict"
 
 
 def test_slides_java_candidate_matches_live_verified_coordinate():

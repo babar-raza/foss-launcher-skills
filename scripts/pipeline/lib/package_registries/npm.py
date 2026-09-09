@@ -41,6 +41,7 @@ def check_published(candidate: dict, *, fetch=None) -> CheckResult:
         project_url = repository.get("url") if isinstance(repository, dict) else repository
         if not project_url:
             project_url = data.get("homepage")
+        version = (data.get("dist-tags") or {}).get("latest")
     except (json.JSONDecodeError, AttributeError, IndexError):
         return CheckResult(published=False, ambiguous=True, evidence_url=url, method="npm-registry-api")
 
@@ -52,6 +53,7 @@ def check_published(candidate: dict, *, fetch=None) -> CheckResult:
         verified_owner=owner,
         project_url=project_url,
         candidate_name=name,
+        version=version,
     )
 
 

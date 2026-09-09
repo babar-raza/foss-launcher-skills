@@ -18,7 +18,29 @@ ambiguity search guards against structurally much less likely than for the other
 
 from __future__ import annotations
 
+import json
+
 from . import CheckResult, default_fetch
+
+
+def _fetch_latest_version(escaped_path: str, *, fetch) -> "str | None":
+    """Query the module proxy's @latest endpoint for the authoritative latest
+    version -- deliberately NOT computed by sorting @v/list's own output
+    (that list isn't guaranteed semver-sorted and Go's own module-resolution
+    rules, e.g. major-version-suffix handling and pseudo-version exclusion,
+    are already correctly implemented behind @latest; reimplementing that
+    logic here would risk getting it wrong for one extra fetch). Never
+    raises -- returns None on any failure, same fail-closed posture as the
+    rest of this module; a failure here must never break published
+    detection, which @v/list alone already established."""
+    url = f"https://proxy.golang.org/{escaped_path}/@latest"
+    resp = fetch(url)
+    if resp is None or resp.status_code != 200:
+        return None
+    try:
+        return json.loads(resp.body).get("Version")
+    except (json.JSONDecodeError, AttributeError):
+        return None
 
 
 def _escape_module_path(module_path: str) -> str:
@@ -56,7 +78,9 @@ def check_published(candidate: dict, *, fetch=None) -> CheckResult:
     # "github.com/aspose-cells-foss/...") -- it IS the project URL, so the
     # foss-substring-or-corroboration identity rule (Mission MT018) applies
     # directly against module_path itself; no separate metadata fetch needed.
+    version = _fetch_latest_version(escaped_path, fetch=fetch)
     return CheckResult(
         published=True, ambiguous=False, evidence_url=url, method="go-proxy-api",
         project_url=f"https://{module_path}", candidate_name=module_path,
+        version=version,
     )

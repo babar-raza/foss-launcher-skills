@@ -38,6 +38,18 @@ def check_published(candidate: dict, *, fetch=None) -> CheckResult:
         crate = data.get("crate", {})
         owner = crate.get("id")
         project_url = crate.get("repository") or crate.get("homepage")
+        # max_version = highest non-yanked semver crates.io will resolve a fresh
+        # `cargo add` to; fall back to newest_version (most recently published,
+        # which can differ from max_version e.g. a patch backport) only if
+        # max_version is absent -- matches what a page's install instructions
+        # should actually tell a user to expect.
+        version = crate.get("max_version") or crate.get("newest_version")
+        yanked = False
+        if version:
+            for entry in data.get("versions") or []:
+                if entry.get("num") == version:
+                    yanked = bool(entry.get("yanked"))
+                    break
     except (json.JSONDecodeError, AttributeError):
         return CheckResult(published=False, ambiguous=True, evidence_url=url, method="crates-io-api")
 
@@ -49,6 +61,8 @@ def check_published(candidate: dict, *, fetch=None) -> CheckResult:
         verified_owner=owner,
         project_url=project_url,
         candidate_name=name,
+        version=version,
+        yanked=yanked,
     )
 
 

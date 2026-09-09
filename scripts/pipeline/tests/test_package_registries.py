@@ -179,15 +179,18 @@ class TestGoAdapter:
 
     def test_all_lowercase_module_path_is_unchanged(self):
         """Backward-compat: the common all-lowercase case must produce the
-        exact same URL as before this fix (no escaping needed)."""
-        captured = {}
+        exact same @v/list URL as before this fix (no escaping needed).
+        Updated for Phase 1 (Mission MT066): check_published() now also
+        fetches @latest for the live version, so this captures every URL
+        fetched rather than assuming a single call."""
+        captured = []
 
         def _fetch(url):
-            captured["url"] = url
+            captured.append(url)
             return FetchResponse(status_code=200, body=b"v1.0.0\n")
 
         go.check_published({"module_path": "github.com/aspose-pdf-foss/aspose-pdf-foss-for-go"}, fetch=_fetch)
-        assert captured["url"] == "https://proxy.golang.org/github.com/aspose-pdf-foss/aspose-pdf-foss-for-go/@v/list"
+        assert "https://proxy.golang.org/github.com/aspose-pdf-foss/aspose-pdf-foss-for-go/@v/list" in captured
 
 
 class TestCargoAdapter:
@@ -222,6 +225,94 @@ class TestCargoAdapter:
         result = cargo.check_published({"name": "aspose-cells-foss-rust"}, fetch=_fake_fetch(200, b"not json"))
         assert result.published is False
         assert result.ambiguous is True
+
+
+class TestLiveVersionExtraction:
+    """Mission MT066-2026-09-09-PACKAGE-INSTALL-RECONCILIATION, Phase 1: every
+    registry now extracts a live version, not just Maven. All fixture-based,
+    zero live network calls, same convention as every other class here."""
+
+    def test_pypi_extracts_version_from_info(self):
+        body = b'{"info": {"author": "Aspose", "version": "26.8.0"}}'
+        result = pypi.check_published({"name": "aspose-pdf-foss"}, fetch=_fake_fetch(200, body))
+        assert result.version == "26.8.0"
+
+    def test_nuget_extracts_last_entry_of_versions_array(self):
+        fetch = _fake_fetch_by_url({
+            "v3-flatcontainer": (200, b'{"versions": ["26.1.0", "26.5.0", "26.8.0"]}'),
+            "registration5-semver1": (503, b""),
+        })
+        result = nuget.check_published({"name": "Aspose.Words.FOSS"}, fetch=fetch)
+        assert result.version == "26.8.0"
+
+    def test_nuget_version_none_on_malformed_flatcontainer_body(self):
+        """A parse failure on the versions array must not break published
+        detection -- same isolation as the registration-metadata failure mode."""
+        fetch = _fake_fetch_by_url({
+            "v3-flatcontainer": (200, b"not json"),
+            "registration5-semver1": (503, b""),
+        })
+        result = nuget.check_published({"name": "Aspose.Words.FOSS"}, fetch=fetch)
+        assert result.published is True
+        assert result.version is None
+
+    def test_npm_extracts_version_from_dist_tags_latest(self):
+        body = b'{"maintainers": [{"name": "asposefoss"}], "dist-tags": {"latest": "26.8.0"}}'
+        result = npm.check_published({"name": "@asposefoss/pdf"}, fetch=_fake_fetch(200, body))
+        assert result.version == "26.8.0"
+
+    def test_go_extracts_version_from_latest_endpoint(self):
+        fetch = _fake_fetch_by_url({
+            "@v/list": (200, b"v26.7.0\nv26.8.0\n"),
+            "@latest": (200, b'{"Version": "v26.8.0", "Time": "2026-08-01T00:00:00Z"}'),
+        })
+        result = go.check_published(
+            {"module_path": "github.com/aspose-pdf-foss/aspose-pdf-foss-for-go"}, fetch=fetch,
+        )
+        assert result.published is True
+        assert result.version == "v26.8.0"
+
+    def test_go_version_none_when_latest_endpoint_fails(self):
+        """A failed/malformed @latest call must not break published detection
+        -- @v/list alone already established that."""
+        fetch = _fake_fetch_by_url({
+            "@v/list": (200, b"v26.7.0\n"),
+            "@latest": (503, b""),
+        })
+        result = go.check_published(
+            {"module_path": "github.com/aspose-pdf-foss/aspose-pdf-foss-for-go"}, fetch=fetch,
+        )
+        assert result.published is True
+        assert result.version is None
+
+    def test_cargo_extracts_max_version(self):
+        body = b'{"crate": {"id": "aspose-cells-foss-rust", "max_version": "26.8.0", "newest_version": "26.7.0"}, "versions": []}'
+        result = cargo.check_published({"name": "aspose-cells-foss-rust"}, fetch=_fake_fetch(200, body))
+        assert result.version == "26.8.0"
+        assert result.yanked is False
+
+    def test_cargo_falls_back_to_newest_version_when_max_version_absent(self):
+        body = b'{"crate": {"id": "aspose-cells-foss-rust", "newest_version": "26.7.0"}, "versions": []}'
+        result = cargo.check_published({"name": "aspose-cells-foss-rust"}, fetch=_fake_fetch(200, body))
+        assert result.version == "26.7.0"
+
+    def test_cargo_detects_yanked_max_version(self):
+        """A yanked version is discouraged, not gone -- must surface distinctly
+        from published=False, never mistaken for a removal signal."""
+        body = (
+            b'{"crate": {"id": "aspose-cells-foss-rust", "max_version": "26.8.0"}, '
+            b'"versions": [{"num": "26.8.0", "yanked": true}, {"num": "26.7.0", "yanked": false}]}'
+        )
+        result = cargo.check_published({"name": "aspose-cells-foss-rust"}, fetch=_fake_fetch(200, body))
+        assert result.published is True
+        assert result.version == "26.8.0"
+        assert result.yanked is True
+
+    def test_cargo_yanked_defaults_false_when_no_version_data(self):
+        body = b'{"crate": {"id": "aspose-cells-foss-rust"}}'
+        result = cargo.check_published({"name": "aspose-cells-foss-rust"}, fetch=_fake_fetch(200, body))
+        assert result.version is None
+        assert result.yanked is False
 
 
 class TestDebounce:

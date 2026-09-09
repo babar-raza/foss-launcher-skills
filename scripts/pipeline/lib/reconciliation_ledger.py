@@ -1,227 +1,81 @@
-"""reconciliation_ledger.py — TC-PROD-005: Cross-surface reconciliation ledger.
+"""reconciliation_ledger.py — per-run observation ledger for the package-install
+reconciliation system (Mission MT066-2026-09-09-PACKAGE-INSTALL-RECONCILIATION,
+Phase 1).
 
-Records the decision, manifest proof, and outcome for every expected surface in a run.
-Enforces the rule: surfaces_silently_skipped must be 0.
+This is deliberately NOT part of data/package_registry.json. That file is
+Hugo-consumed (site.Data.package_registry); a field that changes on every watcher
+tick -- even a no-op tick -- would cause a spurious commit and a full-portfolio
+rebuild every single day once the deploy-scanner blind spot (see the mission's
+plan, section K) is fixed. This ledger lives under reports/, which the deploy
+scanner never sees, and exists solely so an operator (or /plan-health-watchdog)
+can tell whether a given family/platform/registry_type is still being checked at
+all -- distinct from data/package_registry.json's `verified_at`, which only
+advances when `published` is confirmed true and changes rarely.
 
-Phase 3 (shadow mode): ledger is written to shadow path only.
-  reports/shadow-reconciliation/{run_id}/{family}-{platform}.json
-post_refresh_verify.py behavior is NOT changed.
-
-Ledger invariants:
-  - Every expected surface must have a record (no silent omissions).
-  - FRESH surfaces must include manifest_proof_path.
-  - BLOCKED surfaces must be listed explicitly in partial_pass_surfaces.
-  - surfaces_silently_skipped must be 0 for a shadow run to pass.
-  - A BLOCKED surface never produces an overall PASS.
+Pure/impure split matches this repo's DI-over-monkeypatch testing convention
+(AGENTS.md 16 / docs/development/testing-seams.md): record_observation() is a
+pure function over a plain dict; load_ledger()/save_ledger() are the only I/O.
 """
 
 from __future__ import annotations
 
 import json
-import os
-from dataclasses import dataclass, field
 from pathlib import Path
-from typing import Optional
+from typing import Any
+
+from package_registries import CheckResult
 
 
-_REPO_ROOT = Path(__file__).resolve().parents[3]
-
-# Valid run-level statuses
-PASS = "PASS"
-PARTIAL_PASS = "PARTIAL_PASS"
-FAIL = "FAIL"
-BLOCKED = "BLOCKED"
-DRY_RUN_PASS = "DRY_RUN_PASS"
-
-_VALID_RUN_STATUSES = frozenset({PASS, PARTIAL_PASS, FAIL, BLOCKED, DRY_RUN_PASS})
+def default_ledger_path() -> Path:
+    return Path("reports/package-reconciliation/observations.json")
 
 
-@dataclass
-class SurfaceRecord:
-    """Record for a single (product, subdomain) surface in the ledger."""
-
-    product: str
-    subdomain: str
-    decision: str
-    outcome: str                        # PASS, FAIL, BLOCKED, SKIP (for FRESH/VALIDATE_ONLY)
-    manifest_proof_path: Optional[str]  # Required when decision is FRESH
-    explanation: str = ""
-    changed_input_fingerprints: list = field(default_factory=list)
-    tc_conditions_met: list = field(default_factory=list)
-
-    def to_dict(self) -> dict:
-        return {
-            "product": self.product,
-            "subdomain": self.subdomain,
-            "decision": self.decision,
-            "outcome": self.outcome,
-            "manifest_proof_path": self.manifest_proof_path,
-            "explanation": self.explanation,
-            "changed_input_fingerprints": self.changed_input_fingerprints,
-            "tc_conditions_met": self.tc_conditions_met,
-        }
-
-
-class ReconciliationLedger:
-    """Ledger tracking all surfaces for a single refresh run.
-
-    Usage:
-        ledger = ReconciliationLedger(run_id="20260501-100000")
-        ledger.add_record(SurfaceRecord(...))
-        ledger.finalize()  # computes run_status
-        ledger.save(shadow_root)
-    """
-
-    def __init__(self, run_id: str):
-        self.run_id = run_id
-        self.records: list[SurfaceRecord] = []
-        self.run_status: Optional[str] = None
-        self.surfaces_silently_skipped: int = 0
-        self.partial_pass_surfaces: list[str] = []
-
-    def add_record(self, record: SurfaceRecord) -> None:
-        """Add a surface record to the ledger."""
-        self.records.append(record)
-
-    def finalize(self) -> str:
-        """Compute run_status from all records. Returns the run_status string.
-
-        Rules:
-        - If any surface has outcome FAIL: run_status = FAIL
-        - If any surface has outcome BLOCKED: run_status = PARTIAL_PASS;
-          blocked surfaces listed in partial_pass_surfaces
-        - If surfaces_silently_skipped > 0: run_status = FAIL (evidence gap)
-        - If all surfaces PASS/SKIP: run_status = PASS
-        """
-        if self.surfaces_silently_skipped > 0:
-            self.run_status = FAIL
-            return self.run_status
-
-        blocked = [r for r in self.records if r.outcome == BLOCKED]
-        failed = [r for r in self.records if r.outcome == FAIL]
-
-        if failed:
-            self.run_status = FAIL
-        elif blocked:
-            self.run_status = PARTIAL_PASS
-            self.partial_pass_surfaces = [
-                f"{r.product}/{r.subdomain}" for r in blocked
-            ]
-        else:
-            self.run_status = PASS
-
-        return self.run_status
-
-    def to_dict(self) -> dict:
-        return {
-            "run_id": self.run_id,
-            "run_status": self.run_status,
-            "surfaces_silently_skipped": self.surfaces_silently_skipped,
-            "partial_pass_surfaces": self.partial_pass_surfaces,
-            "records": [r.to_dict() for r in self.records],
-        }
-
-    def save(self, shadow_root: Path, product: str) -> Path:
-        """Atomically write the ledger to shadow_root/{run_id}/{family}-{platform}.json.
-
-        Args:
-            shadow_root: Root directory for shadow reconciliation output.
-            product: Product slug "family/platform" (used in filename).
-
-        Returns:
-            Path to the written file.
-        """
-        slug = product.replace("/", "-")
-        out_dir = shadow_root / self.run_id
-        out_dir.mkdir(parents=True, exist_ok=True)
-        out_path = out_dir / f"{slug}.json"
-        tmp_path = out_path.with_suffix(".tmp")
-        tmp_path.write_text(
-            json.dumps(self.to_dict(), indent=2, ensure_ascii=False) + "\n",
-            encoding="utf-8",
-        )
-        os.replace(str(tmp_path), str(out_path))
-        return out_path
-
-
-def load_tc_closure_conditions(repo_root: Optional[Path] = None) -> dict:
-    """Load data/tc-closure-conditions.json.
-
-    Returns empty dict if the file does not exist (graceful degradation).
-    """
-    root = repo_root if repo_root is not None else _REPO_ROOT
-    path = root / "data" / "tc-closure-conditions.json"
-    if not path.is_file():
+def load_ledger(path: "Path | None" = None) -> dict[str, Any]:
+    """Return the ledger dict, or {} if it doesn't exist yet. Tolerates a
+    corrupt/torn file (returns {} rather than raising) -- an observability
+    ledger must never itself become a reason a scheduled run fails."""
+    path = path or default_ledger_path()
+    if not path.exists():
         return {}
     try:
         return json.loads(path.read_text(encoding="utf-8"))
-    except (OSError, json.JSONDecodeError):
+    except (json.JSONDecodeError, OSError):
         return {}
 
 
-def check_tc_conditions(
-    record: SurfaceRecord,
-    tc_conditions: dict,
-) -> list:
-    """Check which TC closure conditions are met for a surface record.
+def save_ledger(ledger: dict[str, Any], path: "Path | None" = None) -> None:
+    path = path or default_ledger_path()
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(json.dumps(ledger, indent=2, sort_keys=True) + "\n", encoding="utf-8")
 
-    Returns list of TC IDs whose conditions are satisfied.
-    This is shadow-only; it does not update closure status.
+
+def record_observation(
+    ledger: dict[str, Any],
+    *,
+    family: str,
+    platform: str,
+    registry_type: str,
+    result: CheckResult,
+    observed_at: str,
+) -> dict[str, Any]:
+    """Pure function: return a new ledger dict with this observation recorded,
+    keyed `{family}.{platform}`. Records on EVERY check regardless of outcome
+    (published, not-published, or ambiguous) -- that's the entire point: a
+    silently-stopped adapter is detectable only if "we checked and got
+    ambiguous" is itself recorded, not just "we checked and confirmed
+    published".
     """
-    met = []
-    for tc_id, condition in tc_conditions.items():
-        if not isinstance(condition, dict):
-            continue  # skip _comment and _version metadata keys
-        required_decision = condition.get("required_decision")
-        required_subdomain = condition.get("required_subdomain")
-        required_product_pattern = condition.get("required_product_pattern", "")
-
-        if required_decision and record.decision != required_decision:
-            continue
-        if required_subdomain and record.subdomain != required_subdomain:
-            continue
-        if required_product_pattern and required_product_pattern not in record.product:
-            continue
-
-        met.append(tc_id)
-    return met
-
-
-def build_ledger(
-    run_id: str,
-    surface_records: list[SurfaceRecord],
-    expected_surfaces: list[str],
-    tc_conditions: Optional[dict] = None,
-) -> ReconciliationLedger:
-    """Build a complete ledger from surface records, checking for silent skips.
-
-    Args:
-        run_id: Unique run identifier.
-        surface_records: Records for each surface that was evaluated.
-        expected_surfaces: List of "{product}/{subdomain}" strings expected in this run.
-        tc_conditions: Optional TC closure conditions from tc-closure-conditions.json.
-
-    Returns:
-        Finalized ReconciliationLedger.
-    """
-    ledger = ReconciliationLedger(run_id=run_id)
-
-    # Track which expected surfaces have records
-    recorded = set()
-    for record in surface_records:
-        key = f"{record.product}/{record.subdomain}"
-        recorded.add(key)
-
-        # Check TC conditions
-        if tc_conditions:
-            record.tc_conditions_met = check_tc_conditions(record, tc_conditions)
-
-        ledger.add_record(record)
-
-    # Count silent skips (expected but no record)
-    ledger.surfaces_silently_skipped = sum(
-        1 for s in expected_surfaces if s not in recorded
-    )
-
-    ledger.finalize()
-    return ledger
+    updated = dict(ledger)
+    key = f"{family}.{platform}"
+    updated[key] = {
+        "family": family,
+        "platform": platform,
+        "registry_type": registry_type,
+        "last_observed_at": observed_at,
+        "published": result.published,
+        "ambiguous": result.ambiguous,
+        "method": result.method,
+        "live_version": result.version,
+        "yanked": result.yanked,
+    }
+    return updated

@@ -54,6 +54,7 @@ def check_published(candidate: dict, *, fetch=None) -> CheckResult:
         verified_owner=author,
         project_url=_extract_project_url(info),
         candidate_name=name,
+        version=info.get("version"),
     )
 
 
