@@ -74,7 +74,7 @@ _LIB_DIR = str(_PIPELINE_ROOT / "lib")
 if _LIB_DIR not in sys.path:
     sys.path.insert(0, _LIB_DIR)
 
-from package_registries import apply_debounce, REQUIRED_CONSECUTIVE_CHECKS  # noqa: E402
+from package_registries import apply_debounce, is_corroborated_match, REQUIRED_CONSECUTIVE_CHECKS  # noqa: E402
 from package_registries import pypi, nuget, npm, go, cargo  # noqa: E402
 from audit.package_install_literal import verify_package_install_literals  # noqa: E402
 from commands.ops import registry_coverage_scan  # noqa: E402
@@ -83,6 +83,8 @@ _DEFAULT_REPO_ROOT = Path(__file__).resolve().parents[4]
 _DEFAULT_DATA_PATH = _DEFAULT_REPO_ROOT / "data" / "package_registry.json"
 DATA_PATH = _DEFAULT_DATA_PATH
 _CONTENT_ROOT = _DEFAULT_REPO_ROOT / "content"
+_DEFAULT_PRODUCTS_PATH = _DEFAULT_REPO_ROOT / "data" / "products.json"
+PRODUCTS_PATH = _DEFAULT_PRODUCTS_PATH
 
 _ADAPTERS: dict[str, Any] = {
     "pypi": pypi,
@@ -93,28 +95,74 @@ _ADAPTERS: dict[str, Any] = {
 }
 
 
-def configure(*, data_path: "Path | str | None" = None, content_root: "Path | str | None" = None) -> None:
-    """configure() seam (AGENTS.md 16) -- override DATA_PATH/_CONTENT_ROOT for testing."""
-    global DATA_PATH, _CONTENT_ROOT
+def configure(
+    *,
+    data_path: "Path | str | None" = None,
+    content_root: "Path | str | None" = None,
+    products_path: "Path | str | None" = None,
+) -> None:
+    """configure() seam (AGENTS.md 16) -- override DATA_PATH/_CONTENT_ROOT/PRODUCTS_PATH for testing."""
+    global DATA_PATH, _CONTENT_ROOT, PRODUCTS_PATH
     DATA_PATH = Path(data_path) if data_path is not None else _DEFAULT_DATA_PATH
     _CONTENT_ROOT = Path(content_root) if content_root is not None else (_DEFAULT_REPO_ROOT / "content")
+    PRODUCTS_PATH = Path(products_path) if products_path is not None else _DEFAULT_PRODUCTS_PATH
+
+
+def _expected_repo_fragment(family: str) -> str:
+    """Return the family's known FOSS GitHub org (e.g. "aspose-cells-foss"),
+    extracted from data/products.json's repo_url -- the identifying substring
+    is_corroborated_match() checks a live registry's project_url against
+    (Mission MT066-2026-09-09-PACKAGE-INSTALL-RECONCILIATION, Phase 2).
+
+    Returns "" if products.json is missing or the family has no entry (e.g.
+    under test isolation, or a brand-new family not yet in that file) --
+    callers must treat "" as "cannot corroborate by URL for this family", not
+    as a wildcard: is_corroborated_match() itself guards against treating an
+    empty fragment as matching everything, for exactly this reason."""
+    if not PRODUCTS_PATH.is_file():
+        return ""
+    try:
+        products = json.loads(PRODUCTS_PATH.read_text(encoding="utf-8"))
+    except (json.JSONDecodeError, OSError):
+        return ""
+    for entry in products:
+        if entry.get("family") != family:
+            continue
+        repo_url = entry.get("repo_url") or ""
+        if "github.com" not in repo_url:
+            continue
+        parts = repo_url.rstrip("/").split("/")
+        if len(parts) >= 2:
+            return parts[-2]
+    return ""
 
 
 def check_unpublished_entries(
     data: dict[str, Any],
     *,
     adapters: "dict[str, Any] | None" = None,
-) -> list[dict[str, Any]]:
+) -> "tuple[list[dict[str, Any]], list[dict[str, Any]]]":
     """Check every non-Maven, verification.published:false entry via its
     registry adapter. Mutates `data` in place ONLY for the debounce counter
     (see module docstring) -- never for `verification.published` itself.
 
-    Returns proposals for entries whose debounce threshold was just reached
-    this run (should_flip=True). A proposal is a human-review item, not an
-    applied change.
+    Returns (proposals, uncorroborated). Mission
+    MT066-2026-09-09-PACKAGE-INSTALL-RECONCILIATION, Phase 2: once the
+    debounce threshold is reached, a SECOND gate applies before a proposal is
+    generated -- is_corroborated_match() must confirm the candidate's identity
+    (a "foss" substring, or the live result's project_url matching the
+    family's known FOSS GitHub org). This is the riskier of the two
+    transitions this mission automates (it asserts a brand-new public
+    identity), so it gets the tighter gate. A debounce-satisfied hit that
+    fails corroboration is never included in `proposals` -- it is returned
+    separately in `uncorroborated` so an operator still sees it (plan section
+    F: CANDIDATE_UNCORROBORATED is "flagged distinctly for operator
+    visibility", not silently dropped) without it being mistaken for a
+    normal, ready-to-apply proposal.
     """
     adapters = adapters if adapters is not None else _ADAPTERS
     proposals: list[dict[str, Any]] = []
+    uncorroborated: list[dict[str, Any]] = []
 
     for family, platforms in data.items():
         if family.startswith("_"):
@@ -140,6 +188,25 @@ def check_unpublished_entries(
             if not should_flip:
                 continue
 
+            candidate_name = candidate.get("name") or candidate.get("module_path") or ""
+            expected_fragment = _expected_repo_fragment(family)
+            if not is_corroborated_match(candidate_name, result.project_url, expected_fragment):
+                uncorroborated.append({
+                    "family": family,
+                    "platform": platform,
+                    "registry_type": registry_type,
+                    "candidate": candidate,
+                    "evidence_url": result.evidence_url,
+                    "project_url": result.project_url,
+                    "reason": (
+                        "debounce threshold reached but identity could not be corroborated "
+                        "(candidate name has no 'foss' substring and its live project_url does "
+                        "not match the family's known FOSS GitHub org) -- needs manual identity "
+                        "review before this can be treated as a confirmed publish"
+                    ),
+                })
+                continue
+
             proposal = {
                 "family": family,
                 "platform": platform,
@@ -157,7 +224,7 @@ def check_unpublished_entries(
                 proposal["content_healing_needed"] = False
             proposals.append(proposal)
 
-    return proposals
+    return proposals, uncorroborated
 
 
 def apply_drift_debounce(current_consecutive_absent: int, result: Any) -> tuple[int, bool]:
@@ -250,6 +317,179 @@ def check_exclusion_reconciliation(
     scan_fn = scan_fn if scan_fn is not None else registry_coverage_scan.scan_coverage
     report = scan_fn()
     return report.get("excluded_but_still_live", [])
+
+
+def apply_version_debounce(current_counter: int, result: Any, recorded_version: "str | None") -> tuple[int, bool]:
+    """Debounce for the steady-state version-update direction (Mission
+    MT066-2026-09-09-PACKAGE-INSTALL-RECONCILIATION, Phase 2). Deliberately
+    its OWN counter semantics, never shared with apply_debounce/
+    apply_drift_debounce's counters -- this is tracking a third, independent
+    hypothesis ("the live version has moved past what's recorded"), not
+    existence.
+
+    An ambiguous result, or a result with no version at all, never advances
+    the counter (fail closed, same philosophy as every other check in this
+    module). A live version equal to what's already recorded resets the
+    counter to 0 (nothing has changed). Only a live version that DIFFERS from
+    the recorded one advances the counter, proposing an update once it
+    reaches REQUIRED_CONSECUTIVE_CHECKS -- unlike publish_watcher.py's
+    Maven-only equivalent (which proposes on a single check, since
+    maven-metadata.xml presence is already a strong signal), the other 5
+    registries get the same debounce discipline their existence checks
+    already use, since a single fetch could reflect a stale CDN edge rather
+    than a genuine new release.
+    """
+    if result.ambiguous or not result.version:
+        return current_counter, False
+    if result.version == recorded_version:
+        return 0, False
+    new_counter = current_counter + 1
+    return new_counter, new_counter >= REQUIRED_CONSECUTIVE_CHECKS
+
+
+def check_published_entries_for_version_update(
+    data: dict[str, Any],
+    *,
+    adapters: "dict[str, Any] | None" = None,
+) -> list[dict[str, Any]]:
+    """Steady-state version-drift detection for the 5 non-Maven registries --
+    generalizes publish_watcher.py's Maven-only
+    check_published_families_for_new_version() (added by Mission MT036) now
+    that every adapter populates CheckResult.version (Phase 1 of this
+    mission). Mutates `data` in place ONLY for the new
+    consecutive_version_checks_agreeing counter -- never for `candidate`/
+    `verification.published` themselves; same mutation discipline as every
+    other check_* function in this module.
+
+    A live version that is specifically yanked (currently only crates.io ever
+    sets this) is never proposed as an update -- recommending a yanked
+    version in install instructions would be actively harmful, not merely
+    stale (plan section E: "a yanked version is discouraged, not gone").
+    """
+    adapters = adapters if adapters is not None else _ADAPTERS
+    proposals: list[dict[str, Any]] = []
+
+    for family, platforms in data.items():
+        if family.startswith("_"):
+            continue
+        for platform, entry in platforms.items():
+            registry_type = entry.get("registry_type")
+            adapter = adapters.get(registry_type)
+            if adapter is None:
+                continue  # maven (own watcher) or an unrecognized type
+            verification = entry.setdefault("verification", {})
+            if not verification.get("published"):
+                continue  # unpublished entries are check_unpublished_entries's job
+
+            candidate = entry.get("candidate") or {}
+            if not candidate:
+                continue
+            recorded_version = candidate.get("version")
+
+            result = adapter.check_published(candidate)
+            if result.yanked:
+                continue
+            current_counter = verification.get("consecutive_version_checks_agreeing", 0) or 0
+            new_counter, should_propose = apply_version_debounce(current_counter, result, recorded_version)
+            verification["consecutive_version_checks_agreeing"] = new_counter
+
+            if not should_propose:
+                continue
+
+            proposals.append({
+                "family": family,
+                "platform": platform,
+                "registry_type": registry_type,
+                "candidate": candidate,
+                "recorded_version": recorded_version,
+                "live_version": result.version,
+                "evidence_url": result.evidence_url,
+                "method": result.method,
+            })
+
+    return proposals
+
+
+def apply_version_update_proposal(
+    data: dict[str, Any], proposal: dict[str, Any], *, checked_at: "str | None" = None
+) -> dict[str, Any]:
+    """Mutate `data` in place to reflect a confirmed steady-state version
+    update, for the 5 non-Maven registries -- mirrors publish_watcher.py's
+    apply_version_update_proposal(). Not called by the automatic scheduled
+    run (Phase 2 is detection-only); a human-reviewed follow-up action, same
+    as apply_proposal()."""
+    checked_at = checked_at or datetime.now(timezone.utc).date().isoformat()
+    entry = data[proposal["family"]][proposal["platform"]]
+    entry["candidate"] = {**entry.get("candidate", {}), "version": proposal["live_version"]}
+    entry["verification"] = {
+        **entry.get("verification", {}),
+        "published": True,
+        "verified_at": checked_at,
+        "evidence_url": proposal["evidence_url"],
+        "evidence_note": f"package-publish-watch steady-state version-update check, {checked_at}: "
+                          f"{proposal['recorded_version']} -> {proposal['live_version']}",
+        "method": proposal["method"],
+    }
+    return entry
+
+
+def format_version_update_issue_body(proposals: list[dict[str, Any]]) -> str:
+    """Issue body for steady-state version-update proposals, mirroring
+    publish_watcher.py's format_version_update_issue_body() for the 5
+    non-Maven registries."""
+    lines = [
+        "## FOSS Package(s) With a Newer Version (non-Maven registries)",
+        "",
+        "The scheduled package-publish-watch found that one or more already-published "
+        "FOSS packages now resolve a NEWER version than what's recorded in "
+        "`data/package_registry.json`, confirmed across 2 consecutive checks.",
+        "",
+        "### Action Required",
+        "1. Verify each finding below independently before applying it (this issue "
+        "is a proposal, not an auto-applied change).",
+        "2. Update `data/package_registry.json` for each confirmed family (see "
+        "`package_publish_watch.apply_version_update_proposal` for the exact shape).",
+        "",
+        "### Findings",
+        "",
+    ]
+    for p in proposals:
+        lines.append(
+            f"- **{p['family']}/{p['platform']}** ({p['registry_type']}): "
+            f"recorded `{p['recorded_version']}`, live is `{p['live_version']}` — {p['evidence_url']}"
+        )
+    return "\n".join(lines)
+
+
+def format_uncorroborated_body(uncorroborated: list[dict[str, Any]]) -> str:
+    """Issue body for debounce-satisfied hits that failed identity
+    corroboration (Phase 2) -- kept as its own section, distinct from the
+    normal publish-confirmation and drift/reconciliation bodies, since the
+    action needed here is different from either: a human must independently
+    verify whether the live hit genuinely is the FOSS product before this
+    can ever become a normal proposal."""
+    if not uncorroborated:
+        return ""
+    lines = [
+        "## Package Identity Needs Manual Review",
+        "",
+        "The scheduled package-publish-watch found a live registry hit for one or "
+        "more currently-unpublished entries, but could not confirm it is genuinely "
+        "the FOSS product (no 'foss' substring in the candidate name, and the live "
+        "project_url does not match the family's known FOSS GitHub org). This is "
+        "NOT a proposal -- it is flagged so a human can investigate the identity "
+        "before any further action.",
+        "",
+        "### Findings",
+        "",
+    ]
+    for u in uncorroborated:
+        lines.append(
+            f"- **{u['family']}/{u['platform']}** ({u['registry_type']}): candidate "
+            f"{u['candidate']!r} resolved at {u['evidence_url']} (project_url: "
+            f"{u.get('project_url')!r}) — {u['reason']}"
+        )
+    return "\n".join(lines)
 
 
 def format_drift_and_reconciliation_body(
@@ -393,27 +633,27 @@ def format_issue_body(proposals: list[dict[str, Any]]) -> str:
 
 def run_watch(
     *, adapters: "dict[str, Any] | None" = None,
-) -> tuple[list[dict[str, Any]], list[dict[str, Any]], dict[str, Any]]:
-    """Load DATA_PATH, check every unpublished non-Maven entry (false->true
-    direction) AND every published non-Maven entry (true->false drift
-    direction, TC-MT018-09), return (proposals, drift_proposals,
+) -> "tuple[list[dict[str, Any]], list[dict[str, Any]], list[dict[str, Any]], list[dict[str, Any]], dict[str, Any]]":
+    """Load DATA_PATH, run every check direction this module owns, return
+    (proposals, uncorroborated, version_proposals, drift_proposals,
     updated_data). The caller is responsible for persisting updated_data's
     debounce counters (see module docstring) -- this function itself does
     not write to disk, matching publish_watcher.py's I/O separation and
     keeping this function trivially testable.
 
-    Both checks mutate the SAME `data` dict (different counter fields, see
-    check_unpublished_entries/check_published_entries_for_drift docstrings)
-    so a single persisted write covers both directions' bookkeeping.
+    All checks mutate the SAME `data` dict (different counter fields, see
+    each check_* function's own docstring) so a single persisted write covers
+    every direction's bookkeeping.
 
     `adapters` is dependency injection (defaults to the real _ADAPTERS) --
     lets tests exercise main()'s full wiring with fake, network-free adapters
     instead of monkeypatching run_watch/check_unpublished_entries themselves
     (this mission's established DI-over-monkeypatch convention, AGENTS.md 16)."""
     data = json.loads(DATA_PATH.read_text(encoding="utf-8"))
-    proposals = check_unpublished_entries(data, adapters=adapters)
+    proposals, uncorroborated = check_unpublished_entries(data, adapters=adapters)
+    version_proposals = check_published_entries_for_version_update(data, adapters=adapters)
     drift_proposals = check_published_entries_for_drift(data, adapters=adapters)
-    return proposals, drift_proposals, data
+    return proposals, uncorroborated, version_proposals, drift_proposals, data
 
 
 def main(
@@ -433,7 +673,7 @@ def main(
                          help="Skip writing updated debounce counters back to DATA_PATH (dry-run/test use)")
     args = parser.parse_args(argv)
 
-    proposals, drift_proposals, updated_data = run_watch(adapters=adapters)
+    proposals, uncorroborated, version_proposals, drift_proposals, updated_data = run_watch(adapters=adapters)
     excluded_but_still_live = check_exclusion_reconciliation(scan_fn=scan_fn)
 
     if not args.no_persist_counters:
@@ -442,12 +682,18 @@ def main(
     bodies = []
     if proposals:
         bodies.append(format_issue_body(proposals))
+    if version_proposals:
+        bodies.append(format_version_update_issue_body(version_proposals))
+    if uncorroborated:
+        bodies.append(format_uncorroborated_body(uncorroborated))
     if drift_proposals or excluded_but_still_live:
         bodies.append(format_drift_and_reconciliation_body(drift_proposals, excluded_but_still_live))
 
     if not bodies:
         print("package_publish_watch: no unpublished entry resolves live (with debounce satisfied) yet, "
-              "no published entry has drifted away, no exclusion/content reconciliation findings. Nothing to report.")
+              "no already-published entry has a newer live version, no unconfirmed identity findings, "
+              "no published entry has drifted away, no exclusion/content reconciliation findings. "
+              "Nothing to report.")
         return 0
 
     body = "\n\n".join(bodies)

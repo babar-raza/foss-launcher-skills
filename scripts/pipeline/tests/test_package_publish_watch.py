@@ -28,7 +28,14 @@ def isolate_repo(tmp_path):
     data_path = tmp_path / "package_registry.json"
     empty_content_root = tmp_path / "content"
     empty_content_root.mkdir()
-    sut.configure(data_path=data_path, content_root=empty_content_root)
+    # products_path deliberately points at a nonexistent file by default (Mission
+    # MT066-2026-09-09-PACKAGE-INSTALL-RECONCILIATION, Phase 2) -- same isolation
+    # discipline as data_path/content_root below: without this, every test would
+    # silently read the REAL repo's data/products.json for identity corroboration,
+    # making test behavior depend on that file's current, changing contents. A
+    # test that needs real products.json content writes its own tmp_path copy and
+    # calls sut.configure(products_path=...) itself.
+    sut.configure(data_path=data_path, content_root=empty_content_root, products_path=tmp_path / "products.json")
     # TC-MT018-09: main() now also calls check_exclusion_reconciliation(),
     # whose default scan_fn (registry_coverage_scan.scan_coverage) reads from
     # a module-level _REPO_ROOT independent of sut's own configure() seam --
@@ -36,7 +43,7 @@ def isolate_repo(tmp_path):
     # repo's content/ + data/package_registry.json during main() calls.
     _rcs.configure(repo_root=tmp_path)
     yield data_path
-    sut.configure(data_path=None, content_root=None)
+    sut.configure(data_path=None, content_root=None, products_path=None)
     _rcs.configure(repo_root=None)
 
 
@@ -60,8 +67,9 @@ def test_first_published_check_increments_counter_but_no_proposal():
     data = {"cells": {"python": _entry(consecutive=0)}}
     result = CheckResult(published=True, ambiguous=False, evidence_url="u", method="m")
     adapters = {"pypi": _fake_adapter(result)}
-    proposals = sut.check_unpublished_entries(data, adapters=adapters)
+    proposals, uncorroborated = sut.check_unpublished_entries(data, adapters=adapters)
     assert proposals == []
+    assert uncorroborated == []
     assert data["cells"]["python"]["verification"]["consecutive_checks_agreeing"] == 1
     assert data["cells"]["python"]["verification"]["published"] is False  # never auto-flipped
 
@@ -70,8 +78,9 @@ def test_second_consecutive_published_check_produces_proposal():
     data = {"cells": {"python": _entry(consecutive=1)}}
     result = CheckResult(published=True, ambiguous=False, evidence_url="https://pypi.org/x", method="pypi-json-api", verified_owner="Aspose")
     adapters = {"pypi": _fake_adapter(result)}
-    proposals = sut.check_unpublished_entries(data, adapters=adapters)
+    proposals, uncorroborated = sut.check_unpublished_entries(data, adapters=adapters)
     assert len(proposals) == 1
+    assert uncorroborated == []
     p = proposals[0]
     assert p["family"] == "cells" and p["platform"] == "python"
     assert p["evidence_url"] == "https://pypi.org/x"
@@ -84,8 +93,9 @@ def test_ambiguous_result_does_not_advance_counter():
     data = {"cells": {"python": _entry(consecutive=1)}}
     result = CheckResult(published=False, ambiguous=True, evidence_url="u", method="m")
     adapters = {"pypi": _fake_adapter(result)}
-    proposals = sut.check_unpublished_entries(data, adapters=adapters)
+    proposals, uncorroborated = sut.check_unpublished_entries(data, adapters=adapters)
     assert proposals == []
+    assert uncorroborated == []
     assert data["cells"]["python"]["verification"]["consecutive_checks_agreeing"] == 1  # unchanged
 
 
@@ -203,6 +213,222 @@ class TestCheckPublishedEntriesForDrift:
         assert data["cells"]["java"]["verification"]["consecutive_checks_absent"] == 1  # untouched
 
 
+class TestIdentityCorroborationGate:
+    """Mission MT066-2026-09-09-PACKAGE-INSTALL-RECONCILIATION, Phase 2: the
+    unpublished->published transition (the riskier of the two this mission
+    automates, since it asserts a brand-new public identity) must not be
+    proposed on an uncorroborated identity, even once debounce is satisfied."""
+
+    def _non_foss_entry(self, consecutive=1):
+        return {
+            "registry_type": "pypi",
+            "candidate": {"name": "aspose-note"},  # no "foss" substring -- the real historical case
+            "verification": {"published": False, "consecutive_checks_agreeing": consecutive},
+        }
+
+    def test_non_foss_name_with_no_corroborating_project_url_is_uncorroborated_not_a_proposal(self, tmp_path):
+        data = {"cells": {"python": self._non_foss_entry(consecutive=1)}}
+        result = CheckResult(
+            published=True, ambiguous=False, evidence_url="https://pypi.org/x",
+            method="pypi-json-api", project_url="https://products.aspose.com/unrelated/",
+        )
+        sut.configure(products_path=tmp_path / "does-not-exist.json")
+        proposals, uncorroborated = sut.check_unpublished_entries(data, adapters={"pypi": _fake_adapter(result)})
+        assert proposals == []
+        assert len(uncorroborated) == 1
+        assert uncorroborated[0]["family"] == "cells"
+        assert uncorroborated[0]["platform"] == "python"
+        assert "identity could not be corroborated" in uncorroborated[0]["reason"]
+        sut.configure()
+
+    def test_non_foss_name_corroborated_via_matching_project_url_still_produces_a_proposal(self, tmp_path):
+        """Real historical case: PyPI's aspose-note has no 'foss' substring but
+        IS the genuine FOSS package -- its project_url corroborates it."""
+        products_path = tmp_path / "products.json"
+        products_path.write_text(json.dumps([
+            {"family": "note", "platform": "python", "repo_url": "https://github.com/aspose-note-foss/Aspose.Note-FOSS-for-Python"},
+        ]), encoding="utf-8")
+        sut.configure(products_path=products_path)
+        try:
+            entry = self._non_foss_entry(consecutive=1)
+            data = {"note": {"python": entry}}
+            result = CheckResult(
+                published=True, ambiguous=False, evidence_url="https://pypi.org/x",
+                method="pypi-json-api", project_url="https://github.com/aspose-note-foss/Aspose.Note-FOSS-for-Python",
+            )
+            proposals, uncorroborated = sut.check_unpublished_entries(data, adapters={"pypi": _fake_adapter(result)})
+            assert len(proposals) == 1
+            assert uncorroborated == []
+        finally:
+            sut.configure()
+
+    def test_foss_substring_name_needs_no_products_json_at_all(self, tmp_path):
+        """The overwhelming common case (candidate name already contains
+        'foss') never needs products.json/project_url corroboration."""
+        data = {"cells": {"python": _entry(consecutive=1)}}  # "aspose-cells-foss"
+        result = CheckResult(published=True, ambiguous=False, evidence_url="u", method="m", project_url=None)
+        sut.configure(products_path=tmp_path / "does-not-exist.json")
+        proposals, uncorroborated = sut.check_unpublished_entries(data, adapters={"pypi": _fake_adapter(result)})
+        assert len(proposals) == 1
+        assert uncorroborated == []
+        sut.configure()
+
+
+class TestExpectedRepoFragment:
+    def test_returns_empty_string_when_products_json_missing(self, tmp_path):
+        sut.configure(products_path=tmp_path / "does-not-exist.json")
+        assert sut._expected_repo_fragment("cells") == ""
+        sut.configure()
+
+    def test_returns_empty_string_when_family_not_found(self, tmp_path):
+        products_path = tmp_path / "products.json"
+        products_path.write_text(json.dumps([{"family": "pdf", "repo_url": "https://github.com/aspose-pdf-foss/x"}]), encoding="utf-8")
+        sut.configure(products_path=products_path)
+        assert sut._expected_repo_fragment("cells") == ""
+        sut.configure()
+
+    def test_extracts_org_from_repo_url(self, tmp_path):
+        products_path = tmp_path / "products.json"
+        products_path.write_text(json.dumps([
+            {"family": "cells", "platform": "java", "repo_url": "https://github.com/aspose-cells-foss/Aspose.Cells-FOSS-for-Java"},
+        ]), encoding="utf-8")
+        sut.configure(products_path=products_path)
+        assert sut._expected_repo_fragment("cells") == "aspose-cells-foss"
+        sut.configure()
+
+    def test_returns_empty_string_on_malformed_json(self, tmp_path):
+        products_path = tmp_path / "products.json"
+        products_path.write_text("not json{{{", encoding="utf-8")
+        sut.configure(products_path=products_path)
+        assert sut._expected_repo_fragment("cells") == ""
+        sut.configure()
+
+
+class TestApplyVersionDebounce:
+    """Mission MT066-2026-09-09-PACKAGE-INSTALL-RECONCILIATION, Phase 2: the
+    steady-state version-update debounce for the 5 non-Maven registries."""
+
+    def test_ambiguous_result_never_advances(self):
+        counter, propose = sut.apply_version_debounce(0, CheckResult(published=False, ambiguous=True, evidence_url="u", method="m"), "1.0.0")
+        assert counter == 0
+        assert propose is False
+
+    def test_no_version_reported_never_advances(self):
+        counter, propose = sut.apply_version_debounce(0, CheckResult(published=True, ambiguous=False, evidence_url="u", method="m", version=None), "1.0.0")
+        assert counter == 0
+        assert propose is False
+
+    def test_same_version_resets_counter(self):
+        counter, propose = sut.apply_version_debounce(1, CheckResult(published=True, ambiguous=False, evidence_url="u", method="m", version="1.0.0"), "1.0.0")
+        assert counter == 0
+        assert propose is False
+
+    def test_first_differing_version_increments_but_does_not_propose(self):
+        counter, propose = sut.apply_version_debounce(0, CheckResult(published=True, ambiguous=False, evidence_url="u", method="m", version="2.0.0"), "1.0.0")
+        assert counter == 1
+        assert propose is False
+
+    def test_second_consecutive_differing_version_proposes(self):
+        counter, propose = sut.apply_version_debounce(1, CheckResult(published=True, ambiguous=False, evidence_url="u", method="m", version="2.0.0"), "1.0.0")
+        assert counter == 2
+        assert propose is True
+
+
+class TestCheckPublishedEntriesForVersionUpdate:
+    def _published_versioned_entry(self, version="1.0.0", counter=0, registry_type="pypi"):
+        return {
+            "registry_type": registry_type,
+            "candidate": {"name": "aspose-cells-foss", "version": version},
+            "verification": {"published": True, "consecutive_version_checks_agreeing": counter},
+        }
+
+    def test_no_proposal_below_debounce_threshold(self):
+        data = {"cells": {"python": self._published_versioned_entry(version="26.7.0", counter=0)}}
+        result = CheckResult(published=True, ambiguous=False, evidence_url="u", method="m", version="26.8.0")
+        proposals = sut.check_published_entries_for_version_update(data, adapters={"pypi": _fake_adapter(result)})
+        assert proposals == []
+        assert data["cells"]["python"]["verification"]["consecutive_version_checks_agreeing"] == 1
+
+    def test_proposal_once_debounce_satisfied(self):
+        data = {"cells": {"python": self._published_versioned_entry(version="26.7.0", counter=1)}}
+        result = CheckResult(published=True, ambiguous=False, evidence_url="https://pypi.org/x", method="pypi-json-api", version="26.8.0")
+        proposals = sut.check_published_entries_for_version_update(data, adapters={"pypi": _fake_adapter(result)})
+        assert len(proposals) == 1
+        p = proposals[0]
+        assert p["recorded_version"] == "26.7.0"
+        assert p["live_version"] == "26.8.0"
+
+    def test_unpublished_entries_are_never_checked(self):
+        data = {"cells": {"python": _entry(published=False)}}
+        calls = []
+
+        class _Adapter:
+            @staticmethod
+            def check_published(candidate):
+                calls.append(candidate)
+                return CheckResult(published=True, ambiguous=False, evidence_url="u", method="m", version="1.0.0")
+
+        sut.check_published_entries_for_version_update(data, adapters={"pypi": _Adapter()})
+        assert calls == []
+
+    def test_yanked_live_version_is_never_proposed(self):
+        """A yanked version is discouraged, not gone -- recommending it in
+        install instructions would be actively harmful."""
+        data = {"cells": {"rust": self._published_versioned_entry(version="26.7.0", counter=1, registry_type="cargo")}}
+        result = CheckResult(published=True, ambiguous=False, evidence_url="u", method="m", version="26.8.0", yanked=True)
+        proposals = sut.check_published_entries_for_version_update(data, adapters={"cargo": _fake_adapter(result)})
+        assert proposals == []
+
+    def test_maven_entries_are_skipped_own_watcher_handles_them(self):
+        data = {"cells": {"java": self._published_versioned_entry(version="1.0.0", registry_type="maven")}}
+        proposals = sut.check_published_entries_for_version_update(data, adapters={"pypi": _fake_adapter(
+            CheckResult(published=True, ambiguous=False, evidence_url="u", method="m", version="2.0.0"))})
+        assert proposals == []
+
+
+def test_apply_version_update_proposal_updates_candidate_and_verification():
+    data = {"cells": {"python": {
+        "registry_type": "pypi",
+        "candidate": {"name": "aspose-cells-foss", "version": "26.7.0"},
+        "verification": {"published": True},
+    }}}
+    proposal = {
+        "family": "cells", "platform": "python", "registry_type": "pypi",
+        "candidate": {"name": "aspose-cells-foss", "version": "26.7.0"},
+        "recorded_version": "26.7.0", "live_version": "26.8.0",
+        "evidence_url": "https://pypi.org/x", "method": "pypi-json-api",
+    }
+    sut.apply_version_update_proposal(data, proposal, checked_at="2026-09-09")
+    entry = data["cells"]["python"]
+    assert entry["candidate"]["version"] == "26.8.0"
+    assert entry["verification"]["published"] is True
+    assert entry["verification"]["verified_at"] == "2026-09-09"
+    assert "26.7.0 -> 26.8.0" in entry["verification"]["evidence_note"]
+
+
+def test_format_version_update_issue_body_lists_findings():
+    body = sut.format_version_update_issue_body([{
+        "family": "pdf", "platform": "python", "registry_type": "pypi",
+        "recorded_version": "26.7.0", "live_version": "26.8.0", "evidence_url": "https://pypi.org/x",
+    }])
+    assert "pdf/python" in body
+    assert "26.7.0" in body and "26.8.0" in body
+
+
+def test_format_uncorroborated_body_lists_findings_and_reason():
+    body = sut.format_uncorroborated_body([{
+        "family": "note", "platform": "python", "registry_type": "pypi",
+        "candidate": {"name": "aspose-note"}, "evidence_url": "https://pypi.org/x",
+        "project_url": "https://unrelated.example/", "reason": "identity could not be corroborated",
+    }])
+    assert "note/python" in body
+    assert "identity could not be corroborated" in body
+
+
+def test_format_uncorroborated_body_empty_when_no_findings():
+    assert sut.format_uncorroborated_body([]) == ""
+
+
 class TestCheckExclusionReconciliation:
     """TC-MT018-09: reconciliation between registry_exclusions.json and live content."""
 
@@ -265,9 +491,10 @@ class TestMainIntegratesDriftAndReconciliation:
 
 def test_maven_entries_are_skipped_own_watcher_handles_them():
     data = {"cells": {"java": _entry(registry_type="maven", consecutive=1)}}
-    proposals = sut.check_unpublished_entries(data, adapters={"pypi": _fake_adapter(
+    proposals, uncorroborated = sut.check_unpublished_entries(data, adapters={"pypi": _fake_adapter(
         CheckResult(published=True, ambiguous=False, evidence_url="u", method="m"))})
     assert proposals == []
+    assert uncorroborated == []
     # counter untouched -- no adapter registered for "maven" in this watcher
     assert data["cells"]["java"]["verification"]["consecutive_checks_agreeing"] == 1
 

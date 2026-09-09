@@ -111,6 +111,23 @@
         "owner_match": {
           "type": ["boolean", "null"],
           "description": "verification.verified_owner == candidate_owner. Null until verification.published is true and an owner check has actually run -- distinct from false (checked and mismatched)."
+        },
+        "conflict": {
+          "type": ["object", "null"],
+          "description": "Mission MT066-2026-09-09-PACKAGE-INSTALL-RECONCILIATION: non-null only when candidate discovery found multiple plausible, mutually-exclusive identity hits (or a suspected rename) that is_corroborated_match() could not safely resolve on its own. Always human-reviewed -- no shortcode renders package-manager content while this is non-null, regardless of `verification.published`. Written rarely (only on a genuine conflict), never on every check, unlike the reports/-based observation ledger.",
+          "required": ["candidates", "note"],
+          "additionalProperties": false,
+          "properties": {
+            "candidates": {
+              "type": "array",
+              "items": {"type": "string"},
+              "description": "The competing candidate names/coordinates discovery found, verbatim."
+            },
+            "note": {
+              "type": "string",
+              "description": "Free-text explanation of why none of the candidates could be safely auto-accepted."
+            }
+          }
         }
       }
     }

@@ -386,6 +386,14 @@ class TestIsCorroboratedMatch:
     def test_non_foss_name_with_no_project_url_is_rejected(self):
         assert is_corroborated_match("aspose-page", None, "aspose-page-foss") is False
 
+    def test_empty_expected_fragment_does_not_universally_match(self):
+        """Mission MT066-2026-09-09-PACKAGE-INSTALL-RECONCILIATION, Phase 2:
+        an empty expected_repo_fragment (e.g. a family missing from
+        data/products.json) must never be treated as 'matches everything' --
+        Python's `"" in s` is always True, which would silently defeat this
+        entire safeguard for any caller that couldn't resolve a real fragment."""
+        assert is_corroborated_match("aspose-page", "https://products.aspose.com/page/", "") is False
+
 
 class TestProjectUrlExtraction:
     """Each adapter must populate CheckResult.project_url from its real API

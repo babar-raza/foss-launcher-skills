@@ -94,7 +94,15 @@ def is_corroborated_match(candidate_name: str, project_url: "str | None", expect
     """
     if "foss" in candidate_name.lower():
         return True
-    if project_url and expected_repo_fragment.lower() in project_url.lower():
+    # Guard added Mission MT066-2026-09-09-PACKAGE-INSTALL-RECONCILIATION, Phase 2:
+    # an empty expected_repo_fragment is not a real fragment to match against --
+    # without this guard, `"" in project_url.lower()` is always True in Python
+    # (an empty string is a substring of everything), which would make ANY
+    # truthy project_url accepted as "corroborated" the moment a caller could not
+    # resolve a real expected fragment (e.g. a family missing from
+    # data/products.json) -- silently defeating the entire safeguard this
+    # function exists to provide.
+    if project_url and expected_repo_fragment and expected_repo_fragment.lower() in project_url.lower():
         return True
     return False
 
