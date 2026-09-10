@@ -117,7 +117,9 @@ Before generating any content, you MUST:
        backticks) for inline mentions.
      - `rust` → `{{< cargo-crate "{family}" "rust" >}}`.
      - every other platform (`net`, `cpp`, `python`, `typescript`, `javascript`, `go`, ...) →
-       `{{< package-install "{family}" "{platform}" >}}`.
+       `{{< package-install "{family}" "{platform}" >}}` on its own line for a block-level
+       mention; `{{< package-install-inline "{family}" "{platform}" >}}` (no surrounding
+       backticks) for inline mid-sentence mentions.
      - If `data/package_registry.json` has no entry for this family/platform, do not invoke any
        shortcode (it will `errorf`) and do not hand-write a specific command — use the plain-prose
        "not yet published, build from source" fallback (matching words/net's current wording).

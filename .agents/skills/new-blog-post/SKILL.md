@@ -165,7 +165,9 @@ Before generating any content, you MUST:
        its own `<code>` wrapper).
      - **for `platform: rust`**: use `{{< cargo-crate "{family}" "rust" >}}`.
      - **for every other platform** (net, cpp, python, typescript, javascript, go, ...): use
-       `{{< package-install "{family}" "{platform}" >}}`.
+       `{{< package-install "{family}" "{platform}" >}}` for a block-level mention, or
+       `{{< package-install-inline "{family}" "{platform}" >}}` (NO surrounding backticks) for
+       any inline mid-sentence mention.
      - **If `data/package_registry.json` has no entry at all for this family/platform**: do not
        invoke any shortcode (it will `errorf`) and do not hand-write a specific command — use the
        plain-prose "not yet published, build from source" fallback matching words/net's wording.

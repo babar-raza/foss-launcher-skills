@@ -74,7 +74,9 @@ Generate or update the products.aspose.org landing page for a FOSS product. Prod
        `maven-gav` in backticks (it already emits its own `<code>` wrapper).
      - **for `platform: rust`**: use `{{< cargo-crate "{family}" "rust" >}}`.
      - **for every other platform** (net, cpp, python, typescript, javascript, go, ...): use
-       `{{< package-install "{family}" "{platform}" >}}`.
+       `{{< package-install "{family}" "{platform}" >}}` for the dependency block and
+       `{{< package-install-inline "{family}" "{platform}" >}}` for any inline mention. Do NOT
+       wrap `package-install-inline` in backticks (it already emits its own `<code>` wrapper).
      - **If `data/package_registry.json` has no entry at all for this family/platform**: do not
        invoke any of the above shortcodes (they will `errorf` the build) and do not write a
        specific command by hand either — write the plain-prose fallback ("A {registry} package
@@ -235,7 +237,8 @@ Generate or update the products.aspose.org landing page for a FOSS product. Prod
 - No limitation denials — if `limitations.md` lists a method as unimplemented, do not claim it works
 - Install instructions come from a shortcode reading `data/package_registry.json`, NEVER from
   `scout/model.yaml`, NEVER from LLM knowledge, and NEVER as literal hand-written text: `maven-coord`/
-  `maven-gav` for java, `cargo-crate` for rust, `package-install` for every other platform. If no
+  `maven-gav` for java, `cargo-crate` for rust, `package-install`/`package-install-inline` for
+  every other platform (block-level vs. inline mid-sentence mentions, respectively). If no
   registry entry exists, write the plain-prose "not yet published" fallback, never a specific
   guessed command. See Step 3 above.
 - `canonical_import` must not contain the commercial Aspose package name

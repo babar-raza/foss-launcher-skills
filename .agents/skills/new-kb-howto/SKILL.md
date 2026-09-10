@@ -126,7 +126,9 @@ Generate a new KB how-to article.
        emits its own `<code>` wrapper).
      - **for `platform: rust`**: use `{{< cargo-crate "{family}" "rust" >}}`.
      - **for every other platform** (net, cpp, python, typescript, javascript, go, ...): use
-       `{{< package-install "{family}" "{platform}" >}}`.
+       `{{< package-install "{family}" "{platform}" >}}` for a block-level mention, or
+       `{{< package-install-inline "{family}" "{platform}" >}}` (NO surrounding backticks) for
+       any inline mid-sentence mention.
      - **If `data/package_registry.json` has no entry at all for this family/platform**: do not
        invoke any of the above shortcodes (they will `errorf` the build) and do not write a
        specific command by hand either — write the plain-prose fallback ("A {registry} package
