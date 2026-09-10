@@ -3588,6 +3588,62 @@ scripts:
       via .github/workflows/install-literal-sweep.yml. Read-only -- never
       writes content, only files a GitHub issue on findings.
 
+  # ── ST-054 TC-19 (plans/from_backlog/2026-08-16-st-054-inline-install-command-remediation.md) ──
+
+  - path: scripts/pipeline/commands/ops/st054_seed_taskcards.py
+    kind: entrypoint
+    lifecycle: active
+    canonical_impl_path: null
+    public_entrypoint: true
+    cli_contract: "python -m commands.ops.st054_seed_taskcards --products family/platform [family/platform ...] [--mission ID] [--needs-manual-review] [--force]"
+    owner_domain: ops
+    backing:
+      kind: internal
+      ref: null
+    test_targets:
+      - scripts/pipeline/tests/test_st054_seed_taskcards.py
+    test_exempt_reason: null
+    requires_test: true
+    deprecated_since: null
+    notes: >-
+      Seeds the ST-054-REMEDIATION mission's taskcards.jsonl (TaskcardStore,
+      schema 5f) with a 4-step, dependency-chained remediation queue per
+      product (block_migrate -> inline_migrate -> verify -> commit) --
+      replaces the ad hoc, session-by-session manual CLI invocations TC-06/
+      07/08 used, which left no persisted record of what had already been
+      attempted. Reuses TaskcardStore directly (not a new ledger format);
+      st054_campaign_worker.py drives the queue via the existing generic
+      taskcard_cli.py, not a duplicated claim/advance reimplementation.
+
+  - path: scripts/pipeline/commands/ops/st054_campaign_worker.py
+    kind: entrypoint
+    lifecycle: active
+    canonical_impl_path: null
+    public_entrypoint: true
+    cli_contract: "python -m commands.ops.st054_campaign_worker --product family/platform --run-id ID [--once] [--dry-run-migrations] [--confirm-manual-review]"
+    owner_domain: ops
+    backing:
+      kind: internal
+      ref: null
+    test_targets:
+      - scripts/pipeline/tests/test_st054_campaign_worker.py
+    test_exempt_reason: null
+    requires_test: true
+    deprecated_since: null
+    notes: >-
+      Stateless executor over the ST-054-REMEDIATION taskcard ledger --
+      claims and executes one product's next ready step via the real
+      taskcard_cli.py (CAS-guarded, never reimplemented), dispatching
+      block_migrate/inline_migrate to package_install_migrator.py /
+      package_install_inline_migrator.py (both run against every locale
+      directly -- package_install_migrator.discover_files() already covers
+      all locales, no separate S-75 patch-derivation step needed), verify to
+      audit/package_install_literal.py, and commit to git_plumb_commit.py
+      (the mandatory isolated-index path given concurrent sessions).
+      needs_manual_review products (cells/net) stop before commit until
+      --confirm-manual-review is passed. All resumability lives in the
+      ledger -- this script holds no state of its own between invocations.
+
   # ── Mission MT018-2026-08-01-PACKAGE-IDENTITY-COVERAGE, TC-MT018-03 ────────
 
   - path: scripts/pipeline/commands/ops/registry_coverage_scan.py
