@@ -47,6 +47,10 @@ ALLOWED_PREFIXES: tuple[str, ...] = (
     # (themes/releases + configs/releases.aspose.org.toml). Added 2026-09-09
     # under override token 20260909-173516-themes-releases.
     "content/releases.aspose.org/",
+    # mcp.aspose.org — placeholder site for future per-product MCP tools
+    # (themes/mcp + configs/mcp.aspose.org.toml). Added 2026-09-10 under
+    # override token 20260910-101545-themes-mcp.
+    "content/mcp.aspose.org/",
     "knowledge/",
     "reports/",
     # Hugo-managed registry data — written by update_product_registry.py.

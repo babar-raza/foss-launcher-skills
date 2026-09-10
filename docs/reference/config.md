@@ -65,3 +65,4 @@ See [Testing and CI](../development/testing.md).
 | `blog.aspose.org` | `configs/blog.aspose.org.yml` |
 | `websites.aspose.org` | `configs/websites.aspose.org.toml` |
 | `releases.aspose.org` | `configs/releases.aspose.org.toml` |
+| `mcp.aspose.org` | `configs/mcp.aspose.org.toml` |
