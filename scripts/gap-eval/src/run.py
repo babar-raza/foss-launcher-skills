@@ -49,10 +49,29 @@ from lib.llm_router import EndpointStatus  # noqa: E402
 load_env()
 
 
-def configure(*, repo_root: "Path | str | None" = None) -> None:
-    """Override module-level path constants for testing."""
-    global _REPO_ROOT
+# TC-VEC-08: DI seam for run_gap_eval()'s tier-verify/profile-update calls
+# (AGENTS.md §16 — prefer this over monkeypatch.setattr/patch.object on
+# module internals for NEW test code; test_tier3_cache_integration.py's
+# pre-existing patch.object usage predates this policy and is grandfathered
+# baseline debt, not a pattern to replicate in new test files).
+_tier2_verify_fn = None
+_tier3_verify_fn = None
+_update_profile_actuals_fn = None
+
+
+def configure(
+    *,
+    repo_root: "Path | str | None" = None,
+    tier2_verify_fn=None,
+    tier3_verify_fn=None,
+    update_profile_actuals_fn=None,
+) -> None:
+    """Override module-level path constants and injectable callables for testing."""
+    global _REPO_ROOT, _tier2_verify_fn, _tier3_verify_fn, _update_profile_actuals_fn
     _REPO_ROOT = Path(repo_root) if repo_root is not None else _DEFAULT_REPO_ROOT
+    _tier2_verify_fn = tier2_verify_fn
+    _tier3_verify_fn = tier3_verify_fn
+    _update_profile_actuals_fn = update_profile_actuals_fn
     # TC-VEC-03-B: keep vector_store's own knowledge_root in lockstep with this
     # module's _REPO_ROOT (same FRESH-001 rationale already established by
     # refresh_run.py's cascade to freshness_guard/page_impact_matrix/
@@ -1273,6 +1292,7 @@ def generate_report(
     delta_section: str,
     clone_sha: str,
     llm_tier: str,
+    tier_attribution: dict | None = None,
 ) -> str:
     """Generate the 8-section gap analysis report."""
     today = datetime.now(timezone.utc).strftime("%Y-%m-%d")
@@ -1341,6 +1361,33 @@ def generate_report(
         f"- Tier 3 (LLM): {sum(1 for f in open_findings if f.get('tier_resolved_by') == 3)} findings",
         f"- NEEDS_REVIEW: {len(needs_review)} findings",
         "",
+    ]
+
+    # TC-VEC-08: real per-tier attribution, not just findings counts above --
+    # a confident Tier 2 MATCH never produces a finding (the claim is simply
+    # confirmed good), so the counts above alone made Tier 2 look unused even
+    # when it was reached and resolved verdicts on every claim Tier 1 left
+    # open. This line makes that distinction visible instead of requiring a
+    # manual metrics-ledger grep to discover it (as this plan's own TC-VEC-02-D
+    # evidence-gathering had to do).
+    if tier_attribution:
+        ta = tier_attribution
+        report += [
+            "## Section 7b: Tier Attribution (TC-VEC-08)",
+            f"- Tier 1: {ta.get('tier1_verified', 0)} verified, {ta.get('tier1_finding', 0)} findings",
+            f"- Tier 2: {ta.get('tier2_calls', 0)} calls — "
+            f"{ta.get('tier2_match', 0)} confirmed MATCH, "
+            f"{ta.get('tier2_mismatch_finding', 0)} confident mismatch, "
+            f"{ta.get('tier2_escalated', 0)} escalated to Tier 3, "
+            f"{ta.get('tier2_unavailable', 0)} unavailable (no vectors/embed failure)",
+            f"- Tier 3: {ta.get('tier3_calls', 0)} calls — "
+            f"{ta.get('tier3_confirmed', 0)} confirmed accurate, "
+            f"{ta.get('tier3_finding', 0)} findings, "
+            f"{ta.get('tier3_needs_review', 0)} needs-review (LLM unavailable)",
+            "",
+        ]
+
+    report += [
         "## Section 8: Publication Verdict",
         f"**{verdict}**",
         "",
@@ -1687,6 +1734,23 @@ def run_gap_eval(
     # Initialise Tier 3 cache (noop when no_llm=True or no_tier3_cache=True)
     _t3_cache = Tier3Cache(prior_state, _profile_path(family, platform), clone_sha)
 
+    # TC-VEC-08: tier attribution counters — how often each tier actually
+    # determines the outcome for a claim, vs. confirming Tier 1 or deferring
+    # further. Distinct from the tier_resolved_by finding counts already in
+    # the markdown report (generate_report()), which undercount Tier 2 to the
+    # point of invisibility: a confident Tier 2 MATCH produces no finding at
+    # all (the claim is simply confirmed good), so 0 of 21 historical reports
+    # ever attributed a finding to Tier 2 even though Tier 2 was reached and
+    # returned real verdicts on every run that had vectors (see plan
+    # TC-VEC-02-D's real-run evidence: 118 real Tier 2 calls, 0 findings).
+    tier_attribution = {
+        "tier1_verified": 0, "tier1_finding": 0,
+        "tier2_calls": 0, "tier2_match": 0, "tier2_mismatch_finding": 0,
+        "tier2_escalated": 0, "tier2_unavailable": 0,
+        "tier3_calls": 0, "tier3_finding": 0, "tier3_confirmed": 0,
+        "tier3_needs_review": 0,
+    }
+
     # Stage 1: Clone cache baseline
     raw_findings: list[dict] = []
     if profile_missing:
@@ -1747,19 +1811,24 @@ def run_gap_eval(
                         claim["file"], claim["line"], claim["value"]
                     )
                     raw_findings.append(finding)
+                    tier_attribution["tier1_finding"] += 1
                     continue
                 if tier1.status is Tier1Status.VERIFIED:
+                    tier_attribution["tier1_verified"] += 1
                     continue
 
                 # Tier 2 (skipped when --no-embed or --no-llm: embedding endpoint required)
                 if api_names and not _no_embed:
-                    t2 = tier2_verify(claim, family, platform)
+                    tier_attribution["tier2_calls"] += 1
+                    t2 = (_tier2_verify_fn or tier2_verify)(claim, family, platform)
                     if t2:
                         verdict_t2, conf_t2 = t2
                         if verdict_t2 == "MATCH":
+                            tier_attribution["tier2_match"] += 1
                             continue  # confirmed good
                         if conf_t2 >= TIER2_MATCH_HIGH:
                             # Confident mismatch
+                            tier_attribution["tier2_mismatch_finding"] += 1
                             f = {
                                 "type": "wrong-api-name",
                                 "severity": "S",
@@ -1775,12 +1844,17 @@ def run_gap_eval(
                             raw_findings.append(f)
                             continue
                         # Confidence < 0.70 → escalate to Tier 3
+                        tier_attribution["tier2_escalated"] += 1
+                    else:
+                        tier_attribution["tier2_unavailable"] += 1
 
                 # Tier 3 (skipped on cache hit — results already injected above)
                 if not no_llm and not _t3_cache_hit and claim["type"] in ("api-token", "package-declaration"):
-                    t3 = tier3_verify(claim, family, platform, clone_path)
+                    tier_attribution["tier3_calls"] += 1
+                    t3 = (_tier3_verify_fn or tier3_verify)(claim, family, platform, clone_path)
                     if t3.status not in (EndpointStatus.OK,):
                         # LLM unavailable or skipped — flag as NEEDS_REVIEW (Tier 4)
+                        tier_attribution["tier3_needs_review"] += 1
                         raw_findings.append({
                             "id": make_finding_id(family, platform, "needs-review",
                                                   claim["file"], claim["line"], claim.get("value", "")),
@@ -1798,6 +1872,7 @@ def run_gap_eval(
                         })
                     elif t3.verdict is not None:
                         # LLM found a real problem
+                        tier_attribution["tier3_finding"] += 1
                         finding = t3.verdict
                         finding["id"] = make_finding_id(
                             family, platform, finding["type"],
@@ -1807,7 +1882,9 @@ def run_gap_eval(
                         finding["endpoint_used"] = t3.endpoint_used
                         raw_findings.append(finding)
                         _file_t3_findings.append(finding)  # accumulate for cache write
-                    # else t3.verdict is None and status OK: LLM confirmed claim is accurate
+                    else:
+                        # t3.verdict is None and status OK: LLM confirmed claim is accurate
+                        tier_attribution["tier3_confirmed"] += 1
 
             # Cache miss path: store Tier 3 findings for this file (empty list = all accurate)
             if not no_llm and not _t3_cache_hit and not no_tier3_cache:
@@ -1850,7 +1927,10 @@ def run_gap_eval(
     delta_section = build_delta_section(prior_state, clone_sha, merged_findings, delta, llm_tier)
 
     # Stage 9: Report
-    report_md = generate_report(family, platform, merged_findings, verdict, delta_section, clone_sha, llm_tier)
+    report_md = generate_report(
+        family, platform, merged_findings, verdict, delta_section, clone_sha, llm_tier,
+        tier_attribution=tier_attribution,
+    )
 
     # Build output dict
     output = {
@@ -1868,6 +1948,7 @@ def run_gap_eval(
             "note": "Tier 3 (LLM) findings are advisory only and do not affect the verdict.",
             "findings": tier3_findings,
         },
+        "tier_attribution": tier_attribution,
     }
 
     if not dry_run:
@@ -1892,7 +1973,7 @@ def run_gap_eval(
         save_state(new_state, family, platform, state_dir)
 
         # Stage 10: Profile self-update (write discovered_actuals if not already set)
-        _update_profile_actuals(family, platform, profile, clone_sha)
+        (_update_profile_actuals_fn or _update_profile_actuals)(family, platform, profile, clone_sha)
 
     _try_write_gaeval_metrics(family, platform, _gaeval_run_id, _gaeval_metrics_events,
                               output.get("findings", []), output.get("verdict", "UNKNOWN"), t_start)

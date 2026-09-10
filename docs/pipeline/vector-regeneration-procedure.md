@@ -104,21 +104,21 @@ When upgrading embedding models (e.g. qwen3-embedding-8b -> new-model):
 
 ---
 
-## Launched Products Reference
+## Vector Coverage Reference
 
-As of 2026-06-11, the 21 launched products requiring vectors:
+**Do not hand-maintain a product table here** — a static list drifts from the
+live repo the moment a product launches or is retired (this exact section
+previously listed products that no longer exist and omitted real ones,
+because nothing kept it in sync). Instead, generate the current, real
+coverage state on demand:
 
-| Family | Platform |
-|--------|----------|
-| 3d | net, java, python, typescript |
-| cells | net, java, python, typescript |
-| email | net, java, cpp, python |
-| font | net, java, python |
-| note | net, java |
-| pdf | net, java, go, python |
-| slides | net, java, cpp, python |
-| words | net, java, python |
-| page | python |
-| tex | python |
+```bash
+.venv/Scripts/python scripts/pipeline/commands/knowledge/vector_coverage_report.py
+```
 
-Use `embed gap-index all` to discover and embed all of these automatically.
+This cross-references `knowledge/_index.json`'s live product list against
+`knowledge/_vectors/{family}/{platform}/active.json` and prints a markdown
+table of every product with its current vector coverage (present/MISSING),
+plus a summary count. Use `embed gap-index all` (or a targeted `embed
+gap-index {family} {platform}` per the missing rows) to close any gaps this
+report shows.
