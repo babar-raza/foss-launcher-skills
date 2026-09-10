@@ -14,7 +14,7 @@ import yaml
 # Frontmatter regex (canonical definition in core.markdown)
 # ---------------------------------------------------------------------------
 from core.markdown import _FRONTMATTER_READER_RE as _FRONTMATTER_RE
-from content_eval.config import CANONICAL_EVALUATORS  # needed for canonical-only grade computation
+from content_eval.config import CANONICAL_EVALUATORS, SAFETY_OVERRIDE_FINDINGS  # needed for canonical-only grade computation
 from lib.content_discovery import LOCALE_CODES  # canonical locale-code set (matches infer_product())
 _CODE_FENCE_RE = re.compile(r"^```(\w*)")
 _HEADING_RE = re.compile(r"^(#{1,6})\s+(.*)")
@@ -298,11 +298,9 @@ class EvalReport:
         here as grade-affecting signals.
         """
         reasons: list[str] = []
-        # Filter to canonical evaluators only — mirrors compute_grade_with_criticality
-        canonical_findings = [
-            f for f in self.findings
-            if not f.evaluator or f.evaluator in CANONICAL_EVALUATORS
-        ]
+        # Canonical evaluators, plus any SAFETY_OVERRIDE_FINDINGS FAIL —
+        # mirrors compute_grade_with_criticality via the shared _is_grade_eligible()
+        canonical_findings = [f for f in self.findings if _is_grade_eligible(f)]
         fails = [f for f in canonical_findings if f.level == "FAIL"]
         warns = [f for f in canonical_findings if f.level == "WARN"]
 
@@ -372,6 +370,23 @@ CRITICAL_CATEGORIES = frozenset(_GRADE_CONFIG["critical_categories"])
 _CATEGORY_CEILINGS: dict = _GRADE_CONFIG.get("category_ceilings", {})
 
 
+def _is_grade_eligible(f: "Finding") -> bool:
+    """PKGINSTALL-GRADE-SAFETY-OVERRIDE (2026-09-10): true if this finding
+    should participate in grade computation -- either its evaluator is
+    CANONICAL, or it's a FAIL matching one of the narrow, explicit
+    (evaluator, category) pairs in SAFETY_OVERRIDE_FINDINGS (an
+    EXPERIMENTAL evaluator's safety-critical check, allowlisted without a
+    full graduation -- see content_eval/config.py's own docstring on that
+    frozenset, and GRADE_CONTRACT.md §10).
+
+    Shared by grade_reasons() and compute_grade_with_criticality() so the
+    two can never diverge on eligibility -- both used to inline the same
+    `f.evaluator in CANONICAL_EVALUATORS` check independently before this."""
+    if not f.evaluator or f.evaluator in CANONICAL_EVALUATORS:
+        return True
+    return f.level == "FAIL" and (f.evaluator, f.category) in SAFETY_OVERRIDE_FINDINGS
+
+
 # ---------------------------------------------------------------------------
 # Grade computation — canonical A-F scale (matches eval-page S-25)
 # ---------------------------------------------------------------------------
@@ -408,11 +423,9 @@ def compute_grade_with_criticality(findings: list[Finding]) -> str:
     Experimental evaluator findings are excluded so they cannot cap or change
     the canonical grade. Configuration loaded from grade_config.yaml.
     """
-    # Filter to canonical evaluators only — experimental findings must not affect grade
-    canonical = [
-        f for f in findings
-        if not f.evaluator or f.evaluator in CANONICAL_EVALUATORS
-    ]
+    # Canonical evaluators, plus any SAFETY_OVERRIDE_FINDINGS FAIL (see
+    # _is_grade_eligible()) — experimental findings otherwise must not affect grade
+    canonical = [f for f in findings if _is_grade_eligible(f)]
     has_critical = any(
         f.level == "FAIL" and f.category in CRITICAL_CATEGORIES
         for f in canonical

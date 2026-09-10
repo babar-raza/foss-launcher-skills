@@ -524,7 +524,7 @@ class InstallRecipeEvaluator(BaseEvaluator):
             seen_lines.add(line_no)
             findings.append(Finding(
                 level="FAIL",
-                category="IR",
+                category="IR_PUBLISH_CLAIM",
                 filepath=str(page.filepath),
                 line_no=line_no,
                 message=(
@@ -616,7 +616,7 @@ class InstallRecipeEvaluator(BaseEvaluator):
             seen_lines.add(line_no)
             findings.append(Finding(
                 level="FAIL",
-                category="IR",
+                category="IR_UNPUBLISHED_DISCLOSURE",
                 filepath=str(page.filepath),
                 line_no=line_no,
                 message=(

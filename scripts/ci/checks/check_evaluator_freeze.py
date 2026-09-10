@@ -20,7 +20,20 @@ from pathlib import Path
 _INIT_PATH = Path(__file__).resolve().parent.parent.parent / "pipeline" / "content_eval" / "__init__.py"
 
 _RE_LOGIC = re.compile(r'^EVALUATOR_LOGIC_VERSION\s*=\s*"(\d+)"', re.MULTILINE)
-_RE_FREEZE = re.compile(r'^EVALUATOR_FREEZE_VERSION\s*(?::\s*str\s*\|\s*None\s*)?=\s*(.+)', re.MULTILINE)
+# PKGINSTALL-GRADE-SAFETY-OVERRIDE (2026-09-10): the old pattern's trailing
+# `(.+)` captured everything to end-of-line, including any `# comment` after
+# the value -- confirmed live to be broken against the REAL, currently
+# committed __init__.py (which has always carried a trailing comment on this
+# exact line), not merely a hypothetical: read_versions() on the unmodified
+# file returned freeze_version == '18"  # TC-SFH-003: evidence_depth
+# graduated to CANONICAL', silently failing every comparison against a
+# clean logic_version. Bounded to the value's own literal syntax (None, or a
+# single/double-quoted string) so a same-line trailing comment can never
+# leak into the captured group again.
+_RE_FREEZE = re.compile(
+    r'^EVALUATOR_FREEZE_VERSION\s*(?::\s*str\s*\|\s*None\s*)?=\s*(None|"[^"]*"|\'[^\']*\')',
+    re.MULTILINE,
+)
 
 
 def read_versions(init_text: str) -> tuple[str, str | None]:

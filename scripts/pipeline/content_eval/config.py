@@ -102,6 +102,26 @@ EXPERIMENTAL_EVALUATORS = frozenset({
     "example_execution",  # MT065-2026-09-06-EXAMPLE-VERIFICATION-CENTRALIZATION C8: EXPERIMENTAL — new evaluators MUST start here per GRADE_CONTRACT.md §6
 })
 
+# PKGINSTALL-GRADE-SAFETY-OVERRIDE (2026-09-10, MT066 plan section R.3.3):
+# a narrow, explicit allowlist of (evaluator, category) pairs that affect
+# grade computation despite their evaluator being EXPERIMENTAL, not
+# CANONICAL. Exists because install_recipe has been EXPERIMENTAL since
+# 2026-04-24, four months before its two safety-critical checks
+# (_verify_publish_channel_claims, _verify_no_unpublished_disclosure) were
+# written into it on 2026-08-14 -- every FAIL from either check was silently
+# discarded before grade computation ever ran, which is how 89 real
+# PUBLISH-CLAIM-CONTRADICTION-001 findings shipped on pages graded A.
+# Deliberately NOT a full graduation of install_recipe to CANONICAL (that
+# would also carry unvetted WARN-level noise from the same evaluator's
+# _verify_install_accuracy check, and would require the full 14-day+
+# corpus-validation graduation process for a change that only needs to
+# affect 2 already-tested, FAIL-only, deterministic checks). See
+# GRADE_CONTRACT.md §10 for the full process this override follows instead.
+SAFETY_OVERRIDE_FINDINGS: frozenset[tuple[str, str]] = frozenset({
+    ("install_recipe", "IR_PUBLISH_CLAIM"),
+    ("install_recipe", "IR_UNPUBLISHED_DISCLOSURE"),
+})
+
 # Default evaluators (fast, deterministic, production-ready)
 DEFAULT_EVALUATORS = [
     "api_accuracy",

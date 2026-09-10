@@ -319,7 +319,7 @@ class TestPublishChannelClaimsMatchVerificationPublished:
         path = _write_page(tmp_path, "docs.aspose.org/en/barcode/python/getting-started/installation.md", body)
         page = Page.load(path)
         findings = InstallRecipeEvaluator().evaluate(page, None)
-        fails = [f for f in findings if f.level == "FAIL" and f.category == "IR"]
+        fails = [f for f in findings if f.level == "FAIL" and f.category == "IR_PUBLISH_CLAIM"]
         assert len(fails) >= 1, f"expected FAIL for false PyPI claim, got: {findings}"
         assert any("PyPI" in f.message and "published=false" in f.message for f in fails)
         assert any("2026-08-01" in f.message for f in fails)
@@ -337,7 +337,7 @@ class TestPublishChannelClaimsMatchVerificationPublished:
         path = _write_page(tmp_path, "docs.aspose.org/en/barcode/python/getting-started/license.md", body)
         page = Page.load(path)
         findings = InstallRecipeEvaluator().evaluate(page, None)
-        fails = [f for f in findings if f.level == "FAIL" and f.category == "IR"]
+        fails = [f for f in findings if f.level == "FAIL" and f.category == "IR_PUBLISH_CLAIM"]
         assert len(fails) >= 1, f"expected FAIL for PyPI link claim, got: {findings}"
 
     def test_barcode_python_index_page_still_fails(self, tmp_path):
@@ -355,7 +355,7 @@ class TestPublishChannelClaimsMatchVerificationPublished:
         path = _write_page(tmp_path, "docs.aspose.org/en/barcode/python/getting-started/_index.md", body)
         page = Page.load(path)
         findings = InstallRecipeEvaluator().evaluate(page, None)
-        fails = [f for f in findings if f.level == "FAIL" and f.category == "IR"]
+        fails = [f for f in findings if f.level == "FAIL" and f.category == "IR_PUBLISH_CLAIM"]
         assert len(fails) >= 1, f"expected FAIL on _index.md, got: {findings}"
 
     def test_published_true_pypi_mention_is_not_flagged(self, tmp_path):
@@ -372,7 +372,7 @@ class TestPublishChannelClaimsMatchVerificationPublished:
         path = _write_page(tmp_path, "docs.aspose.org/en/cells/python/getting-started/installation.md", body)
         page = Page.load(path)
         findings = InstallRecipeEvaluator().evaluate(page, None)
-        fails = [f for f in findings if f.level == "FAIL" and f.category == "IR"
+        fails = [f for f in findings if f.level == "FAIL" and f.category == "IR_PUBLISH_CLAIM"
                  and "published on PyPI" in f.message]
         assert fails == [], f"published:true product must not be flagged: {fails}"
 

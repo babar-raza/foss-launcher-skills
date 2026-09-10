@@ -1,12 +1,14 @@
 # Grade configuration for content_eval
 # Changes to this file MUST be accompanied by an EVALUATOR_LOGIC_VERSION bump.
-evaluator_logic_version: "18"
+evaluator_logic_version: "19"
 
 # Categories where any FAIL forces grade F
 critical_categories:
   - FC  # forbidden_claims
   - PC  # platform_purity
   - TA  # type_accuracy
+  - IR_PUBLISH_CLAIM  # install_recipe SAFETY_OVERRIDE_FINDINGS (PKGINSTALL-GRADE-SAFETY-OVERRIDE, GRADE_CONTRACT.md §10)
+  - IR_UNPUBLISHED_DISCLOSURE  # install_recipe SAFETY_OVERRIDE_FINDINGS (PKGINSTALL-GRADE-SAFETY-OVERRIDE, GRADE_CONTRACT.md §10)
 
 # Category-specific grade ceilings
 # Format: category: {levels: [WARN, FAIL, or both], ceiling: max_grade}

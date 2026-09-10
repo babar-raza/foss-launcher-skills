@@ -12,7 +12,7 @@ __version__ = "0.1.0"
 # When this value does not match graded_logic_version in a page's frontmatter,
 # --skip-graded will re-grade the page even if graded_model_sha is current.
 # Update the AGENTS.md evaluator change checklist when bumping this value.
-EVALUATOR_LOGIC_VERSION = "18"
+EVALUATOR_LOGIC_VERSION = "19"
 
 # Evaluator freeze gate (C-24).
 #
@@ -23,7 +23,11 @@ EVALUATOR_LOGIC_VERSION = "18"
 # EVALUATOR_LOGIC_VERSION value.  Any subsequent ELV bump must also
 # update this constant with a documented justification in the commit
 # message and GRADE_CONTRACT.md.
-EVALUATOR_FREEZE_VERSION: str | None = "18"  # TC-SFH-003: evidence_depth graduated to CANONICAL
+EVALUATOR_FREEZE_VERSION: str | None = "19"  # PKGINSTALL-GRADE-SAFETY-OVERRIDE (2026-09-10): install_recipe's
+# IR_PUBLISH_CLAIM/IR_UNPUBLISHED_DISCLOSURE FAILs now affect grade via
+# SAFETY_OVERRIDE_FINDINGS + _is_grade_eligible() (GRADE_CONTRACT.md §10) --
+# a correctness-critical cross-cutting change to grade computation itself,
+# not a single-evaluator logic tweak, so ELV bumps alongside it.
 
 # TC-5: Per-evaluator version dict.
 #

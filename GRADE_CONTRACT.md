@@ -1,6 +1,6 @@
 # GRADE_CONTRACT.md — Content Quality Grade System Contract
 
-Version: 1.2
+Version: 1.3
 Effective: 2026-04-24
 Status: FROZEN (schema and canonical model)
 
@@ -176,6 +176,28 @@ To modify a frozen item:
 
 ## Changelog
 
+### v1.3 (2026-09-10)
+- New §10 "Safety-Override Findings" (FREEZE-06): a lighter-than-full-graduation
+  process for a small, explicit `(evaluator, category)` allowlist
+  (`content_eval/config.py`'s `SAFETY_OVERRIDE_FINDINGS`) letting specific
+  FAIL-only, deterministic, already-tested findings from an EXPERIMENTAL
+  evaluator affect grade computation. First (and currently only) use:
+  `install_recipe`'s `IR_PUBLISH_CLAIM`/`IR_UNPUBLISHED_DISCLOSURE` (split out
+  of its previously-shared `"IR"` category), closing a real gap where 89 live
+  `PUBLISH-CLAIM-CONTRADICTION-001` findings were invisible to grade despite
+  the evaluator running in every eval pass. `content_eval/models.py` gained a
+  shared `_is_grade_eligible(f)` helper (replacing 2 independent inline
+  `CANONICAL_EVALUATORS` filters). Both new categories added to
+  `grade_config.yaml`'s `critical_categories`. ELV bumped 18->19,
+  `EVALUATOR_FREEZE_VERSION` updated to `"19"`. Current frozen baseline:
+  EVALUATOR_FREEZE_VERSION = 19. See §10 for the full mechanism, eligibility
+  bar for future additions, and an explicit honesty note that this section's
+  own process is this change's proposal, not a pre-existing maintainer-
+  approved pattern.
+- Fixed a stale "Current version: 1.1" note under old §9's own Contract
+  Versioning subsection (had not been updated since the v1.2 entry below
+  landed on 2026-08-07 — found while editing this file for the above).
+
 ### v1.2 (2026-08-07)
 - Evaluator graduation: `evidence_depth` moved from `EXPERIMENTAL_EVALUATORS` to
   `CANONICAL_EVALUATORS` (TC-SFH-003, 2026-07-14) per the §6 Graduation Policy and §9
@@ -185,7 +207,8 @@ To modify a frozen item:
   `check_grade_contract_sync` (S-121), which compares this document's stated frozen baseline
   against the live `content_eval/__init__.py` constant on every `/root-docs-refresh` run.
 - ELV bumped 17->18 to reflect the `evidence_depth` graduation. `EVALUATOR_FREEZE_VERSION`
-  updated to `"18"`. Current frozen baseline: EVALUATOR_FREEZE_VERSION = 18.
+  updated to `"18"` (superseded by the v1.3 entry above — kept here only as historical
+  record, not a current baseline claim).
 
 ### v1.1 (2026-04-24)
 - Removed `graded_at` from canonical frontmatter schema (§4). `graded_at` is operational
@@ -247,6 +270,114 @@ To modify a frozen item:
 - **Execution:** Add to CANONICAL_EVALUATORS in config.py, update GRADE_CONTRACT.md version, bump ELV
 
 ### Contract Versioning
-- **Current version:** 1.1
+- **Current version:** 1.3 (was stale at "1.1" here despite the top-of-file header
+  and Changelog already showing 1.2 as of the 2026-08-07 evaluator-graduation entry --
+  fixed in the same pass that added §10, PKGINSTALL-GRADE-SAFETY-OVERRIDE, 2026-09-10)
 - **Minor version (1.x):** non-breaking changes (new experimental evaluator, threshold tweak)
 - **Major version (2.0+):** breaking changes (grade semantics, canonical evaluator set, frontmatter schema)
+
+---
+
+## 10. Safety-Override Findings (FREEZE-06)
+
+### Purpose
+
+A narrow, explicit mechanism for a small number of FAIL-only, deterministic,
+already-tested findings from an EXPERIMENTAL evaluator to affect grade
+computation, without that evaluator undergoing full graduation to
+CANONICAL_EVALUATORS. Exists because full graduation and "affects nothing until
+graduated" are not the only two positions on the spectrum -- an evaluator can be
+EXPERIMENTAL overall (its other checks still unvetted, still noisy, still
+correctly excluded from grade) while carrying one or two specific checks that
+are already safety-critical, already tested, and already known not to be noisy.
+
+### Origin
+
+`install_recipe` has been in `EXPERIMENTAL_EVALUATORS` since 2026-04-24. Its
+`_verify_publish_channel_claims` check (RC-W1-003) was added 2026-08-14 --
+four months later -- to catch pages that falsely claim a package is published
+when `data/package_registry.json` records `verification.published: false`.
+Because `content_eval/models.py`'s `grade_reasons()` and
+`compute_grade_with_criticality()` both filtered to
+`f.evaluator in CANONICAL_EVALUATORS` before any category/criticality logic
+ran, every FAIL from this check was discarded before grade computation ever
+saw it -- confirmed live, 2026-09-10: 89 real findings (backlog/BACKLOG.md
+row `PUBLISH-CLAIM-CONTRADICTION-001`, 9 products) existed on pages carrying a
+stored `grade: A`. No process step existed that asked "does a new FAIL-level
+check added to an experimental evaluator need to bypass this filter" -- this
+section exists so that question now has a documented answer with a real
+process behind it, not just a one-off code change.
+
+### Mechanism
+
+- `content_eval/config.py` defines `SAFETY_OVERRIDE_FINDINGS: frozenset[tuple[str, str]]`,
+  an explicit `(evaluator_name, category)` allowlist.
+- `content_eval/models.py`'s `_is_grade_eligible(f)` is the single shared
+  choke point both `grade_reasons()` and `compute_grade_with_criticality()`
+  call: a finding is grade-eligible if its evaluator is canonical, **or** if
+  `f.level == "FAIL"` and `(f.evaluator, f.category)` is in
+  `SAFETY_OVERRIDE_FINDINGS`.
+- `install_recipe.py`'s single, shared `"IR"` category was split so the two
+  safety checks get their own codes (`IR_PUBLISH_CLAIM`,
+  `IR_UNPUBLISHED_DISCLOSURE`), leaving `_verify_install_accuracy`'s own,
+  noisier `"IR"` findings untouched and still excluded from grade (this
+  evaluator's other checks remain fully experimental).
+- Both new categories are added to `grade_config.yaml`'s `critical_categories`
+  (any FAIL forces grade F), matching `FC`/`PC`/`TA`'s existing treatment.
+
+### Eligibility bar for adding a NEW entry to SAFETY_OVERRIDE_FINDINGS
+
+All of the following must hold -- this is deliberately a **lighter** process
+than full evaluator graduation (§6/§9's Evaluator Graduation Protocol), not an
+equivalent one, because it governs 1-2 already-scoped checks, not an
+evaluator's entire noise profile:
+
+1. **FAIL-only.** WARN-level findings from the same evaluator are never
+   included -- this mechanism cannot be used to let a noisy WARN check
+   silently start capping grades.
+2. **Deterministic.** No LLM involvement in producing the finding.
+3. **Already tested.** The specific check has its own real, existing test
+   coverage (not merely "the evaluator has some tests").
+4. **Documented safety justification.** A written explanation (in this
+   section, updated) of what real defect class the check catches and why
+   leaving it grade-invisible is itself a safety risk.
+5. **Maintainer sign-off** on this specific addition.
+6. **Contract version bump**, same as any other §9 "Changes Requiring
+   Contract Version Bump" item.
+
+**Explicitly NOT required**, unlike full graduation: the 14-day
+stability-in-EXPERIMENTAL waiting period, or a corpus-wide false-positive-rate
+validation run. Those bars exist to vet an evaluator's *overall* noise
+profile before every one of its findings starts affecting grade -- irrelevant
+here, since only 1-2 specific, already-individually-verified FAIL categories
+are being added, not the evaluator's full output.
+
+### Honesty note on this process itself
+
+This section's own process (points 1-6 above) is this taskcard's proposal,
+written and applied to its own originating case (`install_recipe`'s 2 safety
+checks) in the same change that introduces it. It is not a process a
+maintainer had separately reviewed and pre-approved as a general pattern
+before this section was written -- **maintainer sign-off on this section
+itself is part of what closes this taskcard**, not a formality after the
+fact. A future addition to `SAFETY_OVERRIDE_FINDINGS` should cite this
+section and satisfy points 1-6 above; it does not need to re-argue whether
+the *category* of mechanism is acceptable, since that question is what this
+section itself is meant to settle.
+
+### Current entries
+
+| Evaluator | Category | Added | Justification |
+|---|---|---|---|
+| `install_recipe` | `IR_PUBLISH_CLAIM` | 2026-09-10 | Catches a page falsely claiming a package is published when the registry records it isn't (RC-W1-003) -- confirmed 89 real, live findings across 9 products, all previously invisible to grade. |
+| `install_recipe` | `IR_UNPUBLISHED_DISCLOSURE` | 2026-09-10 | Catches a page disclosing internal non-publication status to a public reader, against explicit 2026-09-03/2026-09-10 operator policy (ST-054 TC-14) -- 0 findings at the time of addition (already remediated by TC-16), added for regression protection, not an active defect. |
+
+### Verification requirement (this taskcard's own closing gate)
+
+Before this section's addition may be considered closed: a full
+`--skip-graded` corpus re-evaluation must be run and its grade-distribution
+shift (before/after counts per grade letter, portfolio-wide) recorded in the
+originating taskcard's `evidence_refs` -- a change to grade computation
+itself gets a global before/after, not a spot check on the 9 known-affected
+products, per this contract's own existing discipline for any change of
+this kind.

@@ -21,6 +21,8 @@ from pathlib import Path
 
 import pytest
 
+import git_tracking_policy_sync as _gtp
+
 _REPO_ROOT = Path(__file__).resolve().parent.parent.parent.parent
 
 
@@ -42,14 +44,35 @@ def _git_ls_files_reports() -> list[str]:
 # ---------------------------------------------------------------------------
 
 class TestGitBoundary:
-    """reports/ must contain zero git-tracked files."""
+    """reports/ must contain zero git-tracked files, except the deliberate,
+    named exceptions declared in scripts/pipeline/config/git_tracking_policy.yaml
+    (S-125, 2026-09-06) -- reports/repo-presenter-regen-full/ was carved out
+    as tracked, reviewable pipeline evidence, and PKGINSTALL-DEFECT-SWEEP-
+    REDESIGN (2026-09-10) added reports/audit/install-defect-sweep-latest/
+    the same way. This test was never updated for the first carve-out
+    (confirmed live: 245 already-tracked repo-presenter-regen-full files
+    failed this exact assertion before this session touched anything) --
+    fixed to check against the SAME policy-derived allowlist
+    scripts/pre-commit-audit.sh's own reports/ boundary gate already uses
+    (git_tracking_policy_sync.list_tracked_prefixes()), so the two
+    enforcement points can never drift apart again."""
 
     def test_no_tracked_files_under_reports(self):
-        """reports/ is a local-only artifact directory — nothing may be tracked."""
+        """Every git-tracked file under reports/ must fall under a prefix
+        scripts/pipeline/config/git_tracking_policy.yaml explicitly allows --
+        anything else tracked there is the real boundary violation this test
+        exists to catch."""
         tracked = _git_ls_files_reports()
-        assert tracked == [], (
-            f"Found {len(tracked)} tracked file(s) under reports/ — "
-            f"all must be untracked:\n" + "\n".join(tracked[:20])
+        policy = _gtp.load_policy(_gtp._cfg_policy_path)
+        allowed_prefixes = _gtp.list_tracked_prefixes(policy.get("policies", []), _REPO_ROOT)
+        unexpected = [
+            t for t in tracked
+            if not any(t.startswith(prefix) for prefix in allowed_prefixes)
+        ]
+        assert unexpected == [], (
+            f"Found {len(unexpected)} tracked file(s) under reports/ with no matching "
+            f"git_tracking_policy.yaml exception — all must be untracked:\n"
+            + "\n".join(unexpected[:20])
         )
 
 
