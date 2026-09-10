@@ -120,9 +120,12 @@ Before generating any content, you MUST:
        `{{< package-install "{family}" "{platform}" >}}` on its own line for a block-level
        mention; `{{< package-install-inline "{family}" "{platform}" >}}` (no surrounding
        backticks) for inline mid-sentence mentions.
-     - If `data/package_registry.json` has no entry for this family/platform, do not invoke any
-       shortcode (it will `errorf`) and do not hand-write a specific command — use the plain-prose
-       "not yet published, build from source" fallback (matching words/net's current wording).
+     - If `data/package_registry.json` has no entry for this family/platform, STOP — do not
+       invoke any shortcode (it will `errorf`) and do not hand-write install prose of any vintage
+       (neither a guessed command nor a "not yet published" fallback sentence). Add a
+       `data/package_registry.json` entry first (even a `published: false` one — 14 real products
+       already ship pages this way), then the shortcode renders correctly automatically. See
+       `registry_backfill.py` / TC-MT015-07's `naming_convention_candidate()`.
      All of these read `data/package_registry.json` at build time and fail the build loudly if no
      entry exists — see Mission MT008 (Java/Maven) and Mission MT015 (unified schema + the other
      platforms) in `plans/master-plan.md`.

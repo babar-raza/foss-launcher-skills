@@ -77,12 +77,13 @@ Generate or update the products.aspose.org landing page for a FOSS product. Prod
        `{{< package-install "{family}" "{platform}" >}}` for the dependency block and
        `{{< package-install-inline "{family}" "{platform}" >}}` for any inline mention. Do NOT
        wrap `package-install-inline` in backticks (it already emits its own `<code>` wrapper).
-     - **If `data/package_registry.json` has no entry at all for this family/platform**: do not
-       invoke any of the above shortcodes (they will `errorf` the build) and do not write a
-       specific command by hand either — write the plain-prose fallback ("A {registry} package
-       has not been published yet — build from source until it ships") matching the wording
-       already used for words/net, and flag this in your own output so a human can add the
-       registry entry (see TC-MT015-07's `naming_convention_candidate()` for how to populate one).
+     - **If `data/package_registry.json` has no entry at all for this family/platform**: STOP —
+       do not invoke any of the above shortcodes (they will `errorf` the build) and do not
+       hand-write install prose of any vintage (neither a guessed command nor a "not yet
+       published"/"has not been published yet" fallback sentence). Add a
+       `data/package_registry.json` entry first (even a `published: false` one — 14 real products
+       already ship pages this way), then the shortcode renders correctly automatically — see
+       TC-MT015-07's `naming_convention_candidate()` for how to populate one.
      All of these shortcodes read `data/package_registry.json` at build time and fail the build
      loudly (`errorf`) if no entry exists — see Mission MT008 (original Java/Maven design) and
      Mission MT015 (unified schema + the other platforms) in `plans/master-plan.md`.
@@ -239,8 +240,8 @@ Generate or update the products.aspose.org landing page for a FOSS product. Prod
   `scout/model.yaml`, NEVER from LLM knowledge, and NEVER as literal hand-written text: `maven-coord`/
   `maven-gav` for java, `cargo-crate` for rust, `package-install`/`package-install-inline` for
   every other platform (block-level vs. inline mid-sentence mentions, respectively). If no
-  registry entry exists, write the plain-prose "not yet published" fallback, never a specific
-  guessed command. See Step 3 above.
+  registry entry exists, STOP and add one first — never hand-write install prose of any vintage
+  (neither a guessed command nor a "not yet published" fallback). See Step 3 above.
 - `canonical_import` must not contain the commercial Aspose package name
 - All code in `single.block` comes from verified `snippets/` — no fabrication
 - **No blank lines inside code fences**: Code fence content in YAML frontmatter strings (e.g. `single.block[].content`) must not have a blank line immediately after the opening ````lang`` fence, a blank line immediately before the closing `` ``` `` fence, or blank lines between statements in short code snippets (<=8 code lines). Hugo's Goldmark renderer preserves these blank lines verbatim, producing visible empty lines in `<pre><code>` on the rendered page. The `validate_plugin_structure.py` `CODE_BLOCK_BLANK_LINES` check enforces this for products pages.

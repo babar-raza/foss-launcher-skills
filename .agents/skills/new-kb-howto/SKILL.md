@@ -129,11 +129,13 @@ Generate a new KB how-to article.
        `{{< package-install "{family}" "{platform}" >}}` for a block-level mention, or
        `{{< package-install-inline "{family}" "{platform}" >}}` (NO surrounding backticks) for
        any inline mid-sentence mention.
-     - **If `data/package_registry.json` has no entry at all for this family/platform**: do not
-       invoke any of the above shortcodes (they will `errorf` the build) and do not write a
-       specific command by hand either — write the plain-prose fallback ("A {registry} package
-       has not been published yet — build from source until it ships") matching the wording
-       already used for words/net.
+     - **If `data/package_registry.json` has no entry at all for this family/platform**: STOP —
+       do not invoke any of the above shortcodes (they will `errorf` the build) and do not
+       hand-write install prose of any vintage (neither a guessed command nor a "not yet
+       published"/"has not been published yet" fallback sentence). Add a
+       `data/package_registry.json` entry first (even a `published: false` one — 14 real products
+       already ship pages this way), then the shortcode renders correctly automatically. See
+       `registry_backfill.py` / TC-MT015-07's `naming_convention_candidate()`.
      All of these shortcodes read `data/package_registry.json` at build time and fail the build
      loudly (`errorf`) if no entry exists — see Mission MT015 (unified schema) in
      `plans/master-plan.md`.
