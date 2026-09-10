@@ -160,11 +160,14 @@ def main():
     # Deferred import avoids circular-import at module load time.
     sys.path.insert(0, str(Path(__file__).resolve().parents[2]))  # -> pipeline/
     from core.manifest import write_step_manifest
+    from lib.class_stats import compute_class_stats
     state_path = args.output_dir.parent / ".pipeline_state.json"
+    # MT067-2026-09-10 TC-02: was len(s.classes) -- included kind=="function" entries too,
+    # the loosest of the (formerly 4+) disagreeing class_count formulas in this pipeline.
     write_step_manifest(state_path, "scout", {
         "repo_path": str(args.repo_path),
         "output_dir": str(args.output_dir),
-        "class_count": len(s.classes) if hasattr(s, "classes") else 0,
+        "class_count": compute_class_stats(s.classes)["total_declared"] if hasattr(s, "classes") else 0,
         "claim_count": len(s.claims) if hasattr(s, "claims") else 0,
     })
 

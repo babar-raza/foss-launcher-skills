@@ -145,37 +145,12 @@ def _display_name(family):
     return f"Aspose.{special.get(family, family.title())}"
 
 
-from core.constants import _TEST_PATH_PATTERNS, _INTERNAL_PATH_PATTERNS
-
-
-def _is_public_api_entry(entry: dict) -> bool:
-    """Return True if *entry* represents a developer-visible API class.
-
-    Excludes free functions, private names, test-file entries, and internal
-    implementation directories.  Uses only fields already present in every
-    api_surface.json record (kind, name, file) so no schema change is needed.
-
-    PY-INIT-001: If the scout set exported_via_package_init=True (see
-    extraction/api_surface.py _mark_package_init_exports), the entry is
-    public regardless of its physical file path.  This handles packages that
-    define classes in _internal/ and re-export them via __init__.py.__all__.
-    """
-    if not isinstance(entry, dict):
-        return False
-    if entry.get("kind") == "function":
-        return False
-    name = entry.get("name", "")
-    if not name or name.startswith("_"):
-        return False
-    file = entry.get("file", "")
-    if any(pat in file for pat in _TEST_PATH_PATTERNS):
-        return False
-    # PY-INIT-001: explicit package-level re-export overrides path filter.
-    if entry.get("exported_via_package_init"):
-        return True
-    if any(pat in file for pat in _INTERNAL_PATH_PATTERNS):
-        return False
-    return True
+from lib.class_stats import compute_class_stats, is_public_api_entry as _is_public_api_entry
+# MT067-2026-09-10 TC-04: this function's body moved to lib/class_stats.py so scout-side
+# (outputs.py/promote.py) and index-side stats share one implementation instead of two that
+# could drift -- the mechanism that produced barcode/python's 26-vs-79 split. Re-exported
+# under its original name here since tests/callers import `_is_public_api_entry` from this
+# module directly (see test_index.py).
 
 
 def _has_surface(entry: dict) -> bool:
@@ -355,6 +330,10 @@ def build_index(family, platform):
 
     # class_names derives directly from public_api — same filter, consistent with all metrics
     class_names = sorted(set(c["name"] for c in public_api if "name" in c))
+    # MT067-2026-09-10 TC-04: full total_declared/public_documented/raw_entries breakdown,
+    # computed from the same raw `api` list class_names was derived from -- class_stats
+    # ["public_documented"] is guaranteed == len(class_names) (same filter, same dedup).
+    class_stats = compute_class_stats(api) if isinstance(api, list) else compute_class_stats([])
 
     # HARDEN-A13 (2026-07-22): recompute stats from the LIVE artifacts this
     # function already loaded (claims.json, api_surface.json-derived
@@ -374,7 +353,12 @@ def build_index(family, platform):
     # only the fields this function already has live, corroborated data for
     # are overwritten.
     recomputed_stats = dict(model.get("stats", {}))
-    recomputed_stats["class_count"] = len(class_names)
+    # MT067-2026-09-10 TC-04: class_count is deprecated (kept as this file's pre-existing
+    # public_documented semantic -- do NOT silently change its meaning to total_declared
+    # here, that would be a breaking change for every existing reader of index.json's
+    # class_count). New readers should use the namespaced "classes" block instead.
+    recomputed_stats["class_count"] = class_stats["public_documented"]
+    recomputed_stats["classes"] = class_stats
     recomputed_stats["total_claims"] = len(claims)
     # R6: match the truncation the emitted "forbidden_claims" array actually
     # uses ([:50], below) — forbidden_count must describe the array readers
@@ -454,7 +438,7 @@ def build_index(family, platform):
     from core.manifest import write_step_manifest
     state_path = KNOWLEDGE_ROOT / family / platform / ".pipeline_state.json"
     write_step_manifest(state_path, "index", {
-        "class_count": len(class_names),
+        "class_count": class_stats["public_documented"],
         "claim_count": len(claims),
         "api_confidence": api_confidence,
     })
@@ -465,7 +449,7 @@ def build_index(family, platform):
         "display_name": f"{_display_name(family)} for {platform.title()}",
         "api_confidence": api_confidence,
         "stale": stale,
-        "class_count": len(class_names),
+        "class_count": class_stats["public_documented"],
         "claim_count": len(claims),
     }
 

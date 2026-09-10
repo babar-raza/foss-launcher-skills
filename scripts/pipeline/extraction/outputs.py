@@ -20,6 +20,8 @@ from typing import Any
 
 import yaml
 
+from lib.class_stats import compute_class_stats
+
 LOG = logging.getLogger("scout")
 
 # ---------------------------------------------------------------------------
@@ -292,7 +294,7 @@ def write_outputs(
     runtime_req = _runtime_requirement(platform, manifest)
 
     # model.yaml
-    class_count = sum(1 for c in classes if c.get("kind") != "function")
+    class_stats = compute_class_stats(classes)
     method_count = sum(len(c.get("methods", [])) for c in classes)
     prop_count = sum(len(c.get("properties", [])) for c in classes)
     enum_count = sum(1 for c in classes if _is_enum_class(c))
@@ -329,7 +331,12 @@ def write_outputs(
             if _val:
                 model[_key] = _val
     model["stats"] = {
-        "class_count": class_count,
+        # MT067-2026-09-10 TC-02: class_count is deprecated (kept for one transition cycle
+        # as an alias of classes.total_declared -- readers should migrate to the namespaced
+        # "classes" block; see docs/reference/knowledge-stats.md for what each field means
+        # and why one overloaded name used to cover 4 disagreeing formulas).
+        "class_count": class_stats["total_declared"],
+        "classes": class_stats,
         "method_count": method_count,
         "property_count": prop_count,
         "enum_count": enum_count,

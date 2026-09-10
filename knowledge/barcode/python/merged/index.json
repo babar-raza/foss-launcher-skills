@@ -1,0 +1,446 @@
+{
+  "schema_version": 2,
+  "family": "barcode",
+  "platform": "python",
+  "display_name": "Aspose.Barcode",
+  "provenance": "scout_only",
+  "stale": false,
+  "has_conflicts": false,
+  "api_confidence": "medium",
+  "repo_sha": "06eca5c01e13ed6d59a640f1cf330c1c5a57d151",
+  "last_merged": "",
+  "vectors_available": true,
+  "stats": {
+    "scout_claims": 313,
+    "enriched_claims": 0,
+    "supplemental_claims": 0,
+    "total_claims": 313,
+    "class_count": 26,
+    "classes": {
+      "total_declared": 79,
+      "public_documented": 26,
+      "raw_entries_including_non_class": 146
+    },
+    "forbidden_count": 6,
+    "snippet_count": 100
+  },
+  "classes": [
+    "Barcode",
+    "BarcodeError",
+    "Code128EncodeMode",
+    "Code128Options",
+    "Code39EncodeMode",
+    "Code39Options",
+    "Ean13Options",
+    "Ean8Options",
+    "EncodeOptions",
+    "EncodingError",
+    "InvalidInputError",
+    "PdfRenderer",
+    "PngRenderer",
+    "QrEncodeMode",
+    "QrErrorCorrectionLevel",
+    "QrOptions",
+    "RenderOptions",
+    "Renderer",
+    "RenderingError",
+    "ResolvedRenderOptions",
+    "SvgRenderer",
+    "SymbologyNotFoundError",
+    "UnsupportedCapabilityError",
+    "UnsupportedFeatureError",
+    "UpcaOptions",
+    "UpceOptions"
+  ],
+  "class_graph": [
+    {
+      "child": "SymbologyEncoder",
+      "parent": "ABC",
+      "relationship": "inherits",
+      "internal": false
+    },
+    {
+      "child": "Code128Encoder",
+      "parent": "SymbologyEncoder",
+      "relationship": "inherits",
+      "internal": true
+    },
+    {
+      "child": "Code39Encoder",
+      "parent": "SymbologyEncoder",
+      "relationship": "inherits",
+      "internal": true
+    },
+    {
+      "child": "Ean13Encoder",
+      "parent": "SymbologyEncoder",
+      "relationship": "inherits",
+      "internal": true
+    },
+    {
+      "child": "Ean8Encoder",
+      "parent": "SymbologyEncoder",
+      "relationship": "inherits",
+      "internal": true
+    },
+    {
+      "child": "QrEncoder",
+      "parent": "SymbologyEncoder",
+      "relationship": "inherits",
+      "internal": true
+    },
+    {
+      "child": "UpcaEncoder",
+      "parent": "SymbologyEncoder",
+      "relationship": "inherits",
+      "internal": true
+    },
+    {
+      "child": "UpceEncoder",
+      "parent": "SymbologyEncoder",
+      "relationship": "inherits",
+      "internal": true
+    },
+    {
+      "child": "BarcodeError",
+      "parent": "Exception",
+      "relationship": "inherits",
+      "internal": false
+    },
+    {
+      "child": "SymbologyNotFoundError",
+      "parent": "BarcodeError",
+      "relationship": "inherits",
+      "internal": true
+    },
+    {
+      "child": "EncodingError",
+      "parent": "BarcodeError",
+      "relationship": "inherits",
+      "internal": true
+    },
+    {
+      "child": "RenderingError",
+      "parent": "BarcodeError",
+      "relationship": "inherits",
+      "internal": true
+    },
+    {
+      "child": "InvalidInputError",
+      "parent": "BarcodeError",
+      "relationship": "inherits",
+      "internal": true
+    },
+    {
+      "child": "UnsupportedFeatureError",
+      "parent": "BarcodeError",
+      "relationship": "inherits",
+      "internal": true
+    },
+    {
+      "child": "UnsupportedCapabilityError",
+      "parent": "BarcodeError",
+      "relationship": "inherits",
+      "internal": true
+    },
+    {
+      "child": "Code128EncodeMode",
+      "parent": "Enum",
+      "relationship": "inherits",
+      "internal": false
+    },
+    {
+      "child": "Code39EncodeMode",
+      "parent": "Enum",
+      "relationship": "inherits",
+      "internal": false
+    },
+    {
+      "child": "QrEncodeMode",
+      "parent": "Enum",
+      "relationship": "inherits",
+      "internal": false
+    },
+    {
+      "child": "QrErrorCorrectionLevel",
+      "parent": "Enum",
+      "relationship": "inherits",
+      "internal": false
+    },
+    {
+      "child": "Code128Options",
+      "parent": "EncodeOptions",
+      "relationship": "inherits",
+      "internal": true
+    },
+    {
+      "child": "Code39Options",
+      "parent": "EncodeOptions",
+      "relationship": "inherits",
+      "internal": true
+    },
+    {
+      "child": "QrOptions",
+      "parent": "EncodeOptions",
+      "relationship": "inherits",
+      "internal": true
+    },
+    {
+      "child": "Ean13Options",
+      "parent": "EncodeOptions",
+      "relationship": "inherits",
+      "internal": true
+    },
+    {
+      "child": "Ean8Options",
+      "parent": "EncodeOptions",
+      "relationship": "inherits",
+      "internal": true
+    },
+    {
+      "child": "UpcaOptions",
+      "parent": "EncodeOptions",
+      "relationship": "inherits",
+      "internal": true
+    },
+    {
+      "child": "UpceOptions",
+      "parent": "EncodeOptions",
+      "relationship": "inherits",
+      "internal": true
+    },
+    {
+      "child": "InputParser",
+      "parent": "ABC",
+      "relationship": "inherits",
+      "internal": false
+    },
+    {
+      "child": "Code128InputParser",
+      "parent": "InputParser",
+      "relationship": "inherits",
+      "internal": true
+    },
+    {
+      "child": "Code39InputParser",
+      "parent": "InputParser",
+      "relationship": "inherits",
+      "internal": true
+    },
+    {
+      "child": "Ean13InputParser",
+      "parent": "InputParser",
+      "relationship": "inherits",
+      "internal": true
+    },
+    {
+      "child": "Ean8InputParser",
+      "parent": "InputParser",
+      "relationship": "inherits",
+      "internal": true
+    },
+    {
+      "child": "QrInputParser",
+      "parent": "InputParser",
+      "relationship": "inherits",
+      "internal": true
+    },
+    {
+      "child": "UpcaInputParser",
+      "parent": "InputParser",
+      "relationship": "inherits",
+      "internal": true
+    },
+    {
+      "child": "UpceInputParser",
+      "parent": "InputParser",
+      "relationship": "inherits",
+      "internal": true
+    },
+    {
+      "child": "Code128Profile",
+      "parent": "SymbologyProfile",
+      "relationship": "inherits",
+      "internal": true
+    },
+    {
+      "child": "Code39Profile",
+      "parent": "SymbologyProfile",
+      "relationship": "inherits",
+      "internal": true
+    },
+    {
+      "child": "Ean13Profile",
+      "parent": "SymbologyProfile",
+      "relationship": "inherits",
+      "internal": true
+    },
+    {
+      "child": "Ean8Profile",
+      "parent": "SymbologyProfile",
+      "relationship": "inherits",
+      "internal": true
+    },
+    {
+      "child": "QrProfile",
+      "parent": "SymbologyProfile",
+      "relationship": "inherits",
+      "internal": true
+    },
+    {
+      "child": "UpcaProfile",
+      "parent": "SymbologyProfile",
+      "relationship": "inherits",
+      "internal": true
+    },
+    {
+      "child": "UpceProfile",
+      "parent": "SymbologyProfile",
+      "relationship": "inherits",
+      "internal": true
+    },
+    {
+      "child": "EncoderRegistry",
+      "parent": "SymbologyRegistry",
+      "relationship": "inherits",
+      "internal": true
+    },
+    {
+      "child": "Renderer",
+      "parent": "ABC",
+      "relationship": "inherits",
+      "internal": false
+    },
+    {
+      "child": "PdfRenderer",
+      "parent": "Renderer",
+      "relationship": "inherits",
+      "internal": true
+    },
+    {
+      "child": "PngRenderer",
+      "parent": "Renderer",
+      "relationship": "inherits",
+      "internal": true
+    },
+    {
+      "child": "SvgRenderer",
+      "parent": "Renderer",
+      "relationship": "inherits",
+      "internal": true
+    },
+    {
+      "child": "QrMode",
+      "parent": "Enum",
+      "relationship": "inherits",
+      "internal": false
+    },
+    {
+      "child": "TextLayoutPolicy",
+      "parent": "ABC",
+      "relationship": "inherits",
+      "internal": false
+    },
+    {
+      "child": "Code128TextLayoutPolicy",
+      "parent": "TextLayoutPolicy",
+      "relationship": "inherits",
+      "internal": true
+    },
+    {
+      "child": "Code39TextLayoutPolicy",
+      "parent": "TextLayoutPolicy",
+      "relationship": "inherits",
+      "internal": true
+    },
+    {
+      "child": "Ean13TextLayoutPolicy",
+      "parent": "TextLayoutPolicy",
+      "relationship": "inherits",
+      "internal": true
+    },
+    {
+      "child": "Ean8TextLayoutPolicy",
+      "parent": "TextLayoutPolicy",
+      "relationship": "inherits",
+      "internal": true
+    },
+    {
+      "child": "QrTextLayoutPolicy",
+      "parent": "TextLayoutPolicy",
+      "relationship": "inherits",
+      "internal": true
+    },
+    {
+      "child": "UpcaTextLayoutPolicy",
+      "parent": "TextLayoutPolicy",
+      "relationship": "inherits",
+      "internal": true
+    },
+    {
+      "child": "UpceTextLayoutPolicy",
+      "parent": "TextLayoutPolicy",
+      "relationship": "inherits",
+      "internal": true
+    }
+  ],
+  "formats": {
+    "import": [],
+    "export": [
+      "Pdf",
+      "Png",
+      "Svg",
+      "svg",
+      "png",
+      "pdf"
+    ],
+    "caveats": {}
+  },
+  "install": {
+    "command": "pip install aspose-barcode-foss",
+    "version": "0.1.0"
+  },
+  "not_implemented": [
+    "PdfRenderer.render",
+    "EciHelper.normalize",
+    "EciHelper.validate",
+    "Gs1Helper.parse",
+    "Gs1Helper.validate",
+    "Barcode.to_pdf"
+  ],
+  "forbidden_claims": [
+    "supports PdfRenderer.render",
+    "supports EciHelper.normalize",
+    "supports EciHelper.validate",
+    "supports Gs1Helper.parse",
+    "supports Gs1Helper.validate",
+    "supports Barcode.to_pdf"
+  ],
+  "truth_gaps": [],
+  "api_coverage": {
+    "total_classes": 26,
+    "with_methods": 5,
+    "with_properties": 11,
+    "with_enums": 4,
+    "method_pct": 19.2,
+    "property_pct": 42.3,
+    "surface_tier": 3
+  },
+  "snippets_coverage": {
+    "total_snippets": 100,
+    "classes_with_snippet": 1,
+    "classes_total": 26,
+    "coverage_ratio": 0.04,
+    "effective_denominator": 19,
+    "concrete_coverage": {
+      "classes_total": 19,
+      "classes_with_snippet": 1,
+      "coverage_ratio": 0.05
+    },
+    "interface_coverage": {
+      "classes_total": 0,
+      "classes_with_snippet": 0,
+      "coverage_ratio": 0.0
+    }
+  }
+}

@@ -1,33 +1,37 @@
-bundle_generated_at: '2026-08-26T13:21:19.201681+00:00'
-bundle_id: 3e239639-e26c-41a7-a604-6819a790c976
-config_sha: 9eb739354976e8b5
-enrichment_status: full
-extractor_hash: 662d97a270edc5c5
 family: barcode
-generator_fingerprint: c2cc3c24c6bc5e66e0b6513ee648c9c1ae48a0a954349bd653beed452276da89
-generator_semver: 2.0.0
-has_conflicts: false
-input_hashes:
-  enriched_claims_sha: bcbf4a6535412b0706e90c576453f8bfcc6338b32fc2c687e7896c29ad95ce96
-  extractor_config_sha: 9eb739354976e8b5
-  products_json_entry_sha: 2cefe2239a0bc85bd10e5458e607140eb525aa3a4ba28f1fc578e025006aaf67
-  scout_api_surface_sha: 0384193cad819ca4e33110056120874c959f788569026eb67530303a5823398a
-  scout_claims_sha: 1acc096ba598cb1e1f7af7ef38e42494c1ac47649736418c65ed78fe075e8c1c
-license: MIT
 platform: python
 product_name: aspose-barcode-foss
-promoted_at: '2026-08-26T13:21:19.357847+00:00'
-repo_sha: 06eca5c01e13ed6d59a640f1cf330c1c5a57d151
+version: 0.1.0
+license: MIT
 repo_url: https://github.com/aspose-barcode-foss/Aspose.BarCode-FOSS-for-Python.git
-schema_version: 2
-source: scout_only
+repo_sha: 06eca5c01e13ed6d59a640f1cf330c1c5a57d151
+config_sha: 9eb739354976e8b5
 stale_since: null
+promoted_at: '2026-09-10T10:58:38.763686+00:00'
+source: scout_only
+enrichment_status: scout-only
+has_conflicts: false
+schema_version: 2
+generator_fingerprint: 39b55c0381d862030a39cf289a74386dba0d96ba7bead7439ed295a74ed8206e
+generator_semver: 2.0.0
+bundle_id: 7c19275b-3fdc-4ddf-9fc4-9c879882d703
+bundle_generated_at: '2026-09-10T10:58:38.646808+00:00'
+module_assignment_version: 1
+input_hashes:
+  extractor_config_sha: 9eb739354976e8b5
+  scout_claims_sha: 1acc096ba598cb1e1f7af7ef38e42494c1ac47649736418c65ed78fe075e8c1c
+  scout_api_surface_sha: f69084161d0ed4652246fdf3ee17d06da487a21322886ec7a5c9c6d69b4a65ea
+  enriched_claims_sha: bcbf4a6535412b0706e90c576453f8bfcc6338b32fc2c687e7896c29ad95ce96
+  products_json_entry_sha: 2cefe2239a0bc85bd10e5458e607140eb525aa3a4ba28f1fc578e025006aaf67
 stats:
-  class_count: 79
-  enriched_claims: 0
-  forbidden_count: 6
   scout_claims: 313
-  snippet_count: 100
+  enriched_claims: 0
   supplemental_claims: 0
   total_claims: 313
-version: 0.1.0
+  class_count: 79
+  classes:
+    total_declared: 79
+    public_documented: 26
+    raw_entries_including_non_class: 146
+  forbidden_count: 6
+  snippet_count: 100

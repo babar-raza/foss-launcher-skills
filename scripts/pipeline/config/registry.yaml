@@ -6439,3 +6439,19 @@ scripts:
     requires_test: true
     deprecated_since: null
     notes: "Thin CLI over TaskcardStore for mission taskcard ledgers (SEO-LOOP-TASKCARD-CLI, MT064 Wave 0, it-0000): latest/ready/seed/claim/advance/release/recover-expired. Registered by SEO-TESTS-CI-WIRING after check_pipeline_registration.py surfaced it as an unregistered pre-existing gap from this same mission's own earlier work."
+
+  - path: scripts/pipeline/lib/class_stats.py
+    kind: library
+    lifecycle: active
+    canonical_impl_path: null
+    public_entrypoint: false
+    cli_contract: none
+    owner_domain: knowledge-pipeline
+    backing:
+      kind: internal
+      ref: null
+    test_targets:
+      - scripts/pipeline/tests/test_class_stats.py
+    requires_test: true
+    deprecated_since: null
+    notes: "MT067-2026-09-10 TC-01: single source of truth for class-counting stats (total_declared/public_documented/raw_entries_including_non_class), replacing 4+ independently-reimplemented formulas across outputs.py/scout.py/promote.py/index.py/site_planner.py that produced barcode/python's 26-vs-79-vs-146 class_count split (see docs/reference/knowledge-stats.md)."

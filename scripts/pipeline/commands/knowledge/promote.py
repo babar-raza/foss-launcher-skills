@@ -45,6 +45,7 @@ import yaml
 
 from core.constants import _TEST_PATH_PATTERNS, _INTERNAL_PATH_PATTERNS
 from extraction.formats import _FAMILY_FORMAT_ALLOWLISTS, _FAMILY_PYTHON_PRIMARY_FMT
+from lib.class_stats import compute_class_stats
 from commands.launch.site_planner import _FAMILY_SUBPKG_LABELS, _ROOT_LABELS
 from lib.example_verification.code_fences import normalize_content
 from lib.bundle_manifest import (
@@ -1032,7 +1033,11 @@ def _generate_api_surface_md(api_list, family: str, model: dict, out_dir: Path) 
 
     md_text = "\n".join(lines) + "\n"
     (out_dir / "api_surface.md").write_text(md_text, encoding="utf-8")
-    print(f"  api_surface.md: {len(classes)} classes, {len(md_text)} bytes")
+    # MT067-2026-09-10 TC-03/TC-07 (found while pilot-verifying on barcode/python):
+    # `classes` here is the full sorted api_list including function-kind entries --
+    # the "kind == function" skip happens per-entry inside the loop above, after this
+    # count would otherwise be taken. Same RC3 mislabeling class as merge_report.md.
+    print(f"  api_surface.md: {compute_class_stats(api_list)['total_declared']} classes, {len(md_text)} bytes")
 
 
 # ---------------------------------------------------------------------------
@@ -1265,7 +1270,11 @@ def promote(family: str, platform: str, knowledge_root=None, *, merged_dir_overr
             scout_api = []
 
     print(f"Promote: {family}/{platform}")
-    print(f"  Scout: {len(scout_claims)} claims, {len(scout_api)} classes")
+    # MT067-2026-09-10 TC-03: was "{len(scout_api)} classes" -- len(scout_api) is every
+    # api_surface.json entry including free functions (the raw "146"-style total), not a
+    # class count. See lib/class_stats.py for the actual class_stats.total_declared/
+    # public_documented/raw_entries_including_non_class breakdown.
+    print(f"  Scout: {len(scout_claims)} claims, {len(scout_api)} api_surface entries")
 
     # -----------------------------------------------------------------------
     # Build merged claims: scout + enriched (S-37) + supplemental (bridge)
@@ -1483,7 +1492,7 @@ def promote(family: str, platform: str, knowledge_root=None, *, merged_dir_overr
     compute_module_assignment(scout_api, family, platform)
     (merged_dir / "api_surface.json").write_text(
         json.dumps(scout_api, indent=2, ensure_ascii=False), encoding="utf-8")
-    print(f"  API surface: {len(scout_api)} classes")
+    print(f"  API surface: {len(scout_api)} entries ({compute_class_stats(scout_api)['total_declared']} classes)")
     # Validate: warn about remaining same-name entries without distinct class_import
     from collections import Counter as _Counter
     _name_counts = _Counter(c.get("name", "") for c in scout_api if isinstance(c, dict))
@@ -1819,8 +1828,12 @@ def promote(family: str, platform: str, knowledge_root=None, *, merged_dir_overr
             "enriched_claims": enriched_count,
             "supplemental_claims": supplemental_count,
             "total_claims": len(merged_claims),
-            # TC-SYS-015: match outputs.py formula — exclude "function" entries
-            "class_count": sum(1 for c in scout_api if c.get("kind") != "function"),
+            # MT067-2026-09-10 TC-03: class_count is deprecated (alias of
+            # classes.total_declared, matching the original TC-SYS-015 formula exactly —
+            # see lib/class_stats.py for why this now comes from one shared function
+            # instead of being reimplemented per pipeline stage).
+            "class_count": compute_class_stats(scout_api)["total_declared"],
+            "classes": compute_class_stats(scout_api),
             "forbidden_count": len(forbidden),
             "snippet_count": snippet_count,
         },
@@ -1932,7 +1945,12 @@ def promote(family: str, platform: str, knowledge_root=None, *, merged_dir_overr
         f"| Enriched claims (S-37) | {enriched_count} |",
         f"| Supplemental claims (bridge) | {supplemental_count} |",
         f"| Total claims | {len(merged_claims)} |",
-        f"| Classes | {len(scout_api)} |",
+        # MT067-2026-09-10 TC-03 (RC3): was len(scout_api) -- every api_surface.json entry
+        # including free functions, not a class count. This row silently reported e.g.
+        # 3604 "Classes" for pdf/typescript (true count ~1055) and 146 for barcode/python
+        # (true count 79) for every product with any function-kind entries at all.
+        f"| Classes | {merged_model['stats']['classes']['total_declared']} |",
+        f"| API surface entries (incl. functions) | {len(scout_api)} |",
         f"| Forbidden claims | {len(forbidden)} |",
         f"| Snippets | {snippet_count} |",
         "",
@@ -2073,8 +2091,8 @@ def promote(family: str, platform: str, knowledge_root=None, *, merged_dir_overr
         "enriched_claims": enriched_count,
         "supplemental_claims": supplemental_count,
         "total_claims": len(merged_claims),
-        # TC-SYS-015: match outputs.py formula — exclude "function" entries
-        "class_count": sum(1 for c in scout_api if c.get("kind") != "function"),
+        # MT067-2026-09-10 TC-03: was a third inline copy of the TC-SYS-015 formula.
+        "class_count": compute_class_stats(scout_api)["total_declared"],
     })
 
     return True
