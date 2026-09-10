@@ -375,3 +375,60 @@ class TestCrossProductIndexNotTruncatedBySingleProductInvocation:
             "candidacy scan"
         )
         assert ("cells", "python") in families
+
+
+# ---------------------------------------------------------------------------
+# vectors_current / vectors_status / vectors_generated_at (TC-VEC-03-C, RC2)
+# ---------------------------------------------------------------------------
+
+def _write_active_vector_profile(tmp_path, family, platform, *, source_hash, generated_at="2026-09-10T00:00:00Z"):
+    root = tmp_path / "knowledge" / "_vectors" / family / platform
+    profile_dir = root / "profiles" / "p1"
+    profile_dir.mkdir(parents=True, exist_ok=True)
+    (root / "active.json").write_text(
+        json.dumps({"version": "2.0.0", "profile_id": "p1"}), encoding="utf-8"
+    )
+    (profile_dir / "manifest.json").write_text(
+        json.dumps({"profile_id": "p1", "source_hash": source_hash, "generated_at": generated_at}),
+        encoding="utf-8",
+    )
+
+
+class TestBuildIndexVectorsCurrent:
+    def test_missing_when_no_vectors_dir(self, tmp_path):
+        _make_merged_dir(tmp_path, "cells", "python")
+        _index_module.configure(knowledge_root=tmp_path / "knowledge")
+
+        result = build_index("cells", "python")
+
+        assert result["vectors_current"] is False
+        assert result["vectors_status"] == "missing"
+        assert result["vectors_generated_at"] is None
+
+    def test_current_when_hash_matches_live_api_surface(self, tmp_path):
+        import hashlib
+
+        _make_merged_dir(tmp_path, "cells", "python")
+        api_path = tmp_path / "knowledge" / "cells" / "python" / "merged" / "api_surface.json"
+        matching_hash = hashlib.sha256(api_path.read_bytes()).hexdigest()
+        _write_active_vector_profile(tmp_path, "cells", "python", source_hash=matching_hash)
+        _index_module.configure(knowledge_root=tmp_path / "knowledge")
+
+        result = build_index("cells", "python")
+
+        assert result["vectors_current"] is True
+        assert result["vectors_status"] == "current"
+        assert result["vectors_generated_at"] == "2026-09-10T00:00:00Z"
+
+    def test_stale_when_hash_mismatches(self, tmp_path):
+        _make_merged_dir(tmp_path, "cells", "python")
+        _write_active_vector_profile(tmp_path, "cells", "python", source_hash="0" * 64)
+        _index_module.configure(knowledge_root=tmp_path / "knowledge")
+
+        result = build_index("cells", "python")
+
+        assert result["vectors_current"] is False
+        assert result["vectors_status"] == "stale"
+        # A stale profile still recorded a real generation timestamp — must
+        # not be conflated with "missing" (which reports None here).
+        assert result["vectors_generated_at"] == "2026-09-10T00:00:00Z"

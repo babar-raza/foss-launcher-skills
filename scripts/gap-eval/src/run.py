@@ -53,6 +53,14 @@ def configure(*, repo_root: "Path | str | None" = None) -> None:
     """Override module-level path constants for testing."""
     global _REPO_ROOT
     _REPO_ROOT = Path(repo_root) if repo_root is not None else _DEFAULT_REPO_ROOT
+    # TC-VEC-03-B: keep vector_store's own knowledge_root in lockstep with this
+    # module's _REPO_ROOT (same FRESH-001 rationale already established by
+    # refresh_run.py's cascade to freshness_guard/page_impact_matrix/
+    # batch_reference — without this, a test redirecting _REPO_ROOT would still
+    # have tier2_verify()'s staleness check silently reading the real live
+    # repo's knowledge/ tree instead of the test's isolated root).
+    from lib import vector_store  # noqa: PLC0415
+    vector_store.configure(knowledge_root=_REPO_ROOT / "knowledge")
 
 # ---------------------------------------------------------------------------
 # Path resolution helpers
@@ -789,6 +797,27 @@ def tier2_verify(claim: dict, family: str, platform: str) -> tuple[str, float] |
             return None
     if not vectors_path.exists():
         return None
+
+    # TC-VEC-03-B (RC2, phase 1 — log-only): source_hash has been recorded in
+    # every manifest.json since RC5's content-addressing fix, but nothing ever
+    # read it back. This surfaces staleness without changing this function's
+    # return value or verdict — behavior-preserving by construction. Guarded in
+    # its own try/except, separate from the manifest-parsing block above, so a
+    # bug in the staleness check itself can never disable Tier 2 matching
+    # (manifest is None for the legacy flat-file fallback, which predates the
+    # staleness concept — nothing to check there).
+    if manifest is not None:
+        try:
+            from lib import vector_store  # noqa: PLC0415
+            if vector_store.vector_status(family, platform) == vector_store.VectorStatus.STALE:
+                log.warning(
+                    "Tier 2 vectors for %s/%s are STALE: active profile's source_hash no "
+                    "longer matches the live api_surface.json. Verdicts below are still "
+                    "trusted as before (phase 1, observability only) — re-embed to refresh.",
+                    family, platform,
+                )
+        except Exception as exc:  # noqa: BLE001 - staleness check must never block Tier 2
+            log.debug("Staleness check failed for %s/%s (non-fatal): %s", family, platform, exc)
 
     try:
         vdata = json.loads(vectors_path.read_text(encoding="utf-8"))

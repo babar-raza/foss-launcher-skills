@@ -20,6 +20,17 @@ def configure(*, knowledge_root: "Path | str | None" = None, foss_packages_path:
     global KNOWLEDGE_ROOT, FOSS_PACKAGES_PATH
     KNOWLEDGE_ROOT = Path(knowledge_root) if knowledge_root is not None else _DEFAULT_KNOWLEDGE_ROOT
     FOSS_PACKAGES_PATH = Path(foss_packages_path) if foss_packages_path is not None else _DEFAULT_FOSS_PACKAGES_PATH
+    # TC-VEC-03-C: keep vector_store's own knowledge_root in lockstep with this
+    # module's KNOWLEDGE_ROOT (same FRESH-001 rationale as refresh_run.py's
+    # cascade to freshness_guard/page_impact_matrix/batch_reference, and
+    # run.py's cascade added in this same taskcard) -- without this, a test
+    # redirecting KNOWLEDGE_ROOT would still have build_index()'s new
+    # vectors_current field silently reading the real live repo's vectors.
+    _lib_dir = str(Path(__file__).resolve().parents[2] / "lib")
+    if _lib_dir not in sys.path:
+        sys.path.insert(0, _lib_dir)
+    import vector_store  # noqa: PLC0415
+    vector_store.configure(knowledge_root=KNOWLEDGE_ROOT)
 
 
 def compute_api_confidence(api_total: int, method_pct: float) -> str:
@@ -443,6 +454,48 @@ def build_index(family, platform):
         "api_confidence": api_confidence,
     })
 
+    # TC-VEC-03-C (RC2): surface the active gap-index vector profile's
+    # currency here, distinct from api_surface.json/claims.json staleness
+    # ("stale" above) -- reuses vector_store.py (TC-VEC-03-A) rather than
+    # reimplementing the source_hash comparison. Note: this is intentionally
+    # NOT the same field as the pre-existing "vectors_available" written into
+    # merged/index.json (line ~399 in this file) -- that field checks a fixed
+    # knowledge/_vectors/api/ path (the legacy flat standard-mode directory)
+    # and is unrelated to gap-index's real per-product profile directory;
+    # found live while building this fix, out of scope for this taskcard
+    # (knowledge/_index.json only), recorded in the plan for a future fix.
+    _lib_dir = str(Path(__file__).resolve().parents[2] / "lib")
+    if _lib_dir not in sys.path:
+        sys.path.insert(0, _lib_dir)
+    import vector_store as _vector_store  # noqa: PLC0415
+
+    # Self-sufficient regardless of whether index.py's own configure() has
+    # been called with the current KNOWLEDGE_ROOT — main()'s --knowledge-root
+    # CLI flag mutates the module global directly, bypassing configure()
+    # entirely (a pre-existing gap, found live while wiring this in; not
+    # fixed here, out of scope for this taskcard, but this call must not
+    # silently inherit a stale/default vector_store root because of it).
+    _vector_store.configure(knowledge_root=KNOWLEDGE_ROOT)
+    vec_status = _vector_store.vector_status(family, platform)
+    VectorStatus = _vector_store.VectorStatus
+    vectors_generated_at = None
+    if vec_status != VectorStatus.MISSING:
+        try:
+            active = json.loads(
+                (KNOWLEDGE_ROOT / "_vectors" / family / platform / "active.json").read_text(
+                    encoding="utf-8"
+                )
+            )
+            manifest_path = (
+                KNOWLEDGE_ROOT / "_vectors" / family / platform / "profiles"
+                / active["profile_id"] / "manifest.json"
+            )
+            vectors_generated_at = json.loads(
+                manifest_path.read_text(encoding="utf-8")
+            ).get("generated_at")
+        except (OSError, KeyError, json.JSONDecodeError):
+            pass
+
     return {
         "family": family,
         "platform": platform,
@@ -451,6 +504,9 @@ def build_index(family, platform):
         "stale": stale,
         "class_count": class_stats["public_documented"],
         "claim_count": len(claims),
+        "vectors_current": vec_status == VectorStatus.CURRENT,
+        "vectors_status": vec_status,
+        "vectors_generated_at": vectors_generated_at,
     }
 
 

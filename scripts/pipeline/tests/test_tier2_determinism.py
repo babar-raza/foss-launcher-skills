@@ -275,3 +275,95 @@ class TestTier2ContractMismatch:
             "skipping dense and lexical Tier 2 comparison" in message
             for message in caplog.messages
         )
+
+
+# ---------------------------------------------------------------------------
+# TC-VEC-03-B (RC2, phase 1): staleness must be observable but not affect the
+# verdict returned by this function — behavior-preserving by construction.
+# ---------------------------------------------------------------------------
+
+def _setup_profile_versioned_vectors(
+    tmp_path: Path,
+    family: str,
+    platform: str,
+    vec: list[float],
+    *,
+    source_hash: str,
+    api_surface_bytes: bytes = b'[{"name": "Foo"}]',
+) -> Path:
+    """Write an active.json + profiles/{id}/manifest.json + api.vectors.json,
+    matching embed_api_index()'s real on-disk profile-versioned shape (as
+    opposed to _setup_vectors()'s legacy flat-file fixture above, which has no
+    manifest at all and so never exercises the staleness code path)."""
+    merged = tmp_path / "knowledge" / family / platform / "merged"
+    merged.mkdir(parents=True, exist_ok=True)
+    (merged / "api_surface.json").write_bytes(api_surface_bytes)
+
+    vroot = tmp_path / "knowledge" / "_vectors" / family / platform
+    profile_id = "professionalize-qwen3-embedding-8b-512-testdigest-testhash"
+    profile_dir = vroot / "profiles" / profile_id
+    profile_dir.mkdir(parents=True, exist_ok=True)
+    (vroot / "active.json").write_text(
+        json.dumps({"version": "2.0.0", "profile_id": profile_id}), encoding="utf-8"
+    )
+    (profile_dir / "manifest.json").write_text(
+        json.dumps(
+            {
+                "profile_id": profile_id,
+                "source_hash": source_hash,
+                "vector_file": "api.vectors.json",
+            }
+        ),
+        encoding="utf-8",
+    )
+    (profile_dir / "api.vectors.json").write_text(
+        json.dumps({"vectors": {"SomeClass.someMethod": vec}}), encoding="utf-8"
+    )
+    return tmp_path
+
+
+class TestTier2StalenessObservability:
+    def test_stale_profile_logs_warning_but_verdict_is_unchanged(self, tmp_path, caplog):
+        import hashlib
+
+        live_bytes = b'[{"name": "Foo"}]'
+        wrong_hash = hashlib.sha256(b"different content entirely").hexdigest()
+        repo = _setup_profile_versioned_vectors(
+            tmp_path, "test", "python", [1.0, 0.0, 0.0],
+            source_hash=wrong_hash, api_surface_bytes=live_bytes,
+        )
+        claim = _make_claim()
+        p_embed, p_cosine = _patch_embed_and_cosine(0.80)
+        _run_mod.configure(repo_root=repo)
+
+        with p_embed, p_cosine, caplog.at_level(logging.WARNING, logger="run"):
+            result = tier2_verify(claim, "test", "python")
+
+        assert result == ("MATCH", 0.80), (
+            "phase 1 must be behavior-preserving: a stale profile must return "
+            "the exact same verdict a current one would"
+        )
+        assert any("STALE" in message for message in caplog.messages), (
+            "expected a WARNING mentioning STALE vectors — staleness is silent"
+        )
+
+    def test_current_profile_does_not_log_stale_warning(self, tmp_path, caplog):
+        import hashlib
+
+        live_bytes = b'[{"name": "Foo"}]'
+        matching_hash = hashlib.sha256(live_bytes).hexdigest()
+        repo = _setup_profile_versioned_vectors(
+            tmp_path, "test", "python", [1.0, 0.0, 0.0],
+            source_hash=matching_hash, api_surface_bytes=live_bytes,
+        )
+        claim = _make_claim()
+        p_embed, p_cosine = _patch_embed_and_cosine(0.80)
+        _run_mod.configure(repo_root=repo)
+
+        with p_embed, p_cosine, caplog.at_level(logging.WARNING, logger="run"):
+            result = tier2_verify(claim, "test", "python")
+
+        assert result == ("MATCH", 0.80)
+        assert not any("STALE" in message for message in caplog.messages), (
+            "a CURRENT profile must never log a staleness warning"
+        )

@@ -114,8 +114,20 @@ class TestEmbedApiIndex:
             ),
         )
         monkeypatch.chdir(tmp_path)
-        with patch("commands.ops.llm_router.LLMRouter", return_value=mock_router):
+        # TC-VEC-03 regression fix: embed_api_index() now resolves its router
+        # through embed._llm_router_cls (a configure() DI seam, added by
+        # TC-VEC-02 for AGENTS.md §16 compliance — no internal monkeypatching),
+        # not a fresh commands.ops.llm_router.LLMRouter lookup each call.
+        # Patching the source module's attribute directly no longer has any
+        # effect here — discovered live when re-running this exact test after
+        # that change caused it to silently fall through to the REAL router
+        # and make a real, unintended API call (30 tokens, disclosed; see the
+        # plan's TC-VEC-02 addendum). Use the seam instead.
+        embed.configure(llm_router_cls=lambda: mock_router)
+        try:
             result = embed.embed_api_index("cells", "net")
+        finally:
+            embed.configure()
 
         assert result is None
         assert legacy.read_bytes() == before_legacy
@@ -141,11 +153,12 @@ class TestEmbedApiIndex:
         )
         persist = MagicMock()
         monkeypatch.chdir(tmp_path)
-        with (
-            patch("commands.ops.llm_router.LLMRouter", return_value=mock_router),
-            patch.object(embed, "_persist_embedding_metrics", persist),
-        ):
-            result = embed.embed_api_index("cells", "net")
+        embed.configure(llm_router_cls=lambda: mock_router)
+        try:
+            with patch.object(embed, "_persist_embedding_metrics", persist):
+                result = embed.embed_api_index("cells", "net")
+        finally:
+            embed.configure()
 
         assert result is not None
         persist.assert_called_once()
