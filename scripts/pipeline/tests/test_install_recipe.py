@@ -428,16 +428,17 @@ class TestPublishChannelClaimsMatchVerificationPublished:
 
 
 class TestNoUnpublishedDisclosureAllowed:
-    """ST-054 TC-14 (governing plan §Q.5): the opposite-direction check from
-    TestPublishChannelClaimsMatchVerificationPublished above -- a page must
-    never disclose non-publication status at all (explicit operator policy,
-    2026-09-03/2026-09-10), not just avoid falsely claiming publication.
-    Shipped as WARN (see _verify_no_unpublished_disclosure's own docstring
-    for the WARN-then-FAIL sequencing rationale)."""
+    """ST-054 TC-14/TC-16 (governing plan §Q.5): the opposite-direction check
+    from TestPublishChannelClaimsMatchVerificationPublished above -- a page
+    must never disclose non-publication status at all (explicit operator
+    policy, 2026-09-03/2026-09-10), not just avoid falsely claiming
+    publication. Shipped as WARN in TC-14, promoted to FAIL in TC-16 once
+    all 46 pre-existing instances were remediated (commit f73e203027) --
+    see _verify_no_unpublished_disclosure's own docstring."""
 
     _BARCODE_PYTHON_REGISTRY = TestPublishChannelClaimsMatchVerificationPublished._BARCODE_PYTHON_REGISTRY
 
-    def test_is_not_yet_published_prose_is_warn(self, tmp_path):
+    def test_is_not_yet_published_prose_is_fail(self, tmp_path):
         _ir_mod.configure(knowledge_root=tmp_path / "knowledge", registry=self._BARCODE_PYTHON_REGISTRY)
         body = (
             "---\ntitle: Installation\n---\n\n"
@@ -447,10 +448,10 @@ class TestNoUnpublishedDisclosureAllowed:
         path = _write_page(tmp_path, "docs.aspose.org/en/barcode/python/getting-started/installation.md", body)
         page = Page.load(path)
         findings = InstallRecipeEvaluator().evaluate(page, None)
-        warns = [f for f in findings if f.level == "WARN" and "discloses non-publication status" in f.message]
-        assert len(warns) == 1, f"expected exactly 1 disclosure WARN, got: {findings}"
+        fails = [f for f in findings if f.level == "FAIL" and "discloses non-publication status" in f.message]
+        assert len(fails) == 1, f"expected exactly 1 disclosure FAIL, got: {findings}"
 
-    def test_coming_soon_prose_is_warn(self, tmp_path):
+    def test_coming_soon_prose_is_fail(self, tmp_path):
         _ir_mod.configure(knowledge_root=tmp_path / "knowledge", registry=self._BARCODE_PYTHON_REGISTRY)
         body = (
             "---\ntitle: Installation\n---\n\n"
@@ -460,8 +461,8 @@ class TestNoUnpublishedDisclosureAllowed:
         path = _write_page(tmp_path, "docs.aspose.org/en/barcode/python/getting-started/installation.md", body)
         page = Page.load(path)
         findings = InstallRecipeEvaluator().evaluate(page, None)
-        warns = [f for f in findings if f.level == "WARN" and "discloses non-publication status" in f.message]
-        assert len(warns) == 1
+        fails = [f for f in findings if f.level == "FAIL" and "discloses non-publication status" in f.message]
+        assert len(fails) == 1
 
     def test_build_from_source_prose_never_misfires(self, tmp_path):
         """The narrow new regex must never trigger on legitimate build-from-

@@ -579,11 +579,13 @@ class InstallRecipeEvaluator(BaseEvaluator):
         working install command instead (ST-054 TC-13's shortcode fix now
         renders exactly that for every registered unpublished product).
 
-        Shipped as WARN (not FAIL) initially -- ~40 pre-existing files
-        already carry this disclosure prose and need individual review
-        (ST-054 TC-16, not a scripted find/replace: each hit is a different
-        shape -- frontmatter description, a table cell, body prose, blog
-        narrative). Promote to FAIL only once TC-16's remediation lands,
+        Shipped as WARN initially (ST-054 TC-14, 2026-09-10) while 46
+        pre-existing files still carried this disclosure prose and needed
+        individual review (ST-054 TC-16, not a scripted find/replace: each
+        hit was a different shape -- frontmatter description, a table cell,
+        body prose, blog narrative). Promoted to FAIL here as TC-16's own
+        closing action, now that remediation has landed (commit f73e203027)
+        and a full-corpus sweep confirms zero remaining instances --
         matching this repo's own established heuristic-then-hard-gate
         discipline for exactly this class of policy change (see
         readme_refresh_checks.py's check_installation_matches_package_registry
@@ -613,7 +615,7 @@ class InstallRecipeEvaluator(BaseEvaluator):
                 continue
             seen_lines.add(line_no)
             findings.append(Finding(
-                level="WARN",
+                level="FAIL",
                 category="IR",
                 filepath=str(page.filepath),
                 line_no=line_no,
