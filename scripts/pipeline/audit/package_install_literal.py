@@ -165,10 +165,10 @@ def verify_package_install_literals(
                 f"Specific install command found for an UNPUBLISHED package: {match.group(0)!r}",
                 f'{family}/{platform} is not yet confirmed published (data/package_registry.json '
                 f'verification.published=false) -- use the package-install shortcode '
-                f'({{{{< package-install "{family}" "{platform}" >}}}}, which renders the correct '
-                '"not yet published" notice) or the canonical fallback text, never a specific '
-                "command a generation step guessed at. See root cause 1 in the governing plan "
-                "(this exact defect class already shipped once: 3D-NET-REFRESH-002).",
+                f'({{{{< package-install "{family}" "{platform}" >}}}}, which renders a real, '
+                "actionable GitHub-source install command for this case, ST-054 TC-13) rather "
+                "than a specific command a generation step guessed at. See root cause 1 in the "
+                "governing plan (this exact defect class already shipped once: 3D-NET-REFRESH-002).",
             ))
 
     return findings

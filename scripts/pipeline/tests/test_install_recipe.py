@@ -427,6 +427,90 @@ class TestPublishChannelClaimsMatchVerificationPublished:
         assert fails == [], f"honest, line-wrapped not-yet-published prose must not be flagged: {fails}"
 
 
+class TestNoUnpublishedDisclosureAllowed:
+    """ST-054 TC-14 (governing plan §Q.5): the opposite-direction check from
+    TestPublishChannelClaimsMatchVerificationPublished above -- a page must
+    never disclose non-publication status at all (explicit operator policy,
+    2026-09-03/2026-09-10), not just avoid falsely claiming publication.
+    Shipped as WARN (see _verify_no_unpublished_disclosure's own docstring
+    for the WARN-then-FAIL sequencing rationale)."""
+
+    _BARCODE_PYTHON_REGISTRY = TestPublishChannelClaimsMatchVerificationPublished._BARCODE_PYTHON_REGISTRY
+
+    def test_is_not_yet_published_prose_is_warn(self, tmp_path):
+        _ir_mod.configure(knowledge_root=tmp_path / "knowledge", registry=self._BARCODE_PYTHON_REGISTRY)
+        body = (
+            "---\ntitle: Installation\n---\n\n"
+            "## Installation\n\n"
+            "Aspose.BarCode FOSS for Python is not yet published on PyPI.\n"
+        )
+        path = _write_page(tmp_path, "docs.aspose.org/en/barcode/python/getting-started/installation.md", body)
+        page = Page.load(path)
+        findings = InstallRecipeEvaluator().evaluate(page, None)
+        warns = [f for f in findings if f.level == "WARN" and "discloses non-publication status" in f.message]
+        assert len(warns) == 1, f"expected exactly 1 disclosure WARN, got: {findings}"
+
+    def test_coming_soon_prose_is_warn(self, tmp_path):
+        _ir_mod.configure(knowledge_root=tmp_path / "knowledge", registry=self._BARCODE_PYTHON_REGISTRY)
+        body = (
+            "---\ntitle: Installation\n---\n\n"
+            "## Installation\n\n"
+            "PyPI support is coming soon for this library.\n"
+        )
+        path = _write_page(tmp_path, "docs.aspose.org/en/barcode/python/getting-started/installation.md", body)
+        page = Page.load(path)
+        findings = InstallRecipeEvaluator().evaluate(page, None)
+        warns = [f for f in findings if f.level == "WARN" and "discloses non-publication status" in f.message]
+        assert len(warns) == 1
+
+    def test_build_from_source_prose_never_misfires(self, tmp_path):
+        """The narrow new regex must never trigger on legitimate build-from-
+        source guidance -- that's now the CORRECT answer a page should give
+        (ST-054 TC-13's shortcode fix renders exactly this), on either a
+        published or unpublished product."""
+        _ir_mod.configure(knowledge_root=tmp_path / "knowledge", registry=self._BARCODE_PYTHON_REGISTRY)
+        body = (
+            "---\ntitle: Installation\n---\n\n"
+            "## Installation\n\n"
+            "git clone https://github.com/aspose-barcode-foss/example.git\n"
+            "cd example\n"
+            "pip install -e .\n\n"
+            "You can also build from source for the latest development version.\n"
+        )
+        path = _write_page(tmp_path, "docs.aspose.org/en/barcode/python/getting-started/installation.md", body)
+        page = Page.load(path)
+        findings = InstallRecipeEvaluator().evaluate(page, None)
+        disclosure_warns = [f for f in findings if "discloses non-publication status" in f.message]
+        assert disclosure_warns == [], f"legitimate build-from-source prose must never misfire: {disclosure_warns}"
+
+    def test_published_true_product_never_flagged_even_with_disclosure_phrase(self, tmp_path):
+        """This check only applies to confirmed-unpublished entries -- a
+        published:true product mentioning e.g. 'coming soon' for an
+        unrelated feature must not be flagged."""
+        _ir_mod.configure(knowledge_root=tmp_path / "knowledge", registry=self._BARCODE_PYTHON_REGISTRY)
+        body = (
+            "---\ntitle: Installation\n---\n\n"
+            "## Installation\n\n"
+            "Aspose.Cells FOSS for Python is available on PyPI today. A native "
+            "extension build is coming soon as a future performance improvement.\n"
+        )
+        path = _write_page(tmp_path, "docs.aspose.org/en/cells/python/getting-started/installation.md", body)
+        page = Page.load(path)
+        findings = InstallRecipeEvaluator().evaluate(page, None)
+        disclosure_warns = [f for f in findings if "discloses non-publication status" in f.message]
+        assert disclosure_warns == []
+
+    def test_unregistered_family_platform_not_flagged(self, tmp_path):
+        path = _write_page(
+            tmp_path, "docs.aspose.org/en/unknown-family/python/getting-started/installation.md",
+            "---\ntitle: Installation\n---\n\nThis package is not yet published anywhere.\n",
+        )
+        page = Page.load(path)
+        findings = InstallRecipeEvaluator().evaluate(page, None)
+        disclosure_warns = [f for f in findings if "discloses non-publication status" in f.message]
+        assert disclosure_warns == []
+
+
 class TestMissingInstructionsSuggestionStaysDocsOnly:
     """Regression: the separate 'no install instructions' INFO suggestion must
     NOT start firing on kb/blog/products just because H-16 now runs there too."""

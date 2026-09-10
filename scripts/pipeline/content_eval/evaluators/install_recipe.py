@@ -231,6 +231,24 @@ _NOT_PUBLISHED_NEGATION_RE = re.compile(
     re.IGNORECASE,
 )
 
+# ST-054 TC-14 (governing plan §Q.5): a public page must never disclose that a
+# package isn't yet published (explicit operator policy, 2026-09-03/2026-09-10
+# -- publication status is internal-only information). Deliberately NARROWER
+# than _NOT_PUBLISHED_NEGATION_RE above, which also matches bare "build from
+# source" -- that phrase is now the CORRECT answer a page should give (ST-054
+# TC-13's shortcode fix renders exactly this), and must never trigger a FAIL
+# here. Mirrors readme_refresh_checks.py's own already-proven
+# _UNPUBLISHED_PACKAGE_SIGNAL_RE shape (a different pipeline/artifact -- FOSS
+# README.md, not Hugo content -- but the same underlying disclosure phrases),
+# rather than inventing a new pattern.
+_UNPUBLISHED_DISCLOSURE_RE = re.compile(
+    r"is\s+not\s+yet\s+published"
+    r"|has\s+not\s+(?:yet\s+)?been\s+published"
+    r"|has\s+not\s+yet\s+shipped"
+    r"|coming\s+soon\b",
+    re.IGNORECASE,
+)
+
 
 class InstallRecipeEvaluator(BaseEvaluator):
     """Flags documentation pages that demonstrate API usage but lack install guidance,
@@ -265,6 +283,12 @@ class InstallRecipeEvaluator(BaseEvaluator):
         # getting-started/_index.md, which the docs-only/non-index gates
         # below would otherwise skip).
         accuracy_findings.extend(self._verify_publish_channel_claims(page))
+        # ST-054 TC-14 (governing plan §Q.5): the opposite-direction check --
+        # a page must never disclose non-publication status at all, not just
+        # avoid falsely claiming publication. Runs unconditionally for the
+        # same reason as the two checks above (must still catch _index.md
+        # and non-docs pages).
+        accuracy_findings.extend(self._verify_no_unpublished_disclosure(page))
 
         # Gate: the "missing install instructions" suggestion legitimately
         # only applies to docs subdomain pages with role docs/howto
@@ -545,4 +569,68 @@ class InstallRecipeEvaluator(BaseEvaluator):
             if any(domain in url_lower for domain in channel["domains"]):
                 _emit(link.line_no, f"{link.text} -> {link.url}" if link.text else link.url)
 
+        return findings
+
+    def _verify_no_unpublished_disclosure(self, page: Page) -> list[Finding]:
+        """ST-054 TC-14 (governing plan §Q.5): a public page must never
+        disclose that a package isn't yet published -- explicit operator
+        policy (2026-09-03, reinforced 2026-09-10): publication status is
+        internal-only information, a public page must always show a real,
+        working install command instead (ST-054 TC-13's shortcode fix now
+        renders exactly that for every registered unpublished product).
+
+        Shipped as WARN (not FAIL) initially -- ~40 pre-existing files
+        already carry this disclosure prose and need individual review
+        (ST-054 TC-16, not a scripted find/replace: each hit is a different
+        shape -- frontmatter description, a table cell, body prose, blog
+        narrative). Promote to FAIL only once TC-16's remediation lands,
+        matching this repo's own established heuristic-then-hard-gate
+        discipline for exactly this class of policy change (see
+        readme_refresh_checks.py's check_installation_matches_package_registry
+        -> check_installation_matches_live_publication, same discipline, a
+        different pipeline/artifact)."""
+        if not page.family or not page.platform:
+            return []
+
+        registry = _load_registry_cached()
+        entry = registry.get(page.family, {}).get(page.platform)
+        if not entry:
+            return []
+
+        verification = entry.get("verification") or {}
+        if verification.get("published") is not False:
+            # Only a confirmed published=false has anything to disclose;
+            # published=true or unresolved (None/absent) is out of scope for
+            # this specific check (mirrors _verify_publish_channel_claims's
+            # own gate immediately above).
+            return []
+
+        findings: list[Finding] = []
+        seen_lines: set[int] = set()
+        for line_no, line in page.prose_lines:
+            m = _UNPUBLISHED_DISCLOSURE_RE.search(line)
+            if not m or line_no in seen_lines:
+                continue
+            seen_lines.add(line_no)
+            findings.append(Finding(
+                level="WARN",
+                category="IR",
+                filepath=str(page.filepath),
+                line_no=line_no,
+                message=(
+                    f"Page discloses non-publication status ({m.group(0)!r}) for "
+                    f"{page.family}/{page.platform} -- per 2026-09-10 policy, public "
+                    "pages must show a real GitHub-source install path instead of "
+                    "disclosing publish status"
+                ),
+                suggestion=(
+                    "Remove the disclosure sentence. Use the package-install/"
+                    "package-install-inline/maven-coord/maven-gav shortcode "
+                    "(which now renders a real git-clone-based install command "
+                    "for unpublished packages, ST-054 TC-13) or write the "
+                    "equivalent from-source instructions directly, with zero "
+                    "mention of publication status either way."
+                ),
+                evaluator=self.name,
+            ))
         return findings
