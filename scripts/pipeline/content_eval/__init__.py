@@ -43,6 +43,14 @@ EVALUATOR_FREEZE_VERSION: str | None = "18"  # TC-SFH-003: evidence_depth gradua
 # Version history (evaluators bumped at v18):
 #   evidence_depth: 1→2 (TC-SFH-003: graduated to CANONICAL_EVALUATORS; EG_GROUNDING WARN
 #                        now caps grade at B; EG_STALE excluded from ceiling by category key)
+# Version history (bumped out-of-band, ELV unchanged -- install_recipe stays EXPERIMENTAL,
+# never affected any stored grade, so no corpus re-evaluation is required for this bump):
+#   install_recipe: 1→2 (PKGINSTALL-VERSION-BUMP-AND-LINT, 2026-09-10: never bumped despite
+#                        3 real logic changes in 2026 -- RC-W1-003 _verify_publish_channel_claims
+#                        2026-08-14, ST-054 TC-14 _verify_no_unpublished_disclosure added WARN
+#                        2026-09-10, ST-054 TC-16 promoted that check to FAIL 2026-09-10 --
+#                        so --skip-graded correctly treats pre-2026-08-14 grades as stale for
+#                        this evaluator going forward)
 EVALUATOR_VERSIONS: dict[str, str] = {
     "api_accuracy": "2",  # v2: TS/JS built-ins (Error, JSON, Buffer, Worker, GLB, etc.) added to PLATFORM_SDK_CLASSES
     "api_backtick": "1",
@@ -57,7 +65,7 @@ EVALUATOR_VERSIONS: dict[str, str] = {
     "structure": "1",
     "prose_truth": "2",  # v2: fires without claims/formats,
     "format_truth": "2",  # v2: skip negation check when no direction verb present (eliminates FP on method descriptions)
-    "install_recipe": "1",
+    "install_recipe": "2",  # v2: never bumped despite 3 real logic changes in 2026 (see history above)
     "limitations_check": "1",
     "risk_language": "2",
     "evidence_depth": "2",  # v2: graduated to CANONICAL_EVALUATORS (TC-SFH-003 2026-07-14)
