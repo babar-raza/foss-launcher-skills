@@ -1,33 +1,37 @@
-bundle_generated_at: '2026-08-24T15:15:30.515599+00:00'
-bundle_id: cf0753e5-af2c-420c-808e-b38607b0b0d2
-config_sha: e034fc744e7fe760
-enrichment_status: full
-extractor_hash: 28da6c8722502343
 family: pdf
-generator_fingerprint: c2cc3c24c6bc5e66e0b6513ee648c9c1ae48a0a954349bd653beed452276da89
-generator_semver: 2.0.0
-has_conflicts: false
-input_hashes:
-  enriched_claims_sha: b7b67903cb5ef933565347754b72afcd48eb8da1b46524dc2fb9f4246b54362f
-  extractor_config_sha: e034fc744e7fe760
-  products_json_entry_sha: d26bd7dd2a51d23eed7e89e4234244356512cc82a171a4f9a22202a278db6abc
-  scout_api_surface_sha: d25ec1728c887b9d0ef6c54d988303af009306c0409d2cf8bd26a43f506b79e2
-  scout_claims_sha: 52dc18d08c0918401207f533370731b421eeed0aeb813cccd56969a24fee5a82
-license: ''
 platform: java
 product_name: aspose-pdf-foss
-promoted_at: '2026-08-24T15:15:31.402548+00:00'
-repo_sha: 099e70a8b309fdd6ce349607dd589dfde96f2989
+version: 26.8.0
+license: ''
 repo_url: https://github.com/aspose-pdf-foss/Aspose.PDF-FOSS-for-Java.git
-schema_version: 2
-source: scout_and_enriched
+repo_sha: 099e70a8b309fdd6ce349607dd589dfde96f2989
+config_sha: ba558925e966ce6d
 stale_since: null
+promoted_at: '2026-09-10T11:11:41.163197+00:00'
+source: scout_and_enriched
+enrichment_status: full
+has_conflicts: false
+schema_version: 2
+generator_fingerprint: 39b55c0381d862030a39cf289a74386dba0d96ba7bead7439ed295a74ed8206e
+generator_semver: 2.0.0
+bundle_id: 40632c9d-c9d8-4312-a73e-6775a28e8dcd
+bundle_generated_at: '2026-09-10T11:11:40.311793+00:00'
+module_assignment_version: 1
+input_hashes:
+  extractor_config_sha: ba558925e966ce6d
+  scout_claims_sha: 52dc18d08c0918401207f533370731b421eeed0aeb813cccd56969a24fee5a82
+  scout_api_surface_sha: a68e2677e5598f38dfc898164040a8d7f242a3fdc8ccff60dc8cddb5e21e1774
+  enriched_claims_sha: b7b67903cb5ef933565347754b72afcd48eb8da1b46524dc2fb9f4246b54362f
+  products_json_entry_sha: d26bd7dd2a51d23eed7e89e4234244356512cc82a171a4f9a22202a278db6abc
 stats:
-  class_count: 1158
-  enriched_claims: 1542
-  forbidden_count: 1
   scout_claims: 14279
-  snippet_count: 100
+  enriched_claims: 1542
   supplemental_claims: 0
   total_claims: 15728
-version: 26.8.0
+  class_count: 1158
+  classes:
+    total_declared: 1158
+    public_documented: 1115
+    raw_entries_including_non_class: 1158
+  forbidden_count: 1
+  snippet_count: 100

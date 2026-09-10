@@ -15,7 +15,11 @@
     "formats_referenced": [
       "xlsx"
     ],
-    "provenance": "scout"
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "d897eebe81713734950fe03196383f379db1b94a8bf1f1055c64d6a5f27a38d0",
+      "norm": "d897eebe81713734950fe03196383f379db1b94a8bf1f1055c64d6a5f27a38d0"
+    }
   },
   {
     "id": "snippet_002",
@@ -34,7 +38,11 @@
     "formats_referenced": [
       "xlsx"
     ],
-    "provenance": "scout"
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "96438d0bf7a96cdc67fc2b0f43c5b6924a9d9e09cfd46c68a64799eb7f14ce53",
+      "norm": "96438d0bf7a96cdc67fc2b0f43c5b6924a9d9e09cfd46c68a64799eb7f14ce53"
+    }
   },
   {
     "id": "snippet_003",
@@ -56,7 +64,11 @@
       "Worksheet.GetCells"
     ],
     "formats_referenced": [],
-    "provenance": "scout"
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "7d13044c302f6cd92f21a57c4191d4261c942e80903a26c6285d462d9e5375eb",
+      "norm": "7d13044c302f6cd92f21a57c4191d4261c942e80903a26c6285d462d9e5375eb"
+    }
   },
   {
     "id": "snippet_004",
@@ -77,7 +89,11 @@
       "Worksheet.GetCells"
     ],
     "formats_referenced": [],
-    "provenance": "scout"
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "f99fa9e53e802a8984f8938b2214f32b09e53b8c96debe9cb607c54942e4f026",
+      "norm": "f99fa9e53e802a8984f8938b2214f32b09e53b8c96debe9cb607c54942e4f026"
+    }
   },
   {
     "id": "snippet_005",
@@ -103,7 +119,11 @@
     "formats_referenced": [
       "xlsx"
     ],
-    "provenance": "scout"
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "4217cbdb934bd332b950f1868b6553602c71345b8654b68223b3c5d34535a83a",
+      "norm": "4217cbdb934bd332b950f1868b6553602c71345b8654b68223b3c5d34535a83a"
+    }
   },
   {
     "id": "snippet_006",
@@ -132,7 +152,11 @@
       "Worksheet.GetCells"
     ],
     "formats_referenced": [],
-    "provenance": "scout"
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "ea74b3ba59daf49099e963e6e03dbcd7f8b3dd399bbe683b3d6d75a950cd6e7d",
+      "norm": "ea74b3ba59daf49099e963e6e03dbcd7f8b3dd399bbe683b3d6d75a950cd6e7d"
+    }
   },
   {
     "id": "snippet_007",
@@ -179,7 +203,11 @@
       "Worksheet.SetVisibilityType"
     ],
     "formats_referenced": [],
-    "provenance": "scout"
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "15dfded069424dad9b52157d31f1dad3e02597740b48463dcc970c2d263b73d2",
+      "norm": "15dfded069424dad9b52157d31f1dad3e02597740b48463dcc970c2d263b73d2"
+    }
   },
   {
     "id": "snippet_008",
@@ -210,7 +238,11 @@
       "Worksheet.SetZoom"
     ],
     "formats_referenced": [],
-    "provenance": "scout"
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "5ec68b03efb1fe84bfb5fd59948d125fd7c0cf6a8866dbda0d270a75505311a8",
+      "norm": "5ec68b03efb1fe84bfb5fd59948d125fd7c0cf6a8866dbda0d270a75505311a8"
+    }
   },
   {
     "id": "snippet_009",
@@ -232,7 +264,11 @@
       "Worksheet.Protect"
     ],
     "formats_referenced": [],
-    "provenance": "scout"
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "d52c19b7122248efc9d077c33051edaabe47e16d850cb58e404a6457de7eaf6a",
+      "norm": "d52c19b7122248efc9d077c33051edaabe47e16d850cb58e404a6457de7eaf6a"
+    }
   },
   {
     "id": "snippet_010",
@@ -246,7 +282,11 @@
     ],
     "methods_used": [],
     "formats_referenced": [],
-    "provenance": "scout"
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "85da526a06a2ba99816c88dd1fe20c2a489a1f59e9acd23026979d339e54b77a",
+      "norm": "85da526a06a2ba99816c88dd1fe20c2a489a1f59e9acd23026979d339e54b77a"
+    }
   },
   {
     "id": "snippet_011",
@@ -265,7 +305,11 @@
     "formats_referenced": [
       "xlsx"
     ],
-    "provenance": "scout"
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "8340e284243c8bcd6cd7c4afc389966e8055fdcf6ec38e47d00dcc5658b388a2",
+      "norm": "8340e284243c8bcd6cd7c4afc389966e8055fdcf6ec38e47d00dcc5658b388a2"
+    }
   },
   {
     "id": "snippet_012",
@@ -291,7 +335,11 @@
     "formats_referenced": [
       "xlsx"
     ],
-    "provenance": "scout"
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "5a4a6044bc7caf1adb1999753bd322f57d6aa31696227c7f1d658b4ae5a0f310",
+      "norm": "5a4a6044bc7caf1adb1999753bd322f57d6aa31696227c7f1d658b4ae5a0f310"
+    }
   },
   {
     "id": "snippet_013",
@@ -310,7 +358,11 @@
     "formats_referenced": [
       "xlsx"
     ],
-    "provenance": "scout"
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "0181a0fe548a7371b2455ac3e31cfdac1e6a7acac23ef89d5098a4d4b2e33f53",
+      "norm": "0181a0fe548a7371b2455ac3e31cfdac1e6a7acac23ef89d5098a4d4b2e33f53"
+    }
   },
   {
     "id": "snippet_014",
@@ -338,7 +390,11 @@
     "formats_referenced": [
       "xlsx"
     ],
-    "provenance": "scout"
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "93c9d53e21dc543d519684b1bf0cef23542d82e0c07c25569e227cad5d219cd1",
+      "norm": "93c9d53e21dc543d519684b1bf0cef23542d82e0c07c25569e227cad5d219cd1"
+    }
   },
   {
     "id": "snippet_015",
@@ -357,7 +413,11 @@
     "formats_referenced": [
       "xlsx"
     ],
-    "provenance": "scout"
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "1d4fceda5ce081b7734d654cc095d1e1cecf2d71a0419fcebc8548bafe0228b8",
+      "norm": "1d4fceda5ce081b7734d654cc095d1e1cecf2d71a0419fcebc8548bafe0228b8"
+    }
   },
   {
     "id": "snippet_016",
@@ -376,7 +436,11 @@
     "formats_referenced": [
       "xlsx"
     ],
-    "provenance": "scout"
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "3325cb2401fa19a212a7b8258b73fbf2f8e4cc05e9b5f7dca1e0194ca0f688b6",
+      "norm": "3325cb2401fa19a212a7b8258b73fbf2f8e4cc05e9b5f7dca1e0194ca0f688b6"
+    }
   },
   {
     "id": "snippet_017",
@@ -394,7 +458,11 @@
     "formats_referenced": [
       "xlsx"
     ],
-    "provenance": "scout"
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "dc6ae801aa3deaf98cf60be24401b26805e87f4074e899d9d809cb9b327e834f",
+      "norm": "dc6ae801aa3deaf98cf60be24401b26805e87f4074e899d9d809cb9b327e834f"
+    }
   },
   {
     "id": "snippet_018",
@@ -412,7 +480,11 @@
     "formats_referenced": [
       "xlsx"
     ],
-    "provenance": "scout"
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "e2ca58dc72d2cf6e7af4d44e6da5b451a7cc3b893ad041acd6efcfbe031553f8",
+      "norm": "e2ca58dc72d2cf6e7af4d44e6da5b451a7cc3b893ad041acd6efcfbe031553f8"
+    }
   },
   {
     "id": "snippet_019",
@@ -431,7 +503,11 @@
     "formats_referenced": [
       "xlsx"
     ],
-    "provenance": "scout"
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "d0e01b87d3cb6b5ecbf84c4ec9baad5c2b6bba6801d3617c4f97647ed84444fe",
+      "norm": "d0e01b87d3cb6b5ecbf84c4ec9baad5c2b6bba6801d3617c4f97647ed84444fe"
+    }
   },
   {
     "id": "snippet_020",
@@ -449,7 +525,11 @@
       "Worksheet.GetName"
     ],
     "formats_referenced": [],
-    "provenance": "scout"
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "489e7e3b17d3112e946ffbad311bd6f4f9aee0b8d12a4c4833dd805369a0f60a",
+      "norm": "489e7e3b17d3112e946ffbad311bd6f4f9aee0b8d12a4c4833dd805369a0f60a"
+    }
   },
   {
     "id": "snippet_021",
@@ -467,7 +547,11 @@
     "formats_referenced": [
       "xlsx"
     ],
-    "provenance": "scout"
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "e1a3e5331414c30459b51b78858170dc9c977d5d1c9c5966a993a7ecb4b55c46",
+      "norm": "e1a3e5331414c30459b51b78858170dc9c977d5d1c9c5966a993a7ecb4b55c46"
+    }
   },
   {
     "id": "snippet_022",
@@ -485,7 +569,11 @@
     "formats_referenced": [
       "xlsx"
     ],
-    "provenance": "scout"
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "fda78e623b297c7ef86f85f2c26311533bea1ffd645c2980852ed368fd3b6054",
+      "norm": "fda78e623b297c7ef86f85f2c26311533bea1ffd645c2980852ed368fd3b6054"
+    }
   },
   {
     "id": "snippet_023",
@@ -504,7 +592,11 @@
     "formats_referenced": [
       "xlsx"
     ],
-    "provenance": "scout"
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "009cd310dfb4ebb3fb860e65883ed4ba63f0cc6754cd354fe2ab5dbc34e04234",
+      "norm": "009cd310dfb4ebb3fb860e65883ed4ba63f0cc6754cd354fe2ab5dbc34e04234"
+    }
   },
   {
     "id": "snippet_024",
@@ -529,7 +621,11 @@
     "formats_referenced": [
       "xlsx"
     ],
-    "provenance": "scout"
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "5983acd08409b3069dad887dd7b8f932a6f15bdb4d1fde6141bfd22ae242fb7b",
+      "norm": "5983acd08409b3069dad887dd7b8f932a6f15bdb4d1fde6141bfd22ae242fb7b"
+    }
   },
   {
     "id": "snippet_025",
@@ -554,7 +650,11 @@
     "formats_referenced": [
       "xlsx"
     ],
-    "provenance": "scout"
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "f40292c872142a20cef7fac7104aba72e4048fc36da5c13ba6d5759bbd4b216d",
+      "norm": "f40292c872142a20cef7fac7104aba72e4048fc36da5c13ba6d5759bbd4b216d"
+    }
   },
   {
     "id": "snippet_026",
@@ -580,7 +680,11 @@
     "formats_referenced": [
       "xlsx"
     ],
-    "provenance": "scout"
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "4bb002fc94f0d667b143460399a832f3cf7883730763d20bd073880927706eec",
+      "norm": "4bb002fc94f0d667b143460399a832f3cf7883730763d20bd073880927706eec"
+    }
   },
   {
     "id": "snippet_027",
@@ -605,7 +709,11 @@
     "formats_referenced": [
       "xlsx"
     ],
-    "provenance": "scout"
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "7cac5f72a427b5b10ec8d57b6c22776dcd15baad2923e7b9e9bb135d3531492c",
+      "norm": "7cac5f72a427b5b10ec8d57b6c22776dcd15baad2923e7b9e9bb135d3531492c"
+    }
   },
   {
     "id": "snippet_028",
@@ -637,7 +745,11 @@
     "formats_referenced": [
       "xlsx"
     ],
-    "provenance": "scout"
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "742a07112eec468612c9824580c2cd11309bcd9bc347378c0d57b0014ccab1cf",
+      "norm": "742a07112eec468612c9824580c2cd11309bcd9bc347378c0d57b0014ccab1cf"
+    }
   },
   {
     "id": "snippet_029",
@@ -666,7 +778,11 @@
     "formats_referenced": [
       "xlsx"
     ],
-    "provenance": "scout"
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "632e689c6c5e9b65faa17967c22fed65e2ed7585bb3ecde1e902f81306b5e1f6",
+      "norm": "632e689c6c5e9b65faa17967c22fed65e2ed7585bb3ecde1e902f81306b5e1f6"
+    }
   },
   {
     "id": "snippet_030",
@@ -685,7 +801,11 @@
     "formats_referenced": [
       "xlsx"
     ],
-    "provenance": "scout"
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "1f6408301d4b8ca3607a9f5387b769c40e87767d25b422cdd63ae52e8dd56cd2",
+      "norm": "1f6408301d4b8ca3607a9f5387b769c40e87767d25b422cdd63ae52e8dd56cd2"
+    }
   },
   {
     "id": "snippet_031",
@@ -705,7 +825,11 @@
     "formats_referenced": [
       "xlsx"
     ],
-    "provenance": "scout"
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "25ceb0d878eb7e42b001de2233366b5d93374bf288e7d437ed8d4c554a69f45b",
+      "norm": "25ceb0d878eb7e42b001de2233366b5d93374bf288e7d437ed8d4c554a69f45b"
+    }
   },
   {
     "id": "snippet_032",
@@ -726,7 +850,11 @@
     "formats_referenced": [
       "xlsx"
     ],
-    "provenance": "scout"
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "8aa11103616464fa5573e7f1ff129fd41ccdfa32750c7396450aa7740d7028db",
+      "norm": "8aa11103616464fa5573e7f1ff129fd41ccdfa32750c7396450aa7740d7028db"
+    }
   },
   {
     "id": "snippet_033",
@@ -746,7 +874,11 @@
     "formats_referenced": [
       "xlsx"
     ],
-    "provenance": "scout"
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "58346bf38029e8b1917ca4891225997d9424e5ebfe1dfba8324e25b61b756b26",
+      "norm": "58346bf38029e8b1917ca4891225997d9424e5ebfe1dfba8324e25b61b756b26"
+    }
   },
   {
     "id": "snippet_034",
@@ -781,7 +913,11 @@
     "formats_referenced": [
       "xlsx"
     ],
-    "provenance": "scout"
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "183ae3e30b34e5e67535214ef33023c3afefe62ff704a94f56282fc7473bfb57",
+      "norm": "183ae3e30b34e5e67535214ef33023c3afefe62ff704a94f56282fc7473bfb57"
+    }
   },
   {
     "id": "snippet_035",
@@ -800,7 +936,11 @@
     "formats_referenced": [
       "xlsx"
     ],
-    "provenance": "scout"
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "74084e2846eb050a6ae519cb551050a181c790013383a4bace5f34204cf1c2a3",
+      "norm": "74084e2846eb050a6ae519cb551050a181c790013383a4bace5f34204cf1c2a3"
+    }
   },
   {
     "id": "snippet_036",
@@ -827,7 +967,11 @@
     "formats_referenced": [
       "xlsx"
     ],
-    "provenance": "scout"
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "8759adab4ed1b5b4432a1a222284dfa7d4dd429514a2e014982c8c1576569990",
+      "norm": "8759adab4ed1b5b4432a1a222284dfa7d4dd429514a2e014982c8c1576569990"
+    }
   },
   {
     "id": "snippet_037",
@@ -845,7 +989,11 @@
     "formats_referenced": [
       "xlsx"
     ],
-    "provenance": "scout"
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "f68bf0a7e66494b9fb8a57e0ef49515f0638aeb5d461197ccce8c1f6fb05ba37",
+      "norm": "f68bf0a7e66494b9fb8a57e0ef49515f0638aeb5d461197ccce8c1f6fb05ba37"
+    }
   },
   {
     "id": "snippet_038",
@@ -863,7 +1011,11 @@
     "formats_referenced": [
       "xlsx"
     ],
-    "provenance": "scout"
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "eec89a05c0862c10011824d912d4deb5ebb9404be9aff0440939b2c0dd8f8945",
+      "norm": "eec89a05c0862c10011824d912d4deb5ebb9404be9aff0440939b2c0dd8f8945"
+    }
   },
   {
     "id": "snippet_039",
@@ -880,7 +1032,11 @@
     "formats_referenced": [
       "xlsx"
     ],
-    "provenance": "scout"
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "c894055fa4a56fe627d97be5b0ef795b42cceebd1ed59b5e43c1a8cc0f9e3038",
+      "norm": "c894055fa4a56fe627d97be5b0ef795b42cceebd1ed59b5e43c1a8cc0f9e3038"
+    }
   },
   {
     "id": "snippet_040",
@@ -897,7 +1053,11 @@
     "formats_referenced": [
       "xlsx"
     ],
-    "provenance": "scout"
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "8445700afca34b14a7c917b6f1503bb0ecb1a0b15e3f8dae5a7f5632f1306157",
+      "norm": "8445700afca34b14a7c917b6f1503bb0ecb1a0b15e3f8dae5a7f5632f1306157"
+    }
   },
   {
     "id": "snippet_041",
@@ -915,7 +1075,11 @@
     "formats_referenced": [
       "xlsx"
     ],
-    "provenance": "scout"
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "d13f2fdfe30b6e0063fe92eeb52f17486232a022b55067f350f8b34bedd5ba91",
+      "norm": "d13f2fdfe30b6e0063fe92eeb52f17486232a022b55067f350f8b34bedd5ba91"
+    }
   },
   {
     "id": "snippet_042",
@@ -934,7 +1098,11 @@
     "formats_referenced": [
       "xlsx"
     ],
-    "provenance": "scout"
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "6afc755d53692a75d36c037971515c41cdc4cd19d055a2186e02be796a0989fb",
+      "norm": "6afc755d53692a75d36c037971515c41cdc4cd19d055a2186e02be796a0989fb"
+    }
   },
   {
     "id": "snippet_043",
@@ -960,7 +1128,11 @@
     "formats_referenced": [
       "xlsx"
     ],
-    "provenance": "scout"
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "3c54c26f02ee676e8804cc4a3e13d9bc9e6bd850cabdda4ff1bbd1ca7347b6d8",
+      "norm": "3c54c26f02ee676e8804cc4a3e13d9bc9e6bd850cabdda4ff1bbd1ca7347b6d8"
+    }
   },
   {
     "id": "snippet_044",
@@ -978,7 +1150,11 @@
     "formats_referenced": [
       "xlsx"
     ],
-    "provenance": "scout"
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "cffe9fb271de95654f562ed3c1f1b4449f4eeba9fd334c20638364d26e694302",
+      "norm": "cffe9fb271de95654f562ed3c1f1b4449f4eeba9fd334c20638364d26e694302"
+    }
   },
   {
     "id": "snippet_045",
@@ -997,7 +1173,11 @@
     "formats_referenced": [
       "xlsx"
     ],
-    "provenance": "scout"
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "15f932b1a84b60cebb933493c5a4b4e721495072aa4131ba5ae1e3e07341e877",
+      "norm": "15f932b1a84b60cebb933493c5a4b4e721495072aa4131ba5ae1e3e07341e877"
+    }
   },
   {
     "id": "snippet_046",
@@ -1008,7 +1188,11 @@
     "classes_used": [],
     "methods_used": [],
     "formats_referenced": [],
-    "provenance": "scout"
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "fd1d5c874fceee225f991781538c3feb169b47ad34f36fb98284319c9d8d0f8a",
+      "norm": "fd1d5c874fceee225f991781538c3feb169b47ad34f36fb98284319c9d8d0f8a"
+    }
   },
   {
     "id": "snippet_047",
@@ -1032,7 +1216,11 @@
       "Worksheet.GetCells"
     ],
     "formats_referenced": [],
-    "provenance": "scout"
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "3b2c9498b5e63eada68001dee24ef2b4184c12ef543783747935753c5d270258",
+      "norm": "3b2c9498b5e63eada68001dee24ef2b4184c12ef543783747935753c5d270258"
+    }
   },
   {
     "id": "snippet_048",
@@ -1062,7 +1250,11 @@
       "Worksheet.GetCells"
     ],
     "formats_referenced": [],
-    "provenance": "scout"
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "9d0f4258d91f71d94d54f35463a970c3498fdaa6423bfbff978edd7c7d41d171",
+      "norm": "9d0f4258d91f71d94d54f35463a970c3498fdaa6423bfbff978edd7c7d41d171"
+    }
   },
   {
     "id": "snippet_049",
@@ -1085,7 +1277,11 @@
       "Worksheet.GetCells"
     ],
     "formats_referenced": [],
-    "provenance": "scout"
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "5314b63a57c6e66c74e377089aa4911c1be3673ed04a8851ed29c1778745fbdc",
+      "norm": "5314b63a57c6e66c74e377089aa4911c1be3673ed04a8851ed29c1778745fbdc"
+    }
   },
   {
     "id": "snippet_050",
@@ -1113,7 +1309,11 @@
       "Worksheet.GetCells"
     ],
     "formats_referenced": [],
-    "provenance": "scout"
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "091dd86bacb3ee3066ba996dff002e811221d96d1981ff68b57e4a6cd7210eb3",
+      "norm": "091dd86bacb3ee3066ba996dff002e811221d96d1981ff68b57e4a6cd7210eb3"
+    }
   },
   {
     "id": "snippet_051",
@@ -1142,7 +1342,11 @@
       "Worksheet.GetCells"
     ],
     "formats_referenced": [],
-    "provenance": "scout"
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "3475206d45e2adcb0991d6d76e677b9a29a5570c7604a59fc4ccbbe9ce4a2e50",
+      "norm": "3475206d45e2adcb0991d6d76e677b9a29a5570c7604a59fc4ccbbe9ce4a2e50"
+    }
   },
   {
     "id": "snippet_052",
@@ -1171,7 +1375,11 @@
       "Worksheet.GetCells"
     ],
     "formats_referenced": [],
-    "provenance": "scout"
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "25ee41e34ec14749edfaddf676d48dd5259cc9767b7b28c8ebaa5b08db17ae14",
+      "norm": "25ee41e34ec14749edfaddf676d48dd5259cc9767b7b28c8ebaa5b08db17ae14"
+    }
   },
   {
     "id": "snippet_053",
@@ -1200,7 +1408,11 @@
       "Worksheet.GetCells"
     ],
     "formats_referenced": [],
-    "provenance": "scout"
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "e1f7b044b600372524f64965d17be569671c54aa5bd0aba559f5d8697e40cbf2",
+      "norm": "e1f7b044b600372524f64965d17be569671c54aa5bd0aba559f5d8697e40cbf2"
+    }
   },
   {
     "id": "snippet_054",
@@ -1229,7 +1441,11 @@
       "Worksheet.GetCells"
     ],
     "formats_referenced": [],
-    "provenance": "scout"
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "5183eed902a777e55d17e028be9c958ee7e3655ee7f0de0d90de70a81a37ce85",
+      "norm": "5183eed902a777e55d17e028be9c958ee7e3655ee7f0de0d90de70a81a37ce85"
+    }
   },
   {
     "id": "snippet_055",
@@ -1257,7 +1473,11 @@
       "Worksheet.GetCells"
     ],
     "formats_referenced": [],
-    "provenance": "scout"
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "6f46d3eb36941495ee4a6e8bef929d9322cc5b41559d8f44451317c442eded90",
+      "norm": "6f46d3eb36941495ee4a6e8bef929d9322cc5b41559d8f44451317c442eded90"
+    }
   },
   {
     "id": "snippet_056",
@@ -1282,7 +1502,11 @@
       "Worksheet.GetCells"
     ],
     "formats_referenced": [],
-    "provenance": "scout"
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "285af91dee595c0e608b3b5d74f6fa48f56bdce7da8daa29b8793be901b6357a",
+      "norm": "285af91dee595c0e608b3b5d74f6fa48f56bdce7da8daa29b8793be901b6357a"
+    }
   },
   {
     "id": "snippet_057",
@@ -1308,7 +1532,11 @@
       "Worksheet.GetCells"
     ],
     "formats_referenced": [],
-    "provenance": "scout"
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "0f9f10876656c19a74de955500022589cdc02972ca904b3ec8b800222e2068eb",
+      "norm": "0f9f10876656c19a74de955500022589cdc02972ca904b3ec8b800222e2068eb"
+    }
   },
   {
     "id": "snippet_058",
@@ -1341,7 +1569,11 @@
       "Worksheet.GetCells"
     ],
     "formats_referenced": [],
-    "provenance": "scout"
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "96ba41a2db787e1ade337c497d5674249797f56047917318fb3923ea22f99c0c",
+      "norm": "96ba41a2db787e1ade337c497d5674249797f56047917318fb3923ea22f99c0c"
+    }
   },
   {
     "id": "snippet_059",
@@ -1423,7 +1655,11 @@
       "Worksheet.SetName"
     ],
     "formats_referenced": [],
-    "provenance": "scout"
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "d09df2853ea05a727d60e9fce1aa42796546c4ed4f046c8cdc1f5bd198b131fa",
+      "norm": "d09df2853ea05a727d60e9fce1aa42796546c4ed4f046c8cdc1f5bd198b131fa"
+    }
   },
   {
     "id": "snippet_060",
@@ -1436,7 +1672,11 @@
     ],
     "methods_used": [],
     "formats_referenced": [],
-    "provenance": "scout"
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "3f13dbaf851dbaaa80140d541b02611abbac30b222d3500923b678444e2e8ea0",
+      "norm": "3f13dbaf851dbaaa80140d541b02611abbac30b222d3500923b678444e2e8ea0"
+    }
   },
   {
     "id": "snippet_061",
@@ -1473,7 +1713,11 @@
       "Worksheet.SetVisibilityType"
     ],
     "formats_referenced": [],
-    "provenance": "scout"
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "14bd1b16687c3268022d7d121333fcb4239caf49b414fc1292103a418a399ede",
+      "norm": "14bd1b16687c3268022d7d121333fcb4239caf49b414fc1292103a418a399ede"
+    }
   },
   {
     "id": "snippet_062",
@@ -1507,7 +1751,11 @@
       "Worksheet.SetZoom"
     ],
     "formats_referenced": [],
-    "provenance": "scout"
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "12ba60197910ae181ec157d628a63adad7a20cbdeeca950167da8cffdd9f6b2c",
+      "norm": "12ba60197910ae181ec157d628a63adad7a20cbdeeca950167da8cffdd9f6b2c"
+    }
   },
   {
     "id": "snippet_063",
@@ -1531,7 +1779,11 @@
       "Worksheet.Unprotect"
     ],
     "formats_referenced": [],
-    "provenance": "scout"
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "bebddf0b608da570b81a23a0bec13b1d61926a7d72ab6a17fe412f6986c30115",
+      "norm": "bebddf0b608da570b81a23a0bec13b1d61926a7d72ab6a17fe412f6986c30115"
+    }
   },
   {
     "id": "snippet_064",
@@ -1559,7 +1811,11 @@
       "Worksheet.GetAutoFilter"
     ],
     "formats_referenced": [],
-    "provenance": "scout"
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "c3b8d6b3c2c9f957103456d127a5af063b5f45d8cf2b3d35feab6f99cca713b1",
+      "norm": "c3b8d6b3c2c9f957103456d127a5af063b5f45d8cf2b3d35feab6f99cca713b1"
+    }
   },
   {
     "id": "snippet_065",
@@ -1592,7 +1848,11 @@
       "Worksheet.SetName"
     ],
     "formats_referenced": [],
-    "provenance": "scout"
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "b142f6671bc40d4c399dffdb1274831480d8bbcf2edc61392de44f2ec0d1c572",
+      "norm": "b142f6671bc40d4c399dffdb1274831480d8bbcf2edc61392de44f2ec0d1c572"
+    }
   },
   {
     "id": "snippet_066",
@@ -1621,7 +1881,11 @@
       "Worksheet.GetHyperlinks"
     ],
     "formats_referenced": [],
-    "provenance": "scout"
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "f0084bbd241a25f7882c7d2e6bbf449625d6f1ad2830a74676981ae6780cfca3",
+      "norm": "f0084bbd241a25f7882c7d2e6bbf449625d6f1ad2830a74676981ae6780cfca3"
+    }
   },
   {
     "id": "snippet_067",
@@ -1657,7 +1921,11 @@
       "Worksheet.GetValidations"
     ],
     "formats_referenced": [],
-    "provenance": "scout"
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "e342c06f5b5b0a864eed13d4ad8c91ab5435b469a250849c37c771c239b4bc25",
+      "norm": "e342c06f5b5b0a864eed13d4ad8c91ab5435b469a250849c37c771c239b4bc25"
+    }
   },
   {
     "id": "snippet_068",
@@ -1701,7 +1969,11 @@
       "Worksheet.GetConditionalFormattings"
     ],
     "formats_referenced": [],
-    "provenance": "scout"
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "e101372085d95586090ff12fb43f1672b7ea816a7d67b1a4ffa15afbb6fa300c",
+      "norm": "e101372085d95586090ff12fb43f1672b7ea816a7d67b1a4ffa15afbb6fa300c"
+    }
   },
   {
     "id": "snippet_069",
@@ -1753,7 +2025,11 @@
       "Worksheet.GetConditionalFormattings"
     ],
     "formats_referenced": [],
-    "provenance": "scout"
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "04ca6ba803e415af143fdcfc865e32b5047422420cd84afacc3c665ee581b93c",
+      "norm": "04ca6ba803e415af143fdcfc865e32b5047422420cd84afacc3c665ee581b93c"
+    }
   },
   {
     "id": "snippet_070",
@@ -1813,7 +2089,11 @@
       "Worksheet.GetPageSetup"
     ],
     "formats_referenced": [],
-    "provenance": "scout"
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "0780a364892eb541254be884636b9be937aadfc3111603487b4d75673c306a7a",
+      "norm": "0780a364892eb541254be884636b9be937aadfc3111603487b4d75673c306a7a"
+    }
   },
   {
     "id": "snippet_071",
@@ -1839,7 +2119,11 @@
       "Worksheet.GetName"
     ],
     "formats_referenced": [],
-    "provenance": "scout"
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "0a5f4ecee9979566bf0a6f57239f1feaa04717cc9aee2a9ba139c079cd571e31",
+      "norm": "0a5f4ecee9979566bf0a6f57239f1feaa04717cc9aee2a9ba139c079cd571e31"
+    }
   },
   {
     "id": "snippet_072",
@@ -1868,7 +2152,11 @@
       "Worksheet.GetCells"
     ],
     "formats_referenced": [],
-    "provenance": "scout"
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "c56fbed6472016161e5de68e853ddd3e74e0d558225d0354e1bcd16b04cdc5fc",
+      "norm": "c56fbed6472016161e5de68e853ddd3e74e0d558225d0354e1bcd16b04cdc5fc"
+    }
   },
   {
     "id": "snippet_073",
@@ -1910,7 +2198,11 @@
       "Worksheet.GetName"
     ],
     "formats_referenced": [],
-    "provenance": "scout"
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "29afcf2c596de84ecb893d60a0219d4af3a780dab847dda4de82752ff0878e0b",
+      "norm": "29afcf2c596de84ecb893d60a0219d4af3a780dab847dda4de82752ff0878e0b"
+    }
   },
   {
     "id": "snippet_074",
@@ -1929,7 +2221,11 @@
     "formats_referenced": [
       "xlsx"
     ],
-    "provenance": "scout"
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "c7aa19ab869c28826f92beb3671f809657d888e553d41dde54f57b56bc43aea0",
+      "norm": "c7aa19ab869c28826f92beb3671f809657d888e553d41dde54f57b56bc43aea0"
+    }
   },
   {
     "id": "snippet_075",
@@ -1955,7 +2251,11 @@
     "formats_referenced": [
       "xlsx"
     ],
-    "provenance": "scout"
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "0ffcfe0962140bdd1858bd190e316d6285c891c6e47152e72494e7fce0212d9c",
+      "norm": "0ffcfe0962140bdd1858bd190e316d6285c891c6e47152e72494e7fce0212d9c"
+    }
   },
   {
     "id": "snippet_076",
@@ -1979,7 +2279,11 @@
       "Worksheet.GetName"
     ],
     "formats_referenced": [],
-    "provenance": "scout"
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "d1500053668f1684267f1c400bb8460c4b5685e2e20a1d4f6759878304e65f85",
+      "norm": "d1500053668f1684267f1c400bb8460c4b5685e2e20a1d4f6759878304e65f85"
+    }
   },
   {
     "id": "snippet_077",
@@ -2017,7 +2321,11 @@
     "formats_referenced": [
       "xlsx"
     ],
-    "provenance": "scout"
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "4313b95fa35b60c8555ed4673d7942e00ebe652624d0bd9be59e2b8c6d0a9fd7",
+      "norm": "4313b95fa35b60c8555ed4673d7942e00ebe652624d0bd9be59e2b8c6d0a9fd7"
+    }
   },
   {
     "id": "snippet_078",
@@ -2041,7 +2349,11 @@
     "formats_referenced": [
       "xlsx"
     ],
-    "provenance": "scout"
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "aab4434d46823d30efed2a44d81e029d74875c3a56770dfd2c7bf7c9a34fe4f4",
+      "norm": "aab4434d46823d30efed2a44d81e029d74875c3a56770dfd2c7bf7c9a34fe4f4"
+    }
   },
   {
     "id": "snippet_079",
@@ -2079,7 +2391,11 @@
     "formats_referenced": [
       "xlsx"
     ],
-    "provenance": "scout"
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "637ec2534acd64213f79ab9a4cdfbf3a710e335659e47187cb339b684db05c38",
+      "norm": "637ec2534acd64213f79ab9a4cdfbf3a710e335659e47187cb339b684db05c38"
+    }
   },
   {
     "id": "snippet_080",
@@ -2149,7 +2465,11 @@
     "formats_referenced": [
       "xlsx"
     ],
-    "provenance": "scout"
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "8e4bb5b515e6127ddf92e5b402817f05bccde49e7d0828c815b4300d25ae3685",
+      "norm": "8e4bb5b515e6127ddf92e5b402817f05bccde49e7d0828c815b4300d25ae3685"
+    }
   },
   {
     "id": "snippet_081",
@@ -2180,7 +2500,11 @@
     "formats_referenced": [
       "xlsx"
     ],
-    "provenance": "scout"
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "7410ea60847a1d091aef756ced01a60cc0e0609ce792d7c3ac661203b1380acc",
+      "norm": "7410ea60847a1d091aef756ced01a60cc0e0609ce792d7c3ac661203b1380acc"
+    }
   },
   {
     "id": "snippet_082",
@@ -2217,7 +2541,11 @@
     "formats_referenced": [
       "xlsx"
     ],
-    "provenance": "scout"
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "999ff98d14039e09d902b5a66ca5f97e0c49fd7498880330b4a80a636f9eb9d6",
+      "norm": "999ff98d14039e09d902b5a66ca5f97e0c49fd7498880330b4a80a636f9eb9d6"
+    }
   },
   {
     "id": "snippet_083",
@@ -2255,7 +2583,11 @@
     "formats_referenced": [
       "xlsx"
     ],
-    "provenance": "scout"
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "7cf86708acb74a94667ac8505a1702f1da818cf17400f406fdbff673449c5d9e",
+      "norm": "c58ef32c25d85ed84b15f5dcd5098c42d1a3b4767d7347cac19eb980f8835541"
+    }
   },
   {
     "id": "snippet_084",
@@ -2279,7 +2611,11 @@
     "formats_referenced": [
       "xlsx"
     ],
-    "provenance": "scout"
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "1b8347721cf8b24bc1bc874f4f752a6e2b860494eb853bd9b5da8b330785f0c4",
+      "norm": "1adb59adc815200c9862554e1ecb07adffa58d0855fd95e8e2925f6af7142fe6"
+    }
   },
   {
     "id": "snippet_085",
@@ -2308,7 +2644,11 @@
       "Style.SetPattern"
     ],
     "formats_referenced": [],
-    "provenance": "scout"
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "7ab4d3ddc3b0060a397b95a3b4f3e574b49a6563020639f50a82524949e83fad",
+      "norm": "d4a584b24f66aad1ff9869577265a3acb9c311ead703d8d733f5e8ade7526c7e"
+    }
   },
   {
     "id": "snippet_086",
@@ -2333,7 +2673,11 @@
       "Validation.SetType"
     ],
     "formats_referenced": [],
-    "provenance": "scout"
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "e3ab30f8ff6f8315267c9c59026d6df2404ce6b6e4ddcc6cd4cb987a98beec11",
+      "norm": "f8754dc1e95fc85993c504d0c6410e611fa28e45f3655db2e025c1b133210bf1"
+    }
   },
   {
     "id": "snippet_087",
@@ -2352,7 +2696,11 @@
       "Hyperlink.SetTextToDisplay"
     ],
     "formats_referenced": [],
-    "provenance": "scout"
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "946eb02840fc7634ac51a501f05e1858fc87dce289b7241e16c538f9771936d1",
+      "norm": "978eeaa5bb0021867718ee6c9a9e1899d64bb5929b90bc7a02c4b4452d3df043"
+    }
   },
   {
     "id": "snippet_088",
@@ -2376,7 +2724,11 @@
       "PageSetup.SetPrintTitleRows"
     ],
     "formats_referenced": [],
-    "provenance": "scout"
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "c3546fcbd39845bf176d935dce93ce34f3a9c58be7e3dc5c7439bbea0e54a602",
+      "norm": "b821d4a3569fc57a864f5659b2e96a167e15ca855bfba3bec3d2832ed355d406"
+    }
   },
   {
     "id": "snippet_089",
@@ -2392,6 +2744,10 @@
       "DefinedName.SetComment"
     ],
     "formats_referenced": [],
-    "provenance": "scout"
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "023823270b98d9a96144532d64fc0319506f4396753fa952e1bb12f218ad3603",
+      "norm": "564ca937adcd6cffbdb5c7375891064d150121f851d091054d492406b854f117"
+    }
   }
 ]

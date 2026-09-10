@@ -102,7 +102,9 @@
     "visibility": "public",
     "reachable": true,
     "canonical_namespace": "Aspose::Cells_FOSS",
-    "class_import": "Aspose::Cells_FOSS::ParsedNumericFormat"
+    "class_import": "Aspose::Cells_FOSS::ParsedNumericFormat",
+    "module_key": "src",
+    "module_label": "Src"
   },
   {
     "name": "Workbook::Impl",
@@ -190,7 +192,9 @@
     "visibility": "public",
     "reachable": true,
     "canonical_namespace": "Aspose::Cells_FOSS",
-    "class_import": "Aspose::Cells_FOSS::Workbook::Impl"
+    "class_import": "Aspose::Cells_FOSS::Workbook::Impl",
+    "module_key": "src",
+    "module_label": "Src"
   },
   {
     "name": "XmlParser",
@@ -232,7 +236,9 @@
     "visibility": "public",
     "reachable": true,
     "canonical_namespace": "Aspose::Cells_FOSS",
-    "class_import": "Aspose::Cells_FOSS::XmlParser"
+    "class_import": "Aspose::Cells_FOSS::XmlParser",
+    "module_key": "src",
+    "module_label": "Src"
   },
   {
     "name": "BitReader",
@@ -297,7 +303,9 @@
     "visibility": "public",
     "reachable": true,
     "canonical_namespace": "Aspose::Cells_FOSS",
-    "class_import": "Aspose::Cells_FOSS::BitReader"
+    "class_import": "Aspose::Cells_FOSS::BitReader",
+    "module_key": "src",
+    "module_label": "Src"
   },
   {
     "name": "HuffmanTable",
@@ -376,7 +384,9 @@
     "visibility": "public",
     "reachable": true,
     "canonical_namespace": "Aspose::Cells_FOSS",
-    "class_import": "Aspose::Cells_FOSS::HuffmanTable"
+    "class_import": "Aspose::Cells_FOSS::HuffmanTable",
+    "module_key": "src",
+    "module_label": "Src"
   },
   {
     "name": "CellFormatValue",
@@ -544,7 +554,9 @@
     "visibility": "public",
     "reachable": true,
     "canonical_namespace": "Aspose::Cells_FOSS",
-    "class_import": "Aspose::Cells_FOSS::CellFormatValue"
+    "class_import": "Aspose::Cells_FOSS::CellFormatValue",
+    "module_key": "include",
+    "module_label": "Include"
   },
   {
     "name": "ConditionalFormattingCollection",
@@ -631,7 +643,9 @@
     "visibility": "public",
     "reachable": true,
     "canonical_namespace": "Aspose::Cells_FOSS",
-    "class_import": "Aspose::Cells_FOSS::ConditionalFormattingCollection"
+    "class_import": "Aspose::Cells_FOSS::ConditionalFormattingCollection",
+    "module_key": "include",
+    "module_label": "Include"
   },
   {
     "name": "DisplayFormatSectionInfo",
@@ -742,7 +756,9 @@
     "visibility": "public",
     "reachable": true,
     "canonical_namespace": "Aspose::Cells_FOSS",
-    "class_import": "Aspose::Cells_FOSS::DisplayFormatSectionInfo"
+    "class_import": "Aspose::Cells_FOSS::DisplayFormatSectionInfo",
+    "module_key": "include",
+    "module_label": "Include"
   },
   {
     "name": "DisplayTextDateFormatSupport",
@@ -926,7 +942,9 @@
     "visibility": "public",
     "reachable": true,
     "canonical_namespace": "Aspose::Cells_FOSS",
-    "class_import": "Aspose::Cells_FOSS::DisplayTextDateFormatSupport"
+    "class_import": "Aspose::Cells_FOSS::DisplayTextDateFormatSupport",
+    "module_key": "include",
+    "module_label": "Include"
   },
   {
     "name": "DisplayTextFormatter",
@@ -986,7 +1004,9 @@
     "visibility": "public",
     "reachable": true,
     "canonical_namespace": "Aspose::Cells_FOSS",
-    "class_import": "Aspose::Cells_FOSS::DisplayTextFormatter"
+    "class_import": "Aspose::Cells_FOSS::DisplayTextFormatter",
+    "module_key": "include",
+    "module_label": "Include"
   },
   {
     "name": "DisplayTextFormatterSupport",
@@ -1282,7 +1302,9 @@
     "visibility": "public",
     "reachable": true,
     "canonical_namespace": "Aspose::Cells_FOSS",
-    "class_import": "Aspose::Cells_FOSS::DisplayTextFormatterSupport"
+    "class_import": "Aspose::Cells_FOSS::DisplayTextFormatterSupport",
+    "module_key": "include",
+    "module_label": "Include"
   },
   {
     "name": "FormatCondition",
@@ -1954,7 +1976,9 @@
     "visibility": "public",
     "reachable": true,
     "canonical_namespace": "Aspose::Cells_FOSS",
-    "class_import": "Aspose::Cells_FOSS::FormatCondition"
+    "class_import": "Aspose::Cells_FOSS::FormatCondition",
+    "module_key": "include",
+    "module_label": "Include"
   },
   {
     "name": "FormatConditionCollection",
@@ -2225,7 +2249,9 @@
     "visibility": "public",
     "reachable": true,
     "canonical_namespace": "Aspose::Cells_FOSS",
-    "class_import": "Aspose::Cells_FOSS::FormatConditionCollection"
+    "class_import": "Aspose::Cells_FOSS::FormatConditionCollection",
+    "module_key": "include",
+    "module_label": "Include"
   },
   {
     "name": "FormatConditionType",
@@ -2305,7 +2331,9 @@
       }
     ],
     "canonical_namespace": "Aspose::Cells_FOSS",
-    "class_import": "Aspose::Cells_FOSS::FormatConditionType"
+    "class_import": "Aspose::Cells_FOSS::FormatConditionType",
+    "module_key": "include",
+    "module_label": "Include"
   },
   {
     "name": "InvalidFileFormatException",
@@ -2319,7 +2347,9 @@
     "visibility": "public",
     "reachable": true,
     "canonical_namespace": "Aspose::Cells_FOSS",
-    "class_import": "Aspose::Cells_FOSS::InvalidFileFormatException"
+    "class_import": "Aspose::Cells_FOSS::InvalidFileFormatException",
+    "module_key": "include",
+    "module_label": "Include"
   },
   {
     "name": "LoadFormat",
@@ -2343,7 +2373,9 @@
       }
     ],
     "canonical_namespace": "Aspose::Cells_FOSS",
-    "class_import": "Aspose::Cells_FOSS::LoadFormat"
+    "class_import": "Aspose::Cells_FOSS::LoadFormat",
+    "module_key": "include",
+    "module_label": "Include"
   },
   {
     "name": "NumberFormat",
@@ -2427,7 +2459,9 @@
     "visibility": "public",
     "reachable": true,
     "canonical_namespace": "Aspose::Cells_FOSS",
-    "class_import": "Aspose::Cells_FOSS::NumberFormat"
+    "class_import": "Aspose::Cells_FOSS::NumberFormat",
+    "module_key": "include",
+    "module_label": "Include"
   },
   {
     "name": "SaveFormat",
@@ -2447,7 +2481,9 @@
       }
     ],
     "canonical_namespace": "Aspose::Cells_FOSS",
-    "class_import": "Aspose::Cells_FOSS::SaveFormat"
+    "class_import": "Aspose::Cells_FOSS::SaveFormat",
+    "module_key": "include",
+    "module_label": "Include"
   },
   {
     "name": "XlsxWorkbookConditionalFormatting",
@@ -2523,7 +2559,9 @@
     "visibility": "public",
     "reachable": true,
     "canonical_namespace": "Aspose::Cells_FOSS",
-    "class_import": "Aspose::Cells_FOSS::XlsxWorkbookConditionalFormatting"
+    "class_import": "Aspose::Cells_FOSS::XlsxWorkbookConditionalFormatting",
+    "module_key": "include",
+    "module_label": "Include"
   },
   {
     "name": "ConditionalFormattingModel",
@@ -2576,7 +2614,9 @@
     "visibility": "public",
     "reachable": true,
     "canonical_namespace": "Aspose::Cells_FOSS::Core",
-    "class_import": "Aspose::Cells_FOSS::Core::ConditionalFormattingModel"
+    "class_import": "Aspose::Cells_FOSS::Core::ConditionalFormattingModel",
+    "module_key": "include",
+    "module_label": "Include"
   },
   {
     "name": "FormatConditionModel",
@@ -3429,7 +3469,9 @@
     "visibility": "public",
     "reachable": true,
     "canonical_namespace": "Aspose::Cells_FOSS::Core",
-    "class_import": "Aspose::Cells_FOSS::Core::FormatConditionModel"
+    "class_import": "Aspose::Cells_FOSS::Core::FormatConditionModel",
+    "module_key": "include",
+    "module_label": "Include"
   },
   {
     "name": "NumberFormatValue",
@@ -3510,7 +3552,9 @@
     "visibility": "public",
     "reachable": true,
     "canonical_namespace": "Aspose::Cells_FOSS::Core",
-    "class_import": "Aspose::Cells_FOSS::Core::NumberFormatValue"
+    "class_import": "Aspose::Cells_FOSS::Core::NumberFormatValue",
+    "module_key": "include",
+    "module_label": "Include"
   },
   {
     "name": "IPackageReader",
@@ -3548,7 +3592,9 @@
     "visibility": "public",
     "reachable": true,
     "canonical_namespace": "Aspose::Cells_FOSS::Packaging",
-    "class_import": "Aspose::Cells_FOSS::Packaging::IPackageReader"
+    "class_import": "Aspose::Cells_FOSS::Packaging::IPackageReader",
+    "module_key": "include",
+    "module_label": "Include"
   },
   {
     "name": "IPackageWriter",
@@ -3590,7 +3636,9 @@
     "visibility": "public",
     "reachable": true,
     "canonical_namespace": "Aspose::Cells_FOSS::Packaging",
-    "class_import": "Aspose::Cells_FOSS::Packaging::IPackageWriter"
+    "class_import": "Aspose::Cells_FOSS::Packaging::IPackageWriter",
+    "module_key": "include",
+    "module_label": "Include"
   },
   {
     "name": "AutoFilter",
@@ -3656,7 +3704,9 @@
     "visibility": "public",
     "reachable": true,
     "canonical_namespace": "Aspose::Cells_FOSS",
-    "class_import": "Aspose::Cells_FOSS::AutoFilter"
+    "class_import": "Aspose::Cells_FOSS::AutoFilter",
+    "module_key": "include",
+    "module_label": "Include"
   },
   {
     "name": "AutoFilterColorFilter",
@@ -3752,7 +3802,9 @@
     "visibility": "public",
     "reachable": true,
     "canonical_namespace": "Aspose::Cells_FOSS",
-    "class_import": "Aspose::Cells_FOSS::AutoFilterColorFilter"
+    "class_import": "Aspose::Cells_FOSS::AutoFilterColorFilter",
+    "module_key": "include",
+    "module_label": "Include"
   },
   {
     "name": "AutoFilterCustomFilter",
@@ -3815,7 +3867,9 @@
     "visibility": "public",
     "reachable": true,
     "canonical_namespace": "Aspose::Cells_FOSS",
-    "class_import": "Aspose::Cells_FOSS::AutoFilterCustomFilter"
+    "class_import": "Aspose::Cells_FOSS::AutoFilterCustomFilter",
+    "module_key": "include",
+    "module_label": "Include"
   },
   {
     "name": "AutoFilterCustomFilterCollection",
@@ -3931,7 +3985,9 @@
     "visibility": "public",
     "reachable": true,
     "canonical_namespace": "Aspose::Cells_FOSS",
-    "class_import": "Aspose::Cells_FOSS::AutoFilterCustomFilterCollection"
+    "class_import": "Aspose::Cells_FOSS::AutoFilterCustomFilterCollection",
+    "module_key": "include",
+    "module_label": "Include"
   },
   {
     "name": "AutoFilterCustomFilterCollection::Iterator",
@@ -3945,7 +4001,9 @@
     "visibility": "public",
     "reachable": true,
     "canonical_namespace": "Aspose::Cells_FOSS",
-    "class_import": "Aspose::Cells_FOSS::AutoFilterCustomFilterCollection::Iterator"
+    "class_import": "Aspose::Cells_FOSS::AutoFilterCustomFilterCollection::Iterator",
+    "module_key": "include",
+    "module_label": "Include"
   },
   {
     "name": "AutoFilterDynamicFilter",
@@ -4065,7 +4123,9 @@
     "visibility": "public",
     "reachable": true,
     "canonical_namespace": "Aspose::Cells_FOSS",
-    "class_import": "Aspose::Cells_FOSS::AutoFilterDynamicFilter"
+    "class_import": "Aspose::Cells_FOSS::AutoFilterDynamicFilter",
+    "module_key": "include",
+    "module_label": "Include"
   },
   {
     "name": "AutoFilterSortCondition",
@@ -4248,7 +4308,9 @@
     "visibility": "public",
     "reachable": true,
     "canonical_namespace": "Aspose::Cells_FOSS",
-    "class_import": "Aspose::Cells_FOSS::AutoFilterSortCondition"
+    "class_import": "Aspose::Cells_FOSS::AutoFilterSortCondition",
+    "module_key": "include",
+    "module_label": "Include"
   },
   {
     "name": "AutoFilterSortConditionCollection",
@@ -4336,7 +4398,9 @@
     "visibility": "public",
     "reachable": true,
     "canonical_namespace": "Aspose::Cells_FOSS",
-    "class_import": "Aspose::Cells_FOSS::AutoFilterSortConditionCollection"
+    "class_import": "Aspose::Cells_FOSS::AutoFilterSortConditionCollection",
+    "module_key": "include",
+    "module_label": "Include"
   },
   {
     "name": "AutoFilterSortConditionCollection::Iterator",
@@ -4350,7 +4414,9 @@
     "visibility": "public",
     "reachable": true,
     "canonical_namespace": "Aspose::Cells_FOSS",
-    "class_import": "Aspose::Cells_FOSS::AutoFilterSortConditionCollection::Iterator"
+    "class_import": "Aspose::Cells_FOSS::AutoFilterSortConditionCollection::Iterator",
+    "module_key": "include",
+    "module_label": "Include"
   },
   {
     "name": "AutoFilterSortState",
@@ -4479,7 +4545,9 @@
     "visibility": "public",
     "reachable": true,
     "canonical_namespace": "Aspose::Cells_FOSS",
-    "class_import": "Aspose::Cells_FOSS::AutoFilterSortState"
+    "class_import": "Aspose::Cells_FOSS::AutoFilterSortState",
+    "module_key": "include",
+    "module_label": "Include"
   },
   {
     "name": "AutoFilterSupport",
@@ -4653,7 +4721,9 @@
     "visibility": "public",
     "reachable": true,
     "canonical_namespace": "Aspose::Cells_FOSS",
-    "class_import": "Aspose::Cells_FOSS::AutoFilterSupport"
+    "class_import": "Aspose::Cells_FOSS::AutoFilterSupport",
+    "module_key": "include",
+    "module_label": "Include"
   },
   {
     "name": "AutoFilterTop10",
@@ -4797,7 +4867,9 @@
     "visibility": "public",
     "reachable": true,
     "canonical_namespace": "Aspose::Cells_FOSS",
-    "class_import": "Aspose::Cells_FOSS::AutoFilterTop10"
+    "class_import": "Aspose::Cells_FOSS::AutoFilterTop10",
+    "module_key": "include",
+    "module_label": "Include"
   },
   {
     "name": "Border",
@@ -4913,7 +4985,9 @@
     "visibility": "public",
     "reachable": true,
     "canonical_namespace": "Aspose::Cells_FOSS",
-    "class_import": "Aspose::Cells_FOSS::Border"
+    "class_import": "Aspose::Cells_FOSS::Border",
+    "module_key": "include",
+    "module_label": "Include"
   },
   {
     "name": "BorderStyleType",
@@ -4985,7 +5059,9 @@
       }
     ],
     "canonical_namespace": "Aspose::Cells_FOSS",
-    "class_import": "Aspose::Cells_FOSS::BorderStyleType"
+    "class_import": "Aspose::Cells_FOSS::BorderStyleType",
+    "module_key": "include",
+    "module_label": "Include"
   },
   {
     "name": "Borders",
@@ -5234,7 +5310,9 @@
     "visibility": "public",
     "reachable": true,
     "canonical_namespace": "Aspose::Cells_FOSS",
-    "class_import": "Aspose::Cells_FOSS::Borders"
+    "class_import": "Aspose::Cells_FOSS::Borders",
+    "module_key": "include",
+    "module_label": "Include"
   },
   {
     "name": "CalculationProperties",
@@ -5537,7 +5615,9 @@
     "visibility": "public",
     "reachable": true,
     "canonical_namespace": "Aspose::Cells_FOSS",
-    "class_import": "Aspose::Cells_FOSS::CalculationProperties"
+    "class_import": "Aspose::Cells_FOSS::CalculationProperties",
+    "module_key": "include",
+    "module_label": "Include"
   },
   {
     "name": "Cell",
@@ -5752,7 +5832,9 @@
     "visibility": "public",
     "reachable": true,
     "canonical_namespace": "Aspose::Cells_FOSS",
-    "class_import": "Aspose::Cells_FOSS::Cell"
+    "class_import": "Aspose::Cells_FOSS::Cell",
+    "module_key": "include",
+    "module_label": "Include"
   },
   {
     "name": "CellArea",
@@ -5856,7 +5938,9 @@
     "visibility": "public",
     "reachable": true,
     "canonical_namespace": "Aspose::Cells_FOSS",
-    "class_import": "Aspose::Cells_FOSS::CellArea"
+    "class_import": "Aspose::Cells_FOSS::CellArea",
+    "module_key": "include",
+    "module_label": "Include"
   },
   {
     "name": "CellValue",
@@ -6083,7 +6167,9 @@
     "visibility": "public",
     "reachable": true,
     "canonical_namespace": "Aspose::Cells_FOSS",
-    "class_import": "Aspose::Cells_FOSS::CellValue"
+    "class_import": "Aspose::Cells_FOSS::CellValue",
+    "module_key": "include",
+    "module_label": "Include"
   },
   {
     "name": "CellValueType",
@@ -6123,7 +6209,9 @@
       }
     ],
     "canonical_namespace": "Aspose::Cells_FOSS",
-    "class_import": "Aspose::Cells_FOSS::CellValueType"
+    "class_import": "Aspose::Cells_FOSS::CellValueType",
+    "module_key": "include",
+    "module_label": "Include"
   },
   {
     "name": "Cells",
@@ -6191,7 +6279,9 @@
     "visibility": "public",
     "reachable": true,
     "canonical_namespace": "Aspose::Cells_FOSS",
-    "class_import": "Aspose::Cells_FOSS::Cells"
+    "class_import": "Aspose::Cells_FOSS::Cells",
+    "module_key": "include",
+    "module_label": "Include"
   },
   {
     "name": "CellsException",
@@ -6224,7 +6314,9 @@
     "visibility": "public",
     "reachable": true,
     "canonical_namespace": "Aspose::Cells_FOSS",
-    "class_import": "Aspose::Cells_FOSS::CellsException"
+    "class_import": "Aspose::Cells_FOSS::CellsException",
+    "module_key": "include",
+    "module_label": "Include"
   },
   {
     "name": "Color",
@@ -6419,7 +6511,9 @@
     "visibility": "public",
     "reachable": true,
     "canonical_namespace": "Aspose::Cells_FOSS",
-    "class_import": "Aspose::Cells_FOSS::Color"
+    "class_import": "Aspose::Cells_FOSS::Color",
+    "module_key": "include",
+    "module_label": "Include"
   },
   {
     "name": "Column",
@@ -6482,7 +6576,9 @@
     "visibility": "public",
     "reachable": true,
     "canonical_namespace": "Aspose::Cells_FOSS",
-    "class_import": "Aspose::Cells_FOSS::Column"
+    "class_import": "Aspose::Cells_FOSS::Column",
+    "module_key": "include",
+    "module_label": "Include"
   },
   {
     "name": "ColumnCollection",
@@ -6496,7 +6592,9 @@
     "visibility": "public",
     "reachable": true,
     "canonical_namespace": "Aspose::Cells_FOSS",
-    "class_import": "Aspose::Cells_FOSS::ColumnCollection"
+    "class_import": "Aspose::Cells_FOSS::ColumnCollection",
+    "module_key": "include",
+    "module_label": "Include"
   },
   {
     "name": "CoreDocumentProperties",
@@ -6795,7 +6893,9 @@
     "visibility": "public",
     "reachable": true,
     "canonical_namespace": "Aspose::Cells_FOSS",
-    "class_import": "Aspose::Cells_FOSS::CoreDocumentProperties"
+    "class_import": "Aspose::Cells_FOSS::CoreDocumentProperties",
+    "module_key": "include",
+    "module_label": "Include"
   },
   {
     "name": "DateTime",
@@ -6903,7 +7003,9 @@
     "visibility": "public",
     "reachable": true,
     "canonical_namespace": "Aspose::Cells_FOSS",
-    "class_import": "Aspose::Cells_FOSS::DateTime"
+    "class_import": "Aspose::Cells_FOSS::DateTime",
+    "module_key": "include",
+    "module_label": "Include"
   },
   {
     "name": "DefinedName",
@@ -7038,7 +7140,9 @@
     "visibility": "public",
     "reachable": true,
     "canonical_namespace": "Aspose::Cells_FOSS",
-    "class_import": "Aspose::Cells_FOSS::DefinedName"
+    "class_import": "Aspose::Cells_FOSS::DefinedName",
+    "module_key": "include",
+    "module_label": "Include"
   },
   {
     "name": "DefinedNameCollection",
@@ -7125,7 +7229,9 @@
     "visibility": "public",
     "reachable": true,
     "canonical_namespace": "Aspose::Cells_FOSS",
-    "class_import": "Aspose::Cells_FOSS::DefinedNameCollection"
+    "class_import": "Aspose::Cells_FOSS::DefinedNameCollection",
+    "module_key": "include",
+    "module_label": "Include"
   },
   {
     "name": "DefinedNameUtility",
@@ -7214,7 +7320,9 @@
     "visibility": "public",
     "reachable": true,
     "canonical_namespace": "Aspose::Cells_FOSS",
-    "class_import": "Aspose::Cells_FOSS::DefinedNameUtility"
+    "class_import": "Aspose::Cells_FOSS::DefinedNameUtility",
+    "module_key": "include",
+    "module_label": "Include"
   },
   {
     "name": "DiagnosticSeverity",
@@ -7246,7 +7354,9 @@
       }
     ],
     "canonical_namespace": "Aspose::Cells_FOSS",
-    "class_import": "Aspose::Cells_FOSS::DiagnosticSeverity"
+    "class_import": "Aspose::Cells_FOSS::DiagnosticSeverity",
+    "module_key": "include",
+    "module_label": "Include"
   },
   {
     "name": "DisplayTextLocaleSupport",
@@ -7292,7 +7402,9 @@
     "visibility": "public",
     "reachable": true,
     "canonical_namespace": "Aspose::Cells_FOSS",
-    "class_import": "Aspose::Cells_FOSS::DisplayTextLocaleSupport"
+    "class_import": "Aspose::Cells_FOSS::DisplayTextLocaleSupport",
+    "module_key": "include",
+    "module_label": "Include"
   },
   {
     "name": "DocumentProperties",
@@ -7637,7 +7749,9 @@
     "visibility": "public",
     "reachable": true,
     "canonical_namespace": "Aspose::Cells_FOSS",
-    "class_import": "Aspose::Cells_FOSS::DocumentProperties"
+    "class_import": "Aspose::Cells_FOSS::DocumentProperties",
+    "module_key": "include",
+    "module_label": "Include"
   },
   {
     "name": "ExtendedDocumentProperties",
@@ -7888,7 +8002,9 @@
     "visibility": "public",
     "reachable": true,
     "canonical_namespace": "Aspose::Cells_FOSS",
-    "class_import": "Aspose::Cells_FOSS::ExtendedDocumentProperties"
+    "class_import": "Aspose::Cells_FOSS::ExtendedDocumentProperties",
+    "module_key": "include",
+    "module_label": "Include"
   },
   {
     "name": "FillPattern",
@@ -7976,7 +8092,9 @@
       }
     ],
     "canonical_namespace": "Aspose::Cells_FOSS",
-    "class_import": "Aspose::Cells_FOSS::FillPattern"
+    "class_import": "Aspose::Cells_FOSS::FillPattern",
+    "module_key": "include",
+    "module_label": "Include"
   },
   {
     "name": "FillValue",
@@ -8072,7 +8190,9 @@
     "visibility": "public",
     "reachable": true,
     "canonical_namespace": "Aspose::Cells_FOSS",
-    "class_import": "Aspose::Cells_FOSS::FillValue"
+    "class_import": "Aspose::Cells_FOSS::FillValue",
+    "module_key": "include",
+    "module_label": "Include"
   },
   {
     "name": "FilterColumn",
@@ -8224,7 +8344,9 @@
     "visibility": "public",
     "reachable": true,
     "canonical_namespace": "Aspose::Cells_FOSS",
-    "class_import": "Aspose::Cells_FOSS::FilterColumn"
+    "class_import": "Aspose::Cells_FOSS::FilterColumn",
+    "module_key": "include",
+    "module_label": "Include"
   },
   {
     "name": "FilterColumnCollection",
@@ -8312,7 +8434,9 @@
     "visibility": "public",
     "reachable": true,
     "canonical_namespace": "Aspose::Cells_FOSS",
-    "class_import": "Aspose::Cells_FOSS::FilterColumnCollection"
+    "class_import": "Aspose::Cells_FOSS::FilterColumnCollection",
+    "module_key": "include",
+    "module_label": "Include"
   },
   {
     "name": "FilterColumnCollection::Iterator",
@@ -8326,7 +8450,9 @@
     "visibility": "public",
     "reachable": true,
     "canonical_namespace": "Aspose::Cells_FOSS",
-    "class_import": "Aspose::Cells_FOSS::FilterColumnCollection::Iterator"
+    "class_import": "Aspose::Cells_FOSS::FilterColumnCollection::Iterator",
+    "module_key": "include",
+    "module_label": "Include"
   },
   {
     "name": "FilterOperatorType",
@@ -8366,7 +8492,9 @@
       }
     ],
     "canonical_namespace": "Aspose::Cells_FOSS",
-    "class_import": "Aspose::Cells_FOSS::FilterOperatorType"
+    "class_import": "Aspose::Cells_FOSS::FilterOperatorType",
+    "module_key": "include",
+    "module_label": "Include"
   },
   {
     "name": "FilterValueCollection",
@@ -8454,7 +8582,9 @@
     "visibility": "public",
     "reachable": true,
     "canonical_namespace": "Aspose::Cells_FOSS",
-    "class_import": "Aspose::Cells_FOSS::FilterValueCollection"
+    "class_import": "Aspose::Cells_FOSS::FilterValueCollection",
+    "module_key": "include",
+    "module_label": "Include"
   },
   {
     "name": "Font",
@@ -8667,7 +8797,9 @@
     "visibility": "public",
     "reachable": true,
     "canonical_namespace": "Aspose::Cells_FOSS",
-    "class_import": "Aspose::Cells_FOSS::Font"
+    "class_import": "Aspose::Cells_FOSS::Font",
+    "module_key": "include",
+    "module_label": "Include"
   },
   {
     "name": "FormulaException",
@@ -8681,7 +8813,9 @@
     "visibility": "public",
     "reachable": true,
     "canonical_namespace": "Aspose::Cells_FOSS",
-    "class_import": "Aspose::Cells_FOSS::FormulaException"
+    "class_import": "Aspose::Cells_FOSS::FormulaException",
+    "module_key": "include",
+    "module_label": "Include"
   },
   {
     "name": "HorizontalAlignmentType",
@@ -8729,7 +8863,9 @@
       }
     ],
     "canonical_namespace": "Aspose::Cells_FOSS",
-    "class_import": "Aspose::Cells_FOSS::HorizontalAlignmentType"
+    "class_import": "Aspose::Cells_FOSS::HorizontalAlignmentType",
+    "module_key": "include",
+    "module_label": "Include"
   },
   {
     "name": "Hyperlink",
@@ -8843,7 +8979,9 @@
     "visibility": "public",
     "reachable": true,
     "canonical_namespace": "Aspose::Cells_FOSS",
-    "class_import": "Aspose::Cells_FOSS::Hyperlink"
+    "class_import": "Aspose::Cells_FOSS::Hyperlink",
+    "module_key": "include",
+    "module_label": "Include"
   },
   {
     "name": "HyperlinkCollection",
@@ -8967,7 +9105,9 @@
     "visibility": "public",
     "reachable": true,
     "canonical_namespace": "Aspose::Cells_FOSS",
-    "class_import": "Aspose::Cells_FOSS::HyperlinkCollection"
+    "class_import": "Aspose::Cells_FOSS::HyperlinkCollection",
+    "module_key": "include",
+    "module_label": "Include"
   },
   {
     "name": "IWarningCallback",
@@ -9005,7 +9145,9 @@
     "visibility": "public",
     "reachable": true,
     "canonical_namespace": "Aspose::Cells_FOSS",
-    "class_import": "Aspose::Cells_FOSS::IWarningCallback"
+    "class_import": "Aspose::Cells_FOSS::IWarningCallback",
+    "module_key": "include",
+    "module_label": "Include"
   },
   {
     "name": "LoadDiagnostics",
@@ -9061,7 +9203,9 @@
     "visibility": "public",
     "reachable": true,
     "canonical_namespace": "Aspose::Cells_FOSS",
-    "class_import": "Aspose::Cells_FOSS::LoadDiagnostics"
+    "class_import": "Aspose::Cells_FOSS::LoadDiagnostics",
+    "module_key": "include",
+    "module_label": "Include"
   },
   {
     "name": "LoadIssue",
@@ -9217,7 +9361,9 @@
     "visibility": "public",
     "reachable": true,
     "canonical_namespace": "Aspose::Cells_FOSS",
-    "class_import": "Aspose::Cells_FOSS::LoadIssue"
+    "class_import": "Aspose::Cells_FOSS::LoadIssue",
+    "module_key": "include",
+    "module_label": "Include"
   },
   {
     "name": "LoadOptions",
@@ -9376,7 +9522,9 @@
     "visibility": "public",
     "reachable": true,
     "canonical_namespace": "Aspose::Cells_FOSS",
-    "class_import": "Aspose::Cells_FOSS::LoadOptions"
+    "class_import": "Aspose::Cells_FOSS::LoadOptions",
+    "module_key": "include",
+    "module_label": "Include"
   },
   {
     "name": "OperatorType",
@@ -9428,7 +9576,9 @@
       }
     ],
     "canonical_namespace": "Aspose::Cells_FOSS",
-    "class_import": "Aspose::Cells_FOSS::OperatorType"
+    "class_import": "Aspose::Cells_FOSS::OperatorType",
+    "module_key": "include",
+    "module_label": "Include"
   },
   {
     "name": "PageOrientationType",
@@ -9456,7 +9606,9 @@
       }
     ],
     "canonical_namespace": "Aspose::Cells_FOSS",
-    "class_import": "Aspose::Cells_FOSS::PageOrientationType"
+    "class_import": "Aspose::Cells_FOSS::PageOrientationType",
+    "module_key": "include",
+    "module_label": "Include"
   },
   {
     "name": "PageSetup",
@@ -10279,7 +10431,9 @@
     "visibility": "public",
     "reachable": true,
     "canonical_namespace": "Aspose::Cells_FOSS",
-    "class_import": "Aspose::Cells_FOSS::PageSetup"
+    "class_import": "Aspose::Cells_FOSS::PageSetup",
+    "module_key": "include",
+    "module_label": "Include"
   },
   {
     "name": "PaperSizeType",
@@ -10339,7 +10493,9 @@
       }
     ],
     "canonical_namespace": "Aspose::Cells_FOSS",
-    "class_import": "Aspose::Cells_FOSS::PaperSizeType"
+    "class_import": "Aspose::Cells_FOSS::PaperSizeType",
+    "module_key": "include",
+    "module_label": "Include"
   },
   {
     "name": "Row",
@@ -10402,7 +10558,9 @@
     "visibility": "public",
     "reachable": true,
     "canonical_namespace": "Aspose::Cells_FOSS",
-    "class_import": "Aspose::Cells_FOSS::Row"
+    "class_import": "Aspose::Cells_FOSS::Row",
+    "module_key": "include",
+    "module_label": "Include"
   },
   {
     "name": "RowCollection",
@@ -10416,7 +10574,9 @@
     "visibility": "public",
     "reachable": true,
     "canonical_namespace": "Aspose::Cells_FOSS",
-    "class_import": "Aspose::Cells_FOSS::RowCollection"
+    "class_import": "Aspose::Cells_FOSS::RowCollection",
+    "module_key": "include",
+    "module_label": "Include"
   },
   {
     "name": "SaveOptions",
@@ -10551,7 +10711,9 @@
     "visibility": "public",
     "reachable": true,
     "canonical_namespace": "Aspose::Cells_FOSS",
-    "class_import": "Aspose::Cells_FOSS::SaveOptions"
+    "class_import": "Aspose::Cells_FOSS::SaveOptions",
+    "module_key": "include",
+    "module_label": "Include"
   },
   {
     "name": "Style",
@@ -11130,7 +11292,9 @@
     "visibility": "public",
     "reachable": true,
     "canonical_namespace": "Aspose::Cells_FOSS",
-    "class_import": "Aspose::Cells_FOSS::Style"
+    "class_import": "Aspose::Cells_FOSS::Style",
+    "module_key": "include",
+    "module_label": "Include"
   },
   {
     "name": "StyleException",
@@ -11144,7 +11308,9 @@
     "visibility": "public",
     "reachable": true,
     "canonical_namespace": "Aspose::Cells_FOSS",
-    "class_import": "Aspose::Cells_FOSS::StyleException"
+    "class_import": "Aspose::Cells_FOSS::StyleException",
+    "module_key": "include",
+    "module_label": "Include"
   },
   {
     "name": "StyleValueSanitizer",
@@ -11201,7 +11367,9 @@
     "visibility": "public",
     "reachable": true,
     "canonical_namespace": "Aspose::Cells_FOSS",
-    "class_import": "Aspose::Cells_FOSS::StyleValueSanitizer"
+    "class_import": "Aspose::Cells_FOSS::StyleValueSanitizer",
+    "module_key": "include",
+    "module_label": "Include"
   },
   {
     "name": "StylesheetLoadContext",
@@ -11297,7 +11465,9 @@
     "visibility": "public",
     "reachable": true,
     "canonical_namespace": "Aspose::Cells_FOSS",
-    "class_import": "Aspose::Cells_FOSS::StylesheetLoadContext"
+    "class_import": "Aspose::Cells_FOSS::StylesheetLoadContext",
+    "module_key": "include",
+    "module_label": "Include"
   },
   {
     "name": "StylesheetSaveContext",
@@ -11386,7 +11556,9 @@
     "visibility": "public",
     "reachable": true,
     "canonical_namespace": "Aspose::Cells_FOSS",
-    "class_import": "Aspose::Cells_FOSS::StylesheetSaveContext"
+    "class_import": "Aspose::Cells_FOSS::StylesheetSaveContext",
+    "module_key": "include",
+    "module_label": "Include"
   },
   {
     "name": "TargetModeType",
@@ -11418,7 +11590,9 @@
       }
     ],
     "canonical_namespace": "Aspose::Cells_FOSS",
-    "class_import": "Aspose::Cells_FOSS::TargetModeType"
+    "class_import": "Aspose::Cells_FOSS::TargetModeType",
+    "module_key": "include",
+    "module_label": "Include"
   },
   {
     "name": "UnsupportedFeatureException",
@@ -11432,7 +11606,9 @@
     "visibility": "public",
     "reachable": true,
     "canonical_namespace": "Aspose::Cells_FOSS",
-    "class_import": "Aspose::Cells_FOSS::UnsupportedFeatureException"
+    "class_import": "Aspose::Cells_FOSS::UnsupportedFeatureException",
+    "module_key": "include",
+    "module_label": "Include"
   },
   {
     "name": "Validation",
@@ -11796,7 +11972,9 @@
     "visibility": "public",
     "reachable": true,
     "canonical_namespace": "Aspose::Cells_FOSS",
-    "class_import": "Aspose::Cells_FOSS::Validation"
+    "class_import": "Aspose::Cells_FOSS::Validation",
+    "module_key": "include",
+    "module_label": "Include"
   },
   {
     "name": "ValidationAlertType",
@@ -11824,7 +12002,9 @@
       }
     ],
     "canonical_namespace": "Aspose::Cells_FOSS",
-    "class_import": "Aspose::Cells_FOSS::ValidationAlertType"
+    "class_import": "Aspose::Cells_FOSS::ValidationAlertType",
+    "module_key": "include",
+    "module_label": "Include"
   },
   {
     "name": "ValidationCollection",
@@ -12006,7 +12186,9 @@
     "visibility": "public",
     "reachable": true,
     "canonical_namespace": "Aspose::Cells_FOSS",
-    "class_import": "Aspose::Cells_FOSS::ValidationCollection"
+    "class_import": "Aspose::Cells_FOSS::ValidationCollection",
+    "module_key": "include",
+    "module_label": "Include"
   },
   {
     "name": "ValidationType",
@@ -12054,7 +12236,9 @@
       }
     ],
     "canonical_namespace": "Aspose::Cells_FOSS",
-    "class_import": "Aspose::Cells_FOSS::ValidationType"
+    "class_import": "Aspose::Cells_FOSS::ValidationType",
+    "module_key": "include",
+    "module_label": "Include"
   },
   {
     "name": "VerticalAlignmentType",
@@ -12090,7 +12274,9 @@
       }
     ],
     "canonical_namespace": "Aspose::Cells_FOSS",
-    "class_import": "Aspose::Cells_FOSS::VerticalAlignmentType"
+    "class_import": "Aspose::Cells_FOSS::VerticalAlignmentType",
+    "module_key": "include",
+    "module_label": "Include"
   },
   {
     "name": "VisibilityType",
@@ -12118,7 +12304,9 @@
       }
     ],
     "canonical_namespace": "Aspose::Cells_FOSS",
-    "class_import": "Aspose::Cells_FOSS::VisibilityType"
+    "class_import": "Aspose::Cells_FOSS::VisibilityType",
+    "module_key": "include",
+    "module_label": "Include"
   },
   {
     "name": "WarningInfo",
@@ -12325,7 +12513,9 @@
     "visibility": "public",
     "reachable": true,
     "canonical_namespace": "Aspose::Cells_FOSS",
-    "class_import": "Aspose::Cells_FOSS::WarningInfo"
+    "class_import": "Aspose::Cells_FOSS::WarningInfo",
+    "module_key": "include",
+    "module_label": "Include"
   },
   {
     "name": "Workbook",
@@ -12659,7 +12849,9 @@
     "visibility": "public",
     "reachable": true,
     "canonical_namespace": "Aspose::Cells_FOSS",
-    "class_import": "Aspose::Cells_FOSS::Workbook"
+    "class_import": "Aspose::Cells_FOSS::Workbook",
+    "module_key": "include",
+    "module_label": "Include"
   },
   {
     "name": "WorkbookLoadException",
@@ -12673,7 +12865,9 @@
     "visibility": "public",
     "reachable": true,
     "canonical_namespace": "Aspose::Cells_FOSS",
-    "class_import": "Aspose::Cells_FOSS::WorkbookLoadException"
+    "class_import": "Aspose::Cells_FOSS::WorkbookLoadException",
+    "module_key": "include",
+    "module_label": "Include"
   },
   {
     "name": "WorkbookProperties",
@@ -13013,7 +13207,9 @@
     "visibility": "public",
     "reachable": true,
     "canonical_namespace": "Aspose::Cells_FOSS",
-    "class_import": "Aspose::Cells_FOSS::WorkbookProperties"
+    "class_import": "Aspose::Cells_FOSS::WorkbookProperties",
+    "module_key": "include",
+    "module_label": "Include"
   },
   {
     "name": "WorkbookPropertySupport",
@@ -13107,7 +13303,9 @@
     "visibility": "public",
     "reachable": true,
     "canonical_namespace": "Aspose::Cells_FOSS",
-    "class_import": "Aspose::Cells_FOSS::WorkbookPropertySupport"
+    "class_import": "Aspose::Cells_FOSS::WorkbookPropertySupport",
+    "module_key": "include",
+    "module_label": "Include"
   },
   {
     "name": "WorkbookProtection",
@@ -13251,7 +13449,9 @@
     "visibility": "public",
     "reachable": true,
     "canonical_namespace": "Aspose::Cells_FOSS",
-    "class_import": "Aspose::Cells_FOSS::WorkbookProtection"
+    "class_import": "Aspose::Cells_FOSS::WorkbookProtection",
+    "module_key": "include",
+    "module_label": "Include"
   },
   {
     "name": "WorkbookSaveException",
@@ -13265,7 +13465,9 @@
     "visibility": "public",
     "reachable": true,
     "canonical_namespace": "Aspose::Cells_FOSS",
-    "class_import": "Aspose::Cells_FOSS::WorkbookSaveException"
+    "class_import": "Aspose::Cells_FOSS::WorkbookSaveException",
+    "module_key": "include",
+    "module_label": "Include"
   },
   {
     "name": "WorkbookSettings",
@@ -13356,7 +13558,9 @@
     "visibility": "public",
     "reachable": true,
     "canonical_namespace": "Aspose::Cells_FOSS",
-    "class_import": "Aspose::Cells_FOSS::WorkbookSettings"
+    "class_import": "Aspose::Cells_FOSS::WorkbookSettings",
+    "module_key": "include",
+    "module_label": "Include"
   },
   {
     "name": "WorkbookView",
@@ -13711,7 +13915,9 @@
     "visibility": "public",
     "reachable": true,
     "canonical_namespace": "Aspose::Cells_FOSS",
-    "class_import": "Aspose::Cells_FOSS::WorkbookView"
+    "class_import": "Aspose::Cells_FOSS::WorkbookView",
+    "module_key": "include",
+    "module_label": "Include"
   },
   {
     "name": "Worksheet",
@@ -14135,7 +14341,9 @@
     "visibility": "public",
     "reachable": true,
     "canonical_namespace": "Aspose::Cells_FOSS",
-    "class_import": "Aspose::Cells_FOSS::Worksheet"
+    "class_import": "Aspose::Cells_FOSS::Worksheet",
+    "module_key": "include",
+    "module_label": "Include"
   },
   {
     "name": "WorksheetCollection",
@@ -14304,7 +14512,9 @@
     "visibility": "public",
     "reachable": true,
     "canonical_namespace": "Aspose::Cells_FOSS",
-    "class_import": "Aspose::Cells_FOSS::WorksheetCollection"
+    "class_import": "Aspose::Cells_FOSS::WorksheetCollection",
+    "module_key": "include",
+    "module_label": "Include"
   },
   {
     "name": "WorksheetDefinedNamesState",
@@ -14391,7 +14601,9 @@
     "visibility": "public",
     "reachable": true,
     "canonical_namespace": "Aspose::Cells_FOSS",
-    "class_import": "Aspose::Cells_FOSS::WorksheetDefinedNamesState"
+    "class_import": "Aspose::Cells_FOSS::WorksheetDefinedNamesState",
+    "module_key": "include",
+    "module_label": "Include"
   },
   {
     "name": "WorksheetProtection",
@@ -14799,7 +15011,9 @@
     "visibility": "public",
     "reachable": true,
     "canonical_namespace": "Aspose::Cells_FOSS",
-    "class_import": "Aspose::Cells_FOSS::WorksheetProtection"
+    "class_import": "Aspose::Cells_FOSS::WorksheetProtection",
+    "module_key": "include",
+    "module_label": "Include"
   },
   {
     "name": "XlsxDocumentProperties",
@@ -14877,7 +15091,9 @@
     "visibility": "public",
     "reachable": true,
     "canonical_namespace": "Aspose::Cells_FOSS",
-    "class_import": "Aspose::Cells_FOSS::XlsxDocumentProperties"
+    "class_import": "Aspose::Cells_FOSS::XlsxDocumentProperties",
+    "module_key": "include",
+    "module_label": "Include"
   },
   {
     "name": "XlsxWorkbookArchiveHelpers",
@@ -15269,7 +15485,9 @@
     "visibility": "public",
     "reachable": true,
     "canonical_namespace": "Aspose::Cells_FOSS",
-    "class_import": "Aspose::Cells_FOSS::XlsxWorkbookArchiveHelpers"
+    "class_import": "Aspose::Cells_FOSS::XlsxWorkbookArchiveHelpers",
+    "module_key": "include",
+    "module_label": "Include"
   },
   {
     "name": "XlsxWorkbookAutoFilter",
@@ -15345,7 +15563,9 @@
     "visibility": "public",
     "reachable": true,
     "canonical_namespace": "Aspose::Cells_FOSS",
-    "class_import": "Aspose::Cells_FOSS::XlsxWorkbookAutoFilter"
+    "class_import": "Aspose::Cells_FOSS::XlsxWorkbookAutoFilter",
+    "module_key": "include",
+    "module_label": "Include"
   },
   {
     "name": "XlsxWorkbookDefinedNames",
@@ -15413,7 +15633,9 @@
     "visibility": "public",
     "reachable": true,
     "canonical_namespace": "Aspose::Cells_FOSS",
-    "class_import": "Aspose::Cells_FOSS::XlsxWorkbookDefinedNames"
+    "class_import": "Aspose::Cells_FOSS::XlsxWorkbookDefinedNames",
+    "module_key": "include",
+    "module_label": "Include"
   },
   {
     "name": "XlsxWorkbookHyperlinks",
@@ -15517,7 +15739,9 @@
     "visibility": "public",
     "reachable": true,
     "canonical_namespace": "Aspose::Cells_FOSS",
-    "class_import": "Aspose::Cells_FOSS::XlsxWorkbookHyperlinks"
+    "class_import": "Aspose::Cells_FOSS::XlsxWorkbookHyperlinks",
+    "module_key": "include",
+    "module_label": "Include"
   },
   {
     "name": "XlsxWorkbookPageSetup",
@@ -15723,7 +15947,9 @@
     "visibility": "public",
     "reachable": true,
     "canonical_namespace": "Aspose::Cells_FOSS",
-    "class_import": "Aspose::Cells_FOSS::XlsxWorkbookPageSetup"
+    "class_import": "Aspose::Cells_FOSS::XlsxWorkbookPageSetup",
+    "module_key": "include",
+    "module_label": "Include"
   },
   {
     "name": "XlsxWorkbookProperties",
@@ -15833,7 +16059,9 @@
     "visibility": "public",
     "reachable": true,
     "canonical_namespace": "Aspose::Cells_FOSS",
-    "class_import": "Aspose::Cells_FOSS::XlsxWorkbookProperties"
+    "class_import": "Aspose::Cells_FOSS::XlsxWorkbookProperties",
+    "module_key": "include",
+    "module_label": "Include"
   },
   {
     "name": "XlsxWorkbookSerializer",
@@ -15901,7 +16129,9 @@
     "visibility": "public",
     "reachable": true,
     "canonical_namespace": "Aspose::Cells_FOSS",
-    "class_import": "Aspose::Cells_FOSS::XlsxWorkbookSerializer"
+    "class_import": "Aspose::Cells_FOSS::XlsxWorkbookSerializer",
+    "module_key": "include",
+    "module_label": "Include"
   },
   {
     "name": "XlsxWorkbookSerializerCommon",
@@ -16466,7 +16696,9 @@
     "visibility": "public",
     "reachable": true,
     "canonical_namespace": "Aspose::Cells_FOSS",
-    "class_import": "Aspose::Cells_FOSS::XlsxWorkbookSerializerCommon"
+    "class_import": "Aspose::Cells_FOSS::XlsxWorkbookSerializerCommon",
+    "module_key": "include",
+    "module_label": "Include"
   },
   {
     "name": "XlsxWorkbookStyles",
@@ -16576,7 +16808,9 @@
     "visibility": "public",
     "reachable": true,
     "canonical_namespace": "Aspose::Cells_FOSS",
-    "class_import": "Aspose::Cells_FOSS::XlsxWorkbookStyles"
+    "class_import": "Aspose::Cells_FOSS::XlsxWorkbookStyles",
+    "module_key": "include",
+    "module_label": "Include"
   },
   {
     "name": "XlsxWorkbookStylesValueHelpers",
@@ -16711,7 +16945,9 @@
     "visibility": "public",
     "reachable": true,
     "canonical_namespace": "Aspose::Cells_FOSS",
-    "class_import": "Aspose::Cells_FOSS::XlsxWorkbookStylesValueHelpers"
+    "class_import": "Aspose::Cells_FOSS::XlsxWorkbookStylesValueHelpers",
+    "module_key": "include",
+    "module_label": "Include"
   },
   {
     "name": "XlsxWorkbookStylesXml",
@@ -16941,7 +17177,9 @@
     "visibility": "public",
     "reachable": true,
     "canonical_namespace": "Aspose::Cells_FOSS",
-    "class_import": "Aspose::Cells_FOSS::XlsxWorkbookStylesXml"
+    "class_import": "Aspose::Cells_FOSS::XlsxWorkbookStylesXml",
+    "module_key": "include",
+    "module_label": "Include"
   },
   {
     "name": "XlsxWorkbookValidations",
@@ -17009,7 +17247,9 @@
     "visibility": "public",
     "reachable": true,
     "canonical_namespace": "Aspose::Cells_FOSS",
-    "class_import": "Aspose::Cells_FOSS::XlsxWorkbookValidations"
+    "class_import": "Aspose::Cells_FOSS::XlsxWorkbookValidations",
+    "module_key": "include",
+    "module_label": "Include"
   },
   {
     "name": "XlsxWorkbookWorksheetProtection",
@@ -17077,7 +17317,9 @@
     "visibility": "public",
     "reachable": true,
     "canonical_namespace": "Aspose::Cells_FOSS",
-    "class_import": "Aspose::Cells_FOSS::XlsxWorkbookWorksheetProtection"
+    "class_import": "Aspose::Cells_FOSS::XlsxWorkbookWorksheetProtection",
+    "module_key": "include",
+    "module_label": "Include"
   },
   {
     "name": "XlsxWorkbookWorksheetViews",
@@ -17159,7 +17401,9 @@
     "visibility": "public",
     "reachable": true,
     "canonical_namespace": "Aspose::Cells_FOSS",
-    "class_import": "Aspose::Cells_FOSS::XlsxWorkbookWorksheetViews"
+    "class_import": "Aspose::Cells_FOSS::XlsxWorkbookWorksheetViews",
+    "module_key": "include",
+    "module_label": "Include"
   },
   {
     "name": "XmlDocument",
@@ -17230,7 +17474,9 @@
     "visibility": "public",
     "reachable": true,
     "canonical_namespace": "Aspose::Cells_FOSS",
-    "class_import": "Aspose::Cells_FOSS::XmlDocument"
+    "class_import": "Aspose::Cells_FOSS::XmlDocument",
+    "module_key": "include",
+    "module_label": "Include"
   },
   {
     "name": "XNamespace",
@@ -17274,7 +17520,9 @@
     "visibility": "public",
     "reachable": true,
     "canonical_namespace": "Aspose::Cells_FOSS",
-    "class_import": "Aspose::Cells_FOSS::XNamespace"
+    "class_import": "Aspose::Cells_FOSS::XNamespace",
+    "module_key": "include",
+    "module_label": "Include"
   },
   {
     "name": "XmlNodeData",
@@ -17345,7 +17593,9 @@
     "visibility": "public",
     "reachable": true,
     "canonical_namespace": "Aspose::Cells_FOSS",
-    "class_import": "Aspose::Cells_FOSS::XmlNodeData"
+    "class_import": "Aspose::Cells_FOSS::XmlNodeData",
+    "module_key": "include",
+    "module_label": "Include"
   },
   {
     "name": "XmlAttribute",
@@ -17394,7 +17644,9 @@
     "visibility": "public",
     "reachable": true,
     "canonical_namespace": "Aspose::Cells_FOSS",
-    "class_import": "Aspose::Cells_FOSS::XmlAttribute"
+    "class_import": "Aspose::Cells_FOSS::XmlAttribute",
+    "module_key": "include",
+    "module_label": "Include"
   },
   {
     "name": "XmlElement",
@@ -17611,7 +17863,9 @@
     "visibility": "public",
     "reachable": true,
     "canonical_namespace": "Aspose::Cells_FOSS",
-    "class_import": "Aspose::Cells_FOSS::XmlElement"
+    "class_import": "Aspose::Cells_FOSS::XmlElement",
+    "module_key": "include",
+    "module_label": "Include"
   },
   {
     "name": "ZipArchiveEntry",
@@ -17654,7 +17908,9 @@
     "visibility": "public",
     "reachable": true,
     "canonical_namespace": "Aspose::Cells_FOSS",
-    "class_import": "Aspose::Cells_FOSS::ZipArchiveEntry"
+    "class_import": "Aspose::Cells_FOSS::ZipArchiveEntry",
+    "module_key": "include",
+    "module_label": "Include"
   },
   {
     "name": "ZipArchive",
@@ -17733,7 +17989,9 @@
     "visibility": "public",
     "reachable": true,
     "canonical_namespace": "Aspose::Cells_FOSS",
-    "class_import": "Aspose::Cells_FOSS::ZipArchive"
+    "class_import": "Aspose::Cells_FOSS::ZipArchive",
+    "module_key": "include",
+    "module_label": "Include"
   },
   {
     "name": "AlignmentValue",
@@ -17995,7 +18253,9 @@
     "visibility": "public",
     "reachable": true,
     "canonical_namespace": "Aspose::Cells_FOSS::Core",
-    "class_import": "Aspose::Cells_FOSS::Core::AlignmentValue"
+    "class_import": "Aspose::Cells_FOSS::Core::AlignmentValue",
+    "module_key": "include",
+    "module_label": "Include"
   },
   {
     "name": "AutoFilterColorFilterModel",
@@ -18100,7 +18360,9 @@
     "visibility": "public",
     "reachable": true,
     "canonical_namespace": "Aspose::Cells_FOSS::Core",
-    "class_import": "Aspose::Cells_FOSS::Core::AutoFilterColorFilterModel"
+    "class_import": "Aspose::Cells_FOSS::Core::AutoFilterColorFilterModel",
+    "module_key": "include",
+    "module_label": "Include"
   },
   {
     "name": "AutoFilterCustomFilterModel",
@@ -18202,7 +18464,9 @@
     "visibility": "public",
     "reachable": true,
     "canonical_namespace": "Aspose::Cells_FOSS::Core",
-    "class_import": "Aspose::Cells_FOSS::Core::AutoFilterCustomFilterModel"
+    "class_import": "Aspose::Cells_FOSS::Core::AutoFilterCustomFilterModel",
+    "module_key": "include",
+    "module_label": "Include"
   },
   {
     "name": "AutoFilterDynamicFilterModel",
@@ -18346,7 +18610,9 @@
     "visibility": "public",
     "reachable": true,
     "canonical_namespace": "Aspose::Cells_FOSS::Core",
-    "class_import": "Aspose::Cells_FOSS::Core::AutoFilterDynamicFilterModel"
+    "class_import": "Aspose::Cells_FOSS::Core::AutoFilterDynamicFilterModel",
+    "module_key": "include",
+    "module_label": "Include"
   },
   {
     "name": "AutoFilterModel",
@@ -18484,7 +18750,9 @@
     "visibility": "public",
     "reachable": true,
     "canonical_namespace": "Aspose::Cells_FOSS::Core",
-    "class_import": "Aspose::Cells_FOSS::Core::AutoFilterModel"
+    "class_import": "Aspose::Cells_FOSS::Core::AutoFilterModel",
+    "module_key": "include",
+    "module_label": "Include"
   },
   {
     "name": "AutoFilterSortConditionModel",
@@ -18736,7 +19004,9 @@
     "visibility": "public",
     "reachable": true,
     "canonical_namespace": "Aspose::Cells_FOSS::Core",
-    "class_import": "Aspose::Cells_FOSS::Core::AutoFilterSortConditionModel"
+    "class_import": "Aspose::Cells_FOSS::Core::AutoFilterSortConditionModel",
+    "module_key": "include",
+    "module_label": "Include"
   },
   {
     "name": "AutoFilterSortStateModel",
@@ -18914,7 +19184,9 @@
     "visibility": "public",
     "reachable": true,
     "canonical_namespace": "Aspose::Cells_FOSS::Core",
-    "class_import": "Aspose::Cells_FOSS::Core::AutoFilterSortStateModel"
+    "class_import": "Aspose::Cells_FOSS::Core::AutoFilterSortStateModel",
+    "module_key": "include",
+    "module_label": "Include"
   },
   {
     "name": "AutoFilterTop10Model",
@@ -19067,7 +19339,9 @@
     "visibility": "public",
     "reachable": true,
     "canonical_namespace": "Aspose::Cells_FOSS::Core",
-    "class_import": "Aspose::Cells_FOSS::Core::AutoFilterTop10Model"
+    "class_import": "Aspose::Cells_FOSS::Core::AutoFilterTop10Model",
+    "module_key": "include",
+    "module_label": "Include"
   },
   {
     "name": "BorderSideValue",
@@ -19185,7 +19459,9 @@
     "visibility": "public",
     "reachable": true,
     "canonical_namespace": "Aspose::Cells_FOSS::Core",
-    "class_import": "Aspose::Cells_FOSS::Core::BorderSideValue"
+    "class_import": "Aspose::Cells_FOSS::Core::BorderSideValue",
+    "module_key": "include",
+    "module_label": "Include"
   },
   {
     "name": "BorderStyle",
@@ -19257,7 +19533,9 @@
       }
     ],
     "canonical_namespace": "Aspose::Cells_FOSS::Core",
-    "class_import": "Aspose::Cells_FOSS::Core::BorderStyle"
+    "class_import": "Aspose::Cells_FOSS::Core::BorderStyle",
+    "module_key": "include",
+    "module_label": "Include"
   },
   {
     "name": "BordersValue",
@@ -19513,7 +19791,9 @@
     "visibility": "public",
     "reachable": true,
     "canonical_namespace": "Aspose::Cells_FOSS::Core",
-    "class_import": "Aspose::Cells_FOSS::Core::BordersValue"
+    "class_import": "Aspose::Cells_FOSS::Core::BordersValue",
+    "module_key": "include",
+    "module_label": "Include"
   },
   {
     "name": "CalculationPropertiesModel",
@@ -19839,7 +20119,9 @@
     "visibility": "public",
     "reachable": true,
     "canonical_namespace": "Aspose::Cells_FOSS::Core",
-    "class_import": "Aspose::Cells_FOSS::Core::CalculationPropertiesModel"
+    "class_import": "Aspose::Cells_FOSS::Core::CalculationPropertiesModel",
+    "module_key": "include",
+    "module_label": "Include"
   },
   {
     "name": "CellAddress",
@@ -19927,7 +20209,9 @@
     "visibility": "public",
     "reachable": true,
     "canonical_namespace": "Aspose::Cells_FOSS::Core",
-    "class_import": "Aspose::Cells_FOSS::Core::CellAddress"
+    "class_import": "Aspose::Cells_FOSS::Core::CellAddress",
+    "module_key": "include",
+    "module_label": "Include"
   },
   {
     "name": "CellRecord",
@@ -20141,7 +20425,9 @@
     "visibility": "public",
     "reachable": true,
     "canonical_namespace": "Aspose::Cells_FOSS::Core",
-    "class_import": "Aspose::Cells_FOSS::Core::CellRecord"
+    "class_import": "Aspose::Cells_FOSS::Core::CellRecord",
+    "module_key": "include",
+    "module_label": "Include"
   },
   {
     "name": "CellValueKind",
@@ -20181,7 +20467,9 @@
       }
     ],
     "canonical_namespace": "Aspose::Cells_FOSS::Core",
-    "class_import": "Aspose::Cells_FOSS::Core::CellValueKind"
+    "class_import": "Aspose::Cells_FOSS::Core::CellValueKind",
+    "module_key": "include",
+    "module_label": "Include"
   },
   {
     "name": "ColorValue",
@@ -20264,7 +20552,9 @@
     "visibility": "public",
     "reachable": true,
     "canonical_namespace": "Aspose::Cells_FOSS::Core",
-    "class_import": "Aspose::Cells_FOSS::Core::ColorValue"
+    "class_import": "Aspose::Cells_FOSS::Core::ColorValue",
+    "module_key": "include",
+    "module_label": "Include"
   },
   {
     "name": "ColumnRangeModel",
@@ -20399,7 +20689,9 @@
     "visibility": "public",
     "reachable": true,
     "canonical_namespace": "Aspose::Cells_FOSS::Core",
-    "class_import": "Aspose::Cells_FOSS::Core::ColumnRangeModel"
+    "class_import": "Aspose::Cells_FOSS::Core::ColumnRangeModel",
+    "module_key": "include",
+    "module_label": "Include"
   },
   {
     "name": "CoreDocumentPropertiesModel",
@@ -20701,7 +20993,9 @@
     "visibility": "public",
     "reachable": true,
     "canonical_namespace": "Aspose::Cells_FOSS::Core",
-    "class_import": "Aspose::Cells_FOSS::Core::CoreDocumentPropertiesModel"
+    "class_import": "Aspose::Cells_FOSS::Core::CoreDocumentPropertiesModel",
+    "module_key": "include",
+    "module_label": "Include"
   },
   {
     "name": "DateSerialConverter",
@@ -20761,7 +21055,9 @@
     "visibility": "public",
     "reachable": true,
     "canonical_namespace": "Aspose::Cells_FOSS::Core",
-    "class_import": "Aspose::Cells_FOSS::Core::DateSerialConverter"
+    "class_import": "Aspose::Cells_FOSS::Core::DateSerialConverter",
+    "module_key": "include",
+    "module_label": "Include"
   },
   {
     "name": "DateSystem",
@@ -20785,7 +21081,9 @@
       }
     ],
     "canonical_namespace": "Aspose::Cells_FOSS::Core",
-    "class_import": "Aspose::Cells_FOSS::Core::DateSystem"
+    "class_import": "Aspose::Cells_FOSS::Core::DateSystem",
+    "module_key": "include",
+    "module_label": "Include"
   },
   {
     "name": "DefinedNameModel",
@@ -20920,7 +21218,9 @@
     "visibility": "public",
     "reachable": true,
     "canonical_namespace": "Aspose::Cells_FOSS::Core",
-    "class_import": "Aspose::Cells_FOSS::Core::DefinedNameModel"
+    "class_import": "Aspose::Cells_FOSS::Core::DefinedNameModel",
+    "module_key": "include",
+    "module_label": "Include"
   },
   {
     "name": "DiagnosticBag",
@@ -20958,7 +21258,9 @@
     "visibility": "public",
     "reachable": true,
     "canonical_namespace": "Aspose::Cells_FOSS::Core",
-    "class_import": "Aspose::Cells_FOSS::Core::DiagnosticBag"
+    "class_import": "Aspose::Cells_FOSS::Core::DiagnosticBag",
+    "module_key": "include",
+    "module_label": "Include"
   },
   {
     "name": "DiagnosticEntry",
@@ -21112,7 +21414,9 @@
     "visibility": "public",
     "reachable": true,
     "canonical_namespace": "Aspose::Cells_FOSS::Core",
-    "class_import": "Aspose::Cells_FOSS::Core::DiagnosticEntry"
+    "class_import": "Aspose::Cells_FOSS::Core::DiagnosticEntry",
+    "module_key": "include",
+    "module_label": "Include"
   },
   {
     "name": "DiagnosticSeverity",
@@ -21144,7 +21448,9 @@
       }
     ],
     "canonical_namespace": "Aspose::Cells_FOSS::Core",
-    "class_import": "Aspose::Cells_FOSS::Core::DiagnosticSeverity"
+    "class_import": "Aspose::Cells_FOSS::Core::DiagnosticSeverity",
+    "module_key": "include",
+    "module_label": "Include"
   },
   {
     "name": "DocumentPropertiesModel",
@@ -21275,7 +21581,9 @@
     "visibility": "public",
     "reachable": true,
     "canonical_namespace": "Aspose::Cells_FOSS::Core",
-    "class_import": "Aspose::Cells_FOSS::Core::DocumentPropertiesModel"
+    "class_import": "Aspose::Cells_FOSS::Core::DocumentPropertiesModel",
+    "module_key": "include",
+    "module_label": "Include"
   },
   {
     "name": "ExtendedDocumentPropertiesModel",
@@ -21529,7 +21837,9 @@
     "visibility": "public",
     "reachable": true,
     "canonical_namespace": "Aspose::Cells_FOSS::Core",
-    "class_import": "Aspose::Cells_FOSS::Core::ExtendedDocumentPropertiesModel"
+    "class_import": "Aspose::Cells_FOSS::Core::ExtendedDocumentPropertiesModel",
+    "module_key": "include",
+    "module_label": "Include"
   },
   {
     "name": "FillPatternKind",
@@ -21617,7 +21927,9 @@
       }
     ],
     "canonical_namespace": "Aspose::Cells_FOSS::Core",
-    "class_import": "Aspose::Cells_FOSS::Core::FillPatternKind"
+    "class_import": "Aspose::Cells_FOSS::Core::FillPatternKind",
+    "module_key": "include",
+    "module_label": "Include"
   },
   {
     "name": "FilterColumnModel",
@@ -21899,7 +22211,9 @@
     "visibility": "public",
     "reachable": true,
     "canonical_namespace": "Aspose::Cells_FOSS::Core",
-    "class_import": "Aspose::Cells_FOSS::Core::FilterColumnModel"
+    "class_import": "Aspose::Cells_FOSS::Core::FilterColumnModel",
+    "module_key": "include",
+    "module_label": "Include"
   },
   {
     "name": "FontValue",
@@ -22119,7 +22433,9 @@
     "visibility": "public",
     "reachable": true,
     "canonical_namespace": "Aspose::Cells_FOSS::Core",
-    "class_import": "Aspose::Cells_FOSS::Core::FontValue"
+    "class_import": "Aspose::Cells_FOSS::Core::FontValue",
+    "module_key": "include",
+    "module_label": "Include"
   },
   {
     "name": "HeaderFooterModel",
@@ -22278,7 +22594,9 @@
     "visibility": "public",
     "reachable": true,
     "canonical_namespace": "Aspose::Cells_FOSS::Core",
-    "class_import": "Aspose::Cells_FOSS::Core::HeaderFooterModel"
+    "class_import": "Aspose::Cells_FOSS::Core::HeaderFooterModel",
+    "module_key": "include",
+    "module_label": "Include"
   },
   {
     "name": "HorizontalAlignment",
@@ -22326,7 +22644,9 @@
       }
     ],
     "canonical_namespace": "Aspose::Cells_FOSS::Core",
-    "class_import": "Aspose::Cells_FOSS::Core::HorizontalAlignment"
+    "class_import": "Aspose::Cells_FOSS::Core::HorizontalAlignment",
+    "module_key": "include",
+    "module_label": "Include"
   },
   {
     "name": "HyperlinkModel",
@@ -22533,7 +22853,9 @@
     "visibility": "public",
     "reachable": true,
     "canonical_namespace": "Aspose::Cells_FOSS::Core",
-    "class_import": "Aspose::Cells_FOSS::Core::HyperlinkModel"
+    "class_import": "Aspose::Cells_FOSS::Core::HyperlinkModel",
+    "module_key": "include",
+    "module_label": "Include"
   },
   {
     "name": "MergeRegion",
@@ -22593,7 +22915,9 @@
     "visibility": "public",
     "reachable": true,
     "canonical_namespace": "Aspose::Cells_FOSS::Core",
-    "class_import": "Aspose::Cells_FOSS::Core::MergeRegion"
+    "class_import": "Aspose::Cells_FOSS::Core::MergeRegion",
+    "module_key": "include",
+    "module_label": "Include"
   },
   {
     "name": "PageMarginsModel",
@@ -22752,7 +23076,9 @@
     "visibility": "public",
     "reachable": true,
     "canonical_namespace": "Aspose::Cells_FOSS::Core",
-    "class_import": "Aspose::Cells_FOSS::Core::PageMarginsModel"
+    "class_import": "Aspose::Cells_FOSS::Core::PageMarginsModel",
+    "module_key": "include",
+    "module_label": "Include"
   },
   {
     "name": "PageOrientation",
@@ -22780,7 +23106,9 @@
       }
     ],
     "canonical_namespace": "Aspose::Cells_FOSS::Core",
-    "class_import": "Aspose::Cells_FOSS::Core::PageOrientation"
+    "class_import": "Aspose::Cells_FOSS::Core::PageOrientation",
+    "module_key": "include",
+    "module_label": "Include"
   },
   {
     "name": "PageSetupModel",
@@ -23206,7 +23534,9 @@
     "visibility": "public",
     "reachable": true,
     "canonical_namespace": "Aspose::Cells_FOSS::Core",
-    "class_import": "Aspose::Cells_FOSS::Core::PageSetupModel"
+    "class_import": "Aspose::Cells_FOSS::Core::PageSetupModel",
+    "module_key": "include",
+    "module_label": "Include"
   },
   {
     "name": "PrintOptionsModel",
@@ -23317,7 +23647,9 @@
     "visibility": "public",
     "reachable": true,
     "canonical_namespace": "Aspose::Cells_FOSS::Core",
-    "class_import": "Aspose::Cells_FOSS::Core::PrintOptionsModel"
+    "class_import": "Aspose::Cells_FOSS::Core::PrintOptionsModel",
+    "module_key": "include",
+    "module_label": "Include"
   },
   {
     "name": "ProtectionValue",
@@ -23398,7 +23730,9 @@
     "visibility": "public",
     "reachable": true,
     "canonical_namespace": "Aspose::Cells_FOSS::Core",
-    "class_import": "Aspose::Cells_FOSS::Core::ProtectionValue"
+    "class_import": "Aspose::Cells_FOSS::Core::ProtectionValue",
+    "module_key": "include",
+    "module_label": "Include"
   },
   {
     "name": "RowModel",
@@ -23485,7 +23819,9 @@
     "visibility": "public",
     "reachable": true,
     "canonical_namespace": "Aspose::Cells_FOSS::Core",
-    "class_import": "Aspose::Cells_FOSS::Core::RowModel"
+    "class_import": "Aspose::Cells_FOSS::Core::RowModel",
+    "module_key": "include",
+    "module_label": "Include"
   },
   {
     "name": "SharedStringRepository",
@@ -23559,7 +23895,9 @@
     "visibility": "public",
     "reachable": true,
     "canonical_namespace": "Aspose::Cells_FOSS::Core",
-    "class_import": "Aspose::Cells_FOSS::Core::SharedStringRepository"
+    "class_import": "Aspose::Cells_FOSS::Core::SharedStringRepository",
+    "module_key": "include",
+    "module_label": "Include"
   },
   {
     "name": "SheetVisibility",
@@ -23587,7 +23925,9 @@
       }
     ],
     "canonical_namespace": "Aspose::Cells_FOSS::Core",
-    "class_import": "Aspose::Cells_FOSS::Core::SheetVisibility"
+    "class_import": "Aspose::Cells_FOSS::Core::SheetVisibility",
+    "module_key": "include",
+    "module_label": "Include"
   },
   {
     "name": "StyleRepository",
@@ -23625,7 +23965,9 @@
     "visibility": "public",
     "reachable": true,
     "canonical_namespace": "Aspose::Cells_FOSS::Core",
-    "class_import": "Aspose::Cells_FOSS::Core::StyleRepository"
+    "class_import": "Aspose::Cells_FOSS::Core::StyleRepository",
+    "module_key": "include",
+    "module_label": "Include"
   },
   {
     "name": "StyleValue",
@@ -23995,7 +24337,9 @@
     "visibility": "public",
     "reachable": true,
     "canonical_namespace": "Aspose::Cells_FOSS::Core",
-    "class_import": "Aspose::Cells_FOSS::Core::StyleValue"
+    "class_import": "Aspose::Cells_FOSS::Core::StyleValue",
+    "module_key": "include",
+    "module_label": "Include"
   },
   {
     "name": "ValidationModel",
@@ -24396,7 +24740,9 @@
     "visibility": "public",
     "reachable": true,
     "canonical_namespace": "Aspose::Cells_FOSS::Core",
-    "class_import": "Aspose::Cells_FOSS::Core::ValidationModel"
+    "class_import": "Aspose::Cells_FOSS::Core::ValidationModel",
+    "module_key": "include",
+    "module_label": "Include"
   },
   {
     "name": "VerticalAlignment",
@@ -24432,7 +24778,9 @@
       }
     ],
     "canonical_namespace": "Aspose::Cells_FOSS::Core",
-    "class_import": "Aspose::Cells_FOSS::Core::VerticalAlignment"
+    "class_import": "Aspose::Cells_FOSS::Core::VerticalAlignment",
+    "module_key": "include",
+    "module_label": "Include"
   },
   {
     "name": "WorkbookModel",
@@ -24828,7 +25176,9 @@
     "visibility": "public",
     "reachable": true,
     "canonical_namespace": "Aspose::Cells_FOSS::Core",
-    "class_import": "Aspose::Cells_FOSS::Core::WorkbookModel"
+    "class_import": "Aspose::Cells_FOSS::Core::WorkbookModel",
+    "module_key": "include",
+    "module_label": "Include"
   },
   {
     "name": "WorkbookPropertiesModel",
@@ -25245,7 +25595,9 @@
     "visibility": "public",
     "reachable": true,
     "canonical_namespace": "Aspose::Cells_FOSS::Core",
-    "class_import": "Aspose::Cells_FOSS::Core::WorkbookPropertiesModel"
+    "class_import": "Aspose::Cells_FOSS::Core::WorkbookPropertiesModel",
+    "module_key": "include",
+    "module_label": "Include"
   },
   {
     "name": "WorkbookProtectionModel",
@@ -25403,7 +25755,9 @@
     "visibility": "public",
     "reachable": true,
     "canonical_namespace": "Aspose::Cells_FOSS::Core",
-    "class_import": "Aspose::Cells_FOSS::Core::WorkbookProtectionModel"
+    "class_import": "Aspose::Cells_FOSS::Core::WorkbookProtectionModel",
+    "module_key": "include",
+    "module_label": "Include"
   },
   {
     "name": "WorkbookSettingsModel",
@@ -25485,7 +25839,9 @@
     "visibility": "public",
     "reachable": true,
     "canonical_namespace": "Aspose::Cells_FOSS::Core",
-    "class_import": "Aspose::Cells_FOSS::Core::WorkbookSettingsModel"
+    "class_import": "Aspose::Cells_FOSS::Core::WorkbookSettingsModel",
+    "module_key": "include",
+    "module_label": "Include"
   },
   {
     "name": "WorkbookViewModel",
@@ -25816,7 +26172,9 @@
     "visibility": "public",
     "reachable": true,
     "canonical_namespace": "Aspose::Cells_FOSS::Core",
-    "class_import": "Aspose::Cells_FOSS::Core::WorkbookViewModel"
+    "class_import": "Aspose::Cells_FOSS::Core::WorkbookViewModel",
+    "module_key": "include",
+    "module_label": "Include"
   },
   {
     "name": "WorksheetModel",
@@ -26239,7 +26597,9 @@
     "visibility": "public",
     "reachable": true,
     "canonical_namespace": "Aspose::Cells_FOSS::Core",
-    "class_import": "Aspose::Cells_FOSS::Core::WorksheetModel"
+    "class_import": "Aspose::Cells_FOSS::Core::WorksheetModel",
+    "module_key": "include",
+    "module_label": "Include"
   },
   {
     "name": "WorksheetProtectionModel",
@@ -26776,7 +27136,9 @@
     "visibility": "public",
     "reachable": true,
     "canonical_namespace": "Aspose::Cells_FOSS::Core",
-    "class_import": "Aspose::Cells_FOSS::Core::WorksheetProtectionModel"
+    "class_import": "Aspose::Cells_FOSS::Core::WorksheetProtectionModel",
+    "module_key": "include",
+    "module_label": "Include"
   },
   {
     "name": "WorksheetViewModel",
@@ -26911,7 +27273,9 @@
     "visibility": "public",
     "reachable": true,
     "canonical_namespace": "Aspose::Cells_FOSS::Core",
-    "class_import": "Aspose::Cells_FOSS::Core::WorksheetViewModel"
+    "class_import": "Aspose::Cells_FOSS::Core::WorksheetViewModel",
+    "module_key": "include",
+    "module_label": "Include"
   },
   {
     "name": "ValidationMessage",
@@ -27017,7 +27381,9 @@
     "visibility": "public",
     "reachable": true,
     "canonical_namespace": "Aspose::Cells_FOSS::InternalValidation",
-    "class_import": "Aspose::Cells_FOSS::InternalValidation::ValidationMessage"
+    "class_import": "Aspose::Cells_FOSS::InternalValidation::ValidationMessage",
+    "module_key": "include",
+    "module_label": "Include"
   },
   {
     "name": "ValidationMessageSeverity",
@@ -27045,7 +27411,9 @@
       }
     ],
     "canonical_namespace": "Aspose::Cells_FOSS::InternalValidation",
-    "class_import": "Aspose::Cells_FOSS::InternalValidation::ValidationMessageSeverity"
+    "class_import": "Aspose::Cells_FOSS::InternalValidation::ValidationMessageSeverity",
+    "module_key": "include",
+    "module_label": "Include"
   },
   {
     "name": "WorkbookValidator",
@@ -27078,7 +27446,9 @@
     "visibility": "public",
     "reachable": true,
     "canonical_namespace": "Aspose::Cells_FOSS::InternalValidation",
-    "class_import": "Aspose::Cells_FOSS::InternalValidation::WorkbookValidator"
+    "class_import": "Aspose::Cells_FOSS::InternalValidation::WorkbookValidator",
+    "module_key": "include",
+    "module_label": "Include"
   },
   {
     "name": "MissingPartException",
@@ -27092,7 +27462,9 @@
     "visibility": "public",
     "reachable": true,
     "canonical_namespace": "Aspose::Cells_FOSS::Packaging",
-    "class_import": "Aspose::Cells_FOSS::Packaging::MissingPartException"
+    "class_import": "Aspose::Cells_FOSS::Packaging::MissingPartException",
+    "module_key": "include",
+    "module_label": "Include"
   },
   {
     "name": "PackageLoadContext",
@@ -27125,7 +27497,9 @@
     "visibility": "public",
     "reachable": true,
     "canonical_namespace": "Aspose::Cells_FOSS::Packaging",
-    "class_import": "Aspose::Cells_FOSS::Packaging::PackageLoadContext"
+    "class_import": "Aspose::Cells_FOSS::Packaging::PackageLoadContext",
+    "module_key": "include",
+    "module_label": "Include"
   },
   {
     "name": "CaseInsensitiveHash",
@@ -27139,7 +27513,9 @@
     "visibility": "public",
     "reachable": true,
     "canonical_namespace": "Aspose::Cells_FOSS::Packaging",
-    "class_import": "Aspose::Cells_FOSS::Packaging::CaseInsensitiveHash"
+    "class_import": "Aspose::Cells_FOSS::Packaging::CaseInsensitiveHash",
+    "module_key": "include",
+    "module_label": "Include"
   },
   {
     "name": "CaseInsensitiveEqual",
@@ -27153,7 +27529,9 @@
     "visibility": "public",
     "reachable": true,
     "canonical_namespace": "Aspose::Cells_FOSS::Packaging",
-    "class_import": "Aspose::Cells_FOSS::Packaging::CaseInsensitiveEqual"
+    "class_import": "Aspose::Cells_FOSS::Packaging::CaseInsensitiveEqual",
+    "module_key": "include",
+    "module_label": "Include"
   },
   {
     "name": "PackageModel",
@@ -27222,7 +27600,9 @@
     "visibility": "public",
     "reachable": true,
     "canonical_namespace": "Aspose::Cells_FOSS::Packaging",
-    "class_import": "Aspose::Cells_FOSS::Packaging::PackageModel"
+    "class_import": "Aspose::Cells_FOSS::Packaging::PackageModel",
+    "module_key": "include",
+    "module_label": "Include"
   },
   {
     "name": "PackagePartDescriptor",
@@ -27354,7 +27734,9 @@
     "visibility": "public",
     "reachable": true,
     "canonical_namespace": "Aspose::Cells_FOSS::Packaging",
-    "class_import": "Aspose::Cells_FOSS::Packaging::PackagePartDescriptor"
+    "class_import": "Aspose::Cells_FOSS::Packaging::PackagePartDescriptor",
+    "module_key": "include",
+    "module_label": "Include"
   },
   {
     "name": "PackageStructureException",
@@ -27378,7 +27760,9 @@
     "visibility": "public",
     "reachable": true,
     "canonical_namespace": "Aspose::Cells_FOSS::Packaging",
-    "class_import": "Aspose::Cells_FOSS::Packaging::PackageStructureException"
+    "class_import": "Aspose::Cells_FOSS::Packaging::PackageStructureException",
+    "module_key": "include",
+    "module_label": "Include"
   },
   {
     "name": "PackagingConventions",
@@ -27402,7 +27786,9 @@
     "visibility": "public",
     "reachable": true,
     "canonical_namespace": "Aspose::Cells_FOSS::Packaging",
-    "class_import": "Aspose::Cells_FOSS::Packaging::PackagingConventions"
+    "class_import": "Aspose::Cells_FOSS::Packaging::PackagingConventions",
+    "module_key": "include",
+    "module_label": "Include"
   },
   {
     "name": "RelationshipDescriptor",
@@ -27558,7 +27944,9 @@
     "visibility": "public",
     "reachable": true,
     "canonical_namespace": "Aspose::Cells_FOSS::Packaging",
-    "class_import": "Aspose::Cells_FOSS::Packaging::RelationshipDescriptor"
+    "class_import": "Aspose::Cells_FOSS::Packaging::RelationshipDescriptor",
+    "module_key": "include",
+    "module_label": "Include"
   },
   {
     "name": "RelationshipResolutionException",
@@ -27572,7 +27960,9 @@
     "visibility": "public",
     "reachable": true,
     "canonical_namespace": "Aspose::Cells_FOSS::Packaging",
-    "class_import": "Aspose::Cells_FOSS::Packaging::RelationshipResolutionException"
+    "class_import": "Aspose::Cells_FOSS::Packaging::RelationshipResolutionException",
+    "module_key": "include",
+    "module_label": "Include"
   },
   {
     "name": "SharedStringTableXmlMapper",
@@ -27632,7 +28022,9 @@
     "visibility": "public",
     "reachable": true,
     "canonical_namespace": "Aspose::Cells_FOSS::Xml",
-    "class_import": "Aspose::Cells_FOSS::Xml::SharedStringTableXmlMapper"
+    "class_import": "Aspose::Cells_FOSS::Xml::SharedStringTableXmlMapper",
+    "module_key": "include",
+    "module_label": "Include"
   },
   {
     "name": "StylesheetXmlMapper",
@@ -27692,7 +28084,9 @@
     "visibility": "public",
     "reachable": true,
     "canonical_namespace": "Aspose::Cells_FOSS::Xml",
-    "class_import": "Aspose::Cells_FOSS::Xml::StylesheetXmlMapper"
+    "class_import": "Aspose::Cells_FOSS::Xml::StylesheetXmlMapper",
+    "module_key": "include",
+    "module_label": "Include"
   },
   {
     "name": "WorkbookXmlMapper",
@@ -27760,7 +28154,9 @@
     "visibility": "public",
     "reachable": true,
     "canonical_namespace": "Aspose::Cells_FOSS::Xml",
-    "class_import": "Aspose::Cells_FOSS::Xml::WorkbookXmlMapper"
+    "class_import": "Aspose::Cells_FOSS::Xml::WorkbookXmlMapper",
+    "module_key": "include",
+    "module_label": "Include"
   },
   {
     "name": "WorksheetXmlMapper",
@@ -27820,7 +28216,9 @@
     "visibility": "public",
     "reachable": true,
     "canonical_namespace": "Aspose::Cells_FOSS::Xml",
-    "class_import": "Aspose::Cells_FOSS::Xml::WorksheetXmlMapper"
+    "class_import": "Aspose::Cells_FOSS::Xml::WorksheetXmlMapper",
+    "module_key": "include",
+    "module_label": "Include"
   },
   {
     "name": "XmlParsingException",
@@ -27834,6 +28232,8 @@
     "visibility": "public",
     "reachable": true,
     "canonical_namespace": "Aspose::Cells_FOSS::Xml",
-    "class_import": "Aspose::Cells_FOSS::Xml::XmlParsingException"
+    "class_import": "Aspose::Cells_FOSS::Xml::XmlParsingException",
+    "module_key": "include",
+    "module_label": "Include"
   }
 ]

@@ -1,33 +1,37 @@
-bundle_generated_at: '2026-08-14T11:46:58.238413+00:00'
-bundle_id: 65f90ba4-aa0a-41c1-a6ac-7c6b85803d47
-config_sha: 5676a5ada3d9dda2
-enrichment_status: full
-extractor_hash: a52df5d20ccdf3ca
 family: cells
-generator_fingerprint: 5e6328590c0e805170cc6bce174d1ac7cfd92aa6292bde33a8f962dc23266fec
-generator_semver: 2.0.0
-has_conflicts: false
-input_hashes:
-  enriched_claims_sha: f7786e4e3e06eb3e99b52a840f76037ca18f48903f849f6e437c0d0261361858
-  extractor_config_sha: 5676a5ada3d9dda2
-  products_json_entry_sha: bd3c76701bd5ce307c68891e33b97023c1c7b8de11da83d51785df48827b1b48
-  scout_api_surface_sha: 9d6dfbd391138d99e5ce2a1120fa5a6e2e88d351810947057a422999797d9be0
-  scout_claims_sha: 8912430e036bd3487a50762822ba674427cca5e510f8b2363c5fc112b0e3e371
-license: ''
 platform: cpp
 product_name: Aspose.CELLS-FOSS for Cpp
-promoted_at: '2026-08-14T11:46:58.383753+00:00'
-repo_sha: 9f852d0ff1cfdad2d661556d6b87a8eff8c063a2
+version: ''
+license: ''
 repo_url: https://github.com/aspose-cells-foss/Aspose.Cells-FOSS-for-Cpp.git
-schema_version: 2
-source: scout_and_enriched
+repo_sha: 9f852d0ff1cfdad2d661556d6b87a8eff8c063a2
+config_sha: 5676a5ada3d9dda2
 stale_since: null
+promoted_at: '2026-09-10T11:11:36.493875+00:00'
+source: scout_and_enriched
+enrichment_status: full
+has_conflicts: false
+schema_version: 2
+generator_fingerprint: 39b55c0381d862030a39cf289a74386dba0d96ba7bead7439ed295a74ed8206e
+generator_semver: 2.0.0
+bundle_id: 14d3bda2-f696-45cd-a23a-f193b42dc79c
+bundle_generated_at: '2026-09-10T11:11:36.284575+00:00'
+module_assignment_version: 1
+input_hashes:
+  extractor_config_sha: 5676a5ada3d9dda2
+  scout_claims_sha: 8912430e036bd3487a50762822ba674427cca5e510f8b2363c5fc112b0e3e371
+  scout_api_surface_sha: ea5db920985d3ec74314b7813466a3bddfd35343dc8d917605eb17913629dadc
+  enriched_claims_sha: f7786e4e3e06eb3e99b52a840f76037ca18f48903f849f6e437c0d0261361858
+  products_json_entry_sha: bd3c76701bd5ce307c68891e33b97023c1c7b8de11da83d51785df48827b1b48
 stats:
-  class_count: 200
-  enriched_claims: 434
-  forbidden_count: 100
   scout_claims: 2328
-  snippet_count: 89
+  enriched_claims: 434
   supplemental_claims: 0
   total_claims: 2611
-version: ''
+  class_count: 200
+  classes:
+    total_declared: 200
+    public_documented: 199
+    raw_entries_including_non_class: 200
+  forbidden_count: 100
+  snippet_count: 89

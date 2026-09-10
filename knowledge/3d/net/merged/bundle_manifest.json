@@ -1,23 +1,23 @@
 {
   "schema_version": 2,
-  "bundle_id": "14c7093e-c615-4836-825d-772f7f10aabf",
+  "bundle_id": "3ccfbbd7-1517-4fbe-9c50-9545a5f9029e",
   "family": "3d",
   "platform": "net",
-  "repo_sha": "70933ab13eb0e313d9b160c55845011d366b1599",
-  "generated_at": "2026-08-14T11:44:03.302308+00:00",
-  "generator_fingerprint": "5e6328590c0e805170cc6bce174d1ac7cfd92aa6292bde33a8f962dc23266fec",
+  "repo_sha": "042a1e5f731d8fbca65e2a47a15891b2ba32b352",
+  "generated_at": "2026-09-10T11:11:34.269590+00:00",
+  "generator_fingerprint": "39b55c0381d862030a39cf289a74386dba0d96ba7bead7439ed295a74ed8206e",
   "generator_semver": "2.0.0",
   "members": {
     "model.yaml": {
-      "sha256": "bb7eec0e9a59dfbc8a91811c3bd6c62a736e7c7b0fb6041ec598477332d5b35e",
-      "bytes": 1213
+      "sha256": "45a5243773ae366e5a3e04bb5fe299dc4ac4e2224b10e47b271576748017d844",
+      "bytes": 1350
     },
     "api_surface.json": {
-      "sha256": "9087a39ff39bf033bf98e41d427fcce923ba10a51c02c2efe1a0c0b89ba54d28",
-      "bytes": 1546992
+      "sha256": "f5640f3bd7118cf68ac8c7a14e3c2d070c854951d96dde442038960b77bb5f24",
+      "bytes": 1713348
     },
     "api_surface.md": {
-      "sha256": "0ed06002425f019d454f892698fe03db8cba37373daed5dc94c677faf8daa965",
+      "sha256": "f36065f1a0bfe3a514fdf14c9deba5713fcee23ce9713203c667e77de3893c98",
       "bytes": 151027
     },
     "formats.json": {
@@ -25,12 +25,12 @@
       "bytes": 7277
     },
     "formats.md": {
-      "sha256": "ef21e2f52bd042a2ff910eccb77745c63332c27eabbd1cb5c9d825f7094d5185",
+      "sha256": "c392cae764cdcaa17a161a3174bebdd4f26246dbd01f4d4795d4b51007e89763",
       "bytes": 650
     },
     "claims.json": {
-      "sha256": "e1d91bc958f3b0e65aa7ee048c7cec7dcd9cbc0c88380a9ff81544f1719db292",
-      "bytes": 1329408
+      "sha256": "3087581144171777f24ccd63db0adb53ea17e3f4244a2ca06dc56a023277ac32",
+      "bytes": 1380319
     },
     "limitations.md": {
       "sha256": "9771cb0142f865271532b42d2e33d3c4601e8cf0e283e9d542a23a0e52a6db7f",
@@ -41,8 +41,8 @@
       "bytes": 154
     },
     "merge_report.md": {
-      "sha256": "09776d2f307b4ec7d826aaf1d61951ec7ad6a8a320f608d1065099bd7083e4cf",
-      "bytes": 513
+      "sha256": "c76b91d7a4c6a82c6dbb4f7e26d9700f98d23b02c1d4119f305e2bf27bcdda9c",
+      "bytes": 562
     },
     "snippets/snippet_001.cs": {
       "sha256": "c815ebf357520a5b21fdae1312fd147586f997634303ae101d687e2d939e42ea",
@@ -445,10 +445,10 @@
       "bytes": 910
     },
     "snippets/snippets_index.json": {
-      "sha256": "5b2c5e77eb55add9fb300238a03d49688df6a88d7d834171f5b4f4944aad6708",
-      "bytes": 44217
+      "sha256": "e349a784ebf58033177811722c26cdee77bc9befe86c5570fdc724232468651a",
+      "bytes": 63817
     }
   },
-  "promote_run_id": "promote-20260814T114403Z",
+  "promote_run_id": "promote-20260910T111134Z",
   "status": "COMPLETE"
 }

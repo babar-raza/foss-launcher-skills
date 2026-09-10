@@ -18,7 +18,11 @@
     "formats_referenced": [
       "obj"
     ],
-    "provenance": "scout"
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "0bb1eab625b57870a3cbb330b40f8524252d2ebae2a4e341b41dd80d54517c92",
+      "norm": "d3a5b65b84fe6d8dce7d5524cb8adff9f583118bd233b7abb78bc40294f472c8"
+    }
   },
   {
     "id": "snippet_002",
@@ -31,7 +35,11 @@
     "formats_referenced": [
       "stl"
     ],
-    "provenance": "scout"
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "dfceb0d09a3daadbbf65bad352e075f7efcd2524767e66c2e7196257eb395030",
+      "norm": "7f3d05057245cbcd6177f5da8b24a8acbc41b082169a39eb44f23c81c10dc49c"
+    }
   },
   {
     "id": "snippet_003",
@@ -52,7 +60,11 @@
     "formats_referenced": [
       "stl"
     ],
-    "provenance": "scout"
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "634c758dc5bfa75cd9e69ceca493de201a4bfc4e55074dac0078417c555b437f",
+      "norm": "f4d393c67fbfa6c2910363e1e09c77ec2ad25a9d72584c73457eb7a660b378da"
+    }
   },
   {
     "id": "snippet_004",
@@ -74,7 +86,11 @@
       "Node.createChildNode"
     ],
     "formats_referenced": [],
-    "provenance": "scout"
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "0efbd03d26587f2bd04ced6930efc9e7d4c47085fe29531cd6a2c78dfc068f32",
+      "norm": "f9fca9690430de75e43078a2bf1ef650065b3506822ce9cc34eed0088b739845"
+    }
   },
   {
     "id": "snippet_005",
@@ -90,7 +106,11 @@
       "PolygonModifier.triangulate"
     ],
     "formats_referenced": [],
-    "provenance": "scout"
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "278d84edd1329b096f83230a74a9a1f882c198d14990c0815de122b99137c477",
+      "norm": "210a0fe5dd5f10000039fa824348f58d18865449b7dc9ff0302bdb9f9ecc5a45"
+    }
   },
   {
     "id": "snippet_006",
@@ -113,7 +133,11 @@
       "Scene.save"
     ],
     "formats_referenced": [],
-    "provenance": "scout"
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "9d856d84f8c04fc7ebbcf39261f6686a9f0866f2c37db24e2f77814de4656309",
+      "norm": "a09131019e19929c509ae3e43f18b7e1e4a75f2db30a283f5df9932c28f48ef6"
+    }
   },
   {
     "id": "snippet_007",
@@ -134,7 +158,11 @@
       "gltf",
       "stl"
     ],
-    "provenance": "scout"
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "3db8a06a7dafc4aed9ffdd369c1d8f546a0ae5a3ea98dfb72fd368fd53e02da2",
+      "norm": "63c9acd80603812ce2e4ac66be3a07de8fecd2a47fa669328f519db3068184f3"
+    }
   },
   {
     "id": "snippet_008",
@@ -156,7 +184,11 @@
     "formats_referenced": [
       "gltf"
     ],
-    "provenance": "scout"
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "6a9ba341b7a0b6e4f4628e8642a121a87d4ebb198c152fca3c85ace4d40acaf0",
+      "norm": "4c743634bb8f03412743e0871de80db6de08c426d0d62abfcabb666c16445a55"
+    }
   },
   {
     "id": "snippet_009",
@@ -171,7 +203,11 @@
     ],
     "methods_used": [],
     "formats_referenced": [],
-    "provenance": "scout"
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "c1e814a79cafb9774c1b43968c708fb7ef48f3902b4ff10669cc01bd620b84fd",
+      "norm": "9ea9222317cb4e5791092916fb6ace7522af00a29f9b368e3eb96a1de5f7cb6e"
+    }
   },
   {
     "id": "snippet_010",
@@ -187,7 +223,11 @@
     "formats_referenced": [
       "threemf"
     ],
-    "provenance": "scout"
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "a6373b168b5f4ab910b16132ba2ef1f0d3e60deea8316506fd0910abe0613c7b",
+      "norm": "a6373b168b5f4ab910b16132ba2ef1f0d3e60deea8316506fd0910abe0613c7b"
+    }
   },
   {
     "id": "snippet_011",
@@ -198,7 +238,11 @@
     "classes_used": [],
     "methods_used": [],
     "formats_referenced": [],
-    "provenance": "scout"
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "100d7f563de158f0be619220e462e55ed112350e4fa0601d925ca0a5a6165d8f",
+      "norm": "100d7f563de158f0be619220e462e55ed112350e4fa0601d925ca0a5a6165d8f"
+    }
   },
   {
     "id": "snippet_012",
@@ -215,7 +259,11 @@
       "stl",
       "threemf"
     ],
-    "provenance": "scout"
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "aed36c0ff71b2b3dbe60c3cb4befe6cbc4df1827761dde450ce6288f97cfe5ef",
+      "norm": "aed36c0ff71b2b3dbe60c3cb4befe6cbc4df1827761dde450ce6288f97cfe5ef"
+    }
   },
   {
     "id": "snippet_013",
@@ -240,7 +288,11 @@
     "formats_referenced": [
       "obj"
     ],
-    "provenance": "scout"
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "cd0f05547e17656bc754488f976697fa715a874e0b23a3b4c98be6bee9dd61f5",
+      "norm": "cd0f05547e17656bc754488f976697fa715a874e0b23a3b4c98be6bee9dd61f5"
+    }
   },
   {
     "id": "snippet_014",
@@ -258,7 +310,11 @@
       "Scene.open"
     ],
     "formats_referenced": [],
-    "provenance": "scout"
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "76e3b3b51f098689af59dc30c92bce75ef2ebbd9a3d3030d040feba283c520b0",
+      "norm": "76e3b3b51f098689af59dc30c92bce75ef2ebbd9a3d3030d040feba283c520b0"
+    }
   },
   {
     "id": "snippet_015",
@@ -284,7 +340,11 @@
     "formats_referenced": [
       "threemf"
     ],
-    "provenance": "scout"
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "fe02e93d66d30abcd3ec282af2b5aa6a8143a2a31ad673442b4d83212149010f",
+      "norm": "fe02e93d66d30abcd3ec282af2b5aa6a8143a2a31ad673442b4d83212149010f"
+    }
   },
   {
     "id": "snippet_016",
@@ -308,7 +368,11 @@
     "formats_referenced": [
       "collada"
     ],
-    "provenance": "scout"
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "8bd5b6507bfbc57bebe8f36ca93b30ab534569929f7a997c487aaeb3b567e240",
+      "norm": "8bd5b6507bfbc57bebe8f36ca93b30ab534569929f7a997c487aaeb3b567e240"
+    }
   },
   {
     "id": "snippet_017",
@@ -335,7 +399,11 @@
     "formats_referenced": [
       "collada"
     ],
-    "provenance": "scout"
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "1bf1075cd8927b974fde15d21e7db89cddf075641870c2e1a458899edbdf4280",
+      "norm": "1bf1075cd8927b974fde15d21e7db89cddf075641870c2e1a458899edbdf4280"
+    }
   },
   {
     "id": "snippet_018",
@@ -362,7 +430,11 @@
     "formats_referenced": [
       "collada"
     ],
-    "provenance": "scout"
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "1c8beed1ff003e8854f03fc22ffd839d0eb713a89bc1dcfb3670fbb1d16ee772",
+      "norm": "1c8beed1ff003e8854f03fc22ffd839d0eb713a89bc1dcfb3670fbb1d16ee772"
+    }
   },
   {
     "id": "snippet_019",
@@ -379,7 +451,11 @@
     "formats_referenced": [
       "collada"
     ],
-    "provenance": "scout"
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "efd8f9383a0127298a4acfecb1e7fd4c5fd4f954b2bd7636b1c011eddc23e052",
+      "norm": "efd8f9383a0127298a4acfecb1e7fd4c5fd4f954b2bd7636b1c011eddc23e052"
+    }
   },
   {
     "id": "snippet_020",
@@ -394,7 +470,11 @@
     "formats_referenced": [
       "collada"
     ],
-    "provenance": "scout"
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "afc9dd6e8f1cb0e97567c2d21181b79770c2bf8a8011292395fc352edc7e9430",
+      "norm": "afc9dd6e8f1cb0e97567c2d21181b79770c2bf8a8011292395fc352edc7e9430"
+    }
   },
   {
     "id": "snippet_021",
@@ -414,7 +494,11 @@
     "formats_referenced": [
       "collada"
     ],
-    "provenance": "scout"
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "96a7c9efd013d9364f636eba9d71307d0193028360d4ed85e50134a593aede1b",
+      "norm": "96a7c9efd013d9364f636eba9d71307d0193028360d4ed85e50134a593aede1b"
+    }
   },
   {
     "id": "snippet_022",
@@ -431,7 +515,11 @@
     "formats_referenced": [
       "collada"
     ],
-    "provenance": "scout"
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "a7fde127d2c3449fb0cd56132f1954e50a57d75f7a968edb8bcda0e69f8dcc00",
+      "norm": "a7fde127d2c3449fb0cd56132f1954e50a57d75f7a968edb8bcda0e69f8dcc00"
+    }
   },
   {
     "id": "snippet_023",
@@ -453,7 +541,11 @@
     "formats_referenced": [
       "collada"
     ],
-    "provenance": "scout"
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "35a77c6c911a581dd963f2c4f192dbbe310f36d1b9ac4fa48bd6f62e05c01cab",
+      "norm": "35a77c6c911a581dd963f2c4f192dbbe310f36d1b9ac4fa48bd6f62e05c01cab"
+    }
   },
   {
     "id": "snippet_024",
@@ -476,7 +568,11 @@
       "collada",
       "stl"
     ],
-    "provenance": "scout"
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "abf3d622103850cdd71ef6fa67e4ed3314e79af07e53d7c93e4d1de2fa428848",
+      "norm": "abf3d622103850cdd71ef6fa67e4ed3314e79af07e53d7c93e4d1de2fa428848"
+    }
   },
   {
     "id": "snippet_025",
@@ -497,7 +593,11 @@
     "formats_referenced": [
       "collada"
     ],
-    "provenance": "scout"
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "751c4ed1d48fd1cdf8b562243e277790b3e025005df3ba8f48c46ef423cf7183",
+      "norm": "751c4ed1d48fd1cdf8b562243e277790b3e025005df3ba8f48c46ef423cf7183"
+    }
   },
   {
     "id": "snippet_026",
@@ -517,7 +617,11 @@
     "formats_referenced": [
       "collada"
     ],
-    "provenance": "scout"
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "91dfe189d23dda63276f20f17a281d5561197eff5d7efe26ac35555545ad5e67",
+      "norm": "91dfe189d23dda63276f20f17a281d5561197eff5d7efe26ac35555545ad5e67"
+    }
   },
   {
     "id": "snippet_027",
@@ -536,7 +640,11 @@
       "PolygonModifier.triangulate"
     ],
     "formats_referenced": [],
-    "provenance": "scout"
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "1636ccbdfa2fb9c1fc1a68dc19f33575eab69b802f6f6560595b81dfa620f79d",
+      "norm": "2dda3c6f09508e6b20bd0616d61fdb55c9348d7674ba57cdf54091734f8d3266"
+    }
   },
   {
     "id": "snippet_028",
@@ -555,7 +663,11 @@
       "PolygonModifier.triangulate"
     ],
     "formats_referenced": [],
-    "provenance": "scout"
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "703880d3ab41e8ecd579f26d64be20d9f9da41440f1772fdf548a39fbce580e2",
+      "norm": "5cbcead07f5c75915da41ec8df1975a741a1a77603cdaf8b02464fd565d943f8"
+    }
   },
   {
     "id": "snippet_029",
@@ -572,7 +684,11 @@
     "formats_referenced": [
       "fbx"
     ],
-    "provenance": "scout"
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "657cc0edee3a46ded20ac711a45098e95562aa74aac1f228a601137285611090",
+      "norm": "657cc0edee3a46ded20ac711a45098e95562aa74aac1f228a601137285611090"
+    }
   },
   {
     "id": "snippet_030",
@@ -589,7 +705,11 @@
     "formats_referenced": [
       "fbx"
     ],
-    "provenance": "scout"
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "f6d57e6a2aeb4506a0f70b3f25adf3ae1b36a73ba886819a15576ae8b3515d56",
+      "norm": "f6d57e6a2aeb4506a0f70b3f25adf3ae1b36a73ba886819a15576ae8b3515d56"
+    }
   },
   {
     "id": "snippet_031",
@@ -604,7 +724,11 @@
       "IOService.instance"
     ],
     "formats_referenced": [],
-    "provenance": "scout"
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "a1c07245851ad24845e24f2b88846088a6ed61d79253e1ef90b78966ddff938e",
+      "norm": "a1c07245851ad24845e24f2b88846088a6ed61d79253e1ef90b78966ddff938e"
+    }
   },
   {
     "id": "snippet_032",
@@ -620,7 +744,11 @@
     "formats_referenced": [
       "stl"
     ],
-    "provenance": "scout"
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "72872f7e58000cb0c70e2ea019837afc92398ca3aae9cb59117abd61fcd1e6e7",
+      "norm": "72872f7e58000cb0c70e2ea019837afc92398ca3aae9cb59117abd61fcd1e6e7"
+    }
   },
   {
     "id": "snippet_033",
@@ -636,7 +764,11 @@
     "formats_referenced": [
       "stl"
     ],
-    "provenance": "scout"
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "841577825b23421b5ae3d94048d046d9ad71d69a74ba16df3bedf4d827222ca4",
+      "norm": "841577825b23421b5ae3d94048d046d9ad71d69a74ba16df3bedf4d827222ca4"
+    }
   },
   {
     "id": "snippet_034",
@@ -652,7 +784,11 @@
     "formats_referenced": [
       "stl"
     ],
-    "provenance": "scout"
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "3d486727da23a82a0372b4b9253419d3a448686245b9c0c090fb63b8f9b9377c",
+      "norm": "3d486727da23a82a0372b4b9253419d3a448686245b9c0c090fb63b8f9b9377c"
+    }
   },
   {
     "id": "snippet_035",
@@ -677,7 +813,11 @@
     "formats_referenced": [
       "gltf"
     ],
-    "provenance": "scout"
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "e1c1a12ea2c91f1bfcdb7f173eab6f8d17330a8491e58f03f27ad1f6a2bbb0e7",
+      "norm": "40d0292211764f8fd56024bd42eafbcea3dfedf2aa78dadf0b487345b9b4cb7c"
+    }
   },
   {
     "id": "snippet_036",
@@ -702,7 +842,11 @@
     "formats_referenced": [
       "gltf"
     ],
-    "provenance": "scout"
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "0c12a32c4c86e9a44efbbde4c52dc374757524dace61379edfb02d31651318f8",
+      "norm": "6803e901bab753b40cab1e1f7a45873ab4ca42227e2c7a69e038dba51f7cac09"
+    }
   },
   {
     "id": "snippet_037",
@@ -726,7 +870,11 @@
     "formats_referenced": [
       "gltf"
     ],
-    "provenance": "scout"
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "cc7ba30bb30bd8bc966ed3f8038e2100efd7058fd208bd62aaba7bd282dd669b",
+      "norm": "cc7ba30bb30bd8bc966ed3f8038e2100efd7058fd208bd62aaba7bd282dd669b"
+    }
   },
   {
     "id": "snippet_038",
@@ -752,7 +900,11 @@
     "formats_referenced": [
       "gltf"
     ],
-    "provenance": "scout"
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "135d8e879f2c897a86a891950409660b77ebc405896787234869f71fa8cf7505",
+      "norm": "135d8e879f2c897a86a891950409660b77ebc405896787234869f71fa8cf7505"
+    }
   },
   {
     "id": "snippet_039",
@@ -776,7 +928,11 @@
     "formats_referenced": [
       "gltf"
     ],
-    "provenance": "scout"
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "1eff2ec871e691cf6f1d7e0f96abfed74f9180c96ad3a2a0a80f073562069ade",
+      "norm": "1eff2ec871e691cf6f1d7e0f96abfed74f9180c96ad3a2a0a80f073562069ade"
+    }
   },
   {
     "id": "snippet_040",
@@ -803,7 +959,11 @@
     "formats_referenced": [
       "gltf"
     ],
-    "provenance": "scout"
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "03fc56cdc7615f78a4754c6942f5ee6baef2a38b5f54c4daab0357705ebde626",
+      "norm": "03fc56cdc7615f78a4754c6942f5ee6baef2a38b5f54c4daab0357705ebde626"
+    }
   },
   {
     "id": "snippet_041",
@@ -830,7 +990,11 @@
     "formats_referenced": [
       "gltf"
     ],
-    "provenance": "scout"
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "21628aec73484ea129043b294bcd8a08cf0b1038cef50fd39017dd54919b2c00",
+      "norm": "21628aec73484ea129043b294bcd8a08cf0b1038cef50fd39017dd54919b2c00"
+    }
   },
   {
     "id": "snippet_042",
@@ -859,7 +1023,11 @@
     "formats_referenced": [
       "gltf"
     ],
-    "provenance": "scout"
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "89707114781cfe537979797ffa46773d4727fce432587c5d961b9c7b981c9b42",
+      "norm": "89707114781cfe537979797ffa46773d4727fce432587c5d961b9c7b981c9b42"
+    }
   },
   {
     "id": "snippet_043",
@@ -874,7 +1042,11 @@
     "formats_referenced": [
       "gltf"
     ],
-    "provenance": "scout"
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "e89b61ef42d69546c535bd457ffe714cfcf8b9888e52e3fee5549365bb657b00",
+      "norm": "e89b61ef42d69546c535bd457ffe714cfcf8b9888e52e3fee5549365bb657b00"
+    }
   },
   {
     "id": "snippet_044",
@@ -901,7 +1073,11 @@
     "formats_referenced": [
       "gltf"
     ],
-    "provenance": "scout"
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "29af55b5688f878297565f20c6750e20fdc696f41469bfeb9a4dfb4ed79db84d",
+      "norm": "29af55b5688f878297565f20c6750e20fdc696f41469bfeb9a4dfb4ed79db84d"
+    }
   },
   {
     "id": "snippet_045",
@@ -928,7 +1104,11 @@
     "formats_referenced": [
       "gltf"
     ],
-    "provenance": "scout"
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "bec1c5a59b8d382616c5053ed6f774de9318850d822f5a5799ddb97d2b605d1d",
+      "norm": "bec1c5a59b8d382616c5053ed6f774de9318850d822f5a5799ddb97d2b605d1d"
+    }
   },
   {
     "id": "snippet_046",
@@ -955,7 +1135,11 @@
     "formats_referenced": [
       "gltf"
     ],
-    "provenance": "scout"
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "bde7816dca5ff8ee9e577fa1311d1bcc5aa6a9584cc1afa91695acd75e2083f4",
+      "norm": "bde7816dca5ff8ee9e577fa1311d1bcc5aa6a9584cc1afa91695acd75e2083f4"
+    }
   },
   {
     "id": "snippet_047",
@@ -982,7 +1166,11 @@
     "formats_referenced": [
       "gltf"
     ],
-    "provenance": "scout"
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "e677f7f686b5e26277d35cb513d277948ea03b9755e336631a8650b95b2e9b53",
+      "norm": "e677f7f686b5e26277d35cb513d277948ea03b9755e336631a8650b95b2e9b53"
+    }
   },
   {
     "id": "snippet_048",
@@ -998,7 +1186,11 @@
     "formats_referenced": [
       "gltf"
     ],
-    "provenance": "scout"
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "e023650c4a4322ca68e18f759f62c313357979cc4396023a7c13ff2f1f34a9d8",
+      "norm": "e023650c4a4322ca68e18f759f62c313357979cc4396023a7c13ff2f1f34a9d8"
+    }
   },
   {
     "id": "snippet_049",
@@ -1015,7 +1207,11 @@
     "formats_referenced": [
       "gltf"
     ],
-    "provenance": "scout"
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "30680cc023b71dbed75172b0d1802d0d6946a88ea3ad36098b891ca8a6af9845",
+      "norm": "30680cc023b71dbed75172b0d1802d0d6946a88ea3ad36098b891ca8a6af9845"
+    }
   },
   {
     "id": "snippet_050",
@@ -1034,7 +1230,11 @@
     "formats_referenced": [
       "gltf"
     ],
-    "provenance": "scout"
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "0e97518b91d314b0297e2e796c3182d8cb5ee5180fa0726600b1f2ad30e5fec7",
+      "norm": "0e97518b91d314b0297e2e796c3182d8cb5ee5180fa0726600b1f2ad30e5fec7"
+    }
   },
   {
     "id": "snippet_051",
@@ -1056,7 +1256,11 @@
     "formats_referenced": [
       "gltf"
     ],
-    "provenance": "scout"
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "0b774d1c7b9671740c8807d8efc6841669617413dabacccb566c67fc4dcfa3e6",
+      "norm": "0b774d1c7b9671740c8807d8efc6841669617413dabacccb566c67fc4dcfa3e6"
+    }
   },
   {
     "id": "snippet_052",
@@ -1077,7 +1281,11 @@
     "formats_referenced": [
       "gltf"
     ],
-    "provenance": "scout"
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "35d0aa499ce5238760c47535985ee77ca8abbb23446b0462d81d5c67f3f3ec3d",
+      "norm": "35d0aa499ce5238760c47535985ee77ca8abbb23446b0462d81d5c67f3f3ec3d"
+    }
   },
   {
     "id": "snippet_053",
@@ -1099,7 +1307,11 @@
     "formats_referenced": [
       "gltf"
     ],
-    "provenance": "scout"
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "a37531c3a66fac656b61675cb23fe336446b7114782c0c7bfe98fd45cccbe625",
+      "norm": "a37531c3a66fac656b61675cb23fe336446b7114782c0c7bfe98fd45cccbe625"
+    }
   },
   {
     "id": "snippet_054",
@@ -1113,7 +1325,11 @@
     ],
     "methods_used": [],
     "formats_referenced": [],
-    "provenance": "scout"
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "c93e672c1c9718676d26f941390ddf6915d559a8fd404514040a30dc7839d257",
+      "norm": "747b6021b746b8ee466dbd3fe58f48b45167148ca656fed832593f78d92e3325"
+    }
   },
   {
     "id": "snippet_055",
@@ -1129,7 +1345,11 @@
     ],
     "methods_used": [],
     "formats_referenced": [],
-    "provenance": "scout"
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "c10a276a1d952cc5aab86ab6d913fc74dc78207df03db1b5fc71da3ec2e9f777",
+      "norm": "c10a276a1d952cc5aab86ab6d913fc74dc78207df03db1b5fc71da3ec2e9f777"
+    }
   },
   {
     "id": "snippet_056",
@@ -1146,7 +1366,11 @@
     ],
     "methods_used": [],
     "formats_referenced": [],
-    "provenance": "scout"
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "d5121739b1343cfc3b729168e95bb42a9143c1f5ffe432803787a69c949f4c7b",
+      "norm": "d5121739b1343cfc3b729168e95bb42a9143c1f5ffe432803787a69c949f4c7b"
+    }
   },
   {
     "id": "snippet_057",
@@ -1168,7 +1392,11 @@
       "Node.createChildNode"
     ],
     "formats_referenced": [],
-    "provenance": "scout"
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "e01cffecd7d8bb9724acb286dd638209bfd3238ce35c05e5f250819ceb247837",
+      "norm": "c755cfbcfc38fe71459cd911b7491f7266d02ebc0cb8289fa3d361db598d847f"
+    }
   },
   {
     "id": "snippet_058",
@@ -1191,7 +1419,11 @@
       "Mesh.createPolygon"
     ],
     "formats_referenced": [],
-    "provenance": "scout"
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "92ff865c5ec61be76c3b7ba993d6367b413dd53c2f18d024c9cd17a6482e4813",
+      "norm": "92ff865c5ec61be76c3b7ba993d6367b413dd53c2f18d024c9cd17a6482e4813"
+    }
   },
   {
     "id": "snippet_059",
@@ -1208,7 +1440,11 @@
       "Mesh.triangulate"
     ],
     "formats_referenced": [],
-    "provenance": "scout"
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "43854a5224ef0108d8ba0eb4a4960f31b4e5e76ec3b1d99168f82985f904e3ca",
+      "norm": "43854a5224ef0108d8ba0eb4a4960f31b4e5e76ec3b1d99168f82985f904e3ca"
+    }
   },
   {
     "id": "snippet_060",
@@ -1225,7 +1461,11 @@
       "Mesh.triangulate"
     ],
     "formats_referenced": [],
-    "provenance": "scout"
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "110efdec73bbf9de5705215ee4c11acd980f6c98a7b0f3bb7f4ecedfcbc23b16",
+      "norm": "110efdec73bbf9de5705215ee4c11acd980f6c98a7b0f3bb7f4ecedfcbc23b16"
+    }
   },
   {
     "id": "snippet_061",
@@ -1242,7 +1482,11 @@
       "Mesh.triangulate"
     ],
     "formats_referenced": [],
-    "provenance": "scout"
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "b9914b47d5b6327f4bffb17329dc2140cb505aafc9c33871a21ca076e37e7348",
+      "norm": "b9914b47d5b6327f4bffb17329dc2140cb505aafc9c33871a21ca076e37e7348"
+    }
   },
   {
     "id": "snippet_062",
@@ -1264,7 +1508,11 @@
     "formats_referenced": [
       "stl"
     ],
-    "provenance": "scout"
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "c9b098525a4fe01d4ec48b44f64a0450ee865b474be8b72dd39b610e103c2b27",
+      "norm": "c9b098525a4fe01d4ec48b44f64a0450ee865b474be8b72dd39b610e103c2b27"
+    }
   },
   {
     "id": "snippet_063",
@@ -1287,7 +1535,11 @@
     "formats_referenced": [
       "obj"
     ],
-    "provenance": "scout"
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "581610d7102e1305d07b0e628d54a6bb63ff6da124b0acde61b9c2c6b6a3c390",
+      "norm": "256cebc52d3b53fd4e149c4001077b01a16b028d48d6ac785770a6a1619354fe"
+    }
   },
   {
     "id": "snippet_064",
@@ -1310,7 +1562,11 @@
     "formats_referenced": [
       "obj"
     ],
-    "provenance": "scout"
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "128b482ef8ca3b76dbe23d4906877167ca53f3dea531fa919b9901aba627d9d1",
+      "norm": "a7980ea289d294241576b4bb696237e69e4fb4044416801adf6c9e5d9d852033"
+    }
   },
   {
     "id": "snippet_065",
@@ -1333,7 +1589,11 @@
     "formats_referenced": [
       "obj"
     ],
-    "provenance": "scout"
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "5966099f42e1dd7706d422f74bacb779622669628202533e744bc19921286d4f",
+      "norm": "d78d8c993a794eebe71d8e6b3a7afc196cdf4607b5450d90116f5c86964bbade"
+    }
   },
   {
     "id": "snippet_066",
@@ -1356,7 +1616,11 @@
     "formats_referenced": [
       "obj"
     ],
-    "provenance": "scout"
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "638ba708203e728eeabd5b01740c688270ab6d32249a6116b316137340f091b0",
+      "norm": "a289e5c218c18620295aeb667c899d0670fd1da4ecf1ee6bdb63ac567b03b2de"
+    }
   },
   {
     "id": "snippet_067",
@@ -1379,7 +1643,11 @@
     "formats_referenced": [
       "obj"
     ],
-    "provenance": "scout"
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "dee240f4536ff8665d67f2a596b151df415874a341dfea512c5af0ce930726da",
+      "norm": "6420509364aa8790f1d32a67992576d036f1959c351121ca343f1f88ccbd4a55"
+    }
   },
   {
     "id": "snippet_068",
@@ -1402,7 +1670,11 @@
     "formats_referenced": [
       "obj"
     ],
-    "provenance": "scout"
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "0d8a31fc915656d997663f78a62691d8478ccf1df606e39b21c381726365e75c",
+      "norm": "9bb4416b4005a3c636dc9f8b5a82d6fa495366ea50dacd29b336c686b922becf"
+    }
   },
   {
     "id": "snippet_069",
@@ -1426,7 +1698,11 @@
     "formats_referenced": [
       "obj"
     ],
-    "provenance": "scout"
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "5cd1601df98195710e01949fd712e2b9de1b7252e42903be11d10b7f3fdbfb19",
+      "norm": "c8c2699f04ade94509f40fdc395bb1a54d36148842cc4d84a9e7f90353d9b18a"
+    }
   },
   {
     "id": "snippet_070",
@@ -1450,7 +1726,11 @@
     "formats_referenced": [
       "obj"
     ],
-    "provenance": "scout"
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "2ad2f6909d48bc431e5fd5f5dfc723c5f33c62c1473f5a31071c84ca56a32044",
+      "norm": "51d13f61a0897559fa9f689da0705647872bed331a8883c8b6752355fb8c93f8"
+    }
   },
   {
     "id": "snippet_071",
@@ -1475,7 +1755,11 @@
     "formats_referenced": [
       "obj"
     ],
-    "provenance": "scout"
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "ff91def3458a406ef407f4d8a3edf5dcc383a467f47a472af7bc30b89c489aa4",
+      "norm": "b11955a1d63fbcd8693d087aa210bc5979de09ff244f8b5e3e1ca216c6c3f360"
+    }
   },
   {
     "id": "snippet_072",
@@ -1490,7 +1774,11 @@
     "formats_referenced": [
       "obj"
     ],
-    "provenance": "scout"
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "9d52b21df9e40d3a99260830170812fb3a634e1bd8f4da7ed51764b054e6f96e",
+      "norm": "9d52b21df9e40d3a99260830170812fb3a634e1bd8f4da7ed51764b054e6f96e"
+    }
   },
   {
     "id": "snippet_073",
@@ -1507,7 +1795,11 @@
     "formats_referenced": [
       "obj"
     ],
-    "provenance": "scout"
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "4a28faf2650f9c8ada5782743d5bce8b277a0e9140f297f02448f21ef78571bf",
+      "norm": "e7487da9630ee86ed7c71254fb08e6fb6c096aebff284cac960ac551dd791d5d"
+    }
   },
   {
     "id": "snippet_074",
@@ -1530,7 +1822,11 @@
       "stl",
       "threemf"
     ],
-    "provenance": "scout"
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "6da706ebf745d5e147676a76b2ed5543e3104b6ada77e43f6edcfd05e144d677",
+      "norm": "dee764e89dfdf039ac9a3d05cdd3d1d496fb69cbbe1916530f1472d4e638ef76"
+    }
   },
   {
     "id": "snippet_075",
@@ -1556,7 +1852,11 @@
       "stl",
       "threemf"
     ],
-    "provenance": "scout"
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "6e0b5850c7945e9861fce6269fd1f16d0387680f320caf22eecc090a94ddf7ee",
+      "norm": "41e1e09c3423aa7b3023a04c9687061067101599ab01b16ce2ec558588bc6a9b"
+    }
   },
   {
     "id": "snippet_076",
@@ -1576,7 +1876,11 @@
       "obj",
       "stl"
     ],
-    "provenance": "scout"
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "d3c319cdf5a4a40b444590010e8c575f81a2b16b2b7c0f719b141ffc64166e59",
+      "norm": "64f034aafa4b6b8ef67b1fcd278da727f41ef3cf650d2a88b255a0000f492f7c"
+    }
   },
   {
     "id": "snippet_077",
@@ -1595,7 +1899,11 @@
     "formats_referenced": [
       "obj"
     ],
-    "provenance": "scout"
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "f276583badfbbe029e15574c0652aa171ab268531af1d931c773349512c517a3",
+      "norm": "2fb350de2eda99d3c68cf92a0bd9f73412dc29f972e4d91b3a02ea13eb720920"
+    }
   },
   {
     "id": "snippet_078",
@@ -1617,7 +1925,11 @@
       "obj",
       "stl"
     ],
-    "provenance": "scout"
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "927989512434dd538405ca041f999aec05b8d5ab9f44a38a695cfb1aafb47292",
+      "norm": "ea8ba75933092bd858a190d4e6c24d99605df5024c4d373fc58ffc9f2e9f5185"
+    }
   },
   {
     "id": "snippet_079",
@@ -1639,7 +1951,11 @@
       "obj",
       "stl"
     ],
-    "provenance": "scout"
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "7799124c6d57b4749d3b757d3709f3c35e23691219c63aba63783ee98ea3256c",
+      "norm": "8e4b2527f29678f6e2957b4563cdb20dbedc98a87fb78c24bc59d9bec066f81f"
+    }
   },
   {
     "id": "snippet_080",
@@ -1665,7 +1981,11 @@
       "obj",
       "stl"
     ],
-    "provenance": "scout"
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "34fbad992da3846f5edb84b8ea28694c5ccb4b9cb466adb31e7d54d1092d3a0f",
+      "norm": "8a347bb844d0893415aca00fb7f3a33e0033b5e38b262426e6d83addf8872121"
+    }
   },
   {
     "id": "snippet_081",
@@ -1685,7 +2005,11 @@
       "obj",
       "stl"
     ],
-    "provenance": "scout"
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "39ac27758480737c4b4547f2c03f265ad44a1f49d718977db40c97072f4b38d1",
+      "norm": "6cc80cb4ba9dedd1fb671d1bd7d6c8fd208b6af20709540da4ffdb0df0512ba8"
+    }
   },
   {
     "id": "snippet_082",
@@ -1701,7 +2025,11 @@
       "PolygonModifier.triangulate"
     ],
     "formats_referenced": [],
-    "provenance": "scout"
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "49c67404110fabd784d3a0cf68f4ceb6f44f901144da3ab0ee82015cee4e54e4",
+      "norm": "49c67404110fabd784d3a0cf68f4ceb6f44f901144da3ab0ee82015cee4e54e4"
+    }
   },
   {
     "id": "snippet_083",
@@ -1717,7 +2045,11 @@
       "PolygonModifier.triangulate"
     ],
     "formats_referenced": [],
-    "provenance": "scout"
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "e53c4abccf73c97a283330d8156be1c6eb64bd1c9790e16f39263bc1e7b471f8",
+      "norm": "e53c4abccf73c97a283330d8156be1c6eb64bd1c9790e16f39263bc1e7b471f8"
+    }
   },
   {
     "id": "snippet_084",
@@ -1736,7 +2068,11 @@
       "PolygonModifier.triangulate"
     ],
     "formats_referenced": [],
-    "provenance": "scout"
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "5f5bc964a7ee9a81c5528c71fa2221595bf717eb53e0569d0099a4b245ebb1b3",
+      "norm": "5f5bc964a7ee9a81c5528c71fa2221595bf717eb53e0569d0099a4b245ebb1b3"
+    }
   },
   {
     "id": "snippet_085",
@@ -1755,7 +2091,11 @@
       "PolygonModifier.triangulate"
     ],
     "formats_referenced": [],
-    "provenance": "scout"
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "814f8c850ceef53e7cb45ca7644798500b32bf6919f8fa23ec3f82ef51e24a20",
+      "norm": "814f8c850ceef53e7cb45ca7644798500b32bf6919f8fa23ec3f82ef51e24a20"
+    }
   },
   {
     "id": "snippet_086",
@@ -1777,7 +2117,11 @@
       "PolygonModifier.triangulate"
     ],
     "formats_referenced": [],
-    "provenance": "scout"
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "d4e1f4aa5d0c453708494dc9ce71ca90ba986b7f2170e26ae2a314a3daf033ff",
+      "norm": "2f7c6fc9c989ffcbfd151bc400113f65722c9edbf424bcfec09caf2a6022655d"
+    }
   },
   {
     "id": "snippet_087",
@@ -1793,7 +2137,11 @@
       "PolygonModifier.triangulate"
     ],
     "formats_referenced": [],
-    "provenance": "scout"
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "612933f1765c9307f3ca36af1df65ea9e7dc72d7b06c0d304da97fffb646c2c0",
+      "norm": "612933f1765c9307f3ca36af1df65ea9e7dc72d7b06c0d304da97fffb646c2c0"
+    }
   },
   {
     "id": "snippet_088",
@@ -1809,7 +2157,11 @@
       "PolygonModifier.triangulate"
     ],
     "formats_referenced": [],
-    "provenance": "scout"
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "33d544ab49da583d8b20bc485ec7210bd156dad615a6e1200cf016f8f0e3d149",
+      "norm": "33d544ab49da583d8b20bc485ec7210bd156dad615a6e1200cf016f8f0e3d149"
+    }
   },
   {
     "id": "snippet_089",
@@ -1825,7 +2177,11 @@
       "PolygonModifier.triangulate"
     ],
     "formats_referenced": [],
-    "provenance": "scout"
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "423124844caa686f0ff33fa3e4a52532b48f58c67968b05c0453ad41ebc71558",
+      "norm": "423124844caa686f0ff33fa3e4a52532b48f58c67968b05c0453ad41ebc71558"
+    }
   },
   {
     "id": "snippet_090",
@@ -1845,7 +2201,11 @@
       "obj",
       "stl"
     ],
-    "provenance": "scout"
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "c411fff4b5659127edc1584b778becceca98083d22a92e757f3e4f47672be9b8",
+      "norm": "c411fff4b5659127edc1584b778becceca98083d22a92e757f3e4f47672be9b8"
+    }
   },
   {
     "id": "snippet_091",
@@ -1864,7 +2224,11 @@
     "formats_referenced": [
       "stl"
     ],
-    "provenance": "scout"
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "47b003520583553e59b7dcb05a2187360c9e180fe16cafdf5d4477e4b6518ae1",
+      "norm": "47b003520583553e59b7dcb05a2187360c9e180fe16cafdf5d4477e4b6518ae1"
+    }
   },
   {
     "id": "snippet_092",
@@ -1885,7 +2249,11 @@
     "formats_referenced": [
       "stl"
     ],
-    "provenance": "scout"
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "651820cb75e4fee4fb523336a479a710df65733221fe0d31eb7acd0c580d8c4f",
+      "norm": "651820cb75e4fee4fb523336a479a710df65733221fe0d31eb7acd0c580d8c4f"
+    }
   },
   {
     "id": "snippet_093",
@@ -1909,7 +2277,11 @@
     "formats_referenced": [
       "stl"
     ],
-    "provenance": "scout"
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "688a3ac0dc772ccdb238b6f4cf0fbff4c978cd655cc0f735d1547412adc666a2",
+      "norm": "688a3ac0dc772ccdb238b6f4cf0fbff4c978cd655cc0f735d1547412adc666a2"
+    }
   },
   {
     "id": "snippet_094",
@@ -1931,7 +2303,11 @@
     "formats_referenced": [
       "stl"
     ],
-    "provenance": "scout"
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "2e2a42b4ceeff30bba4881ed4a413a57ece6aee8d6593f525b3f7dcc8c8afbc1",
+      "norm": "2e2a42b4ceeff30bba4881ed4a413a57ece6aee8d6593f525b3f7dcc8c8afbc1"
+    }
   },
   {
     "id": "snippet_095",
@@ -1953,7 +2329,11 @@
     "formats_referenced": [
       "stl"
     ],
-    "provenance": "scout"
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "78d7eb0bd75cad86e9031f4e1bf4033e065c0bfdc0b913c6a35eccee8451bd6e",
+      "norm": "78d7eb0bd75cad86e9031f4e1bf4033e065c0bfdc0b913c6a35eccee8451bd6e"
+    }
   },
   {
     "id": "snippet_096",
@@ -1977,7 +2357,11 @@
     "formats_referenced": [
       "stl"
     ],
-    "provenance": "scout"
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "8c84de9c5e3b9d210f887e3c5a00fe2ec8c6b1efc941a625da49fc8465f5539b",
+      "norm": "8c84de9c5e3b9d210f887e3c5a00fe2ec8c6b1efc941a625da49fc8465f5539b"
+    }
   },
   {
     "id": "snippet_097",
@@ -1999,7 +2383,11 @@
     "formats_referenced": [
       "stl"
     ],
-    "provenance": "scout"
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "8f00f723902434100c6ffa0a79de0d28e6323407af730514f28de44b635549cd",
+      "norm": "8f00f723902434100c6ffa0a79de0d28e6323407af730514f28de44b635549cd"
+    }
   },
   {
     "id": "snippet_098",
@@ -2015,7 +2403,11 @@
     "formats_referenced": [
       "stl"
     ],
-    "provenance": "scout"
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "8ba8bd3f9fd03e8756fee6eadd12d71a3410cc1cd63b8afd2140f3d73b573d73",
+      "norm": "8ba8bd3f9fd03e8756fee6eadd12d71a3410cc1cd63b8afd2140f3d73b573d73"
+    }
   },
   {
     "id": "snippet_099",
@@ -2030,7 +2422,11 @@
     "formats_referenced": [
       "stl"
     ],
-    "provenance": "scout"
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "cb48f63fad47beff8d6d53a86c89f66b33d2dfa9ea3ba008b86015704ece5ad2",
+      "norm": "cb48f63fad47beff8d6d53a86c89f66b33d2dfa9ea3ba008b86015704ece5ad2"
+    }
   },
   {
     "id": "snippet_100",
@@ -2051,6 +2447,10 @@
     "formats_referenced": [
       "stl"
     ],
-    "provenance": "scout"
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "1cbf58dc734e98413ff67f4d2815f2b132f494e136e70227a643622f07799f47",
+      "norm": "1cbf58dc734e98413ff67f4d2815f2b132f494e136e70227a643622f07799f47"
+    }
   }
 ]

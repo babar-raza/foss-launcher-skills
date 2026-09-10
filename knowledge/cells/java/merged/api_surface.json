@@ -93,7 +93,9 @@
     "reachable": true,
     "class_package": "org.aspose.cells_foss",
     "class_import": "org.aspose.cells_foss.ConditionalFormattingCollection",
-    "canonical_namespace": "org.aspose.cells_foss"
+    "canonical_namespace": "org.aspose.cells_foss",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "DisplayFormatSectionInfo",
@@ -230,7 +232,9 @@
     "reachable": true,
     "class_package": "org.aspose.cells_foss",
     "class_import": "org.aspose.cells_foss.DisplayFormatSectionInfo",
-    "canonical_namespace": "org.aspose.cells_foss"
+    "canonical_namespace": "org.aspose.cells_foss",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "DisplayTextFormatterSupport",
@@ -536,7 +540,9 @@
     "reachable": true,
     "class_package": "org.aspose.cells_foss",
     "class_import": "org.aspose.cells_foss.DisplayTextFormatterSupport",
-    "canonical_namespace": "org.aspose.cells_foss"
+    "canonical_namespace": "org.aspose.cells_foss",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "FormatCondition",
@@ -1372,7 +1378,9 @@
     "reachable": true,
     "class_package": "org.aspose.cells_foss",
     "class_import": "org.aspose.cells_foss.FormatCondition",
-    "canonical_namespace": "org.aspose.cells_foss"
+    "canonical_namespace": "org.aspose.cells_foss",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "FormatConditionCollection",
@@ -1587,7 +1595,9 @@
     "reachable": true,
     "class_package": "org.aspose.cells_foss",
     "class_import": "org.aspose.cells_foss.FormatConditionCollection",
-    "canonical_namespace": "org.aspose.cells_foss"
+    "canonical_namespace": "org.aspose.cells_foss",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "FormatConditionType",
@@ -1668,7 +1678,9 @@
     ],
     "class_package": "org.aspose.cells_foss",
     "class_import": "org.aspose.cells_foss.FormatConditionType",
-    "canonical_namespace": "org.aspose.cells_foss"
+    "canonical_namespace": "org.aspose.cells_foss",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "InvalidFileFormatException",
@@ -1750,7 +1762,9 @@
     "reachable": true,
     "class_package": "org.aspose.cells_foss",
     "class_import": "org.aspose.cells_foss.InvalidFileFormatException",
-    "canonical_namespace": "org.aspose.cells_foss"
+    "canonical_namespace": "org.aspose.cells_foss",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "LoadFormat",
@@ -1775,7 +1789,9 @@
     ],
     "class_package": "org.aspose.cells_foss",
     "class_import": "org.aspose.cells_foss.LoadFormat",
-    "canonical_namespace": "org.aspose.cells_foss"
+    "canonical_namespace": "org.aspose.cells_foss",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "NumberFormat",
@@ -1851,7 +1867,9 @@
     "reachable": true,
     "class_package": "org.aspose.cells_foss",
     "class_import": "org.aspose.cells_foss.NumberFormat",
-    "canonical_namespace": "org.aspose.cells_foss"
+    "canonical_namespace": "org.aspose.cells_foss",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "SaveFormat",
@@ -1872,7 +1890,9 @@
     ],
     "class_package": "org.aspose.cells_foss",
     "class_import": "org.aspose.cells_foss.SaveFormat",
-    "canonical_namespace": "org.aspose.cells_foss"
+    "canonical_namespace": "org.aspose.cells_foss",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "ConditionalFormattingModel",
@@ -1930,7 +1950,9 @@
     "reachable": true,
     "class_package": "org.aspose.cells_foss.core",
     "class_import": "org.aspose.cells_foss.core.ConditionalFormattingModel",
-    "canonical_namespace": "org.aspose.cells_foss.core"
+    "canonical_namespace": "org.aspose.cells_foss.core",
+    "module_key": "core",
+    "module_label": "Core"
   },
   {
     "name": "FormatConditionModel",
@@ -2727,7 +2749,9 @@
     "reachable": true,
     "class_package": "org.aspose.cells_foss.core",
     "class_import": "org.aspose.cells_foss.core.FormatConditionModel",
-    "canonical_namespace": "org.aspose.cells_foss.core"
+    "canonical_namespace": "org.aspose.cells_foss.core",
+    "module_key": "core",
+    "module_label": "Core"
   },
   {
     "name": "NumberFormatValue",
@@ -2813,7 +2837,9 @@
     "reachable": true,
     "class_package": "org.aspose.cells_foss.core",
     "class_import": "org.aspose.cells_foss.core.NumberFormatValue",
-    "canonical_namespace": "org.aspose.cells_foss.core"
+    "canonical_namespace": "org.aspose.cells_foss.core",
+    "module_key": "core",
+    "module_label": "Core"
   },
   {
     "name": "IPackageReader",
@@ -2843,7 +2869,9 @@
     "reachable": true,
     "class_package": "org.aspose.cells_foss.packaging",
     "class_import": "org.aspose.cells_foss.packaging.IPackageReader",
-    "canonical_namespace": "org.aspose.cells_foss.packaging"
+    "canonical_namespace": "org.aspose.cells_foss.packaging",
+    "module_key": "packaging",
+    "module_label": "Packaging"
   },
   {
     "name": "IPackageWriter",
@@ -2877,7 +2905,9 @@
     "reachable": true,
     "class_package": "org.aspose.cells_foss.packaging",
     "class_import": "org.aspose.cells_foss.packaging.IPackageWriter",
-    "canonical_namespace": "org.aspose.cells_foss.packaging"
+    "canonical_namespace": "org.aspose.cells_foss.packaging",
+    "module_key": "packaging",
+    "module_label": "Packaging"
   },
   {
     "name": "AutoFilter",
@@ -2965,7 +2995,9 @@
     "reachable": true,
     "class_package": "org.aspose.cells_foss",
     "class_import": "org.aspose.cells_foss.AutoFilter",
-    "canonical_namespace": "org.aspose.cells_foss"
+    "canonical_namespace": "org.aspose.cells_foss",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "FilterColumnCollection",
@@ -3080,7 +3112,9 @@
     "is_static": true,
     "class_package": "org.aspose.cells_foss",
     "class_import": "org.aspose.cells_foss.FilterColumnCollection",
-    "canonical_namespace": "org.aspose.cells_foss"
+    "canonical_namespace": "org.aspose.cells_foss",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "FilterColumn",
@@ -3247,7 +3281,9 @@
     "is_static": true,
     "class_package": "org.aspose.cells_foss",
     "class_import": "org.aspose.cells_foss.FilterColumn",
-    "canonical_namespace": "org.aspose.cells_foss"
+    "canonical_namespace": "org.aspose.cells_foss",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "FilterValueCollection",
@@ -3362,7 +3398,9 @@
     "is_static": true,
     "class_package": "org.aspose.cells_foss",
     "class_import": "org.aspose.cells_foss.FilterValueCollection",
-    "canonical_namespace": "org.aspose.cells_foss"
+    "canonical_namespace": "org.aspose.cells_foss",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "AutoFilterSortState",
@@ -3529,7 +3567,9 @@
     "_merged_files": [
       "src/main/java/org/aspose/cells_foss/AutoFilter.java",
       "src/main/java/org/aspose/cells_foss/AutoFilterCriteria.java"
-    ]
+    ],
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "AutoFilterSortConditionCollection",
@@ -3629,7 +3669,9 @@
     "_merged_files": [
       "src/main/java/org/aspose/cells_foss/AutoFilter.java",
       "src/main/java/org/aspose/cells_foss/AutoFilterCriteria.java"
-    ]
+    ],
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "AutoFilterSortCondition",
@@ -3861,7 +3903,9 @@
     "_merged_files": [
       "src/main/java/org/aspose/cells_foss/AutoFilter.java",
       "src/main/java/org/aspose/cells_foss/AutoFilterCriteria.java"
-    ]
+    ],
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "AutoFilterCustomFilterCollection",
@@ -3995,7 +4039,9 @@
     "_merged_files": [
       "src/main/java/org/aspose/cells_foss/AutoFilter.java",
       "src/main/java/org/aspose/cells_foss/AutoFilterCriteria.java"
-    ]
+    ],
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "AutoFilterCustomFilter",
@@ -4077,7 +4123,9 @@
     "_merged_files": [
       "src/main/java/org/aspose/cells_foss/AutoFilter.java",
       "src/main/java/org/aspose/cells_foss/AutoFilterCriteria.java"
-    ]
+    ],
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "AutoFilterColorFilter",
@@ -4198,7 +4246,9 @@
     "_merged_files": [
       "src/main/java/org/aspose/cells_foss/AutoFilter.java",
       "src/main/java/org/aspose/cells_foss/AutoFilterCriteria.java"
-    ]
+    ],
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "AutoFilterDynamicFilter",
@@ -4349,7 +4399,9 @@
     "_merged_files": [
       "src/main/java/org/aspose/cells_foss/AutoFilter.java",
       "src/main/java/org/aspose/cells_foss/AutoFilterCriteria.java"
-    ]
+    ],
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "AutoFilterTop10",
@@ -4530,7 +4582,9 @@
     "_merged_files": [
       "src/main/java/org/aspose/cells_foss/AutoFilter.java",
       "src/main/java/org/aspose/cells_foss/AutoFilterCriteria.java"
-    ]
+    ],
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "AutoFilterCriteria",
@@ -4545,7 +4599,9 @@
     "reachable": true,
     "class_package": "org.aspose.cells_foss",
     "class_import": "org.aspose.cells_foss.AutoFilterCriteria",
-    "canonical_namespace": "org.aspose.cells_foss"
+    "canonical_namespace": "org.aspose.cells_foss",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "AutoFilterSupport",
@@ -4711,7 +4767,9 @@
     "reachable": true,
     "class_package": "org.aspose.cells_foss",
     "class_import": "org.aspose.cells_foss.AutoFilterSupport",
-    "canonical_namespace": "org.aspose.cells_foss"
+    "canonical_namespace": "org.aspose.cells_foss",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "AutoShapeType",
@@ -4884,7 +4942,9 @@
     ],
     "class_package": "org.aspose.cells_foss",
     "class_import": "org.aspose.cells_foss.AutoShapeType",
-    "canonical_namespace": "org.aspose.cells_foss"
+    "canonical_namespace": "org.aspose.cells_foss",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "Border",
@@ -4970,7 +5030,9 @@
     "reachable": true,
     "class_package": "org.aspose.cells_foss",
     "class_import": "org.aspose.cells_foss.Border",
-    "canonical_namespace": "org.aspose.cells_foss"
+    "canonical_namespace": "org.aspose.cells_foss",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "BorderStyleType",
@@ -5043,7 +5105,9 @@
     ],
     "class_package": "org.aspose.cells_foss",
     "class_import": "org.aspose.cells_foss.BorderStyleType",
-    "canonical_namespace": "org.aspose.cells_foss"
+    "canonical_namespace": "org.aspose.cells_foss",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "Borders",
@@ -5279,7 +5343,9 @@
     "reachable": true,
     "class_package": "org.aspose.cells_foss",
     "class_import": "org.aspose.cells_foss.Borders",
-    "canonical_namespace": "org.aspose.cells_foss"
+    "canonical_namespace": "org.aspose.cells_foss",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "CalculationProperties",
@@ -5692,7 +5758,9 @@
     "reachable": true,
     "class_package": "org.aspose.cells_foss",
     "class_import": "org.aspose.cells_foss.CalculationProperties",
-    "canonical_namespace": "org.aspose.cells_foss"
+    "canonical_namespace": "org.aspose.cells_foss",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "Cell",
@@ -5917,7 +5985,9 @@
     "reachable": true,
     "class_package": "org.aspose.cells_foss",
     "class_import": "org.aspose.cells_foss.Cell",
-    "canonical_namespace": "org.aspose.cells_foss"
+    "canonical_namespace": "org.aspose.cells_foss",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "CellArea",
@@ -6091,7 +6161,9 @@
     "reachable": true,
     "class_package": "org.aspose.cells_foss",
     "class_import": "org.aspose.cells_foss.CellArea",
-    "canonical_namespace": "org.aspose.cells_foss"
+    "canonical_namespace": "org.aspose.cells_foss",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "CellValueType",
@@ -6132,7 +6204,9 @@
     ],
     "class_package": "org.aspose.cells_foss",
     "class_import": "org.aspose.cells_foss.CellValueType",
-    "canonical_namespace": "org.aspose.cells_foss"
+    "canonical_namespace": "org.aspose.cells_foss",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "Cells",
@@ -6255,7 +6329,9 @@
     "reachable": true,
     "class_package": "org.aspose.cells_foss",
     "class_import": "org.aspose.cells_foss.Cells",
-    "canonical_namespace": "org.aspose.cells_foss"
+    "canonical_namespace": "org.aspose.cells_foss",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "CellsException",
@@ -6305,7 +6381,9 @@
     "reachable": true,
     "class_package": "org.aspose.cells_foss",
     "class_import": "org.aspose.cells_foss.CellsException",
-    "canonical_namespace": "org.aspose.cells_foss"
+    "canonical_namespace": "org.aspose.cells_foss",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "Chart",
@@ -6462,7 +6540,9 @@
     "reachable": true,
     "class_package": "org.aspose.cells_foss",
     "class_import": "org.aspose.cells_foss.Chart",
-    "canonical_namespace": "org.aspose.cells_foss"
+    "canonical_namespace": "org.aspose.cells_foss",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "ChartCollection",
@@ -6573,7 +6653,9 @@
     "reachable": true,
     "class_package": "org.aspose.cells_foss",
     "class_import": "org.aspose.cells_foss.ChartCollection",
-    "canonical_namespace": "org.aspose.cells_foss"
+    "canonical_namespace": "org.aspose.cells_foss",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "ChartType",
@@ -6694,7 +6776,9 @@
     ],
     "class_package": "org.aspose.cells_foss",
     "class_import": "org.aspose.cells_foss.ChartType",
-    "canonical_namespace": "org.aspose.cells_foss"
+    "canonical_namespace": "org.aspose.cells_foss",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "Color",
@@ -6866,7 +6950,9 @@
     "reachable": true,
     "class_package": "org.aspose.cells_foss",
     "class_import": "org.aspose.cells_foss.Color",
-    "canonical_namespace": "org.aspose.cells_foss"
+    "canonical_namespace": "org.aspose.cells_foss",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "Column",
@@ -7003,7 +7089,9 @@
     "reachable": true,
     "class_package": "org.aspose.cells_foss",
     "class_import": "org.aspose.cells_foss.Column",
-    "canonical_namespace": "org.aspose.cells_foss"
+    "canonical_namespace": "org.aspose.cells_foss",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "ColumnCollection",
@@ -7033,7 +7121,9 @@
     "reachable": true,
     "class_package": "org.aspose.cells_foss",
     "class_import": "org.aspose.cells_foss.ColumnCollection",
-    "canonical_namespace": "org.aspose.cells_foss"
+    "canonical_namespace": "org.aspose.cells_foss",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "Comment",
@@ -7243,7 +7333,9 @@
     "reachable": true,
     "class_package": "org.aspose.cells_foss",
     "class_import": "org.aspose.cells_foss.Comment",
-    "canonical_namespace": "org.aspose.cells_foss"
+    "canonical_namespace": "org.aspose.cells_foss",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "CommentCollection",
@@ -7366,7 +7458,9 @@
     "reachable": true,
     "class_package": "org.aspose.cells_foss",
     "class_import": "org.aspose.cells_foss.CommentCollection",
-    "canonical_namespace": "org.aspose.cells_foss"
+    "canonical_namespace": "org.aspose.cells_foss",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "DefinedName",
@@ -7533,7 +7627,9 @@
     "reachable": true,
     "class_package": "org.aspose.cells_foss",
     "class_import": "org.aspose.cells_foss.DefinedName",
-    "canonical_namespace": "org.aspose.cells_foss"
+    "canonical_namespace": "org.aspose.cells_foss",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "DefinedNameCollection",
@@ -7645,7 +7741,9 @@
     "reachable": true,
     "class_package": "org.aspose.cells_foss",
     "class_import": "org.aspose.cells_foss.DefinedNameCollection",
-    "canonical_namespace": "org.aspose.cells_foss"
+    "canonical_namespace": "org.aspose.cells_foss",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "DiagnosticSeverity",
@@ -7678,7 +7776,9 @@
     ],
     "class_package": "org.aspose.cells_foss",
     "class_import": "org.aspose.cells_foss.DiagnosticSeverity",
-    "canonical_namespace": "org.aspose.cells_foss"
+    "canonical_namespace": "org.aspose.cells_foss",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "DocumentProperties",
@@ -7935,7 +8035,9 @@
     "reachable": true,
     "class_package": "org.aspose.cells_foss",
     "class_import": "org.aspose.cells_foss.DocumentProperties",
-    "canonical_namespace": "org.aspose.cells_foss"
+    "canonical_namespace": "org.aspose.cells_foss",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "FillPattern",
@@ -8024,7 +8126,9 @@
     ],
     "class_package": "org.aspose.cells_foss",
     "class_import": "org.aspose.cells_foss.FillPattern",
-    "canonical_namespace": "org.aspose.cells_foss"
+    "canonical_namespace": "org.aspose.cells_foss",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "Font",
@@ -8260,7 +8364,9 @@
     "reachable": true,
     "class_package": "org.aspose.cells_foss",
     "class_import": "org.aspose.cells_foss.Font",
-    "canonical_namespace": "org.aspose.cells_foss"
+    "canonical_namespace": "org.aspose.cells_foss",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "FormulaException",
@@ -8324,7 +8430,9 @@
     "reachable": true,
     "class_package": "org.aspose.cells_foss",
     "class_import": "org.aspose.cells_foss.FormulaException",
-    "canonical_namespace": "org.aspose.cells_foss"
+    "canonical_namespace": "org.aspose.cells_foss",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "HorizontalAlignmentType",
@@ -8373,7 +8481,9 @@
     ],
     "class_package": "org.aspose.cells_foss",
     "class_import": "org.aspose.cells_foss.HorizontalAlignmentType",
-    "canonical_namespace": "org.aspose.cells_foss"
+    "canonical_namespace": "org.aspose.cells_foss",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "Hyperlink",
@@ -8521,7 +8631,9 @@
     "reachable": true,
     "class_package": "org.aspose.cells_foss",
     "class_import": "org.aspose.cells_foss.Hyperlink",
-    "canonical_namespace": "org.aspose.cells_foss"
+    "canonical_namespace": "org.aspose.cells_foss",
+    "module_key": "navigation",
+    "module_label": "Navigation"
   },
   {
     "name": "HyperlinkCollection",
@@ -8668,7 +8780,9 @@
     "reachable": true,
     "class_package": "org.aspose.cells_foss",
     "class_import": "org.aspose.cells_foss.HyperlinkCollection",
-    "canonical_namespace": "org.aspose.cells_foss"
+    "canonical_namespace": "org.aspose.cells_foss",
+    "module_key": "navigation",
+    "module_label": "Navigation"
   },
   {
     "name": "IWarningCallback",
@@ -8698,7 +8812,9 @@
     "reachable": true,
     "class_package": "org.aspose.cells_foss",
     "class_import": "org.aspose.cells_foss.IWarningCallback",
-    "canonical_namespace": "org.aspose.cells_foss"
+    "canonical_namespace": "org.aspose.cells_foss",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "ImageType",
@@ -8735,7 +8851,9 @@
     ],
     "class_package": "org.aspose.cells_foss",
     "class_import": "org.aspose.cells_foss.ImageType",
-    "canonical_namespace": "org.aspose.cells_foss"
+    "canonical_namespace": "org.aspose.cells_foss",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "ListColumn",
@@ -8928,7 +9046,9 @@
     "reachable": true,
     "class_package": "org.aspose.cells_foss",
     "class_import": "org.aspose.cells_foss.ListColumn",
-    "canonical_namespace": "org.aspose.cells_foss"
+    "canonical_namespace": "org.aspose.cells_foss",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "ListColumnCollection",
@@ -9007,7 +9127,9 @@
     "reachable": true,
     "class_package": "org.aspose.cells_foss",
     "class_import": "org.aspose.cells_foss.ListColumnCollection",
-    "canonical_namespace": "org.aspose.cells_foss"
+    "canonical_namespace": "org.aspose.cells_foss",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "ListObject",
@@ -9501,7 +9623,9 @@
     "reachable": true,
     "class_package": "org.aspose.cells_foss",
     "class_import": "org.aspose.cells_foss.ListObject",
-    "canonical_namespace": "org.aspose.cells_foss"
+    "canonical_namespace": "org.aspose.cells_foss",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "ListObjectCollection",
@@ -9658,7 +9782,9 @@
     "reachable": true,
     "class_package": "org.aspose.cells_foss",
     "class_import": "org.aspose.cells_foss.ListObjectCollection",
-    "canonical_namespace": "org.aspose.cells_foss"
+    "canonical_namespace": "org.aspose.cells_foss",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "LoadDiagnostics",
@@ -9709,7 +9835,9 @@
     "reachable": true,
     "class_package": "org.aspose.cells_foss",
     "class_import": "org.aspose.cells_foss.LoadDiagnostics",
-    "canonical_namespace": "org.aspose.cells_foss"
+    "canonical_namespace": "org.aspose.cells_foss",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "LoadIssue",
@@ -9956,7 +10084,9 @@
     "reachable": true,
     "class_package": "org.aspose.cells_foss",
     "class_import": "org.aspose.cells_foss.LoadIssue",
-    "canonical_namespace": "org.aspose.cells_foss"
+    "canonical_namespace": "org.aspose.cells_foss",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "LoadOptions",
@@ -10153,7 +10283,9 @@
     "reachable": true,
     "class_package": "org.aspose.cells_foss",
     "class_import": "org.aspose.cells_foss.LoadOptions",
-    "canonical_namespace": "org.aspose.cells_foss"
+    "canonical_namespace": "org.aspose.cells_foss",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "OperatorType",
@@ -10206,7 +10338,9 @@
     ],
     "class_package": "org.aspose.cells_foss",
     "class_import": "org.aspose.cells_foss.OperatorType",
-    "canonical_namespace": "org.aspose.cells_foss"
+    "canonical_namespace": "org.aspose.cells_foss",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "PageOrientationType",
@@ -10235,7 +10369,9 @@
     ],
     "class_package": "org.aspose.cells_foss",
     "class_import": "org.aspose.cells_foss.PageOrientationType",
-    "canonical_namespace": "org.aspose.cells_foss"
+    "canonical_namespace": "org.aspose.cells_foss",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "PageSetup",
@@ -11260,7 +11396,9 @@
     "reachable": true,
     "class_package": "org.aspose.cells_foss",
     "class_import": "org.aspose.cells_foss.PageSetup",
-    "canonical_namespace": "org.aspose.cells_foss"
+    "canonical_namespace": "org.aspose.cells_foss",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "PaperSizeType",
@@ -11339,7 +11477,9 @@
     ],
     "class_package": "org.aspose.cells_foss",
     "class_import": "org.aspose.cells_foss.PaperSizeType",
-    "canonical_namespace": "org.aspose.cells_foss"
+    "canonical_namespace": "org.aspose.cells_foss",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "Picture",
@@ -11586,7 +11726,9 @@
     "reachable": true,
     "class_package": "org.aspose.cells_foss",
     "class_import": "org.aspose.cells_foss.Picture",
-    "canonical_namespace": "org.aspose.cells_foss"
+    "canonical_namespace": "org.aspose.cells_foss",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "PictureCollection",
@@ -11781,7 +11923,9 @@
     "reachable": true,
     "class_package": "org.aspose.cells_foss",
     "class_import": "org.aspose.cells_foss.PictureCollection",
-    "canonical_namespace": "org.aspose.cells_foss"
+    "canonical_namespace": "org.aspose.cells_foss",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "Row",
@@ -11918,7 +12062,9 @@
     "reachable": true,
     "class_package": "org.aspose.cells_foss",
     "class_import": "org.aspose.cells_foss.Row",
-    "canonical_namespace": "org.aspose.cells_foss"
+    "canonical_namespace": "org.aspose.cells_foss",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "RowCollection",
@@ -11948,7 +12094,9 @@
     "reachable": true,
     "class_package": "org.aspose.cells_foss",
     "class_import": "org.aspose.cells_foss.RowCollection",
-    "canonical_namespace": "org.aspose.cells_foss"
+    "canonical_namespace": "org.aspose.cells_foss",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "SaveOptions",
@@ -12115,7 +12263,9 @@
     "reachable": true,
     "class_package": "org.aspose.cells_foss",
     "class_import": "org.aspose.cells_foss.SaveOptions",
-    "canonical_namespace": "org.aspose.cells_foss"
+    "canonical_namespace": "org.aspose.cells_foss",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "Shape",
@@ -12349,7 +12499,9 @@
     "reachable": true,
     "class_package": "org.aspose.cells_foss",
     "class_import": "org.aspose.cells_foss.Shape",
-    "canonical_namespace": "org.aspose.cells_foss"
+    "canonical_namespace": "org.aspose.cells_foss",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "ShapeCollection",
@@ -12442,7 +12594,9 @@
     "reachable": true,
     "class_package": "org.aspose.cells_foss",
     "class_import": "org.aspose.cells_foss.ShapeCollection",
-    "canonical_namespace": "org.aspose.cells_foss"
+    "canonical_namespace": "org.aspose.cells_foss",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "Style",
@@ -13017,7 +13171,9 @@
     "reachable": true,
     "class_package": "org.aspose.cells_foss",
     "class_import": "org.aspose.cells_foss.Style",
-    "canonical_namespace": "org.aspose.cells_foss"
+    "canonical_namespace": "org.aspose.cells_foss",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "StyleException",
@@ -13081,7 +13237,9 @@
     "reachable": true,
     "class_package": "org.aspose.cells_foss",
     "class_import": "org.aspose.cells_foss.StyleException",
-    "canonical_namespace": "org.aspose.cells_foss"
+    "canonical_namespace": "org.aspose.cells_foss",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "StyleValueSanitizer",
@@ -13139,7 +13297,9 @@
     "reachable": true,
     "class_package": "org.aspose.cells_foss",
     "class_import": "org.aspose.cells_foss.StyleValueSanitizer",
-    "canonical_namespace": "org.aspose.cells_foss"
+    "canonical_namespace": "org.aspose.cells_foss",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "TableStyleType",
@@ -13404,7 +13564,9 @@
     ],
     "class_package": "org.aspose.cells_foss",
     "class_import": "org.aspose.cells_foss.TableStyleType",
-    "canonical_namespace": "org.aspose.cells_foss"
+    "canonical_namespace": "org.aspose.cells_foss",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "TargetModeType",
@@ -13437,7 +13599,9 @@
     ],
     "class_package": "org.aspose.cells_foss",
     "class_import": "org.aspose.cells_foss.TargetModeType",
-    "canonical_namespace": "org.aspose.cells_foss"
+    "canonical_namespace": "org.aspose.cells_foss",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "TotalsCalculation",
@@ -13494,7 +13658,9 @@
     ],
     "class_package": "org.aspose.cells_foss",
     "class_import": "org.aspose.cells_foss.TotalsCalculation",
-    "canonical_namespace": "org.aspose.cells_foss"
+    "canonical_namespace": "org.aspose.cells_foss",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "UnsupportedFeatureException",
@@ -13558,7 +13724,9 @@
     "reachable": true,
     "class_package": "org.aspose.cells_foss",
     "class_import": "org.aspose.cells_foss.UnsupportedFeatureException",
-    "canonical_namespace": "org.aspose.cells_foss"
+    "canonical_namespace": "org.aspose.cells_foss",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "Validation",
@@ -14018,7 +14186,9 @@
     "reachable": true,
     "class_package": "org.aspose.cells_foss",
     "class_import": "org.aspose.cells_foss.Validation",
-    "canonical_namespace": "org.aspose.cells_foss"
+    "canonical_namespace": "org.aspose.cells_foss",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "ValidationAlertType",
@@ -14047,7 +14217,9 @@
     ],
     "class_package": "org.aspose.cells_foss",
     "class_import": "org.aspose.cells_foss.ValidationAlertType",
-    "canonical_namespace": "org.aspose.cells_foss"
+    "canonical_namespace": "org.aspose.cells_foss",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "ValidationCollection",
@@ -14158,7 +14330,9 @@
     "reachable": true,
     "class_package": "org.aspose.cells_foss",
     "class_import": "org.aspose.cells_foss.ValidationCollection",
-    "canonical_namespace": "org.aspose.cells_foss"
+    "canonical_namespace": "org.aspose.cells_foss",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "ValidationType",
@@ -14207,7 +14381,9 @@
     ],
     "class_package": "org.aspose.cells_foss",
     "class_import": "org.aspose.cells_foss.ValidationType",
-    "canonical_namespace": "org.aspose.cells_foss"
+    "canonical_namespace": "org.aspose.cells_foss",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "VerticalAlignmentType",
@@ -14244,7 +14420,9 @@
     ],
     "class_package": "org.aspose.cells_foss",
     "class_import": "org.aspose.cells_foss.VerticalAlignmentType",
-    "canonical_namespace": "org.aspose.cells_foss"
+    "canonical_namespace": "org.aspose.cells_foss",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "VisibilityType",
@@ -14273,7 +14451,9 @@
     ],
     "class_package": "org.aspose.cells_foss",
     "class_import": "org.aspose.cells_foss.VisibilityType",
-    "canonical_namespace": "org.aspose.cells_foss"
+    "canonical_namespace": "org.aspose.cells_foss",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "WarningInfo",
@@ -14530,7 +14710,9 @@
     "reachable": true,
     "class_package": "org.aspose.cells_foss",
     "class_import": "org.aspose.cells_foss.WarningInfo",
-    "canonical_namespace": "org.aspose.cells_foss"
+    "canonical_namespace": "org.aspose.cells_foss",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "Workbook",
@@ -14829,7 +15011,9 @@
     "reachable": true,
     "class_package": "org.aspose.cells_foss",
     "class_import": "org.aspose.cells_foss.Workbook",
-    "canonical_namespace": "org.aspose.cells_foss"
+    "canonical_namespace": "org.aspose.cells_foss",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "WorkbookLoadException",
@@ -14911,7 +15095,9 @@
     "reachable": true,
     "class_package": "org.aspose.cells_foss",
     "class_import": "org.aspose.cells_foss.WorkbookLoadException",
-    "canonical_namespace": "org.aspose.cells_foss"
+    "canonical_namespace": "org.aspose.cells_foss",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "WorkbookProperties",
@@ -15276,7 +15462,9 @@
     "reachable": true,
     "class_package": "org.aspose.cells_foss",
     "class_import": "org.aspose.cells_foss.WorkbookProperties",
-    "canonical_namespace": "org.aspose.cells_foss"
+    "canonical_namespace": "org.aspose.cells_foss",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "WorkbookProtection",
@@ -15476,7 +15664,9 @@
     "reachable": true,
     "class_package": "org.aspose.cells_foss",
     "class_import": "org.aspose.cells_foss.WorkbookProtection",
-    "canonical_namespace": "org.aspose.cells_foss"
+    "canonical_namespace": "org.aspose.cells_foss",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "WorkbookSaveException",
@@ -15558,7 +15748,9 @@
     "reachable": true,
     "class_package": "org.aspose.cells_foss",
     "class_import": "org.aspose.cells_foss.WorkbookSaveException",
-    "canonical_namespace": "org.aspose.cells_foss"
+    "canonical_namespace": "org.aspose.cells_foss",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "WorkbookSettings",
@@ -15635,7 +15827,9 @@
     "reachable": true,
     "class_package": "org.aspose.cells_foss",
     "class_import": "org.aspose.cells_foss.WorkbookSettings",
-    "canonical_namespace": "org.aspose.cells_foss"
+    "canonical_namespace": "org.aspose.cells_foss",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "WorkbookView",
@@ -16079,7 +16273,9 @@
     "reachable": true,
     "class_package": "org.aspose.cells_foss",
     "class_import": "org.aspose.cells_foss.WorkbookView",
-    "canonical_namespace": "org.aspose.cells_foss"
+    "canonical_namespace": "org.aspose.cells_foss",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "Worksheet",
@@ -16651,7 +16847,9 @@
     "reachable": true,
     "class_package": "org.aspose.cells_foss",
     "class_import": "org.aspose.cells_foss.Worksheet",
-    "canonical_namespace": "org.aspose.cells_foss"
+    "canonical_namespace": "org.aspose.cells_foss",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "WorksheetCollection",
@@ -16834,7 +17032,9 @@
     "reachable": true,
     "class_package": "org.aspose.cells_foss",
     "class_import": "org.aspose.cells_foss.WorksheetCollection",
-    "canonical_namespace": "org.aspose.cells_foss"
+    "canonical_namespace": "org.aspose.cells_foss",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "WorksheetProtection",
@@ -17317,7 +17517,9 @@
     "reachable": true,
     "class_package": "org.aspose.cells_foss",
     "class_import": "org.aspose.cells_foss.WorksheetProtection",
-    "canonical_namespace": "org.aspose.cells_foss"
+    "canonical_namespace": "org.aspose.cells_foss",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "XlsxDocumentProperties",
@@ -17387,7 +17589,9 @@
     "reachable": true,
     "class_package": "org.aspose.cells_foss",
     "class_import": "org.aspose.cells_foss.XlsxDocumentProperties",
-    "canonical_namespace": "org.aspose.cells_foss"
+    "canonical_namespace": "org.aspose.cells_foss",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "XlsxWorkbookSerializer",
@@ -17447,7 +17651,9 @@
     "reachable": true,
     "class_package": "org.aspose.cells_foss",
     "class_import": "org.aspose.cells_foss.XlsxWorkbookSerializer",
-    "canonical_namespace": "org.aspose.cells_foss"
+    "canonical_namespace": "org.aspose.cells_foss",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "XlsxWorkbookStylesValueHelpers",
@@ -17583,7 +17789,9 @@
     "reachable": true,
     "class_package": "org.aspose.cells_foss",
     "class_import": "org.aspose.cells_foss.XlsxWorkbookStylesValueHelpers",
-    "canonical_namespace": "org.aspose.cells_foss"
+    "canonical_namespace": "org.aspose.cells_foss",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "XlsxWorkbookStylesXml",
@@ -17735,7 +17943,9 @@
     "reachable": true,
     "class_package": "org.aspose.cells_foss",
     "class_import": "org.aspose.cells_foss.XlsxWorkbookStylesXml",
-    "canonical_namespace": "org.aspose.cells_foss"
+    "canonical_namespace": "org.aspose.cells_foss",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "FillValue",
@@ -17852,7 +18062,9 @@
     "is_static": true,
     "class_package": "org.aspose.cells_foss",
     "class_import": "org.aspose.cells_foss.FillValue",
-    "canonical_namespace": "org.aspose.cells_foss"
+    "canonical_namespace": "org.aspose.cells_foss",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "CellFormatValue",
@@ -18059,7 +18271,9 @@
     "is_static": true,
     "class_package": "org.aspose.cells_foss",
     "class_import": "org.aspose.cells_foss.CellFormatValue",
-    "canonical_namespace": "org.aspose.cells_foss"
+    "canonical_namespace": "org.aspose.cells_foss",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "AlignmentValue",
@@ -18325,7 +18539,9 @@
     "reachable": true,
     "class_package": "org.aspose.cells_foss.core",
     "class_import": "org.aspose.cells_foss.core.AlignmentValue",
-    "canonical_namespace": "org.aspose.cells_foss.core"
+    "canonical_namespace": "org.aspose.cells_foss.core",
+    "module_key": "core",
+    "module_label": "Core"
   },
   {
     "name": "AutoFilterModel",
@@ -18431,7 +18647,9 @@
     "reachable": true,
     "class_package": "org.aspose.cells_foss.core",
     "class_import": "org.aspose.cells_foss.core.AutoFilterModel",
-    "canonical_namespace": "org.aspose.cells_foss.core"
+    "canonical_namespace": "org.aspose.cells_foss.core",
+    "module_key": "core",
+    "module_label": "Core"
   },
   {
     "name": "FilterColumnModel",
@@ -18646,7 +18864,9 @@
     "is_static": true,
     "class_package": "org.aspose.cells_foss.core",
     "class_import": "org.aspose.cells_foss.core.FilterColumnModel",
-    "canonical_namespace": "org.aspose.cells_foss.core"
+    "canonical_namespace": "org.aspose.cells_foss.core",
+    "module_key": "core",
+    "module_label": "Core"
   },
   {
     "name": "AutoFilterCustomFilterModel",
@@ -18724,7 +18944,9 @@
     "is_static": true,
     "class_package": "org.aspose.cells_foss.core",
     "class_import": "org.aspose.cells_foss.core.AutoFilterCustomFilterModel",
-    "canonical_namespace": "org.aspose.cells_foss.core"
+    "canonical_namespace": "org.aspose.cells_foss.core",
+    "module_key": "core",
+    "module_label": "Core"
   },
   {
     "name": "AutoFilterColorFilterModel",
@@ -18841,7 +19063,9 @@
     "is_static": true,
     "class_package": "org.aspose.cells_foss.core",
     "class_import": "org.aspose.cells_foss.core.AutoFilterColorFilterModel",
-    "canonical_namespace": "org.aspose.cells_foss.core"
+    "canonical_namespace": "org.aspose.cells_foss.core",
+    "module_key": "core",
+    "module_label": "Core"
   },
   {
     "name": "AutoFilterDynamicFilterModel",
@@ -18988,7 +19212,9 @@
     "is_static": true,
     "class_package": "org.aspose.cells_foss.core",
     "class_import": "org.aspose.cells_foss.core.AutoFilterDynamicFilterModel",
-    "canonical_namespace": "org.aspose.cells_foss.core"
+    "canonical_namespace": "org.aspose.cells_foss.core",
+    "module_key": "core",
+    "module_label": "Core"
   },
   {
     "name": "AutoFilterTop10Model",
@@ -19165,7 +19391,9 @@
     "is_static": true,
     "class_package": "org.aspose.cells_foss.core",
     "class_import": "org.aspose.cells_foss.core.AutoFilterTop10Model",
-    "canonical_namespace": "org.aspose.cells_foss.core"
+    "canonical_namespace": "org.aspose.cells_foss.core",
+    "module_key": "core",
+    "module_label": "Core"
   },
   {
     "name": "AutoFilterSortStateModel",
@@ -19346,7 +19574,9 @@
     "is_static": true,
     "class_package": "org.aspose.cells_foss.core",
     "class_import": "org.aspose.cells_foss.core.AutoFilterSortStateModel",
-    "canonical_namespace": "org.aspose.cells_foss.core"
+    "canonical_namespace": "org.aspose.cells_foss.core",
+    "module_key": "core",
+    "module_label": "Core"
   },
   {
     "name": "AutoFilterSortConditionModel",
@@ -19574,7 +19804,9 @@
     "is_static": true,
     "class_package": "org.aspose.cells_foss.core",
     "class_import": "org.aspose.cells_foss.core.AutoFilterSortConditionModel",
-    "canonical_namespace": "org.aspose.cells_foss.core"
+    "canonical_namespace": "org.aspose.cells_foss.core",
+    "module_key": "core",
+    "module_label": "Core"
   },
   {
     "name": "FilterOperatorType",
@@ -19615,7 +19847,9 @@
     ],
     "class_package": "org.aspose.cells_foss.core",
     "class_import": "org.aspose.cells_foss.core.FilterOperatorType",
-    "canonical_namespace": "org.aspose.cells_foss.core"
+    "canonical_namespace": "org.aspose.cells_foss.core",
+    "module_key": "core",
+    "module_label": "Core"
   },
   {
     "name": "BorderSideValue",
@@ -19710,7 +19944,9 @@
     "reachable": true,
     "class_package": "org.aspose.cells_foss.core",
     "class_import": "org.aspose.cells_foss.core.BorderSideValue",
-    "canonical_namespace": "org.aspose.cells_foss.core"
+    "canonical_namespace": "org.aspose.cells_foss.core",
+    "module_key": "core",
+    "module_label": "Core"
   },
   {
     "name": "BorderStyle",
@@ -19783,7 +20019,9 @@
     ],
     "class_package": "org.aspose.cells_foss.core",
     "class_import": "org.aspose.cells_foss.core.BorderStyle",
-    "canonical_namespace": "org.aspose.cells_foss.core"
+    "canonical_namespace": "org.aspose.cells_foss.core",
+    "module_key": "core",
+    "module_label": "Core"
   },
   {
     "name": "BordersValue",
@@ -20019,7 +20257,9 @@
     "reachable": true,
     "class_package": "org.aspose.cells_foss.core",
     "class_import": "org.aspose.cells_foss.core.BordersValue",
-    "canonical_namespace": "org.aspose.cells_foss.core"
+    "canonical_namespace": "org.aspose.cells_foss.core",
+    "module_key": "core",
+    "module_label": "Core"
   },
   {
     "name": "CellAddress",
@@ -20132,7 +20372,9 @@
     "reachable": true,
     "class_package": "org.aspose.cells_foss.core",
     "class_import": "org.aspose.cells_foss.core.CellAddress",
-    "canonical_namespace": "org.aspose.cells_foss.core"
+    "canonical_namespace": "org.aspose.cells_foss.core",
+    "module_key": "core",
+    "module_label": "Core"
   },
   {
     "name": "CellRecord",
@@ -20308,7 +20550,9 @@
     "reachable": true,
     "class_package": "org.aspose.cells_foss.core",
     "class_import": "org.aspose.cells_foss.core.CellRecord",
-    "canonical_namespace": "org.aspose.cells_foss.core"
+    "canonical_namespace": "org.aspose.cells_foss.core",
+    "module_key": "core",
+    "module_label": "Core"
   },
   {
     "name": "CellValueKind",
@@ -20353,7 +20597,9 @@
     ],
     "class_package": "org.aspose.cells_foss.core",
     "class_import": "org.aspose.cells_foss.core.CellValueKind",
-    "canonical_namespace": "org.aspose.cells_foss.core"
+    "canonical_namespace": "org.aspose.cells_foss.core",
+    "module_key": "core",
+    "module_label": "Core"
   },
   {
     "name": "ChartModel",
@@ -20983,7 +21229,9 @@
     "reachable": true,
     "class_package": "org.aspose.cells_foss.core",
     "class_import": "org.aspose.cells_foss.core.ChartModel",
-    "canonical_namespace": "org.aspose.cells_foss.core"
+    "canonical_namespace": "org.aspose.cells_foss.core",
+    "module_key": "core",
+    "module_label": "Core"
   },
   {
     "name": "ColorValue",
@@ -21113,7 +21361,9 @@
     "reachable": true,
     "class_package": "org.aspose.cells_foss.core",
     "class_import": "org.aspose.cells_foss.core.ColorValue",
-    "canonical_namespace": "org.aspose.cells_foss.core"
+    "canonical_namespace": "org.aspose.cells_foss.core",
+    "module_key": "core",
+    "module_label": "Core"
   },
   {
     "name": "ColumnRangeModel",
@@ -21373,7 +21623,9 @@
     "reachable": true,
     "class_package": "org.aspose.cells_foss.core",
     "class_import": "org.aspose.cells_foss.core.ColumnRangeModel",
-    "canonical_namespace": "org.aspose.cells_foss.core"
+    "canonical_namespace": "org.aspose.cells_foss.core",
+    "module_key": "core",
+    "module_label": "Core"
   },
   {
     "name": "CommentModel",
@@ -21652,7 +21904,9 @@
     "reachable": true,
     "class_package": "org.aspose.cells_foss.core",
     "class_import": "org.aspose.cells_foss.core.CommentModel",
-    "canonical_namespace": "org.aspose.cells_foss.core"
+    "canonical_namespace": "org.aspose.cells_foss.core",
+    "module_key": "core",
+    "module_label": "Core"
   },
   {
     "name": "DateSerialConverter",
@@ -21704,7 +21958,9 @@
     "reachable": true,
     "class_package": "org.aspose.cells_foss.core",
     "class_import": "org.aspose.cells_foss.core.DateSerialConverter",
-    "canonical_namespace": "org.aspose.cells_foss.core"
+    "canonical_namespace": "org.aspose.cells_foss.core",
+    "module_key": "core",
+    "module_label": "Core"
   },
   {
     "name": "DateSystem",
@@ -21729,7 +21985,9 @@
     ],
     "class_package": "org.aspose.cells_foss.core",
     "class_import": "org.aspose.cells_foss.core.DateSystem",
-    "canonical_namespace": "org.aspose.cells_foss.core"
+    "canonical_namespace": "org.aspose.cells_foss.core",
+    "module_key": "core",
+    "module_label": "Core"
   },
   {
     "name": "DefinedNameModel",
@@ -21896,7 +22154,9 @@
     "reachable": true,
     "class_package": "org.aspose.cells_foss.core",
     "class_import": "org.aspose.cells_foss.core.DefinedNameModel",
-    "canonical_namespace": "org.aspose.cells_foss.core"
+    "canonical_namespace": "org.aspose.cells_foss.core",
+    "module_key": "core",
+    "module_label": "Core"
   },
   {
     "name": "DiagnosticBag",
@@ -21943,7 +22203,9 @@
     "reachable": true,
     "class_package": "org.aspose.cells_foss.core",
     "class_import": "org.aspose.cells_foss.core.DiagnosticBag",
-    "canonical_namespace": "org.aspose.cells_foss.core"
+    "canonical_namespace": "org.aspose.cells_foss.core",
+    "module_key": "core",
+    "module_label": "Core"
   },
   {
     "name": "DiagnosticEntry",
@@ -22110,7 +22372,9 @@
     "reachable": true,
     "class_package": "org.aspose.cells_foss.core",
     "class_import": "org.aspose.cells_foss.core.DiagnosticEntry",
-    "canonical_namespace": "org.aspose.cells_foss.core"
+    "canonical_namespace": "org.aspose.cells_foss.core",
+    "module_key": "core",
+    "module_label": "Core"
   },
   {
     "name": "DiagnosticSeverity",
@@ -22143,7 +22407,9 @@
     ],
     "class_package": "org.aspose.cells_foss.core",
     "class_import": "org.aspose.cells_foss.core.DiagnosticSeverity",
-    "canonical_namespace": "org.aspose.cells_foss.core"
+    "canonical_namespace": "org.aspose.cells_foss.core",
+    "module_key": "core",
+    "module_label": "Core"
   },
   {
     "name": "DocumentPropertiesModel",
@@ -22224,7 +22490,9 @@
     "reachable": true,
     "class_package": "org.aspose.cells_foss.core",
     "class_import": "org.aspose.cells_foss.core.DocumentPropertiesModel",
-    "canonical_namespace": "org.aspose.cells_foss.core"
+    "canonical_namespace": "org.aspose.cells_foss.core",
+    "module_key": "core",
+    "module_label": "Core"
   },
   {
     "name": "CoreDocumentPropertiesModel",
@@ -22595,7 +22863,9 @@
     "is_static": true,
     "class_package": "org.aspose.cells_foss.core",
     "class_import": "org.aspose.cells_foss.core.CoreDocumentPropertiesModel",
-    "canonical_namespace": "org.aspose.cells_foss.core"
+    "canonical_namespace": "org.aspose.cells_foss.core",
+    "module_key": "core",
+    "module_label": "Core"
   },
   {
     "name": "ExtendedDocumentPropertiesModel",
@@ -22906,7 +23176,9 @@
     "is_static": true,
     "class_package": "org.aspose.cells_foss.core",
     "class_import": "org.aspose.cells_foss.core.ExtendedDocumentPropertiesModel",
-    "canonical_namespace": "org.aspose.cells_foss.core"
+    "canonical_namespace": "org.aspose.cells_foss.core",
+    "module_key": "core",
+    "module_label": "Core"
   },
   {
     "name": "FillPatternKind",
@@ -22995,7 +23267,9 @@
     ],
     "class_package": "org.aspose.cells_foss.core",
     "class_import": "org.aspose.cells_foss.core.FillPatternKind",
-    "canonical_namespace": "org.aspose.cells_foss.core"
+    "canonical_namespace": "org.aspose.cells_foss.core",
+    "module_key": "core",
+    "module_label": "Core"
   },
   {
     "name": "FontValue",
@@ -23262,7 +23536,9 @@
     "reachable": true,
     "class_package": "org.aspose.cells_foss.core",
     "class_import": "org.aspose.cells_foss.core.FontValue",
-    "canonical_namespace": "org.aspose.cells_foss.core"
+    "canonical_namespace": "org.aspose.cells_foss.core",
+    "module_key": "core",
+    "module_label": "Core"
   },
   {
     "name": "HeaderFooterModel",
@@ -23459,7 +23735,9 @@
     "reachable": true,
     "class_package": "org.aspose.cells_foss.core",
     "class_import": "org.aspose.cells_foss.core.HeaderFooterModel",
-    "canonical_namespace": "org.aspose.cells_foss.core"
+    "canonical_namespace": "org.aspose.cells_foss.core",
+    "module_key": "core",
+    "module_label": "Core"
   },
   {
     "name": "HorizontalAlignment",
@@ -23508,7 +23786,9 @@
     ],
     "class_package": "org.aspose.cells_foss.core",
     "class_import": "org.aspose.cells_foss.core.HorizontalAlignment",
-    "canonical_namespace": "org.aspose.cells_foss.core"
+    "canonical_namespace": "org.aspose.cells_foss.core",
+    "module_key": "core",
+    "module_label": "Core"
   },
   {
     "name": "HyperlinkModel",
@@ -23765,7 +24045,9 @@
     "reachable": true,
     "class_package": "org.aspose.cells_foss.core",
     "class_import": "org.aspose.cells_foss.core.HyperlinkModel",
-    "canonical_namespace": "org.aspose.cells_foss.core"
+    "canonical_namespace": "org.aspose.cells_foss.core",
+    "module_key": "core",
+    "module_label": "Core"
   },
   {
     "name": "ListColumnModel",
@@ -23947,7 +24229,9 @@
     "reachable": true,
     "class_package": "org.aspose.cells_foss.core",
     "class_import": "org.aspose.cells_foss.core.ListColumnModel",
-    "canonical_namespace": "org.aspose.cells_foss.core"
+    "canonical_namespace": "org.aspose.cells_foss.core",
+    "module_key": "core",
+    "module_label": "Core"
   },
   {
     "name": "ListObjectModel",
@@ -24477,7 +24761,9 @@
     "reachable": true,
     "class_package": "org.aspose.cells_foss.core",
     "class_import": "org.aspose.cells_foss.core.ListObjectModel",
-    "canonical_namespace": "org.aspose.cells_foss.core"
+    "canonical_namespace": "org.aspose.cells_foss.core",
+    "module_key": "core",
+    "module_label": "Core"
   },
   {
     "name": "MergeRegion",
@@ -24584,7 +24870,9 @@
     "reachable": true,
     "class_package": "org.aspose.cells_foss.core",
     "class_import": "org.aspose.cells_foss.core.MergeRegion",
-    "canonical_namespace": "org.aspose.cells_foss.core"
+    "canonical_namespace": "org.aspose.cells_foss.core",
+    "module_key": "core",
+    "module_label": "Core"
   },
   {
     "name": "PageMarginsModel",
@@ -24781,7 +25069,9 @@
     "reachable": true,
     "class_package": "org.aspose.cells_foss.core",
     "class_import": "org.aspose.cells_foss.core.PageMarginsModel",
-    "canonical_namespace": "org.aspose.cells_foss.core"
+    "canonical_namespace": "org.aspose.cells_foss.core",
+    "module_key": "core",
+    "module_label": "Core"
   },
   {
     "name": "PageOrientation",
@@ -24810,7 +25100,9 @@
     ],
     "class_package": "org.aspose.cells_foss.core",
     "class_import": "org.aspose.cells_foss.core.PageOrientation",
-    "canonical_namespace": "org.aspose.cells_foss.core"
+    "canonical_namespace": "org.aspose.cells_foss.core",
+    "module_key": "core",
+    "module_label": "Core"
   },
   {
     "name": "PageSetupModel",
@@ -25177,7 +25469,9 @@
     "reachable": true,
     "class_package": "org.aspose.cells_foss.core",
     "class_import": "org.aspose.cells_foss.core.PageSetupModel",
-    "canonical_namespace": "org.aspose.cells_foss.core"
+    "canonical_namespace": "org.aspose.cells_foss.core",
+    "module_key": "core",
+    "module_label": "Core"
   },
   {
     "name": "PictureModel",
@@ -25588,7 +25882,9 @@
     "reachable": true,
     "class_package": "org.aspose.cells_foss.core",
     "class_import": "org.aspose.cells_foss.core.PictureModel",
-    "canonical_namespace": "org.aspose.cells_foss.core"
+    "canonical_namespace": "org.aspose.cells_foss.core",
+    "module_key": "core",
+    "module_label": "Core"
   },
   {
     "name": "PrintOptionsModel",
@@ -25725,7 +26021,9 @@
     "reachable": true,
     "class_package": "org.aspose.cells_foss.core",
     "class_import": "org.aspose.cells_foss.core.PrintOptionsModel",
-    "canonical_namespace": "org.aspose.cells_foss.core"
+    "canonical_namespace": "org.aspose.cells_foss.core",
+    "module_key": "core",
+    "module_label": "Core"
   },
   {
     "name": "ProtectionValue",
@@ -25811,7 +26109,9 @@
     "reachable": true,
     "class_package": "org.aspose.cells_foss.core",
     "class_import": "org.aspose.cells_foss.core.ProtectionValue",
-    "canonical_namespace": "org.aspose.cells_foss.core"
+    "canonical_namespace": "org.aspose.cells_foss.core",
+    "module_key": "core",
+    "module_label": "Core"
   },
   {
     "name": "RowModel",
@@ -25978,7 +26278,9 @@
     "reachable": true,
     "class_package": "org.aspose.cells_foss.core",
     "class_import": "org.aspose.cells_foss.core.RowModel",
-    "canonical_namespace": "org.aspose.cells_foss.core"
+    "canonical_namespace": "org.aspose.cells_foss.core",
+    "module_key": "core",
+    "module_label": "Core"
   },
   {
     "name": "ShapeModel",
@@ -26526,7 +26828,9 @@
     "reachable": true,
     "class_package": "org.aspose.cells_foss.core",
     "class_import": "org.aspose.cells_foss.core.ShapeModel",
-    "canonical_namespace": "org.aspose.cells_foss.core"
+    "canonical_namespace": "org.aspose.cells_foss.core",
+    "module_key": "core",
+    "module_label": "Core"
   },
   {
     "name": "SharedStringRepository",
@@ -26600,7 +26904,9 @@
     "reachable": true,
     "class_package": "org.aspose.cells_foss.core",
     "class_import": "org.aspose.cells_foss.core.SharedStringRepository",
-    "canonical_namespace": "org.aspose.cells_foss.core"
+    "canonical_namespace": "org.aspose.cells_foss.core",
+    "module_key": "core",
+    "module_label": "Core"
   },
   {
     "name": "SheetVisibility",
@@ -26629,7 +26935,9 @@
     ],
     "class_package": "org.aspose.cells_foss.core",
     "class_import": "org.aspose.cells_foss.core.SheetVisibility",
-    "canonical_namespace": "org.aspose.cells_foss.core"
+    "canonical_namespace": "org.aspose.cells_foss.core",
+    "module_key": "core",
+    "module_label": "Core"
   },
   {
     "name": "StyleRepository",
@@ -26659,7 +26967,9 @@
     "reachable": true,
     "class_package": "org.aspose.cells_foss.core",
     "class_import": "org.aspose.cells_foss.core.StyleRepository",
-    "canonical_namespace": "org.aspose.cells_foss.core"
+    "canonical_namespace": "org.aspose.cells_foss.core",
+    "module_key": "core",
+    "module_label": "Core"
   },
   {
     "name": "StyleValue",
@@ -26974,7 +27284,9 @@
     "reachable": true,
     "class_package": "org.aspose.cells_foss.core",
     "class_import": "org.aspose.cells_foss.core.StyleValue",
-    "canonical_namespace": "org.aspose.cells_foss.core"
+    "canonical_namespace": "org.aspose.cells_foss.core",
+    "module_key": "core",
+    "module_label": "Core"
   },
   {
     "name": "ValidationModel",
@@ -27406,7 +27718,9 @@
     "reachable": true,
     "class_package": "org.aspose.cells_foss.core",
     "class_import": "org.aspose.cells_foss.core.ValidationModel",
-    "canonical_namespace": "org.aspose.cells_foss.core"
+    "canonical_namespace": "org.aspose.cells_foss.core",
+    "module_key": "core",
+    "module_label": "Core"
   },
   {
     "name": "VerticalAlignment",
@@ -27443,7 +27757,9 @@
     ],
     "class_package": "org.aspose.cells_foss.core",
     "class_import": "org.aspose.cells_foss.core.VerticalAlignment",
-    "canonical_namespace": "org.aspose.cells_foss.core"
+    "canonical_namespace": "org.aspose.cells_foss.core",
+    "module_key": "core",
+    "module_label": "Core"
   },
   {
     "name": "WorkbookModel",
@@ -27755,7 +28071,9 @@
     "reachable": true,
     "class_package": "org.aspose.cells_foss.core",
     "class_import": "org.aspose.cells_foss.core.WorkbookModel",
-    "canonical_namespace": "org.aspose.cells_foss.core"
+    "canonical_namespace": "org.aspose.cells_foss.core",
+    "module_key": "core",
+    "module_label": "Core"
   },
   {
     "name": "WorkbookPropertiesModel",
@@ -28152,7 +28470,9 @@
     "reachable": true,
     "class_package": "org.aspose.cells_foss.core",
     "class_import": "org.aspose.cells_foss.core.WorkbookPropertiesModel",
-    "canonical_namespace": "org.aspose.cells_foss.core"
+    "canonical_namespace": "org.aspose.cells_foss.core",
+    "module_key": "core",
+    "module_label": "Core"
   },
   {
     "name": "WorkbookProtectionModel",
@@ -28343,7 +28663,9 @@
     "is_static": true,
     "class_package": "org.aspose.cells_foss.core",
     "class_import": "org.aspose.cells_foss.core.WorkbookProtectionModel",
-    "canonical_namespace": "org.aspose.cells_foss.core"
+    "canonical_namespace": "org.aspose.cells_foss.core",
+    "module_key": "core",
+    "module_label": "Core"
   },
   {
     "name": "WorkbookViewModel",
@@ -28749,7 +29071,9 @@
     "is_static": true,
     "class_package": "org.aspose.cells_foss.core",
     "class_import": "org.aspose.cells_foss.core.WorkbookViewModel",
-    "canonical_namespace": "org.aspose.cells_foss.core"
+    "canonical_namespace": "org.aspose.cells_foss.core",
+    "module_key": "core",
+    "module_label": "Core"
   },
   {
     "name": "CalculationPropertiesModel",
@@ -29150,7 +29474,9 @@
     "is_static": true,
     "class_package": "org.aspose.cells_foss.core",
     "class_import": "org.aspose.cells_foss.core.CalculationPropertiesModel",
-    "canonical_namespace": "org.aspose.cells_foss.core"
+    "canonical_namespace": "org.aspose.cells_foss.core",
+    "module_key": "core",
+    "module_label": "Core"
   },
   {
     "name": "WorkbookSettingsModel",
@@ -29227,7 +29553,9 @@
     "reachable": true,
     "class_package": "org.aspose.cells_foss.core",
     "class_import": "org.aspose.cells_foss.core.WorkbookSettingsModel",
-    "canonical_namespace": "org.aspose.cells_foss.core"
+    "canonical_namespace": "org.aspose.cells_foss.core",
+    "module_key": "core",
+    "module_label": "Core"
   },
   {
     "name": "WorksheetModel",
@@ -29614,7 +29942,9 @@
     "reachable": true,
     "class_package": "org.aspose.cells_foss.core",
     "class_import": "org.aspose.cells_foss.core.WorksheetModel",
-    "canonical_namespace": "org.aspose.cells_foss.core"
+    "canonical_namespace": "org.aspose.cells_foss.core",
+    "module_key": "core",
+    "module_label": "Core"
   },
   {
     "name": "WorksheetProtectionModel",
@@ -30279,7 +30609,9 @@
     "reachable": true,
     "class_package": "org.aspose.cells_foss.core",
     "class_import": "org.aspose.cells_foss.core.WorksheetProtectionModel",
-    "canonical_namespace": "org.aspose.cells_foss.core"
+    "canonical_namespace": "org.aspose.cells_foss.core",
+    "module_key": "core",
+    "module_label": "Core"
   },
   {
     "name": "WorksheetViewModel",
@@ -30506,7 +30838,9 @@
     "reachable": true,
     "class_package": "org.aspose.cells_foss.core",
     "class_import": "org.aspose.cells_foss.core.WorksheetViewModel",
-    "canonical_namespace": "org.aspose.cells_foss.core"
+    "canonical_namespace": "org.aspose.cells_foss.core",
+    "module_key": "core",
+    "module_label": "Core"
   },
   {
     "name": "MissingPartException",
@@ -30552,7 +30886,9 @@
     "reachable": true,
     "class_package": "org.aspose.cells_foss.packaging",
     "class_import": "org.aspose.cells_foss.packaging.MissingPartException",
-    "canonical_namespace": "org.aspose.cells_foss.packaging"
+    "canonical_namespace": "org.aspose.cells_foss.packaging",
+    "module_key": "packaging",
+    "module_label": "Packaging"
   },
   {
     "name": "PackageLoadContext",
@@ -30619,7 +30955,9 @@
     "reachable": true,
     "class_package": "org.aspose.cells_foss.packaging",
     "class_import": "org.aspose.cells_foss.packaging.PackageLoadContext",
-    "canonical_namespace": "org.aspose.cells_foss.packaging"
+    "canonical_namespace": "org.aspose.cells_foss.packaging",
+    "module_key": "packaging",
+    "module_label": "Packaging"
   },
   {
     "name": "PackageModel",
@@ -30684,7 +31022,9 @@
     "reachable": true,
     "class_package": "org.aspose.cells_foss.packaging",
     "class_import": "org.aspose.cells_foss.packaging.PackageModel",
-    "canonical_namespace": "org.aspose.cells_foss.packaging"
+    "canonical_namespace": "org.aspose.cells_foss.packaging",
+    "module_key": "packaging",
+    "module_label": "Packaging"
   },
   {
     "name": "PackagePartDescriptor",
@@ -30791,7 +31131,9 @@
     "reachable": true,
     "class_package": "org.aspose.cells_foss.packaging",
     "class_import": "org.aspose.cells_foss.packaging.PackagePartDescriptor",
-    "canonical_namespace": "org.aspose.cells_foss.packaging"
+    "canonical_namespace": "org.aspose.cells_foss.packaging",
+    "module_key": "packaging",
+    "module_label": "Packaging"
   },
   {
     "name": "PackageStructureException",
@@ -30823,7 +31165,9 @@
     "reachable": true,
     "class_package": "org.aspose.cells_foss.packaging",
     "class_import": "org.aspose.cells_foss.packaging.PackageStructureException",
-    "canonical_namespace": "org.aspose.cells_foss.packaging"
+    "canonical_namespace": "org.aspose.cells_foss.packaging",
+    "module_key": "packaging",
+    "module_label": "Packaging"
   },
   {
     "name": "PackagingConventions",
@@ -30911,7 +31255,9 @@
     "reachable": true,
     "class_package": "org.aspose.cells_foss.packaging",
     "class_import": "org.aspose.cells_foss.packaging.PackagingConventions",
-    "canonical_namespace": "org.aspose.cells_foss.packaging"
+    "canonical_namespace": "org.aspose.cells_foss.packaging",
+    "module_key": "packaging",
+    "module_label": "Packaging"
   },
   {
     "name": "RelationshipDescriptor",
@@ -31048,7 +31394,9 @@
     "reachable": true,
     "class_package": "org.aspose.cells_foss.packaging",
     "class_import": "org.aspose.cells_foss.packaging.RelationshipDescriptor",
-    "canonical_namespace": "org.aspose.cells_foss.packaging"
+    "canonical_namespace": "org.aspose.cells_foss.packaging",
+    "module_key": "packaging",
+    "module_label": "Packaging"
   },
   {
     "name": "RelationshipResolutionException",
@@ -31094,7 +31442,9 @@
     "reachable": true,
     "class_package": "org.aspose.cells_foss.packaging",
     "class_import": "org.aspose.cells_foss.packaging.RelationshipResolutionException",
-    "canonical_namespace": "org.aspose.cells_foss.packaging"
+    "canonical_namespace": "org.aspose.cells_foss.packaging",
+    "module_key": "packaging",
+    "module_label": "Packaging"
   },
   {
     "name": "ValidationMessage",
@@ -31201,7 +31551,9 @@
     "reachable": true,
     "class_package": "org.aspose.cells_foss.validation",
     "class_import": "org.aspose.cells_foss.validation.ValidationMessage",
-    "canonical_namespace": "org.aspose.cells_foss.validation"
+    "canonical_namespace": "org.aspose.cells_foss.validation",
+    "module_key": "validation",
+    "module_label": "Validation"
   },
   {
     "name": "ValidationMessageSeverity",
@@ -31230,7 +31582,9 @@
     ],
     "class_package": "org.aspose.cells_foss.validation",
     "class_import": "org.aspose.cells_foss.validation.ValidationMessageSeverity",
-    "canonical_namespace": "org.aspose.cells_foss.validation"
+    "canonical_namespace": "org.aspose.cells_foss.validation",
+    "module_key": "validation",
+    "module_label": "Validation"
   },
   {
     "name": "WorkbookValidator",
@@ -31264,7 +31618,9 @@
     "reachable": true,
     "class_package": "org.aspose.cells_foss.validation",
     "class_import": "org.aspose.cells_foss.validation.WorkbookValidator",
-    "canonical_namespace": "org.aspose.cells_foss.validation"
+    "canonical_namespace": "org.aspose.cells_foss.validation",
+    "module_key": "validation",
+    "module_label": "Validation"
   },
   {
     "name": "SharedStringTableXmlMapper",
@@ -31318,7 +31674,9 @@
     "reachable": true,
     "class_package": "org.aspose.cells_foss.xml",
     "class_import": "org.aspose.cells_foss.xml.SharedStringTableXmlMapper",
-    "canonical_namespace": "org.aspose.cells_foss.xml"
+    "canonical_namespace": "org.aspose.cells_foss.xml",
+    "module_key": "xml",
+    "module_label": "Xml"
   },
   {
     "name": "StylesheetXmlMapper",
@@ -31372,7 +31730,9 @@
     "reachable": true,
     "class_package": "org.aspose.cells_foss.xml",
     "class_import": "org.aspose.cells_foss.xml.StylesheetXmlMapper",
-    "canonical_namespace": "org.aspose.cells_foss.xml"
+    "canonical_namespace": "org.aspose.cells_foss.xml",
+    "module_key": "xml",
+    "module_label": "Xml"
   },
   {
     "name": "WorkbookXmlMapper",
@@ -31434,7 +31794,9 @@
     "reachable": true,
     "class_package": "org.aspose.cells_foss.xml",
     "class_import": "org.aspose.cells_foss.xml.WorkbookXmlMapper",
-    "canonical_namespace": "org.aspose.cells_foss.xml"
+    "canonical_namespace": "org.aspose.cells_foss.xml",
+    "module_key": "xml",
+    "module_label": "Xml"
   },
   {
     "name": "WorksheetXmlMapper",
@@ -31488,7 +31850,9 @@
     "reachable": true,
     "class_package": "org.aspose.cells_foss.xml",
     "class_import": "org.aspose.cells_foss.xml.WorksheetXmlMapper",
-    "canonical_namespace": "org.aspose.cells_foss.xml"
+    "canonical_namespace": "org.aspose.cells_foss.xml",
+    "module_key": "xml",
+    "module_label": "Xml"
   },
   {
     "name": "XmlParsingException",
@@ -31520,6 +31884,8 @@
     "reachable": true,
     "class_package": "org.aspose.cells_foss.xml",
     "class_import": "org.aspose.cells_foss.xml.XmlParsingException",
-    "canonical_namespace": "org.aspose.cells_foss.xml"
+    "canonical_namespace": "org.aspose.cells_foss.xml",
+    "module_key": "xml",
+    "module_label": "Xml"
   }
 ]

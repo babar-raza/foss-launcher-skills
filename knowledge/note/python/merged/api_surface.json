@@ -59,7 +59,9 @@
     "deprecated": false,
     "deprecated_reason": "",
     "canonical_namespace": "note._internal.ms_one.entities",
-    "class_import": "note._internal.ms_one.entities.LogicalNode"
+    "class_import": "note._internal.ms_one.entities.LogicalNode",
+    "module_key": "_internal",
+    "module_label": "Internal"
   },
   {
     "name": "LogicalDocument",
@@ -85,7 +87,9 @@
     "deprecated": false,
     "deprecated_reason": "",
     "canonical_namespace": "note._internal.ms_one.entities",
-    "class_import": "note._internal.ms_one.entities.LogicalDocument"
+    "class_import": "note._internal.ms_one.entities.LogicalDocument",
+    "module_key": "_internal",
+    "module_label": "Internal"
   },
   {
     "name": "LoadedOneNoteDocument",
@@ -138,7 +142,9 @@
     "deprecated": false,
     "deprecated_reason": "",
     "canonical_namespace": "note._internal.ms_one.loader",
-    "class_import": "note._internal.ms_one.loader.LoadedOneNoteDocument"
+    "class_import": "note._internal.ms_one.loader.LoadedOneNoteDocument",
+    "module_key": "_internal",
+    "module_label": "Internal"
   },
   {
     "name": "load_onenote_document",
@@ -160,7 +166,9 @@
       }
     ],
     "return_type": "LoadedOneNoteDocument",
-    "reachable": false
+    "reachable": false,
+    "module_key": "_internal",
+    "module_label": "Internal"
   },
   {
     "name": "ExtendedGUID",
@@ -195,7 +203,9 @@
     "deprecated": false,
     "deprecated_reason": "",
     "canonical_namespace": "note._internal.onestore.parser",
-    "class_import": "note._internal.onestore.parser.ExtendedGUID"
+    "class_import": "note._internal.onestore.parser.ExtendedGUID",
+    "module_key": "_internal",
+    "module_label": "Internal"
   },
   {
     "name": "JCID",
@@ -266,7 +276,9 @@
     "deprecated": false,
     "deprecated_reason": "",
     "canonical_namespace": "note._internal.onestore.parser",
-    "class_import": "note._internal.onestore.parser.JCID"
+    "class_import": "note._internal.onestore.parser.JCID",
+    "module_key": "_internal",
+    "module_label": "Internal"
   },
   {
     "name": "FileNode",
@@ -328,7 +340,9 @@
     "deprecated": false,
     "deprecated_reason": "",
     "canonical_namespace": "note._internal.onestore.parser",
-    "class_import": "note._internal.onestore.parser.FileNode"
+    "class_import": "note._internal.onestore.parser.FileNode",
+    "module_key": "_internal",
+    "module_label": "Internal"
   },
   {
     "name": "OneStoreObject",
@@ -408,7 +422,9 @@
     "deprecated": false,
     "deprecated_reason": "",
     "canonical_namespace": "note._internal.onestore.parser",
-    "class_import": "note._internal.onestore.parser.OneStoreObject"
+    "class_import": "note._internal.onestore.parser.OneStoreObject",
+    "module_key": "_internal",
+    "module_label": "Internal"
   },
   {
     "name": "RevisionManifestRecord",
@@ -488,7 +504,9 @@
     "deprecated": false,
     "deprecated_reason": "",
     "canonical_namespace": "note._internal.onestore.parser",
-    "class_import": "note._internal.onestore.parser.RevisionManifestRecord"
+    "class_import": "note._internal.onestore.parser.RevisionManifestRecord",
+    "module_key": "_internal",
+    "module_label": "Internal"
   },
   {
     "name": "RevisionRoleBinding",
@@ -541,7 +559,9 @@
     "deprecated": false,
     "deprecated_reason": "",
     "canonical_namespace": "note._internal.onestore.parser",
-    "class_import": "note._internal.onestore.parser.RevisionRoleBinding"
+    "class_import": "note._internal.onestore.parser.RevisionRoleBinding",
+    "module_key": "_internal",
+    "module_label": "Internal"
   },
   {
     "name": "ObjectSpaceState",
@@ -687,7 +707,9 @@
     "deprecated": false,
     "deprecated_reason": "",
     "canonical_namespace": "note._internal.onestore.parser",
-    "class_import": "note._internal.onestore.parser.ObjectSpaceState"
+    "class_import": "note._internal.onestore.parser.ObjectSpaceState",
+    "module_key": "_internal",
+    "module_label": "Internal"
   },
   {
     "name": "OneStoreFile",
@@ -740,7 +762,9 @@
     "deprecated": false,
     "deprecated_reason": "",
     "canonical_namespace": "note._internal.onestore.parser",
-    "class_import": "note._internal.onestore.parser.OneStoreFile"
+    "class_import": "note._internal.onestore.parser.OneStoreFile",
+    "module_key": "_internal",
+    "module_label": "Internal"
   },
   {
     "name": "read_value",
@@ -758,7 +782,9 @@
       }
     ],
     "return_type": "Any",
-    "reachable": false
+    "reachable": false,
+    "module_key": "_internal",
+    "module_label": "Internal"
   },
   {
     "name": "parse_onestore_file",
@@ -776,7 +802,9 @@
       }
     ],
     "return_type": "OneStoreFile",
-    "reachable": false
+    "reachable": false,
+    "module_key": "_internal",
+    "module_label": "Internal"
   },
   {
     "name": "OutlinePrefixFlowable",
@@ -854,7 +882,9 @@
     "deprecated": false,
     "deprecated_reason": "",
     "canonical_namespace": "note.saving.pdf_writer",
-    "class_import": "note.saving.pdf_writer.OutlinePrefixFlowable"
+    "class_import": "note.saving.pdf_writer.OutlinePrefixFlowable",
+    "module_key": "saving",
+    "module_label": "Saving"
   },
   {
     "name": "AttachmentTagFlowable",
@@ -940,7 +970,9 @@
     "deprecated": false,
     "deprecated_reason": "",
     "canonical_namespace": "note.saving.pdf_writer",
-    "class_import": "note.saving.pdf_writer.AttachmentTagFlowable"
+    "class_import": "note.saving.pdf_writer.AttachmentTagFlowable",
+    "module_key": "saving",
+    "module_label": "Saving"
   },
   {
     "name": "write_pdf",
@@ -962,7 +994,9 @@
       }
     ],
     "return_type": "bytes",
-    "reachable": false
+    "reachable": false,
+    "module_key": "saving",
+    "module_label": "Saving"
   },
   {
     "name": "SaveFormat",
@@ -988,7 +1022,9 @@
     "canonical_namespace": "note.enums",
     "class_import": "note.enums.SaveFormat",
     "exported_via_package_init": true,
-    "public_import_module": "note"
+    "public_import_module": "note",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "FileFormat",
@@ -1026,7 +1062,9 @@
     "canonical_namespace": "note.enums",
     "class_import": "note.enums.FileFormat",
     "exported_via_package_init": true,
-    "public_import_module": "note"
+    "public_import_module": "note",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "HorizontalAlignment",
@@ -1060,7 +1098,9 @@
     "canonical_namespace": "note.enums",
     "class_import": "note.enums.HorizontalAlignment",
     "exported_via_package_init": true,
-    "public_import_module": "note"
+    "public_import_module": "note",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "TagStatus",
@@ -1094,7 +1134,9 @@
     "canonical_namespace": "note.enums",
     "class_import": "note.enums.TagStatus",
     "exported_via_package_init": true,
-    "public_import_module": "note"
+    "public_import_module": "note",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "NodeType",
@@ -1148,7 +1190,9 @@
     "canonical_namespace": "note.enums",
     "class_import": "note.enums.NodeType",
     "exported_via_package_init": true,
-    "public_import_module": "note"
+    "public_import_module": "note",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "AsposeNoteError",
@@ -1166,7 +1210,9 @@
     "deprecated": false,
     "deprecated_reason": "",
     "canonical_namespace": "note.exceptions",
-    "class_import": "note.exceptions.AsposeNoteError"
+    "class_import": "note.exceptions.AsposeNoteError",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "FileCorruptedException",
@@ -1186,7 +1232,9 @@
     "canonical_namespace": "note.exceptions",
     "class_import": "note.exceptions.FileCorruptedException",
     "exported_via_package_init": true,
-    "public_import_module": "note"
+    "public_import_module": "note",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "IncorrectDocumentStructureException",
@@ -1206,7 +1254,9 @@
     "canonical_namespace": "note.exceptions",
     "class_import": "note.exceptions.IncorrectDocumentStructureException",
     "exported_via_package_init": true,
-    "public_import_module": "note"
+    "public_import_module": "note",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "IncorrectPasswordException",
@@ -1226,7 +1276,9 @@
     "canonical_namespace": "note.exceptions",
     "class_import": "note.exceptions.IncorrectPasswordException",
     "exported_via_package_init": true,
-    "public_import_module": "note"
+    "public_import_module": "note",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "UnsupportedFileFormatException",
@@ -1277,7 +1329,9 @@
     "canonical_namespace": "note.exceptions",
     "class_import": "note.exceptions.UnsupportedFileFormatException",
     "exported_via_package_init": true,
-    "public_import_module": "note"
+    "public_import_module": "note",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "UnsupportedSaveFormatException",
@@ -1297,7 +1351,9 @@
     "canonical_namespace": "note.exceptions",
     "class_import": "note.exceptions.UnsupportedSaveFormatException",
     "exported_via_package_init": true,
-    "public_import_module": "note"
+    "public_import_module": "note",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "DocumentVisitor",
@@ -1540,7 +1596,9 @@
     "canonical_namespace": "note.model",
     "class_import": "note.model.DocumentVisitor",
     "exported_via_package_init": true,
-    "public_import_module": "note"
+    "public_import_module": "note",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "License",
@@ -1575,7 +1633,9 @@
     "canonical_namespace": "note.model",
     "class_import": "note.model.License",
     "exported_via_package_init": true,
-    "public_import_module": "note"
+    "public_import_module": "note",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "Metered",
@@ -1614,7 +1674,9 @@
     "canonical_namespace": "note.model",
     "class_import": "note.model.Metered",
     "exported_via_package_init": true,
-    "public_import_module": "note"
+    "public_import_module": "note",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "LoadOptions",
@@ -1651,7 +1713,9 @@
     "canonical_namespace": "note.model",
     "class_import": "note.model.LoadOptions",
     "exported_via_package_init": true,
-    "public_import_module": "note"
+    "public_import_module": "note",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "Node",
@@ -1705,7 +1769,9 @@
     "canonical_namespace": "note.model",
     "class_import": "note.model.Node",
     "exported_via_package_init": true,
-    "public_import_module": "note"
+    "public_import_module": "note",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "CompositeNode",
@@ -1872,7 +1938,9 @@
     "deprecated": false,
     "deprecated_reason": "",
     "canonical_namespace": "note.model",
-    "class_import": "note.model.CompositeNode"
+    "class_import": "note.model.CompositeNode",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "NoteTag",
@@ -2047,7 +2115,9 @@
     "canonical_namespace": "note.model",
     "class_import": "note.model.NoteTag",
     "exported_via_package_init": true,
-    "public_import_module": "note"
+    "public_import_module": "note",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "ParagraphStyle",
@@ -2219,7 +2289,9 @@
     "canonical_namespace": "note.model",
     "class_import": "note.model.ParagraphStyle",
     "exported_via_package_init": true,
-    "public_import_module": "note"
+    "public_import_module": "note",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "TextStyle",
@@ -2499,7 +2571,9 @@
     "canonical_namespace": "note.model",
     "class_import": "note.model.TextStyle",
     "exported_via_package_init": true,
-    "public_import_module": "note"
+    "public_import_module": "note",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "TextRun",
@@ -2536,7 +2610,9 @@
     "canonical_namespace": "note.model",
     "class_import": "note.model.TextRun",
     "exported_via_package_init": true,
-    "public_import_module": "note"
+    "public_import_module": "note",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "RichText",
@@ -2944,7 +3020,9 @@
     "canonical_namespace": "note.model",
     "class_import": "note.model.RichText",
     "exported_via_package_init": true,
-    "public_import_module": "note"
+    "public_import_module": "note",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "Title",
@@ -3078,7 +3156,9 @@
     "canonical_namespace": "note.model",
     "class_import": "note.model.Title",
     "exported_via_package_init": true,
-    "public_import_module": "note"
+    "public_import_module": "note",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "NumberList",
@@ -3195,7 +3275,9 @@
     "canonical_namespace": "note.model",
     "class_import": "note.model.NumberList",
     "exported_via_package_init": true,
-    "public_import_module": "note"
+    "public_import_module": "note",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "OutlineElement",
@@ -3373,7 +3455,9 @@
     "canonical_namespace": "note.model",
     "class_import": "note.model.OutlineElement",
     "exported_via_package_init": true,
-    "public_import_module": "note"
+    "public_import_module": "note",
+    "module_key": "structure",
+    "module_label": "Structure"
   },
   {
     "name": "Outline",
@@ -3623,7 +3707,9 @@
     "canonical_namespace": "note.model",
     "class_import": "note.model.Outline",
     "exported_via_package_init": true,
-    "public_import_module": "note"
+    "public_import_module": "note",
+    "module_key": "structure",
+    "module_label": "Structure"
   },
   {
     "name": "Image",
@@ -4032,7 +4118,9 @@
     "canonical_namespace": "note.model",
     "class_import": "note.model.Image",
     "exported_via_package_init": true,
-    "public_import_module": "note"
+    "public_import_module": "note",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "AttachedFile",
@@ -4139,7 +4227,9 @@
     "canonical_namespace": "note.model",
     "class_import": "note.model.AttachedFile",
     "exported_via_package_init": true,
-    "public_import_module": "note"
+    "public_import_module": "note",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "TableCell",
@@ -4308,7 +4398,9 @@
     "canonical_namespace": "note.model",
     "class_import": "note.model.TableCell",
     "exported_via_package_init": true,
-    "public_import_module": "note"
+    "public_import_module": "note",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "TableRow",
@@ -4477,7 +4569,9 @@
     "canonical_namespace": "note.model",
     "class_import": "note.model.TableRow",
     "exported_via_package_init": true,
-    "public_import_module": "note"
+    "public_import_module": "note",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "TableColumn",
@@ -4514,7 +4608,9 @@
     "canonical_namespace": "note.model",
     "class_import": "note.model.TableColumn",
     "exported_via_package_init": true,
-    "public_import_module": "note"
+    "public_import_module": "note",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "Table",
@@ -4745,7 +4841,9 @@
     "canonical_namespace": "note.model",
     "class_import": "note.model.Table",
     "exported_via_package_init": true,
-    "public_import_module": "note"
+    "public_import_module": "note",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "Page",
@@ -5029,7 +5127,9 @@
     "canonical_namespace": "note.model",
     "class_import": "note.model.Page",
     "exported_via_package_init": true,
-    "public_import_module": "note"
+    "public_import_module": "note",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "PageHistory",
@@ -5270,7 +5370,9 @@
     "canonical_namespace": "note.model",
     "class_import": "note.model.PageHistory",
     "exported_via_package_init": true,
-    "public_import_module": "note"
+    "public_import_module": "note",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "Document",
@@ -5531,7 +5633,9 @@
     "canonical_namespace": "note.model",
     "class_import": "note.model.Document",
     "exported_via_package_init": true,
-    "public_import_module": "note"
+    "public_import_module": "note",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "SaveOptions",
@@ -5612,7 +5716,9 @@
     "canonical_namespace": "note.saving.options",
     "class_import": "note.saving.options.SaveOptions",
     "exported_via_package_init": true,
-    "public_import_module": "note.saving"
+    "public_import_module": "note.saving",
+    "module_key": "saving",
+    "module_label": "Saving"
   },
   {
     "name": "PdfSaveOptions",
@@ -5767,6 +5873,8 @@
     "canonical_namespace": "note.saving.options",
     "class_import": "note.saving.options.PdfSaveOptions",
     "exported_via_package_init": true,
-    "public_import_module": "note.saving"
+    "public_import_module": "note.saving",
+    "module_key": "saving",
+    "module_label": "Saving"
   }
 ]

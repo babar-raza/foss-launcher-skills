@@ -1,33 +1,37 @@
-bundle_generated_at: '2026-08-28T11:38:27.819129+00:00'
-bundle_id: e177a431-daef-4502-8953-9e856c743c04
-config_sha: 8c48120efd479f40
-enrichment_status: full
-extractor_hash: 662d97a270edc5c5
 family: note
-generator_fingerprint: c2cc3c24c6bc5e66e0b6513ee648c9c1ae48a0a954349bd653beed452276da89
-generator_semver: 2.0.0
-has_conflicts: false
-input_hashes:
-  enriched_claims_sha: a2785e596a2f2d40d68a2311979d2b11b77268adbdc80659a5f0c6f5620bb1d8
-  extractor_config_sha: 8c48120efd479f40
-  products_json_entry_sha: 1fe2362b29f4f5b90c099ba6cd08fdde419ba602b3b6b9152ab6a774605d3839
-  scout_api_surface_sha: e7622a1a2e0f16f48515367052c5f4388f799b913215f3fa21c1dce1b0719d79
-  scout_claims_sha: 5b90fae51b88f997b2fdd5146de84f8d75662414ac43363bfcf8e7d3ce3383e4
-license: LicenseRef-Aspose-Split
 platform: python
 product_name: aspose-note
-promoted_at: '2026-08-28T11:38:27.911687+00:00'
-repo_sha: 41de2e8ab478b5aeff3663f7f7cbf83b19fdf676
+version: 26.3.2
+license: LicenseRef-Aspose-Split
 repo_url: https://github.com/aspose-note-foss/Aspose.Note-FOSS-for-Python.git
-schema_version: 2
-source: scout_and_enriched
+repo_sha: 41de2e8ab478b5aeff3663f7f7cbf83b19fdf676
+config_sha: 8c48120efd479f40
 stale_since: null
+promoted_at: '2026-09-10T11:11:38.656807+00:00'
+source: scout_and_enriched
+enrichment_status: full
+has_conflicts: false
+schema_version: 2
+generator_fingerprint: 39b55c0381d862030a39cf289a74386dba0d96ba7bead7439ed295a74ed8206e
+generator_semver: 2.0.0
+bundle_id: e8959bb4-9b67-4173-bd39-859fd8a6d953
+bundle_generated_at: '2026-09-10T11:11:38.526224+00:00'
+module_assignment_version: 1
+input_hashes:
+  extractor_config_sha: 8c48120efd479f40
+  scout_claims_sha: 5b90fae51b88f997b2fdd5146de84f8d75662414ac43363bfcf8e7d3ce3383e4
+  scout_api_surface_sha: 6c519ad19b478b84fdc5f7125b43058ed9ee7477ad883c9214db160965f981ff
+  enriched_claims_sha: a2785e596a2f2d40d68a2311979d2b11b77268adbdc80659a5f0c6f5620bb1d8
+  products_json_entry_sha: 1fe2362b29f4f5b90c099ba6cd08fdde419ba602b3b6b9152ab6a774605d3839
 stats:
-  class_count: 50
-  enriched_claims: 388
-  forbidden_count: 0
   scout_claims: 333
-  snippet_count: 96
+  enriched_claims: 388
   supplemental_claims: 0
   total_claims: 721
-version: 26.3.2
+  class_count: 50
+  classes:
+    total_declared: 50
+    public_documented: 39
+    raw_entries_including_non_class: 54
+  forbidden_count: 0
+  snippet_count: 96

@@ -24,7 +24,9 @@
     "properties": [],
     "visibility": "public",
     "canonical_namespace": "Aspose::Pdf::Annotations",
-    "class_import": "Aspose::Pdf::Annotations::PageInformationAnnotation"
+    "class_import": "Aspose::Pdf::Annotations::PageInformationAnnotation",
+    "module_key": "aspose",
+    "module_label": "Aspose"
   },
   {
     "name": "PdfFormat",
@@ -147,7 +149,9 @@
       }
     ],
     "canonical_namespace": "Aspose::Pdf",
-    "class_import": "Aspose::Pdf::PdfFormat"
+    "class_import": "Aspose::Pdf::PdfFormat",
+    "module_key": "aspose",
+    "module_label": "Aspose"
   },
   {
     "name": "EncryptOutput",
@@ -177,7 +181,9 @@
     ],
     "visibility": "internal",
     "canonical_namespace": "foundation::encrypt_writer",
-    "class_import": "foundation::encrypt_writer::EncryptOutput"
+    "class_import": "foundation::encrypt_writer::EncryptOutput",
+    "module_key": "internal",
+    "module_label": "Internal"
   },
   {
     "name": "DirtyObject",
@@ -215,7 +221,9 @@
     ],
     "visibility": "internal",
     "canonical_namespace": "foundation::pdf_writer_incremental",
-    "class_import": "foundation::pdf_writer_incremental::DirtyObject"
+    "class_import": "foundation::pdf_writer_incremental::DirtyObject",
+    "module_key": "internal",
+    "module_label": "Internal"
   },
   {
     "name": "AppendOptions",
@@ -277,7 +285,9 @@
     ],
     "visibility": "internal",
     "canonical_namespace": "foundation::pdf_writer_incremental",
-    "class_import": "foundation::pdf_writer_incremental::AppendOptions"
+    "class_import": "foundation::pdf_writer_incremental::AppendOptions",
+    "module_key": "internal",
+    "module_label": "Internal"
   },
   {
     "name": "AFRelationship",
@@ -320,7 +330,9 @@
       }
     ],
     "canonical_namespace": "Aspose::Pdf",
-    "class_import": "Aspose::Pdf::AFRelationship"
+    "class_import": "Aspose::Pdf::AFRelationship",
+    "module_key": "aspose",
+    "module_label": "Aspose"
   },
   {
     "name": "Annotation",
@@ -702,7 +714,9 @@
     "properties": [],
     "visibility": "public",
     "canonical_namespace": "Aspose::Pdf::Annotations",
-    "class_import": "Aspose::Pdf::Annotations::Annotation"
+    "class_import": "Aspose::Pdf::Annotations::Annotation",
+    "module_key": "aspose",
+    "module_label": "Aspose"
   },
   {
     "name": "AnnotationCollection",
@@ -844,7 +858,9 @@
     "properties": [],
     "visibility": "public",
     "canonical_namespace": "Aspose::Pdf::Annotations",
-    "class_import": "Aspose::Pdf::Annotations::AnnotationCollection"
+    "class_import": "Aspose::Pdf::Annotations::AnnotationCollection",
+    "module_key": "aspose",
+    "module_label": "Aspose"
   },
   {
     "name": "AnnotationFlags",
@@ -903,7 +919,9 @@
       }
     ],
     "canonical_namespace": "Aspose::Pdf::Annotations",
-    "class_import": "Aspose::Pdf::Annotations::AnnotationFlags"
+    "class_import": "Aspose::Pdf::Annotations::AnnotationFlags",
+    "module_key": "aspose",
+    "module_label": "Aspose"
   },
   {
     "name": "AnnotationSelector",
@@ -1351,7 +1369,9 @@
     ],
     "visibility": "public",
     "canonical_namespace": "Aspose::Pdf::Annotations",
-    "class_import": "Aspose::Pdf::Annotations::AnnotationSelector"
+    "class_import": "Aspose::Pdf::Annotations::AnnotationSelector",
+    "module_key": "aspose",
+    "module_label": "Aspose"
   },
   {
     "name": "AnnotationState",
@@ -1394,7 +1414,9 @@
       }
     ],
     "canonical_namespace": "Aspose::Pdf::Annotations",
-    "class_import": "Aspose::Pdf::Annotations::AnnotationState"
+    "class_import": "Aspose::Pdf::Annotations::AnnotationState",
+    "module_key": "aspose",
+    "module_label": "Aspose"
   },
   {
     "name": "AnnotationStateModel",
@@ -1421,7 +1443,9 @@
       }
     ],
     "canonical_namespace": "Aspose::Pdf::Annotations",
-    "class_import": "Aspose::Pdf::Annotations::AnnotationStateModel"
+    "class_import": "Aspose::Pdf::Annotations::AnnotationStateModel",
+    "module_key": "aspose",
+    "module_label": "Aspose"
   },
   {
     "name": "AnnotationType",
@@ -1568,7 +1592,9 @@
       }
     ],
     "canonical_namespace": "Aspose::Pdf::Annotations",
-    "class_import": "Aspose::Pdf::Annotations::AnnotationType"
+    "class_import": "Aspose::Pdf::Annotations::AnnotationType",
+    "module_key": "aspose",
+    "module_label": "Aspose"
   },
   {
     "name": "BleedMarkAnnotation",
@@ -1595,7 +1621,9 @@
     "properties": [],
     "visibility": "public",
     "canonical_namespace": "Aspose::Pdf::Annotations",
-    "class_import": "Aspose::Pdf::Annotations::BleedMarkAnnotation"
+    "class_import": "Aspose::Pdf::Annotations::BleedMarkAnnotation",
+    "module_key": "aspose",
+    "module_label": "Aspose"
   },
   {
     "name": "Border",
@@ -1735,7 +1763,9 @@
     "properties": [],
     "visibility": "public",
     "canonical_namespace": "Aspose::Pdf::Annotations",
-    "class_import": "Aspose::Pdf::Annotations::Border"
+    "class_import": "Aspose::Pdf::Annotations::Border",
+    "module_key": "aspose",
+    "module_label": "Aspose"
   },
   {
     "name": "BorderEffect",
@@ -1758,7 +1788,9 @@
       }
     ],
     "canonical_namespace": "Aspose::Pdf::Annotations",
-    "class_import": "Aspose::Pdf::Annotations::BorderEffect"
+    "class_import": "Aspose::Pdf::Annotations::BorderEffect",
+    "module_key": "aspose",
+    "module_label": "Aspose"
   },
   {
     "name": "BorderStyle",
@@ -1793,7 +1825,9 @@
       }
     ],
     "canonical_namespace": "Aspose::Pdf::Annotations",
-    "class_import": "Aspose::Pdf::Annotations::BorderStyle"
+    "class_import": "Aspose::Pdf::Annotations::BorderStyle",
+    "module_key": "aspose",
+    "module_label": "Aspose"
   },
   {
     "name": "CapStyle",
@@ -1816,7 +1850,9 @@
       }
     ],
     "canonical_namespace": "Aspose::Pdf::Annotations",
-    "class_import": "Aspose::Pdf::Annotations::CapStyle"
+    "class_import": "Aspose::Pdf::Annotations::CapStyle",
+    "module_key": "aspose",
+    "module_label": "Aspose"
   },
   {
     "name": "CaptionPosition",
@@ -1839,7 +1875,9 @@
       }
     ],
     "canonical_namespace": "Aspose::Pdf::Annotations",
-    "class_import": "Aspose::Pdf::Annotations::CaptionPosition"
+    "class_import": "Aspose::Pdf::Annotations::CaptionPosition",
+    "module_key": "aspose",
+    "module_label": "Aspose"
   },
   {
     "name": "CaretAnnotation",
@@ -1908,7 +1946,9 @@
     "properties": [],
     "visibility": "public",
     "canonical_namespace": "Aspose::Pdf::Annotations",
-    "class_import": "Aspose::Pdf::Annotations::CaretAnnotation"
+    "class_import": "Aspose::Pdf::Annotations::CaretAnnotation",
+    "module_key": "aspose",
+    "module_label": "Aspose"
   },
   {
     "name": "CaretSymbol",
@@ -1931,7 +1971,9 @@
       }
     ],
     "canonical_namespace": "Aspose::Pdf::Annotations",
-    "class_import": "Aspose::Pdf::Annotations::CaretSymbol"
+    "class_import": "Aspose::Pdf::Annotations::CaretSymbol",
+    "module_key": "aspose",
+    "module_label": "Aspose"
   },
   {
     "name": "Characteristics",
@@ -1974,7 +2016,9 @@
     "properties": [],
     "visibility": "public",
     "canonical_namespace": "Aspose::Pdf::Annotations",
-    "class_import": "Aspose::Pdf::Annotations::Characteristics"
+    "class_import": "Aspose::Pdf::Annotations::Characteristics",
+    "module_key": "aspose",
+    "module_label": "Aspose"
   },
   {
     "name": "CircleAnnotation",
@@ -2001,7 +2045,9 @@
     "properties": [],
     "visibility": "public",
     "canonical_namespace": "Aspose::Pdf::Annotations",
-    "class_import": "Aspose::Pdf::Annotations::CircleAnnotation"
+    "class_import": "Aspose::Pdf::Annotations::CircleAnnotation",
+    "module_key": "aspose",
+    "module_label": "Aspose"
   },
   {
     "name": "ColorBarAnnotation",
@@ -2049,7 +2095,9 @@
     "properties": [],
     "visibility": "public",
     "canonical_namespace": "Aspose::Pdf::Annotations",
-    "class_import": "Aspose::Pdf::Annotations::ColorBarAnnotation"
+    "class_import": "Aspose::Pdf::Annotations::ColorBarAnnotation",
+    "module_key": "aspose",
+    "module_label": "Aspose"
   },
   {
     "name": "ColorsOfCMYK",
@@ -2080,7 +2128,9 @@
       }
     ],
     "canonical_namespace": "Aspose::Pdf::Annotations",
-    "class_import": "Aspose::Pdf::Annotations::ColorsOfCMYK"
+    "class_import": "Aspose::Pdf::Annotations::ColorsOfCMYK",
+    "module_key": "aspose",
+    "module_label": "Aspose"
   },
   {
     "name": "CommonFigureAnnotation",
@@ -2144,7 +2194,9 @@
     "properties": [],
     "visibility": "public",
     "canonical_namespace": "Aspose::Pdf::Annotations",
-    "class_import": "Aspose::Pdf::Annotations::CommonFigureAnnotation"
+    "class_import": "Aspose::Pdf::Annotations::CommonFigureAnnotation",
+    "module_key": "aspose",
+    "module_label": "Aspose"
   },
   {
     "name": "CornerPrinterMarkAnnotation",
@@ -2179,7 +2231,9 @@
     "properties": [],
     "visibility": "public",
     "canonical_namespace": "Aspose::Pdf::Annotations",
-    "class_import": "Aspose::Pdf::Annotations::CornerPrinterMarkAnnotation"
+    "class_import": "Aspose::Pdf::Annotations::CornerPrinterMarkAnnotation",
+    "module_key": "aspose",
+    "module_label": "Aspose"
   },
   {
     "name": "DefaultAppearance",
@@ -2272,7 +2326,9 @@
     "properties": [],
     "visibility": "public",
     "canonical_namespace": "Aspose::Pdf::Annotations",
-    "class_import": "Aspose::Pdf::Annotations::DefaultAppearance"
+    "class_import": "Aspose::Pdf::Annotations::DefaultAppearance",
+    "module_key": "aspose",
+    "module_label": "Aspose"
   },
   {
     "name": "ExplicitDestination",
@@ -2310,7 +2366,9 @@
     "properties": [],
     "visibility": "public",
     "canonical_namespace": "Aspose::Pdf::Annotations",
-    "class_import": "Aspose::Pdf::Annotations::ExplicitDestination"
+    "class_import": "Aspose::Pdf::Annotations::ExplicitDestination",
+    "module_key": "aspose",
+    "module_label": "Aspose"
   },
   {
     "name": "ExplicitDestinationType",
@@ -2357,7 +2415,9 @@
       }
     ],
     "canonical_namespace": "Aspose::Pdf::Annotations",
-    "class_import": "Aspose::Pdf::Annotations::ExplicitDestinationType"
+    "class_import": "Aspose::Pdf::Annotations::ExplicitDestinationType",
+    "module_key": "aspose",
+    "module_label": "Aspose"
   },
   {
     "name": "FileAttachmentAnnotation",
@@ -2447,7 +2507,9 @@
     "properties": [],
     "visibility": "public",
     "canonical_namespace": "Aspose::Pdf::Annotations",
-    "class_import": "Aspose::Pdf::Annotations::FileAttachmentAnnotation"
+    "class_import": "Aspose::Pdf::Annotations::FileAttachmentAnnotation",
+    "module_key": "aspose",
+    "module_label": "Aspose"
   },
   {
     "name": "FileIcon",
@@ -2478,7 +2540,9 @@
       }
     ],
     "canonical_namespace": "Aspose::Pdf::Annotations",
-    "class_import": "Aspose::Pdf::Annotations::FileIcon"
+    "class_import": "Aspose::Pdf::Annotations::FileIcon",
+    "module_key": "aspose",
+    "module_label": "Aspose"
   },
   {
     "name": "FitBExplicitDestination",
@@ -2500,7 +2564,9 @@
     "properties": [],
     "visibility": "public",
     "canonical_namespace": "Aspose::Pdf::Annotations",
-    "class_import": "Aspose::Pdf::Annotations::FitBExplicitDestination"
+    "class_import": "Aspose::Pdf::Annotations::FitBExplicitDestination",
+    "module_key": "aspose",
+    "module_label": "Aspose"
   },
   {
     "name": "FitBHExplicitDestination",
@@ -2530,7 +2596,9 @@
     "properties": [],
     "visibility": "public",
     "canonical_namespace": "Aspose::Pdf::Annotations",
-    "class_import": "Aspose::Pdf::Annotations::FitBHExplicitDestination"
+    "class_import": "Aspose::Pdf::Annotations::FitBHExplicitDestination",
+    "module_key": "aspose",
+    "module_label": "Aspose"
   },
   {
     "name": "FitBVExplicitDestination",
@@ -2560,7 +2628,9 @@
     "properties": [],
     "visibility": "public",
     "canonical_namespace": "Aspose::Pdf::Annotations",
-    "class_import": "Aspose::Pdf::Annotations::FitBVExplicitDestination"
+    "class_import": "Aspose::Pdf::Annotations::FitBVExplicitDestination",
+    "module_key": "aspose",
+    "module_label": "Aspose"
   },
   {
     "name": "FitExplicitDestination",
@@ -2582,7 +2652,9 @@
     "properties": [],
     "visibility": "public",
     "canonical_namespace": "Aspose::Pdf::Annotations",
-    "class_import": "Aspose::Pdf::Annotations::FitExplicitDestination"
+    "class_import": "Aspose::Pdf::Annotations::FitExplicitDestination",
+    "module_key": "aspose",
+    "module_label": "Aspose"
   },
   {
     "name": "FitHExplicitDestination",
@@ -2612,7 +2684,9 @@
     "properties": [],
     "visibility": "public",
     "canonical_namespace": "Aspose::Pdf::Annotations",
-    "class_import": "Aspose::Pdf::Annotations::FitHExplicitDestination"
+    "class_import": "Aspose::Pdf::Annotations::FitHExplicitDestination",
+    "module_key": "aspose",
+    "module_label": "Aspose"
   },
   {
     "name": "FitRExplicitDestination",
@@ -2666,7 +2740,9 @@
     "properties": [],
     "visibility": "public",
     "canonical_namespace": "Aspose::Pdf::Annotations",
-    "class_import": "Aspose::Pdf::Annotations::FitRExplicitDestination"
+    "class_import": "Aspose::Pdf::Annotations::FitRExplicitDestination",
+    "module_key": "aspose",
+    "module_label": "Aspose"
   },
   {
     "name": "FitVExplicitDestination",
@@ -2696,7 +2772,9 @@
     "properties": [],
     "visibility": "public",
     "canonical_namespace": "Aspose::Pdf::Annotations",
-    "class_import": "Aspose::Pdf::Annotations::FitVExplicitDestination"
+    "class_import": "Aspose::Pdf::Annotations::FitVExplicitDestination",
+    "module_key": "aspose",
+    "module_label": "Aspose"
   },
   {
     "name": "FreeTextAnnotation",
@@ -2963,7 +3041,9 @@
     "properties": [],
     "visibility": "public",
     "canonical_namespace": "Aspose::Pdf::Annotations",
-    "class_import": "Aspose::Pdf::Annotations::FreeTextAnnotation"
+    "class_import": "Aspose::Pdf::Annotations::FreeTextAnnotation",
+    "module_key": "aspose",
+    "module_label": "Aspose"
   },
   {
     "name": "FreeTextIntent",
@@ -2994,7 +3074,9 @@
       }
     ],
     "canonical_namespace": "Aspose::Pdf::Annotations",
-    "class_import": "Aspose::Pdf::Annotations::FreeTextIntent"
+    "class_import": "Aspose::Pdf::Annotations::FreeTextIntent",
+    "module_key": "aspose",
+    "module_label": "Aspose"
   },
   {
     "name": "GoToAction",
@@ -3046,7 +3128,9 @@
     "properties": [],
     "visibility": "public",
     "canonical_namespace": "Aspose::Pdf::Annotations",
-    "class_import": "Aspose::Pdf::Annotations::GoToAction"
+    "class_import": "Aspose::Pdf::Annotations::GoToAction",
+    "module_key": "aspose",
+    "module_label": "Aspose"
   },
   {
     "name": "GoToURIAction",
@@ -3098,7 +3182,9 @@
     "properties": [],
     "visibility": "public",
     "canonical_namespace": "Aspose::Pdf::Annotations",
-    "class_import": "Aspose::Pdf::Annotations::GoToURIAction"
+    "class_import": "Aspose::Pdf::Annotations::GoToURIAction",
+    "module_key": "aspose",
+    "module_label": "Aspose"
   },
   {
     "name": "HighlightAnnotation",
@@ -3125,7 +3211,9 @@
     "properties": [],
     "visibility": "public",
     "canonical_namespace": "Aspose::Pdf::Annotations",
-    "class_import": "Aspose::Pdf::Annotations::HighlightAnnotation"
+    "class_import": "Aspose::Pdf::Annotations::HighlightAnnotation",
+    "module_key": "aspose",
+    "module_label": "Aspose"
   },
   {
     "name": "HighlightingMode",
@@ -3160,7 +3248,9 @@
       }
     ],
     "canonical_namespace": "Aspose::Pdf::Annotations",
-    "class_import": "Aspose::Pdf::Annotations::HighlightingMode"
+    "class_import": "Aspose::Pdf::Annotations::HighlightingMode",
+    "module_key": "aspose",
+    "module_label": "Aspose"
   },
   {
     "name": "IAppointment",
@@ -3190,7 +3280,9 @@
     "properties": [],
     "visibility": "public",
     "canonical_namespace": "Aspose::Pdf::Annotations",
-    "class_import": "Aspose::Pdf::Annotations::IAppointment"
+    "class_import": "Aspose::Pdf::Annotations::IAppointment",
+    "module_key": "aspose",
+    "module_label": "Aspose"
   },
   {
     "name": "InkAnnotation",
@@ -3259,7 +3351,9 @@
     "properties": [],
     "visibility": "public",
     "canonical_namespace": "Aspose::Pdf::Annotations",
-    "class_import": "Aspose::Pdf::Annotations::InkAnnotation"
+    "class_import": "Aspose::Pdf::Annotations::InkAnnotation",
+    "module_key": "aspose",
+    "module_label": "Aspose"
   },
   {
     "name": "JavascriptAction",
@@ -3311,7 +3405,9 @@
     "properties": [],
     "visibility": "public",
     "canonical_namespace": "Aspose::Pdf::Annotations",
-    "class_import": "Aspose::Pdf::Annotations::JavascriptAction"
+    "class_import": "Aspose::Pdf::Annotations::JavascriptAction",
+    "module_key": "aspose",
+    "module_label": "Aspose"
   },
   {
     "name": "Justification",
@@ -3338,7 +3434,9 @@
       }
     ],
     "canonical_namespace": "Aspose::Pdf::Annotations",
-    "class_import": "Aspose::Pdf::Annotations::Justification"
+    "class_import": "Aspose::Pdf::Annotations::Justification",
+    "module_key": "aspose",
+    "module_label": "Aspose"
   },
   {
     "name": "LineAnnotation",
@@ -3617,7 +3715,9 @@
     "properties": [],
     "visibility": "public",
     "canonical_namespace": "Aspose::Pdf::Annotations",
-    "class_import": "Aspose::Pdf::Annotations::LineAnnotation"
+    "class_import": "Aspose::Pdf::Annotations::LineAnnotation",
+    "module_key": "aspose",
+    "module_label": "Aspose"
   },
   {
     "name": "LineEnding",
@@ -3672,7 +3772,9 @@
       }
     ],
     "canonical_namespace": "Aspose::Pdf::Annotations",
-    "class_import": "Aspose::Pdf::Annotations::LineEnding"
+    "class_import": "Aspose::Pdf::Annotations::LineEnding",
+    "module_key": "aspose",
+    "module_label": "Aspose"
   },
   {
     "name": "LineIntent",
@@ -3699,7 +3801,9 @@
       }
     ],
     "canonical_namespace": "Aspose::Pdf::Annotations",
-    "class_import": "Aspose::Pdf::Annotations::LineIntent"
+    "class_import": "Aspose::Pdf::Annotations::LineIntent",
+    "module_key": "aspose",
+    "module_label": "Aspose"
   },
   {
     "name": "LinkAnnotation",
@@ -3789,7 +3893,9 @@
     "properties": [],
     "visibility": "public",
     "canonical_namespace": "Aspose::Pdf::Annotations",
-    "class_import": "Aspose::Pdf::Annotations::LinkAnnotation"
+    "class_import": "Aspose::Pdf::Annotations::LinkAnnotation",
+    "module_key": "aspose",
+    "module_label": "Aspose"
   },
   {
     "name": "MarkupAnnotation",
@@ -4030,7 +4136,9 @@
     "properties": [],
     "visibility": "public",
     "canonical_namespace": "Aspose::Pdf::Annotations",
-    "class_import": "Aspose::Pdf::Annotations::MarkupAnnotation"
+    "class_import": "Aspose::Pdf::Annotations::MarkupAnnotation",
+    "module_key": "aspose",
+    "module_label": "Aspose"
   },
   {
     "name": "MovieAnnotation",
@@ -4162,7 +4270,9 @@
     "properties": [],
     "visibility": "public",
     "canonical_namespace": "Aspose::Pdf::Annotations",
-    "class_import": "Aspose::Pdf::Annotations::MovieAnnotation"
+    "class_import": "Aspose::Pdf::Annotations::MovieAnnotation",
+    "module_key": "aspose",
+    "module_label": "Aspose"
   },
   {
     "name": "NamedAction",
@@ -4205,7 +4315,9 @@
     "properties": [],
     "visibility": "public",
     "canonical_namespace": "Aspose::Pdf::Annotations",
-    "class_import": "Aspose::Pdf::Annotations::NamedAction"
+    "class_import": "Aspose::Pdf::Annotations::NamedAction",
+    "module_key": "aspose",
+    "module_label": "Aspose"
   },
   {
     "name": "NamedDestination",
@@ -4235,7 +4347,9 @@
     "properties": [],
     "visibility": "public",
     "canonical_namespace": "Aspose::Pdf::Annotations",
-    "class_import": "Aspose::Pdf::Annotations::NamedDestination"
+    "class_import": "Aspose::Pdf::Annotations::NamedDestination",
+    "module_key": "aspose",
+    "module_label": "Aspose"
   },
   {
     "name": "PdfAction",
@@ -4274,7 +4388,9 @@
     "properties": [],
     "visibility": "public",
     "canonical_namespace": "Aspose::Pdf::Annotations",
-    "class_import": "Aspose::Pdf::Annotations::PdfAction"
+    "class_import": "Aspose::Pdf::Annotations::PdfAction",
+    "module_key": "aspose",
+    "module_label": "Aspose"
   },
   {
     "name": "PolyAnnotation",
@@ -4401,7 +4517,9 @@
     "properties": [],
     "visibility": "public",
     "canonical_namespace": "Aspose::Pdf::Annotations",
-    "class_import": "Aspose::Pdf::Annotations::PolyAnnotation"
+    "class_import": "Aspose::Pdf::Annotations::PolyAnnotation",
+    "module_key": "aspose",
+    "module_label": "Aspose"
   },
   {
     "name": "PolyIntent",
@@ -4432,7 +4550,9 @@
       }
     ],
     "canonical_namespace": "Aspose::Pdf::Annotations",
-    "class_import": "Aspose::Pdf::Annotations::PolyIntent"
+    "class_import": "Aspose::Pdf::Annotations::PolyIntent",
+    "module_key": "aspose",
+    "module_label": "Aspose"
   },
   {
     "name": "PolygonAnnotation",
@@ -4459,7 +4579,9 @@
     "properties": [],
     "visibility": "public",
     "canonical_namespace": "Aspose::Pdf::Annotations",
-    "class_import": "Aspose::Pdf::Annotations::PolygonAnnotation"
+    "class_import": "Aspose::Pdf::Annotations::PolygonAnnotation",
+    "module_key": "aspose",
+    "module_label": "Aspose"
   },
   {
     "name": "PolylineAnnotation",
@@ -4486,7 +4608,9 @@
     "properties": [],
     "visibility": "public",
     "canonical_namespace": "Aspose::Pdf::Annotations",
-    "class_import": "Aspose::Pdf::Annotations::PolylineAnnotation"
+    "class_import": "Aspose::Pdf::Annotations::PolylineAnnotation",
+    "module_key": "aspose",
+    "module_label": "Aspose"
   },
   {
     "name": "PopupAnnotation",
@@ -4555,7 +4679,9 @@
     "properties": [],
     "visibility": "public",
     "canonical_namespace": "Aspose::Pdf::Annotations",
-    "class_import": "Aspose::Pdf::Annotations::PopupAnnotation"
+    "class_import": "Aspose::Pdf::Annotations::PopupAnnotation",
+    "module_key": "aspose",
+    "module_label": "Aspose"
   },
   {
     "name": "PredefinedAction",
@@ -4854,7 +4980,9 @@
       }
     ],
     "canonical_namespace": "Aspose::Pdf::Annotations",
-    "class_import": "Aspose::Pdf::Annotations::PredefinedAction"
+    "class_import": "Aspose::Pdf::Annotations::PredefinedAction",
+    "module_key": "aspose",
+    "module_label": "Aspose"
   },
   {
     "name": "PrinterMarkAnnotation",
@@ -4902,7 +5030,9 @@
     "properties": [],
     "visibility": "public",
     "canonical_namespace": "Aspose::Pdf::Annotations",
-    "class_import": "Aspose::Pdf::Annotations::PrinterMarkAnnotation"
+    "class_import": "Aspose::Pdf::Annotations::PrinterMarkAnnotation",
+    "module_key": "aspose",
+    "module_label": "Aspose"
   },
   {
     "name": "PrinterMarkCornerPosition",
@@ -4933,7 +5063,9 @@
       }
     ],
     "canonical_namespace": "Aspose::Pdf::Annotations",
-    "class_import": "Aspose::Pdf::Annotations::PrinterMarkCornerPosition"
+    "class_import": "Aspose::Pdf::Annotations::PrinterMarkCornerPosition",
+    "module_key": "aspose",
+    "module_label": "Aspose"
   },
   {
     "name": "PrinterMarkSidePosition",
@@ -4964,7 +5096,9 @@
       }
     ],
     "canonical_namespace": "Aspose::Pdf::Annotations",
-    "class_import": "Aspose::Pdf::Annotations::PrinterMarkSidePosition"
+    "class_import": "Aspose::Pdf::Annotations::PrinterMarkSidePosition",
+    "module_key": "aspose",
+    "module_label": "Aspose"
   },
   {
     "name": "PrinterMarksKind",
@@ -5007,7 +5141,9 @@
       }
     ],
     "canonical_namespace": "Aspose::Pdf::Annotations",
-    "class_import": "Aspose::Pdf::Annotations::PrinterMarksKind"
+    "class_import": "Aspose::Pdf::Annotations::PrinterMarksKind",
+    "module_key": "aspose",
+    "module_label": "Aspose"
   },
   {
     "name": "RedactionAnnotation",
@@ -5218,7 +5354,9 @@
     "properties": [],
     "visibility": "public",
     "canonical_namespace": "Aspose::Pdf::Annotations",
-    "class_import": "Aspose::Pdf::Annotations::RedactionAnnotation"
+    "class_import": "Aspose::Pdf::Annotations::RedactionAnnotation",
+    "module_key": "aspose",
+    "module_label": "Aspose"
   },
   {
     "name": "RegistrationMarkAnnotation",
@@ -5266,7 +5404,9 @@
     "properties": [],
     "visibility": "public",
     "canonical_namespace": "Aspose::Pdf::Annotations",
-    "class_import": "Aspose::Pdf::Annotations::RegistrationMarkAnnotation"
+    "class_import": "Aspose::Pdf::Annotations::RegistrationMarkAnnotation",
+    "module_key": "aspose",
+    "module_label": "Aspose"
   },
   {
     "name": "ReplyType",
@@ -5293,7 +5433,9 @@
       }
     ],
     "canonical_namespace": "Aspose::Pdf::Annotations",
-    "class_import": "Aspose::Pdf::Annotations::ReplyType"
+    "class_import": "Aspose::Pdf::Annotations::ReplyType",
+    "module_key": "aspose",
+    "module_label": "Aspose"
   },
   {
     "name": "RichMediaAnnotation",
@@ -5391,7 +5533,9 @@
     "properties": [],
     "visibility": "public",
     "canonical_namespace": "Aspose::Pdf::Annotations",
-    "class_import": "Aspose::Pdf::Annotations::RichMediaAnnotation"
+    "class_import": "Aspose::Pdf::Annotations::RichMediaAnnotation",
+    "module_key": "aspose",
+    "module_label": "Aspose"
   },
   {
     "name": "RichTextFontStyles",
@@ -5422,7 +5566,9 @@
       }
     ],
     "canonical_namespace": "Aspose::Pdf::Annotations",
-    "class_import": "Aspose::Pdf::Annotations::RichTextFontStyles"
+    "class_import": "Aspose::Pdf::Annotations::RichTextFontStyles",
+    "module_key": "aspose",
+    "module_label": "Aspose"
   },
   {
     "name": "ScreenAnnotation",
@@ -5470,7 +5616,9 @@
     "properties": [],
     "visibility": "public",
     "canonical_namespace": "Aspose::Pdf::Annotations",
-    "class_import": "Aspose::Pdf::Annotations::ScreenAnnotation"
+    "class_import": "Aspose::Pdf::Annotations::ScreenAnnotation",
+    "module_key": "aspose",
+    "module_label": "Aspose"
   },
   {
     "name": "SoundAnnotation",
@@ -5518,7 +5666,9 @@
     "properties": [],
     "visibility": "public",
     "canonical_namespace": "Aspose::Pdf::Annotations",
-    "class_import": "Aspose::Pdf::Annotations::SoundAnnotation"
+    "class_import": "Aspose::Pdf::Annotations::SoundAnnotation",
+    "module_key": "aspose",
+    "module_label": "Aspose"
   },
   {
     "name": "SoundIcon",
@@ -5541,7 +5691,9 @@
       }
     ],
     "canonical_namespace": "Aspose::Pdf::Annotations",
-    "class_import": "Aspose::Pdf::Annotations::SoundIcon"
+    "class_import": "Aspose::Pdf::Annotations::SoundIcon",
+    "module_key": "aspose",
+    "module_label": "Aspose"
   },
   {
     "name": "SquareAnnotation",
@@ -5568,7 +5720,9 @@
     "properties": [],
     "visibility": "public",
     "canonical_namespace": "Aspose::Pdf::Annotations",
-    "class_import": "Aspose::Pdf::Annotations::SquareAnnotation"
+    "class_import": "Aspose::Pdf::Annotations::SquareAnnotation",
+    "module_key": "aspose",
+    "module_label": "Aspose"
   },
   {
     "name": "SquigglyAnnotation",
@@ -5595,7 +5749,9 @@
     "properties": [],
     "visibility": "public",
     "canonical_namespace": "Aspose::Pdf::Annotations",
-    "class_import": "Aspose::Pdf::Annotations::SquigglyAnnotation"
+    "class_import": "Aspose::Pdf::Annotations::SquigglyAnnotation",
+    "module_key": "aspose",
+    "module_label": "Aspose"
   },
   {
     "name": "StampAnnotation",
@@ -5664,7 +5820,9 @@
     "properties": [],
     "visibility": "public",
     "canonical_namespace": "Aspose::Pdf::Annotations",
-    "class_import": "Aspose::Pdf::Annotations::StampAnnotation"
+    "class_import": "Aspose::Pdf::Annotations::StampAnnotation",
+    "module_key": "aspose",
+    "module_label": "Aspose"
   },
   {
     "name": "StampIcon",
@@ -5735,7 +5893,9 @@
       }
     ],
     "canonical_namespace": "Aspose::Pdf::Annotations",
-    "class_import": "Aspose::Pdf::Annotations::StampIcon"
+    "class_import": "Aspose::Pdf::Annotations::StampIcon",
+    "module_key": "aspose",
+    "module_label": "Aspose"
   },
   {
     "name": "StrikeOutAnnotation",
@@ -5762,7 +5922,9 @@
     "properties": [],
     "visibility": "public",
     "canonical_namespace": "Aspose::Pdf::Annotations",
-    "class_import": "Aspose::Pdf::Annotations::StrikeOutAnnotation"
+    "class_import": "Aspose::Pdf::Annotations::StrikeOutAnnotation",
+    "module_key": "aspose",
+    "module_label": "Aspose"
   },
   {
     "name": "SubmitFormAction",
@@ -5826,7 +5988,9 @@
     "properties": [],
     "visibility": "public",
     "canonical_namespace": "Aspose::Pdf::Annotations",
-    "class_import": "Aspose::Pdf::Annotations::SubmitFormAction"
+    "class_import": "Aspose::Pdf::Annotations::SubmitFormAction",
+    "module_key": "aspose",
+    "module_label": "Aspose"
   },
   {
     "name": "TextAlignment",
@@ -5853,7 +6017,9 @@
       }
     ],
     "canonical_namespace": "Aspose::Pdf::Annotations",
-    "class_import": "Aspose::Pdf::Annotations::TextAlignment"
+    "class_import": "Aspose::Pdf::Annotations::TextAlignment",
+    "module_key": "aspose",
+    "module_label": "Aspose"
   },
   {
     "name": "TextAnnotation",
@@ -5922,7 +6088,9 @@
     "properties": [],
     "visibility": "public",
     "canonical_namespace": "Aspose::Pdf::Annotations",
-    "class_import": "Aspose::Pdf::Annotations::TextAnnotation"
+    "class_import": "Aspose::Pdf::Annotations::TextAnnotation",
+    "module_key": "aspose",
+    "module_label": "Aspose"
   },
   {
     "name": "TextIcon",
@@ -5997,7 +6165,9 @@
       }
     ],
     "canonical_namespace": "Aspose::Pdf::Annotations",
-    "class_import": "Aspose::Pdf::Annotations::TextIcon"
+    "class_import": "Aspose::Pdf::Annotations::TextIcon",
+    "module_key": "aspose",
+    "module_label": "Aspose"
   },
   {
     "name": "TextMarkupAnnotation",
@@ -6049,7 +6219,9 @@
     "properties": [],
     "visibility": "public",
     "canonical_namespace": "Aspose::Pdf::Annotations",
-    "class_import": "Aspose::Pdf::Annotations::TextMarkupAnnotation"
+    "class_import": "Aspose::Pdf::Annotations::TextMarkupAnnotation",
+    "module_key": "aspose",
+    "module_label": "Aspose"
   },
   {
     "name": "TextStyle",
@@ -6155,7 +6327,9 @@
     "properties": [],
     "visibility": "public",
     "canonical_namespace": "Aspose::Pdf::Annotations",
-    "class_import": "Aspose::Pdf::Annotations::TextStyle"
+    "class_import": "Aspose::Pdf::Annotations::TextStyle",
+    "module_key": "aspose",
+    "module_label": "Aspose"
   },
   {
     "name": "TrimMarkAnnotation",
@@ -6182,7 +6356,9 @@
     "properties": [],
     "visibility": "public",
     "canonical_namespace": "Aspose::Pdf::Annotations",
-    "class_import": "Aspose::Pdf::Annotations::TrimMarkAnnotation"
+    "class_import": "Aspose::Pdf::Annotations::TrimMarkAnnotation",
+    "module_key": "aspose",
+    "module_label": "Aspose"
   },
   {
     "name": "UnderlineAnnotation",
@@ -6209,7 +6385,9 @@
     "properties": [],
     "visibility": "public",
     "canonical_namespace": "Aspose::Pdf::Annotations",
-    "class_import": "Aspose::Pdf::Annotations::UnderlineAnnotation"
+    "class_import": "Aspose::Pdf::Annotations::UnderlineAnnotation",
+    "module_key": "aspose",
+    "module_label": "Aspose"
   },
   {
     "name": "WatermarkAnnotation",
@@ -6257,7 +6435,9 @@
     "properties": [],
     "visibility": "public",
     "canonical_namespace": "Aspose::Pdf::Annotations",
-    "class_import": "Aspose::Pdf::Annotations::WatermarkAnnotation"
+    "class_import": "Aspose::Pdf::Annotations::WatermarkAnnotation",
+    "module_key": "aspose",
+    "module_label": "Aspose"
   },
   {
     "name": "WidgetAnnotation",
@@ -6419,7 +6599,9 @@
     "properties": [],
     "visibility": "public",
     "canonical_namespace": "Aspose::Pdf::Annotations",
-    "class_import": "Aspose::Pdf::Annotations::WidgetAnnotation"
+    "class_import": "Aspose::Pdf::Annotations::WidgetAnnotation",
+    "module_key": "aspose",
+    "module_label": "Aspose"
   },
   {
     "name": "XYZExplicitDestination",
@@ -6465,7 +6647,9 @@
     "properties": [],
     "visibility": "public",
     "canonical_namespace": "Aspose::Pdf::Annotations",
-    "class_import": "Aspose::Pdf::Annotations::XYZExplicitDestination"
+    "class_import": "Aspose::Pdf::Annotations::XYZExplicitDestination",
+    "module_key": "aspose",
+    "module_label": "Aspose"
   },
   {
     "name": "Artifact",
@@ -6638,7 +6822,9 @@
     "properties": [],
     "visibility": "public",
     "canonical_namespace": "Aspose::Pdf",
-    "class_import": "Aspose::Pdf::Artifact"
+    "class_import": "Aspose::Pdf::Artifact",
+    "module_key": "aspose",
+    "module_label": "Aspose"
   },
   {
     "name": "ArtifactCollection",
@@ -6737,7 +6923,9 @@
     ],
     "visibility": "public",
     "canonical_namespace": "Aspose::Pdf",
-    "class_import": "Aspose::Pdf::ArtifactCollection"
+    "class_import": "Aspose::Pdf::ArtifactCollection",
+    "module_key": "aspose",
+    "module_label": "Aspose"
   },
   {
     "name": "BaseParagraph",
@@ -6993,7 +7181,9 @@
     ],
     "visibility": "public",
     "canonical_namespace": "Aspose::Pdf",
-    "class_import": "Aspose::Pdf::BaseParagraph"
+    "class_import": "Aspose::Pdf::BaseParagraph",
+    "module_key": "aspose",
+    "module_label": "Aspose"
   },
   {
     "name": "BitmapInfo",
@@ -7081,7 +7271,9 @@
     ],
     "visibility": "public",
     "canonical_namespace": "Aspose::Pdf",
-    "class_import": "Aspose::Pdf::BitmapInfo"
+    "class_import": "Aspose::Pdf::BitmapInfo",
+    "module_key": "aspose",
+    "module_label": "Aspose"
   },
   {
     "name": "BmpDevice",
@@ -7112,7 +7304,9 @@
     "properties": [],
     "visibility": "public",
     "canonical_namespace": "Aspose::Pdf::Devices",
-    "class_import": "Aspose::Pdf::Devices::BmpDevice"
+    "class_import": "Aspose::Pdf::Devices::BmpDevice",
+    "module_key": "aspose",
+    "module_label": "Aspose"
   },
   {
     "name": "BorderInfo",
@@ -7231,7 +7425,9 @@
     "properties": [],
     "visibility": "public",
     "canonical_namespace": "Aspose::Pdf",
-    "class_import": "Aspose::Pdf::BorderInfo"
+    "class_import": "Aspose::Pdf::BorderInfo",
+    "module_key": "aspose",
+    "module_label": "Aspose"
   },
   {
     "name": "BorderSide",
@@ -7274,7 +7470,9 @@
       }
     ],
     "canonical_namespace": "Aspose::Pdf",
-    "class_import": "Aspose::Pdf::BorderSide"
+    "class_import": "Aspose::Pdf::BorderSide",
+    "module_key": "aspose",
+    "module_label": "Aspose"
   },
   {
     "name": "Cell",
@@ -7572,7 +7770,9 @@
     "properties": [],
     "visibility": "public",
     "canonical_namespace": "Aspose::Pdf",
-    "class_import": "Aspose::Pdf::Cell"
+    "class_import": "Aspose::Pdf::Cell",
+    "module_key": "aspose",
+    "module_label": "Aspose"
   },
   {
     "name": "Cells",
@@ -7705,7 +7905,9 @@
     "properties": [],
     "visibility": "public",
     "canonical_namespace": "Aspose::Pdf",
-    "class_import": "Aspose::Pdf::Cells"
+    "class_import": "Aspose::Pdf::Cells",
+    "module_key": "aspose",
+    "module_label": "Aspose"
   },
   {
     "name": "Color",
@@ -8938,7 +9140,9 @@
     "properties": [],
     "visibility": "public",
     "canonical_namespace": "Aspose::Pdf",
-    "class_import": "Aspose::Pdf::Color"
+    "class_import": "Aspose::Pdf::Color",
+    "module_key": "aspose",
+    "module_label": "Aspose"
   },
   {
     "name": "ColorDepth",
@@ -8973,7 +9177,9 @@
       }
     ],
     "canonical_namespace": "Aspose::Pdf::Devices",
-    "class_import": "Aspose::Pdf::Devices::ColorDepth"
+    "class_import": "Aspose::Pdf::Devices::ColorDepth",
+    "module_key": "aspose",
+    "module_label": "Aspose"
   },
   {
     "name": "CompressionType",
@@ -9008,7 +9214,9 @@
       }
     ],
     "canonical_namespace": "Aspose::Pdf::Devices",
-    "class_import": "Aspose::Pdf::Devices::CompressionType"
+    "class_import": "Aspose::Pdf::Devices::CompressionType",
+    "module_key": "aspose",
+    "module_label": "Aspose"
   },
   {
     "name": "CryptoAlgorithm",
@@ -9039,7 +9247,9 @@
       }
     ],
     "canonical_namespace": "Aspose::Pdf",
-    "class_import": "Aspose::Pdf::CryptoAlgorithm"
+    "class_import": "Aspose::Pdf::CryptoAlgorithm",
+    "module_key": "aspose",
+    "module_label": "Aspose"
   },
   {
     "name": "Device",
@@ -9061,7 +9271,9 @@
     "properties": [],
     "visibility": "public",
     "canonical_namespace": "Aspose::Pdf::Devices",
-    "class_import": "Aspose::Pdf::Devices::Device"
+    "class_import": "Aspose::Pdf::Devices::Device",
+    "module_key": "aspose",
+    "module_label": "Aspose"
   },
   {
     "name": "Document",
@@ -9348,7 +9560,9 @@
     ],
     "visibility": "public",
     "canonical_namespace": "Aspose::Pdf",
-    "class_import": "Aspose::Pdf::Document"
+    "class_import": "Aspose::Pdf::Document",
+    "module_key": "aspose",
+    "module_label": "Aspose"
   },
   {
     "name": "DocumentDevice",
@@ -9446,7 +9660,9 @@
     "properties": [],
     "visibility": "public",
     "canonical_namespace": "Aspose::Pdf::Devices",
-    "class_import": "Aspose::Pdf::Devices::DocumentDevice"
+    "class_import": "Aspose::Pdf::Devices::DocumentDevice",
+    "module_key": "aspose",
+    "module_label": "Aspose"
   },
   {
     "name": "DocumentInfo",
@@ -9715,7 +9931,9 @@
     ],
     "visibility": "public",
     "canonical_namespace": "Aspose::Pdf",
-    "class_import": "Aspose::Pdf::DocumentInfo"
+    "class_import": "Aspose::Pdf::DocumentInfo",
+    "module_key": "aspose",
+    "module_label": "Aspose"
   },
   {
     "name": "DocumentPrivilege",
@@ -10061,7 +10279,9 @@
     "properties": [],
     "visibility": "public",
     "canonical_namespace": "Aspose::Pdf::Facades",
-    "class_import": "Aspose::Pdf::Facades::DocumentPrivilege"
+    "class_import": "Aspose::Pdf::Facades::DocumentPrivilege",
+    "module_key": "aspose",
+    "module_label": "Aspose"
   },
   {
     "name": "Circle",
@@ -10155,7 +10375,9 @@
     "properties": [],
     "visibility": "public",
     "canonical_namespace": "Aspose::Pdf::Drawing",
-    "class_import": "Aspose::Pdf::Drawing::Circle"
+    "class_import": "Aspose::Pdf::Drawing::Circle",
+    "module_key": "aspose",
+    "module_label": "Aspose"
   },
   {
     "name": "Ellipse",
@@ -10270,7 +10492,9 @@
     "properties": [],
     "visibility": "public",
     "canonical_namespace": "Aspose::Pdf::Drawing",
-    "class_import": "Aspose::Pdf::Drawing::Ellipse"
+    "class_import": "Aspose::Pdf::Drawing::Ellipse",
+    "module_key": "aspose",
+    "module_label": "Aspose"
   },
   {
     "name": "Graph",
@@ -10448,7 +10672,9 @@
     "properties": [],
     "visibility": "public",
     "canonical_namespace": "Aspose::Pdf::Drawing",
-    "class_import": "Aspose::Pdf::Drawing::Graph"
+    "class_import": "Aspose::Pdf::Drawing::Graph",
+    "module_key": "aspose",
+    "module_label": "Aspose"
   },
   {
     "name": "Line",
@@ -10500,7 +10726,9 @@
     "properties": [],
     "visibility": "public",
     "canonical_namespace": "Aspose::Pdf::Drawing",
-    "class_import": "Aspose::Pdf::Drawing::Line"
+    "class_import": "Aspose::Pdf::Drawing::Line",
+    "module_key": "aspose",
+    "module_label": "Aspose"
   },
   {
     "name": "Rectangle",
@@ -10636,7 +10864,9 @@
     "properties": [],
     "visibility": "public",
     "canonical_namespace": "Aspose::Pdf::Drawing",
-    "class_import": "Aspose::Pdf::Drawing::Rectangle"
+    "class_import": "Aspose::Pdf::Drawing::Rectangle",
+    "module_key": "aspose",
+    "module_label": "Aspose"
   },
   {
     "name": "Shape",
@@ -10696,7 +10926,9 @@
     "properties": [],
     "visibility": "public",
     "canonical_namespace": "Aspose::Pdf::Drawing",
-    "class_import": "Aspose::Pdf::Drawing::Shape"
+    "class_import": "Aspose::Pdf::Drawing::Shape",
+    "module_key": "aspose",
+    "module_label": "Aspose"
   },
   {
     "name": "EmbeddedFileCollection",
@@ -10811,7 +11043,9 @@
     "properties": [],
     "visibility": "public",
     "canonical_namespace": "Aspose::Pdf",
-    "class_import": "Aspose::Pdf::EmbeddedFileCollection"
+    "class_import": "Aspose::Pdf::EmbeddedFileCollection",
+    "module_key": "aspose",
+    "module_label": "Aspose"
   },
   {
     "name": "Algorithm",
@@ -10834,7 +11068,9 @@
       }
     ],
     "canonical_namespace": "Aspose::Pdf::Facades",
-    "class_import": "Aspose::Pdf::Facades::Algorithm"
+    "class_import": "Aspose::Pdf::Facades::Algorithm",
+    "module_key": "aspose",
+    "module_label": "Aspose"
   },
   {
     "name": "AlignmentType",
@@ -10880,7 +11116,9 @@
     "properties": [],
     "visibility": "public",
     "canonical_namespace": "Aspose::Pdf::Facades",
-    "class_import": "Aspose::Pdf::Facades::AlignmentType"
+    "class_import": "Aspose::Pdf::Facades::AlignmentType",
+    "module_key": "aspose",
+    "module_label": "Aspose"
   },
   {
     "name": "AutoRotateMode",
@@ -10907,7 +11145,9 @@
       }
     ],
     "canonical_namespace": "Aspose::Pdf::Facades",
-    "class_import": "Aspose::Pdf::Facades::AutoRotateMode"
+    "class_import": "Aspose::Pdf::Facades::AutoRotateMode",
+    "module_key": "aspose",
+    "module_label": "Aspose"
   },
   {
     "name": "BlendingColorSpace",
@@ -10938,7 +11178,9 @@
       }
     ],
     "canonical_namespace": "Aspose::Pdf::Facades",
-    "class_import": "Aspose::Pdf::Facades::BlendingColorSpace"
+    "class_import": "Aspose::Pdf::Facades::BlendingColorSpace",
+    "module_key": "aspose",
+    "module_label": "Aspose"
   },
   {
     "name": "Bookmark",
@@ -11317,7 +11559,9 @@
     "properties": [],
     "visibility": "public",
     "canonical_namespace": "Aspose::Pdf::Facades",
-    "class_import": "Aspose::Pdf::Facades::Bookmark"
+    "class_import": "Aspose::Pdf::Facades::Bookmark",
+    "module_key": "aspose",
+    "module_label": "Aspose"
   },
   {
     "name": "Bookmarks",
@@ -11339,7 +11583,9 @@
     "properties": [],
     "visibility": "public",
     "canonical_namespace": "Aspose::Pdf::Facades",
-    "class_import": "Aspose::Pdf::Facades::Bookmarks"
+    "class_import": "Aspose::Pdf::Facades::Bookmarks",
+    "module_key": "aspose",
+    "module_label": "Aspose"
   },
   {
     "name": "DataType",
@@ -11378,7 +11624,9 @@
       }
     ],
     "canonical_namespace": "Aspose::Pdf::Facades",
-    "class_import": "Aspose::Pdf::Facades::DataType"
+    "class_import": "Aspose::Pdf::Facades::DataType",
+    "module_key": "aspose",
+    "module_label": "Aspose"
   },
   {
     "name": "DefaultMetadataProperties",
@@ -11429,7 +11677,9 @@
       }
     ],
     "canonical_namespace": "Aspose::Pdf::Facades",
-    "class_import": "Aspose::Pdf::Facades::DefaultMetadataProperties"
+    "class_import": "Aspose::Pdf::Facades::DefaultMetadataProperties",
+    "module_key": "aspose",
+    "module_label": "Aspose"
   },
   {
     "name": "EncodingType",
@@ -11472,7 +11722,9 @@
       }
     ],
     "canonical_namespace": "Aspose::Pdf::Facades",
-    "class_import": "Aspose::Pdf::Facades::EncodingType"
+    "class_import": "Aspose::Pdf::Facades::EncodingType",
+    "module_key": "aspose",
+    "module_label": "Aspose"
   },
   {
     "name": "Facade",
@@ -11560,7 +11812,9 @@
     "properties": [],
     "visibility": "public",
     "canonical_namespace": "Aspose::Pdf::Facades",
-    "class_import": "Aspose::Pdf::Facades::Facade"
+    "class_import": "Aspose::Pdf::Facades::Facade",
+    "module_key": "aspose",
+    "module_label": "Aspose"
   },
   {
     "name": "FieldType",
@@ -11627,7 +11881,9 @@
       }
     ],
     "canonical_namespace": "Aspose::Pdf::Facades",
-    "class_import": "Aspose::Pdf::Facades::FieldType"
+    "class_import": "Aspose::Pdf::Facades::FieldType",
+    "module_key": "aspose",
+    "module_label": "Aspose"
   },
   {
     "name": "FontStyle",
@@ -11706,7 +11962,9 @@
       }
     ],
     "canonical_namespace": "Aspose::Pdf::Facades",
-    "class_import": "Aspose::Pdf::Facades::FontStyle"
+    "class_import": "Aspose::Pdf::Facades::FontStyle",
+    "module_key": "aspose",
+    "module_label": "Aspose"
   },
   {
     "name": "FormEditor",
@@ -12552,7 +12810,9 @@
     "properties": [],
     "visibility": "public",
     "canonical_namespace": "Aspose::Pdf::Facades",
-    "class_import": "Aspose::Pdf::Facades::FormEditor"
+    "class_import": "Aspose::Pdf::Facades::FormEditor",
+    "module_key": "aspose",
+    "module_label": "Aspose"
   },
   {
     "name": "FormFieldFacade",
@@ -13085,7 +13345,9 @@
     ],
     "visibility": "public",
     "canonical_namespace": "Aspose::Pdf::Facades",
-    "class_import": "Aspose::Pdf::Facades::FormFieldFacade"
+    "class_import": "Aspose::Pdf::Facades::FormFieldFacade",
+    "module_key": "aspose",
+    "module_label": "Aspose"
   },
   {
     "name": "IFacade",
@@ -13141,7 +13403,9 @@
     "properties": [],
     "visibility": "public",
     "canonical_namespace": "Aspose::Pdf::Facades",
-    "class_import": "Aspose::Pdf::Facades::IFacade"
+    "class_import": "Aspose::Pdf::Facades::IFacade",
+    "module_key": "aspose",
+    "module_label": "Aspose"
   },
   {
     "name": "ISaveableFacade",
@@ -13176,7 +13440,9 @@
     "properties": [],
     "visibility": "public",
     "canonical_namespace": "Aspose::Pdf::Facades",
-    "class_import": "Aspose::Pdf::Facades::ISaveableFacade"
+    "class_import": "Aspose::Pdf::Facades::ISaveableFacade",
+    "module_key": "aspose",
+    "module_label": "Aspose"
   },
   {
     "name": "ImageMergeMode",
@@ -13203,7 +13469,9 @@
       }
     ],
     "canonical_namespace": "Aspose::Pdf::Facades",
-    "class_import": "Aspose::Pdf::Facades::ImageMergeMode"
+    "class_import": "Aspose::Pdf::Facades::ImageMergeMode",
+    "module_key": "aspose",
+    "module_label": "Aspose"
   },
   {
     "name": "KeySize",
@@ -13230,7 +13498,9 @@
       }
     ],
     "canonical_namespace": "Aspose::Pdf::Facades",
-    "class_import": "Aspose::Pdf::Facades::KeySize"
+    "class_import": "Aspose::Pdf::Facades::KeySize",
+    "module_key": "aspose",
+    "module_label": "Aspose"
   },
   {
     "name": "PdfAnnotationEditor",
@@ -13460,7 +13730,9 @@
     "properties": [],
     "visibility": "public",
     "canonical_namespace": "Aspose::Pdf::Facades",
-    "class_import": "Aspose::Pdf::Facades::PdfAnnotationEditor"
+    "class_import": "Aspose::Pdf::Facades::PdfAnnotationEditor",
+    "module_key": "aspose",
+    "module_label": "Aspose"
   },
   {
     "name": "PdfBookmarkEditor",
@@ -13682,7 +13954,9 @@
     "properties": [],
     "visibility": "public",
     "canonical_namespace": "Aspose::Pdf::Facades",
-    "class_import": "Aspose::Pdf::Facades::PdfBookmarkEditor"
+    "class_import": "Aspose::Pdf::Facades::PdfBookmarkEditor",
+    "module_key": "aspose",
+    "module_label": "Aspose"
   },
   {
     "name": "PdfContentEditor",
@@ -14091,7 +14365,9 @@
     ],
     "visibility": "public",
     "canonical_namespace": "Aspose::Pdf::Facades",
-    "class_import": "Aspose::Pdf::Facades::PdfContentEditor"
+    "class_import": "Aspose::Pdf::Facades::PdfContentEditor",
+    "module_key": "aspose",
+    "module_label": "Aspose"
   },
   {
     "name": "PdfConverter",
@@ -14614,7 +14890,9 @@
     "properties": [],
     "visibility": "public",
     "canonical_namespace": "Aspose::Pdf::Facades",
-    "class_import": "Aspose::Pdf::Facades::PdfConverter"
+    "class_import": "Aspose::Pdf::Facades::PdfConverter",
+    "module_key": "aspose",
+    "module_label": "Aspose"
   },
   {
     "name": "PdfExtractor",
@@ -14875,7 +15153,9 @@
     "properties": [],
     "visibility": "public",
     "canonical_namespace": "Aspose::Pdf::Facades",
-    "class_import": "Aspose::Pdf::Facades::PdfExtractor"
+    "class_import": "Aspose::Pdf::Facades::PdfExtractor",
+    "module_key": "aspose",
+    "module_label": "Aspose"
   },
   {
     "name": "PdfFileEditor",
@@ -16049,7 +16329,9 @@
     "properties": [],
     "visibility": "public",
     "canonical_namespace": "Aspose::Pdf::Facades",
-    "class_import": "Aspose::Pdf::Facades::PdfFileEditor"
+    "class_import": "Aspose::Pdf::Facades::PdfFileEditor",
+    "module_key": "aspose",
+    "module_label": "Aspose"
   },
   {
     "name": "PdfFileInfo",
@@ -16481,7 +16763,9 @@
     "properties": [],
     "visibility": "public",
     "canonical_namespace": "Aspose::Pdf::Facades",
-    "class_import": "Aspose::Pdf::Facades::PdfFileInfo"
+    "class_import": "Aspose::Pdf::Facades::PdfFileInfo",
+    "module_key": "aspose",
+    "module_label": "Aspose"
   },
   {
     "name": "PdfFileSecurity",
@@ -16891,7 +17175,9 @@
     "properties": [],
     "visibility": "public",
     "canonical_namespace": "Aspose::Pdf::Facades",
-    "class_import": "Aspose::Pdf::Facades::PdfFileSecurity"
+    "class_import": "Aspose::Pdf::Facades::PdfFileSecurity",
+    "module_key": "aspose",
+    "module_label": "Aspose"
   },
   {
     "name": "PdfFileSignature",
@@ -17412,7 +17698,9 @@
     "properties": [],
     "visibility": "public",
     "canonical_namespace": "Aspose::Pdf::Facades",
-    "class_import": "Aspose::Pdf::Facades::PdfFileSignature"
+    "class_import": "Aspose::Pdf::Facades::PdfFileSignature",
+    "module_key": "aspose",
+    "module_label": "Aspose"
   },
   {
     "name": "PdfFileStamp",
@@ -17843,7 +18131,9 @@
     ],
     "visibility": "public",
     "canonical_namespace": "Aspose::Pdf::Facades",
-    "class_import": "Aspose::Pdf::Facades::PdfFileStamp"
+    "class_import": "Aspose::Pdf::Facades::PdfFileStamp",
+    "module_key": "aspose",
+    "module_label": "Aspose"
   },
   {
     "name": "PdfPageEditor",
@@ -18285,7 +18575,9 @@
     ],
     "visibility": "public",
     "canonical_namespace": "Aspose::Pdf::Facades",
-    "class_import": "Aspose::Pdf::Facades::PdfPageEditor"
+    "class_import": "Aspose::Pdf::Facades::PdfPageEditor",
+    "module_key": "aspose",
+    "module_label": "Aspose"
   },
   {
     "name": "PdfXmpMetadata",
@@ -18473,7 +18765,9 @@
     "properties": [],
     "visibility": "public",
     "canonical_namespace": "Aspose::Pdf::Facades",
-    "class_import": "Aspose::Pdf::Facades::PdfXmpMetadata"
+    "class_import": "Aspose::Pdf::Facades::PdfXmpMetadata",
+    "module_key": "aspose",
+    "module_label": "Aspose"
   },
   {
     "name": "PositioningMode",
@@ -18500,7 +18794,9 @@
       }
     ],
     "canonical_namespace": "Aspose::Pdf::Facades",
-    "class_import": "Aspose::Pdf::Facades::PositioningMode"
+    "class_import": "Aspose::Pdf::Facades::PositioningMode",
+    "module_key": "aspose",
+    "module_label": "Aspose"
   },
   {
     "name": "PropertyFlag",
@@ -18531,7 +18827,9 @@
       }
     ],
     "canonical_namespace": "Aspose::Pdf::Facades",
-    "class_import": "Aspose::Pdf::Facades::PropertyFlag"
+    "class_import": "Aspose::Pdf::Facades::PropertyFlag",
+    "module_key": "aspose",
+    "module_label": "Aspose"
   },
   {
     "name": "SaveableFacade",
@@ -18574,7 +18872,9 @@
     "properties": [],
     "visibility": "public",
     "canonical_namespace": "Aspose::Pdf::Facades",
-    "class_import": "Aspose::Pdf::Facades::SaveableFacade"
+    "class_import": "Aspose::Pdf::Facades::SaveableFacade",
+    "module_key": "aspose",
+    "module_label": "Aspose"
   },
   {
     "name": "SignatureName",
@@ -18639,7 +18939,9 @@
     ],
     "visibility": "public",
     "canonical_namespace": "Aspose::Pdf::Facades",
-    "class_import": "Aspose::Pdf::Facades::SignatureName"
+    "class_import": "Aspose::Pdf::Facades::SignatureName",
+    "module_key": "aspose",
+    "module_label": "Aspose"
   },
   {
     "name": "StampType",
@@ -18662,7 +18964,9 @@
       }
     ],
     "canonical_namespace": "Aspose::Pdf::Facades",
-    "class_import": "Aspose::Pdf::Facades::StampType"
+    "class_import": "Aspose::Pdf::Facades::StampType",
+    "module_key": "aspose",
+    "module_label": "Aspose"
   },
   {
     "name": "SubmitFormFlag",
@@ -18701,7 +19005,9 @@
       }
     ],
     "canonical_namespace": "Aspose::Pdf::Facades",
-    "class_import": "Aspose::Pdf::Facades::SubmitFormFlag"
+    "class_import": "Aspose::Pdf::Facades::SubmitFormFlag",
+    "module_key": "aspose",
+    "module_label": "Aspose"
   },
   {
     "name": "VerticalAlignmentType",
@@ -18747,7 +19053,9 @@
     "properties": [],
     "visibility": "public",
     "canonical_namespace": "Aspose::Pdf::Facades",
-    "class_import": "Aspose::Pdf::Facades::VerticalAlignmentType"
+    "class_import": "Aspose::Pdf::Facades::VerticalAlignmentType",
+    "module_key": "aspose",
+    "module_label": "Aspose"
   },
   {
     "name": "WordWrapMode",
@@ -18770,7 +19078,9 @@
       }
     ],
     "canonical_namespace": "Aspose::Pdf::Facades",
-    "class_import": "Aspose::Pdf::Facades::WordWrapMode"
+    "class_import": "Aspose::Pdf::Facades::WordWrapMode",
+    "module_key": "aspose",
+    "module_label": "Aspose"
   },
   {
     "name": "FileEncoding",
@@ -18793,7 +19103,9 @@
       }
     ],
     "canonical_namespace": "Aspose::Pdf",
-    "class_import": "Aspose::Pdf::FileEncoding"
+    "class_import": "Aspose::Pdf::FileEncoding",
+    "module_key": "aspose",
+    "module_label": "Aspose"
   },
   {
     "name": "FileSpecification",
@@ -19022,7 +19334,9 @@
     "properties": [],
     "visibility": "public",
     "canonical_namespace": "Aspose::Pdf",
-    "class_import": "Aspose::Pdf::FileSpecification"
+    "class_import": "Aspose::Pdf::FileSpecification",
+    "module_key": "aspose",
+    "module_label": "Aspose"
   },
   {
     "name": "FloatingBox",
@@ -19163,7 +19477,9 @@
     "properties": [],
     "visibility": "public",
     "canonical_namespace": "Aspose::Pdf",
-    "class_import": "Aspose::Pdf::FloatingBox"
+    "class_import": "Aspose::Pdf::FloatingBox",
+    "module_key": "aspose",
+    "module_label": "Aspose"
   },
   {
     "name": "Font",
@@ -19237,7 +19553,9 @@
     "properties": [],
     "visibility": "public",
     "canonical_namespace": "Aspose::Pdf::Text",
-    "class_import": "Aspose::Pdf::Text::Font"
+    "class_import": "Aspose::Pdf::Text::Font",
+    "module_key": "aspose",
+    "module_label": "Aspose"
   },
   {
     "name": "FontRepository",
@@ -19277,7 +19595,9 @@
     "properties": [],
     "visibility": "public",
     "canonical_namespace": "Aspose::Pdf::Text",
-    "class_import": "Aspose::Pdf::Text::FontRepository"
+    "class_import": "Aspose::Pdf::Text::FontRepository",
+    "module_key": "aspose",
+    "module_label": "Aspose"
   },
   {
     "name": "FormPresentationMode",
@@ -19300,7 +19620,9 @@
       }
     ],
     "canonical_namespace": "Aspose::Pdf::Devices",
-    "class_import": "Aspose::Pdf::Devices::FormPresentationMode"
+    "class_import": "Aspose::Pdf::Devices::FormPresentationMode",
+    "module_key": "aspose",
+    "module_label": "Aspose"
   },
   {
     "name": "BarcodeField",
@@ -19362,7 +19684,9 @@
     "properties": [],
     "visibility": "public",
     "canonical_namespace": "Aspose::Pdf::Forms",
-    "class_import": "Aspose::Pdf::Forms::BarcodeField"
+    "class_import": "Aspose::Pdf::Forms::BarcodeField",
+    "module_key": "aspose",
+    "module_label": "Aspose"
   },
   {
     "name": "BoxStyle",
@@ -19401,7 +19725,9 @@
       }
     ],
     "canonical_namespace": "Aspose::Pdf::Forms",
-    "class_import": "Aspose::Pdf::Forms::BoxStyle"
+    "class_import": "Aspose::Pdf::Forms::BoxStyle",
+    "module_key": "aspose",
+    "module_label": "Aspose"
   },
   {
     "name": "ButtonField",
@@ -19523,7 +19849,9 @@
     "properties": [],
     "visibility": "public",
     "canonical_namespace": "Aspose::Pdf::Forms",
-    "class_import": "Aspose::Pdf::Forms::ButtonField"
+    "class_import": "Aspose::Pdf::Forms::ButtonField",
+    "module_key": "aspose",
+    "module_label": "Aspose"
   },
   {
     "name": "CheckboxField",
@@ -19717,7 +20045,9 @@
     "properties": [],
     "visibility": "public",
     "canonical_namespace": "Aspose::Pdf::Forms",
-    "class_import": "Aspose::Pdf::Forms::CheckboxField"
+    "class_import": "Aspose::Pdf::Forms::CheckboxField",
+    "module_key": "aspose",
+    "module_label": "Aspose"
   },
   {
     "name": "ChoiceField",
@@ -19887,7 +20217,9 @@
     "properties": [],
     "visibility": "public",
     "canonical_namespace": "Aspose::Pdf::Forms",
-    "class_import": "Aspose::Pdf::Forms::ChoiceField"
+    "class_import": "Aspose::Pdf::Forms::ChoiceField",
+    "module_key": "aspose",
+    "module_label": "Aspose"
   },
   {
     "name": "ComboBoxField",
@@ -19951,7 +20283,9 @@
     "properties": [],
     "visibility": "public",
     "canonical_namespace": "Aspose::Pdf::Forms",
-    "class_import": "Aspose::Pdf::Forms::ComboBoxField"
+    "class_import": "Aspose::Pdf::Forms::ComboBoxField",
+    "module_key": "aspose",
+    "module_label": "Aspose"
   },
   {
     "name": "DateField",
@@ -20007,7 +20341,9 @@
     "properties": [],
     "visibility": "public",
     "canonical_namespace": "Aspose::Pdf::Forms",
-    "class_import": "Aspose::Pdf::Forms::DateField"
+    "class_import": "Aspose::Pdf::Forms::DateField",
+    "module_key": "aspose",
+    "module_label": "Aspose"
   },
   {
     "name": "DocMDPAccessPermissions",
@@ -20034,7 +20370,9 @@
       }
     ],
     "canonical_namespace": "Aspose::Pdf::Forms",
-    "class_import": "Aspose::Pdf::Forms::DocMDPAccessPermissions"
+    "class_import": "Aspose::Pdf::Forms::DocMDPAccessPermissions",
+    "module_key": "aspose",
+    "module_label": "Aspose"
   },
   {
     "name": "DocMDPSignature",
@@ -20056,7 +20394,9 @@
     "properties": [],
     "visibility": "public",
     "canonical_namespace": "Aspose::Pdf::Forms",
-    "class_import": "Aspose::Pdf::Forms::DocMDPSignature"
+    "class_import": "Aspose::Pdf::Forms::DocMDPSignature",
+    "module_key": "aspose",
+    "module_label": "Aspose"
   },
   {
     "name": "ExternalSignature",
@@ -20069,7 +20409,9 @@
     "properties": [],
     "visibility": "public",
     "canonical_namespace": "Aspose::Pdf::Forms",
-    "class_import": "Aspose::Pdf::Forms::ExternalSignature"
+    "class_import": "Aspose::Pdf::Forms::ExternalSignature",
+    "module_key": "aspose",
+    "module_label": "Aspose"
   },
   {
     "name": "Field",
@@ -20349,7 +20691,9 @@
     "properties": [],
     "visibility": "public",
     "canonical_namespace": "Aspose::Pdf::Forms",
-    "class_import": "Aspose::Pdf::Forms::Field"
+    "class_import": "Aspose::Pdf::Forms::Field",
+    "module_key": "aspose",
+    "module_label": "Aspose"
   },
   {
     "name": "FileSelectBoxField",
@@ -20371,7 +20715,9 @@
     "properties": [],
     "visibility": "public",
     "canonical_namespace": "Aspose::Pdf::Forms",
-    "class_import": "Aspose::Pdf::Forms::FileSelectBoxField"
+    "class_import": "Aspose::Pdf::Forms::FileSelectBoxField",
+    "module_key": "aspose",
+    "module_label": "Aspose"
   },
   {
     "name": "Form",
@@ -20845,7 +21191,9 @@
     ],
     "visibility": "public",
     "canonical_namespace": "Aspose::Pdf::Forms",
-    "class_import": "Aspose::Pdf::Forms::Form"
+    "class_import": "Aspose::Pdf::Forms::Form",
+    "module_key": "aspose",
+    "module_label": "Aspose"
   },
   {
     "name": "FormType",
@@ -20872,7 +21220,9 @@
       }
     ],
     "canonical_namespace": "Aspose::Pdf::Forms",
-    "class_import": "Aspose::Pdf::Forms::FormType"
+    "class_import": "Aspose::Pdf::Forms::FormType",
+    "module_key": "aspose",
+    "module_label": "Aspose"
   },
   {
     "name": "IconCaptionPosition",
@@ -20915,7 +21265,9 @@
       }
     ],
     "canonical_namespace": "Aspose::Pdf::Forms",
-    "class_import": "Aspose::Pdf::Forms::IconCaptionPosition"
+    "class_import": "Aspose::Pdf::Forms::IconCaptionPosition",
+    "module_key": "aspose",
+    "module_label": "Aspose"
   },
   {
     "name": "IconFit",
@@ -21094,7 +21446,9 @@
     "properties": [],
     "visibility": "public",
     "canonical_namespace": "Aspose::Pdf::Forms",
-    "class_import": "Aspose::Pdf::Forms::IconFit"
+    "class_import": "Aspose::Pdf::Forms::IconFit",
+    "module_key": "aspose",
+    "module_label": "Aspose"
   },
   {
     "name": "ListBoxField",
@@ -21137,7 +21491,9 @@
     "properties": [],
     "visibility": "public",
     "canonical_namespace": "Aspose::Pdf::Forms",
-    "class_import": "Aspose::Pdf::Forms::ListBoxField"
+    "class_import": "Aspose::Pdf::Forms::ListBoxField",
+    "module_key": "aspose",
+    "module_label": "Aspose"
   },
   {
     "name": "NumberField",
@@ -21180,7 +21536,9 @@
     "properties": [],
     "visibility": "public",
     "canonical_namespace": "Aspose::Pdf::Forms",
-    "class_import": "Aspose::Pdf::Forms::NumberField"
+    "class_import": "Aspose::Pdf::Forms::NumberField",
+    "module_key": "aspose",
+    "module_label": "Aspose"
   },
   {
     "name": "Option",
@@ -21273,7 +21631,9 @@
     "properties": [],
     "visibility": "public",
     "canonical_namespace": "Aspose::Pdf::Forms",
-    "class_import": "Aspose::Pdf::Forms::Option"
+    "class_import": "Aspose::Pdf::Forms::Option",
+    "module_key": "aspose",
+    "module_label": "Aspose"
   },
   {
     "name": "OptionCollection",
@@ -21385,7 +21745,9 @@
     "properties": [],
     "visibility": "public",
     "canonical_namespace": "Aspose::Pdf::Forms",
-    "class_import": "Aspose::Pdf::Forms::OptionCollection"
+    "class_import": "Aspose::Pdf::Forms::OptionCollection",
+    "module_key": "aspose",
+    "module_label": "Aspose"
   },
   {
     "name": "PasswordBoxField",
@@ -21407,7 +21769,9 @@
     "properties": [],
     "visibility": "public",
     "canonical_namespace": "Aspose::Pdf::Forms",
-    "class_import": "Aspose::Pdf::Forms::PasswordBoxField"
+    "class_import": "Aspose::Pdf::Forms::PasswordBoxField",
+    "module_key": "aspose",
+    "module_label": "Aspose"
   },
   {
     "name": "PKCS1",
@@ -21429,7 +21793,9 @@
     "properties": [],
     "visibility": "public",
     "canonical_namespace": "Aspose::Pdf::Forms",
-    "class_import": "Aspose::Pdf::Forms::PKCS1"
+    "class_import": "Aspose::Pdf::Forms::PKCS1",
+    "module_key": "aspose",
+    "module_label": "Aspose"
   },
   {
     "name": "PKCS7",
@@ -21451,7 +21817,9 @@
     "properties": [],
     "visibility": "public",
     "canonical_namespace": "Aspose::Pdf::Forms",
-    "class_import": "Aspose::Pdf::Forms::PKCS7"
+    "class_import": "Aspose::Pdf::Forms::PKCS7",
+    "module_key": "aspose",
+    "module_label": "Aspose"
   },
   {
     "name": "PKCS7Detached",
@@ -21473,7 +21841,9 @@
     "properties": [],
     "visibility": "public",
     "canonical_namespace": "Aspose::Pdf::Forms",
-    "class_import": "Aspose::Pdf::Forms::PKCS7Detached"
+    "class_import": "Aspose::Pdf::Forms::PKCS7Detached",
+    "module_key": "aspose",
+    "module_label": "Aspose"
   },
   {
     "name": "RadioButtonField",
@@ -21573,7 +21943,9 @@
     "properties": [],
     "visibility": "public",
     "canonical_namespace": "Aspose::Pdf::Forms",
-    "class_import": "Aspose::Pdf::Forms::RadioButtonField"
+    "class_import": "Aspose::Pdf::Forms::RadioButtonField",
+    "module_key": "aspose",
+    "module_label": "Aspose"
   },
   {
     "name": "RadioButtonOptionField",
@@ -21637,7 +22009,9 @@
     "properties": [],
     "visibility": "public",
     "canonical_namespace": "Aspose::Pdf::Forms",
-    "class_import": "Aspose::Pdf::Forms::RadioButtonOptionField"
+    "class_import": "Aspose::Pdf::Forms::RadioButtonOptionField",
+    "module_key": "aspose",
+    "module_label": "Aspose"
   },
   {
     "name": "RichTextBoxField",
@@ -21764,7 +22138,9 @@
     "properties": [],
     "visibility": "public",
     "canonical_namespace": "Aspose::Pdf::Forms",
-    "class_import": "Aspose::Pdf::Forms::RichTextBoxField"
+    "class_import": "Aspose::Pdf::Forms::RichTextBoxField",
+    "module_key": "aspose",
+    "module_label": "Aspose"
   },
   {
     "name": "ScalingMode",
@@ -21787,7 +22163,9 @@
       }
     ],
     "canonical_namespace": "Aspose::Pdf::Forms",
-    "class_import": "Aspose::Pdf::Forms::ScalingMode"
+    "class_import": "Aspose::Pdf::Forms::ScalingMode",
+    "module_key": "aspose",
+    "module_label": "Aspose"
   },
   {
     "name": "ScalingReason",
@@ -21818,7 +22196,9 @@
       }
     ],
     "canonical_namespace": "Aspose::Pdf::Forms",
-    "class_import": "Aspose::Pdf::Forms::ScalingReason"
+    "class_import": "Aspose::Pdf::Forms::ScalingReason",
+    "module_key": "aspose",
+    "module_label": "Aspose"
   },
   {
     "name": "Signature",
@@ -22061,7 +22441,9 @@
     "properties": [],
     "visibility": "public",
     "canonical_namespace": "Aspose::Pdf::Forms",
-    "class_import": "Aspose::Pdf::Forms::Signature"
+    "class_import": "Aspose::Pdf::Forms::Signature",
+    "module_key": "aspose",
+    "module_label": "Aspose"
   },
   {
     "name": "SignatureCustomAppearance",
@@ -22462,7 +22844,9 @@
     "properties": [],
     "visibility": "public",
     "canonical_namespace": "Aspose::Pdf::Forms",
-    "class_import": "Aspose::Pdf::Forms::SignatureCustomAppearance"
+    "class_import": "Aspose::Pdf::Forms::SignatureCustomAppearance",
+    "module_key": "aspose",
+    "module_label": "Aspose"
   },
   {
     "name": "SignatureField",
@@ -22497,7 +22881,9 @@
     "properties": [],
     "visibility": "public",
     "canonical_namespace": "Aspose::Pdf::Forms",
-    "class_import": "Aspose::Pdf::Forms::SignatureField"
+    "class_import": "Aspose::Pdf::Forms::SignatureField",
+    "module_key": "aspose",
+    "module_label": "Aspose"
   },
   {
     "name": "SubjectNameElements",
@@ -22540,7 +22926,9 @@
       }
     ],
     "canonical_namespace": "Aspose::Pdf::Forms",
-    "class_import": "Aspose::Pdf::Forms::SubjectNameElements"
+    "class_import": "Aspose::Pdf::Forms::SubjectNameElements",
+    "module_key": "aspose",
+    "module_label": "Aspose"
   },
   {
     "name": "Symbology",
@@ -22567,7 +22955,9 @@
       }
     ],
     "canonical_namespace": "Aspose::Pdf::Forms",
-    "class_import": "Aspose::Pdf::Forms::Symbology"
+    "class_import": "Aspose::Pdf::Forms::Symbology",
+    "module_key": "aspose",
+    "module_label": "Aspose"
   },
   {
     "name": "TextBoxField",
@@ -22741,7 +23131,9 @@
     "properties": [],
     "visibility": "public",
     "canonical_namespace": "Aspose::Pdf::Forms",
-    "class_import": "Aspose::Pdf::Forms::TextBoxField"
+    "class_import": "Aspose::Pdf::Forms::TextBoxField",
+    "module_key": "aspose",
+    "module_label": "Aspose"
   },
   {
     "name": "XFA",
@@ -22771,7 +23163,9 @@
     "properties": [],
     "visibility": "public",
     "canonical_namespace": "Aspose::Pdf::Forms",
-    "class_import": "Aspose::Pdf::Forms::XFA"
+    "class_import": "Aspose::Pdf::Forms::XFA",
+    "module_key": "aspose",
+    "module_label": "Aspose"
   },
   {
     "name": "GraphInfo",
@@ -23041,7 +23435,9 @@
     "properties": [],
     "visibility": "public",
     "canonical_namespace": "Aspose::Pdf",
-    "class_import": "Aspose::Pdf::GraphInfo"
+    "class_import": "Aspose::Pdf::GraphInfo",
+    "module_key": "aspose",
+    "module_label": "Aspose"
   },
   {
     "name": "HorizontalAlignment",
@@ -23080,7 +23476,9 @@
       }
     ],
     "canonical_namespace": "Aspose::Pdf",
-    "class_import": "Aspose::Pdf::HorizontalAlignment"
+    "class_import": "Aspose::Pdf::HorizontalAlignment",
+    "module_key": "aspose",
+    "module_label": "Aspose"
   },
   {
     "name": "Hyperlink",
@@ -23151,7 +23549,9 @@
     ],
     "visibility": "public",
     "canonical_namespace": "Aspose::Pdf",
-    "class_import": "Aspose::Pdf::Hyperlink"
+    "class_import": "Aspose::Pdf::Hyperlink",
+    "module_key": "aspose",
+    "module_label": "Aspose"
   },
   {
     "name": "IIndexBitmapConverter",
@@ -23212,7 +23612,9 @@
     "properties": [],
     "visibility": "public",
     "canonical_namespace": "Aspose::Pdf",
-    "class_import": "Aspose::Pdf::IIndexBitmapConverter"
+    "class_import": "Aspose::Pdf::IIndexBitmapConverter",
+    "module_key": "aspose",
+    "module_label": "Aspose"
   },
   {
     "name": "ImageDevice",
@@ -23326,7 +23728,9 @@
     "properties": [],
     "visibility": "public",
     "canonical_namespace": "Aspose::Pdf::Devices",
-    "class_import": "Aspose::Pdf::Devices::ImageDevice"
+    "class_import": "Aspose::Pdf::Devices::ImageDevice",
+    "module_key": "aspose",
+    "module_label": "Aspose"
   },
   {
     "name": "JpegDevice",
@@ -23357,7 +23761,9 @@
     "properties": [],
     "visibility": "public",
     "canonical_namespace": "Aspose::Pdf::Devices",
-    "class_import": "Aspose::Pdf::Devices::JpegDevice"
+    "class_import": "Aspose::Pdf::Devices::JpegDevice",
+    "module_key": "aspose",
+    "module_label": "Aspose"
   },
   {
     "name": "LoadOptions",
@@ -23400,7 +23806,9 @@
     "properties": [],
     "visibility": "public",
     "canonical_namespace": "Aspose::Pdf",
-    "class_import": "Aspose::Pdf::LoadOptions"
+    "class_import": "Aspose::Pdf::LoadOptions",
+    "module_key": "aspose",
+    "module_label": "Aspose"
   },
   {
     "name": "MarginInfo",
@@ -23506,7 +23914,9 @@
     "properties": [],
     "visibility": "public",
     "canonical_namespace": "Aspose::Pdf",
-    "class_import": "Aspose::Pdf::MarginInfo"
+    "class_import": "Aspose::Pdf::MarginInfo",
+    "module_key": "aspose",
+    "module_label": "Aspose"
   },
   {
     "name": "Margins",
@@ -23604,7 +24014,9 @@
     "properties": [],
     "visibility": "public",
     "canonical_namespace": "Aspose::Pdf::Devices",
-    "class_import": "Aspose::Pdf::Devices::Margins"
+    "class_import": "Aspose::Pdf::Devices::Margins",
+    "module_key": "aspose",
+    "module_label": "Aspose"
   },
   {
     "name": "Metadata",
@@ -23867,7 +24279,9 @@
     ],
     "visibility": "public",
     "canonical_namespace": "Aspose::Pdf",
-    "class_import": "Aspose::Pdf::Metadata"
+    "class_import": "Aspose::Pdf::Metadata",
+    "module_key": "aspose",
+    "module_label": "Aspose"
   },
   {
     "name": "NamedDestinationCollection",
@@ -23952,7 +24366,9 @@
     ],
     "visibility": "public",
     "canonical_namespace": "Aspose::Pdf",
-    "class_import": "Aspose::Pdf::NamedDestinationCollection"
+    "class_import": "Aspose::Pdf::NamedDestinationCollection",
+    "module_key": "aspose",
+    "module_label": "Aspose"
   },
   {
     "name": "NumberingStyle",
@@ -23991,7 +24407,9 @@
       }
     ],
     "canonical_namespace": "Aspose::Pdf",
-    "class_import": "Aspose::Pdf::NumberingStyle"
+    "class_import": "Aspose::Pdf::NumberingStyle",
+    "module_key": "aspose",
+    "module_label": "Aspose"
   },
   {
     "name": "OutlineCollection",
@@ -24004,7 +24422,9 @@
     "properties": [],
     "visibility": "public",
     "canonical_namespace": "Aspose::Pdf",
-    "class_import": "Aspose::Pdf::OutlineCollection"
+    "class_import": "Aspose::Pdf::OutlineCollection",
+    "module_key": "aspose",
+    "module_label": "Aspose"
   },
   {
     "name": "OutlineItemCollection",
@@ -24202,7 +24622,9 @@
     "properties": [],
     "visibility": "public",
     "canonical_namespace": "Aspose::Pdf",
-    "class_import": "Aspose::Pdf::OutlineItemCollection"
+    "class_import": "Aspose::Pdf::OutlineItemCollection",
+    "module_key": "aspose",
+    "module_label": "Aspose"
   },
   {
     "name": "Outlines",
@@ -24338,7 +24760,9 @@
     "properties": [],
     "visibility": "public",
     "canonical_namespace": "Aspose::Pdf",
-    "class_import": "Aspose::Pdf::Outlines"
+    "class_import": "Aspose::Pdf::Outlines",
+    "module_key": "aspose",
+    "module_label": "Aspose"
   },
   {
     "name": "Page",
@@ -24657,7 +25081,9 @@
     ],
     "visibility": "public",
     "canonical_namespace": "Aspose::Pdf",
-    "class_import": "Aspose::Pdf::Page"
+    "class_import": "Aspose::Pdf::Page",
+    "module_key": "aspose",
+    "module_label": "Aspose"
   },
   {
     "name": "PageCollection",
@@ -24813,7 +25239,9 @@
     ],
     "visibility": "public",
     "canonical_namespace": "Aspose::Pdf",
-    "class_import": "Aspose::Pdf::PageCollection"
+    "class_import": "Aspose::Pdf::PageCollection",
+    "module_key": "aspose",
+    "module_label": "Aspose"
   },
   {
     "name": "PageCoordinateType",
@@ -24836,7 +25264,9 @@
       }
     ],
     "canonical_namespace": "Aspose::Pdf",
-    "class_import": "Aspose::Pdf::PageCoordinateType"
+    "class_import": "Aspose::Pdf::PageCoordinateType",
+    "module_key": "aspose",
+    "module_label": "Aspose"
   },
   {
     "name": "PageDevice",
@@ -24884,7 +25314,9 @@
     "properties": [],
     "visibility": "public",
     "canonical_namespace": "Aspose::Pdf::Devices",
-    "class_import": "Aspose::Pdf::Devices::PageDevice"
+    "class_import": "Aspose::Pdf::Devices::PageDevice",
+    "module_key": "aspose",
+    "module_label": "Aspose"
   },
   {
     "name": "PageLabel",
@@ -24961,7 +25393,9 @@
     "properties": [],
     "visibility": "public",
     "canonical_namespace": "Aspose::Pdf",
-    "class_import": "Aspose::Pdf::PageLabel"
+    "class_import": "Aspose::Pdf::PageLabel",
+    "module_key": "aspose",
+    "module_label": "Aspose"
   },
   {
     "name": "PageLabelCollection",
@@ -25027,7 +25461,9 @@
     "properties": [],
     "visibility": "public",
     "canonical_namespace": "Aspose::Pdf",
-    "class_import": "Aspose::Pdf::PageLabelCollection"
+    "class_import": "Aspose::Pdf::PageLabelCollection",
+    "module_key": "aspose",
+    "module_label": "Aspose"
   },
   {
     "name": "PageSize",
@@ -25201,7 +25637,9 @@
     "properties": [],
     "visibility": "public",
     "canonical_namespace": "Aspose::Pdf",
-    "class_import": "Aspose::Pdf::PageSize"
+    "class_import": "Aspose::Pdf::PageSize",
+    "module_key": "aspose",
+    "module_label": "Aspose"
   },
   {
     "name": "Paragraphs",
@@ -25291,7 +25729,9 @@
     "properties": [],
     "visibility": "public",
     "canonical_namespace": "Aspose::Pdf",
-    "class_import": "Aspose::Pdf::Paragraphs"
+    "class_import": "Aspose::Pdf::Paragraphs",
+    "module_key": "aspose",
+    "module_label": "Aspose"
   },
   {
     "name": "PasswordType",
@@ -25322,7 +25762,9 @@
       }
     ],
     "canonical_namespace": "Aspose::Pdf",
-    "class_import": "Aspose::Pdf::PasswordType"
+    "class_import": "Aspose::Pdf::PasswordType",
+    "module_key": "aspose",
+    "module_label": "Aspose"
   },
   {
     "name": "Permissions",
@@ -25369,7 +25811,9 @@
       }
     ],
     "canonical_namespace": "Aspose::Pdf",
-    "class_import": "Aspose::Pdf::Permissions"
+    "class_import": "Aspose::Pdf::Permissions",
+    "module_key": "aspose",
+    "module_label": "Aspose"
   },
   {
     "name": "PngDevice",
@@ -25421,7 +25865,9 @@
     "properties": [],
     "visibility": "public",
     "canonical_namespace": "Aspose::Pdf::Devices",
-    "class_import": "Aspose::Pdf::Devices::PngDevice"
+    "class_import": "Aspose::Pdf::Devices::PngDevice",
+    "module_key": "aspose",
+    "module_label": "Aspose"
   },
   {
     "name": "Point",
@@ -25502,7 +25948,9 @@
     "properties": [],
     "visibility": "public",
     "canonical_namespace": "Aspose::Pdf",
-    "class_import": "Aspose::Pdf::Point"
+    "class_import": "Aspose::Pdf::Point",
+    "module_key": "aspose",
+    "module_label": "Aspose"
   },
   {
     "name": "Position",
@@ -25558,7 +26006,9 @@
     "properties": [],
     "visibility": "public",
     "canonical_namespace": "Aspose::Pdf::Text",
-    "class_import": "Aspose::Pdf::Text::Position"
+    "class_import": "Aspose::Pdf::Text::Position",
+    "module_key": "aspose",
+    "module_label": "Aspose"
   },
   {
     "name": "Rectangle",
@@ -25902,7 +26352,9 @@
     "properties": [],
     "visibility": "public",
     "canonical_namespace": "Aspose::Pdf",
-    "class_import": "Aspose::Pdf::Rectangle"
+    "class_import": "Aspose::Pdf::Rectangle",
+    "module_key": "aspose",
+    "module_label": "Aspose"
   },
   {
     "name": "RenderingOptions",
@@ -26189,7 +26641,9 @@
     "properties": [],
     "visibility": "public",
     "canonical_namespace": "Aspose::Pdf",
-    "class_import": "Aspose::Pdf::RenderingOptions"
+    "class_import": "Aspose::Pdf::RenderingOptions",
+    "module_key": "aspose",
+    "module_label": "Aspose"
   },
   {
     "name": "Resolution",
@@ -26245,7 +26699,9 @@
     "properties": [],
     "visibility": "public",
     "canonical_namespace": "Aspose::Pdf::Devices",
-    "class_import": "Aspose::Pdf::Devices::Resolution"
+    "class_import": "Aspose::Pdf::Devices::Resolution",
+    "module_key": "aspose",
+    "module_label": "Aspose"
   },
   {
     "name": "Resources",
@@ -26292,7 +26748,9 @@
     ],
     "visibility": "public",
     "canonical_namespace": "Aspose::Pdf",
-    "class_import": "Aspose::Pdf::Resources"
+    "class_import": "Aspose::Pdf::Resources",
+    "module_key": "aspose",
+    "module_label": "Aspose"
   },
   {
     "name": "Rotation",
@@ -26323,7 +26781,9 @@
       }
     ],
     "canonical_namespace": "Aspose::Pdf",
-    "class_import": "Aspose::Pdf::Rotation"
+    "class_import": "Aspose::Pdf::Rotation",
+    "module_key": "aspose",
+    "module_label": "Aspose"
   },
   {
     "name": "Row",
@@ -26573,7 +27033,9 @@
     "properties": [],
     "visibility": "public",
     "canonical_namespace": "Aspose::Pdf",
-    "class_import": "Aspose::Pdf::Row"
+    "class_import": "Aspose::Pdf::Row",
+    "module_key": "aspose",
+    "module_label": "Aspose"
   },
   {
     "name": "Rows",
@@ -26697,7 +27159,9 @@
     ],
     "visibility": "public",
     "canonical_namespace": "Aspose::Pdf",
-    "class_import": "Aspose::Pdf::Rows"
+    "class_import": "Aspose::Pdf::Rows",
+    "module_key": "aspose",
+    "module_label": "Aspose"
   },
   {
     "name": "ShapeType",
@@ -26724,7 +27188,9 @@
       }
     ],
     "canonical_namespace": "Aspose::Pdf::Devices",
-    "class_import": "Aspose::Pdf::Devices::ShapeType"
+    "class_import": "Aspose::Pdf::Devices::ShapeType",
+    "module_key": "aspose",
+    "module_label": "Aspose"
   },
   {
     "name": "SvgLoadOptions",
@@ -26759,7 +27225,9 @@
     "properties": [],
     "visibility": "public",
     "canonical_namespace": "Aspose::Pdf",
-    "class_import": "Aspose::Pdf::SvgLoadOptions"
+    "class_import": "Aspose::Pdf::SvgLoadOptions",
+    "module_key": "aspose",
+    "module_label": "Aspose"
   },
   {
     "name": "Table",
@@ -27085,7 +27553,9 @@
     "properties": [],
     "visibility": "public",
     "canonical_namespace": "Aspose::Pdf",
-    "class_import": "Aspose::Pdf::Table"
+    "class_import": "Aspose::Pdf::Table",
+    "module_key": "aspose",
+    "module_label": "Aspose"
   },
   {
     "name": "TextAbsorber",
@@ -27167,7 +27637,9 @@
     ],
     "visibility": "public",
     "canonical_namespace": "Aspose::Pdf::Text",
-    "class_import": "Aspose::Pdf::Text::TextAbsorber"
+    "class_import": "Aspose::Pdf::Text::TextAbsorber",
+    "module_key": "aspose",
+    "module_label": "Aspose"
   },
   {
     "name": "TextBuilder",
@@ -27207,7 +27679,9 @@
     "properties": [],
     "visibility": "public",
     "canonical_namespace": "Aspose::Pdf::Text",
-    "class_import": "Aspose::Pdf::Text::TextBuilder"
+    "class_import": "Aspose::Pdf::Text::TextBuilder",
+    "module_key": "aspose",
+    "module_label": "Aspose"
   },
   {
     "name": "TextDevice",
@@ -27261,7 +27735,9 @@
     "properties": [],
     "visibility": "public",
     "canonical_namespace": "Aspose::Pdf::Devices",
-    "class_import": "Aspose::Pdf::Devices::TextDevice"
+    "class_import": "Aspose::Pdf::Devices::TextDevice",
+    "module_key": "aspose",
+    "module_label": "Aspose"
   },
   {
     "name": "TextFragment",
@@ -27341,7 +27817,9 @@
     "properties": [],
     "visibility": "public",
     "canonical_namespace": "Aspose::Pdf::Text",
-    "class_import": "Aspose::Pdf::Text::TextFragment"
+    "class_import": "Aspose::Pdf::Text::TextFragment",
+    "module_key": "aspose",
+    "module_label": "Aspose"
   },
   {
     "name": "TextFragmentAbsorber",
@@ -27397,7 +27875,9 @@
     "properties": [],
     "visibility": "public",
     "canonical_namespace": "Aspose::Pdf::Text",
-    "class_import": "Aspose::Pdf::Text::TextFragmentAbsorber"
+    "class_import": "Aspose::Pdf::Text::TextFragmentAbsorber",
+    "module_key": "aspose",
+    "module_label": "Aspose"
   },
   {
     "name": "TextFragmentCollection",
@@ -27427,7 +27907,9 @@
     "properties": [],
     "visibility": "public",
     "canonical_namespace": "Aspose::Pdf::Text",
-    "class_import": "Aspose::Pdf::Text::TextFragmentCollection"
+    "class_import": "Aspose::Pdf::Text::TextFragmentCollection",
+    "module_key": "aspose",
+    "module_label": "Aspose"
   },
   {
     "name": "TextFragmentState",
@@ -27449,7 +27931,9 @@
     "properties": [],
     "visibility": "public",
     "canonical_namespace": "Aspose::Pdf::Text",
-    "class_import": "Aspose::Pdf::Text::TextFragmentState"
+    "class_import": "Aspose::Pdf::Text::TextFragmentState",
+    "module_key": "aspose",
+    "module_label": "Aspose"
   },
   {
     "name": "TextParagraph",
@@ -27678,7 +28162,9 @@
     "properties": [],
     "visibility": "public",
     "canonical_namespace": "Aspose::Pdf::Text",
-    "class_import": "Aspose::Pdf::Text::TextParagraph"
+    "class_import": "Aspose::Pdf::Text::TextParagraph",
+    "module_key": "aspose",
+    "module_label": "Aspose"
   },
   {
     "name": "TextState",
@@ -28036,7 +28522,9 @@
     "properties": [],
     "visibility": "public",
     "canonical_namespace": "Aspose::Pdf::Text",
-    "class_import": "Aspose::Pdf::Text::TextState"
+    "class_import": "Aspose::Pdf::Text::TextState",
+    "module_key": "aspose",
+    "module_label": "Aspose"
   },
   {
     "name": "TiffDevice",
@@ -28187,7 +28675,9 @@
     "properties": [],
     "visibility": "public",
     "canonical_namespace": "Aspose::Pdf::Devices",
-    "class_import": "Aspose::Pdf::Devices::TiffDevice"
+    "class_import": "Aspose::Pdf::Devices::TiffDevice",
+    "module_key": "aspose",
+    "module_label": "Aspose"
   },
   {
     "name": "TiffSettings",
@@ -28335,7 +28825,9 @@
     "properties": [],
     "visibility": "public",
     "canonical_namespace": "Aspose::Pdf::Devices",
-    "class_import": "Aspose::Pdf::Devices::TiffSettings"
+    "class_import": "Aspose::Pdf::Devices::TiffSettings",
+    "module_key": "aspose",
+    "module_label": "Aspose"
   },
   {
     "name": "VerticalAlignment",
@@ -28366,7 +28858,9 @@
       }
     ],
     "canonical_namespace": "Aspose::Pdf",
-    "class_import": "Aspose::Pdf::VerticalAlignment"
+    "class_import": "Aspose::Pdf::VerticalAlignment",
+    "module_key": "aspose",
+    "module_label": "Aspose"
   },
   {
     "name": "WatermarkArtifact",
@@ -28379,7 +28873,9 @@
     "properties": [],
     "visibility": "public",
     "canonical_namespace": "Aspose::Pdf",
-    "class_import": "Aspose::Pdf::WatermarkArtifact"
+    "class_import": "Aspose::Pdf::WatermarkArtifact",
+    "module_key": "aspose",
+    "module_label": "Aspose"
   },
   {
     "name": "XImage",
@@ -28455,7 +28951,9 @@
     "properties": [],
     "visibility": "public",
     "canonical_namespace": "Aspose::Pdf",
-    "class_import": "Aspose::Pdf::XImage"
+    "class_import": "Aspose::Pdf::XImage",
+    "module_key": "aspose",
+    "module_label": "Aspose"
   },
   {
     "name": "XImageCollection",
@@ -28621,7 +29119,9 @@
     ],
     "visibility": "public",
     "canonical_namespace": "Aspose::Pdf",
-    "class_import": "Aspose::Pdf::XImageCollection"
+    "class_import": "Aspose::Pdf::XImageCollection",
+    "module_key": "aspose",
+    "module_label": "Aspose"
   },
   {
     "name": "XmpValue",
@@ -28814,7 +29314,9 @@
     ],
     "visibility": "public",
     "canonical_namespace": "Aspose::Pdf",
-    "class_import": "Aspose::Pdf::XmpValue"
+    "class_import": "Aspose::Pdf::XmpValue",
+    "module_key": "aspose",
+    "module_label": "Aspose"
   },
   {
     "name": "Entry",
@@ -28844,7 +29346,9 @@
     ],
     "visibility": "internal",
     "canonical_namespace": "foundation::agl",
-    "class_import": "foundation::agl::Entry"
+    "class_import": "foundation::agl::Entry",
+    "module_key": "internal",
+    "module_label": "Internal"
   },
   {
     "name": "BigUint",
@@ -28926,7 +29430,9 @@
     "properties": [],
     "visibility": "internal",
     "canonical_namespace": "foundation::bigint",
-    "class_import": "foundation::bigint::BigUint"
+    "class_import": "foundation::bigint::BigUint",
+    "module_key": "internal",
+    "module_label": "Internal"
   },
   {
     "name": "DecodedImage",
@@ -28972,7 +29478,9 @@
     ],
     "visibility": "internal",
     "canonical_namespace": "foundation::bmp_decoder",
-    "class_import": "foundation::bmp_decoder::DecodedImage"
+    "class_import": "foundation::bmp_decoder::DecodedImage",
+    "module_key": "internal",
+    "module_label": "Internal"
   },
   {
     "name": "ColorType",
@@ -28995,7 +29503,9 @@
       }
     ],
     "canonical_namespace": "foundation::bmp_encoder",
-    "class_import": "foundation::bmp_encoder::ColorType"
+    "class_import": "foundation::bmp_encoder::ColorType",
+    "module_key": "internal",
+    "module_label": "Internal"
   },
   {
     "name": "Options",
@@ -29017,7 +29527,9 @@
     ],
     "visibility": "internal",
     "canonical_namespace": "foundation::bmp_encoder",
-    "class_import": "foundation::bmp_encoder::Options"
+    "class_import": "foundation::bmp_encoder::Options",
+    "module_key": "internal",
+    "module_label": "Internal"
   },
   {
     "name": "Params",
@@ -29095,7 +29607,9 @@
     ],
     "visibility": "internal",
     "canonical_namespace": "foundation::ccitt",
-    "class_import": "foundation::ccitt::Params"
+    "class_import": "foundation::ccitt::Params",
+    "module_key": "internal",
+    "module_label": "Internal"
   },
   {
     "name": "DecodedImage",
@@ -29133,7 +29647,9 @@
     ],
     "visibility": "internal",
     "canonical_namespace": "foundation::ccitt",
-    "class_import": "foundation::ccitt::DecodedImage"
+    "class_import": "foundation::ccitt::DecodedImage",
+    "module_key": "internal",
+    "module_label": "Internal"
   },
   {
     "name": "PathOp",
@@ -29164,7 +29680,9 @@
       }
     ],
     "canonical_namespace": "foundation::cff",
-    "class_import": "foundation::cff::PathOp"
+    "class_import": "foundation::cff::PathOp",
+    "module_key": "internal",
+    "module_label": "Internal"
   },
   {
     "name": "PathSegment",
@@ -29194,7 +29712,9 @@
     ],
     "visibility": "internal",
     "canonical_namespace": "foundation::cff",
-    "class_import": "foundation::cff::PathSegment"
+    "class_import": "foundation::cff::PathSegment",
+    "module_key": "internal",
+    "module_label": "Internal"
   },
   {
     "name": "Glyph",
@@ -29248,7 +29768,9 @@
     ],
     "visibility": "internal",
     "canonical_namespace": "foundation::cff",
-    "class_import": "foundation::cff::Glyph"
+    "class_import": "foundation::cff::Glyph",
+    "module_key": "internal",
+    "module_label": "Internal"
   },
   {
     "name": "Cff",
@@ -29294,7 +29816,9 @@
     ],
     "visibility": "internal",
     "canonical_namespace": "foundation::cff",
-    "class_import": "foundation::cff::Cff"
+    "class_import": "foundation::cff::Cff",
+    "module_key": "internal",
+    "module_label": "Internal"
   },
   {
     "name": "Family",
@@ -29321,7 +29845,9 @@
       }
     ],
     "canonical_namespace": "foundation::colorspace",
-    "class_import": "foundation::colorspace::Family"
+    "class_import": "foundation::colorspace::Family",
+    "module_key": "internal",
+    "module_label": "Internal"
   },
   {
     "name": "ColorRgb",
@@ -29359,7 +29885,9 @@
     ],
     "visibility": "internal",
     "canonical_namespace": "foundation::colorspace",
-    "class_import": "foundation::colorspace::ColorRgb"
+    "class_import": "foundation::colorspace::ColorRgb",
+    "module_key": "internal",
+    "module_label": "Internal"
   },
   {
     "name": "Operation",
@@ -29389,7 +29917,9 @@
     ],
     "visibility": "internal",
     "canonical_namespace": "foundation::content_stream",
-    "class_import": "foundation::content_stream::Operation"
+    "class_import": "foundation::content_stream::Operation",
+    "module_key": "internal",
+    "module_label": "Internal"
   },
   {
     "name": "Stream",
@@ -29411,7 +29941,9 @@
     ],
     "visibility": "internal",
     "canonical_namespace": "foundation::content_stream",
-    "class_import": "foundation::content_stream::Stream"
+    "class_import": "foundation::content_stream::Stream",
+    "module_key": "internal",
+    "module_label": "Internal"
   },
   {
     "name": "Method",
@@ -29438,7 +29970,9 @@
       }
     ],
     "canonical_namespace": "foundation::crypt_filter",
-    "class_import": "foundation::crypt_filter::Method"
+    "class_import": "foundation::crypt_filter::Method",
+    "module_key": "internal",
+    "module_label": "Internal"
   },
   {
     "name": "Photometric",
@@ -29461,7 +29995,9 @@
       }
     ],
     "canonical_namespace": "foundation::dct_encoder",
-    "class_import": "foundation::dct_encoder::Photometric"
+    "class_import": "foundation::dct_encoder::Photometric",
+    "module_key": "internal",
+    "module_label": "Internal"
   },
   {
     "name": "Options",
@@ -29499,7 +30035,9 @@
     ],
     "visibility": "internal",
     "canonical_namespace": "foundation::dct_encoder",
-    "class_import": "foundation::dct_encoder::Options"
+    "class_import": "foundation::dct_encoder::Options",
+    "module_key": "internal",
+    "module_label": "Internal"
   },
   {
     "name": "DecodedImage",
@@ -29545,7 +30083,9 @@
     ],
     "visibility": "internal",
     "canonical_namespace": "foundation::dctdecode",
-    "class_import": "foundation::dctdecode::DecodedImage"
+    "class_import": "foundation::dctdecode::DecodedImage",
+    "module_key": "internal",
+    "module_label": "Internal"
   },
   {
     "name": "Bundle",
@@ -29599,7 +30139,9 @@
     ],
     "visibility": "internal",
     "canonical_namespace": "foundation::digest",
-    "class_import": "foundation::digest::Bundle"
+    "class_import": "foundation::digest::Bundle",
+    "module_key": "internal",
+    "module_label": "Internal"
   },
   {
     "name": "Encoding",
@@ -29783,7 +30325,9 @@
     ],
     "visibility": "internal",
     "canonical_namespace": "foundation::encoding",
-    "class_import": "foundation::encoding::Encoding"
+    "class_import": "foundation::encoding::Encoding",
+    "module_key": "internal",
+    "module_label": "Internal"
   },
   {
     "name": "Encoding",
@@ -29814,7 +30358,9 @@
       }
     ],
     "canonical_namespace": "foundation::encoding_tables",
-    "class_import": "foundation::encoding_tables::Encoding"
+    "class_import": "foundation::encoding_tables::Encoding",
+    "module_key": "internal",
+    "module_label": "Internal"
   },
   {
     "name": "EncryptDict",
@@ -29908,7 +30454,9 @@
     ],
     "visibility": "internal",
     "canonical_namespace": "foundation::encrypt_parser",
-    "class_import": "foundation::encrypt_parser::EncryptDict"
+    "class_import": "foundation::encrypt_parser::EncryptDict",
+    "module_key": "internal",
+    "module_label": "Internal"
   },
   {
     "name": "AuthResult",
@@ -29946,7 +30494,9 @@
     ],
     "visibility": "internal",
     "canonical_namespace": "foundation::encrypt_parser",
-    "class_import": "foundation::encrypt_parser::AuthResult"
+    "class_import": "foundation::encrypt_parser::AuthResult",
+    "module_key": "internal",
+    "module_label": "Internal"
   },
   {
     "name": "OutlineOp",
@@ -29977,7 +30527,9 @@
       }
     ],
     "canonical_namespace": "foundation::glyph_rasterizer",
-    "class_import": "foundation::glyph_rasterizer::OutlineOp"
+    "class_import": "foundation::glyph_rasterizer::OutlineOp",
+    "module_key": "internal",
+    "module_label": "Internal"
   },
   {
     "name": "OutlineSegment",
@@ -29999,7 +30551,9 @@
     ],
     "visibility": "internal",
     "canonical_namespace": "foundation::glyph_rasterizer",
-    "class_import": "foundation::glyph_rasterizer::OutlineSegment"
+    "class_import": "foundation::glyph_rasterizer::OutlineSegment",
+    "module_key": "internal",
+    "module_label": "Internal"
   },
   {
     "name": "Outline",
@@ -30021,7 +30575,9 @@
     ],
     "visibility": "internal",
     "canonical_namespace": "foundation::glyph_rasterizer",
-    "class_import": "foundation::glyph_rasterizer::Outline"
+    "class_import": "foundation::glyph_rasterizer::Outline",
+    "module_key": "internal",
+    "module_label": "Internal"
   },
   {
     "name": "DecodedImage",
@@ -30067,7 +30623,9 @@
     ],
     "visibility": "internal",
     "canonical_namespace": "foundation::glyph_rasterizer",
-    "class_import": "foundation::glyph_rasterizer::DecodedImage"
+    "class_import": "foundation::glyph_rasterizer::DecodedImage",
+    "module_key": "internal",
+    "module_label": "Internal"
   },
   {
     "name": "ImageSource",
@@ -30105,7 +30663,9 @@
     ],
     "visibility": "internal",
     "canonical_namespace": "foundation::image_compositor",
-    "class_import": "foundation::image_compositor::ImageSource"
+    "class_import": "foundation::image_compositor::ImageSource",
+    "module_key": "internal",
+    "module_label": "Internal"
   },
   {
     "name": "DecodedImage",
@@ -30151,7 +30711,9 @@
     ],
     "visibility": "internal",
     "canonical_namespace": "foundation::image_compositor",
-    "class_import": "foundation::image_compositor::DecodedImage"
+    "class_import": "foundation::image_compositor::DecodedImage",
+    "module_key": "internal",
+    "module_label": "Internal"
   },
   {
     "name": "DecodedImage",
@@ -30197,7 +30759,9 @@
     ],
     "visibility": "internal",
     "canonical_namespace": "foundation::jbig2",
-    "class_import": "foundation::jbig2::DecodedImage"
+    "class_import": "foundation::jbig2::DecodedImage",
+    "module_key": "internal",
+    "module_label": "Internal"
   },
   {
     "name": "DecodedImage",
@@ -30243,7 +30807,9 @@
     ],
     "visibility": "internal",
     "canonical_namespace": "foundation::jpx",
-    "class_import": "foundation::jpx::DecodedImage"
+    "class_import": "foundation::jpx::DecodedImage",
+    "module_key": "internal",
+    "module_label": "Internal"
   },
   {
     "name": "MqContext",
@@ -30273,7 +30839,9 @@
     ],
     "visibility": "internal",
     "canonical_namespace": "foundation::jpx::detail",
-    "class_import": "foundation::jpx::detail::MqContext"
+    "class_import": "foundation::jpx::detail::MqContext",
+    "module_key": "internal",
+    "module_label": "Internal"
   },
   {
     "name": "MqDecoder",
@@ -30300,7 +30868,9 @@
     "properties": [],
     "visibility": "internal",
     "canonical_namespace": "foundation::jpx::detail",
-    "class_import": "foundation::jpx::detail::MqDecoder"
+    "class_import": "foundation::jpx::detail::MqDecoder",
+    "module_key": "internal",
+    "module_label": "Internal"
   },
   {
     "name": "Component",
@@ -30330,7 +30900,9 @@
     ],
     "visibility": "internal",
     "canonical_namespace": "foundation::jpx::detail",
-    "class_import": "foundation::jpx::detail::Component"
+    "class_import": "foundation::jpx::detail::Component",
+    "module_key": "internal",
+    "module_label": "Internal"
   },
   {
     "name": "SubbandQuant",
@@ -30360,7 +30932,9 @@
     ],
     "visibility": "internal",
     "canonical_namespace": "foundation::jpx::detail",
-    "class_import": "foundation::jpx::detail::SubbandQuant"
+    "class_import": "foundation::jpx::detail::SubbandQuant",
+    "module_key": "internal",
+    "module_label": "Internal"
   },
   {
     "name": "Wavelet",
@@ -30383,7 +30957,9 @@
       }
     ],
     "canonical_namespace": "foundation::jpx::detail",
-    "class_import": "foundation::jpx::detail::Wavelet"
+    "class_import": "foundation::jpx::detail::Wavelet",
+    "module_key": "internal",
+    "module_label": "Internal"
   },
   {
     "name": "Tile",
@@ -30413,7 +30989,9 @@
     ],
     "visibility": "internal",
     "canonical_namespace": "foundation::jpx::detail",
-    "class_import": "foundation::jpx::detail::Tile"
+    "class_import": "foundation::jpx::detail::Tile",
+    "module_key": "internal",
+    "module_label": "Internal"
   },
   {
     "name": "Image",
@@ -30571,7 +31149,9 @@
     ],
     "visibility": "internal",
     "canonical_namespace": "foundation::jpx::detail",
-    "class_import": "foundation::jpx::detail::Image"
+    "class_import": "foundation::jpx::detail::Image",
+    "module_key": "internal",
+    "module_label": "Internal"
   },
   {
     "name": "TokenKind",
@@ -30638,7 +31218,9 @@
       }
     ],
     "canonical_namespace": "foundation",
-    "class_import": "foundation::TokenKind"
+    "class_import": "foundation::TokenKind",
+    "module_key": "internal",
+    "module_label": "Internal"
   },
   {
     "name": "Token",
@@ -30676,7 +31258,9 @@
     ],
     "visibility": "internal",
     "canonical_namespace": "foundation",
-    "class_import": "foundation::Token"
+    "class_import": "foundation::Token",
+    "module_key": "internal",
+    "module_label": "Internal"
   },
   {
     "name": "Lexer",
@@ -30714,7 +31298,9 @@
     "properties": [],
     "visibility": "internal",
     "canonical_namespace": "foundation",
-    "class_import": "foundation::Lexer"
+    "class_import": "foundation::Lexer",
+    "module_key": "internal",
+    "module_label": "Internal"
   },
   {
     "name": "EarlyChange",
@@ -30737,7 +31323,9 @@
       }
     ],
     "canonical_namespace": "foundation::lzw",
-    "class_import": "foundation::lzw::EarlyChange"
+    "class_import": "foundation::lzw::EarlyChange",
+    "module_key": "internal",
+    "module_label": "Internal"
   },
   {
     "name": "StringKind",
@@ -30760,7 +31348,9 @@
       }
     ],
     "canonical_namespace": "foundation::objects",
-    "class_import": "foundation::objects::StringKind"
+    "class_import": "foundation::objects::StringKind",
+    "module_key": "internal",
+    "module_label": "Internal"
   },
   {
     "name": "String",
@@ -30790,7 +31380,9 @@
     ],
     "visibility": "internal",
     "canonical_namespace": "foundation::objects",
-    "class_import": "foundation::objects::String"
+    "class_import": "foundation::objects::String",
+    "module_key": "internal",
+    "module_label": "Internal"
   },
   {
     "name": "Ref",
@@ -30820,7 +31412,9 @@
     ],
     "visibility": "internal",
     "canonical_namespace": "foundation::objects",
-    "class_import": "foundation::objects::Ref"
+    "class_import": "foundation::objects::Ref",
+    "module_key": "internal",
+    "module_label": "Internal"
   },
   {
     "name": "Array",
@@ -30842,7 +31436,9 @@
     ],
     "visibility": "internal",
     "canonical_namespace": "foundation::objects",
-    "class_import": "foundation::objects::Array"
+    "class_import": "foundation::objects::Array",
+    "module_key": "internal",
+    "module_label": "Internal"
   },
   {
     "name": "Dict",
@@ -30864,7 +31460,9 @@
     ],
     "visibility": "internal",
     "canonical_namespace": "foundation::objects",
-    "class_import": "foundation::objects::Dict"
+    "class_import": "foundation::objects::Dict",
+    "module_key": "internal",
+    "module_label": "Internal"
   },
   {
     "name": "Stream",
@@ -30894,7 +31492,9 @@
     ],
     "visibility": "internal",
     "canonical_namespace": "foundation::objects",
-    "class_import": "foundation::objects::Stream"
+    "class_import": "foundation::objects::Stream",
+    "module_key": "internal",
+    "module_label": "Internal"
   },
   {
     "name": "Value",
@@ -30916,7 +31516,9 @@
     ],
     "visibility": "internal",
     "canonical_namespace": "foundation::objects",
-    "class_import": "foundation::objects::Value"
+    "class_import": "foundation::objects::Value",
+    "module_key": "internal",
+    "module_label": "Internal"
   },
   {
     "name": "IndirectObject",
@@ -30954,7 +31556,9 @@
     ],
     "visibility": "internal",
     "canonical_namespace": "foundation::objects",
-    "class_import": "foundation::objects::IndirectObject"
+    "class_import": "foundation::objects::IndirectObject",
+    "module_key": "internal",
+    "module_label": "Internal"
   },
   {
     "name": "Dump",
@@ -30976,7 +31580,9 @@
     ],
     "visibility": "internal",
     "canonical_namespace": "foundation::objects",
-    "class_import": "foundation::objects::Dump"
+    "class_import": "foundation::objects::Dump",
+    "module_key": "internal",
+    "module_label": "Internal"
   },
   {
     "name": "OutlineItem",
@@ -31006,7 +31612,9 @@
     ],
     "visibility": "internal",
     "canonical_namespace": "foundation::outlines",
-    "class_import": "foundation::outlines::OutlineItem"
+    "class_import": "foundation::outlines::OutlineItem",
+    "module_key": "internal",
+    "module_label": "Internal"
   },
   {
     "name": "Outline",
@@ -31028,7 +31636,9 @@
     ],
     "visibility": "internal",
     "canonical_namespace": "foundation::outlines",
-    "class_import": "foundation::outlines::Outline"
+    "class_import": "foundation::outlines::Outline",
+    "module_key": "internal",
+    "module_label": "Internal"
   },
   {
     "name": "RenderedPage",
@@ -31066,7 +31676,9 @@
     ],
     "visibility": "internal",
     "canonical_namespace": "foundation::page_renderer",
-    "class_import": "foundation::page_renderer::RenderedPage"
+    "class_import": "foundation::page_renderer::RenderedPage",
+    "module_key": "internal",
+    "module_label": "Internal"
   },
   {
     "name": "LeafPage",
@@ -31120,7 +31732,9 @@
     ],
     "visibility": "internal",
     "canonical_namespace": "foundation::pages_tree",
-    "class_import": "foundation::pages_tree::LeafPage"
+    "class_import": "foundation::pages_tree::LeafPage",
+    "module_key": "internal",
+    "module_label": "Internal"
   },
   {
     "name": "Tree",
@@ -31142,7 +31756,9 @@
     ],
     "visibility": "internal",
     "canonical_namespace": "foundation::pages_tree",
-    "class_import": "foundation::pages_tree::Tree"
+    "class_import": "foundation::pages_tree::Tree",
+    "module_key": "internal",
+    "module_label": "Internal"
   },
   {
     "name": "IndexedImage",
@@ -31188,7 +31804,9 @@
     ],
     "visibility": "internal",
     "canonical_namespace": "foundation::palette_quantiser",
-    "class_import": "foundation::palette_quantiser::IndexedImage"
+    "class_import": "foundation::palette_quantiser::IndexedImage",
+    "module_key": "internal",
+    "module_label": "Internal"
   },
   {
     "name": "DecodedImage",
@@ -31234,7 +31852,9 @@
     ],
     "visibility": "internal",
     "canonical_namespace": "foundation::png_decoder",
-    "class_import": "foundation::png_decoder::DecodedImage"
+    "class_import": "foundation::png_decoder::DecodedImage",
+    "module_key": "internal",
+    "module_label": "Internal"
   },
   {
     "name": "ColorType",
@@ -31261,7 +31881,9 @@
       }
     ],
     "canonical_namespace": "foundation::png_encoder",
-    "class_import": "foundation::png_encoder::ColorType"
+    "class_import": "foundation::png_encoder::ColorType",
+    "module_key": "internal",
+    "module_label": "Internal"
   },
   {
     "name": "Options",
@@ -31283,7 +31905,9 @@
     ],
     "visibility": "internal",
     "canonical_namespace": "foundation::png_encoder",
-    "class_import": "foundation::png_encoder::Options"
+    "class_import": "foundation::png_encoder::Options",
+    "module_key": "internal",
+    "module_label": "Internal"
   },
   {
     "name": "FillRule",
@@ -31306,7 +31930,9 @@
       }
     ],
     "canonical_namespace": "foundation::rasterizer",
-    "class_import": "foundation::rasterizer::FillRule"
+    "class_import": "foundation::rasterizer::FillRule",
+    "module_key": "internal",
+    "module_label": "Internal"
   },
   {
     "name": "SegmentKind",
@@ -31337,7 +31963,9 @@
       }
     ],
     "canonical_namespace": "foundation::rasterizer",
-    "class_import": "foundation::rasterizer::SegmentKind"
+    "class_import": "foundation::rasterizer::SegmentKind",
+    "module_key": "internal",
+    "module_label": "Internal"
   },
   {
     "name": "PathSegment",
@@ -31359,7 +31987,9 @@
     ],
     "visibility": "internal",
     "canonical_namespace": "foundation::rasterizer",
-    "class_import": "foundation::rasterizer::PathSegment"
+    "class_import": "foundation::rasterizer::PathSegment",
+    "module_key": "internal",
+    "module_label": "Internal"
   },
   {
     "name": "Path",
@@ -31381,7 +32011,9 @@
     ],
     "visibility": "internal",
     "canonical_namespace": "foundation::rasterizer",
-    "class_import": "foundation::rasterizer::Path"
+    "class_import": "foundation::rasterizer::Path",
+    "module_key": "internal",
+    "module_label": "Internal"
   },
   {
     "name": "Raster",
@@ -31419,7 +32051,9 @@
     ],
     "visibility": "internal",
     "canonical_namespace": "foundation::rasterizer",
-    "class_import": "foundation::rasterizer::Raster"
+    "class_import": "foundation::rasterizer::Raster",
+    "module_key": "internal",
+    "module_label": "Internal"
   },
   {
     "name": "ClipRect",
@@ -31441,7 +32075,9 @@
     ],
     "visibility": "internal",
     "canonical_namespace": "foundation::rasterizer",
-    "class_import": "foundation::rasterizer::ClipRect"
+    "class_import": "foundation::rasterizer::ClipRect",
+    "module_key": "internal",
+    "module_label": "Internal"
   },
   {
     "name": "DecodedImage",
@@ -31487,7 +32123,9 @@
     ],
     "visibility": "internal",
     "canonical_namespace": "foundation::rasterizer",
-    "class_import": "foundation::rasterizer::DecodedImage"
+    "class_import": "foundation::rasterizer::DecodedImage",
+    "module_key": "internal",
+    "module_label": "Internal"
   },
   {
     "name": "FontDescriptor",
@@ -31557,7 +32195,9 @@
     ],
     "visibility": "internal",
     "canonical_namespace": "foundation::standard14_metrics",
-    "class_import": "foundation::standard14_metrics::FontDescriptor"
+    "class_import": "foundation::standard14_metrics::FontDescriptor",
+    "module_key": "internal",
+    "module_label": "Internal"
   },
   {
     "name": "DecodedImage",
@@ -31603,7 +32243,9 @@
     ],
     "visibility": "internal",
     "canonical_namespace": "foundation::tiff_decoder",
-    "class_import": "foundation::tiff_decoder::DecodedImage"
+    "class_import": "foundation::tiff_decoder::DecodedImage",
+    "module_key": "internal",
+    "module_label": "Internal"
   },
   {
     "name": "Page",
@@ -31641,7 +32283,9 @@
     ],
     "visibility": "internal",
     "canonical_namespace": "foundation::tiff_encoder",
-    "class_import": "foundation::tiff_encoder::Page"
+    "class_import": "foundation::tiff_encoder::Page",
+    "module_key": "internal",
+    "module_label": "Internal"
   },
   {
     "name": "Compression",
@@ -31672,7 +32316,9 @@
       }
     ],
     "canonical_namespace": "foundation::tiff_encoder",
-    "class_import": "foundation::tiff_encoder::Compression"
+    "class_import": "foundation::tiff_encoder::Compression",
+    "module_key": "internal",
+    "module_label": "Internal"
   },
   {
     "name": "Photometric",
@@ -31703,7 +32349,9 @@
       }
     ],
     "canonical_namespace": "foundation::tiff_encoder",
-    "class_import": "foundation::tiff_encoder::Photometric"
+    "class_import": "foundation::tiff_encoder::Photometric",
+    "module_key": "internal",
+    "module_label": "Internal"
   },
   {
     "name": "Options",
@@ -31765,7 +32413,9 @@
     ],
     "visibility": "internal",
     "canonical_namespace": "foundation::tiff_encoder",
-    "class_import": "foundation::tiff_encoder::Options"
+    "class_import": "foundation::tiff_encoder::Options",
+    "module_key": "internal",
+    "module_label": "Internal"
   },
   {
     "name": "CodespaceRange",
@@ -31803,7 +32453,9 @@
     ],
     "visibility": "internal",
     "canonical_namespace": "foundation::to_unicode",
-    "class_import": "foundation::to_unicode::CodespaceRange"
+    "class_import": "foundation::to_unicode::CodespaceRange",
+    "module_key": "internal",
+    "module_label": "Internal"
   },
   {
     "name": "Mapping",
@@ -31841,7 +32493,9 @@
     ],
     "visibility": "internal",
     "canonical_namespace": "foundation::to_unicode",
-    "class_import": "foundation::to_unicode::Mapping"
+    "class_import": "foundation::to_unicode::Mapping",
+    "module_key": "internal",
+    "module_label": "Internal"
   },
   {
     "name": "ToUnicode",
@@ -31871,7 +32525,9 @@
     ],
     "visibility": "internal",
     "canonical_namespace": "foundation::to_unicode",
-    "class_import": "foundation::to_unicode::ToUnicode"
+    "class_import": "foundation::to_unicode::ToUnicode",
+    "module_key": "internal",
+    "module_label": "Internal"
   },
   {
     "name": "Trailer",
@@ -31917,7 +32573,9 @@
     ],
     "visibility": "internal",
     "canonical_namespace": "foundation::trailer",
-    "class_import": "foundation::trailer::Trailer"
+    "class_import": "foundation::trailer::Trailer",
+    "module_key": "internal",
+    "module_label": "Internal"
   },
   {
     "name": "Matrix",
@@ -31979,7 +32637,9 @@
     ],
     "visibility": "internal",
     "canonical_namespace": "foundation::transform",
-    "class_import": "foundation::transform::Matrix"
+    "class_import": "foundation::transform::Matrix",
+    "module_key": "internal",
+    "module_label": "Internal"
   },
   {
     "name": "Point",
@@ -32009,7 +32669,9 @@
     ],
     "visibility": "internal",
     "canonical_namespace": "foundation::transform",
-    "class_import": "foundation::transform::Point"
+    "class_import": "foundation::transform::Point",
+    "module_key": "internal",
+    "module_label": "Internal"
   },
   {
     "name": "Rect",
@@ -32055,7 +32717,9 @@
     ],
     "visibility": "internal",
     "canonical_namespace": "foundation::transform",
-    "class_import": "foundation::transform::Rect"
+    "class_import": "foundation::transform::Rect",
+    "module_key": "internal",
+    "module_label": "Internal"
   },
   {
     "name": "CmapEntry",
@@ -32085,7 +32749,9 @@
     ],
     "visibility": "internal",
     "canonical_namespace": "foundation::truetype",
-    "class_import": "foundation::truetype::CmapEntry"
+    "class_import": "foundation::truetype::CmapEntry",
+    "module_key": "internal",
+    "module_label": "Internal"
   },
   {
     "name": "GlyphPoint",
@@ -32123,7 +32789,9 @@
     ],
     "visibility": "internal",
     "canonical_namespace": "foundation::truetype",
-    "class_import": "foundation::truetype::GlyphPoint"
+    "class_import": "foundation::truetype::GlyphPoint",
+    "module_key": "internal",
+    "module_label": "Internal"
   },
   {
     "name": "Glyph",
@@ -32153,7 +32821,9 @@
     ],
     "visibility": "internal",
     "canonical_namespace": "foundation::truetype",
-    "class_import": "foundation::truetype::Glyph"
+    "class_import": "foundation::truetype::Glyph",
+    "module_key": "internal",
+    "module_label": "Internal"
   },
   {
     "name": "TrueType",
@@ -32223,7 +32893,9 @@
     ],
     "visibility": "internal",
     "canonical_namespace": "foundation::truetype",
-    "class_import": "foundation::truetype::TrueType"
+    "class_import": "foundation::truetype::TrueType",
+    "module_key": "internal",
+    "module_label": "Internal"
   },
   {
     "name": "Properties",
@@ -32253,7 +32925,9 @@
     ],
     "visibility": "internal",
     "canonical_namespace": "foundation::xmp",
-    "class_import": "foundation::xmp::Properties"
+    "class_import": "foundation::xmp::Properties",
+    "module_key": "internal",
+    "module_label": "Internal"
   },
   {
     "name": "EntryKind",
@@ -32276,7 +32950,9 @@
       }
     ],
     "canonical_namespace": "foundation::xref",
-    "class_import": "foundation::xref::EntryKind"
+    "class_import": "foundation::xref::EntryKind",
+    "module_key": "internal",
+    "module_label": "Internal"
   },
   {
     "name": "Entry",
@@ -32330,7 +33006,9 @@
     ],
     "visibility": "internal",
     "canonical_namespace": "foundation::xref",
-    "class_import": "foundation::xref::Entry"
+    "class_import": "foundation::xref::Entry",
+    "module_key": "internal",
+    "module_label": "Internal"
   },
   {
     "name": "Table",
@@ -32392,6 +33070,8 @@
     ],
     "visibility": "internal",
     "canonical_namespace": "foundation::xref",
-    "class_import": "foundation::xref::Table"
+    "class_import": "foundation::xref::Table",
+    "module_key": "internal",
+    "module_label": "Internal"
   }
 ]

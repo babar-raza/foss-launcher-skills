@@ -19,7 +19,11 @@
     "formats_referenced": [
       "pdf"
     ],
-    "provenance": "scout"
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "3435314587f303860500d4bff0e65e57018d5e4814754030de8329db384449ed",
+      "norm": "6a59327e23eb9be1b7d3a2abba598889119e779fec2990dd71f227fe4780886b"
+    }
   },
   {
     "id": "snippet_002",
@@ -37,7 +41,11 @@
       "Title.GetChildNodes"
     ],
     "formats_referenced": [],
-    "provenance": "scout"
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "23c4eadb5536dd4808219e7f1a4f301dda26b0db580baa3cd3fb151c31daf9c7",
+      "norm": "23c4eadb5536dd4808219e7f1a4f301dda26b0db580baa3cd3fb151c31daf9c7"
+    }
   },
   {
     "id": "snippet_003",
@@ -55,7 +63,11 @@
       "Outline.GetChildNodes"
     ],
     "formats_referenced": [],
-    "provenance": "scout"
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "927bf5ad02994efa6a72d2ce2c712fc34a05bb145e0f3d42ccdd9bed27f5a5b9",
+      "norm": "927bf5ad02994efa6a72d2ce2c712fc34a05bb145e0f3d42ccdd9bed27f5a5b9"
+    }
   },
   {
     "id": "snippet_004",
@@ -73,7 +85,11 @@
     "formats_referenced": [
       "pdf"
     ],
-    "provenance": "scout"
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "5e35a86cf1aea47e14c4635e5bcd78b3fab63a2fad53f80df857d98fee5e1276",
+      "norm": "5e35a86cf1aea47e14c4635e5bcd78b3fab63a2fad53f80df857d98fee5e1276"
+    }
   },
   {
     "id": "snippet_005",
@@ -91,7 +107,11 @@
       "Image.GetChildNodes"
     ],
     "formats_referenced": [],
-    "provenance": "scout"
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "5d94cdec8c20094c35c940a3bf96eda74c3a063f27bbea2c87dc349551976c60",
+      "norm": "5d94cdec8c20094c35c940a3bf96eda74c3a063f27bbea2c87dc349551976c60"
+    }
   },
   {
     "id": "snippet_006",
@@ -109,7 +129,11 @@
       "Image.GetChildNodes"
     ],
     "formats_referenced": [],
-    "provenance": "scout"
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "aef02f7a622b2f9c6d83166a4a2aa5cecd6ae3ee6b60f38375113ccfa0dfb7fc",
+      "norm": "aef02f7a622b2f9c6d83166a4a2aa5cecd6ae3ee6b60f38375113ccfa0dfb7fc"
+    }
   },
   {
     "id": "snippet_007",
@@ -127,7 +151,11 @@
       "Image.GetChildNodes"
     ],
     "formats_referenced": [],
-    "provenance": "scout"
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "2fce148123d990c492d394818c68a673b74423c329f59dc18daf0129a497cb86",
+      "norm": "2fce148123d990c492d394818c68a673b74423c329f59dc18daf0129a497cb86"
+    }
   },
   {
     "id": "snippet_008",
@@ -146,7 +174,11 @@
       "Image.GetChildNodes"
     ],
     "formats_referenced": [],
-    "provenance": "scout"
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "0394aac23e81d07657bff6aeca59863affee64ab52f51a1c5f77ffa10b508dd8",
+      "norm": "0394aac23e81d07657bff6aeca59863affee64ab52f51a1c5f77ffa10b508dd8"
+    }
   },
   {
     "id": "snippet_009",
@@ -165,7 +197,11 @@
       "Image.GetChildNodes"
     ],
     "formats_referenced": [],
-    "provenance": "scout"
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "f31889b91da748087362445948ec928e25b5903788279ca1f72cf446872b8383",
+      "norm": "f31889b91da748087362445948ec928e25b5903788279ca1f72cf446872b8383"
+    }
   },
   {
     "id": "snippet_010",
@@ -179,7 +215,11 @@
     ],
     "methods_used": [],
     "formats_referenced": [],
-    "provenance": "scout"
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "4e94cc92702a6c54d06f21d093cdbc02a0e475717b2f985ffc0c06725d63e90c",
+      "norm": "4e94cc92702a6c54d06f21d093cdbc02a0e475717b2f985ffc0c06725d63e90c"
+    }
   },
   {
     "id": "snippet_011",
@@ -196,7 +236,11 @@
       "NoteTag.CreateYellowStar"
     ],
     "formats_referenced": [],
-    "provenance": "scout"
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "fb373165812d00c276c66acba06d4e8633eaac1f55034138f05e17d583296b53",
+      "norm": "fb373165812d00c276c66acba06d4e8633eaac1f55034138f05e17d583296b53"
+    }
   },
   {
     "id": "snippet_012",
@@ -218,7 +262,11 @@
       "TableRow.GetChildNodes"
     ],
     "formats_referenced": [],
-    "provenance": "scout"
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "de2c515b2001d3bef60ebb612b43b4523765b5b41c9883ef32068f26eca4d104",
+      "norm": "de2c515b2001d3bef60ebb612b43b4523765b5b41c9883ef32068f26eca4d104"
+    }
   },
   {
     "id": "snippet_013",
@@ -236,7 +284,11 @@
       "NoteTag.CreateYellowStar"
     ],
     "formats_referenced": [],
-    "provenance": "scout"
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "57ac4bdb0908f7b568d7ffef940e35839e51f05612106f6f7424283570fb8265",
+      "norm": "57ac4bdb0908f7b568d7ffef940e35839e51f05612106f6f7424283570fb8265"
+    }
   },
   {
     "id": "snippet_014",
@@ -253,7 +305,11 @@
       "Document.GetChildNodes"
     ],
     "formats_referenced": [],
-    "provenance": "scout"
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "721f53f2999041590d59750527126066ac8afd05ef4ab22743c7e46ef3b722cb",
+      "norm": "721f53f2999041590d59750527126066ac8afd05ef4ab22743c7e46ef3b722cb"
+    }
   },
   {
     "id": "snippet_015",
@@ -270,7 +326,11 @@
       "NoteTag.CreateYellowStar"
     ],
     "formats_referenced": [],
-    "provenance": "scout"
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "77903d8a61585b8defde7fa569ab729e556854255e5a0147261d9617e5cd8e9a",
+      "norm": "77903d8a61585b8defde7fa569ab729e556854255e5a0147261d9617e5cd8e9a"
+    }
   },
   {
     "id": "snippet_016",
@@ -283,7 +343,11 @@
     ],
     "methods_used": [],
     "formats_referenced": [],
-    "provenance": "scout"
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "803dcc0a99eb5241ff28f5f28d9982ec5e5558716440d5ec3465e0b43683f6c4",
+      "norm": "803dcc0a99eb5241ff28f5f28d9982ec5e5558716440d5ec3465e0b43683f6c4"
+    }
   },
   {
     "id": "snippet_017",
@@ -296,7 +360,11 @@
     ],
     "methods_used": [],
     "formats_referenced": [],
-    "provenance": "scout"
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "0bfd9076ee89ccb3dcad566fdf1640c12c95f42f48301cdef554e8c7e93d1f65",
+      "norm": "0bfd9076ee89ccb3dcad566fdf1640c12c95f42f48301cdef554e8c7e93d1f65"
+    }
   },
   {
     "id": "snippet_018",
@@ -310,7 +378,11 @@
     ],
     "methods_used": [],
     "formats_referenced": [],
-    "provenance": "scout"
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "3b556ac4f36d2eb97f3f89bf27a57e51860bb19cff09f379ce1facc628579569",
+      "norm": "3b556ac4f36d2eb97f3f89bf27a57e51860bb19cff09f379ce1facc628579569"
+    }
   },
   {
     "id": "snippet_019",
@@ -330,7 +402,11 @@
       "Title.GetChildNodes"
     ],
     "formats_referenced": [],
-    "provenance": "scout"
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "570b01ceffa987047ed282dfbcf43fcc623366eace97c4807233d4927e84f2f3",
+      "norm": "570b01ceffa987047ed282dfbcf43fcc623366eace97c4807233d4927e84f2f3"
+    }
   },
   {
     "id": "snippet_020",
@@ -352,7 +428,11 @@
     "formats_referenced": [
       "pdf"
     ],
-    "provenance": "scout"
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "296ce6605a0d90b24722a4a3b866ec05cbb63cc7fd372c70067da020a7de4f3a",
+      "norm": "296ce6605a0d90b24722a4a3b866ec05cbb63cc7fd372c70067da020a7de4f3a"
+    }
   },
   {
     "id": "snippet_021",
@@ -370,7 +450,11 @@
       "Document.GetChildNodes"
     ],
     "formats_referenced": [],
-    "provenance": "scout"
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "a545b2ec36323469fca1ca9c913a3c6bd7c1e2afa739696b90a6f604d3928f67",
+      "norm": "a545b2ec36323469fca1ca9c913a3c6bd7c1e2afa739696b90a6f604d3928f67"
+    }
   },
   {
     "id": "snippet_022",
@@ -390,7 +474,11 @@
       "Page.GetChildNodes"
     ],
     "formats_referenced": [],
-    "provenance": "scout"
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "9d8fe311bbf070eaa046f8b1e10681cc66c8ea89a321d378af5f42c84c556488",
+      "norm": "9d8fe311bbf070eaa046f8b1e10681cc66c8ea89a321d378af5f42c84c556488"
+    }
   },
   {
     "id": "snippet_023",
@@ -409,7 +497,11 @@
       "Page.GetChildNodes"
     ],
     "formats_referenced": [],
-    "provenance": "scout"
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "fe58038e804faf55c68a978e5d6d65695c4c03c1950e7e9cb5d24b0626121d43",
+      "norm": "fe58038e804faf55c68a978e5d6d65695c4c03c1950e7e9cb5d24b0626121d43"
+    }
   },
   {
     "id": "snippet_024",
@@ -427,7 +519,11 @@
       "Page.Accept"
     ],
     "formats_referenced": [],
-    "provenance": "scout"
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "326637e49d27c5f26ebabf43bb768748ee0a2a104f9061efb722939f5a887ceb",
+      "norm": "326637e49d27c5f26ebabf43bb768748ee0a2a104f9061efb722939f5a887ceb"
+    }
   },
   {
     "id": "snippet_025",
@@ -452,7 +548,11 @@
       "Title.GetChildNodes"
     ],
     "formats_referenced": [],
-    "provenance": "scout"
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "f6c94f749652cc353929750e5ea2d038e4562867676f8e54ca879f57bb8980b4",
+      "norm": "f6c94f749652cc353929750e5ea2d038e4562867676f8e54ca879f57bb8980b4"
+    }
   },
   {
     "id": "snippet_026",
@@ -476,7 +576,11 @@
       "Title.GetChildNodes"
     ],
     "formats_referenced": [],
-    "provenance": "scout"
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "61f6b343e962094c042ca59c1f427ea8d29424b46e3a7353d33bdab77c7a7f22",
+      "norm": "61f6b343e962094c042ca59c1f427ea8d29424b46e3a7353d33bdab77c7a7f22"
+    }
   },
   {
     "id": "snippet_027",
@@ -493,7 +597,11 @@
       "Metered.SetMeteredKey"
     ],
     "formats_referenced": [],
-    "provenance": "scout"
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "9959b9f6d3d5cd04706764b3d199e8012ee50baa23e95ae523c062cc3b2ad7f0",
+      "norm": "9959b9f6d3d5cd04706764b3d199e8012ee50baa23e95ae523c062cc3b2ad7f0"
+    }
   },
   {
     "id": "snippet_028",
@@ -511,7 +619,11 @@
     ],
     "methods_used": [],
     "formats_referenced": [],
-    "provenance": "scout"
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "79f7cac93205a83741ca2290ee9b92fb9d2215cbc8a0df72b272285b0b26366a",
+      "norm": "79f7cac93205a83741ca2290ee9b92fb9d2215cbc8a0df72b272285b0b26366a"
+    }
   },
   {
     "id": "snippet_029",
@@ -527,7 +639,11 @@
     ],
     "methods_used": [],
     "formats_referenced": [],
-    "provenance": "scout"
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "75f2e53d1f665aec4eb8494dea28d5e6551806645dc8da0b06f124bc79ef8b03",
+      "norm": "75f2e53d1f665aec4eb8494dea28d5e6551806645dc8da0b06f124bc79ef8b03"
+    }
   },
   {
     "id": "snippet_030",
@@ -544,7 +660,11 @@
       "Page.AppendChildLast"
     ],
     "formats_referenced": [],
-    "provenance": "scout"
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "cefa5fb001ac42c0f1d551e1b3b0d7a8f66a73b280987fd6b8b1be431043930c",
+      "norm": "cefa5fb001ac42c0f1d551e1b3b0d7a8f66a73b280987fd6b8b1be431043930c"
+    }
   },
   {
     "id": "snippet_031",
@@ -562,7 +682,11 @@
       "Page.AppendChildLast"
     ],
     "formats_referenced": [],
-    "provenance": "scout"
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "154a7a9b78476f30ffeb55bf62d7c0af64da8664c3b729831432491e982ed3c0",
+      "norm": "154a7a9b78476f30ffeb55bf62d7c0af64da8664c3b729831432491e982ed3c0"
+    }
   },
   {
     "id": "snippet_032",
@@ -578,7 +702,11 @@
       "NoteTag.CreateQuestionMark"
     ],
     "formats_referenced": [],
-    "provenance": "scout"
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "d7b2604e49a8182afe210bf8213889e774f491c0cd47ee242d3700ecfc41bfcd",
+      "norm": "d7b2604e49a8182afe210bf8213889e774f491c0cd47ee242d3700ecfc41bfcd"
+    }
   },
   {
     "id": "snippet_033",
@@ -594,7 +722,11 @@
       "NoteTag.CreateYellowStar"
     ],
     "formats_referenced": [],
-    "provenance": "scout"
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "1e85cbc09ef00495fb3eaa56c0a08a65bb6a65dc6c56220b987aa77f4133b6bb",
+      "norm": "1e85cbc09ef00495fb3eaa56c0a08a65bb6a65dc6c56220b987aa77f4133b6bb"
+    }
   },
   {
     "id": "snippet_034",
@@ -608,7 +740,11 @@
     ],
     "methods_used": [],
     "formats_referenced": [],
-    "provenance": "scout"
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "661ec1953f1f933f7d85179dbed2fec6e135f1949b07af54c984bd347291d620",
+      "norm": "661ec1953f1f933f7d85179dbed2fec6e135f1949b07af54c984bd347291d620"
+    }
   },
   {
     "id": "snippet_035",
@@ -624,7 +760,11 @@
     "formats_referenced": [
       "onenote2007"
     ],
-    "provenance": "scout"
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "a78632414cb57e2aa2f231c90d8f022a801a770ad2d7124fe8af7c21c2a6e827",
+      "norm": "a78632414cb57e2aa2f231c90d8f022a801a770ad2d7124fe8af7c21c2a6e827"
+    }
   },
   {
     "id": "snippet_036",
@@ -638,7 +778,11 @@
     ],
     "methods_used": [],
     "formats_referenced": [],
-    "provenance": "scout"
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "27b53ed0a76a606b82c8961ebb6381b09d2afad92cc767a0713af88b6e57e982",
+      "norm": "27b53ed0a76a606b82c8961ebb6381b09d2afad92cc767a0713af88b6e57e982"
+    }
   },
   {
     "id": "snippet_037",
@@ -652,7 +796,11 @@
     ],
     "methods_used": [],
     "formats_referenced": [],
-    "provenance": "scout"
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "e49d3bada176db8f0dab176a988b87dbd43cfe1594cc3f0772ea8bb1edb0b913",
+      "norm": "e49d3bada176db8f0dab176a988b87dbd43cfe1594cc3f0772ea8bb1edb0b913"
+    }
   },
   {
     "id": "snippet_038",
@@ -673,7 +821,11 @@
       "Page.GetChildNodes"
     ],
     "formats_referenced": [],
-    "provenance": "scout"
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "a6e2c837231dc28335e7aac06991fddc8928c41f81f915a5184636ad329c49de",
+      "norm": "a6e2c837231dc28335e7aac06991fddc8928c41f81f915a5184636ad329c49de"
+    }
   },
   {
     "id": "snippet_039",
@@ -689,7 +841,11 @@
     ],
     "methods_used": [],
     "formats_referenced": [],
-    "provenance": "scout"
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "73610d769b2f54373ce2ff9c683ca0a8611ef25212de6e634d341d2ee947f431",
+      "norm": "73610d769b2f54373ce2ff9c683ca0a8611ef25212de6e634d341d2ee947f431"
+    }
   },
   {
     "id": "snippet_040",
@@ -712,7 +868,11 @@
       "Table.GetChildNodes"
     ],
     "formats_referenced": [],
-    "provenance": "scout"
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "d533c715d5daa511729537749d1814523646bd00cba7afc63bd727ed112012a2",
+      "norm": "d533c715d5daa511729537749d1814523646bd00cba7afc63bd727ed112012a2"
+    }
   },
   {
     "id": "snippet_041",
@@ -735,7 +895,11 @@
       "Table.GetChildNodes"
     ],
     "formats_referenced": [],
-    "provenance": "scout"
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "900b165ecc2645202fff3bb8ee90807a3c64dcf1949af3fc1e210861edcf7ffe",
+      "norm": "900b165ecc2645202fff3bb8ee90807a3c64dcf1949af3fc1e210861edcf7ffe"
+    }
   },
   {
     "id": "snippet_042",
@@ -758,7 +922,11 @@
       "Page.GetChildNodes"
     ],
     "formats_referenced": [],
-    "provenance": "scout"
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "2eb6f04a07ee2167a2ffafaf96a940fd358b7e66e3593f0cd1f6b0ef5c3c4eb5",
+      "norm": "2eb6f04a07ee2167a2ffafaf96a940fd358b7e66e3593f0cd1f6b0ef5c3c4eb5"
+    }
   },
   {
     "id": "snippet_043",
@@ -777,7 +945,11 @@
     "formats_referenced": [
       "pdf"
     ],
-    "provenance": "scout"
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "6b5aa8d4650e6c6ffd9fbc610f4f47618fb1990c129d4f1624eed0ba1ad32166",
+      "norm": "6b5aa8d4650e6c6ffd9fbc610f4f47618fb1990c129d4f1624eed0ba1ad32166"
+    }
   },
   {
     "id": "snippet_044",
@@ -796,7 +968,11 @@
     "formats_referenced": [
       "pdf"
     ],
-    "provenance": "scout"
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "2e5b63edbbbc35e01f94f68244f509bfd9d19b669a11be24197757f2a42fbcfa",
+      "norm": "2e5b63edbbbc35e01f94f68244f509bfd9d19b669a11be24197757f2a42fbcfa"
+    }
   },
   {
     "id": "snippet_045",
@@ -816,7 +992,11 @@
     "formats_referenced": [
       "pdf"
     ],
-    "provenance": "scout"
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "f73dcce55d2cdad759ccf815c2ae5241eea47fd36c1af80aa85e10fb6c23c57e",
+      "norm": "f73dcce55d2cdad759ccf815c2ae5241eea47fd36c1af80aa85e10fb6c23c57e"
+    }
   },
   {
     "id": "snippet_046",
@@ -834,7 +1014,11 @@
       "Document.GetChildNodes"
     ],
     "formats_referenced": [],
-    "provenance": "scout"
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "304c283537dbc570f60e063727ceba861c637fa3967122b3280a86d6871f18a1",
+      "norm": "304c283537dbc570f60e063727ceba861c637fa3967122b3280a86d6871f18a1"
+    }
   },
   {
     "id": "snippet_047",
@@ -852,7 +1036,11 @@
       "Document.GetChildNodes"
     ],
     "formats_referenced": [],
-    "provenance": "scout"
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "30267f6a7aaae850e7e59d102126a3e7bf9deaee30992a235aaab146eb3eff03",
+      "norm": "30267f6a7aaae850e7e59d102126a3e7bf9deaee30992a235aaab146eb3eff03"
+    }
   },
   {
     "id": "snippet_048",
@@ -868,7 +1056,11 @@
       "TextStyle.Default"
     ],
     "formats_referenced": [],
-    "provenance": "scout"
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "53b6ec91e76b82cc58bcac42f0f3e813e0a65f3637d1049b593984aa21e40dd2",
+      "norm": "53b6ec91e76b82cc58bcac42f0f3e813e0a65f3637d1049b593984aa21e40dd2"
+    }
   },
   {
     "id": "snippet_049",
@@ -881,7 +1073,11 @@
     ],
     "methods_used": [],
     "formats_referenced": [],
-    "provenance": "scout"
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "5d4d30864a3ddc06578aecd2db88157042c27c149241f22f6e6b041d050e5bcf",
+      "norm": "5d4d30864a3ddc06578aecd2db88157042c27c149241f22f6e6b041d050e5bcf"
+    }
   },
   {
     "id": "snippet_050",
@@ -896,7 +1092,11 @@
     ],
     "methods_used": [],
     "formats_referenced": [],
-    "provenance": "scout"
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "1d114193de58ea797aa6e242222b8626fb08d0694d94a9376112314c069e977f",
+      "norm": "1d114193de58ea797aa6e242222b8626fb08d0694d94a9376112314c069e977f"
+    }
   },
   {
     "id": "snippet_051",
@@ -911,7 +1111,11 @@
       "ParagraphStyle.Default"
     ],
     "formats_referenced": [],
-    "provenance": "scout"
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "c44a51e195a56d101c4b817e2375ac10eafac7d68744821147a6881b81f96600",
+      "norm": "c44a51e195a56d101c4b817e2375ac10eafac7d68744821147a6881b81f96600"
+    }
   },
   {
     "id": "snippet_052",
@@ -926,7 +1130,11 @@
     ],
     "methods_used": [],
     "formats_referenced": [],
-    "provenance": "scout"
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "1980063a8fd1857cd78ad13aa9050e3633b9567a15d9e0b804fbde72e4a380d5",
+      "norm": "1980063a8fd1857cd78ad13aa9050e3633b9567a15d9e0b804fbde72e4a380d5"
+    }
   },
   {
     "id": "snippet_053",
@@ -943,7 +1151,11 @@
       "RichText.Append"
     ],
     "formats_referenced": [],
-    "provenance": "scout"
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "770537ee36f7026c9fb55a81d9e33521b603cfe0a73461a199c4a18ff7613461",
+      "norm": "770537ee36f7026c9fb55a81d9e33521b603cfe0a73461a199c4a18ff7613461"
+    }
   },
   {
     "id": "snippet_054",
@@ -957,7 +1169,11 @@
     ],
     "methods_used": [],
     "formats_referenced": [],
-    "provenance": "scout"
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "fbe61bcfe1610cf7a5c99f7e12670e7212c32eb38c995ffffebf8b98610f91aa",
+      "norm": "fbe61bcfe1610cf7a5c99f7e12670e7212c32eb38c995ffffebf8b98610f91aa"
+    }
   },
   {
     "id": "snippet_055",
@@ -970,7 +1186,11 @@
     ],
     "methods_used": [],
     "formats_referenced": [],
-    "provenance": "scout"
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "014dbb785714f1f15d08be704ace4f98b3bc26c24c08181863a085c996746e6e",
+      "norm": "014dbb785714f1f15d08be704ace4f98b3bc26c24c08181863a085c996746e6e"
+    }
   },
   {
     "id": "snippet_056",
@@ -988,7 +1208,11 @@
       "NoteTag.CreateYellowStar"
     ],
     "formats_referenced": [],
-    "provenance": "scout"
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "61e7a282d5bb4af81af5521a49154f654eae619525c285f53279e1af6b401d50",
+      "norm": "61e7a282d5bb4af81af5521a49154f654eae619525c285f53279e1af6b401d50"
+    }
   },
   {
     "id": "snippet_057",
@@ -1006,7 +1230,11 @@
       "Document.GetChildNodes"
     ],
     "formats_referenced": [],
-    "provenance": "scout"
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "d17c4e05202faff26cfea467649755b92be802307760d0f66d7010144ec7522c",
+      "norm": "d17c4e05202faff26cfea467649755b92be802307760d0f66d7010144ec7522c"
+    }
   },
   {
     "id": "snippet_058",
@@ -1022,7 +1250,11 @@
     "formats_referenced": [
       "pdf"
     ],
-    "provenance": "scout"
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "5e697c88fb59408b4b94c1fcfb6d965f3f3e5de808392db301ad738854f76017",
+      "norm": "5e697c88fb59408b4b94c1fcfb6d965f3f3e5de808392db301ad738854f76017"
+    }
   },
   {
     "id": "snippet_059",
@@ -1038,7 +1270,11 @@
     "formats_referenced": [
       "pdf"
     ],
-    "provenance": "scout"
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "37402b16b6631281f67126a118e9a645552c3c640c1c00e186b1e8741b08a9ed",
+      "norm": "37402b16b6631281f67126a118e9a645552c3c640c1c00e186b1e8741b08a9ed"
+    }
   },
   {
     "id": "snippet_060",
@@ -1056,7 +1292,11 @@
     "formats_referenced": [
       "pdf"
     ],
-    "provenance": "scout"
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "f0d58c79247a10766fe9e9b956883b8ad5e7d05bce61acf594ef3c30ae3c8d61",
+      "norm": "f0d58c79247a10766fe9e9b956883b8ad5e7d05bce61acf594ef3c30ae3c8d61"
+    }
   },
   {
     "id": "snippet_061",
@@ -1071,7 +1311,11 @@
     "formats_referenced": [
       "pdf"
     ],
-    "provenance": "scout"
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "165a369c1ad8b83f843437ec7cc16181a5b5605d86403e3133a2cfd8328c40e3",
+      "norm": "165a369c1ad8b83f843437ec7cc16181a5b5605d86403e3133a2cfd8328c40e3"
+    }
   },
   {
     "id": "snippet_062",
@@ -1089,7 +1333,11 @@
     "formats_referenced": [
       "pdf"
     ],
-    "provenance": "scout"
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "1e79c6a0fc8ff23306164bb3c98ca98117d30679e11e0f5ceda69537f6a835e2",
+      "norm": "1e79c6a0fc8ff23306164bb3c98ca98117d30679e11e0f5ceda69537f6a835e2"
+    }
   },
   {
     "id": "snippet_063",
@@ -1106,7 +1354,11 @@
     "formats_referenced": [
       "pdf"
     ],
-    "provenance": "scout"
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "97ac41b6843f7b045a3b94ae2e9b595e6e5ae5c7fa0e964677a93f911b5aa225",
+      "norm": "97ac41b6843f7b045a3b94ae2e9b595e6e5ae5c7fa0e964677a93f911b5aa225"
+    }
   },
   {
     "id": "snippet_064",
@@ -1125,7 +1377,11 @@
     "formats_referenced": [
       "pdf"
     ],
-    "provenance": "scout"
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "7ae1f98551e9bc285949becd52a85c5786959fdba1c8a801f9ed232583056ca4",
+      "norm": "7ae1f98551e9bc285949becd52a85c5786959fdba1c8a801f9ed232583056ca4"
+    }
   },
   {
     "id": "snippet_065",
@@ -1142,7 +1398,11 @@
     "formats_referenced": [
       "pdf"
     ],
-    "provenance": "scout"
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "9e2026b02835cdc0f43eb21847ab6cc7a296c65fb8d8b932fcab31793ae3b4fa",
+      "norm": "9e2026b02835cdc0f43eb21847ab6cc7a296c65fb8d8b932fcab31793ae3b4fa"
+    }
   },
   {
     "id": "snippet_066",
@@ -1170,7 +1430,11 @@
     "formats_referenced": [
       "pdf"
     ],
-    "provenance": "scout"
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "3ef5fcc03b1679cb0e8d366066d97d6762a70cc51f428886064e9cc24d0daee6",
+      "norm": "3ef5fcc03b1679cb0e8d366066d97d6762a70cc51f428886064e9cc24d0daee6"
+    }
   },
   {
     "id": "snippet_067",
@@ -1198,7 +1462,11 @@
     "formats_referenced": [
       "pdf"
     ],
-    "provenance": "scout"
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "72f93d964ed40bd02eaf1d758b64ae829068f8b172011a432d017a1f1dbb7b37",
+      "norm": "72f93d964ed40bd02eaf1d758b64ae829068f8b172011a432d017a1f1dbb7b37"
+    }
   },
   {
     "id": "snippet_068",
@@ -1211,7 +1479,11 @@
     "formats_referenced": [
       "pdf"
     ],
-    "provenance": "scout"
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "0bb65148a2e6cb8927557ed0cdeff367f2e9805f2511a96da1223dde0aaebc69",
+      "norm": "0bb65148a2e6cb8927557ed0cdeff367f2e9805f2511a96da1223dde0aaebc69"
+    }
   },
   {
     "id": "snippet_069",
@@ -1236,7 +1508,11 @@
     "formats_referenced": [
       "pdf"
     ],
-    "provenance": "scout"
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "82ac2c9b36c81bd8ac495bc16095944cc13dd56f394bbcfde6a028d380ed6ff5",
+      "norm": "82ac2c9b36c81bd8ac495bc16095944cc13dd56f394bbcfde6a028d380ed6ff5"
+    }
   },
   {
     "id": "snippet_070",
@@ -1262,7 +1538,11 @@
     "formats_referenced": [
       "pdf"
     ],
-    "provenance": "scout"
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "362289301537ecda328d4813efa77aca82c0bc983c71330359950e0daf12a7b3",
+      "norm": "362289301537ecda328d4813efa77aca82c0bc983c71330359950e0daf12a7b3"
+    }
   },
   {
     "id": "snippet_071",
@@ -1287,7 +1567,11 @@
     "formats_referenced": [
       "pdf"
     ],
-    "provenance": "scout"
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "ec780e7e39d2ec2337256706ca4707d5255913e1e4dc232e5ebd405f92e1dc3a",
+      "norm": "ec780e7e39d2ec2337256706ca4707d5255913e1e4dc232e5ebd405f92e1dc3a"
+    }
   },
   {
     "id": "snippet_072",
@@ -1310,7 +1594,11 @@
     "formats_referenced": [
       "pdf"
     ],
-    "provenance": "scout"
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "0bd653406a84c9bc20647ec4a97f420136fafcaf0ef4569cde3de1da1514c2cb",
+      "norm": "0bd653406a84c9bc20647ec4a97f420136fafcaf0ef4569cde3de1da1514c2cb"
+    }
   },
   {
     "id": "snippet_073",
@@ -1329,7 +1617,11 @@
     "formats_referenced": [
       "pdf"
     ],
-    "provenance": "scout"
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "3c3d15b9465f517bea02bbc84fd68f246ccff494bdc640abe9a3556a1058f832",
+      "norm": "3c3d15b9465f517bea02bbc84fd68f246ccff494bdc640abe9a3556a1058f832"
+    }
   },
   {
     "id": "snippet_074",
@@ -1348,7 +1640,11 @@
     "formats_referenced": [
       "pdf"
     ],
-    "provenance": "scout"
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "d7854af3e40ff87a33b8da2ebb8cd59672fba632d9d721c259368c90ba59a3f4",
+      "norm": "d7854af3e40ff87a33b8da2ebb8cd59672fba632d9d721c259368c90ba59a3f4"
+    }
   },
   {
     "id": "snippet_075",
@@ -1367,7 +1663,11 @@
     "formats_referenced": [
       "pdf"
     ],
-    "provenance": "scout"
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "0c42b300def002989510b237467d71a62b419957bdc69ad141b4d9eca5d6f924",
+      "norm": "0c42b300def002989510b237467d71a62b419957bdc69ad141b4d9eca5d6f924"
+    }
   },
   {
     "id": "snippet_076",
@@ -1380,7 +1680,11 @@
     "formats_referenced": [
       "pdf"
     ],
-    "provenance": "scout"
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "f75bc01c3021ba96d274deaa35356552773f297b9ef1188730a4ef0346a40115",
+      "norm": "f75bc01c3021ba96d274deaa35356552773f297b9ef1188730a4ef0346a40115"
+    }
   },
   {
     "id": "snippet_077",
@@ -1393,7 +1697,11 @@
     "formats_referenced": [
       "pdf"
     ],
-    "provenance": "scout"
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "ddc8c5cf606d45ed74c9d58422eeff681594a68f6e41ba726ca060d532f2b3e3",
+      "norm": "ddc8c5cf606d45ed74c9d58422eeff681594a68f6e41ba726ca060d532f2b3e3"
+    }
   },
   {
     "id": "snippet_078",
@@ -1412,7 +1720,11 @@
     "formats_referenced": [
       "pdf"
     ],
-    "provenance": "scout"
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "828a6a29b17bdad65e27f7f4827a5a98d5961eb9e515f5156ca4020392e6d6d0",
+      "norm": "828a6a29b17bdad65e27f7f4827a5a98d5961eb9e515f5156ca4020392e6d6d0"
+    }
   },
   {
     "id": "snippet_079",
@@ -1430,7 +1742,11 @@
       "Image.GetChildNodes"
     ],
     "formats_referenced": [],
-    "provenance": "scout"
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "b69236abb57356245a3bbd8858075ff42d19d22859c7cded0122e03c47202637",
+      "norm": "b69236abb57356245a3bbd8858075ff42d19d22859c7cded0122e03c47202637"
+    }
   },
   {
     "id": "snippet_080",
@@ -1448,7 +1764,11 @@
       "Table.GetChildNodes"
     ],
     "formats_referenced": [],
-    "provenance": "scout"
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "ea5c31d4360b19d470737c60694ce19355671a8c16172e2bcd1519da83e6d7d7",
+      "norm": "ea5c31d4360b19d470737c60694ce19355671a8c16172e2bcd1519da83e6d7d7"
+    }
   },
   {
     "id": "snippet_081",
@@ -1469,7 +1789,11 @@
       "OutlineElement.GetChildNodes"
     ],
     "formats_referenced": [],
-    "provenance": "scout"
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "5ed76cdaaba756042e02bc33a846d4f61a8acb25043e92e4ef1ebb6945c5403a",
+      "norm": "5ed76cdaaba756042e02bc33a846d4f61a8acb25043e92e4ef1ebb6945c5403a"
+    }
   },
   {
     "id": "snippet_082",
@@ -1497,7 +1821,11 @@
     "formats_referenced": [
       "pdf"
     ],
-    "provenance": "scout"
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "f1e4edaca2975c1f94bd6adff18763fa34e077849c33d2c6455a474f3298c7bc",
+      "norm": "f1e4edaca2975c1f94bd6adff18763fa34e077849c33d2c6455a474f3298c7bc"
+    }
   },
   {
     "id": "snippet_083",
@@ -1514,7 +1842,11 @@
       "Document.GetChildNodes"
     ],
     "formats_referenced": [],
-    "provenance": "scout"
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "37ff9872e4169f4aeadb770be520989888256fb4ea82dc39153dc6d262b7b930",
+      "norm": "37ff9872e4169f4aeadb770be520989888256fb4ea82dc39153dc6d262b7b930"
+    }
   },
   {
     "id": "snippet_084",
@@ -1535,7 +1867,11 @@
     "formats_referenced": [
       "pdf"
     ],
-    "provenance": "scout"
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "ba644bf0a1464f735c2860f9fe3374f794ef2b341f2f5cadbd379fd66ff22158",
+      "norm": "ba644bf0a1464f735c2860f9fe3374f794ef2b341f2f5cadbd379fd66ff22158"
+    }
   },
   {
     "id": "snippet_085",
@@ -1550,7 +1886,11 @@
     ],
     "methods_used": [],
     "formats_referenced": [],
-    "provenance": "scout"
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "bcaa783aff96de846bbf9d7df952dc972eede3cc4ed1c98bdf2b45b893cdf5aa",
+      "norm": "ab957c29ec68a438b86018ab5f19099be2a6fe8d184e9150c926d91f06c2af1c"
+    }
   },
   {
     "id": "snippet_086",
@@ -1569,7 +1909,11 @@
     "formats_referenced": [
       "pdf"
     ],
-    "provenance": "scout"
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "ca7a4824062edd75dfd6e0465f8bdafe35b553f594e59804659743fc01e82fd2",
+      "norm": "c22d66117eb78e493704ca8ee75670bc4bee234799416297e35c6ee63fd7bca1"
+    }
   },
   {
     "id": "snippet_087",
@@ -1587,7 +1931,11 @@
       "Image.GetChildNodes"
     ],
     "formats_referenced": [],
-    "provenance": "scout"
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "efa7c92ded047578b87f8588919a2a83957f09fcea5545fe7c10e0e37e170465",
+      "norm": "f87c79b9cdd028563b1c35e81686447abfd4ed88c0e94b2c29f0d4d6565ebdd1"
+    }
   },
   {
     "id": "snippet_088",
@@ -1601,7 +1949,11 @@
     ],
     "methods_used": [],
     "formats_referenced": [],
-    "provenance": "scout"
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "a21dae58bb188d894512000b13b40ce7835c41babdc2aa13df3b3cd2bf341e6a",
+      "norm": "2a126cae2790cc2c6965730aaf98f073a2436bf3c7d113aea9f0b54d5c939a14"
+    }
   },
   {
     "id": "snippet_089",
@@ -1624,7 +1976,11 @@
       "TableRow.GetChildNodes"
     ],
     "formats_referenced": [],
-    "provenance": "scout"
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "690fa56904914743d473c39d8585d82d603bfd1ec3a5e40e4a4d26fe1235965a",
+      "norm": "27364e8d5edd949071fda81a3f7b05965261a7d5e3b54415c3146c414b0fcf14"
+    }
   },
   {
     "id": "snippet_090",
@@ -1643,7 +1999,11 @@
       "Page.GetChildNodes"
     ],
     "formats_referenced": [],
-    "provenance": "scout"
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "dc6b0c1bde4545f916e1367d7c814d3f3213857faa8e18b929653808b3e452a1",
+      "norm": "528815d339d5b7d537e029d932b4e9743601c59e70aaf2c1f621633ab8e0be17"
+    }
   },
   {
     "id": "snippet_091",
@@ -1660,7 +2020,11 @@
       "Document.GetChildNodes"
     ],
     "formats_referenced": [],
-    "provenance": "scout"
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "78f20ea84286f8cb034357d424788cc30cfd24439fa86e392ed77d98f0ea7258",
+      "norm": "c34aab1c4f4747338441c07662faba972cf6e0cf2a232aecaadadd0650ac0d56"
+    }
   },
   {
     "id": "snippet_092",
@@ -1682,7 +2046,11 @@
       "RichText.Accept"
     ],
     "formats_referenced": [],
-    "provenance": "scout"
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "d89d9a7e07eb87ffb0d68e7b360de90a647703754daf44382c71a6978e646336",
+      "norm": "d8b93257e837713f27bb6372a08bb6537397852aae3002d58776c86851b014e7"
+    }
   },
   {
     "id": "snippet_093",
@@ -1699,7 +2067,11 @@
       "Document.GetChildNodes"
     ],
     "formats_referenced": [],
-    "provenance": "scout"
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "ef307fb08c17c0a1ca810791b82b2e15d6856a8a8bcac6324e8d9507b4e07bf2",
+      "norm": "656b252135e1d9714bff1187566d5c0582f9a323df5118f42e5a9c45ea80cc13"
+    }
   },
   {
     "id": "snippet_094",
@@ -1719,7 +2091,11 @@
     "formats_referenced": [
       "pdf"
     ],
-    "provenance": "scout"
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "816fc2f40a290d6a6c1b49e6ec71f5d7d9b785ec218a888ed96f920cfdfe89a1",
+      "norm": "5e60013032c9d0cedf3e4cb23f01877b178a984adc27b7c37cc07a5dc6ea19b0"
+    }
   },
   {
     "id": "snippet_095",
@@ -1737,7 +2113,11 @@
       "Document.GetChildNodes"
     ],
     "formats_referenced": [],
-    "provenance": "scout"
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "4e0e61124acc8fd7be42a8a75e1d63f8446a516145a0f073a8c8341a92683da0",
+      "norm": "f9ad7695bd5e10fc43ba3acb85dd2503929272ce1e2c5f2155db9f25f7c56bc2"
+    }
   },
   {
     "id": "snippet_096",
@@ -1758,6 +2138,10 @@
       "OutlineElement.GetChildNodes"
     ],
     "formats_referenced": [],
-    "provenance": "scout"
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "f684ec0b3071024a8647fd56c4a50498469411f03ea2021b4b4cc36329dd798c",
+      "norm": "0f92e67f2c994ebe0884ace58ab194228e1bf48ec1f69a599f4c43724398ceec"
+    }
   }
 ]
