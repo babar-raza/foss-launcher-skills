@@ -478,11 +478,30 @@ def _write_manifest_delta(
                 "new_install_block": new["install_block"],
             })
 
+    # PKGINSTALL-BLOCK-UPDATER-CALLSITE (2026-09-10): bucket by change_type into
+    # 3 lists instead of one flat `events` list. Real, pre-existing schema
+    # mismatch found while wiring this file's only 2 real consumers a call
+    # site: both scripts/pipeline/commands/content/install_block_updater.py's
+    # run_update() and coordinate_migrator.py's run_migration() read
+    # delta.get("install_cmd_changes"/"coordinate_changes"/"version_changes",
+    # []) -- confirmed by direct read of both modules AND their own test
+    # fixtures, which already use this 3-list shape. This function had never
+    # written that shape (a flat `events` list instead), so neither consumer
+    # could ever see a real event regardless of content -- both modules were
+    # silently, structurally orphaned since whichever one was built first,
+    # not just "never given a call site." No other consumer reads the old
+    # `events` key (confirmed via repo-wide grep before this change).
+    install_cmd_changes = [e for e in events if e["change_type"] in ("INSTALL_CMD_CHANGED", "INSTALL_CMD_ADDED")]
+    coordinate_changes = [e for e in events if e["change_type"] == "COORDINATE_CHANGE"]
+    version_changes = [e for e in events if e["change_type"] == "VERSION_BUMP"]
+
     delta = {
         "generated_at": datetime.now(timezone.utc).isoformat(),
         "base_sha": base_sha or "",
         "current_sha": current_sha,
-        "events": events,
+        "install_cmd_changes": install_cmd_changes,
+        "coordinate_changes": coordinate_changes,
+        "version_changes": version_changes,
     }
 
     target = merged_dir / "manifest_delta.json"
@@ -499,6 +518,90 @@ def _write_manifest_delta(
         print(f"  {family}/{platform}: WARN — could not write manifest_delta.json: {exc}")
         if tmp.exists():
             tmp.unlink(missing_ok=True)
+
+
+def _maybe_run_block_updater_dry_run(family: str, platform: str, merged_dir: Path) -> "dict | None":
+    """PKGINSTALL-BLOCK-UPDATER-CALLSITE (2026-09-10, governing plan section
+    R.3.8): give install_block_updater.py -- correct logic, zero real callers
+    anywhere in the codebase before this -- a real, dry-run-only call site.
+
+    Never fires --execute. The actual content edit stays a distinct, explicit,
+    human/agent-reviewed action (skills/refresh-product.md), consistent with
+    this repo's S-73 per-file-review mandate -- this function only computes
+    and records what WOULD change.
+
+    Double-fire safety: this is called exactly once per _run_refresh_chain()
+    invocation, which itself only ever runs under refresh()'s per-(family,
+    platform) acquire_regen_lock() -- confirmed by reading that lock's call
+    site above -- so two concurrent sessions refreshing the SAME product can
+    never both be inside this function at once (the second blocks on the lock
+    or gets RegenLockTimeout). Different products run fully independently
+    (separate manifest_delta.json files, separate reconciliation-store rows),
+    so no cross-product interference is possible either.
+
+    Returns None (and invokes nothing) when manifest_delta.json is missing,
+    unreadable, or carries no install_cmd_changes/coordinate_changes/
+    version_changes event -- run_update() itself is never called in that
+    case, not merely told to no-op internally, per this taskcard's own
+    acceptance check.
+    """
+    delta_path = merged_dir / "manifest_delta.json"
+    if not delta_path.is_file():
+        return None
+    try:
+        delta = json.loads(delta_path.read_text(encoding="utf-8"))
+    except Exception:
+        return None
+    events = (
+        delta.get("install_cmd_changes", [])
+        + delta.get("coordinate_changes", [])
+        + delta.get("version_changes", [])
+    )
+    if not events:
+        return None
+
+    try:
+        from commands.content.install_block_updater import run_update
+        summary = run_update(family, platform, dry_run=True, manifest_delta_path=delta_path)
+    except Exception as exc:
+        print(f"  {family}/{platform}: WARN — install_block_updater dry-run failed: {exc}")
+        return None
+
+    print(
+        f"  {family}/{platform}: install_block_updater dry-run — "
+        f"{summary['files_updated']} file(s) would update, {summary['files_noop']} already current, "
+        f"{len(summary['human_review_required'])} need human review"
+    )
+
+    # Fold into the reconciliation store (R.3.1) -- one aggregate row per
+    # dry-run event, not one row per affected content page (a full per-page
+    # representation classification for this event belongs to
+    # PKGINSTALL-DEFECT-SWEEP-REDESIGN, not this call site). The full summary
+    # (including per-file results and human_review_required) is embedded
+    # verbatim as an extra field -- validate_reconciliation_record() only
+    # requires certain fields be present, it does not reject additional ones.
+    try:
+        from reconciliation_store import ReconciliationStore
+        # repo_root=REPO_ROOT (this module's own configure()-settable global,
+        # not the store's default) so tests that call this module's own
+        # configure(repo_root=tmp_path) get a fully isolated store for free,
+        # with no separate reconciliation_store wiring needed.
+        ReconciliationStore(repo_root=REPO_ROOT).append_batch([{
+            "path": f"knowledge/{family}/{platform}/merged/install.md",
+            "family": family,
+            "platform": platform,
+            "site": "knowledge",
+            "locale": "en",
+            "representation": "literal",
+            "collision_classification": None,
+            "sweep_run_id": f"refresh-knowledge-{family}-{platform}-{summary['generated_at']}",
+            "recorded_at": summary["generated_at"],
+            "block_updater_dry_run_summary": summary,
+        }])
+    except Exception as exc:
+        print(f"  {family}/{platform}: WARN — could not record block-updater summary in reconciliation store: {exc}")
+
+    return summary
 
 
 def _write_format_delta(
@@ -1107,6 +1210,10 @@ def _run_refresh_chain(
         # Must run before _cleanup_bak() in the finally block.
         _write_manifest_delta(family, platform, bak_dir, merged_dir, head, current)
 
+        # PKGINSTALL-BLOCK-UPDATER-CALLSITE: dry-run only, folded into
+        # pipeline_run.json below and into the reconciliation store.
+        block_updater_summary = _maybe_run_block_updater_dry_run(family, platform, merged_dir)
+
         # Write format_delta.json: format support additions/removals (TC-02).
         # Must run before _cleanup_bak() in the finally block.
         _write_format_delta(family, platform, bak_dir, merged_dir, head, current)
@@ -1134,6 +1241,8 @@ def _run_refresh_chain(
                 "index_succeeded": ok,
                 "repo_sha": head,
             }
+            if block_updater_summary is not None:
+                pipeline_run["block_updater_dry_run"] = block_updater_summary
             try:
                 atomic_write(
                     merged_dir / "pipeline_run.json",

@@ -656,7 +656,7 @@
     },
     "scripts/pipeline/tests/test_refresh_knowledge.py": {
       "T1": 0,
-      "T2": 40,
+      "T2": 42,
       "T3": 0,
       "T4": 0
     },
@@ -847,7 +847,7 @@
   "schema_version": 1,
   "totals": {
     "T1": 126,
-    "T2": 961,
+    "T2": 963,
     "T3": 116,
     "T4": 15
   }

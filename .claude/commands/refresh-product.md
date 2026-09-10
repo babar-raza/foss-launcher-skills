@@ -186,6 +186,16 @@ Do not run any subsequent steps. Exit 0.
      baseline-ledger-writer) — the durable history that replaces the mutable
      `model.yaml.repo_sha` scalar (RPR-C-01/02). Step 1's baseline was resolved via
      `resolve_baseline_sha` (real orphaned-SHA walkback), not a raw scalar read (RPR-C-03).
+   - **PKGINSTALL-BLOCK-UPDATER-CALLSITE (2026-09-10):** if this refresh's `manifest_delta.json`
+     carries an `install_cmd_changes`/`coordinate_changes`/`version_changes` event,
+     `install_block_updater.py` now runs automatically in **dry-run mode only** and its summary
+     (files that would update, `human_review_required` list) is written to
+     `knowledge/{family}/{platform}/merged/pipeline_run.json`'s `block_updater_dry_run` key and to
+     the reconciliation store. **This is advisory, not applied** — check that summary before
+     closing this refresh: if `files_updated` or `human_review_required` is non-empty, decide
+     whether to run `install_block_updater.py {family} {platform} --execute` (or route
+     `human_review_required` files to `/manual-edit`, S-73) as a required follow-up step, never as
+     an automatic side effect of this refresh.
    - Record progress: `python scripts/pipeline/commands/ops/post_refresh_verify.py {family} {platform} --step knowledge_update`
 
 2.5. **Semantic diff** (S-104: semantic-diff):

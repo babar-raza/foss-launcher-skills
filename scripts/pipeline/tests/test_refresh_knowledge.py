@@ -9,6 +9,7 @@ Covers:
   - refresh() auto-clears stale_since in model.yaml after successful refresh
   - refresh() does NOT clear stale_since when scout fails
 """
+import json
 import sys
 from pathlib import Path
 from unittest.mock import MagicMock, patch, call
@@ -18,6 +19,8 @@ import pytest
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 import refresh_knowledge as _rk
 from refresh_knowledge import refresh, _build_erc_member_set
+import commands.content.install_block_updater as _ibu
+import reconciliation_store as _reco
 
 
 # ---------------------------------------------------------------------------
@@ -1168,3 +1171,247 @@ class TestExtractorHashDetection:
              patch.object(_rk, "_clear_stale_since"):
             result = refresh("cells", "net")
             assert result == "current"
+
+
+# ---------------------------------------------------------------------------
+# PKGINSTALL-BLOCK-UPDATER-CALLSITE (MT066 plan section R.3.8)
+# ---------------------------------------------------------------------------
+
+def _install_md(package_name: str, version: str) -> str:
+    return f"```\npip install {package_name}>={version}\n```\n"
+
+
+class TestManifestDeltaSchema:
+    """_write_manifest_delta() must write the 3-bucket schema
+    (install_cmd_changes/coordinate_changes/version_changes) that both real
+    downstream consumers (install_block_updater.py, coordinate_migrator.py)
+    are built and tested against -- a real, pre-existing schema mismatch
+    found while wiring this file's only real call site for either of them
+    (see the function's own docstring)."""
+
+    def test_version_bump_lands_in_version_changes_bucket(self, tmp_path):
+        bak_dir = tmp_path / "bak"
+        merged_dir = tmp_path / "merged"
+        bak_dir.mkdir()
+        merged_dir.mkdir()
+        (bak_dir / "install.md").write_text(_install_md("aspose-words-foss", "1.0.0"), encoding="utf-8")
+        (merged_dir / "install.md").write_text(_install_md("aspose-words-foss", "2.0.0"), encoding="utf-8")
+
+        _rk._write_manifest_delta("words", "python", bak_dir, merged_dir, "newsha", "oldsha")
+
+        delta = json.loads((merged_dir / "manifest_delta.json").read_text(encoding="utf-8"))
+        assert "events" not in delta
+        assert len(delta["version_changes"]) == 1
+        assert delta["version_changes"][0]["change_type"] == "VERSION_BUMP"
+        assert delta["install_cmd_changes"] == []
+        assert delta["coordinate_changes"] == []
+
+    def test_package_name_change_lands_in_install_cmd_changes_bucket(self, tmp_path):
+        bak_dir = tmp_path / "bak"
+        merged_dir = tmp_path / "merged"
+        bak_dir.mkdir()
+        merged_dir.mkdir()
+        (bak_dir / "install.md").write_text(_install_md("aspose-words-foss", "1.0.0"), encoding="utf-8")
+        (merged_dir / "install.md").write_text(_install_md("aspose-words-new-foss", "1.0.0"), encoding="utf-8")
+
+        _rk._write_manifest_delta("words", "python", bak_dir, merged_dir, "newsha", "oldsha")
+
+        delta = json.loads((merged_dir / "manifest_delta.json").read_text(encoding="utf-8"))
+        assert len(delta["install_cmd_changes"]) == 1
+        assert delta["install_cmd_changes"][0]["change_type"] == "INSTALL_CMD_CHANGED"
+        assert delta["version_changes"] == []
+        assert delta["coordinate_changes"] == []
+
+    def test_no_change_produces_all_empty_buckets(self, tmp_path):
+        bak_dir = tmp_path / "bak"
+        merged_dir = tmp_path / "merged"
+        bak_dir.mkdir()
+        merged_dir.mkdir()
+        (bak_dir / "install.md").write_text(_install_md("aspose-words-foss", "1.0.0"), encoding="utf-8")
+        (merged_dir / "install.md").write_text(_install_md("aspose-words-foss", "1.0.0"), encoding="utf-8")
+
+        _rk._write_manifest_delta("words", "python", bak_dir, merged_dir, "newsha", "oldsha")
+
+        delta = json.loads((merged_dir / "manifest_delta.json").read_text(encoding="utf-8"))
+        assert delta["install_cmd_changes"] == []
+        assert delta["coordinate_changes"] == []
+        assert delta["version_changes"] == []
+
+
+class TestMaybeRunBlockUpdaterDryRun:
+    """_maybe_run_block_updater_dry_run() -- the new call site itself.
+
+    Real, unmocked install_block_updater.run_update() throughout -- no
+    patch.object on it anywhere in this class (T2-tier per this repo's
+    monkeypatch-lint ratchet; a spy via wraps= still counts as a T2 pattern
+    match). 'dry_run=True was actually used' and 'run_update was never
+    invoked' are both provable from real, observable outcomes instead:
+    run_update()'s own returned summary embeds the dry_run value it was
+    called with, and a genuine early-return in
+    _maybe_run_block_updater_dry_run happens structurally BEFORE the
+    deferred `from commands.content.install_block_updater import run_update`
+    import line even executes, so a None result / no reconciliation-store
+    row is direct proof nothing downstream ran."""
+
+    @pytest.fixture(autouse=True)
+    def _isolate_ibu(self, tmp_path):
+        _ibu.configure(repo_root=tmp_path)
+        yield
+        _ibu.configure()
+
+    def _merged_dir(self, tmp_path, family="words", platform="python"):
+        merged_dir = tmp_path / "knowledge" / family / platform / "merged"
+        merged_dir.mkdir(parents=True)
+        return merged_dir
+
+    def _inventory_path(self, tmp_path):
+        return tmp_path / "reports" / "package-reconciliation" / "inventory.jsonl"
+
+    def test_no_manifest_delta_file_returns_none_and_records_nothing(self, tmp_path):
+        merged_dir = self._merged_dir(tmp_path)
+        result = _rk._maybe_run_block_updater_dry_run("words", "python", merged_dir)
+        assert result is None
+        assert not self._inventory_path(tmp_path).exists()
+
+    def test_no_relevant_event_returns_none_and_records_nothing(self, tmp_path):
+        merged_dir = self._merged_dir(tmp_path)
+        (merged_dir / "manifest_delta.json").write_text(json.dumps({
+            "generated_at": "2026-09-10T00:00:00+00:00", "base_sha": "a", "current_sha": "b",
+            "install_cmd_changes": [], "coordinate_changes": [], "version_changes": [],
+        }), encoding="utf-8")
+        result = _rk._maybe_run_block_updater_dry_run("words", "python", merged_dir)
+        assert result is None
+        assert not self._inventory_path(tmp_path).exists()
+
+    def test_relevant_event_produces_a_real_dry_run_summary(self, tmp_path):
+        merged_dir = self._merged_dir(tmp_path)
+        (merged_dir / "install.md").write_text(_install_md("aspose-words-foss", "2.0.0"), encoding="utf-8")
+        (merged_dir / "manifest_delta.json").write_text(json.dumps({
+            "generated_at": "2026-09-10T00:00:00+00:00", "base_sha": "a", "current_sha": "b",
+            "install_cmd_changes": [],
+            "coordinate_changes": [],
+            "version_changes": [{
+                "change_type": "VERSION_BUMP", "package_name": "aspose-words-foss",
+                "old_version": "1.0.0", "new_version": "2.0.0",
+                "old_install_block": "pip install aspose-words-foss>=1.0.0",
+                "new_install_block": "pip install aspose-words-foss>=2.0.0",
+            }],
+        }), encoding="utf-8")
+
+        summary = _rk._maybe_run_block_updater_dry_run("words", "python", merged_dir)
+
+        assert summary is not None
+        assert summary["event"] == "VERSION_BUMP"
+        # run_update()'s own summary embeds the dry_run value it actually
+        # ran with -- direct, unmocked proof --execute was never fired.
+        assert summary["dry_run"] is True
+
+    def test_summary_recorded_in_reconciliation_store(self, tmp_path):
+        merged_dir = self._merged_dir(tmp_path)
+        (merged_dir / "install.md").write_text(_install_md("aspose-words-foss", "2.0.0"), encoding="utf-8")
+        (merged_dir / "manifest_delta.json").write_text(json.dumps({
+            "generated_at": "2026-09-10T00:00:00+00:00", "base_sha": "a", "current_sha": "b",
+            "install_cmd_changes": [], "coordinate_changes": [],
+            "version_changes": [{"change_type": "VERSION_BUMP", "package_name": "aspose-words-foss",
+                                  "old_version": "1.0.0", "new_version": "2.0.0",
+                                  "old_install_block": "x", "new_install_block": "y"}],
+        }), encoding="utf-8")
+
+        _rk._maybe_run_block_updater_dry_run("words", "python", merged_dir)
+
+        inventory_path = self._inventory_path(tmp_path)
+        assert inventory_path.is_file(), "reconciliation store row was not written"
+        rows = [json.loads(line) for line in inventory_path.read_text(encoding="utf-8").splitlines()]
+        assert len(rows) == 1
+        row = rows[0]
+        assert row["family"] == "words"
+        assert row["platform"] == "python"
+        assert row["representation"] == "literal"
+        assert row["block_updater_dry_run_summary"]["event"] == "VERSION_BUMP"
+        assert row["block_updater_dry_run_summary"]["dry_run"] is True
+        # And read back cleanly through the real store, not just raw JSON lines.
+        store = _reco.ReconciliationStore(repo_root=tmp_path)
+        latest = store.read_latest_for_product("words", "python")
+        assert latest is not None
+
+    def test_run_update_exception_is_non_fatal(self, tmp_path):
+        """Matches this file's own established defensive convention (e.g.
+        _clear_stale_since/_save_extractor_hash): an advisory dry-run summary
+        failing must never abort or raise out of the refresh chain.
+
+        Real fault, not a synthetic mock: run_update() reads
+        reports/content_region_index/{family}_{platform}.json with no
+        try/except of its own -- a genuinely corrupted real cache file (a
+        plausible real-world failure mode, not contrived) makes it raise
+        json.JSONDecodeError for real."""
+        merged_dir = self._merged_dir(tmp_path)
+        (merged_dir / "install.md").write_text(_install_md("aspose-words-foss", "2.0.0"), encoding="utf-8")
+        (merged_dir / "manifest_delta.json").write_text(json.dumps({
+            "generated_at": "2026-09-10T00:00:00+00:00", "base_sha": "a", "current_sha": "b",
+            "install_cmd_changes": [], "coordinate_changes": [],
+            "version_changes": [{"change_type": "VERSION_BUMP"}],
+        }), encoding="utf-8")
+        region_index_dir = tmp_path / "reports" / "content_region_index"
+        region_index_dir.mkdir(parents=True)
+        (region_index_dir / "words_python.json").write_text("{not valid json", encoding="utf-8")
+
+        result = _rk._maybe_run_block_updater_dry_run("words", "python", merged_dir)
+        assert result is None  # swallowed, not raised
+        assert not self._inventory_path(tmp_path).exists()
+
+
+class TestBlockUpdaterCallsiteFullChain:
+    """End-to-end proof through _run_refresh_chain()/refresh() itself, per
+    this taskcard's own acceptance check: 'its summary appears in both the
+    refresh run's own report [pipeline_run.json] and the reconciliation
+    store.' scout/enrich/promote/index subprocesses are mocked (as every
+    other TestRefreshSequencing test already does) but manifest_delta
+    computation and the block-updater dry-run call are real."""
+
+    @pytest.fixture(autouse=True)
+    def _isolate_ibu(self, tmp_path):
+        _ibu.configure(repo_root=tmp_path)
+        yield
+        _ibu.configure()
+
+    def test_pipeline_run_json_carries_the_dry_run_summary(self, tmp_path):
+        merged_dir = tmp_path / "knowledge" / "words" / "python" / "merged"
+        merged_dir.mkdir(parents=True)
+        (merged_dir / "install.md").write_text(_install_md("aspose-words-foss", "1.0.0"), encoding="utf-8")
+
+        def fake_run(cmd: list[str], label: str) -> bool:
+            if label == "promote":
+                # Simulate what the real promote.py subprocess would do:
+                # rewrite merged/install.md with the new authoritative content.
+                (merged_dir / "install.md").write_text(
+                    _install_md("aspose-words-foss", "2.0.0"), encoding="utf-8"
+                )
+            return True
+
+        with _patch_clone_dir(tmp_path), _patch_head("newsha"), _patch_model("oldsha"), \
+             patch.object(_rk, "_run", side_effect=fake_run):
+            result = refresh("words", "python")
+
+        assert result == "refreshed"
+        pipeline_run = json.loads((merged_dir / "pipeline_run.json").read_text(encoding="utf-8"))
+        assert "block_updater_dry_run" in pipeline_run
+        assert pipeline_run["block_updater_dry_run"]["event"] == "VERSION_BUMP"
+        assert pipeline_run["block_updater_dry_run"]["dry_run"] is True
+
+        inventory_path = tmp_path / "reports" / "package-reconciliation" / "inventory.jsonl"
+        assert inventory_path.is_file()
+
+    def test_no_relevant_event_leaves_pipeline_run_json_without_the_key(self, tmp_path):
+        merged_dir = tmp_path / "knowledge" / "words" / "python" / "merged"
+        merged_dir.mkdir(parents=True)
+        # No install.md at all -- no_new_block short-circuits to zero events.
+
+        with _patch_clone_dir(tmp_path), _patch_head("newsha"), _patch_model("oldsha"), \
+             patch.object(_rk, "_run", return_value=True):
+            result = refresh("words", "python")
+
+        assert result == "refreshed"
+        pipeline_run = json.loads((merged_dir / "pipeline_run.json").read_text(encoding="utf-8"))
+        assert "block_updater_dry_run" not in pipeline_run
+        inventory_path = tmp_path / "reports" / "package-reconciliation" / "inventory.jsonl"
+        assert not inventory_path.exists()
