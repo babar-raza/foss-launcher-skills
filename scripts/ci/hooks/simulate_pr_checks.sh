@@ -207,6 +207,12 @@ run_step "Check pipeline script registration (landing state)" "advisory" \
 run_step "Check mission-id ledger coverage (landing state, ST-157)" "advisory" \
     "$PYTHON" scripts/ci/checks/check_mission_id_ledger_coverage.py
 
+# advisory in CI (continue-on-error: true, landing state 2026-09-10) -- added
+# after MT058-MT066 were found with no plans/master-plan.md row; promote to
+# blocking (--strict) once proven clean against real CI traffic for a while.
+run_step "Check master-plan.md index completeness (landing state)" "advisory" \
+    "$PYTHON" scripts/ci/checks/check_master_plan_index_completeness.py
+
 run_step "Hugo build verification (products.aspose.org)" "blocking" \
     bash scripts/ci/hooks/check_hugo_build.sh products.aspose.org
 

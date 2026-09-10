@@ -8,6 +8,12 @@
 > mission's own file for its content; update this file's one line for that mission
 > when its status changes (on open and on close). Do not restore full mission
 > prose here — that is exactly the shared-file contention this split removes.
+> `MT0NN` numbers are shared across two independent sequences: this repo's own
+> "Track A" (the one indexed below) and `/readme-refresh`'s private "Track B"
+> incident log (`docs/readme-refresh/plan-system-forensic-reconciliation.md`,
+> reaching MT041-MT057, never indexed here — see that doc and
+> `docs/governance/planning-methodology.md`'s "Collision note"). A missing row for
+> a Track-B number is not a gap.
 
 ---
 
@@ -46,4 +52,12 @@
 | MT035-2026-08-20-README-DISPOSITION-PORTFOLIO-CLOSURE | [plans/missions/MT035-2026-08-20-README-DISPOSITION-PORTFOLIO-CLOSURE.md](plans/missions/MT035-2026-08-20-README-DISPOSITION-PORTFOLIO-CLOSURE.md) | **CLOSED** |
 | MT037-2026-08-24-FOSS-PORTFOLIO-FORENSIC-HEAL | [plans/missions/MT037-2026-08-24-FOSS-PORTFOLIO-FORENSIC-HEAL.md](plans/missions/MT037-2026-08-24-FOSS-PORTFOLIO-FORENSIC-HEAL.md) | **IN_PROGRESS** |
 | MT040-2026-08-28-PDF-TYPESCRIPT-LAUNCH | [plans/missions/MT040-2026-08-28-PDF-TYPESCRIPT-LAUNCH.md](plans/missions/MT040-2026-08-28-PDF-TYPESCRIPT-LAUNCH.md) | **CLOSED** |
+| MT058-2026-08-31-STALE-GUARD-WINDOW-IDENTITY-ENCODING | [plans/missions/MT058-2026-08-31-STALE-GUARD-WINDOW-IDENTITY-ENCODING.md](plans/missions/MT058-2026-08-31-STALE-GUARD-WINDOW-IDENTITY-ENCODING.md) | **OPEN** |
+| MT059-2026-08-31-PDF-GO-S84-FANOUT | [plans/missions/MT059-2026-08-31-PDF-GO-S84-FANOUT.md](plans/missions/MT059-2026-08-31-PDF-GO-S84-FANOUT.md) | **ABANDONED / NOT COMMITTED** |
+| MT060-2026-09-01-MISSION-ID-LEDGER | [plans/missions/MT060-2026-09-01-MISSION-ID-LEDGER.md](plans/missions/MT060-2026-09-01-MISSION-ID-LEDGER.md) | **CLOSED** |
+| MT061-2026-09-01-TRACKB-FOLLOWON-2 | [plans/missions/MT061-2026-09-01-TRACKB-FOLLOWON-2.md](plans/missions/MT061-2026-09-01-TRACKB-FOLLOWON-2.md) | **CLOSED** |
+| MT062-2026-09-02-ASPOSE-ORG-FULL-PORTFOLIO-TRANSLATION | [plans/missions/MT062-2026-09-02-ASPOSE-ORG-FULL-PORTFOLIO-TRANSLATION.md](plans/missions/MT062-2026-09-02-ASPOSE-ORG-FULL-PORTFOLIO-TRANSLATION.md) | **OPEN** |
+| MT064-2026-09-05-SEO-KEYWORD-UTILIZATION-ENGINE | [plans/missions/MT064-2026-09-05-SEO-KEYWORD-UTILIZATION-ENGINE.md](plans/missions/MT064-2026-09-05-SEO-KEYWORD-UTILIZATION-ENGINE.md) | **OPEN, IN PROGRESS** |
+| MT065-2026-09-06-EXAMPLE-VERIFICATION-CENTRALIZATION | [plans/missions/MT065-2026-09-06-EXAMPLE-VERIFICATION-CENTRALIZATION.md](plans/missions/MT065-2026-09-06-EXAMPLE-VERIFICATION-CENTRALIZATION.md) | **CLOSED** |
+| MT066-2026-09-09-PACKAGE-INSTALL-RECONCILIATION | [plans/missions/MT066-2026-09-09-PACKAGE-INSTALL-RECONCILIATION.md](plans/missions/MT066-2026-09-09-PACKAGE-INSTALL-RECONCILIATION.md) | **OPEN, IN PROGRESS** |
 | MT067-2026-09-10-CLASS-COUNT-CONSISTENCY-HARDENING | [plans/missions/MT067-2026-09-10-CLASS-COUNT-CONSISTENCY-HARDENING.md](plans/missions/MT067-2026-09-10-CLASS-COUNT-CONSISTENCY-HARDENING.md) | **CLOSED** |
