@@ -10,7 +10,9 @@ _PIPELINE_ROOT = Path(__file__).resolve().parents[1]
 if str(_PIPELINE_ROOT) not in sys.path:
     sys.path.insert(0, str(_PIPELINE_ROOT))
 
-from audit.package_install_literal import verify_package_install_literals  # noqa: E402
+from audit.package_install_literal import (  # noqa: E402
+    verify_package_install_literals, _is_noise_match, _INSTALL_CMD_RE, _strip_shortcode_calls,
+)
 
 
 def _registry(registry_type: str, published: bool) -> dict:
@@ -86,8 +88,14 @@ class TestScopeGuards:
         longer a silent pass -- this was the exact blind spot that let 14
         launched products ship fabricated/never-published install commands
         undetected (2026-08-01 full-repo audit). An install-command-shaped
-        line for an unregistered pair is now a FAIL."""
-        page = _write(tmp_path, "pip install some-unrelated-package\n")
+        line for an unregistered pair is now a FAIL.
+
+        PKGINSTALL-REGEX-NARROWING (2026-09-10): the fixture package name
+        must plausibly be about Aspose (contain "aspose") -- a token with no
+        connection to any Aspose package is exactly the noise category this
+        gate now drops (see TestVerifyPackageInstallLiteralsNarrowing for
+        that case covered explicitly)."""
+        page = _write(tmp_path, "pip install aspose-some-unregistered-family\n")
         findings = verify_package_install_literals(page, "unknown-family", "python", registry={})
         assert len(findings) == 1
         assert "UNREGISTERED" in findings[0].message
@@ -266,10 +274,16 @@ class TestMultipleOccurrencesOnOneLine:
         assert "pip install aspose-note" in first.message
 
     def test_against_the_real_note_python_index_file(self):
-        """End-to-end proof against the actual shipped ar/note/python/_index.md
-        -- must find at least the 2 known occurrences on line 38 (real content
-        may carry more elsewhere in the file; this is a floor, not an exact
-        count, so the test survives unrelated future edits to the file)."""
+        """End-to-end proof against the actual shipped ar/note/python/_index.md.
+
+        Originally pinned at 2 findings on line 38 (both occurrences still
+        literal). Commit 65c59fbaba (ST-054 mechanical migration, landed
+        after this test was first written) migrated the line's second
+        occurrence to a {{< package-install-inline ... >}} call, leaving
+        exactly 1 literal occurrence on that line today -- real content
+        drift, not a regression in the multi-match fix this test guards.
+        Floor of >=1 (not an exact count) so the test survives further
+        unrelated edits to the file."""
         real_path = (
             Path(__file__).resolve().parents[3]
             / "content" / "docs.aspose.org" / "ar" / "note" / "python" / "_index.md"
@@ -281,9 +295,8 @@ class TestMultipleOccurrencesOnOneLine:
             real_path, "note", "python", registry=self._registry_note_python(True)
         )
         line_38 = [f for f in findings if f.line_no == 38]
-        assert len(line_38) >= 2, (
-            f"expected >=2 findings on line 38 of the real file (multi-occurrence "
-            f"regression), got {len(line_38)}: {line_38}"
+        assert len(line_38) >= 1, (
+            f"expected >=1 finding on line 38 of the real file, got {len(line_38)}: {line_38}"
         )
 
     def test_against_the_real_products_note_python_index_file(self):
@@ -307,3 +320,216 @@ class TestMultipleOccurrencesOnOneLine:
             assert len(on_line) >= 2, (
                 f"expected >=2 findings on line {expected_line}, got {len(on_line)}: {on_line}"
             )
+
+
+class TestIsNoiseMatchUnit:
+    """PKGINSTALL-REGEX-NARROWING (2026-09-10) unit-level tests, exercising
+    `_is_noise_match` directly against real `_INSTALL_CMD_RE` match objects --
+    every dropped shape below was found live in the real portfolio during
+    this taskcard's validation pass (validate_narrowing.py sweep against the
+    full corpus), not invented."""
+
+    def _match(self, text: str):
+        m = _INSTALL_CMD_RE.search(text)
+        assert m is not None, f"fixture text did not match _INSTALL_CMD_RE at all: {text!r}"
+        return m
+
+    def test_flag_shaped_tokens_are_noise(self):
+        for text in [
+            "pip install --upgrade",
+            "pip install -e",
+            "npm install -D",
+            "pip install -r",
+        ]:
+            assert _is_noise_match(self._match(text)) is True, text
+
+    def test_unrelated_real_package_is_noise(self):
+        for text in ["pip install fastmcp", "pip install pywin32"]:
+            assert _is_noise_match(self._match(text)) is True, text
+
+    def test_markdown_table_pipe_artifact_is_noise(self):
+        assert _is_noise_match(self._match("pip install |")) is True
+
+    def test_locale_translation_fragment_is_noise(self):
+        """Real, live machine-translation defects: 'install X and Y' /
+        '...using the pip install command' sentences mistranslated, leaving
+        the English verb phrase attached to a foreign word for 'and'/
+        'command'. Confirmed across ~67 real files (see validate_narrowing.py
+        output) -- these are a genuine, separate defect class (filed to
+        backlog), but not an instance of THIS gate's install-command
+        defect, so they must be dropped here."""
+        for text in [
+            "pip install dan",
+            "pip install och",
+            "pip install komanda.",
+            "go get használatával,",
+        ]:
+            assert _is_noise_match(self._match(text)) is True, text
+
+    def test_wrong_but_plausibly_aspose_name_is_not_noise(self):
+        """Deliberately loose, not exact-candidate matching: a WRONG name
+        that still contains 'aspose' must keep being flagged -- that's this
+        gate's actual job (3D-NET-REFRESH-002's defect class)."""
+        for text in [
+            "dotnet add package Aspose.Cells_FOSS",
+            "dotnet add package Aspose.3D.Converter",
+        ]:
+            assert _is_noise_match(self._match(text)) is False, text
+
+    def test_known_uncaught_edge_case_documented_not_silently_fixed(self):
+        """A real, different, legitimately-documented package that happens
+        to contain 'aspose' in its own name (36 real occurrences) is a known,
+        explicitly-accepted residual limitation of the 'contains aspose'
+        rule -- exact-candidate-matching would close it but reopen the
+        3D-NET-REFRESH-002 false-negative risk this gate exists to prevent.
+        This test pins the documented tradeoff, not a bug."""
+        assert _is_noise_match(self._match("pip install markitdown-aspose-cells-plugin")) is False
+
+    def test_package_reference_xml_is_never_filtered(self):
+        """match.group(2) is None for the <PackageReference> alternative --
+        a full-portfolio sweep found zero noise in that shape, so it must
+        never be treated as noise regardless of its Include value."""
+        m = _INSTALL_CMD_RE.search('<PackageReference Include="SomeUnrelatedThing" />')
+        assert m is not None
+        assert m.group(2) is None
+        assert _is_noise_match(m) is False
+
+
+class TestVerifyPackageInstallLiteralsNarrowing:
+    """PKGINSTALL-REGEX-NARROWING (2026-09-10) integration-level tests,
+    proving the narrowing is wired into both finditer loops of
+    verify_package_install_literals (unregistered-entry branch and the
+    registered published/unpublished branches)."""
+
+    def test_flag_and_unrelated_package_noise_dropped_for_published_entry(self, tmp_path):
+        page = _write(
+            tmp_path,
+            "pip install --upgrade\n"
+            "pip install -r\n"
+            "pip install fastmcp\n"
+            "pip install aspose-words-foss\n",
+        )
+        findings = verify_package_install_literals(page, "words", "net", registry=_registry("pypi", True))
+        assert len(findings) == 1
+        assert "aspose-words-foss" in findings[0].message
+
+    def test_translation_artifact_noise_dropped_for_unregistered_entry(self, tmp_path):
+        """TC-MT018-07's unregistered-entry branch must apply the same
+        narrowing -- a translation artifact for a family with no registry
+        entry at all must not be a spurious UNREGISTERED finding."""
+        page = _write(tmp_path, "pip install dan konfiguracja.\n")
+        findings = verify_package_install_literals(page, "unknown-family", "python", registry={})
+        assert findings == []
+
+    def test_cells_net_real_collision_still_flagged(self, tmp_path):
+        """Real, live defect this gate must keep catching: the C# namespace
+        Aspose.Cells_FOSS used where the real NuGet package ID is
+        Aspose.Cells.FOSS."""
+        page = _write(tmp_path, "dotnet add package Aspose.Cells_FOSS\n")
+        findings = verify_package_install_literals(page, "cells", "net", registry=_registry("nuget", True))
+        assert len(findings) == 1
+
+    def test_3d_net_refresh_002_shaped_wrong_name_still_flagged_when_unpublished(self, tmp_path):
+        registry_3d_net = {
+            "3d": {"net": {
+                "registry_type": "nuget",
+                "candidate": {"name": "Aspose.3D.FOSS"},
+                "candidate_owner": "asposefoss",
+                "verification": {"published": False, "verified_at": None, "verified_owner": None,
+                                  "evidence_url": None, "method": None},
+                "owner_match": None,
+            }}
+        }
+        page = _write(tmp_path, "dotnet add package Aspose.3D.Converter\n")
+        findings = verify_package_install_literals(page, "3d", "net", registry=registry_3d_net)
+        assert len(findings) == 1
+        assert "UNPUBLISHED" in findings[0].message
+
+    def test_markdown_table_pipe_artifact_dropped(self, tmp_path):
+        page = _write(
+            tmp_path,
+            "| Method | Command |\n"
+            "|---|---|\n"
+            "| pip | pip install |\n",
+        )
+        findings = verify_package_install_literals(page, "words", "net", registry=_registry("pypi", True))
+        assert findings == []
+
+    def test_known_edge_case_package_still_flagged_end_to_end(self, tmp_path):
+        """Documented residual limitation (see TestIsNoiseMatchUnit) holds
+        end-to-end too, not just at the match-level."""
+        page = _write(tmp_path, "pip install markitdown-aspose-cells-plugin\n")
+        findings = verify_package_install_literals(page, "words", "net", registry=_registry("pypi", True))
+        assert len(findings) == 1
+
+    def test_before_after_delta_on_a_mixed_fixture(self, tmp_path):
+        """A single fixture combining every discovered noise category plus
+        two genuine findings -- documents the exact shape of the narrowing's
+        effect (5 lines of noise dropped, 2 real findings kept), the kind of
+        before/after delta this taskcard's acceptance checks require being
+        spot-checked and published, not silently absorbed."""
+        page = _write(
+            tmp_path,
+            "pip install --upgrade\n"
+            "pip install -e\n"
+            "pip install fastmcp\n"
+            "pip install |\n"
+            "pip install och\n"
+            "pip install aspose-words-foss\n"
+            'pip install "aspose-words-foss[extras]"\n',
+        )
+        findings = verify_package_install_literals(page, "words", "net", registry=_registry("pypi", True))
+        assert len(findings) == 2
+        assert all("aspose-words-foss" in f.message for f in findings)
+
+
+class TestShortcodeCallSpanStripping:
+    """PKGINSTALL-REGEX-NARROWING (2026-09-10): incidental real bug found
+    while writing this taskcard's regression tests, not the narrowing itself
+    -- `_is_noise_line`'s old blanket 'skip the whole line if it contains the
+    shortcode marker' check silently hid a co-located leftover literal
+    install command on the same physical line as a real shortcode call. Real,
+    live shape (not hypothetical): content/docs.aspose.org/ar/note/python/
+    _index.md:38, post commit 65c59fbaba (ST-054 mechanical migration),
+    carries both `{{< package-install-inline "note" "python" >}}` AND a
+    still-literal `pip install aspose-note` on the same line -- the old code
+    produced 0 findings for that line; must now produce 1. Fixed by
+    stripping only the shortcode call's own span (which never itself matches
+    _INSTALL_CMD_RE) instead of skipping the entire line."""
+
+    def test_strip_removes_only_the_call_span(self):
+        assert (
+            _strip_shortcode_calls('Install:\n\n{{< package-install "words" "net" >}}\n')
+            == "Install:\n\n\n"
+        )
+        assert _strip_shortcode_calls('{{< package-install-inline "note" "python" >}}') == ""
+
+    def test_strip_leaves_unrelated_text_untouched(self):
+        assert _strip_shortcode_calls("dotnet add package Aspose.Words.FOSS") == (
+            "dotnet add package Aspose.Words.FOSS"
+        )
+
+    def test_leftover_literal_on_the_same_line_as_a_shortcode_call_is_still_flagged(self, tmp_path):
+        page = _write(
+            tmp_path,
+            '`pip install aspose-note`.PDF requires `reportlab` '
+            '({{< package-install-inline "note" "python" >}}).\n',
+        )
+        registry = {
+            "note": {"python": {
+                "registry_type": "pypi",
+                "candidate": {"name": "aspose-note"},
+                "candidate_owner": "aspose-note",
+                "verification": {"published": True, "verified_at": None,
+                                  "verified_owner": None, "evidence_url": None, "method": None},
+                "owner_match": None,
+            }}
+        }
+        findings = verify_package_install_literals(page, "note", "python", registry=registry)
+        assert len(findings) == 1
+        assert "aspose-note" in findings[0].message
+
+    def test_bare_shortcode_call_with_no_other_literal_still_produces_no_findings(self, tmp_path):
+        page = _write(tmp_path, 'Install:\n\n{{< package-install "words" "net" >}}\n')
+        findings = verify_package_install_literals(page, "words", "net", registry=_registry("nuget", True))
+        assert findings == []

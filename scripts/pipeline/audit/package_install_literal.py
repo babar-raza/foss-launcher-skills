@@ -86,7 +86,58 @@ _INSTALL_CMD_RE = re.compile(
     re.IGNORECASE,
 )
 
-_SHORTCODE_MARKER = "package-install"
+# PKGINSTALL-REGEX-NARROWING (2026-09-10): a real, live shape found while
+# validating this taskcard against actual content -- a partially-migrated
+# line can carry BOTH a real {{< package-install(-inline) ... >}} shortcode
+# call AND a leftover literal install command on the same physical line
+# (content/docs.aspose.org/ar/note/python/_index.md:38, post commit
+# 65c59fbaba). The shortcode call syntax itself never matches
+# _INSTALL_CMD_RE (no pip/dotnet/npm/go/Install-Package keyword appears in
+# it), so the call span can simply be stripped before matching -- this fixes
+# a real false-negative (the old whole-line skip in _is_noise_line hid the
+# leftover literal entirely) without needing a line-level skip at all.
+_SHORTCODE_CALL_RE = re.compile(r"\{\{<\s*package-install(?:-inline)?\b[^>]*>\}\}")
+
+
+def _strip_shortcode_calls(line: str) -> str:
+    return _SHORTCODE_CALL_RE.sub("", line)
+
+
+def _is_noise_match(match: "re.Match") -> bool:
+    """PKGINSTALL-REGEX-NARROWING (2026-09-10): the verb-plus-token
+    alternative's captured token structurally can't be judged real/fake on
+    its own -- but every real candidate identifier in this portfolio
+    contains "aspose" as a substring (confirmed across all 27 tracked
+    products, live), so a token that doesn't is never a genuine instance of
+    THIS gate's defect class. Validated against the real, live corpus
+    before landing (not assumed): a full-portfolio sweep of every token this
+    rule would drop was manually reviewed, and every one fell into one of a
+    small number of confirmed-noise shapes -- flags (`--upgrade`/`-r`/`-e`/
+    `-D`), a genuinely different, unrelated real package
+    (`pip install fastmcp`, `pip install pywin32`), a markdown comparison
+    table's bare `|` cell delimiter (the regex's own token boundary matches
+    right up to a pipe character), and -- the most surprising finding of
+    this validation pass -- live machine-translation defects where an
+    "install X and Y"/"...using the pip install command" sentence had "and"
+    or "command" mistranslated while "pip install " stayed in English,
+    producing garbled fragments like "pip install dan"/"och"/"komanda."
+    across ~67 real locale files (confirmed, not estimated -- filed
+    separately, since that's a translation-quality defect, not an
+    install-command defect this gate exists to catch).
+
+    Deliberately loose, NOT exact-candidate matching: a WRONG-but-plausibly-
+    Aspose name (the confirmed real Aspose.Cells_FOSS-vs-Aspose.Cells.FOSS
+    collision, or a hypothetical Aspose.3D.Converter-vs-Aspose.3D.FOSS
+    mistake) must keep being flagged -- that IS this gate's job (the
+    3D-NET-REFRESH-002 precedent). Only the verb+token alternative is
+    filtered; `<PackageReference Include="...">` (match.group(2) is None
+    for that alternative) never is -- a full-portfolio sweep found every
+    real occurrence of that shape already names a real Aspose package, zero
+    observed noise."""
+    token = match.group(2)
+    if token is None:
+        return False
+    return "aspose" not in token.casefold()
 
 
 def _load_registry_cached(registry: dict | None) -> dict:
@@ -94,8 +145,6 @@ def _load_registry_cached(registry: dict | None) -> dict:
 
 
 def _is_noise_line(line: str) -> bool:
-    if _SHORTCODE_MARKER in line:
-        return True  # the shortcode call itself is not a literal-text violation
     if re.match(r"^#{1,6}\s", line) or re.match(r"^\s*-?\s*heading:\s", line, re.IGNORECASE):
         # Confirmed real case (content/kb.aspose.org/en/words/net/troubleshooting.md):
         # "### `dotnet add package Aspose.Words` cannot find the package" is a
@@ -147,7 +196,9 @@ def verify_package_install_literals(
             # first -- a line with two independent install-command mentions
             # (e.g. a base package plus an optional-extras variant) previously
             # produced only one Finding, silently undercounting.
-            for match in _INSTALL_CMD_RE.finditer(line):
+            for match in _INSTALL_CMD_RE.finditer(_strip_shortcode_calls(line)):
+                if _is_noise_match(match):
+                    continue
                 findings.append(Finding(
                     "FAIL", filepath, line_no,
                     f"Install command found for an UNREGISTERED family/platform: {match.group(0)!r}",
@@ -170,7 +221,9 @@ def verify_package_install_literals(
         # first was fixed and the second was promoted into view on some
         # future sweep. Confirmed live on real content, not hypothetical --
         # see the regex's own docstring note above this function.
-        for match in _INSTALL_CMD_RE.finditer(line):
+        for match in _INSTALL_CMD_RE.finditer(_strip_shortcode_calls(line)):
+            if _is_noise_match(match):
+                continue
             if published:
                 findings.append(Finding(
                     "FAIL", filepath, line_no,
