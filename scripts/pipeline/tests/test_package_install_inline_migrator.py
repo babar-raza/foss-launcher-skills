@@ -275,3 +275,42 @@ def test_run_migration_summary_aggregates_across_files(tmp_path):
     assert summary["files_checked"] == 2
     assert summary["files_migrated"] == 2
     assert summary["inline_replacements"] == 2
+
+
+class TestCollisionGate:
+    """PKGINSTALL-COLLISION-CLASSIFIER: mirrors test_package_install_migrator.py's
+    own TestCollisionGate -- same real cells/net structural-collision proof,
+    same --force/respect_collision_gate escape hatches."""
+
+    _CELLS_NET_REGISTRY = {
+        "cells": {"net": {"registry_type": "nuget", "candidate": {"name": "Aspose.Cells.FOSS"}}},
+    }
+
+    def test_collision_risk_product_blocks_by_default(self, tmp_path):
+        _write(tmp_path, "content/kb.aspose.org/en/cells/net/faq.md", (
+            "Run `dotnet add package Aspose.Cells.FOSS`.\n"
+        ))
+        summary = sut.run_migration("cells", "net", dry_run=True, registry=self._CELLS_NET_REGISTRY)
+        assert summary["collision_gate_blocked"] is True
+        assert summary["collision_classification"] == "COLLISION_RISK_STRUCTURAL"
+        assert summary["files_checked"] == 0
+        assert summary["inline_replacements"] == 0
+
+    def test_force_bypasses_the_gate(self, tmp_path):
+        _write(tmp_path, "content/kb.aspose.org/en/cells/net/faq.md", (
+            "Run `dotnet add package Aspose.Cells.FOSS`.\n"
+        ))
+        summary = sut.run_migration(
+            "cells", "net", dry_run=True, registry=self._CELLS_NET_REGISTRY, force=True,
+        )
+        assert summary["collision_gate_blocked"] is False
+        assert summary["files_checked"] == 1
+        assert summary["inline_replacements"] == 1
+
+    def test_safe_product_is_never_blocked(self, tmp_path):
+        _write(tmp_path, "content/kb.aspose.org/en/slides/net/faq.md", (
+            "Run `dotnet add package Aspose.Slides.Foss`.\n"
+        ))
+        summary = sut.run_migration("slides", "net", dry_run=True, registry=_NUGET_REGISTRY)
+        assert summary["collision_gate_blocked"] is False
+        assert summary["collision_classification"] == "SAFE_FOR_MECHANICAL_MIGRATION"

@@ -33,11 +33,13 @@ safety posture:
 - English source only (ST-054 TC-07 handles locale propagation separately,
   via S-75) -- discover_files_english_only() below, not
   package_install_migrator.py's all-locales discover_files().
-- Never migrates a COLLISION_RISK product (ST-054 TC-05's classification) --
-  this module has no gate of its own for that (matching
-  package_install_migrator.py's own "trusts its caller for product
-  selection" posture); the CLI caller/orchestration is responsible for only
-  invoking this against SAFE_FOR_MECHANICAL_MIGRATION products.
+- Never migrates a COLLISION_RISK product -- PKGINSTALL-COLLISION-CLASSIFIER
+  (2026-09-10) closed the gap this line used to document: run_migration()
+  now calls install_collision_classifier.classify_collision_risk() itself
+  and refuses to touch any file unless the result is
+  SAFE_FOR_MECHANICAL_MIGRATION/NOT_APPLICABLE or --force is passed. The
+  static ST-054 TC-05 Markdown report this classifier codifies is no longer
+  the only thing standing between this migrator and a real corruption risk.
 
 CLI:
     PYTHONPATH=scripts/pipeline .venv/Scripts/python -m commands.content.package_install_inline_migrator pdf go --dry-run
@@ -66,6 +68,9 @@ from commands.content.package_install_migrator import (  # noqa: E402
     _command_pattern,
 )
 from audit.package_install_literal import _is_noise_line  # noqa: E402
+from lib.install_collision_classifier import (  # noqa: E402
+    classify_collision_risk, CollisionClassification,
+)
 
 _DEFAULT_REPO_ROOT = Path(__file__).resolve().parents[4]
 _REPO_ROOT = _DEFAULT_REPO_ROOT
@@ -220,8 +225,28 @@ def discover_files_english_only(family: str, platform: str) -> list[Path]:
 
 
 def run_migration(
-    family: str, platform: str, *, dry_run: bool = True, limit: "int | None" = None, registry: dict | None = None,
+    family: str, platform: str, *, dry_run: bool = True, limit: "int | None" = None,
+    registry: dict | None = None, respect_collision_gate: bool = True, force: bool = False,
 ) -> dict[str, Any]:
+    reg = registry if registry is not None else load_registry()
+
+    collision_result = None
+    if respect_collision_gate and not force:
+        collision_result = classify_collision_risk(family, platform, registry=reg)
+        if collision_result.classification not in (
+            CollisionClassification.SAFE_FOR_MECHANICAL_MIGRATION,
+            CollisionClassification.NOT_APPLICABLE,
+        ):
+            return {
+                "family": family, "platform": platform, "dry_run": dry_run,
+                "files_checked": 0, "files_migrated": 0,
+                "inline_replacements": 0, "skipped_protected": 0,
+                "no_registry_entry": 0, "results": [],
+                "collision_gate_blocked": True,
+                "collision_classification": collision_result.classification.value,
+                "collision_reason": collision_result.reason,
+            }
+
     files = discover_files_english_only(family, platform)
     if limit is not None:
         files = files[:limit]
@@ -231,10 +256,12 @@ def run_migration(
         "files_checked": len(files), "files_migrated": 0,
         "inline_replacements": 0, "skipped_protected": 0,
         "no_registry_entry": 0, "results": [],
+        "collision_gate_blocked": False,
+        "collision_classification": collision_result.classification.value if collision_result else None,
     }
 
     for fp in files:
-        res = migrate_file(fp, family, platform, dry_run=dry_run, registry=registry)
+        res = migrate_file(fp, family, platform, dry_run=dry_run, registry=reg)
         summary["results"].append(res)
         summary["inline_replacements"] += res["inline_replacements"]
         if res["result"] in (R_MIGRATED, R_DRY_RUN):
@@ -256,10 +283,25 @@ def main(argv: "list[str] | None" = None) -> int:
     parser.add_argument("--dry-run", action="store_true", default=True)
     parser.add_argument("--execute", action="store_true")
     parser.add_argument("--limit", type=int, default=None)
+    parser.add_argument(
+        "--force", action="store_true",
+        help="Bypass the collision-safety gate (PKGINSTALL-COLLISION-CLASSIFIER) -- "
+             "only for a product already manually verified safe despite a "
+             "COLLISION_RISK_* classification. Never pass this by default.",
+    )
     args = parser.parse_args(argv)
 
     dry_run = not args.execute
-    summary = run_migration(args.family, args.platform, dry_run=dry_run, limit=args.limit)
+    summary = run_migration(
+        args.family, args.platform, dry_run=dry_run, limit=args.limit, force=args.force,
+    )
+
+    if summary.get("collision_gate_blocked"):
+        print(f"=== package_install_inline_migrator [BLOCKED] {args.family}/{args.platform} ===")
+        print(f"collision_classification: {summary['collision_classification']}")
+        print(f"reason: {summary['collision_reason']}")
+        print("Refusing to migrate -- pass --force only after manual verification.")
+        return 1
 
     mode = "DRY-RUN" if dry_run else "EXECUTE"
     print(f"=== package_install_inline_migrator [{mode}] {args.family}/{args.platform} ===")

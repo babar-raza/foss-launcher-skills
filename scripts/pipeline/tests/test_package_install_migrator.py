@@ -230,3 +230,57 @@ def test_run_migration_summary_aggregates_across_files(tmp_path):
     assert summary["files_migrated"] == 1
     assert summary["block_replacements"] == 1
     assert summary["inline_mentions_found"] == 1
+
+
+class TestCollisionGate:
+    """PKGINSTALL-COLLISION-CLASSIFIER: run_migration() must refuse to touch a
+    genuinely COLLISION_RISK_STRUCTURAL product without --force. Uses the real
+    cells/net registry entry -- confirmed structural collision against the
+    real, committed runs/.clone_cache/aspose_cells_net -- not a synthetic
+    fixture, so this proves the real wiring, not just a mocked classifier."""
+
+    _CELLS_NET_REGISTRY = {
+        "cells": {"net": {"registry_type": "nuget", "candidate": {"name": "Aspose.Cells.FOSS"}}},
+    }
+
+    def test_collision_risk_product_blocks_by_default(self, tmp_path):
+        _write(tmp_path, "content/docs.aspose.org/en/cells/net/getting-started/installation.md", (
+            "```bash\ndotnet add package Aspose.Cells.FOSS\n```\n"
+        ))
+        summary = sut.run_migration("cells", "net", dry_run=True, registry=self._CELLS_NET_REGISTRY)
+        assert summary["collision_gate_blocked"] is True
+        assert summary["collision_classification"] == "COLLISION_RISK_STRUCTURAL"
+        assert summary["files_checked"] == 0
+        assert summary["block_replacements"] == 0
+
+    def test_force_bypasses_the_gate(self, tmp_path):
+        _write(tmp_path, "content/docs.aspose.org/en/cells/net/getting-started/installation.md", (
+            "```bash\ndotnet add package Aspose.Cells.FOSS\n```\n"
+        ))
+        summary = sut.run_migration(
+            "cells", "net", dry_run=True, registry=self._CELLS_NET_REGISTRY, force=True,
+        )
+        assert summary["collision_gate_blocked"] is False
+        assert summary["files_checked"] == 1
+        assert summary["block_replacements"] == 1
+
+    def test_respect_collision_gate_false_bypasses_too(self, tmp_path):
+        _write(tmp_path, "content/docs.aspose.org/en/cells/net/getting-started/installation.md", (
+            "```bash\ndotnet add package Aspose.Cells.FOSS\n```\n"
+        ))
+        summary = sut.run_migration(
+            "cells", "net", dry_run=True, registry=self._CELLS_NET_REGISTRY,
+            respect_collision_gate=False,
+        )
+        assert summary["collision_gate_blocked"] is False
+        assert summary["files_checked"] == 1
+
+    def test_safe_product_is_never_blocked(self, tmp_path):
+        """slides/net is real-classified SAFE_FOR_MECHANICAL_MIGRATION -- the
+        gate must be transparent for the overwhelming majority case."""
+        _write(tmp_path, "content/docs.aspose.org/en/slides/net/getting-started/installation.md", (
+            "```bash\ndotnet add package Aspose.Slides.Foss\n```\n"
+        ))
+        summary = sut.run_migration("slides", "net", dry_run=True, registry=_NUGET_REGISTRY)
+        assert summary["collision_gate_blocked"] is False
+        assert summary["collision_classification"] == "SAFE_FOR_MECHANICAL_MIGRATION"

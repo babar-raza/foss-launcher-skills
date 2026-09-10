@@ -42,6 +42,9 @@ if _LIB_DIR not in sys.path:
 
 from lib.provenance import safe_content_write, ProtectedPageError  # noqa: E402
 from lib.package_registry_data import load_registry  # noqa: E402
+from lib.install_collision_classifier import (  # noqa: E402
+    classify_collision_risk, CollisionClassification,
+)
 
 _DEFAULT_REPO_ROOT = Path(__file__).resolve().parents[4]
 _REPO_ROOT = _DEFAULT_REPO_ROOT
@@ -194,7 +197,29 @@ def discover_files(family: str, platform: str) -> list[Path]:
     return sorted(set(files))
 
 
-def run_migration(family: str, platform: str, *, dry_run: bool = True, limit: "int | None" = None, registry: dict | None = None) -> dict[str, Any]:
+def run_migration(
+    family: str, platform: str, *, dry_run: bool = True, limit: "int | None" = None,
+    registry: dict | None = None, respect_collision_gate: bool = True, force: bool = False,
+) -> dict[str, Any]:
+    reg = registry if registry is not None else load_registry()
+
+    collision_result = None
+    if respect_collision_gate and not force:
+        collision_result = classify_collision_risk(family, platform, registry=reg)
+        if collision_result.classification not in (
+            CollisionClassification.SAFE_FOR_MECHANICAL_MIGRATION,
+            CollisionClassification.NOT_APPLICABLE,
+        ):
+            return {
+                "family": family, "platform": platform, "dry_run": dry_run,
+                "files_checked": 0, "files_migrated": 0,
+                "block_replacements": 0, "inline_mentions_found": 0,
+                "skipped_protected": 0, "no_registry_entry": 0, "results": [],
+                "collision_gate_blocked": True,
+                "collision_classification": collision_result.classification.value,
+                "collision_reason": collision_result.reason,
+            }
+
     files = discover_files(family, platform)
     if limit is not None:
         files = files[:limit]
@@ -204,10 +229,12 @@ def run_migration(family: str, platform: str, *, dry_run: bool = True, limit: "i
         "files_checked": len(files), "files_migrated": 0,
         "block_replacements": 0, "inline_mentions_found": 0,
         "skipped_protected": 0, "no_registry_entry": 0, "results": [],
+        "collision_gate_blocked": False,
+        "collision_classification": collision_result.classification.value if collision_result else None,
     }
 
     for fp in files:
-        res = migrate_file(fp, family, platform, dry_run=dry_run, registry=registry)
+        res = migrate_file(fp, family, platform, dry_run=dry_run, registry=reg)
         summary["results"].append(res)
         summary["block_replacements"] += res["block_replacements"]
         summary["inline_mentions_found"] += res["inline_mentions_found"]
@@ -230,10 +257,25 @@ def main(argv: "list[str] | None" = None) -> int:
     parser.add_argument("--dry-run", action="store_true", default=True)
     parser.add_argument("--execute", action="store_true")
     parser.add_argument("--limit", type=int, default=None)
+    parser.add_argument(
+        "--force", action="store_true",
+        help="Bypass the collision-safety gate (PKGINSTALL-COLLISION-CLASSIFIER) -- "
+             "only for a product already manually verified safe despite a "
+             "COLLISION_RISK_* classification. Never pass this by default.",
+    )
     args = parser.parse_args(argv)
 
     dry_run = not args.execute
-    summary = run_migration(args.family, args.platform, dry_run=dry_run, limit=args.limit)
+    summary = run_migration(
+        args.family, args.platform, dry_run=dry_run, limit=args.limit, force=args.force,
+    )
+
+    if summary.get("collision_gate_blocked"):
+        print(f"=== package_install_migrator [BLOCKED] {args.family}/{args.platform} ===")
+        print(f"collision_classification: {summary['collision_classification']}")
+        print(f"reason: {summary['collision_reason']}")
+        print("Refusing to migrate -- pass --force only after manual verification.")
+        return 1
 
     mode = "DRY-RUN" if dry_run else "EXECUTE"
     print(f"=== package_install_migrator [{mode}] {args.family}/{args.platform} ===")
