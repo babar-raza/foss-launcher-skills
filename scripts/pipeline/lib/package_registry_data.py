@@ -168,6 +168,30 @@ def load_registry(path: Path | None = None) -> dict[str, Any]:
         return json.load(f)
 
 
+CONTENT_HEALING_STATUSES = {"not_needed", "pending", "healed"}
+
+
+def set_content_healing_status(
+    entry: dict[str, Any], status: str, *, checked_at: str, reason: str = "",
+) -> None:
+    """Single choke point for the content_healing_status mutation, in place.
+
+    PKGINSTALL-CONTENT-HEALING-STATUS-WRITEBACK (2026-09-10, governing plan
+    section R.3.1): extracted from package_publish_watch.py::apply_proposal(),
+    which inlined this same 2-field write -- byte-identical behavior there,
+    now also reused by reconcile_content_healing_status.py's pending->healed
+    transition so the two writers can never silently diverge on the field
+    shape again (the root cause this mutation was first hardened against,
+    2026-09-07: 3d/python's content healing sat untracked after its own
+    registry flip because nothing durable recorded remediation completion).
+    """
+    if status not in CONTENT_HEALING_STATUSES:
+        raise ValueError(f"invalid content_healing_status {status!r} (must be one of {sorted(CONTENT_HEALING_STATUSES)})")
+    entry["content_healing_status"] = status
+    entry["content_healing_status_set_at"] = checked_at
+    entry["content_healing_status_reason"] = reason
+
+
 # ---------------------------------------------------------------------------
 # Naming-convention candidate fallback (TC-MT015-07)
 #

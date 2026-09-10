@@ -34,6 +34,7 @@ from package_registry_data import (  # noqa: E402
     naming_convention_owner,
     validate_package_entry,
     validate_package_registry,
+    set_content_healing_status,
 )
 
 
@@ -483,3 +484,50 @@ def test_slides_java_candidate_matches_live_verified_coordinate():
     assert entry["candidate"]["group_id"] == "org.aspose"
     assert entry["candidate"]["artifact_id"] == "aspose-slides-foss"
     assert entry["candidate"]["version"] == "26.7.0"
+
+
+class TestSetContentHealingStatus:
+    """PKGINSTALL-CONTENT-HEALING-STATUS-WRITEBACK (2026-09-10): the single
+    choke point for this mutation, extracted from
+    package_publish_watch.py::apply_proposal()'s previously-inlined code so
+    that writer and reconcile_content_healing_status.py's own writer can
+    never silently diverge on field shape."""
+
+    def test_sets_all_three_fields(self):
+        entry = {"registry_type": "pypi", "candidate": {"name": "x"}}
+        set_content_healing_status(entry, "pending", checked_at="2026-09-10", reason="test reason")
+        assert entry["content_healing_status"] == "pending"
+        assert entry["content_healing_status_set_at"] == "2026-09-10"
+        assert entry["content_healing_status_reason"] == "test reason"
+
+    def test_reason_defaults_to_empty_string(self):
+        entry = {}
+        set_content_healing_status(entry, "not_needed", checked_at="2026-09-10")
+        assert entry["content_healing_status_reason"] == ""
+
+    def test_rejects_unknown_status(self):
+        entry = {}
+        try:
+            set_content_healing_status(entry, "bogus", checked_at="2026-09-10")
+            assert False, "expected ValueError"
+        except ValueError:
+            pass
+        assert "content_healing_status" not in entry, "must not partially mutate on rejection"
+
+    def test_healed_is_a_valid_status(self):
+        """The new terminal state reconcile_content_healing_status.py
+        transitions into -- must not be rejected as 'unknown'."""
+        entry = {}
+        set_content_healing_status(entry, "healed", checked_at="2026-09-10", reason="0 remaining findings")
+        assert entry["content_healing_status"] == "healed"
+
+    def test_overwrites_existing_values_in_place(self):
+        entry = {
+            "content_healing_status": "pending",
+            "content_healing_status_set_at": "2026-08-01",
+            "content_healing_status_reason": "old reason",
+        }
+        set_content_healing_status(entry, "healed", checked_at="2026-09-10", reason="new reason")
+        assert entry["content_healing_status"] == "healed"
+        assert entry["content_healing_status_set_at"] == "2026-09-10"
+        assert entry["content_healing_status_reason"] == "new reason"

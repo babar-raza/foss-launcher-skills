@@ -79,7 +79,7 @@ from package_registries import apply_debounce, is_corroborated_match, REQUIRED_C
 from package_registries import pypi, nuget, npm, go, cargo  # noqa: E402
 from audit.package_install_literal import verify_package_install_literals  # noqa: E402
 from commands.ops import registry_coverage_scan  # noqa: E402
-from package_registry_data import validate_package_registry  # noqa: E402
+from package_registry_data import validate_package_registry, set_content_healing_status  # noqa: E402
 
 DEFAULT_MAX_AUTO_APPLY = 5
 
@@ -605,10 +605,16 @@ def apply_proposal(data: dict[str, Any], proposal: dict[str, Any], *, checked_at
     # pending 2026-09-07 with zero durable record of that fact anywhere but a
     # closed issue's comment). Setting this here, in the same atomic write as the
     # publish-state flip, means the two can never diverge silently again.
-    entry["content_healing_status"] = (
-        "pending" if proposal.get("content_healing_needed") else "not_needed"
+    # PKGINSTALL-CONTENT-HEALING-STATUS-WRITEBACK (2026-09-10): factored into
+    # the shared set_content_healing_status() helper (package_registry_data.py)
+    # so this writer and reconcile_content_healing_status.py's pending->healed
+    # transition can never diverge on field shape -- behavior unchanged.
+    set_content_healing_status(
+        entry,
+        "pending" if proposal.get("content_healing_needed") else "not_needed",
+        checked_at=checked_at,
+        reason=f"package-publish-watch proposal applied, content_healing_needed={proposal.get('content_healing_needed')!r}",
     )
-    entry["content_healing_status_set_at"] = checked_at
     return entry
 
 
