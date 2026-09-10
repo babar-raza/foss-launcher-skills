@@ -1704,10 +1704,19 @@ _pc_step_start "subprocess encoding parity"
 # grandfathered; counts may only decrease. Regenerate the baseline
 # deliberately (check_subprocess_encoding_parity.py --baseline) and commit
 # the diff with a note -- never to make a new violation fit.
+# MT067-2026-09-10 (found while committing a knowledge backfill): the check's
+# own docstring/--all-files help text define its designed default scope as
+# scripts/**/*.py|sh -- this step used to pipe ANY staged .py/.sh file
+# repo-wide, unfiltered, which wrongly flagged a verbatim third-party FOSS
+# example snippet (knowledge/{family}/{platform}/merged/snippets/*.py) as a
+# new pipeline-code violation. Scoped to scripts/ to match the check's own
+# intended purpose (this repo's hand-written pipeline/governance code, not
+# extracted upstream example content the pipeline must not alter).
 # ---------------------------------------------------------------------------
 staged_enc_files=()
 while IFS= read -r _sepline; do staged_enc_files+=("$_sepline"); done < <(
-    git diff --cached --name-only --diff-filter=ACMR 2>/dev/null | grep -E '\.(py|sh)$' || true
+    git diff --cached --name-only --diff-filter=ACMR 2>/dev/null \
+        | grep -E '\.(py|sh)$' | grep -E '^scripts/' || true
 )
 if [ ${#staged_enc_files[@]} -gt 0 ]; then
     if [ -n "$_HOOK_PYTHON" ] && [ -f "scripts/ci/checks/check_subprocess_encoding_parity.py" ]; then
