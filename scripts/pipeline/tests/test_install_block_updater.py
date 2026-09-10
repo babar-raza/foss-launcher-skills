@@ -9,6 +9,12 @@ Tests for install_block_updater.py (TC-05).
   T5: English-only guard (locale-suffixed file rejected)
   T6: Noop when content already matches knowledge
   T7: quickstart.md gets same update as installation.md
+
+ST-054 TC-03 (2026-09-10): the durability fix -- a page already rendering its
+install command via shortcode must be left untouched by any future
+manifest-delta event, and a not-yet-migrated page must be migrated straight
+to the shortcode call (not another literal block) whenever a registry entry
+exists to ground it. See TestTC03ShortcodeAware below.
 """
 
 import json
@@ -347,3 +353,106 @@ def test_t7_quickstart_updated_same_as_installation(tmp_path):
     assert summary["files_updated"] == 2
     dry_results = [r for r in summary["results"] if r["result"] == sut.R_DRY_RUN]
     assert len(dry_results) == 2, f"Expected 2 DRY_RUN results, got: {[r['result'] for r in summary['results']]}"
+
+
+# ── ST-054 TC-03: shortcode-aware durability fix ───────────────────────────
+
+def _make_registry(tmp_path: Path, family: str, platform: str, registry_type: str) -> Path:
+    p = tmp_path / "data" / "package_registry.json"
+    p.parent.mkdir(parents=True, exist_ok=True)
+    p.write_text(
+        json.dumps({family: {platform: {"registry_type": registry_type}}}),
+        encoding="utf-8",
+    )
+    return p
+
+
+class TestTC03ShortcodeAware:
+    def test_page_already_using_shortcode_is_left_untouched(self, tmp_path):
+        """A page already calling the inline shortcode is self-updating at
+        Hugo build time -- a simulated version-bump event must report NOOP
+        and must not rewrite the shortcode call into a literal block."""
+        page_content = (
+            "---\ntitle: Installation\nprovenance:\n  auto_updatable: true\n---\n\n"
+            'Install: {{< package-install-inline "pdf" "python" >}}\n'
+        )
+        page = _make_content_file(
+            tmp_path,
+            "content/docs.aspose.org/en/pdf/python/getting-started/installation.md",
+            page_content,
+        )
+        _make_registry(tmp_path, "pdf", "python", "pypi")
+        result = sut.update_install_blocks(
+            page, PYTHON_INSTALL_INFO, "python", dry_run=False, family="pdf", platform="python"
+        )
+        assert result["result"] == sut.R_NOOP
+        assert result["blocks_updated"] == 0
+        assert page.read_text(encoding="utf-8") == page_content
+
+    def test_page_already_using_block_shortcode_is_left_untouched(self, tmp_path):
+        """Same guard, for the block-level package-install shortcode (not
+        just the inline sibling)."""
+        page_content = (
+            "---\ntitle: Installation\nprovenance:\n  auto_updatable: true\n---\n\n"
+            '{{< package-install "pdf" "python" >}}\n'
+        )
+        page = _make_content_file(
+            tmp_path,
+            "content/docs.aspose.org/en/pdf/python/getting-started/installation.md",
+            page_content,
+        )
+        result = sut.update_install_blocks(
+            page, PYTHON_INSTALL_INFO, "python", dry_run=False, family="pdf", platform="python"
+        )
+        assert result["result"] == sut.R_NOOP
+        assert result["blocks_updated"] == 0
+
+    def test_unmigrated_page_gets_shortcode_instead_of_literal_block(self, tmp_path):
+        """A page not yet migrated, but with a registry entry for its
+        family/platform, must be rewritten to the shortcode call -- not
+        another literal block -- so it never needs migrating again."""
+        page_content = (
+            "---\ntitle: Installation\nprovenance:\n  auto_updatable: true\n---\n\n"
+            "## Install\n\n"
+            "```bash\n"
+            "pip install aspose-pdf>=0.1.0-alpha\n"
+            "```\n"
+        )
+        page = _make_content_file(
+            tmp_path,
+            "content/docs.aspose.org/en/pdf/python/getting-started/installation.md",
+            page_content,
+        )
+        _make_registry(tmp_path, "pdf", "python", "pypi")
+        result = sut.update_install_blocks(
+            page, PYTHON_INSTALL_INFO, "python", dry_run=False, family="pdf", platform="python"
+        )
+        assert result["result"] == sut.R_UPDATED
+        written = page.read_text(encoding="utf-8")
+        assert '{{< package-install "pdf" "python" >}}' in written
+        assert "pip install" not in written
+        assert "```" not in written
+
+    def test_unregistered_family_platform_falls_back_to_literal_block(self, tmp_path):
+        """No data/package_registry.json entry for this family/platform (or no
+        registry file at all) -- must fall back to the pre-TC-03 literal-block
+        behavior unchanged, never crash."""
+        page_content = (
+            "---\ntitle: Installation\nprovenance:\n  auto_updatable: true\n---\n\n"
+            "```bash\n"
+            "pip install aspose-pdf>=0.1.0-alpha\n"
+            "```\n"
+        )
+        page = _make_content_file(
+            tmp_path,
+            "content/docs.aspose.org/en/pdf/python/getting-started/installation.md",
+            page_content,
+        )
+        # No data/package_registry.json written at all under tmp_path.
+        result = sut.update_install_blocks(
+            page, PYTHON_INSTALL_INFO, "python", dry_run=False, family="pdf", platform="python"
+        )
+        assert result["result"] == sut.R_UPDATED
+        written = page.read_text(encoding="utf-8")
+        assert "pip install aspose-pdf>=25.1" in written
+        assert "package-install" not in written

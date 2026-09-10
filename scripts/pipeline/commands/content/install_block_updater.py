@@ -400,6 +400,59 @@ def _find_prose_install_mentions(
 
 # ── Core updater ───────────────────────────────────────────────────────────
 
+# ST-054 TC-03 (2026-09-10): shortcode-name per registry_type, mirroring
+# package_install_migrator.py's own shortcode-construction logic exactly
+# (`shortcode = f'{{< package-install "{family}" "{platform}" >}}'`) so this
+# updater and that migrator never diverge on what a given registry_type
+# should render as.
+_SHORTCODE_BY_REGISTRY_TYPE = {
+    "maven": "maven-coord",
+    "cargo": "cargo-crate",
+    "pypi": "package-install",
+    "nuget": "package-install",
+    "npm": "package-install",
+    "go_modules": "package-install",
+}
+
+_INSTALL_SHORTCODE_RE = re.compile(
+    r"\{\{<\s*(package-install-inline|package-install|maven-coord|maven-gav|cargo-crate)\b"
+)
+
+
+def _has_install_shortcode(content: str) -> bool:
+    """True if content already contains any install-rendering shortcode call
+    anywhere -- ST-054 TC-03. A page in this state is self-updating at Hugo
+    build time; a future manifest-delta event (INSTALL_CMD_ADDED/CHANGED,
+    VERSION_BUMP) has nothing left to do to it."""
+    return bool(_INSTALL_SHORTCODE_RE.search(content))
+
+
+def _registry_entry_for(family: str, platform: str) -> "dict | None":
+    """Load data/package_registry.json and return this family/platform's
+    entry, or None if the registry can't be loaded or has no such entry.
+    Never raises -- a lookup failure here must degrade to the pre-TC-03
+    literal-block behavior, not crash the updater."""
+    try:
+        from package_registry_data import load_registry
+    except ImportError:
+        return None
+    try:
+        data = load_registry(_REPO_ROOT / "data" / "package_registry.json")
+    except (OSError, FileNotFoundError, ValueError):
+        return None
+    return (data.get(family) or {}).get(platform)
+
+
+def _shortcode_call_for(family: str, platform: str, entry: dict) -> str:
+    """Return the shortcode-call replacement text for this entry's
+    registry_type, or "" for an unrecognized type (caller falls back to the
+    literal-block behavior in that case)."""
+    shortcode = _SHORTCODE_BY_REGISTRY_TYPE.get(entry.get("registry_type", ""))
+    if not shortcode:
+        return ""
+    return f'{{{{< {shortcode} "{family}" "{platform}" >}}}}'
+
+
 def _build_new_block(new_info: dict[str, str], platform_type: str, old_block: str) -> str:
     """Build the replacement fenced code block from new install info.
 
@@ -473,6 +526,16 @@ def update_install_blocks(
 
     content = page_path.read_text(encoding="utf-8", errors="replace")
 
+    # ST-054 TC-03: a page already rendering its install command via shortcode
+    # is self-updating at Hugo build time -- a manifest-delta event (version
+    # bump, publish-state change) has nothing left to do to it, and must not
+    # fall through to the literal-block logic below (which has no shortcode
+    # calls to find and would report SKIPPED_NO_INSTALL_BLOCK instead of the
+    # more accurate NOOP_ALREADY_CURRENT).
+    if _has_install_shortcode(content):
+        result["result"] = R_NOOP
+        return result
+
     # Noop check: if content already has the correct install block
     if _content_already_matches(content, new_info, platform_type):
         result["result"] = R_NOOP
@@ -496,11 +559,27 @@ def update_install_blocks(
         result["result"] = R_SKIPPED_PROTECTED
         return result
 
+    # ST-054 TC-03: prefer migrating straight to the shortcode call over
+    # regenerating another literal block, whenever a registry entry exists to
+    # ground it -- this is the durability fix itself: without it, every future
+    # manifest-delta event would keep re-writing literal text for a page ST-054's
+    # migration (TC-06) hasn't reached yet, undoing that migration's own work on
+    # its next run. Falls back to the pre-TC-03 literal-block behavior when no
+    # entry exists (unregistered family/platform), matching this module's
+    # existing fail-open-to-old-behavior posture elsewhere in this function.
+    registry_entry = _registry_entry_for(family, platform) if family and platform else None
+    shortcode_call = (
+        _shortcode_call_for(family, platform, registry_entry) if registry_entry else ""
+    )
+
     # Build updated content by replacing install blocks (last-to-first to preserve offsets)
     updated = content
     blocks_updated = 0
     for s, e, lang, old_block in reversed(install_blocks):
-        new_block = _build_new_block(new_info, platform_type, old_block)
+        if shortcode_call:
+            new_block = shortcode_call
+        else:
+            new_block = _build_new_block(new_info, platform_type, old_block)
         updated = updated[:s] + new_block + updated[e:]
         blocks_updated += 1
 
