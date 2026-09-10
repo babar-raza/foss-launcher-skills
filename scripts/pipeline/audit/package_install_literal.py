@@ -66,8 +66,22 @@ _TRACKED_REGISTRY_TYPES = {"pypi", "nuget", "npm", "go_modules"}
 # undercounting true .NET scope in every sweep run before this fix (confirmed:
 # content/docs.aspose.org/en/cells/net/getting-started/installation.md has
 # both forms, live, alongside the correct package-install shortcode call).
+#
+# ST-054 TC-17 (2026-09-10): the package-identifier group was `(\S+)`, which
+# is unbounded at markdown-syntax boundaries -- when no whitespace follows the
+# closing backtick of an inline code span (routine in locale-translated
+# prose, e.g. Arabic/CJK punctuation directly abutting markup with no space),
+# it swallowed the backtick plus adjacent trailing text into the "matched
+# identifier". Confirmed live: content/docs.aspose.org/ar/note/python/_index.md:38
+# reported as `pip install aspose-note`.PDF' instead of the real span
+# `` `pip install aspose-note` ``. Bounded to stop at whitespace or a
+# backtick -- NOT a double quote, since a legitimate quoted argument
+# (`pip install "aspose-note[pdf]"`) starts with one; excluding quotes here
+# was tried first and broke matching on exactly that real, live pattern
+# (same file, line 38's second occurrence) -- caught by this fix's own new
+# regression tests before landing, not assumed correct.
 _INSTALL_CMD_RE = re.compile(
-    r"\b(pip install|dotnet add package|npm install|go get|Install-Package)\s+(\S+)"
+    r"\b(pip install|dotnet add package|npm install|go get|Install-Package)\s+([^\s`]+)"
     r"|<PackageReference\s+Include=\"[^\"]+\"",
     re.IGNORECASE,
 )
@@ -129,46 +143,52 @@ def verify_package_install_literals(
         for line_no, line in enumerate(text.splitlines(), start=1):
             if _is_noise_line(line):
                 continue
-            match = _INSTALL_CMD_RE.search(line)
-            if not match:
-                continue
-            findings.append(Finding(
-                "FAIL", filepath, line_no,
-                f"Install command found for an UNREGISTERED family/platform: {match.group(0)!r}",
-                f"{family}/{platform} has no entry in data/package_registry.json at all -- "
-                "there is no live-verified identity to ground this command against, which is "
-                "exactly the gap that let 14 launched products ship fabricated or "
-                "never-published install commands undetected (Mission "
-                "MT018-2026-08-01-PACKAGE-IDENTITY-COVERAGE). Add a registry entry first "
-                "(registry_backfill.py), then use the appropriate shortcode.",
-            ))
+            # ST-054 TC-17: iterate ALL matches on the line, not just the
+            # first -- a line with two independent install-command mentions
+            # (e.g. a base package plus an optional-extras variant) previously
+            # produced only one Finding, silently undercounting.
+            for match in _INSTALL_CMD_RE.finditer(line):
+                findings.append(Finding(
+                    "FAIL", filepath, line_no,
+                    f"Install command found for an UNREGISTERED family/platform: {match.group(0)!r}",
+                    f"{family}/{platform} has no entry in data/package_registry.json at all -- "
+                    "there is no live-verified identity to ground this command against, which is "
+                    "exactly the gap that let 14 launched products ship fabricated or "
+                    "never-published install commands undetected (Mission "
+                    "MT018-2026-08-01-PACKAGE-IDENTITY-COVERAGE). Add a registry entry first "
+                    "(registry_backfill.py), then use the appropriate shortcode.",
+                ))
         return findings
 
     published = bool(entry.get("verification", {}).get("published"))
     for line_no, line in enumerate(text.splitlines(), start=1):
         if _is_noise_line(line):
             continue
-        match = _INSTALL_CMD_RE.search(line)
-        if not match:
-            continue
-        if published:
-            findings.append(Finding(
-                "FAIL", filepath, line_no,
-                f"Raw literal install command found: {match.group(0)!r}",
-                f'Use the package-install shortcode instead: '
-                f'{{{{< package-install "{family}" "{platform}" >}}}}. '
-                "See Mission MT015-2026-07-30-PACKAGE-REGISTRY.",
-            ))
-        else:
-            findings.append(Finding(
-                "FAIL", filepath, line_no,
-                f"Specific install command found for an UNPUBLISHED package: {match.group(0)!r}",
-                f'{family}/{platform} is not yet confirmed published (data/package_registry.json '
-                f'verification.published=false) -- use the package-install shortcode '
-                f'({{{{< package-install "{family}" "{platform}" >}}}}, which renders a real, '
-                "actionable GitHub-source install command for this case, ST-054 TC-13) rather "
-                "than a specific command a generation step guessed at. See root cause 1 in the "
-                "governing plan (this exact defect class already shipped once: 3D-NET-REFRESH-002).",
-            ))
+        # ST-054 TC-17: same finditer fix as the unregistered-entry branch
+        # above -- a line with two install-command mentions previously
+        # surfaced only the first, silently hiding the second until the
+        # first was fixed and the second was promoted into view on some
+        # future sweep. Confirmed live on real content, not hypothetical --
+        # see the regex's own docstring note above this function.
+        for match in _INSTALL_CMD_RE.finditer(line):
+            if published:
+                findings.append(Finding(
+                    "FAIL", filepath, line_no,
+                    f"Raw literal install command found: {match.group(0)!r}",
+                    f'Use the package-install shortcode instead: '
+                    f'{{{{< package-install "{family}" "{platform}" >}}}}. '
+                    "See Mission MT015-2026-07-30-PACKAGE-REGISTRY.",
+                ))
+            else:
+                findings.append(Finding(
+                    "FAIL", filepath, line_no,
+                    f"Specific install command found for an UNPUBLISHED package: {match.group(0)!r}",
+                    f'{family}/{platform} is not yet confirmed published (data/package_registry.json '
+                    f'verification.published=false) -- use the package-install shortcode '
+                    f'({{{{< package-install "{family}" "{platform}" >}}}}, which renders a real, '
+                    "actionable GitHub-source install command for this case, ST-054 TC-13) rather "
+                    "than a specific command a generation step guessed at. See root cause 1 in the "
+                    "governing plan (this exact defect class already shipped once: 3D-NET-REFRESH-002).",
+                ))
 
     return findings

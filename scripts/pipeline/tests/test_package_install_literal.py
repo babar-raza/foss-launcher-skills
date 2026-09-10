@@ -202,3 +202,108 @@ class TestTroubleshootingHeadingFalsePositiveGuard:
             real_path, "words", "net", registry=_registry("nuget", False)
         )
         assert findings == [], f"false positive(s) against real shipped content: {findings}"
+
+
+class TestMultipleOccurrencesOnOneLine:
+    """ST-054 TC-17: _INSTALL_CMD_RE.search(line) capped detection at one
+    match per line in every branch (unregistered/published/unpublished),
+    silently undercounting any line with more than one independent
+    install-command mention -- structurally different from an ordinary
+    false-negative, since fixing the first occurrence on a line simply
+    promoted the second into view on some *future* sweep rather than the
+    current one, which is consistent with why this campaign's own baseline
+    sweeps (6,522 / 6,248 / 6,454 on 2026-09-10) never reconciled with each
+    other. Both golden fixtures below are pulled verbatim from real, live
+    content -- not synthetic reproductions -- confirmed by direct read
+    before this fix landed."""
+
+    def _registry_note_python(self, published: bool) -> dict:
+        return {
+            "note": {"python": {
+                "registry_type": "pypi",
+                "candidate": {"name": "aspose-note"},
+                "candidate_owner": "aspose-note",
+                "verification": {"published": published, "verified_at": None,
+                                  "verified_owner": None, "evidence_url": None, "method": None},
+                "owner_match": None,
+            }}
+        }
+
+    def test_two_pip_install_mentions_on_one_line_both_flagged(self, tmp_path):
+        """Golden fixture, verbatim from content/docs.aspose.org/ar/note/python/_index.md:38
+        (confirmed via direct read 2026-09-10): a base-package `pip install`
+        mention and a separate optional-extras `pip install "X[pdf]"` mention
+        share one line, in Arabic prose with no space after the first
+        closing backtick. Previously produced exactly 1 finding; must now
+        produce 2."""
+        page = _write(
+            tmp_path,
+            'مطلوب Python 3.10 أو أعلى. `pip install aspose-note`.PDF تطلب '
+            '`reportlab` (مقرر مع `pip install "aspose-note[pdf]"`).\n',
+        )
+        findings = verify_package_install_literals(
+            page, "note", "python", registry=self._registry_note_python(True)
+        )
+        assert len(findings) == 2, f"expected 2 findings (one per occurrence), got {findings}"
+        assert all(f.line_no == 1 for f in findings)
+
+    def test_matched_span_stops_at_closing_backtick_not_trailing_prose(self, tmp_path):
+        """Same fixture: the FIRST match's reported identifier must be the
+        real span (`aspose-note`), not the pre-fix overcapture that swallowed
+        the closing backtick and the next word (`aspose-note`.PDF`) -- the
+        capture-group boundary fix, proven on the same real line as the
+        multi-match fix above."""
+        page = _write(
+            tmp_path,
+            'مطلوب Python 3.10 أو أعلى. `pip install aspose-note`.PDF تطلب '
+            '`reportlab` (مقرر مع `pip install "aspose-note[pdf]"`).\n',
+        )
+        findings = verify_package_install_literals(
+            page, "note", "python", registry=self._registry_note_python(True)
+        )
+        first = findings[0]
+        assert "aspose-note`.PDF" not in first.message
+        assert "pip install aspose-note" in first.message
+
+    def test_against_the_real_note_python_index_file(self):
+        """End-to-end proof against the actual shipped ar/note/python/_index.md
+        -- must find at least the 2 known occurrences on line 38 (real content
+        may carry more elsewhere in the file; this is a floor, not an exact
+        count, so the test survives unrelated future edits to the file)."""
+        real_path = (
+            Path(__file__).resolve().parents[3]
+            / "content" / "docs.aspose.org" / "ar" / "note" / "python" / "_index.md"
+        )
+        if not real_path.is_file():
+            import pytest
+            pytest.skip("real ar/note/python/_index.md not present in this checkout")
+        findings = verify_package_install_literals(
+            real_path, "note", "python", registry=self._registry_note_python(True)
+        )
+        line_38 = [f for f in findings if f.line_no == 38]
+        assert len(line_38) >= 2, (
+            f"expected >=2 findings on line 38 of the real file (multi-occurrence "
+            f"regression), got {len(line_38)}: {line_38}"
+        )
+
+    def test_against_the_real_products_note_python_index_file(self):
+        """Second real fixture, higher density: content/products.aspose.org/
+        ar/note/python/_index.md has 3 separate lines (19, 47, 96) each with
+        two independent pip-install mentions (base package + [pdf] extra),
+        confirmed via direct read 2026-09-10. Proves the fix holds across
+        multiple lines in one file, not just the single-line case above."""
+        real_path = (
+            Path(__file__).resolve().parents[3]
+            / "content" / "products.aspose.org" / "ar" / "note" / "python" / "_index.md"
+        )
+        if not real_path.is_file():
+            import pytest
+            pytest.skip("real products.aspose.org ar/note/python/_index.md not present")
+        findings = verify_package_install_literals(
+            real_path, "note", "python", registry=self._registry_note_python(True)
+        )
+        for expected_line in (19, 47, 96):
+            on_line = [f for f in findings if f.line_no == expected_line]
+            assert len(on_line) >= 2, (
+                f"expected >=2 findings on line {expected_line}, got {len(on_line)}: {on_line}"
+            )
