@@ -1111,7 +1111,15 @@ def reconcile(
         if push:
             _git(["push", remote, f"{commit_sha}:refs/heads/{branch}"], repo_root=root)
             _git(["update-ref", f"refs/remotes/{remote_name}/{branch}", commit_sha], repo_root=root)
-        _git(["update-ref", f"refs/heads/{branch}", commit_sha], repo_root=root)
+        # GC-02 (2026-09-10): CAS form, same reasoning as plumb_commit()'s own
+        # local-ref advance -- `commit_sha`'s parent is fixed to
+        # `old_parent_sha`, so that (not a fresh re-read of whatever the ref
+        # currently holds) is the only value for which this comparison
+        # actually protects chain integrity against a concurrent session.
+        _git(
+            ["update-ref", f"refs/heads/{branch}", commit_sha, old_parent_sha],
+            repo_root=root,
+        )
         tree_sha = _git(["rev-parse", f"{commit_sha}^{{tree}}"], repo_root=root).stdout.strip()
         return {
             "head_sha": old_parent_sha,
@@ -1536,7 +1544,25 @@ def plumb_commit(
     # (L1-MT028-03/L3-MT028-01): 2 of that mission's 4 sequential --no-push
     # commits landed with the SAME parent instead of chaining, discovered
     # only because the caller happened to manually re-verify parent SHAs.
-    _git(["update-ref", f"refs/heads/{branch}", commit_sha], repo_root=root)
+    #
+    # GC-02 (2026-09-10): the plain two-argument form above silently
+    # last-write-wins if a CONCURRENT session's plumb_commit() call moved
+    # refs/heads/{branch} in the (possibly multi-second, Tier-1-check-sized)
+    # window between this session reading `head_sha` and this update-ref
+    # call -- the exact MT028 incident shape one layer up: across two
+    # concurrent sessions rather than two sequential calls in one. The
+    # three-argument compare-and-swap form makes git itself atomically
+    # verify the ref is still exactly `head_sha` (the parent commit_sha was
+    # actually built on top of) before writing, and fails loudly -- naming
+    # both the expected and actual SHAs in its own stderr -- instead of
+    # orphaning whatever a concurrent session already landed there. Passing
+    # a value freshly re-read from the ref immediately before this call,
+    # instead of `head_sha`, would NOT catch this: it would just re-assert
+    # "whatever is currently there," always trivially matching, and silently
+    # advance past a concurrent commit exactly as before -- `head_sha` (the
+    # value this specific commit's parent was fixed to at commit-tree time)
+    # is the only value for which this comparison has any meaning.
+    _git(["update-ref", f"refs/heads/{branch}", commit_sha, head_sha], repo_root=root)
 
     # Governance trail, pending-before-push (Phase 1, TC-SG-04): the record is
     # created with the built commit's sha BEFORE any push, so a crash anywhere

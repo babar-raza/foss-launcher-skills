@@ -287,6 +287,148 @@ def test_three_sequential_no_push_commits_all_chain(tmp_path):
     assert "c.txt" in files_at_tip
 
 
+# ---------------------------------------------------------------------------
+# GC-02 (2026-09-10): compare-and-swap the local branch ref update above,
+# closing the MT028 incident shape one layer up -- across two CONCURRENT
+# sessions sharing this repo's single physical checkout, not just two
+# sequential calls in one. Previously the plain two-argument `update-ref`
+# would silently last-write-wins if another session's plumb_commit() call
+# moved refs/heads/{branch} in the window between this call reading
+# `head_sha` and its own update-ref attempt.
+# ---------------------------------------------------------------------------
+
+
+def test_uncontended_commit_still_succeeds_with_the_cas_form(tmp_path):
+    """Normal path, explicitly asserted for this taskcard: the new
+    three-argument compare-and-swap update-ref must behave identically to
+    the old plain form when nothing raced it."""
+    work, bare = _init_repo_with_remote(tmp_path)
+    original_head = _git(work, "rev-parse", "HEAD").stdout.strip()
+
+    (work / "a.txt").write_text("a", encoding="utf-8")
+    result = gpc.plumb_commit(
+        ["a.txt"], "uncontended", repo_root=work, branch="main", remote=str(bare),
+        skip_stale_check=True, push=False,
+    )
+
+    assert _git(work, "rev-parse", "refs/heads/main").stdout.strip() == result["commit_sha"]
+    assert result["commit_sha"] != original_head
+
+
+def test_local_ref_cas_detects_a_concurrent_commit_landed_in_between(tmp_path):
+    """Reproduces and closes the exact MT028 incident shape: a concurrent
+    session's commit lands on refs/heads/{branch} in the window between this
+    call reading head_sha and its own update-ref attempt.
+
+    Deterministic, per this taskcard's own testing guidance for
+    git-plumbing code: a fake command_runner (this module's own sanctioned
+    T3 seam -- see gpc.configure()) fires exactly once, moving the ref out
+    from under this call at precisely the moment its own update-ref is
+    about to run -- not a real-concurrency/threading test relying on actual
+    process timing, and not a T2 internal-function replacement (AGENTS.md
+    16), which is banned in this repo.
+    """
+    work, bare = _init_repo_with_remote(tmp_path)
+
+    # Build the "concurrent session's" commit for real, then rewind
+    # refs/heads/main back to original_head so the session under test below
+    # reads head_sha == original_head, as if the concurrent commit had not
+    # yet landed when it started.
+    (work / "concurrent.txt").write_text("concurrent", encoding="utf-8")
+    _git(work, "add", "concurrent.txt")
+    _git(work, "commit", "-q", "-m", "concurrent session's commit")
+    concurrent_sha = _git(work, "rev-parse", "HEAD").stdout.strip()
+    original_head = _git(work, "rev-parse", "HEAD~1").stdout.strip()
+    _git(work, "update-ref", "refs/heads/main", original_head)
+
+    fired = {"count": 0}
+
+    def _hooked_runner(cmd, **kwargs):
+        if (
+            fired["count"] == 0
+            and len(cmd) >= 3
+            and cmd[0] == "git"
+            and cmd[1] == "update-ref"
+            and cmd[2] == "refs/heads/main"
+        ):
+            fired["count"] += 1
+            # The concurrent session's commit lands right now -- exactly the
+            # window this call's own update-ref is about to close.
+            subprocess.run(
+                ["git", "update-ref", "refs/heads/main", concurrent_sha],
+                cwd=kwargs.get("cwd"), capture_output=True,
+                text=True, encoding="utf-8", errors="replace",
+            )
+        return subprocess.run(cmd, **kwargs)
+
+    gpc.configure(command_runner=_hooked_runner)
+
+    (work / "a.txt").write_text("a", encoding="utf-8")
+    with pytest.raises(gpc.PlumbCommitError, match="cannot lock ref"):
+        gpc.plumb_commit(
+            ["a.txt"], "session under test", repo_root=work, branch="main",
+            remote=str(bare), skip_stale_check=True, push=False,
+        )
+
+    # The concurrently-landed commit remains intact and reachable -- nothing
+    # lost, unlike a silent overwrite.
+    assert _git(work, "rev-parse", "refs/heads/main").stdout.strip() == concurrent_sha
+    assert _git(work, "cat-file", "-e", concurrent_sha).returncode == 0
+
+
+def test_reconcile_fast_forward_local_ref_update_also_uses_cas(tmp_path):
+    """The same CAS fix applied to reconcile()'s own local-ref advance (its
+    fast-forward, nothing-diverged branch) -- same race shape, same
+    protection, proven the same deterministic way (gpc.configure()'s
+    sanctioned command_runner seam, not a T2 internal-function replacement)."""
+    work, bare = _init_repo_with_remote(tmp_path)
+    old_parent_sha = _git(work, "rev-parse", "HEAD").stdout.strip()
+
+    (work / "reconciled.txt").write_text("r", encoding="utf-8")
+    _git(work, "add", "reconciled.txt")
+    tree_sha = gpc._git(["write-tree"], repo_root=work).stdout.strip()
+    commit_sha = gpc._git(
+        ["commit-tree", tree_sha, "-p", old_parent_sha, "-m", "to be reconciled"],
+        repo_root=work,
+    ).stdout.strip()
+
+    (work / "concurrent2.txt").write_text("concurrent2", encoding="utf-8")
+    _git(work, "add", "concurrent2.txt")
+    _git(work, "commit", "-q", "-m", "concurrent session's commit")
+    concurrent_sha = _git(work, "rev-parse", "HEAD").stdout.strip()
+    _git(work, "update-ref", "refs/heads/main", old_parent_sha)
+    _git(work, "push", "-q", "-f", "origin", f"{old_parent_sha}:refs/heads/main")
+
+    fired = {"count": 0}
+
+    def _hooked_runner(cmd, **kwargs):
+        if (
+            fired["count"] == 0
+            and len(cmd) >= 3
+            and cmd[0] == "git"
+            and cmd[1] == "update-ref"
+            and cmd[2] == "refs/heads/main"
+        ):
+            fired["count"] += 1
+            subprocess.run(
+                ["git", "update-ref", "refs/heads/main", concurrent_sha],
+                cwd=kwargs.get("cwd"), capture_output=True,
+                text=True, encoding="utf-8", errors="replace",
+            )
+        return subprocess.run(cmd, **kwargs)
+
+    gpc.configure(command_runner=_hooked_runner)
+
+    with pytest.raises(gpc.PlumbCommitError, match="cannot lock ref"):
+        gpc.reconcile(
+            commit_sha, ["reconciled.txt"], repo_root=work, branch="main",
+            remote=str(bare), remote_name="origin", old_parent_sha=old_parent_sha,
+            push=False,
+        )
+
+    assert _git(work, "rev-parse", "refs/heads/main").stdout.strip() == concurrent_sha
+
+
 def test_push_mode_still_updates_both_local_and_remote_tracking_refs(tmp_path):
     """Non-regression: --push's existing, already-relied-upon behavior
     (updating both refs/heads/{branch} and refs/remotes/{remote}/{branch},
