@@ -48,6 +48,12 @@ S-12 (knowledge-diff) → S-14 (knowledge-update) → S-82 (delta-site-plan)
 → S-23 (content-check) → S-65 (link-validate) → S-76 (commit)
 ```
 
+**Optional — vector regeneration**: after a knowledge update, S-15 (embed-knowledge)'s
+`gap-index` mode may be re-run for the affected product to keep S-43 (gap-eval) Tier 2 vectors
+current — skip if already current (see `docs/pipeline/vector-regeneration-procedure.md`'s
+coverage-report command). This is non-blocking: content generation and the maintenance chain
+above do not require it.
+
 ## Healing / Fix
 
 ```
