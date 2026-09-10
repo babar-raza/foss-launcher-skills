@@ -1,5 +1,5 @@
 # Promote Report: words/net
-Date: 2026-09-04T08:25:19.643534+00:00
+Date: 2026-09-10T11:07:33.596415+00:00
 Scout SHA: 0d3f1add920f5294d726b4f286c2d6ba7c3ae22c
 Source: scout-only (standalone pipeline, no FL dependency)
 
@@ -11,6 +11,7 @@ Source: scout-only (standalone pipeline, no FL dependency)
 | Supplemental claims (bridge) | 0 |
 | Total claims | 5294 |
 | Classes | 618 |
+| API surface entries (incl. functions) | 618 |
 | Forbidden claims | 32 |
 | Snippets | 100 |
 

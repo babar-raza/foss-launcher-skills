@@ -1,9 +1,15 @@
 @Test
-    void testAddAutoShape() {
+    void testAddAuthor() throws IOException {
         try (var pres = new Presentation()) {
-            var slide = blankSlide(pres);
-            var shape = slide.getShapes().addAutoShape(ShapeType.RECTANGLE, 50, 50, 200, 100);
-            assertThat(slide.getShapes().size()).isEqualTo(1);
-            assertThat(shape.getShapeType()).isEqualTo(ShapeType.RECTANGLE);
+            ICommentAuthor author = pres.getCommentAuthors().addAuthor("Alice", "A");
+            assertThat(author.getName()).isEqualTo("Alice");
+            assertThat(author.getInitials()).isEqualTo("A");
+            assertThat(pres.getCommentAuthors().size()).isEqualTo(1);
+
+            try (var pres2 = saveAndReopen(pres)) {
+                assertThat(pres2.getCommentAuthors().size()).isEqualTo(1);
+                assertThat(pres2.getCommentAuthors().get(0).getName()).isEqualTo("Alice");
+                assertThat(pres2.getCommentAuthors().get(0).getInitials()).isEqualTo("A");
+            }
         }
     }

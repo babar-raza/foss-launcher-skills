@@ -1,11 +1,5 @@
-[Fact]
-    public void TestRemoveSlideByRef()
+public CommentsTests()
     {
-        // Removing a slide by reference decreases count.
-        using var pres = new Presentation();
-        var layout = pres.LayoutSlides[0];
-        pres.Slides.AddEmptySlide(layout);
-        pres.Slides.Count.Should().Be(2);
-        pres.Slides.Remove(pres.Slides[1]);
-        pres.Slides.Count.Should().Be(1);
+        _tempDir = Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString("N"));
+        Directory.CreateDirectory(_tempDir);
     }

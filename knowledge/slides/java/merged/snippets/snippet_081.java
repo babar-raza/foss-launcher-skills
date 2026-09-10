@@ -1,17 +1,12 @@
 @Test
-    void testShapeFrameProperties() throws IOException {
-        try (var pres = new Presentation()) {
-            var slide = blankSlide(pres);
-            var shape = slide.getShapes().addAutoShape(ShapeType.RECTANGLE, 200, 200, 300, 250);
-            shape.setRotation(45);
-
-            try (var pres2 = saveAndReopen(pres)) {
-                var s2 = pres2.getSlides().get(0).getShapes().get(0);
-                assertThat(s2.getX()).isEqualTo(200);
-                assertThat(s2.getY()).isEqualTo(200);
-                assertThat(s2.getWidth()).isEqualTo(300);
-                assertThat(s2.getHeight()).isEqualTo(250);
-                assertThat(s2.getRotation()).isEqualTo(45);
-            }
+    void testClearComments() {
+        try (Presentation pres = new Presentation()) {
+            ICommentAuthor author = pres.getCommentAuthors().addAuthor("Alice", "A");
+            ISlide slide = pres.getSlides().get(0);
+            LocalDateTime now = LocalDateTime.now();
+            author.getComments().addComment("C1", slide, new PointF(1, 1), now);
+            author.getComments().addComment("C2", slide, new PointF(2, 2), now);
+            author.getComments().clear();
+            assertThat(author.getComments().size()).isEqualTo(0);
         }
     }

@@ -1,7 +1,9 @@
 [Fact]
-    public void TestSlideLayoutAccess()
+    public void TestMultipleAuthors()
     {
-        // Each slide exposes its layout_slide.
+        // Multiple authors can coexist.
         using var pres = new Presentation();
-        pres.Slides[0].LayoutSlide.Should().NotBeNull();
+        pres.CommentAuthors.AddAuthor("Alice", "A");
+        pres.CommentAuthors.AddAuthor("Bob", "B");
+        pres.CommentAuthors.Count.Should().Be(2);
     }

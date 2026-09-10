@@ -1,20 +1,18 @@
-[Fact]
-    public void TestCoreProperties()
+[Theory]
+    [InlineData("OuterShadow", "outerShdw")]
+    [InlineData("InnerShadow", "innerShdw")]
+    [InlineData("Glow", "glow")]
+    [InlineData("PresetShadow", "prstShdw")]
+    public void AnEnabledShadowOrGlowCarriesTheColourItsTypeRequires(string effect, string tag)
     {
-        // Core properties persist after save/reload.
-        using var pres = new Presentation();
-        var props = pres.DocumentProperties;
-        props.Title = "My Presentation";
-        props.Subject = "Demo Subject";
-        props.Author = "John Doe";
-        props.Keywords = "demo, test";
-        props.Category = "Examples";
+        var path = WriteShapeWithEffect(effect, $"effect-colour-{effect}.pptx");
 
-        using var pres2 = TestHelpers.SaveAndReopen(pres, _tempDir);
-        var p2 = pres2.DocumentProperties;
-        p2.Title.Should().Be("My Presentation");
-        p2.Subject.Should().Be("Demo Subject");
-        p2.Author.Should().Be("John Doe");
-        p2.Keywords.Should().Be("demo, test");
-        p2.Category.Should().Be("Examples");
+        using var package = PptxPackage.Open(path);
+        var element = PackageAssert.SingleElement(package, "ppt/slides/slide1.xml", $"//a:effectLst/a:{tag}");
+
+        var colour = element.Elements().FirstOrDefault(child => ColourChoiceElements.Contains(child.Name.LocalName));
+
+        Assert.True(colour is not null,
+            $"<a:{tag}> was written as '{element}' — it carries no colour child. " +
+            $"ECMA-376 §20.1.8 requires exactly one of: {string.Join(", ", ColourChoiceElements)}.");
     }

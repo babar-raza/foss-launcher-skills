@@ -1,10 +1,14 @@
-@Test
-    void testAddStraightConnectorPersists() throws IOException {
-        try (var pres = new Presentation()) {
-            pres.getSlides().get(0).getShapes().addConnector(ShapeType.STRAIGHT_CONNECTOR1, 100, 100, 300, 200);
-
-            try (var pres2 = saveAndReopen(pres)) {
-                assertThat(pres2.getSlides().get(0).getShapes().size()).isGreaterThanOrEqualTo(1);
-            }
-        }
+@Test
+    void aPictureAddedFromAStreamMustResolveItsRelationship() throws Exception {
+        Path out = tempDir.resolve("from-stream.pptx");
+        try (var pres = new Presentation()) {
+            IPPImage image;
+            try (var in = new ByteArrayInputStream(Files.readAllBytes(JPEG))) {
+                image = pres.getImages().addImage(in);
+            }
+            ISlide slide = pres.getSlides().get(0);
+            slide.getShapes().addPictureFrame(ShapeType.RECTANGLE, 50, 50, 200, 150, image);
+            pres.save(out.toString(), SaveFormat.PPTX);
+        }
+        assertPictureIsReachable(out, "jpeg", "jpg");
     }

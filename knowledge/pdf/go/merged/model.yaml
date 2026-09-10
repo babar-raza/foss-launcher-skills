@@ -7,15 +7,15 @@ repo_url: https://github.com/aspose-pdf-foss/aspose-pdf-foss-for-go.git
 repo_sha: 2306eeb06216be4d9cb663adcb85155594572c11
 config_sha: ba558925e966ce6d
 stale_since: null
-promoted_at: '2026-09-06T15:20:37.547882+00:00'
+promoted_at: '2026-09-10T11:07:29.644210+00:00'
 source: scout_and_enriched
 enrichment_status: full
 has_conflicts: false
 schema_version: 2
-generator_fingerprint: 1307a98d936bc698c6b3ec3027e12176fb3a5ce9cb39b22ee092c11785932031
+generator_fingerprint: 39b55c0381d862030a39cf289a74386dba0d96ba7bead7439ed295a74ed8206e
 generator_semver: 2.0.0
-bundle_id: 4adb337d-1976-4417-9fb1-d5043038ed3b
-bundle_generated_at: '2026-09-06T15:20:37.299682+00:00'
+bundle_id: de3baa3d-bc54-4642-8c02-fa848cedb40a
+bundle_generated_at: '2026-09-10T11:07:29.396611+00:00'
 module_assignment_version: 1
 input_hashes:
   extractor_config_sha: ba558925e966ce6d
@@ -29,5 +29,9 @@ stats:
   supplemental_claims: 0
   total_claims: 4457
   class_count: 215
+  classes:
+    total_declared: 215
+    public_documented: 215
+    raw_entries_including_non_class: 1944
   forbidden_count: 0
   snippet_count: 78

@@ -1,11 +1,49 @@
 [Fact]
-    public void TestInsertAutoShape()
+    public void RemovingASlideRemovesItsPartAndItsRelationship()
     {
-        // insert_auto_shape places a shape at the requested index.
-        using var pres = new Presentation();
-        var slide = BlankSlide(pres);
-        slide.Shapes!.AddAutoShape(ShapeType.Rectangle, 50, 50, 200, 100);
-        slide.Shapes!.AddAutoShape(ShapeType.Ellipse, 300, 50, 150, 150);
-        slide.Shapes!.InsertAutoShape(1, ShapeType.Triangle, 150, 200, 100, 100);
-        slide.Shapes!.Count.Should().Be(3);
+        var path = _workspace.PathFor("removed-slide.pptx");
+
+        using (var presentation = new Presentation())
+        {
+            presentation.Slides.AddEmptySlide(presentation.LayoutSlides[0]);
+            presentation.Slides.AddEmptySlide(presentation.LayoutSlides[0]);
+            presentation.Slides.RemoveAt(1);
+            presentation.Save(path, SaveFormat.Pptx);
+        }
+
+        using var package = PptxPackage.Open(path);
+
+        var registeredIds = PackageAssert
+            .Select(package, "ppt/presentation.xml", "//p:sldIdLst/p:sldId")
+            .Select(element => PackageAssert.AttributeValue(element, "r:id"))
+            .Where(id => id is not null)
+            .ToHashSet(StringComparer.Ordinal);
+
+        var slideRelationships = package.Relationships("ppt/presentation.xml")
+            .Where(relationship => relationship.Type == Ns.SlideRelationshipType)
+            .ToList();
+
+        var orphanRelationships = slideRelationships
+            .Where(relationship => !registeredIds.Contains(relationship.Id))
+            .Select(relationship => $"{relationship.Id} -> {relationship.Target}")
+            .ToList();
+
+        Assert.True(orphanRelationships.Count == 0,
+            $"The removed slide left {orphanRelationships.Count} slide relationship(s) that no <p:sldId> refers to: " +
+            string.Join(", ", orphanRelationships));
+
+        var referencedParts = slideRelationships
+            .Where(relationship => registeredIds.Contains(relationship.Id))
+            .Select(relationship => PptxPackage.ResolveTarget("ppt/presentation.xml", relationship.Target))
+            .ToHashSet(StringComparer.Ordinal);
+
+        var orphanParts = package.PartNames
+            .Where(name => name.StartsWith("ppt/slides/slide", StringComparison.Ordinal)
+                        && name.EndsWith(".xml", StringComparison.Ordinal)
+                        && !referencedParts.Contains(name))
+            .ToList();
+
+        Assert.True(orphanParts.Count == 0,
+            $"The removed slide's part(s) are still in the package and nothing refers to them: " +
+            string.Join(", ", orphanParts));
     }

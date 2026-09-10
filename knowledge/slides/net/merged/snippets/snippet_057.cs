@@ -1,9 +1,12 @@
 [Fact]
-    public void Test_notes_parent_slide()
+    public void SavingAPowerPointDeckUnchangedKeepsEveryPart()
     {
-        // Notes slide references its parent slide.
-        using var pres = new Presentation();
-        var slide = pres.Slides[0];
-        var notes = slide.NotesSlideManager.AddNotesSlide();
-        notes.ParentSlide.Should().BeSameAs(slide);
+        var path = _workspace.PathFor("roundtrip-unchanged.pptx");
+
+        using (var presentation = new Presentation(TestFixtures.PowerPointDeck))
+        {
+            presentation.Save(path, SaveFormat.Pptx);
+        }
+
+        AssertSamePartSet(TestFixtures.PowerPointDeck, path);
     }

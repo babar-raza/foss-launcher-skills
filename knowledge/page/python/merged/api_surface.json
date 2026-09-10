@@ -32,7 +32,9 @@
     "visibility": "conventional",
     "reachable": true,
     "canonical_namespace": "page.image.raster_writer",
-    "class_import": "page.image.raster_writer.RasterWriter"
+    "class_import": "page.image.raster_writer.RasterWriter",
+    "module_key": "image",
+    "module_label": "Image"
   },
   {
     "name": "RenderModelRasterWriter",
@@ -65,7 +67,9 @@
     "visibility": "conventional",
     "reachable": true,
     "canonical_namespace": "page.image.raster_writer",
-    "class_import": "page.image.raster_writer.RenderModelRasterWriter"
+    "class_import": "page.image.raster_writer.RenderModelRasterWriter",
+    "module_key": "image",
+    "module_label": "Image"
   },
   {
     "name": "DefaultRasterWriter",
@@ -100,7 +104,9 @@
     "visibility": "conventional",
     "reachable": true,
     "canonical_namespace": "page.image.raster_writer",
-    "class_import": "page.image.raster_writer.DefaultRasterWriter"
+    "class_import": "page.image.raster_writer.DefaultRasterWriter",
+    "module_key": "image",
+    "module_label": "Image"
   },
   {
     "name": "select_raster_writer",
@@ -118,7 +124,9 @@
       }
     ],
     "return_type": "RasterWriter",
-    "reachable": true
+    "reachable": true,
+    "module_key": "image",
+    "module_label": "Image"
   },
   {
     "name": "SkiaRasterWriter",
@@ -160,7 +168,9 @@
     "visibility": "public",
     "reachable": true,
     "canonical_namespace": "page.image.skia_raster_writer",
-    "class_import": "page.image.skia_raster_writer.SkiaRasterWriter"
+    "class_import": "page.image.skia_raster_writer.SkiaRasterWriter",
+    "module_key": "image",
+    "module_label": "Image"
   },
   {
     "name": "skia_available",
@@ -173,7 +183,9 @@
     "properties": [],
     "params": [],
     "return_type": "bool",
-    "reachable": true
+    "reachable": true,
+    "module_key": "image",
+    "module_label": "Image"
   },
   {
     "name": "PdfMetadata",
@@ -244,7 +256,9 @@
     "canonical_namespace": "page.pdf.writer",
     "class_import": "page.pdf.writer.PdfMetadata",
     "exported_via_package_init": true,
-    "public_import_module": "page.pdf"
+    "public_import_module": "page.pdf",
+    "module_key": "pdf",
+    "module_label": "Pdf"
   },
   {
     "name": "ImageResource",
@@ -360,7 +374,9 @@
     "canonical_namespace": "page.pdf.writer",
     "class_import": "page.pdf.writer.ImageResource",
     "exported_via_package_init": true,
-    "public_import_module": "page.pdf"
+    "public_import_module": "page.pdf",
+    "module_key": "pdf",
+    "module_label": "Pdf"
   },
   {
     "name": "PdfWriter",
@@ -417,7 +433,9 @@
     "canonical_namespace": "page.pdf.writer",
     "class_import": "page.pdf.writer.PdfWriter",
     "exported_via_package_init": true,
-    "public_import_module": "page.pdf"
+    "public_import_module": "page.pdf",
+    "module_key": "pdf",
+    "module_label": "Pdf"
   },
   {
     "name": "RectWrapper",
@@ -486,7 +504,9 @@
     "visibility": "conventional",
     "reachable": true,
     "canonical_namespace": "page.pdf.writer",
-    "class_import": "page.pdf.writer.RectWrapper"
+    "class_import": "page.pdf.writer.RectWrapper",
+    "module_key": "pdf",
+    "module_label": "Pdf"
   },
   {
     "name": "register_color_space",
@@ -504,7 +524,9 @@
       }
     ],
     "return_type": "str",
-    "reachable": true
+    "reachable": true,
+    "module_key": "pdf",
+    "module_label": "Pdf"
   },
   {
     "name": "DeviceColorSpace",
@@ -528,7 +550,9 @@
     "visibility": "conventional",
     "reachable": true,
     "canonical_namespace": "page.common.color_resources",
-    "class_import": "page.common.color_resources.DeviceColorSpace"
+    "class_import": "page.common.color_resources.DeviceColorSpace",
+    "module_key": "common",
+    "module_label": "Common"
   },
   {
     "name": "IndexedColorSpace",
@@ -570,7 +594,9 @@
     "visibility": "conventional",
     "reachable": true,
     "canonical_namespace": "page.common.color_resources",
-    "class_import": "page.common.color_resources.IndexedColorSpace"
+    "class_import": "page.common.color_resources.IndexedColorSpace",
+    "module_key": "common",
+    "module_label": "Common"
   },
   {
     "name": "SeparationColorSpace",
@@ -612,7 +638,9 @@
     "visibility": "conventional",
     "reachable": true,
     "canonical_namespace": "page.common.color_resources",
-    "class_import": "page.common.color_resources.SeparationColorSpace"
+    "class_import": "page.common.color_resources.SeparationColorSpace",
+    "module_key": "common",
+    "module_label": "Common"
   },
   {
     "name": "DeviceNColorSpace",
@@ -654,7 +682,9 @@
     "visibility": "conventional",
     "reachable": true,
     "canonical_namespace": "page.common.color_resources",
-    "class_import": "page.common.color_resources.DeviceNColorSpace"
+    "class_import": "page.common.color_resources.DeviceNColorSpace",
+    "module_key": "common",
+    "module_label": "Common"
   },
   {
     "name": "CieBasedColorSpace",
@@ -696,7 +726,9 @@
     "visibility": "conventional",
     "reachable": true,
     "canonical_namespace": "page.common.color_resources",
-    "class_import": "page.common.color_resources.CieBasedColorSpace"
+    "class_import": "page.common.color_resources.CieBasedColorSpace",
+    "module_key": "common",
+    "module_label": "Common"
   },
   {
     "name": "PatternColorSpace",
@@ -720,7 +752,9 @@
     "visibility": "conventional",
     "reachable": true,
     "canonical_namespace": "page.common.color_resources",
-    "class_import": "page.common.color_resources.PatternColorSpace"
+    "class_import": "page.common.color_resources.PatternColorSpace",
+    "module_key": "common",
+    "module_label": "Common"
   },
   {
     "name": "SampledFunction",
@@ -822,7 +856,9 @@
     "visibility": "conventional",
     "reachable": true,
     "canonical_namespace": "page.common.color_resources",
-    "class_import": "page.common.color_resources.SampledFunction"
+    "class_import": "page.common.color_resources.SampledFunction",
+    "module_key": "common",
+    "module_label": "Common"
   },
   {
     "name": "ExponentialFunction",
@@ -897,7 +933,9 @@
     "visibility": "conventional",
     "reachable": true,
     "canonical_namespace": "page.common.color_resources",
-    "class_import": "page.common.color_resources.ExponentialFunction"
+    "class_import": "page.common.color_resources.ExponentialFunction",
+    "module_key": "common",
+    "module_label": "Common"
   },
   {
     "name": "StitchingFunction",
@@ -972,7 +1010,9 @@
     "visibility": "conventional",
     "reachable": true,
     "canonical_namespace": "page.common.color_resources",
-    "class_import": "page.common.color_resources.StitchingFunction"
+    "class_import": "page.common.color_resources.StitchingFunction",
+    "module_key": "common",
+    "module_label": "Common"
   },
   {
     "name": "AxialShading",
@@ -1032,7 +1072,9 @@
     "visibility": "conventional",
     "reachable": true,
     "canonical_namespace": "page.common.color_resources",
-    "class_import": "page.common.color_resources.AxialShading"
+    "class_import": "page.common.color_resources.AxialShading",
+    "module_key": "common",
+    "module_label": "Common"
   },
   {
     "name": "RadialShading",
@@ -1092,7 +1134,9 @@
     "visibility": "conventional",
     "reachable": true,
     "canonical_namespace": "page.common.color_resources",
-    "class_import": "page.common.color_resources.RadialShading"
+    "class_import": "page.common.color_resources.RadialShading",
+    "module_key": "common",
+    "module_label": "Common"
   },
   {
     "name": "TilingPattern",
@@ -1170,7 +1214,9 @@
     "visibility": "conventional",
     "reachable": true,
     "canonical_namespace": "page.common.color_resources",
-    "class_import": "page.common.color_resources.TilingPattern"
+    "class_import": "page.common.color_resources.TilingPattern",
+    "module_key": "common",
+    "module_label": "Common"
   },
   {
     "name": "ShadingPattern",
@@ -1203,7 +1249,9 @@
     "visibility": "conventional",
     "reachable": true,
     "canonical_namespace": "page.common.color_resources",
-    "class_import": "page.common.color_resources.ShadingPattern"
+    "class_import": "page.common.color_resources.ShadingPattern",
+    "module_key": "common",
+    "module_label": "Common"
   },
   {
     "name": "ColorSpacePaint",
@@ -1236,7 +1284,9 @@
     "visibility": "conventional",
     "reachable": true,
     "canonical_namespace": "page.common.color_resources",
-    "class_import": "page.common.color_resources.ColorSpacePaint"
+    "class_import": "page.common.color_resources.ColorSpacePaint",
+    "module_key": "common",
+    "module_label": "Common"
   },
   {
     "name": "PatternPaint",
@@ -1278,7 +1328,9 @@
     "visibility": "conventional",
     "reachable": true,
     "canonical_namespace": "page.common.color_resources",
-    "class_import": "page.common.color_resources.PatternPaint"
+    "class_import": "page.common.color_resources.PatternPaint",
+    "module_key": "common",
+    "module_label": "Common"
   },
   {
     "name": "Point",
@@ -1311,7 +1363,9 @@
     "visibility": "public",
     "reachable": true,
     "canonical_namespace": "page.common.render_model",
-    "class_import": "page.common.render_model.Point"
+    "class_import": "page.common.render_model.Point",
+    "module_key": "common",
+    "module_label": "Common"
   },
   {
     "name": "Matrix",
@@ -1390,7 +1444,9 @@
     "visibility": "public",
     "reachable": true,
     "canonical_namespace": "page.common.render_model",
-    "class_import": "page.common.render_model.Matrix"
+    "class_import": "page.common.render_model.Matrix",
+    "module_key": "common",
+    "module_label": "Common"
   },
   {
     "name": "Rect",
@@ -1441,7 +1497,9 @@
     "visibility": "public",
     "reachable": true,
     "canonical_namespace": "page.common.render_model",
-    "class_import": "page.common.render_model.Rect"
+    "class_import": "page.common.render_model.Rect",
+    "module_key": "common",
+    "module_label": "Common"
   },
   {
     "name": "PathSegment",
@@ -1474,7 +1532,9 @@
     "visibility": "public",
     "reachable": true,
     "canonical_namespace": "page.common.render_model",
-    "class_import": "page.common.render_model.PathSegment"
+    "class_import": "page.common.render_model.PathSegment",
+    "module_key": "common",
+    "module_label": "Common"
   },
   {
     "name": "Path",
@@ -1498,7 +1558,9 @@
     "visibility": "public",
     "reachable": true,
     "canonical_namespace": "page.common.render_model",
-    "class_import": "page.common.render_model.Path"
+    "class_import": "page.common.render_model.Path",
+    "module_key": "common",
+    "module_label": "Common"
   },
   {
     "name": "StrokeStyle",
@@ -1567,7 +1629,9 @@
     "visibility": "public",
     "reachable": true,
     "canonical_namespace": "page.common.render_model",
-    "class_import": "page.common.render_model.StrokeStyle"
+    "class_import": "page.common.render_model.StrokeStyle",
+    "module_key": "common",
+    "module_label": "Common"
   },
   {
     "name": "Paint",
@@ -1600,7 +1664,9 @@
     "visibility": "public",
     "reachable": true,
     "canonical_namespace": "page.common.render_model",
-    "class_import": "page.common.render_model.Paint"
+    "class_import": "page.common.render_model.Paint",
+    "module_key": "common",
+    "module_label": "Common"
   },
   {
     "name": "PathCommand",
@@ -1687,7 +1753,9 @@
     "visibility": "public",
     "reachable": true,
     "canonical_namespace": "page.common.render_model",
-    "class_import": "page.common.render_model.PathCommand"
+    "class_import": "page.common.render_model.PathCommand",
+    "module_key": "common",
+    "module_label": "Common"
   },
   {
     "name": "TextCommand",
@@ -1774,7 +1842,9 @@
     "visibility": "public",
     "reachable": true,
     "canonical_namespace": "page.common.render_model",
-    "class_import": "page.common.render_model.TextCommand"
+    "class_import": "page.common.render_model.TextCommand",
+    "module_key": "common",
+    "module_label": "Common"
   },
   {
     "name": "ImageCommand",
@@ -1852,7 +1922,9 @@
     "visibility": "public",
     "reachable": true,
     "canonical_namespace": "page.common.render_model",
-    "class_import": "page.common.render_model.ImageCommand"
+    "class_import": "page.common.render_model.ImageCommand",
+    "module_key": "common",
+    "module_label": "Common"
   },
   {
     "name": "ClipCommand",
@@ -1885,7 +1957,9 @@
     "visibility": "public",
     "reachable": true,
     "canonical_namespace": "page.common.render_model",
-    "class_import": "page.common.render_model.ClipCommand"
+    "class_import": "page.common.render_model.ClipCommand",
+    "module_key": "common",
+    "module_label": "Common"
   },
   {
     "name": "StateSaveCommand",
@@ -1899,7 +1973,9 @@
     "visibility": "public",
     "reachable": true,
     "canonical_namespace": "page.common.render_model",
-    "class_import": "page.common.render_model.StateSaveCommand"
+    "class_import": "page.common.render_model.StateSaveCommand",
+    "module_key": "common",
+    "module_label": "Common"
   },
   {
     "name": "StateRestoreCommand",
@@ -1913,7 +1989,9 @@
     "visibility": "public",
     "reachable": true,
     "canonical_namespace": "page.common.render_model",
-    "class_import": "page.common.render_model.StateRestoreCommand"
+    "class_import": "page.common.render_model.StateRestoreCommand",
+    "module_key": "common",
+    "module_label": "Common"
   },
   {
     "name": "RenderPage",
@@ -1955,7 +2033,9 @@
     "visibility": "public",
     "reachable": true,
     "canonical_namespace": "page.common.render_model",
-    "class_import": "page.common.render_model.RenderPage"
+    "class_import": "page.common.render_model.RenderPage",
+    "module_key": "common",
+    "module_label": "Common"
   },
   {
     "name": "RenderDocument",
@@ -1988,7 +2068,9 @@
     "visibility": "public",
     "reachable": true,
     "canonical_namespace": "page.common.render_model",
-    "class_import": "page.common.render_model.RenderDocument"
+    "class_import": "page.common.render_model.RenderDocument",
+    "module_key": "common",
+    "module_label": "Common"
   },
   {
     "name": "RenderResources",
@@ -2039,7 +2121,9 @@
     "visibility": "public",
     "reachable": true,
     "canonical_namespace": "page.common.render_model",
-    "class_import": "page.common.render_model.RenderResources"
+    "class_import": "page.common.render_model.RenderResources",
+    "module_key": "common",
+    "module_label": "Common"
   },
   {
     "name": "RenderImageResource",
@@ -2153,7 +2237,9 @@
     "visibility": "public",
     "reachable": true,
     "canonical_namespace": "page.common.render_model",
-    "class_import": "page.common.render_model.RenderImageResource"
+    "class_import": "page.common.render_model.RenderImageResource",
+    "module_key": "common",
+    "module_label": "Common"
   },
   {
     "name": "RenderModelBuilder",
@@ -2427,7 +2513,9 @@
     "visibility": "public",
     "reachable": true,
     "canonical_namespace": "page.common.render_model",
-    "class_import": "page.common.render_model.RenderModelBuilder"
+    "class_import": "page.common.render_model.RenderModelBuilder",
+    "module_key": "common",
+    "module_label": "Common"
   },
   {
     "name": "rect_path",
@@ -2445,7 +2533,9 @@
       }
     ],
     "return_type": "Path",
-    "reachable": true
+    "reachable": true,
+    "module_key": "common",
+    "module_label": "Common"
   },
   {
     "name": "encode_png",
@@ -2467,7 +2557,9 @@
       }
     ],
     "return_type": "bytes",
-    "reachable": true
+    "reachable": true,
+    "module_key": "image",
+    "module_label": "Image"
   },
   {
     "name": "add_png_dpi",
@@ -2489,7 +2581,9 @@
       }
     ],
     "return_type": "bytes",
-    "reachable": true
+    "reachable": true,
+    "module_key": "image",
+    "module_label": "Image"
   },
   {
     "name": "encode_bmp",
@@ -2507,7 +2601,9 @@
       }
     ],
     "return_type": "bytes",
-    "reachable": true
+    "reachable": true,
+    "module_key": "image",
+    "module_label": "Image"
   },
   {
     "name": "encode_tiff",
@@ -2525,7 +2621,9 @@
       }
     ],
     "return_type": "bytes",
-    "reachable": true
+    "reachable": true,
+    "module_key": "image",
+    "module_label": "Image"
   },
   {
     "name": "encode_jpeg",
@@ -2547,7 +2645,9 @@
       }
     ],
     "return_type": "bytes",
-    "reachable": true
+    "reachable": true,
+    "module_key": "image",
+    "module_label": "Image"
   },
   {
     "name": "RasterSurface",
@@ -2662,7 +2762,9 @@
     "visibility": "public",
     "reachable": true,
     "canonical_namespace": "page.image.raster_renderer",
-    "class_import": "page.image.raster_renderer.RasterSurface"
+    "class_import": "page.image.raster_renderer.RasterSurface",
+    "module_key": "image",
+    "module_label": "Image"
   },
   {
     "name": "RasterRenderer",
@@ -2717,7 +2819,9 @@
     "visibility": "public",
     "reachable": true,
     "canonical_namespace": "page.image.raster_renderer",
-    "class_import": "page.image.raster_renderer.RasterRenderer"
+    "class_import": "page.image.raster_renderer.RasterRenderer",
+    "module_key": "image",
+    "module_label": "Image"
   },
   {
     "name": "add_short",
@@ -2739,7 +2843,9 @@
       }
     ],
     "return_type": "None",
-    "reachable": true
+    "reachable": true,
+    "module_key": "image",
+    "module_label": "Image"
   },
   {
     "name": "add_long",
@@ -2761,7 +2867,9 @@
       }
     ],
     "return_type": "None",
-    "reachable": true
+    "reachable": true,
+    "module_key": "image",
+    "module_label": "Image"
   },
   {
     "name": "sample",
@@ -2783,7 +2891,9 @@
       }
     ],
     "return_type": "",
-    "reachable": true
+    "reachable": true,
+    "module_key": "image",
+    "module_label": "Image"
   },
   {
     "name": "ps_to_pdf",
@@ -2809,7 +2919,9 @@
       }
     ],
     "return_type": "McpResult",
-    "reachable": true
+    "reachable": true,
+    "module_key": "mcp",
+    "module_label": "Mcp"
   },
   {
     "name": "ps_to_image",
@@ -2835,7 +2947,9 @@
       }
     ],
     "return_type": "McpResult",
-    "reachable": true
+    "reachable": true,
+    "module_key": "mcp",
+    "module_label": "Mcp"
   },
   {
     "name": "xps_to_pdf",
@@ -2861,7 +2975,9 @@
       }
     ],
     "return_type": "McpResult",
-    "reachable": true
+    "reachable": true,
+    "module_key": "mcp",
+    "module_label": "Mcp"
   },
   {
     "name": "xps_to_image",
@@ -2887,7 +3003,9 @@
       }
     ],
     "return_type": "McpResult",
-    "reachable": true
+    "reachable": true,
+    "module_key": "mcp",
+    "module_label": "Mcp"
   },
   {
     "name": "eps_metadata",
@@ -2905,7 +3023,9 @@
       }
     ],
     "return_type": "dict[str, object]",
-    "reachable": true
+    "reachable": true,
+    "module_key": "mcp",
+    "module_label": "Mcp"
   },
   {
     "name": "create_server",
@@ -2920,7 +3040,9 @@
     "return_type": "object",
     "reachable": true,
     "exported_via_package_init": true,
-    "public_import_module": "page.mcp"
+    "public_import_module": "page.mcp",
+    "module_key": "mcp",
+    "module_label": "Mcp"
   },
   {
     "name": "run",
@@ -2944,7 +3066,9 @@
     "return_type": "None",
     "reachable": true,
     "exported_via_package_init": true,
-    "public_import_module": "page.mcp"
+    "public_import_module": "page.mcp",
+    "module_key": "mcp",
+    "module_label": "Mcp"
   },
   {
     "name": "McpInput",
@@ -2977,7 +3101,9 @@
     "visibility": "public",
     "reachable": true,
     "canonical_namespace": "page.mcp.types",
-    "class_import": "page.mcp.types.McpInput"
+    "class_import": "page.mcp.types.McpInput",
+    "module_key": "mcp",
+    "module_label": "Mcp"
   },
   {
     "name": "McpOutput",
@@ -3010,7 +3136,9 @@
     "visibility": "public",
     "reachable": true,
     "canonical_namespace": "page.mcp.types",
-    "class_import": "page.mcp.types.McpOutput"
+    "class_import": "page.mcp.types.McpOutput",
+    "module_key": "mcp",
+    "module_label": "Mcp"
   },
   {
     "name": "McpConversionOptions",
@@ -3052,7 +3180,9 @@
     "visibility": "public",
     "reachable": true,
     "canonical_namespace": "page.mcp.types",
-    "class_import": "page.mcp.types.McpConversionOptions"
+    "class_import": "page.mcp.types.McpConversionOptions",
+    "module_key": "mcp",
+    "module_label": "Mcp"
   },
   {
     "name": "McpResult",
@@ -3085,7 +3215,9 @@
     "visibility": "public",
     "reachable": true,
     "canonical_namespace": "page.mcp.types",
-    "class_import": "page.mcp.types.McpResult"
+    "class_import": "page.mcp.types.McpResult",
+    "module_key": "mcp",
+    "module_label": "Mcp"
   },
   {
     "name": "PdfEmbeddedFont",
@@ -3271,7 +3403,9 @@
     "visibility": "conventional",
     "reachable": true,
     "canonical_namespace": "page.pdf.fonts",
-    "class_import": "page.pdf.fonts.PdfEmbeddedFont"
+    "class_import": "page.pdf.fonts.PdfEmbeddedFont",
+    "module_key": "pdf",
+    "module_label": "Pdf"
   },
   {
     "name": "build_to_unicode",
@@ -3289,7 +3423,9 @@
       }
     ],
     "return_type": "str",
-    "reachable": true
+    "reachable": true,
+    "module_key": "pdf",
+    "module_label": "Pdf"
   },
   {
     "name": "escape_pdf_string",
@@ -3307,7 +3443,9 @@
       }
     ],
     "return_type": "str",
-    "reachable": true
+    "reachable": true,
+    "module_key": "pdf",
+    "module_label": "Pdf"
   },
   {
     "name": "format_matrix",
@@ -3325,7 +3463,9 @@
       }
     ],
     "return_type": "str",
-    "reachable": true
+    "reachable": true,
+    "module_key": "pdf",
+    "module_label": "Pdf"
   },
   {
     "name": "format_rect",
@@ -3343,7 +3483,9 @@
       }
     ],
     "return_type": "str",
-    "reachable": true
+    "reachable": true,
+    "module_key": "pdf",
+    "module_label": "Pdf"
   },
   {
     "name": "register_base_operators",
@@ -3361,7 +3503,9 @@
       }
     ],
     "return_type": "None",
-    "reachable": true
+    "reachable": true,
+    "module_key": "ps",
+    "module_label": "Ps"
   },
   {
     "name": "IntPoint",
@@ -3394,7 +3538,9 @@
     "visibility": "conventional",
     "reachable": true,
     "canonical_namespace": "page.ps.clipper",
-    "class_import": "page.ps.clipper.IntPoint"
+    "class_import": "page.ps.clipper.IntPoint",
+    "module_key": "ps",
+    "module_label": "Ps"
   },
   {
     "name": "DoublePoint",
@@ -3427,7 +3573,9 @@
     "visibility": "conventional",
     "reachable": true,
     "canonical_namespace": "page.ps.clipper",
-    "class_import": "page.ps.clipper.DoublePoint"
+    "class_import": "page.ps.clipper.DoublePoint",
+    "module_key": "ps",
+    "module_label": "Ps"
   },
   {
     "name": "IntRect",
@@ -3478,7 +3626,9 @@
     "visibility": "conventional",
     "reachable": true,
     "canonical_namespace": "page.ps.clipper",
-    "class_import": "page.ps.clipper.IntRect"
+    "class_import": "page.ps.clipper.IntRect",
+    "module_key": "ps",
+    "module_label": "Ps"
   },
   {
     "name": "ClipType",
@@ -3492,7 +3642,9 @@
     "visibility": "conventional",
     "reachable": true,
     "canonical_namespace": "page.ps.clipper",
-    "class_import": "page.ps.clipper.ClipType"
+    "class_import": "page.ps.clipper.ClipType",
+    "module_key": "ps",
+    "module_label": "Ps"
   },
   {
     "name": "PolyType",
@@ -3506,7 +3658,9 @@
     "visibility": "conventional",
     "reachable": true,
     "canonical_namespace": "page.ps.clipper",
-    "class_import": "page.ps.clipper.PolyType"
+    "class_import": "page.ps.clipper.PolyType",
+    "module_key": "ps",
+    "module_label": "Ps"
   },
   {
     "name": "PolyFillType",
@@ -3520,7 +3674,9 @@
     "visibility": "conventional",
     "reachable": true,
     "canonical_namespace": "page.ps.clipper",
-    "class_import": "page.ps.clipper.PolyFillType"
+    "class_import": "page.ps.clipper.PolyFillType",
+    "module_key": "ps",
+    "module_label": "Ps"
   },
   {
     "name": "JoinType",
@@ -3534,7 +3690,9 @@
     "visibility": "conventional",
     "reachable": true,
     "canonical_namespace": "page.ps.clipper",
-    "class_import": "page.ps.clipper.JoinType"
+    "class_import": "page.ps.clipper.JoinType",
+    "module_key": "ps",
+    "module_label": "Ps"
   },
   {
     "name": "EndType",
@@ -3548,7 +3706,9 @@
     "visibility": "conventional",
     "reachable": true,
     "canonical_namespace": "page.ps.clipper",
-    "class_import": "page.ps.clipper.EndType"
+    "class_import": "page.ps.clipper.EndType",
+    "module_key": "ps",
+    "module_label": "Ps"
   },
   {
     "name": "EdgeSide",
@@ -3562,7 +3722,9 @@
     "visibility": "conventional",
     "reachable": true,
     "canonical_namespace": "page.ps.clipper",
-    "class_import": "page.ps.clipper.EdgeSide"
+    "class_import": "page.ps.clipper.EdgeSide",
+    "module_key": "ps",
+    "module_label": "Ps"
   },
   {
     "name": "Direction",
@@ -3576,7 +3738,9 @@
     "visibility": "conventional",
     "reachable": true,
     "canonical_namespace": "page.ps.clipper",
-    "class_import": "page.ps.clipper.Direction"
+    "class_import": "page.ps.clipper.Direction",
+    "module_key": "ps",
+    "module_label": "Ps"
   },
   {
     "name": "ClipperException",
@@ -3592,7 +3756,9 @@
     "visibility": "conventional",
     "reachable": true,
     "canonical_namespace": "page.ps.clipper",
-    "class_import": "page.ps.clipper.ClipperException"
+    "class_import": "page.ps.clipper.ClipperException",
+    "module_key": "ps",
+    "module_label": "Ps"
   },
   {
     "name": "PolyNode",
@@ -3698,7 +3864,9 @@
     "visibility": "conventional",
     "reachable": true,
     "canonical_namespace": "page.ps.clipper",
-    "class_import": "page.ps.clipper.PolyNode"
+    "class_import": "page.ps.clipper.PolyNode",
+    "module_key": "ps",
+    "module_label": "Ps"
   },
   {
     "name": "PolyTree",
@@ -3842,7 +4010,9 @@
     "visibility": "conventional",
     "reachable": true,
     "canonical_namespace": "page.ps.clipper",
-    "class_import": "page.ps.clipper.PolyTree"
+    "class_import": "page.ps.clipper.PolyTree",
+    "module_key": "ps",
+    "module_label": "Ps"
   },
   {
     "name": "TEdge",
@@ -4011,7 +4181,9 @@
     "visibility": "conventional",
     "reachable": true,
     "canonical_namespace": "page.ps.clipper",
-    "class_import": "page.ps.clipper.TEdge"
+    "class_import": "page.ps.clipper.TEdge",
+    "module_key": "ps",
+    "module_label": "Ps"
   },
   {
     "name": "IntersectNode",
@@ -4068,7 +4240,9 @@
     "visibility": "conventional",
     "reachable": true,
     "canonical_namespace": "page.ps.clipper",
-    "class_import": "page.ps.clipper.IntersectNode"
+    "class_import": "page.ps.clipper.IntersectNode",
+    "module_key": "ps",
+    "module_label": "Ps"
   },
   {
     "name": "LocalMinima",
@@ -4125,7 +4299,9 @@
     "visibility": "conventional",
     "reachable": true,
     "canonical_namespace": "page.ps.clipper",
-    "class_import": "page.ps.clipper.LocalMinima"
+    "class_import": "page.ps.clipper.LocalMinima",
+    "module_key": "ps",
+    "module_label": "Ps"
   },
   {
     "name": "Scanbeam",
@@ -4171,7 +4347,9 @@
     "visibility": "conventional",
     "reachable": true,
     "canonical_namespace": "page.ps.clipper",
-    "class_import": "page.ps.clipper.Scanbeam"
+    "class_import": "page.ps.clipper.Scanbeam",
+    "module_key": "ps",
+    "module_label": "Ps"
   },
   {
     "name": "OutRec",
@@ -4252,7 +4430,9 @@
     "visibility": "conventional",
     "reachable": true,
     "canonical_namespace": "page.ps.clipper",
-    "class_import": "page.ps.clipper.OutRec"
+    "class_import": "page.ps.clipper.OutRec",
+    "module_key": "ps",
+    "module_label": "Ps"
   },
   {
     "name": "OutPt",
@@ -4309,7 +4489,9 @@
     "visibility": "conventional",
     "reachable": true,
     "canonical_namespace": "page.ps.clipper",
-    "class_import": "page.ps.clipper.OutPt"
+    "class_import": "page.ps.clipper.OutPt",
+    "module_key": "ps",
+    "module_label": "Ps"
   },
   {
     "name": "Join",
@@ -4358,7 +4540,9 @@
     "visibility": "conventional",
     "reachable": true,
     "canonical_namespace": "page.ps.clipper",
-    "class_import": "page.ps.clipper.Join"
+    "class_import": "page.ps.clipper.Join",
+    "module_key": "ps",
+    "module_label": "Ps"
   },
   {
     "name": "ClipperBase",
@@ -4993,7 +5177,9 @@
     "visibility": "conventional",
     "reachable": true,
     "canonical_namespace": "page.ps.clipper",
-    "class_import": "page.ps.clipper.ClipperBase"
+    "class_import": "page.ps.clipper.ClipperBase",
+    "module_key": "ps",
+    "module_label": "Ps"
   },
   {
     "name": "Clipper",
@@ -7070,7 +7256,9 @@
     "visibility": "conventional",
     "reachable": true,
     "canonical_namespace": "page.ps.clipper",
-    "class_import": "page.ps.clipper.Clipper"
+    "class_import": "page.ps.clipper.Clipper",
+    "module_key": "ps",
+    "module_label": "Ps"
   },
   {
     "name": "PolyOffsetBuilder",
@@ -7327,7 +7515,9 @@
     "visibility": "conventional",
     "reachable": true,
     "canonical_namespace": "page.ps.clipper",
-    "class_import": "page.ps.clipper.PolyOffsetBuilder"
+    "class_import": "page.ps.clipper.PolyOffsetBuilder",
+    "module_key": "ps",
+    "module_label": "Ps"
   },
   {
     "name": "get_unit_normal",
@@ -7349,7 +7539,9 @@
       }
     ],
     "return_type": "DoublePoint",
-    "reachable": true
+    "reachable": true,
+    "module_key": "ps",
+    "module_label": "Ps"
   },
   {
     "name": "distance_sqrd",
@@ -7371,7 +7563,9 @@
       }
     ],
     "return_type": "float",
-    "reachable": true
+    "reachable": true,
+    "module_key": "ps",
+    "module_label": "Ps"
   },
   {
     "name": "closest_point_on_line",
@@ -7397,7 +7591,9 @@
       }
     ],
     "return_type": "DoublePoint",
-    "reachable": true
+    "reachable": true,
+    "module_key": "ps",
+    "module_label": "Ps"
   },
   {
     "name": "slopes_near_collinear",
@@ -7427,7 +7623,9 @@
       }
     ],
     "return_type": "bool",
-    "reachable": true
+    "reachable": true,
+    "module_key": "ps",
+    "module_label": "Ps"
   },
   {
     "name": "points_are_close",
@@ -7453,7 +7651,9 @@
       }
     ],
     "return_type": "bool",
-    "reachable": true
+    "reachable": true,
+    "module_key": "ps",
+    "module_label": "Ps"
   },
   {
     "name": "clean_polygon",
@@ -7475,7 +7675,9 @@
       }
     ],
     "return_type": "List[IntPoint]",
-    "reachable": true
+    "reachable": true,
+    "module_key": "ps",
+    "module_label": "Ps"
   },
   {
     "name": "round_int",
@@ -7493,7 +7695,9 @@
       }
     ],
     "return_type": "int",
-    "reachable": true
+    "reachable": true,
+    "module_key": "ps",
+    "module_label": "Ps"
   },
   {
     "name": "strip_dups_and_get_bot_pt",
@@ -7515,7 +7719,9 @@
       }
     ],
     "return_type": "Optional[tuple[List[IntPoint], IntPoint]]",
-    "reachable": true
+    "reachable": true,
+    "module_key": "ps",
+    "module_label": "Ps"
   },
   {
     "name": "offset_paths",
@@ -7549,7 +7755,9 @@
       }
     ],
     "return_type": "List[List[IntPoint]]",
-    "reachable": true
+    "reachable": true,
+    "module_key": "ps",
+    "module_label": "Ps"
   },
   {
     "name": "register_color_operators",
@@ -7571,7 +7779,9 @@
       }
     ],
     "return_type": "None",
-    "reachable": true
+    "reachable": true,
+    "module_key": "ps",
+    "module_label": "Ps"
   },
   {
     "name": "parse_color_space",
@@ -7593,7 +7803,9 @@
       }
     ],
     "return_type": "ColorSpace",
-    "reachable": true
+    "reachable": true,
+    "module_key": "ps",
+    "module_label": "Ps"
   },
   {
     "name": "load_default_icc_profile",
@@ -7606,7 +7818,9 @@
     "properties": [],
     "params": [],
     "return_type": "bytes",
-    "reachable": true
+    "reachable": true,
+    "module_key": "ps",
+    "module_label": "Ps"
   },
   {
     "name": "GraphicsState",
@@ -7883,7 +8097,9 @@
     "visibility": "public",
     "reachable": true,
     "canonical_namespace": "page.ps.context",
-    "class_import": "page.ps.context.GraphicsState"
+    "class_import": "page.ps.context.GraphicsState",
+    "module_key": "ps",
+    "module_label": "Ps"
   },
   {
     "name": "ExecutionContext",
@@ -8024,7 +8240,9 @@
     "visibility": "public",
     "reachable": true,
     "canonical_namespace": "page.ps.context",
-    "class_import": "page.ps.context.ExecutionContext"
+    "class_import": "page.ps.context.ExecutionContext",
+    "module_key": "ps",
+    "module_label": "Ps"
   },
   {
     "name": "PsDocument",
@@ -8312,7 +8530,9 @@
     "canonical_namespace": "page.ps.document",
     "class_import": "page.ps.document.PsDocument",
     "exported_via_package_init": true,
-    "public_import_module": "page.ps"
+    "public_import_module": "page.ps",
+    "module_key": "ps",
+    "module_label": "Ps"
   },
   {
     "name": "DscMetadata",
@@ -8435,7 +8655,9 @@
     "visibility": "public",
     "reachable": true,
     "canonical_namespace": "page.ps.dsc",
-    "class_import": "page.ps.dsc.DscMetadata"
+    "class_import": "page.ps.dsc.DscMetadata",
+    "module_key": "ps",
+    "module_label": "Ps"
   },
   {
     "name": "parse_dsc_comments",
@@ -8453,7 +8675,9 @@
       }
     ],
     "return_type": "DscMetadata",
-    "reachable": true
+    "reachable": true,
+    "module_key": "ps",
+    "module_label": "Ps"
   },
   {
     "name": "PsImage",
@@ -8531,7 +8755,9 @@
     "visibility": "public",
     "reachable": true,
     "canonical_namespace": "page.ps.editing",
-    "class_import": "page.ps.editing.PsImage"
+    "class_import": "page.ps.editing.PsImage",
+    "module_key": "ps",
+    "module_label": "Ps"
   },
   {
     "name": "PsPage",
@@ -8591,7 +8817,9 @@
     "visibility": "public",
     "reachable": true,
     "canonical_namespace": "page.ps.editing",
-    "class_import": "page.ps.editing.PsPage"
+    "class_import": "page.ps.editing.PsPage",
+    "module_key": "ps",
+    "module_label": "Ps"
   },
   {
     "name": "PsCanvas",
@@ -8978,7 +9206,9 @@
     "visibility": "public",
     "reachable": true,
     "canonical_namespace": "page.ps.editing",
-    "class_import": "page.ps.editing.PsCanvas"
+    "class_import": "page.ps.editing.PsCanvas",
+    "module_key": "ps",
+    "module_label": "Ps"
   },
   {
     "name": "PsError",
@@ -9030,7 +9260,9 @@
     "visibility": "public",
     "reachable": true,
     "canonical_namespace": "page.ps.errors",
-    "class_import": "page.ps.errors.PsError"
+    "class_import": "page.ps.errors.PsError",
+    "module_key": "ps",
+    "module_label": "Ps"
   },
   {
     "name": "PsSyntaxError",
@@ -9096,7 +9328,9 @@
     "visibility": "conventional",
     "reachable": true,
     "canonical_namespace": "page.ps.errors",
-    "class_import": "page.ps.errors.PsSyntaxError"
+    "class_import": "page.ps.errors.PsSyntaxError",
+    "module_key": "ps",
+    "module_label": "Ps"
   },
   {
     "name": "PsTypeError",
@@ -9162,7 +9396,9 @@
     "visibility": "conventional",
     "reachable": true,
     "canonical_namespace": "page.ps.errors",
-    "class_import": "page.ps.errors.PsTypeError"
+    "class_import": "page.ps.errors.PsTypeError",
+    "module_key": "ps",
+    "module_label": "Ps"
   },
   {
     "name": "PsRangeError",
@@ -9228,7 +9464,9 @@
     "visibility": "conventional",
     "reachable": true,
     "canonical_namespace": "page.ps.errors",
-    "class_import": "page.ps.errors.PsRangeError"
+    "class_import": "page.ps.errors.PsRangeError",
+    "module_key": "ps",
+    "module_label": "Ps"
   },
   {
     "name": "PsUndefinedError",
@@ -9294,7 +9532,9 @@
     "visibility": "conventional",
     "reachable": true,
     "canonical_namespace": "page.ps.errors",
-    "class_import": "page.ps.errors.PsUndefinedError"
+    "class_import": "page.ps.errors.PsUndefinedError",
+    "module_key": "ps",
+    "module_label": "Ps"
   },
   {
     "name": "PsIOError",
@@ -9360,7 +9600,9 @@
     "visibility": "conventional",
     "reachable": true,
     "canonical_namespace": "page.ps.errors",
-    "class_import": "page.ps.errors.PsIOError"
+    "class_import": "page.ps.errors.PsIOError",
+    "module_key": "ps",
+    "module_label": "Ps"
   },
   {
     "name": "PsLimitCheck",
@@ -9426,7 +9668,9 @@
     "visibility": "conventional",
     "reachable": true,
     "canonical_namespace": "page.ps.errors",
-    "class_import": "page.ps.errors.PsLimitCheck"
+    "class_import": "page.ps.errors.PsLimitCheck",
+    "module_key": "ps",
+    "module_label": "Ps"
   },
   {
     "name": "PsInvalidAccess",
@@ -9492,7 +9736,9 @@
     "visibility": "conventional",
     "reachable": true,
     "canonical_namespace": "page.ps.errors",
-    "class_import": "page.ps.errors.PsInvalidAccess"
+    "class_import": "page.ps.errors.PsInvalidAccess",
+    "module_key": "ps",
+    "module_label": "Ps"
   },
   {
     "name": "PsQuit",
@@ -9508,7 +9754,9 @@
     "visibility": "public",
     "reachable": true,
     "canonical_namespace": "page.ps.errors",
-    "class_import": "page.ps.errors.PsQuit"
+    "class_import": "page.ps.errors.PsQuit",
+    "module_key": "ps",
+    "module_label": "Ps"
   },
   {
     "name": "FilterResult",
@@ -9550,7 +9798,9 @@
     "visibility": "public",
     "reachable": true,
     "canonical_namespace": "page.ps.filters",
-    "class_import": "page.ps.filters.FilterResult"
+    "class_import": "page.ps.filters.FilterResult",
+    "module_key": "ps",
+    "module_label": "Ps"
   },
   {
     "name": "decode_filters",
@@ -9576,7 +9826,9 @@
       }
     ],
     "return_type": "FilterResult",
-    "reachable": true
+    "reachable": true,
+    "module_key": "ps",
+    "module_label": "Ps"
   },
   {
     "name": "ascii_hex_decode",
@@ -9594,7 +9846,9 @@
       }
     ],
     "return_type": "bytes",
-    "reachable": true
+    "reachable": true,
+    "module_key": "ps",
+    "module_label": "Ps"
   },
   {
     "name": "ascii85_decode",
@@ -9612,7 +9866,9 @@
       }
     ],
     "return_type": "bytes",
-    "reachable": true
+    "reachable": true,
+    "module_key": "ps",
+    "module_label": "Ps"
   },
   {
     "name": "run_length_decode",
@@ -9630,7 +9886,9 @@
       }
     ],
     "return_type": "bytes",
-    "reachable": true
+    "reachable": true,
+    "module_key": "ps",
+    "module_label": "Ps"
   },
   {
     "name": "flate_decode",
@@ -9648,7 +9906,9 @@
       }
     ],
     "return_type": "bytes",
-    "reachable": true
+    "reachable": true,
+    "module_key": "ps",
+    "module_label": "Ps"
   },
   {
     "name": "lzw_decode",
@@ -9670,7 +9930,9 @@
       }
     ],
     "return_type": "bytes",
-    "reachable": true
+    "reachable": true,
+    "module_key": "ps",
+    "module_label": "Ps"
   },
   {
     "name": "subfile_decode",
@@ -9692,7 +9954,9 @@
       }
     ],
     "return_type": "bytes",
-    "reachable": true
+    "reachable": true,
+    "module_key": "ps",
+    "module_label": "Ps"
   },
   {
     "name": "FontRecord",
@@ -9743,7 +10007,9 @@
     "visibility": "conventional",
     "reachable": true,
     "canonical_namespace": "page.ps.font_cache",
-    "class_import": "page.ps.font_cache.FontRecord"
+    "class_import": "page.ps.font_cache.FontRecord",
+    "module_key": "ps",
+    "module_label": "Ps"
   },
   {
     "name": "FontMetrics",
@@ -9776,7 +10042,9 @@
     "visibility": "conventional",
     "reachable": true,
     "canonical_namespace": "page.ps.font_cache",
-    "class_import": "page.ps.font_cache.FontMetrics"
+    "class_import": "page.ps.font_cache.FontMetrics",
+    "module_key": "ps",
+    "module_label": "Ps"
   },
   {
     "name": "FontCache",
@@ -9846,7 +10114,9 @@
     "visibility": "conventional",
     "reachable": true,
     "canonical_namespace": "page.ps.font_cache",
-    "class_import": "page.ps.font_cache.FontCache"
+    "class_import": "page.ps.font_cache.FontCache",
+    "module_key": "ps",
+    "module_label": "Ps"
   },
   {
     "name": "get_font_cache",
@@ -9859,7 +10129,9 @@
     "properties": [],
     "params": [],
     "return_type": "FontCache",
-    "reachable": true
+    "reachable": true,
+    "module_key": "ps",
+    "module_label": "Ps"
   },
   {
     "name": "load_type1_font",
@@ -9877,7 +10149,9 @@
       }
     ],
     "return_type": "FontResource",
-    "reachable": true
+    "reachable": true,
+    "module_key": "ps",
+    "module_label": "Ps"
   },
   {
     "name": "load_type3_font",
@@ -9895,7 +10169,9 @@
       }
     ],
     "return_type": "FontResource",
-    "reachable": true
+    "reachable": true,
+    "module_key": "ps",
+    "module_label": "Ps"
   },
   {
     "name": "load_type42_font",
@@ -9913,7 +10189,9 @@
       }
     ],
     "return_type": "FontResource",
-    "reachable": true
+    "reachable": true,
+    "module_key": "ps",
+    "module_label": "Ps"
   },
   {
     "name": "FontResource",
@@ -10072,7 +10350,9 @@
     "visibility": "public",
     "reachable": true,
     "canonical_namespace": "page.ps.fonts",
-    "class_import": "page.ps.fonts.FontResource"
+    "class_import": "page.ps.fonts.FontResource",
+    "module_key": "ps",
+    "module_label": "Ps"
   },
   {
     "name": "EmbeddedType42",
@@ -10114,7 +10394,9 @@
     "visibility": "conventional",
     "reachable": true,
     "canonical_namespace": "page.ps.fonts",
-    "class_import": "page.ps.fonts.EmbeddedType42"
+    "class_import": "page.ps.fonts.EmbeddedType42",
+    "module_key": "ps",
+    "module_label": "Ps"
   },
   {
     "name": "FontResolver",
@@ -10265,7 +10547,9 @@
     "visibility": "public",
     "reachable": true,
     "canonical_namespace": "page.ps.fonts",
-    "class_import": "page.ps.fonts.FontResolver"
+    "class_import": "page.ps.fonts.FontResolver",
+    "module_key": "ps",
+    "module_label": "Ps"
   },
   {
     "name": "parse_ttf_metrics",
@@ -10283,7 +10567,9 @@
       }
     ],
     "return_type": "tuple[int, dict[int, float]]",
-    "reachable": true
+    "reachable": true,
+    "module_key": "ps",
+    "module_label": "Ps"
   },
   {
     "name": "parse_function",
@@ -10305,7 +10591,9 @@
       }
     ],
     "return_type": "Function",
-    "reachable": true
+    "reachable": true,
+    "module_key": "ps",
+    "module_label": "Ps"
   },
   {
     "name": "register_core_graphics_operators",
@@ -10327,7 +10615,9 @@
       }
     ],
     "return_type": "None",
-    "reachable": true
+    "reachable": true,
+    "module_key": "ps",
+    "module_label": "Ps"
   },
   {
     "name": "register_image_operators",
@@ -10353,7 +10643,9 @@
       }
     ],
     "return_type": "None",
-    "reachable": true
+    "reachable": true,
+    "module_key": "ps",
+    "module_label": "Ps"
   },
   {
     "name": "ImageInfo",
@@ -10413,7 +10705,9 @@
     "visibility": "public",
     "reachable": true,
     "canonical_namespace": "page.ps.image_to_eps",
-    "class_import": "page.ps.image_to_eps.ImageInfo"
+    "class_import": "page.ps.image_to_eps.ImageInfo",
+    "module_key": "ps",
+    "module_label": "Ps"
   },
   {
     "name": "decode_bmp",
@@ -10431,7 +10725,9 @@
       }
     ],
     "return_type": "ImageInfo",
-    "reachable": true
+    "reachable": true,
+    "module_key": "ps",
+    "module_label": "Ps"
   },
   {
     "name": "image_to_eps",
@@ -10453,7 +10749,9 @@
       }
     ],
     "return_type": "bytes",
-    "reachable": true
+    "reachable": true,
+    "module_key": "ps",
+    "module_label": "Ps"
   },
   {
     "name": "convert_file",
@@ -10475,7 +10773,9 @@
       }
     ],
     "return_type": "bytes",
-    "reachable": true
+    "reachable": true,
+    "module_key": "ps",
+    "module_label": "Ps"
   },
   {
     "name": "PsImageResource",
@@ -10598,7 +10898,9 @@
     "visibility": "public",
     "reachable": true,
     "canonical_namespace": "page.ps.images",
-    "class_import": "page.ps.images.PsImageResource"
+    "class_import": "page.ps.images.PsImageResource",
+    "module_key": "ps",
+    "module_label": "Ps"
   },
   {
     "name": "PsImageStore",
@@ -10659,7 +10961,9 @@
     "visibility": "public",
     "reachable": true,
     "canonical_namespace": "page.ps.images",
-    "class_import": "page.ps.images.PsImageStore"
+    "class_import": "page.ps.images.PsImageStore",
+    "module_key": "ps",
+    "module_label": "Ps"
   },
   {
     "name": "PsInterpreter",
@@ -10760,7 +11064,9 @@
     "visibility": "public",
     "reachable": true,
     "canonical_namespace": "page.ps.interpreter",
-    "class_import": "page.ps.interpreter.PsInterpreter"
+    "class_import": "page.ps.interpreter.PsInterpreter",
+    "module_key": "ps",
+    "module_label": "Ps"
   },
   {
     "name": "PsName",
@@ -10793,7 +11099,9 @@
     "visibility": "conventional",
     "reachable": true,
     "canonical_namespace": "page.ps.objects",
-    "class_import": "page.ps.objects.PsName"
+    "class_import": "page.ps.objects.PsName",
+    "module_key": "ps",
+    "module_label": "Ps"
   },
   {
     "name": "PsOperator",
@@ -10817,7 +11125,9 @@
     "visibility": "conventional",
     "reachable": true,
     "canonical_namespace": "page.ps.objects",
-    "class_import": "page.ps.objects.PsOperator"
+    "class_import": "page.ps.objects.PsOperator",
+    "module_key": "ps",
+    "module_label": "Ps"
   },
   {
     "name": "PsString",
@@ -10859,7 +11169,9 @@
     "visibility": "conventional",
     "reachable": true,
     "canonical_namespace": "page.ps.objects",
-    "class_import": "page.ps.objects.PsString"
+    "class_import": "page.ps.objects.PsString",
+    "module_key": "ps",
+    "module_label": "Ps"
   },
   {
     "name": "PsArray",
@@ -10883,7 +11195,9 @@
     "visibility": "conventional",
     "reachable": true,
     "canonical_namespace": "page.ps.objects",
-    "class_import": "page.ps.objects.PsArray"
+    "class_import": "page.ps.objects.PsArray",
+    "module_key": "ps",
+    "module_label": "Ps"
   },
   {
     "name": "PsDict",
@@ -10907,7 +11221,9 @@
     "visibility": "conventional",
     "reachable": true,
     "canonical_namespace": "page.ps.objects",
-    "class_import": "page.ps.objects.PsDict"
+    "class_import": "page.ps.objects.PsDict",
+    "module_key": "ps",
+    "module_label": "Ps"
   },
   {
     "name": "PsProcedure",
@@ -10931,7 +11247,9 @@
     "visibility": "conventional",
     "reachable": true,
     "canonical_namespace": "page.ps.objects",
-    "class_import": "page.ps.objects.PsProcedure"
+    "class_import": "page.ps.objects.PsProcedure",
+    "module_key": "ps",
+    "module_label": "Ps"
   },
   {
     "name": "PsMark",
@@ -10955,7 +11273,9 @@
     "visibility": "conventional",
     "reachable": true,
     "canonical_namespace": "page.ps.objects",
-    "class_import": "page.ps.objects.PsMark"
+    "class_import": "page.ps.objects.PsMark",
+    "module_key": "ps",
+    "module_label": "Ps"
   },
   {
     "name": "PsSave",
@@ -10979,7 +11299,9 @@
     "visibility": "conventional",
     "reachable": true,
     "canonical_namespace": "page.ps.objects",
-    "class_import": "page.ps.objects.PsSave"
+    "class_import": "page.ps.objects.PsSave",
+    "module_key": "ps",
+    "module_label": "Ps"
   },
   {
     "name": "PsGState",
@@ -11003,7 +11325,9 @@
     "visibility": "conventional",
     "reachable": true,
     "canonical_namespace": "page.ps.objects",
-    "class_import": "page.ps.objects.PsGState"
+    "class_import": "page.ps.objects.PsGState",
+    "module_key": "ps",
+    "module_label": "Ps"
   },
   {
     "name": "PsFile",
@@ -11045,7 +11369,9 @@
     "visibility": "conventional",
     "reachable": true,
     "canonical_namespace": "page.ps.objects",
-    "class_import": "page.ps.objects.PsFile"
+    "class_import": "page.ps.objects.PsFile",
+    "module_key": "ps",
+    "module_label": "Ps"
   },
   {
     "name": "PsFontId",
@@ -11069,7 +11395,9 @@
     "visibility": "conventional",
     "reachable": true,
     "canonical_namespace": "page.ps.objects",
-    "class_import": "page.ps.objects.PsFontId"
+    "class_import": "page.ps.objects.PsFontId",
+    "module_key": "ps",
+    "module_label": "Ps"
   },
   {
     "name": "PsPattern",
@@ -11102,7 +11430,9 @@
     "visibility": "conventional",
     "reachable": true,
     "canonical_namespace": "page.ps.objects",
-    "class_import": "page.ps.objects.PsPattern"
+    "class_import": "page.ps.objects.PsPattern",
+    "module_key": "ps",
+    "module_label": "Ps"
   },
   {
     "name": "OperatorEntry",
@@ -11153,7 +11483,9 @@
     "visibility": "public",
     "reachable": true,
     "canonical_namespace": "page.ps.operators",
-    "class_import": "page.ps.operators.OperatorEntry"
+    "class_import": "page.ps.operators.OperatorEntry",
+    "module_key": "ps",
+    "module_label": "Ps"
   },
   {
     "name": "OperatorRegistry",
@@ -11217,7 +11549,9 @@
     "visibility": "public",
     "reachable": true,
     "canonical_namespace": "page.ps.operators",
-    "class_import": "page.ps.operators.OperatorRegistry"
+    "class_import": "page.ps.operators.OperatorRegistry",
+    "module_key": "ps",
+    "module_label": "Ps"
   },
   {
     "name": "PdfSaveOptions",
@@ -11252,7 +11586,9 @@
     "canonical_namespace": "page.ps.output",
     "class_import": "page.ps.output.PdfSaveOptions",
     "exported_via_package_init": true,
-    "public_import_module": "page.ps"
+    "public_import_module": "page.ps",
+    "module_key": "ps",
+    "module_label": "Ps"
   },
   {
     "name": "ImageSaveOptions",
@@ -11323,7 +11659,9 @@
     "canonical_namespace": "page.ps.output",
     "class_import": "page.ps.output.ImageSaveOptions",
     "exported_via_package_init": true,
-    "public_import_module": "page.ps"
+    "public_import_module": "page.ps",
+    "module_key": "ps",
+    "module_label": "Ps"
   },
   {
     "name": "build_pdf_metadata",
@@ -11341,7 +11679,9 @@
       }
     ],
     "return_type": "PdfMetadata",
-    "reachable": true
+    "reachable": true,
+    "module_key": "ps",
+    "module_label": "Ps"
   },
   {
     "name": "page_size_from_dsc",
@@ -11359,7 +11699,9 @@
       }
     ],
     "return_type": "tuple[float, float]",
-    "reachable": true
+    "reachable": true,
+    "module_key": "ps",
+    "module_label": "Ps"
   },
   {
     "name": "PsParser",
@@ -11406,7 +11748,9 @@
     "visibility": "public",
     "reachable": true,
     "canonical_namespace": "page.ps.parser",
-    "class_import": "page.ps.parser.PsParser"
+    "class_import": "page.ps.parser.PsParser",
+    "module_key": "ps",
+    "module_label": "Ps"
   },
   {
     "name": "build_tiling_pattern",
@@ -11436,7 +11780,9 @@
       }
     ],
     "return_type": "TilingPattern",
-    "reachable": true
+    "reachable": true,
+    "module_key": "ps",
+    "module_label": "Ps"
   },
   {
     "name": "build_shading_pattern",
@@ -11466,7 +11812,9 @@
       }
     ],
     "return_type": "ShadingPattern",
-    "reachable": true
+    "reachable": true,
+    "module_key": "ps",
+    "module_label": "Ps"
   },
   {
     "name": "build_shading",
@@ -11492,7 +11840,9 @@
       }
     ],
     "return_type": "Shading",
-    "reachable": true
+    "reachable": true,
+    "module_key": "ps",
+    "module_label": "Ps"
   },
   {
     "name": "build_embedded_font",
@@ -11522,7 +11872,9 @@
       }
     ],
     "return_type": "PdfEmbeddedFont | None",
-    "reachable": true
+    "reachable": true,
+    "module_key": "ps",
+    "module_label": "Ps"
   },
   {
     "name": "PsConversionPipeline",
@@ -11581,7 +11933,9 @@
     "visibility": "public",
     "reachable": true,
     "canonical_namespace": "page.ps.pipeline",
-    "class_import": "page.ps.pipeline.PsConversionPipeline"
+    "class_import": "page.ps.pipeline.PsConversionPipeline",
+    "module_key": "ps",
+    "module_label": "Ps"
   },
   {
     "name": "default_page_size_from_dsc",
@@ -11599,7 +11953,9 @@
       }
     ],
     "return_type": "tuple[float, float]",
-    "reachable": true
+    "reachable": true,
+    "module_key": "ps",
+    "module_label": "Ps"
   },
   {
     "name": "preprocess_type1_resources",
@@ -11617,7 +11973,9 @@
       }
     ],
     "return_type": "bytes",
-    "reachable": true
+    "reachable": true,
+    "module_key": "ps",
+    "module_label": "Ps"
   },
   {
     "name": "create_default_context",
@@ -11639,7 +11997,9 @@
       }
     ],
     "return_type": "ExecutionContext",
-    "reachable": true
+    "reachable": true,
+    "module_key": "ps",
+    "module_label": "Ps"
   },
   {
     "name": "serialize_document",
@@ -11657,7 +12017,9 @@
       }
     ],
     "return_type": "bytes",
-    "reachable": true
+    "reachable": true,
+    "module_key": "ps",
+    "module_label": "Ps"
   },
   {
     "name": "PsStack",
@@ -11731,7 +12093,9 @@
     "visibility": "public",
     "reachable": true,
     "canonical_namespace": "page.ps.stack",
-    "class_import": "page.ps.stack.PsStack"
+    "class_import": "page.ps.stack.PsStack",
+    "module_key": "ps",
+    "module_label": "Ps"
   },
   {
     "name": "register_text_operators",
@@ -11757,7 +12121,9 @@
       }
     ],
     "return_type": "None",
-    "reachable": true
+    "reachable": true,
+    "module_key": "ps",
+    "module_label": "Ps"
   },
   {
     "name": "PsToken",
@@ -11790,7 +12156,9 @@
     "visibility": "public",
     "reachable": true,
     "canonical_namespace": "page.ps.tokenizer",
-    "class_import": "page.ps.tokenizer.PsToken"
+    "class_import": "page.ps.tokenizer.PsToken",
+    "module_key": "ps",
+    "module_label": "Ps"
   },
   {
     "name": "PsTokenizer",
@@ -11897,7 +12265,9 @@
     "visibility": "public",
     "reachable": true,
     "canonical_namespace": "page.ps.tokenizer",
-    "class_import": "page.ps.tokenizer.PsTokenizer"
+    "class_import": "page.ps.tokenizer.PsTokenizer",
+    "module_key": "ps",
+    "module_label": "Ps"
   },
   {
     "name": "GlyphPoint",
@@ -11939,7 +12309,9 @@
     "visibility": "conventional",
     "reachable": true,
     "canonical_namespace": "page.ps.ttf_outline",
-    "class_import": "page.ps.ttf_outline.GlyphPoint"
+    "class_import": "page.ps.ttf_outline.GlyphPoint",
+    "module_key": "ps",
+    "module_label": "Ps"
   },
   {
     "name": "TrueTypeFont",
@@ -12121,7 +12493,9 @@
     "visibility": "conventional",
     "reachable": true,
     "canonical_namespace": "page.ps.ttf_outline",
-    "class_import": "page.ps.ttf_outline.TrueTypeFont"
+    "class_import": "page.ps.ttf_outline.TrueTypeFont",
+    "module_key": "ps",
+    "module_label": "Ps"
   },
   {
     "name": "load_ttf_font",
@@ -12139,7 +12513,9 @@
       }
     ],
     "return_type": "TrueTypeFont",
-    "reachable": true
+    "reachable": true,
+    "module_key": "ps",
+    "module_label": "Ps"
   },
   {
     "name": "subset_ttf",
@@ -12169,7 +12545,9 @@
       }
     ],
     "return_type": "tuple[bytes, dict[int, int]]",
-    "reachable": true
+    "reachable": true,
+    "module_key": "ps",
+    "module_label": "Ps"
   },
   {
     "name": "has_ttf_table",
@@ -12191,7 +12569,9 @@
       }
     ],
     "return_type": "bool",
-    "reachable": true
+    "reachable": true,
+    "module_key": "ps",
+    "module_label": "Ps"
   },
   {
     "name": "ensure_ttf_cmap",
@@ -12213,7 +12593,9 @@
       }
     ],
     "return_type": "bytes",
-    "reachable": true
+    "reachable": true,
+    "module_key": "ps",
+    "module_label": "Ps"
   },
   {
     "name": "Type1Metrics",
@@ -12291,7 +12673,9 @@
     "visibility": "conventional",
     "reachable": true,
     "canonical_namespace": "page.ps.type1_parser",
-    "class_import": "page.ps.type1_parser.Type1Metrics"
+    "class_import": "page.ps.type1_parser.Type1Metrics",
+    "module_key": "ps",
+    "module_label": "Ps"
   },
   {
     "name": "parse_embedded_type1",
@@ -12313,7 +12697,9 @@
       }
     ],
     "return_type": "Type1Metrics | None",
-    "reachable": true
+    "reachable": true,
+    "module_key": "ps",
+    "module_label": "Ps"
   },
   {
     "name": "parse_type1_resource_block",
@@ -12331,7 +12717,9 @@
       }
     ],
     "return_type": "Type1Metrics | None",
-    "reachable": true
+    "reachable": true,
+    "module_key": "ps",
+    "module_label": "Ps"
   },
   {
     "name": "decrypt_eexec",
@@ -12349,7 +12737,9 @@
       }
     ],
     "return_type": "bytes",
-    "reachable": true
+    "reachable": true,
+    "module_key": "ps",
+    "module_label": "Ps"
   },
   {
     "name": "parse_type1_widths_from_private_dict",
@@ -12367,7 +12757,9 @@
       }
     ],
     "return_type": "dict[str, float]",
-    "reachable": true
+    "reachable": true,
+    "module_key": "ps",
+    "module_label": "Ps"
   },
   {
     "name": "parse_type1_charstring_width",
@@ -12389,7 +12781,9 @@
       }
     ],
     "return_type": "float | None",
-    "reachable": true
+    "reachable": true,
+    "module_key": "ps",
+    "module_label": "Ps"
   },
   {
     "name": "PsSaveState",
@@ -12440,7 +12834,9 @@
     "visibility": "conventional",
     "reachable": true,
     "canonical_namespace": "page.ps.vm",
-    "class_import": "page.ps.vm.PsSaveState"
+    "class_import": "page.ps.vm.PsSaveState",
+    "module_key": "ps",
+    "module_label": "Ps"
   },
   {
     "name": "save_state",
@@ -12458,7 +12854,9 @@
       }
     ],
     "return_type": "PsSaveState",
-    "reachable": true
+    "reachable": true,
+    "module_key": "ps",
+    "module_label": "Ps"
   },
   {
     "name": "restore_state",
@@ -12480,7 +12878,9 @@
       }
     ],
     "return_type": "None",
-    "reachable": true
+    "reachable": true,
+    "module_key": "ps",
+    "module_label": "Ps"
   },
   {
     "name": "extract_xmp",
@@ -12498,7 +12898,9 @@
       }
     ],
     "return_type": "str | None",
-    "reachable": true
+    "reachable": true,
+    "module_key": "ps",
+    "module_label": "Ps"
   },
   {
     "name": "replace_xmp",
@@ -12520,7 +12922,9 @@
       }
     ],
     "return_type": "bytes",
-    "reachable": true
+    "reachable": true,
+    "module_key": "ps",
+    "module_label": "Ps"
   },
   {
     "name": "remove_xmp",
@@ -12538,7 +12942,9 @@
       }
     ],
     "return_type": "bytes",
-    "reachable": true
+    "reachable": true,
+    "module_key": "ps",
+    "module_label": "Ps"
   },
   {
     "name": "XpsDocument",
@@ -12771,7 +13177,9 @@
     "canonical_namespace": "page.xps.document",
     "class_import": "page.xps.document.XpsDocument",
     "exported_via_package_init": true,
-    "public_import_module": "page.xps"
+    "public_import_module": "page.xps",
+    "module_key": "xps",
+    "module_label": "Xps"
   },
   {
     "name": "XpsFixedPage",
@@ -12813,7 +13221,9 @@
     "visibility": "public",
     "reachable": true,
     "canonical_namespace": "page.xps.editing",
-    "class_import": "page.xps.editing.XpsFixedPage"
+    "class_import": "page.xps.editing.XpsFixedPage",
+    "module_key": "xps",
+    "module_label": "Xps"
   },
   {
     "name": "XpsCanvas",
@@ -12855,7 +13265,9 @@
     "visibility": "public",
     "reachable": true,
     "canonical_namespace": "page.xps.editing",
-    "class_import": "page.xps.editing.XpsCanvas"
+    "class_import": "page.xps.editing.XpsCanvas",
+    "module_key": "xps",
+    "module_label": "Xps"
   },
   {
     "name": "XpsPath",
@@ -12906,7 +13318,9 @@
     "visibility": "public",
     "reachable": true,
     "canonical_namespace": "page.xps.editing",
-    "class_import": "page.xps.editing.XpsPath"
+    "class_import": "page.xps.editing.XpsPath",
+    "module_key": "xps",
+    "module_label": "Xps"
   },
   {
     "name": "XpsGlyphs",
@@ -12975,7 +13389,9 @@
     "visibility": "public",
     "reachable": true,
     "canonical_namespace": "page.xps.editing",
-    "class_import": "page.xps.editing.XpsGlyphs"
+    "class_import": "page.xps.editing.XpsGlyphs",
+    "module_key": "xps",
+    "module_label": "Xps"
   },
   {
     "name": "XpsImage",
@@ -13026,7 +13442,9 @@
     "visibility": "public",
     "reachable": true,
     "canonical_namespace": "page.xps.editing",
-    "class_import": "page.xps.editing.XpsImage"
+    "class_import": "page.xps.editing.XpsImage",
+    "module_key": "xps",
+    "module_label": "Xps"
   },
   {
     "name": "XpsDocumentBuilder",
@@ -13131,7 +13549,9 @@
     "visibility": "public",
     "reachable": true,
     "canonical_namespace": "page.xps.editing",
-    "class_import": "page.xps.editing.XpsDocumentBuilder"
+    "class_import": "page.xps.editing.XpsDocumentBuilder",
+    "module_key": "xps",
+    "module_label": "Xps"
   },
   {
     "name": "XpsImageResource",
@@ -13236,7 +13656,9 @@
     "visibility": "public",
     "reachable": true,
     "canonical_namespace": "page.xps.images",
-    "class_import": "page.xps.images.XpsImageResource"
+    "class_import": "page.xps.images.XpsImageResource",
+    "module_key": "xps",
+    "module_label": "Xps"
   },
   {
     "name": "XpsImageStore",
@@ -13288,7 +13710,9 @@
     "visibility": "conventional",
     "reachable": true,
     "canonical_namespace": "page.xps.images",
-    "class_import": "page.xps.images.XpsImageStore"
+    "class_import": "page.xps.images.XpsImageStore",
+    "module_key": "xps",
+    "module_label": "Xps"
   },
   {
     "name": "to_images",
@@ -13310,7 +13734,9 @@
       }
     ],
     "return_type": "list[bytes]",
-    "reachable": true
+    "reachable": true,
+    "module_key": "xps",
+    "module_label": "Xps"
   },
   {
     "name": "XpsPackage",
@@ -13391,7 +13817,9 @@
     "visibility": "public",
     "reachable": true,
     "canonical_namespace": "page.xps.package",
-    "class_import": "page.xps.package.XpsPackage"
+    "class_import": "page.xps.package.XpsPackage",
+    "module_key": "xps",
+    "module_label": "Xps"
   },
   {
     "name": "XpsParser",
@@ -13429,7 +13857,9 @@
     "visibility": "public",
     "reachable": true,
     "canonical_namespace": "page.xps.parser",
-    "class_import": "page.xps.parser.XpsParser"
+    "class_import": "page.xps.parser.XpsParser",
+    "module_key": "xps",
+    "module_label": "Xps"
   },
   {
     "name": "PrintTicketScope",
@@ -13460,7 +13890,9 @@
       }
     ],
     "canonical_namespace": "page.xps.print_tickets",
-    "class_import": "page.xps.print_tickets.PrintTicketScope"
+    "class_import": "page.xps.print_tickets.PrintTicketScope",
+    "module_key": "xps",
+    "module_label": "Xps"
   },
   {
     "name": "PrintTicket",
@@ -13502,7 +13934,9 @@
     "visibility": "public",
     "reachable": true,
     "canonical_namespace": "page.xps.print_tickets",
-    "class_import": "page.xps.print_tickets.PrintTicket"
+    "class_import": "page.xps.print_tickets.PrintTicket",
+    "module_key": "xps",
+    "module_label": "Xps"
   },
   {
     "name": "read_print_tickets",
@@ -13520,7 +13954,9 @@
       }
     ],
     "return_type": "list[PrintTicket]",
-    "reachable": true
+    "reachable": true,
+    "module_key": "xps",
+    "module_label": "Xps"
   },
   {
     "name": "write_print_ticket",
@@ -13550,7 +13986,9 @@
       }
     ],
     "return_type": "None",
-    "reachable": true
+    "reachable": true,
+    "module_key": "xps",
+    "module_label": "Xps"
   },
   {
     "name": "remove_print_ticket",
@@ -13576,7 +14014,9 @@
       }
     ],
     "return_type": "None",
-    "reachable": true
+    "reachable": true,
+    "module_key": "xps",
+    "module_label": "Xps"
   },
   {
     "name": "Relationship",
@@ -13618,7 +14058,9 @@
     "visibility": "public",
     "reachable": true,
     "canonical_namespace": "page.xps.relationships",
-    "class_import": "page.xps.relationships.Relationship"
+    "class_import": "page.xps.relationships.Relationship",
+    "module_key": "xps",
+    "module_label": "Xps"
   },
   {
     "name": "read_rels",
@@ -13640,7 +14082,9 @@
       }
     ],
     "return_type": "list[Relationship]",
-    "reachable": true
+    "reachable": true,
+    "module_key": "xps",
+    "module_label": "Xps"
   },
   {
     "name": "write_rels",
@@ -13666,7 +14110,9 @@
       }
     ],
     "return_type": "None",
-    "reachable": true
+    "reachable": true,
+    "module_key": "xps",
+    "module_label": "Xps"
   },
   {
     "name": "XpsRenderer",
@@ -13755,7 +14201,9 @@
     "visibility": "public",
     "reachable": true,
     "canonical_namespace": "page.xps.render",
-    "class_import": "page.xps.render.XpsRenderer"
+    "class_import": "page.xps.render.XpsRenderer",
+    "module_key": "xps",
+    "module_label": "Xps"
   },
   {
     "name": "next_number",
@@ -13768,7 +14216,9 @@
     "properties": [],
     "params": [],
     "return_type": "float",
-    "reachable": true
+    "reachable": true,
+    "module_key": "xps",
+    "module_label": "Xps"
   },
   {
     "name": "XpsResourceDictionary",
@@ -13816,7 +14266,9 @@
     "visibility": "public",
     "reachable": true,
     "canonical_namespace": "page.xps.resources",
-    "class_import": "page.xps.resources.XpsResourceDictionary"
+    "class_import": "page.xps.resources.XpsResourceDictionary",
+    "module_key": "xps",
+    "module_label": "Xps"
   },
   {
     "name": "serialize_fixed_page",
@@ -13834,7 +14286,9 @@
       }
     ],
     "return_type": "bytes",
-    "reachable": true
+    "reachable": true,
+    "module_key": "xps",
+    "module_label": "Xps"
   },
   {
     "name": "serialize_document_sequence",
@@ -13852,6 +14306,8 @@
       }
     ],
     "return_type": "dict[str, bytes]",
-    "reachable": true
+    "reachable": true,
+    "module_key": "xps",
+    "module_label": "Xps"
   }
 ]

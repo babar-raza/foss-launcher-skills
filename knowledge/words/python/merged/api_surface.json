@@ -116,7 +116,9 @@
     "canonical_namespace": "words_foss.doc_reader.doc_file_reader",
     "class_import": "words_foss.doc_reader.doc_file_reader.DocFileReader",
     "exported_via_package_init": true,
-    "public_import_module": "words_foss.doc_reader"
+    "public_import_module": "words_foss.doc_reader",
+    "module_key": "doc_reader",
+    "module_label": "Doc Reader"
   },
   {
     "name": "DocFileReaderCore",
@@ -192,7 +194,9 @@
     "deprecated": false,
     "deprecated_reason": "",
     "canonical_namespace": "words_foss.doc_reader.doc_file_reader_core",
-    "class_import": "words_foss.doc_reader.doc_file_reader_core.DocFileReaderCore"
+    "class_import": "words_foss.doc_reader.doc_file_reader_core.DocFileReaderCore",
+    "module_key": "doc_reader",
+    "module_label": "Doc Reader"
   },
   {
     "name": "DocumentReader",
@@ -284,7 +288,9 @@
     "canonical_namespace": "words_foss.docx_reader.document_reader",
     "class_import": "words_foss.docx_reader.document_reader.DocumentReader",
     "exported_via_package_init": true,
-    "public_import_module": "words_foss.docx_reader"
+    "public_import_module": "words_foss.docx_reader",
+    "module_key": "docx_reader",
+    "module_label": "Docx Reader"
   },
   {
     "name": "DocxWriterLossyWarning",
@@ -304,7 +310,9 @@
     "canonical_namespace": "words_foss.docx_writer.writer",
     "class_import": "words_foss.docx_writer.writer.DocxWriterLossyWarning",
     "exported_via_package_init": true,
-    "public_import_module": "words_foss.docx_writer"
+    "public_import_module": "words_foss.docx_writer",
+    "module_key": "docx_writer",
+    "module_label": "Docx Writer"
   },
   {
     "name": "LdmDocxWriter",
@@ -384,7 +392,9 @@
     "canonical_namespace": "words_foss.docx_writer.writer",
     "class_import": "words_foss.docx_writer.writer.LdmDocxWriter",
     "exported_via_package_init": true,
-    "public_import_module": "words_foss.docx_writer"
+    "public_import_module": "words_foss.docx_writer",
+    "module_key": "docx_writer",
+    "module_label": "Docx Writer"
   },
   {
     "name": "MarkdownReader",
@@ -488,7 +498,9 @@
     "deprecated": false,
     "deprecated_reason": "",
     "canonical_namespace": "words_foss.markdown_reader",
-    "class_import": "words_foss.markdown_reader.MarkdownReader"
+    "class_import": "words_foss.markdown_reader.MarkdownReader",
+    "module_key": "conversion",
+    "module_label": "Conversion"
   },
   {
     "name": "is_local_path",
@@ -506,7 +518,9 @@
       }
     ],
     "return_type": "bool",
-    "reachable": false
+    "reachable": false,
+    "module_key": "md_import",
+    "module_label": "Md Import"
   },
   {
     "name": "guess_image_type",
@@ -524,7 +538,9 @@
       }
     ],
     "return_type": "int",
-    "reachable": false
+    "reachable": false,
+    "module_key": "md_import",
+    "module_label": "Md Import"
   },
   {
     "name": "sniff_dimensions",
@@ -542,7 +558,9 @@
       }
     ],
     "return_type": "tuple[Optional[float], Optional[float]]",
-    "reachable": false
+    "reachable": false,
+    "module_key": "md_import",
+    "module_label": "Md Import"
   },
   {
     "name": "load_local_image",
@@ -564,7 +582,9 @@
       }
     ],
     "return_type": "Optional[tuple[bytes, int, Optional[float], Optional[float]]]",
-    "reachable": false
+    "reachable": false,
+    "module_key": "md_import",
+    "module_label": "Md Import"
   },
   {
     "name": "load_data_uri_image",
@@ -582,7 +602,9 @@
       }
     ],
     "return_type": "Optional[tuple[bytes, int, Optional[float], Optional[float]]]",
-    "reachable": false
+    "reachable": false,
+    "module_key": "md_import",
+    "module_label": "Md Import"
   },
   {
     "name": "MarkdownReaderContext",
@@ -703,7 +725,9 @@
     "canonical_namespace": "words_foss.md_import.reader_context",
     "class_import": "words_foss.md_import.reader_context.MarkdownReaderContext",
     "exported_via_package_init": true,
-    "public_import_module": "words_foss.md_import"
+    "public_import_module": "words_foss.md_import",
+    "module_key": "md_import",
+    "module_label": "Md Import"
   },
   {
     "name": "LdmMarkdownWriter",
@@ -781,7 +805,9 @@
     "deprecated": false,
     "deprecated_reason": "",
     "canonical_namespace": "words_foss.md_writer",
-    "class_import": "words_foss.md_writer.LdmMarkdownWriter"
+    "class_import": "words_foss.md_writer.LdmMarkdownWriter",
+    "module_key": "conversion",
+    "module_label": "Conversion"
   },
   {
     "name": "LdmPdfWriter",
@@ -845,7 +871,9 @@
     "canonical_namespace": "words_foss.pdf_writer.writer",
     "class_import": "words_foss.pdf_writer.writer.LdmPdfWriter",
     "exported_via_package_init": true,
-    "public_import_module": "words_foss.pdf_writer"
+    "public_import_module": "words_foss.pdf_writer",
+    "module_key": "pdf_writer",
+    "module_label": "Pdf Writer"
   },
   {
     "name": "DocumentFormatReader",
@@ -923,7 +951,9 @@
     "deprecated": false,
     "deprecated_reason": "",
     "canonical_namespace": "words_foss.reader_factory",
-    "class_import": "words_foss.reader_factory.DocumentFormatReader"
+    "class_import": "words_foss.reader_factory.DocumentFormatReader",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "create_reader",
@@ -941,7 +971,9 @@
       }
     ],
     "return_type": "DocumentFormatReader",
-    "reachable": false
+    "reachable": false,
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "RtfFileReader",
@@ -1028,7 +1060,9 @@
     "deprecated": false,
     "deprecated_reason": "",
     "canonical_namespace": "words_foss.rtf_reader",
-    "class_import": "words_foss.rtf_reader.RtfFileReader"
+    "class_import": "words_foss.rtf_reader.RtfFileReader",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "TextFileReader",
@@ -1124,7 +1158,9 @@
     "deprecated": false,
     "deprecated_reason": "",
     "canonical_namespace": "words_foss.text_reader",
-    "class_import": "words_foss.text_reader.TextFileReader"
+    "class_import": "words_foss.text_reader.TextFileReader",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "MarkdownFileReader",
@@ -1228,7 +1264,9 @@
     "deprecated": false,
     "deprecated_reason": "",
     "canonical_namespace": "words_foss.text_reader",
-    "class_import": "words_foss.text_reader.MarkdownFileReader"
+    "class_import": "words_foss.text_reader.MarkdownFileReader",
+    "module_key": "conversion",
+    "module_label": "Conversion"
   },
   {
     "name": "is_horizontal_rule_shape",
@@ -1246,7 +1284,9 @@
       }
     ],
     "return_type": "bool",
-    "reachable": false
+    "reachable": false,
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "visible_runs",
@@ -1264,7 +1304,9 @@
       }
     ],
     "return_type": "list[ldm.Run]",
-    "reachable": false
+    "reachable": false,
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "ListHandler",
@@ -1390,7 +1432,9 @@
     "canonical_namespace": "words_foss.converters.list_handler",
     "class_import": "words_foss.converters.list_handler.ListHandler",
     "exported_via_package_init": true,
-    "public_import_module": "words_foss.converters"
+    "public_import_module": "words_foss.converters",
+    "module_key": "converters",
+    "module_label": "Converters"
   },
   {
     "name": "ParagraphConverter",
@@ -1490,7 +1534,9 @@
     "canonical_namespace": "words_foss.converters.paragraph",
     "class_import": "words_foss.converters.paragraph.ParagraphConverter",
     "exported_via_package_init": true,
-    "public_import_module": "words_foss.converters"
+    "public_import_module": "words_foss.converters",
+    "module_key": "converters",
+    "module_label": "Converters"
   },
   {
     "name": "TableConverter",
@@ -1550,7 +1596,9 @@
     "canonical_namespace": "words_foss.converters.table",
     "class_import": "words_foss.converters.table.TableConverter",
     "exported_via_package_init": true,
-    "public_import_module": "words_foss.converters"
+    "public_import_module": "words_foss.converters",
+    "module_key": "converters",
+    "module_label": "Converters"
   },
   {
     "name": "is_raster_blip",
@@ -1572,7 +1620,9 @@
       }
     ],
     "return_type": "bool",
-    "reachable": false
+    "reachable": false,
+    "module_key": "doc_reader",
+    "module_label": "Doc Reader"
   },
   {
     "name": "FibData",
@@ -1657,7 +1707,9 @@
     "deprecated": false,
     "deprecated_reason": "",
     "canonical_namespace": "words_foss.doc_reader.fib",
-    "class_import": "words_foss.doc_reader.fib.FibData"
+    "class_import": "words_foss.doc_reader.fib.FibData",
+    "module_key": "doc_reader",
+    "module_label": "Doc Reader"
   },
   {
     "name": "parse_fib",
@@ -1675,7 +1727,9 @@
       }
     ],
     "return_type": "FibData",
-    "reachable": false
+    "reachable": false,
+    "module_key": "doc_reader",
+    "module_label": "Doc Reader"
   },
   {
     "name": "get_fc_lcb",
@@ -1701,7 +1755,9 @@
       }
     ],
     "return_type": "tuple[int, int]",
-    "reachable": false
+    "reachable": false,
+    "module_key": "doc_reader",
+    "module_label": "Doc Reader"
   },
   {
     "name": "parse_font_table",
@@ -1727,7 +1783,9 @@
       }
     ],
     "return_type": "dict[int, str]",
-    "reachable": false
+    "reachable": false,
+    "module_key": "doc_reader",
+    "module_label": "Doc Reader"
   },
   {
     "name": "BlipInfo",
@@ -1805,7 +1863,9 @@
     "deprecated": false,
     "deprecated_reason": "",
     "canonical_namespace": "words_foss.doc_reader.images",
-    "class_import": "words_foss.doc_reader.images.BlipInfo"
+    "class_import": "words_foss.doc_reader.images.BlipInfo",
+    "module_key": "doc_reader",
+    "module_label": "Doc Reader"
   },
   {
     "name": "ShapeCropInfo",
@@ -1883,7 +1943,9 @@
     "deprecated": false,
     "deprecated_reason": "",
     "canonical_namespace": "words_foss.doc_reader.images",
-    "class_import": "words_foss.doc_reader.images.ShapeCropInfo"
+    "class_import": "words_foss.doc_reader.images.ShapeCropInfo",
+    "module_key": "doc_reader",
+    "module_label": "Doc Reader"
   },
   {
     "name": "ShapeLineProps",
@@ -1949,7 +2011,9 @@
     "deprecated": false,
     "deprecated_reason": "",
     "canonical_namespace": "words_foss.doc_reader.images",
-    "class_import": "words_foss.doc_reader.images.ShapeLineProps"
+    "class_import": "words_foss.doc_reader.images.ShapeLineProps",
+    "module_key": "doc_reader",
+    "module_label": "Doc Reader"
   },
   {
     "name": "ShapeAnchor",
@@ -2087,7 +2151,9 @@
     "deprecated": false,
     "deprecated_reason": "",
     "canonical_namespace": "words_foss.doc_reader.images",
-    "class_import": "words_foss.doc_reader.images.ShapeAnchor"
+    "class_import": "words_foss.doc_reader.images.ShapeAnchor",
+    "module_key": "doc_reader",
+    "module_label": "Doc Reader"
   },
   {
     "name": "ChildAnchorInfo",
@@ -2165,7 +2231,9 @@
     "deprecated": false,
     "deprecated_reason": "",
     "canonical_namespace": "words_foss.doc_reader.images",
-    "class_import": "words_foss.doc_reader.images.ChildAnchorInfo"
+    "class_import": "words_foss.doc_reader.images.ChildAnchorInfo",
+    "module_key": "doc_reader",
+    "module_label": "Doc Reader"
   },
   {
     "name": "GroupShapeInfo",
@@ -2243,7 +2311,9 @@
     "deprecated": false,
     "deprecated_reason": "",
     "canonical_namespace": "words_foss.doc_reader.images",
-    "class_import": "words_foss.doc_reader.images.GroupShapeInfo"
+    "class_import": "words_foss.doc_reader.images.GroupShapeInfo",
+    "module_key": "doc_reader",
+    "module_label": "Doc Reader"
   },
   {
     "name": "parse_blip_store",
@@ -2273,7 +2343,9 @@
       }
     ],
     "return_type": "list[BlipInfo]",
-    "reachable": false
+    "reachable": false,
+    "module_key": "doc_reader",
+    "module_label": "Doc Reader"
   },
   {
     "name": "parse_shape_blip_map",
@@ -2299,7 +2371,9 @@
       }
     ],
     "return_type": "dict[int, int]",
-    "reachable": false
+    "reachable": false,
+    "module_key": "doc_reader",
+    "module_label": "Doc Reader"
   },
   {
     "name": "parse_shape_line_map",
@@ -2325,7 +2399,9 @@
       }
     ],
     "return_type": "dict[int, ShapeLineProps]",
-    "reachable": false
+    "reachable": false,
+    "module_key": "doc_reader",
+    "module_label": "Doc Reader"
   },
   {
     "name": "parse_shape_textbox_insets",
@@ -2351,7 +2427,9 @@
       }
     ],
     "return_type": "dict[int, tuple[int, int, int, int]]",
-    "reachable": false
+    "reachable": false,
+    "module_key": "doc_reader",
+    "module_label": "Doc Reader"
   },
   {
     "name": "parse_shape_crop_map",
@@ -2377,7 +2455,9 @@
       }
     ],
     "return_type": "dict[int, ShapeCropInfo]",
-    "reachable": false
+    "reachable": false,
+    "module_key": "doc_reader",
+    "module_label": "Doc Reader"
   },
   {
     "name": "parse_plc_spa",
@@ -2403,7 +2483,9 @@
       }
     ],
     "return_type": "list[ShapeAnchor]",
-    "reachable": false
+    "reachable": false,
+    "module_key": "doc_reader",
+    "module_label": "Doc Reader"
   },
   {
     "name": "parse_plcf_txbx_txt",
@@ -2429,7 +2511,9 @@
       }
     ],
     "return_type": "dict[int, tuple[int, int]]",
-    "reachable": false
+    "reachable": false,
+    "module_key": "doc_reader",
+    "module_label": "Doc Reader"
   },
   {
     "name": "parse_escher_child_positions",
@@ -2455,7 +2539,9 @@
       }
     ],
     "return_type": "tuple[dict[int, ChildAnchorInfo], dict[int, GroupShapeInfo], dict[int, int]]",
-    "reachable": false
+    "reachable": false,
+    "module_key": "doc_reader",
+    "module_label": "Doc Reader"
   },
   {
     "name": "parse_shape_txid_map",
@@ -2481,7 +2567,9 @@
       }
     ],
     "return_type": "dict[int, int]",
-    "reachable": false
+    "reachable": false,
+    "module_key": "doc_reader",
+    "module_label": "Doc Reader"
   },
   {
     "name": "ListLevelData",
@@ -2597,7 +2685,9 @@
     "deprecated": false,
     "deprecated_reason": "",
     "canonical_namespace": "words_foss.doc_reader.lists",
-    "class_import": "words_foss.doc_reader.lists.ListLevelData"
+    "class_import": "words_foss.doc_reader.lists.ListLevelData",
+    "module_key": "doc_reader",
+    "module_label": "Doc Reader"
   },
   {
     "name": "ListDef",
@@ -2650,7 +2740,9 @@
     "deprecated": false,
     "deprecated_reason": "",
     "canonical_namespace": "words_foss.doc_reader.lists",
-    "class_import": "words_foss.doc_reader.lists.ListDef"
+    "class_import": "words_foss.doc_reader.lists.ListDef",
+    "module_key": "doc_reader",
+    "module_label": "Doc Reader"
   },
   {
     "name": "parse_list_defs",
@@ -2676,7 +2768,9 @@
       }
     ],
     "return_type": "dict[int, ListDef]",
-    "reachable": false
+    "reachable": false,
+    "module_key": "doc_reader",
+    "module_label": "Doc Reader"
   },
   {
     "name": "parse_lfo_map",
@@ -2702,7 +2796,9 @@
       }
     ],
     "return_type": "dict[int, int]",
-    "reachable": false
+    "reachable": false,
+    "module_key": "doc_reader",
+    "module_label": "Doc Reader"
   },
   {
     "name": "ParaProps",
@@ -2987,7 +3083,9 @@
     "deprecated": false,
     "deprecated_reason": "",
     "canonical_namespace": "words_foss.doc_reader.properties",
-    "class_import": "words_foss.doc_reader.properties.ParaProps"
+    "class_import": "words_foss.doc_reader.properties.ParaProps",
+    "module_key": "doc_reader",
+    "module_label": "Doc Reader"
   },
   {
     "name": "CharProps",
@@ -3240,7 +3338,9 @@
     "deprecated": false,
     "deprecated_reason": "",
     "canonical_namespace": "words_foss.doc_reader.properties",
-    "class_import": "words_foss.doc_reader.properties.CharProps"
+    "class_import": "words_foss.doc_reader.properties.CharProps",
+    "module_key": "doc_reader",
+    "module_label": "Doc Reader"
   },
   {
     "name": "TableRowProps",
@@ -3357,7 +3457,9 @@
     "deprecated": false,
     "deprecated_reason": "",
     "canonical_namespace": "words_foss.doc_reader.properties",
-    "class_import": "words_foss.doc_reader.properties.TableRowProps"
+    "class_import": "words_foss.doc_reader.properties.TableRowProps",
+    "module_key": "doc_reader",
+    "module_label": "Doc Reader"
   },
   {
     "name": "parse_sprms",
@@ -3375,7 +3477,9 @@
       }
     ],
     "return_type": "dict[int, bytes]",
-    "reachable": false
+    "reachable": false,
+    "module_key": "doc_reader",
+    "module_label": "Doc Reader"
   },
   {
     "name": "parse_papx_fkp",
@@ -3413,7 +3517,9 @@
       }
     ],
     "return_type": "list[tuple[int, int, ParaProps]]",
-    "reachable": false
+    "reachable": false,
+    "module_key": "doc_reader",
+    "module_label": "Doc Reader"
   },
   {
     "name": "apply_para_sprms",
@@ -3435,7 +3541,9 @@
       }
     ],
     "return_type": "None",
-    "reachable": false
+    "reachable": false,
+    "module_key": "doc_reader",
+    "module_label": "Doc Reader"
   },
   {
     "name": "get_para_sprm_fields",
@@ -3453,7 +3561,9 @@
       }
     ],
     "return_type": "set[str]",
-    "reachable": false
+    "reachable": false,
+    "module_key": "doc_reader",
+    "module_label": "Doc Reader"
   },
   {
     "name": "parse_chpx_fkp",
@@ -3487,7 +3597,9 @@
       }
     ],
     "return_type": "list[tuple[int, int, CharProps]]",
-    "reachable": false
+    "reachable": false,
+    "module_key": "doc_reader",
+    "module_label": "Doc Reader"
   },
   {
     "name": "apply_toggle",
@@ -3509,7 +3621,9 @@
       }
     ],
     "return_type": "bool",
-    "reachable": false
+    "reachable": false,
+    "module_key": "doc_reader",
+    "module_label": "Doc Reader"
   },
   {
     "name": "apply_char_sprms",
@@ -3531,7 +3645,9 @@
       }
     ],
     "return_type": "None",
-    "reachable": false
+    "reachable": false,
+    "module_key": "doc_reader",
+    "module_label": "Doc Reader"
   },
   {
     "name": "get_char_sprm_fields",
@@ -3549,7 +3665,9 @@
       }
     ],
     "return_type": "set[str]",
-    "reachable": false
+    "reachable": false,
+    "module_key": "doc_reader",
+    "module_label": "Doc Reader"
   },
   {
     "name": "parse_sepx_sprms",
@@ -3567,7 +3685,9 @@
       }
     ],
     "return_type": "dict",
-    "reachable": false
+    "reachable": false,
+    "module_key": "doc_reader",
+    "module_label": "Doc Reader"
   },
   {
     "name": "parse_table_row_sprms",
@@ -3585,7 +3705,9 @@
       }
     ],
     "return_type": "TableRowProps",
-    "reachable": false
+    "reachable": false,
+    "module_key": "doc_reader",
+    "module_label": "Doc Reader"
   },
   {
     "name": "StyleData",
@@ -3678,7 +3800,9 @@
     "deprecated": false,
     "deprecated_reason": "",
     "canonical_namespace": "words_foss.doc_reader.styles",
-    "class_import": "words_foss.doc_reader.styles.StyleData"
+    "class_import": "words_foss.doc_reader.styles.StyleData",
+    "module_key": "doc_reader",
+    "module_label": "Doc Reader"
   },
   {
     "name": "parse_stsh",
@@ -3704,7 +3828,9 @@
       }
     ],
     "return_type": "dict[int, str]",
-    "reachable": false
+    "reachable": false,
+    "module_key": "doc_reader",
+    "module_label": "Doc Reader"
   },
   {
     "name": "parse_stsh_full",
@@ -3730,7 +3856,9 @@
       }
     ],
     "return_type": "tuple[dict[int, str], dict[int, StyleData], int]",
-    "reachable": false
+    "reachable": false,
+    "module_key": "doc_reader",
+    "module_label": "Doc Reader"
   },
   {
     "name": "DocTableBuilderMixin",
@@ -3746,7 +3874,9 @@
     "deprecated": false,
     "deprecated_reason": "",
     "canonical_namespace": "words_foss.doc_reader.table_builder",
-    "class_import": "words_foss.doc_reader.table_builder.DocTableBuilderMixin"
+    "class_import": "words_foss.doc_reader.table_builder.DocTableBuilderMixin",
+    "module_key": "doc_reader",
+    "module_label": "Doc Reader"
   },
   {
     "name": "parse_table_text",
@@ -3764,7 +3894,9 @@
       }
     ],
     "return_type": "TableData",
-    "reachable": false
+    "reachable": false,
+    "module_key": "doc_reader",
+    "module_label": "Doc Reader"
   },
   {
     "name": "clean_control_chars",
@@ -3782,7 +3914,9 @@
       }
     ],
     "return_type": "str",
-    "reachable": false
+    "reachable": false,
+    "module_key": "doc_reader",
+    "module_label": "Doc Reader"
   },
   {
     "name": "extract_text_via_piece_table",
@@ -3808,7 +3942,9 @@
       }
     ],
     "return_type": "str",
-    "reachable": false
+    "reachable": false,
+    "module_key": "doc_reader",
+    "module_label": "Doc Reader"
   },
   {
     "name": "parse_hyperlink",
@@ -3826,7 +3962,9 @@
       }
     ],
     "return_type": "tuple[str, str]",
-    "reachable": false
+    "reachable": false,
+    "module_key": "doc_reader",
+    "module_label": "Doc Reader"
   },
   {
     "name": "evaluate_fields",
@@ -3844,7 +3982,9 @@
       }
     ],
     "return_type": "str",
-    "reachable": false
+    "reachable": false,
+    "module_key": "doc_reader",
+    "module_label": "Doc Reader"
   },
   {
     "name": "LoadFormat",
@@ -3890,7 +4030,9 @@
     "canonical_namespace": "words_foss.document",
     "class_import": "words_foss.document.LoadFormat",
     "exported_via_package_init": true,
-    "public_import_module": "words_foss"
+    "public_import_module": "words_foss",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "LoadOptions",
@@ -3937,7 +4079,9 @@
     "canonical_namespace": "words_foss.document",
     "class_import": "words_foss.document.LoadOptions",
     "exported_via_package_init": true,
-    "public_import_module": "words_foss"
+    "public_import_module": "words_foss",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "MarkdownLoadOptions",
@@ -3994,7 +4138,9 @@
     "canonical_namespace": "words_foss.document",
     "class_import": "words_foss.document.MarkdownLoadOptions",
     "exported_via_package_init": true,
-    "public_import_module": "words_foss"
+    "public_import_module": "words_foss",
+    "module_key": "conversion",
+    "module_label": "Conversion"
   },
   {
     "name": "SaveFormat",
@@ -4036,7 +4182,9 @@
     "canonical_namespace": "words_foss.document",
     "class_import": "words_foss.document.SaveFormat",
     "exported_via_package_init": true,
-    "public_import_module": "words_foss"
+    "public_import_module": "words_foss",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "RunData",
@@ -4118,7 +4266,9 @@
     "canonical_namespace": "words_foss.docx_reader.data_classes",
     "class_import": "words_foss.docx_reader.data_classes.RunData",
     "exported_via_package_init": true,
-    "public_import_module": "words_foss.docx_reader"
+    "public_import_module": "words_foss.docx_reader",
+    "module_key": "docx_reader",
+    "module_label": "Docx Reader"
   },
   {
     "name": "ParagraphData",
@@ -4218,7 +4368,9 @@
     "canonical_namespace": "words_foss.docx_reader.data_classes",
     "class_import": "words_foss.docx_reader.data_classes.ParagraphData",
     "exported_via_package_init": true,
-    "public_import_module": "words_foss.docx_reader"
+    "public_import_module": "words_foss.docx_reader",
+    "module_key": "docx_reader",
+    "module_label": "Docx Reader"
   },
   {
     "name": "CellData",
@@ -4255,7 +4407,9 @@
     "canonical_namespace": "words_foss.docx_reader.data_classes",
     "class_import": "words_foss.docx_reader.data_classes.CellData",
     "exported_via_package_init": true,
-    "public_import_module": "words_foss.docx_reader"
+    "public_import_module": "words_foss.docx_reader",
+    "module_key": "docx_reader",
+    "module_label": "Docx Reader"
   },
   {
     "name": "RowData",
@@ -4283,7 +4437,9 @@
     "canonical_namespace": "words_foss.docx_reader.data_classes",
     "class_import": "words_foss.docx_reader.data_classes.RowData",
     "exported_via_package_init": true,
-    "public_import_module": "words_foss.docx_reader"
+    "public_import_module": "words_foss.docx_reader",
+    "module_key": "docx_reader",
+    "module_label": "Docx Reader"
   },
   {
     "name": "TableData",
@@ -4311,7 +4467,9 @@
     "canonical_namespace": "words_foss.docx_reader.data_classes",
     "class_import": "words_foss.docx_reader.data_classes.TableData",
     "exported_via_package_init": true,
-    "public_import_module": "words_foss.docx_reader"
+    "public_import_module": "words_foss.docx_reader",
+    "module_key": "docx_reader",
+    "module_label": "Docx Reader"
   },
   {
     "name": "NumberingLevel",
@@ -4357,7 +4515,9 @@
     "canonical_namespace": "words_foss.docx_reader.data_classes",
     "class_import": "words_foss.docx_reader.data_classes.NumberingLevel",
     "exported_via_package_init": true,
-    "public_import_module": "words_foss.docx_reader"
+    "public_import_module": "words_foss.docx_reader",
+    "module_key": "docx_reader",
+    "module_label": "Docx Reader"
   },
   {
     "name": "NumberingInfo",
@@ -4403,7 +4563,9 @@
     "canonical_namespace": "words_foss.docx_reader.data_classes",
     "class_import": "words_foss.docx_reader.data_classes.NumberingInfo",
     "exported_via_package_init": true,
-    "public_import_module": "words_foss.docx_reader"
+    "public_import_module": "words_foss.docx_reader",
+    "module_key": "docx_reader",
+    "module_label": "Docx Reader"
   },
   {
     "name": "ReaderContext",
@@ -4421,7 +4583,9 @@
     "deprecated": false,
     "deprecated_reason": "",
     "canonical_namespace": "words_foss.docx_reader.ldm_builder._context",
-    "class_import": "words_foss.docx_reader.ldm_builder._context.ReaderContext"
+    "class_import": "words_foss.docx_reader.ldm_builder._context.ReaderContext",
+    "module_key": "docx_reader",
+    "module_label": "Docx Reader"
   },
   {
     "name": "find_val",
@@ -4447,7 +4611,9 @@
       }
     ],
     "return_type": "str",
-    "reachable": false
+    "reachable": false,
+    "module_key": "docx_reader",
+    "module_label": "Docx Reader"
   },
   {
     "name": "twip_to_pt",
@@ -4465,7 +4631,9 @@
       }
     ],
     "return_type": "Optional[float]",
-    "reachable": false
+    "reachable": false,
+    "module_key": "docx_reader",
+    "module_label": "Docx Reader"
   },
   {
     "name": "read_twip",
@@ -4487,7 +4655,9 @@
       }
     ],
     "return_type": "Optional[float]",
-    "reachable": false
+    "reachable": false,
+    "module_key": "docx_reader",
+    "module_label": "Docx Reader"
   },
   {
     "name": "parse_int",
@@ -4509,7 +4679,9 @@
       }
     ],
     "return_type": "int",
-    "reachable": false
+    "reachable": false,
+    "module_key": "docx_reader",
+    "module_label": "Docx Reader"
   },
   {
     "name": "parse_universal_measure",
@@ -4535,7 +4707,9 @@
       }
     ],
     "return_type": "float",
-    "reachable": false
+    "reachable": false,
+    "module_key": "docx_reader",
+    "module_label": "Docx Reader"
   },
   {
     "name": "is_truthy_onoff",
@@ -4553,7 +4727,9 @@
       }
     ],
     "return_type": "bool",
-    "reachable": false
+    "reachable": false,
+    "module_key": "docx_reader",
+    "module_label": "Docx Reader"
   },
   {
     "name": "apply_padding_sides",
@@ -4575,7 +4751,9 @@
       }
     ],
     "return_type": "None",
-    "reachable": false
+    "reachable": false,
+    "module_key": "docx_reader",
+    "module_label": "Docx Reader"
   },
   {
     "name": "build_borders",
@@ -4593,7 +4771,9 @@
       }
     ],
     "return_type": "list[ldm.Border]",
-    "reachable": false
+    "reachable": false,
+    "module_key": "docx_reader",
+    "module_label": "Docx Reader"
   },
   {
     "name": "build_shading",
@@ -4611,7 +4791,9 @@
       }
     ],
     "return_type": "ldm.Shading",
-    "reachable": false
+    "reachable": false,
+    "module_key": "docx_reader",
+    "module_label": "Docx Reader"
   },
   {
     "name": "build_frame",
@@ -4629,7 +4811,9 @@
       }
     ],
     "return_type": "ldm.FrameFormat",
-    "reachable": false
+    "reachable": false,
+    "module_key": "docx_reader",
+    "module_label": "Docx Reader"
   },
   {
     "name": "StyleChainResolver",
@@ -4694,7 +4878,9 @@
     "deprecated": false,
     "deprecated_reason": "",
     "canonical_namespace": "words_foss.docx_reader.ldm_builder.cascading",
-    "class_import": "words_foss.docx_reader.ldm_builder.cascading.StyleChainResolver"
+    "class_import": "words_foss.docx_reader.ldm_builder.cascading.StyleChainResolver",
+    "module_key": "docx_reader",
+    "module_label": "Docx Reader"
   },
   {
     "name": "FontBuilder",
@@ -4743,7 +4929,9 @@
     "deprecated": false,
     "deprecated_reason": "",
     "canonical_namespace": "words_foss.docx_reader.ldm_builder.cascading",
-    "class_import": "words_foss.docx_reader.ldm_builder.cascading.FontBuilder"
+    "class_import": "words_foss.docx_reader.ldm_builder.cascading.FontBuilder",
+    "module_key": "docx_reader",
+    "module_label": "Docx Reader"
   },
   {
     "name": "ParagraphFormatBuilder",
@@ -4796,7 +4984,9 @@
     "deprecated": false,
     "deprecated_reason": "",
     "canonical_namespace": "words_foss.docx_reader.ldm_builder.cascading",
-    "class_import": "words_foss.docx_reader.ldm_builder.cascading.ParagraphFormatBuilder"
+    "class_import": "words_foss.docx_reader.ldm_builder.cascading.ParagraphFormatBuilder",
+    "module_key": "docx_reader",
+    "module_label": "Docx Reader"
   },
   {
     "name": "FontResolver",
@@ -4877,7 +5067,9 @@
     "deprecated": false,
     "deprecated_reason": "",
     "canonical_namespace": "words_foss.docx_reader.ldm_builder.cascading",
-    "class_import": "words_foss.docx_reader.ldm_builder.cascading.FontResolver"
+    "class_import": "words_foss.docx_reader.ldm_builder.cascading.FontResolver",
+    "module_key": "docx_reader",
+    "module_label": "Docx Reader"
   },
   {
     "name": "ParagraphFormatResolver",
@@ -4958,7 +5150,9 @@
     "deprecated": false,
     "deprecated_reason": "",
     "canonical_namespace": "words_foss.docx_reader.ldm_builder.cascading",
-    "class_import": "words_foss.docx_reader.ldm_builder.cascading.ParagraphFormatResolver"
+    "class_import": "words_foss.docx_reader.ldm_builder.cascading.ParagraphFormatResolver",
+    "module_key": "docx_reader",
+    "module_label": "Docx Reader"
   },
   {
     "name": "StyleBuilder",
@@ -5018,7 +5212,9 @@
     "deprecated": false,
     "deprecated_reason": "",
     "canonical_namespace": "words_foss.docx_reader.ldm_builder.definitions",
-    "class_import": "words_foss.docx_reader.ldm_builder.definitions.StyleBuilder"
+    "class_import": "words_foss.docx_reader.ldm_builder.definitions.StyleBuilder",
+    "module_key": "docx_reader",
+    "module_label": "Docx Reader"
   },
   {
     "name": "ListBuilder",
@@ -5066,7 +5262,9 @@
     "deprecated": false,
     "deprecated_reason": "",
     "canonical_namespace": "words_foss.docx_reader.ldm_builder.definitions",
-    "class_import": "words_foss.docx_reader.ldm_builder.definitions.ListBuilder"
+    "class_import": "words_foss.docx_reader.ldm_builder.definitions.ListBuilder",
+    "module_key": "docx_reader",
+    "module_label": "Docx Reader"
   },
   {
     "name": "LdmBuilderMixin",
@@ -5096,7 +5294,9 @@
     "canonical_namespace": "words_foss.docx_reader.ldm_builder.mixin",
     "class_import": "words_foss.docx_reader.ldm_builder.mixin.LdmBuilderMixin",
     "exported_via_package_init": true,
-    "public_import_module": "words_foss.docx_reader.ldm_builder"
+    "public_import_module": "words_foss.docx_reader.ldm_builder",
+    "module_key": "docx_reader",
+    "module_label": "Docx Reader"
   },
   {
     "name": "RunBuilder",
@@ -5149,7 +5349,9 @@
     "deprecated": false,
     "deprecated_reason": "",
     "canonical_namespace": "words_foss.docx_reader.ldm_builder.paragraphs",
-    "class_import": "words_foss.docx_reader.ldm_builder.paragraphs.RunBuilder"
+    "class_import": "words_foss.docx_reader.ldm_builder.paragraphs.RunBuilder",
+    "module_key": "docx_reader",
+    "module_label": "Docx Reader"
   },
   {
     "name": "ParagraphBuilder",
@@ -5234,7 +5436,9 @@
     "deprecated": false,
     "deprecated_reason": "",
     "canonical_namespace": "words_foss.docx_reader.ldm_builder.paragraphs",
-    "class_import": "words_foss.docx_reader.ldm_builder.paragraphs.ParagraphBuilder"
+    "class_import": "words_foss.docx_reader.ldm_builder.paragraphs.ParagraphBuilder",
+    "module_key": "docx_reader",
+    "module_label": "Docx Reader"
   },
   {
     "name": "PageSetupBuilder",
@@ -5267,7 +5471,9 @@
     "deprecated": false,
     "deprecated_reason": "",
     "canonical_namespace": "words_foss.docx_reader.ldm_builder.sections",
-    "class_import": "words_foss.docx_reader.ldm_builder.sections.PageSetupBuilder"
+    "class_import": "words_foss.docx_reader.ldm_builder.sections.PageSetupBuilder",
+    "module_key": "docx_reader",
+    "module_label": "Docx Reader"
   },
   {
     "name": "SectionBuilder",
@@ -5323,7 +5529,9 @@
     "deprecated": false,
     "deprecated_reason": "",
     "canonical_namespace": "words_foss.docx_reader.ldm_builder.sections",
-    "class_import": "words_foss.docx_reader.ldm_builder.sections.SectionBuilder"
+    "class_import": "words_foss.docx_reader.ldm_builder.sections.SectionBuilder",
+    "module_key": "docx_reader",
+    "module_label": "Docx Reader"
   },
   {
     "name": "detect_paper_size",
@@ -5345,7 +5553,9 @@
       }
     ],
     "return_type": "int",
-    "reachable": false
+    "reachable": false,
+    "module_key": "docx_reader",
+    "module_label": "Docx Reader"
   },
   {
     "name": "TableBuilder",
@@ -5398,7 +5608,9 @@
     "deprecated": false,
     "deprecated_reason": "",
     "canonical_namespace": "words_foss.docx_reader.ldm_builder.tables",
-    "class_import": "words_foss.docx_reader.ldm_builder.tables.TableBuilder"
+    "class_import": "words_foss.docx_reader.ldm_builder.tables.TableBuilder",
+    "module_key": "docx_reader",
+    "module_label": "Docx Reader"
   },
   {
     "name": "RowBuilder",
@@ -5459,7 +5671,9 @@
     "deprecated": false,
     "deprecated_reason": "",
     "canonical_namespace": "words_foss.docx_reader.ldm_builder.tables",
-    "class_import": "words_foss.docx_reader.ldm_builder.tables.RowBuilder"
+    "class_import": "words_foss.docx_reader.ldm_builder.tables.RowBuilder",
+    "module_key": "docx_reader",
+    "module_label": "Docx Reader"
   },
   {
     "name": "CellBuilder",
@@ -5520,7 +5734,9 @@
     "deprecated": false,
     "deprecated_reason": "",
     "canonical_namespace": "words_foss.docx_reader.ldm_builder.tables",
-    "class_import": "words_foss.docx_reader.ldm_builder.tables.CellBuilder"
+    "class_import": "words_foss.docx_reader.ldm_builder.tables.CellBuilder",
+    "module_key": "docx_reader",
+    "module_label": "Docx Reader"
   },
   {
     "name": "ShapeParserMixin",
@@ -5536,7 +5752,9 @@
     "deprecated": false,
     "deprecated_reason": "",
     "canonical_namespace": "words_foss.docx_reader.shapes",
-    "class_import": "words_foss.docx_reader.shapes.ShapeParserMixin"
+    "class_import": "words_foss.docx_reader.shapes.ShapeParserMixin",
+    "module_key": "docx_reader",
+    "module_label": "Docx Reader"
   },
   {
     "name": "parse_onoff",
@@ -5558,7 +5776,9 @@
       }
     ],
     "return_type": "bool",
-    "reachable": false
+    "reachable": false,
+    "module_key": "docx_reader",
+    "module_label": "Docx Reader"
   },
   {
     "name": "apply_onoff_attrs",
@@ -5584,7 +5804,9 @@
       }
     ],
     "return_type": "None",
-    "reachable": false
+    "reachable": false,
+    "module_key": "docx_reader",
+    "module_label": "Docx Reader"
   },
   {
     "name": "latent_styles",
@@ -5597,7 +5819,9 @@
     "properties": [],
     "params": [],
     "return_type": "str",
-    "reachable": false
+    "reachable": false,
+    "module_key": "docx_writer",
+    "module_label": "Docx Writer"
   },
   {
     "name": "settings_compat",
@@ -5610,7 +5834,9 @@
     "properties": [],
     "params": [],
     "return_type": "str",
-    "reachable": false
+    "reachable": false,
+    "module_key": "docx_writer",
+    "module_label": "Docx Writer"
   },
   {
     "name": "font_definitions",
@@ -5623,7 +5849,9 @@
     "properties": [],
     "params": [],
     "return_type": "str",
-    "reachable": false
+    "reachable": false,
+    "module_key": "docx_writer",
+    "module_label": "Docx Writer"
   },
   {
     "name": "BookmarkState",
@@ -5705,7 +5933,9 @@
     "deprecated": false,
     "deprecated_reason": "",
     "canonical_namespace": "words_foss.docx_writer.bookmarks",
-    "class_import": "words_foss.docx_writer.bookmarks.BookmarkState"
+    "class_import": "words_foss.docx_writer.bookmarks.BookmarkState",
+    "module_key": "docx_writer",
+    "module_label": "Docx Writer"
   },
   {
     "name": "pt_to_twips",
@@ -5723,7 +5953,9 @@
       }
     ],
     "return_type": "int",
-    "reachable": false
+    "reachable": false,
+    "module_key": "docx_writer",
+    "module_label": "Docx Writer"
   },
   {
     "name": "pt_to_half_pt",
@@ -5741,7 +5973,9 @@
       }
     ],
     "return_type": "int",
-    "reachable": false
+    "reachable": false,
+    "module_key": "docx_writer",
+    "module_label": "Docx Writer"
   },
   {
     "name": "pt_to_eighths",
@@ -5759,7 +5993,9 @@
       }
     ],
     "return_type": "int",
-    "reachable": false
+    "reachable": false,
+    "module_key": "docx_writer",
+    "module_label": "Docx Writer"
   },
   {
     "name": "render_core_xml",
@@ -5772,7 +6008,9 @@
     "properties": [],
     "params": [],
     "return_type": "str",
-    "reachable": false
+    "reachable": false,
+    "module_key": "docx_writer",
+    "module_label": "Docx Writer"
   },
   {
     "name": "render_app_xml",
@@ -5785,7 +6023,9 @@
     "properties": [],
     "params": [],
     "return_type": "str",
-    "reachable": false
+    "reachable": false,
+    "module_key": "docx_writer",
+    "module_label": "Docx Writer"
   },
   {
     "name": "render_font_table_xml",
@@ -5798,7 +6038,9 @@
     "properties": [],
     "params": [],
     "return_type": "str",
-    "reachable": false
+    "reachable": false,
+    "module_key": "docx_writer",
+    "module_label": "Docx Writer"
   },
   {
     "name": "render_document_xml",
@@ -5836,7 +6078,9 @@
       }
     ],
     "return_type": "str",
-    "reachable": false
+    "reachable": false,
+    "module_key": "docx_writer",
+    "module_label": "Docx Writer"
   },
   {
     "name": "ImageEntry",
@@ -5889,7 +6133,9 @@
     "deprecated": false,
     "deprecated_reason": "",
     "canonical_namespace": "words_foss.docx_writer.drawing",
-    "class_import": "words_foss.docx_writer.drawing.ImageEntry"
+    "class_import": "words_foss.docx_writer.drawing.ImageEntry",
+    "module_key": "docx_writer",
+    "module_label": "Docx Writer"
   },
   {
     "name": "ImageRenderState",
@@ -6026,7 +6272,9 @@
     "deprecated": false,
     "deprecated_reason": "",
     "canonical_namespace": "words_foss.docx_writer.drawing",
-    "class_import": "words_foss.docx_writer.drawing.ImageRenderState"
+    "class_import": "words_foss.docx_writer.drawing.ImageRenderState",
+    "module_key": "docx_writer",
+    "module_label": "Docx Writer"
   },
   {
     "name": "pt_to_emu",
@@ -6044,7 +6292,9 @@
       }
     ],
     "return_type": "int",
-    "reachable": false
+    "reachable": false,
+    "module_key": "docx_writer",
+    "module_label": "Docx Writer"
   },
   {
     "name": "mm_to_emu",
@@ -6062,7 +6312,9 @@
       }
     ],
     "return_type": "int",
-    "reachable": false
+    "reachable": false,
+    "module_key": "docx_writer",
+    "module_label": "Docx Writer"
   },
   {
     "name": "pt_to_mm",
@@ -6080,7 +6332,9 @@
       }
     ],
     "return_type": "float",
-    "reachable": false
+    "reachable": false,
+    "module_key": "docx_writer",
+    "module_label": "Docx Writer"
   },
   {
     "name": "mm_to_pt",
@@ -6098,7 +6352,9 @@
       }
     ],
     "return_type": "float",
-    "reachable": false
+    "reachable": false,
+    "module_key": "docx_writer",
+    "module_label": "Docx Writer"
   },
   {
     "name": "render_header_xml",
@@ -6136,7 +6392,9 @@
       }
     ],
     "return_type": "str",
-    "reachable": false
+    "reachable": false,
+    "module_key": "docx_writer",
+    "module_label": "Docx Writer"
   },
   {
     "name": "render_footer_xml",
@@ -6174,7 +6432,9 @@
       }
     ],
     "return_type": "str",
-    "reachable": false
+    "reachable": false,
+    "module_key": "docx_writer",
+    "module_label": "Docx Writer"
   },
   {
     "name": "header_reference",
@@ -6192,7 +6452,9 @@
       }
     ],
     "return_type": "str",
-    "reachable": false
+    "reachable": false,
+    "module_key": "docx_writer",
+    "module_label": "Docx Writer"
   },
   {
     "name": "footer_reference",
@@ -6210,7 +6472,9 @@
       }
     ],
     "return_type": "str",
-    "reachable": false
+    "reachable": false,
+    "module_key": "docx_writer",
+    "module_label": "Docx Writer"
   },
   {
     "name": "needs_header",
@@ -6228,7 +6492,9 @@
       }
     ],
     "return_type": "bool",
-    "reachable": false
+    "reachable": false,
+    "module_key": "docx_writer",
+    "module_label": "Docx Writer"
   },
   {
     "name": "needs_footer",
@@ -6246,7 +6512,9 @@
       }
     ],
     "return_type": "bool",
-    "reachable": false
+    "reachable": false,
+    "module_key": "docx_writer",
+    "module_label": "Docx Writer"
   },
   {
     "name": "build_num_id_map",
@@ -6264,7 +6532,9 @@
       }
     ],
     "return_type": "dict[int, int]",
-    "reachable": false
+    "reachable": false,
+    "module_key": "docx_writer",
+    "module_label": "Docx Writer"
   },
   {
     "name": "remap_num_id",
@@ -6286,7 +6556,9 @@
       }
     ],
     "return_type": "int",
-    "reachable": false
+    "reachable": false,
+    "module_key": "docx_writer",
+    "module_label": "Docx Writer"
   },
   {
     "name": "render_numbering_xml",
@@ -6304,7 +6576,9 @@
       }
     ],
     "return_type": "str",
-    "reachable": false
+    "reachable": false,
+    "module_key": "docx_writer",
+    "module_label": "Docx Writer"
   },
   {
     "name": "write_docx_package",
@@ -6386,7 +6660,9 @@
       }
     ],
     "return_type": "None",
-    "reachable": false
+    "reachable": false,
+    "module_key": "docx_writer",
+    "module_label": "Docx Writer"
   },
   {
     "name": "pf_to_pPr_children",
@@ -6408,7 +6684,9 @@
       }
     ],
     "return_type": "list[str]",
-    "reachable": false
+    "reachable": false,
+    "module_key": "docx_writer",
+    "module_label": "Docx Writer"
   },
   {
     "name": "render_pPr",
@@ -6446,7 +6724,9 @@
       }
     ],
     "return_type": "str",
-    "reachable": false
+    "reachable": false,
+    "module_key": "docx_writer",
+    "module_label": "Docx Writer"
   },
   {
     "name": "render_paragraph",
@@ -6496,7 +6776,9 @@
       }
     ],
     "return_type": "str",
-    "reachable": false
+    "reachable": false,
+    "module_key": "docx_writer",
+    "module_label": "Docx Writer"
   },
   {
     "name": "field_code_depth",
@@ -6509,7 +6791,9 @@
     "properties": [],
     "params": [],
     "return_type": "int",
-    "reachable": false
+    "reachable": false,
+    "module_key": "docx_writer",
+    "module_label": "Docx Writer"
   },
   {
     "name": "render_extra",
@@ -6527,7 +6811,9 @@
       }
     ],
     "return_type": "Optional[str]",
-    "reachable": false
+    "reachable": false,
+    "module_key": "docx_writer",
+    "module_label": "Docx Writer"
   },
   {
     "name": "color_to_hex",
@@ -6545,7 +6831,9 @@
       }
     ],
     "return_type": "Optional[str]",
-    "reachable": false
+    "reachable": false,
+    "module_key": "docx_writer",
+    "module_label": "Docx Writer"
   },
   {
     "name": "render_rPr",
@@ -6575,7 +6863,9 @@
       }
     ],
     "return_type": "str",
-    "reachable": false
+    "reachable": false,
+    "module_key": "docx_writer",
+    "module_label": "Docx Writer"
   },
   {
     "name": "render_run",
@@ -6605,7 +6895,9 @@
       }
     ],
     "return_type": "str",
-    "reachable": false
+    "reachable": false,
+    "module_key": "docx_writer",
+    "module_label": "Docx Writer"
   },
   {
     "name": "needs_settings",
@@ -6623,7 +6915,9 @@
       }
     ],
     "return_type": "bool",
-    "reachable": false
+    "reachable": false,
+    "module_key": "docx_writer",
+    "module_label": "Docx Writer"
   },
   {
     "name": "render_settings_xml",
@@ -6641,7 +6935,9 @@
       }
     ],
     "return_type": "str",
-    "reachable": false
+    "reachable": false,
+    "module_key": "docx_writer",
+    "module_label": "Docx Writer"
   },
   {
     "name": "build_style_font_map",
@@ -6659,7 +6955,9 @@
       }
     ],
     "return_type": "dict[str, ldm.Font]",
-    "reachable": false
+    "reachable": false,
+    "module_key": "docx_writer",
+    "module_label": "Docx Writer"
   },
   {
     "name": "build_style_id_map",
@@ -6677,7 +6975,9 @@
       }
     ],
     "return_type": "dict[str, str]",
-    "reachable": false
+    "reachable": false,
+    "module_key": "docx_writer",
+    "module_label": "Docx Writer"
   },
   {
     "name": "runs",
@@ -6695,7 +6995,9 @@
       }
     ],
     "return_type": "",
-    "reachable": false
+    "reachable": false,
+    "module_key": "docx_writer",
+    "module_label": "Docx Writer"
   },
   {
     "name": "walk_table",
@@ -6713,7 +7015,9 @@
       }
     ],
     "return_type": "",
-    "reachable": false
+    "reachable": false,
+    "module_key": "docx_writer",
+    "module_label": "Docx Writer"
   },
   {
     "name": "is_hyperlink_run",
@@ -6731,7 +7035,9 @@
       }
     ],
     "return_type": "bool",
-    "reachable": false
+    "reachable": false,
+    "module_key": "docx_writer",
+    "module_label": "Docx Writer"
   },
   {
     "name": "render_styles_xml",
@@ -6749,7 +7055,9 @@
       }
     ],
     "return_type": "str",
-    "reachable": false
+    "reachable": false,
+    "module_key": "docx_writer",
+    "module_label": "Docx Writer"
   },
   {
     "name": "render_table",
@@ -6795,7 +7103,9 @@
       }
     ],
     "return_type": "str",
-    "reachable": false
+    "reachable": false,
+    "module_key": "docx_writer",
+    "module_label": "Docx Writer"
   },
   {
     "name": "escape_text",
@@ -6813,7 +7123,9 @@
       }
     ],
     "return_type": "str",
-    "reachable": false
+    "reachable": false,
+    "module_key": "docx_writer",
+    "module_label": "Docx Writer"
   },
   {
     "name": "escape_attr",
@@ -6831,7 +7143,9 @@
       }
     ],
     "return_type": "str",
-    "reachable": false
+    "reachable": false,
+    "module_key": "docx_writer",
+    "module_label": "Docx Writer"
   },
   {
     "name": "el",
@@ -6861,7 +7175,9 @@
       }
     ],
     "return_type": "str",
-    "reachable": false
+    "reachable": false,
+    "module_key": "docx_writer",
+    "module_label": "Docx Writer"
   },
   {
     "name": "text_run",
@@ -6883,7 +7199,9 @@
       }
     ],
     "return_type": "str",
-    "reachable": false
+    "reachable": false,
+    "module_key": "docx_writer",
+    "module_label": "Docx Writer"
   },
   {
     "name": "flush",
@@ -6896,7 +7214,9 @@
     "properties": [],
     "params": [],
     "return_type": "None",
-    "reachable": false
+    "reachable": false,
+    "module_key": "docx_writer",
+    "module_label": "Docx Writer"
   },
   {
     "name": "indent_xml",
@@ -6922,7 +7242,9 @@
       }
     ],
     "return_type": "str",
-    "reachable": false
+    "reachable": false,
+    "module_key": "docx_writer",
+    "module_label": "Docx Writer"
   },
   {
     "name": "NodeType",
@@ -7006,7 +7328,9 @@
     "canonical_namespace": "words_foss.light_document_model",
     "class_import": "words_foss.light_document_model.NodeType",
     "exported_via_package_init": true,
-    "public_import_module": "words_foss"
+    "public_import_module": "words_foss",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "NodeCastMixin",
@@ -7111,7 +7435,9 @@
     "deprecated": false,
     "deprecated_reason": "",
     "canonical_namespace": "words_foss.light_document_model",
-    "class_import": "words_foss.light_document_model.NodeCastMixin"
+    "class_import": "words_foss.light_document_model.NodeCastMixin",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "Border",
@@ -7184,7 +7510,9 @@
     "deprecated": false,
     "deprecated_reason": "",
     "canonical_namespace": "words_foss.light_document_model",
-    "class_import": "words_foss.light_document_model.Border"
+    "class_import": "words_foss.light_document_model.Border",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "Shading",
@@ -7221,7 +7549,9 @@
     "deprecated": false,
     "deprecated_reason": "",
     "canonical_namespace": "words_foss.light_document_model",
-    "class_import": "words_foss.light_document_model.Shading"
+    "class_import": "words_foss.light_document_model.Shading",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "ConditionalStyleMask",
@@ -7376,7 +7706,9 @@
     "deprecated": false,
     "deprecated_reason": "",
     "canonical_namespace": "words_foss.light_document_model",
-    "class_import": "words_foss.light_document_model.ConditionalStyleMask"
+    "class_import": "words_foss.light_document_model.ConditionalStyleMask",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "TabStop",
@@ -7431,7 +7763,9 @@
     "deprecated": false,
     "deprecated_reason": "",
     "canonical_namespace": "words_foss.light_document_model",
-    "class_import": "words_foss.light_document_model.TabStop"
+    "class_import": "words_foss.light_document_model.TabStop",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "TabStopCollection",
@@ -7543,7 +7877,9 @@
     "deprecated": false,
     "deprecated_reason": "",
     "canonical_namespace": "words_foss.light_document_model",
-    "class_import": "words_foss.light_document_model.TabStopCollection"
+    "class_import": "words_foss.light_document_model.TabStopCollection",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "Font",
@@ -7850,7 +8186,9 @@
     "deprecated": false,
     "deprecated_reason": "",
     "canonical_namespace": "words_foss.light_document_model",
-    "class_import": "words_foss.light_document_model.Font"
+    "class_import": "words_foss.light_document_model.Font",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "ParagraphFormat",
@@ -8184,7 +8522,9 @@
     "deprecated": false,
     "deprecated_reason": "",
     "canonical_namespace": "words_foss.light_document_model",
-    "class_import": "words_foss.light_document_model.ParagraphFormat"
+    "class_import": "words_foss.light_document_model.ParagraphFormat",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "FrameFormat",
@@ -8328,7 +8668,9 @@
     "deprecated": false,
     "deprecated_reason": "",
     "canonical_namespace": "words_foss.light_document_model",
-    "class_import": "words_foss.light_document_model.FrameFormat"
+    "class_import": "words_foss.light_document_model.FrameFormat",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "ListFormat",
@@ -8374,7 +8716,9 @@
     "deprecated": false,
     "deprecated_reason": "",
     "canonical_namespace": "words_foss.light_document_model",
-    "class_import": "words_foss.light_document_model.ListFormat"
+    "class_import": "words_foss.light_document_model.ListFormat",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "ListLabel",
@@ -8420,7 +8764,9 @@
     "deprecated": false,
     "deprecated_reason": "",
     "canonical_namespace": "words_foss.light_document_model",
-    "class_import": "words_foss.light_document_model.ListLabel"
+    "class_import": "words_foss.light_document_model.ListLabel",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "ImageData",
@@ -8527,7 +8873,9 @@
     "deprecated": false,
     "deprecated_reason": "",
     "canonical_namespace": "words_foss.light_document_model",
-    "class_import": "words_foss.light_document_model.ImageData"
+    "class_import": "words_foss.light_document_model.ImageData",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "Run",
@@ -8663,7 +9011,9 @@
     "deprecated": false,
     "deprecated_reason": "",
     "canonical_namespace": "words_foss.light_document_model",
-    "class_import": "words_foss.light_document_model.Run"
+    "class_import": "words_foss.light_document_model.Run",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "Shape",
@@ -8988,7 +9338,9 @@
     "deprecated": false,
     "deprecated_reason": "",
     "canonical_namespace": "words_foss.light_document_model",
-    "class_import": "words_foss.light_document_model.Shape"
+    "class_import": "words_foss.light_document_model.Shape",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "FieldStart",
@@ -9025,7 +9377,9 @@
     "deprecated": false,
     "deprecated_reason": "",
     "canonical_namespace": "words_foss.light_document_model",
-    "class_import": "words_foss.light_document_model.FieldStart"
+    "class_import": "words_foss.light_document_model.FieldStart",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "FieldSeparator",
@@ -9062,7 +9416,9 @@
     "deprecated": false,
     "deprecated_reason": "",
     "canonical_namespace": "words_foss.light_document_model",
-    "class_import": "words_foss.light_document_model.FieldSeparator"
+    "class_import": "words_foss.light_document_model.FieldSeparator",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "FieldEnd",
@@ -9108,7 +9464,9 @@
     "deprecated": false,
     "deprecated_reason": "",
     "canonical_namespace": "words_foss.light_document_model",
-    "class_import": "words_foss.light_document_model.FieldEnd"
+    "class_import": "words_foss.light_document_model.FieldEnd",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "BookmarkStart",
@@ -9145,7 +9503,9 @@
     "deprecated": false,
     "deprecated_reason": "",
     "canonical_namespace": "words_foss.light_document_model",
-    "class_import": "words_foss.light_document_model.BookmarkStart"
+    "class_import": "words_foss.light_document_model.BookmarkStart",
+    "module_key": "structure",
+    "module_label": "Structure"
   },
   {
     "name": "BookmarkEnd",
@@ -9182,7 +9542,9 @@
     "deprecated": false,
     "deprecated_reason": "",
     "canonical_namespace": "words_foss.light_document_model",
-    "class_import": "words_foss.light_document_model.BookmarkEnd"
+    "class_import": "words_foss.light_document_model.BookmarkEnd",
+    "module_key": "structure",
+    "module_label": "Structure"
   },
   {
     "name": "Paragraph",
@@ -9390,7 +9752,9 @@
     "deprecated": false,
     "deprecated_reason": "",
     "canonical_namespace": "words_foss.light_document_model",
-    "class_import": "words_foss.light_document_model.Paragraph"
+    "class_import": "words_foss.light_document_model.Paragraph",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "PreferredWidth",
@@ -9480,7 +9844,9 @@
     "deprecated": false,
     "deprecated_reason": "",
     "canonical_namespace": "words_foss.light_document_model",
-    "class_import": "words_foss.light_document_model.PreferredWidth"
+    "class_import": "words_foss.light_document_model.PreferredWidth",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "CellFormat",
@@ -9625,7 +9991,9 @@
     "deprecated": false,
     "deprecated_reason": "",
     "canonical_namespace": "words_foss.light_document_model",
-    "class_import": "words_foss.light_document_model.CellFormat"
+    "class_import": "words_foss.light_document_model.CellFormat",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "Cell",
@@ -9770,7 +10138,9 @@
     "deprecated": false,
     "deprecated_reason": "",
     "canonical_namespace": "words_foss.light_document_model",
-    "class_import": "words_foss.light_document_model.Cell"
+    "class_import": "words_foss.light_document_model.Cell",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "RowFormat",
@@ -9843,7 +10213,9 @@
     "deprecated": false,
     "deprecated_reason": "",
     "canonical_namespace": "words_foss.light_document_model",
-    "class_import": "words_foss.light_document_model.RowFormat"
+    "class_import": "words_foss.light_document_model.RowFormat",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "Row",
@@ -9988,7 +10360,9 @@
     "deprecated": false,
     "deprecated_reason": "",
     "canonical_namespace": "words_foss.light_document_model",
-    "class_import": "words_foss.light_document_model.Row"
+    "class_import": "words_foss.light_document_model.Row",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "Table",
@@ -10232,7 +10606,9 @@
     "deprecated": false,
     "deprecated_reason": "",
     "canonical_namespace": "words_foss.light_document_model",
-    "class_import": "words_foss.light_document_model.Table"
+    "class_import": "words_foss.light_document_model.Table",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "UnknownNode",
@@ -10260,7 +10636,9 @@
     "deprecated": false,
     "deprecated_reason": "",
     "canonical_namespace": "words_foss.light_document_model",
-    "class_import": "words_foss.light_document_model.UnknownNode"
+    "class_import": "words_foss.light_document_model.UnknownNode",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "TextColumn",
@@ -10297,7 +10675,9 @@
     "deprecated": false,
     "deprecated_reason": "",
     "canonical_namespace": "words_foss.light_document_model",
-    "class_import": "words_foss.light_document_model.TextColumn"
+    "class_import": "words_foss.light_document_model.TextColumn",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "TextColumns",
@@ -10361,7 +10741,9 @@
     "deprecated": false,
     "deprecated_reason": "",
     "canonical_namespace": "words_foss.light_document_model",
-    "class_import": "words_foss.light_document_model.TextColumns"
+    "class_import": "words_foss.light_document_model.TextColumns",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "PageSetup",
@@ -10542,7 +10924,9 @@
     "deprecated": false,
     "deprecated_reason": "",
     "canonical_namespace": "words_foss.light_document_model",
-    "class_import": "words_foss.light_document_model.PageSetup"
+    "class_import": "words_foss.light_document_model.PageSetup",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "HeaderFooter",
@@ -10606,7 +10990,9 @@
     "deprecated": false,
     "deprecated_reason": "",
     "canonical_namespace": "words_foss.light_document_model",
-    "class_import": "words_foss.light_document_model.HeaderFooter"
+    "class_import": "words_foss.light_document_model.HeaderFooter",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "Body",
@@ -10769,7 +11155,9 @@
     "deprecated": false,
     "deprecated_reason": "",
     "canonical_namespace": "words_foss.light_document_model",
-    "class_import": "words_foss.light_document_model.Body"
+    "class_import": "words_foss.light_document_model.Body",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "Section",
@@ -10914,7 +11302,9 @@
     "deprecated": false,
     "deprecated_reason": "",
     "canonical_namespace": "words_foss.light_document_model",
-    "class_import": "words_foss.light_document_model.Section"
+    "class_import": "words_foss.light_document_model.Section",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "TableStyleFormat",
@@ -10978,7 +11368,9 @@
     "deprecated": false,
     "deprecated_reason": "",
     "canonical_namespace": "words_foss.light_document_model",
-    "class_import": "words_foss.light_document_model.TableStyleFormat"
+    "class_import": "words_foss.light_document_model.TableStyleFormat",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "TableStyleProperty",
@@ -11042,7 +11434,9 @@
     "deprecated": false,
     "deprecated_reason": "",
     "canonical_namespace": "words_foss.light_document_model",
-    "class_import": "words_foss.light_document_model.TableStyleProperty"
+    "class_import": "words_foss.light_document_model.TableStyleProperty",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "Style",
@@ -11196,7 +11590,9 @@
     "deprecated": false,
     "deprecated_reason": "",
     "canonical_namespace": "words_foss.light_document_model",
-    "class_import": "words_foss.light_document_model.Style"
+    "class_import": "words_foss.light_document_model.Style",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "ListLevel",
@@ -11296,7 +11692,9 @@
     "deprecated": false,
     "deprecated_reason": "",
     "canonical_namespace": "words_foss.light_document_model",
-    "class_import": "words_foss.light_document_model.ListLevel"
+    "class_import": "words_foss.light_document_model.ListLevel",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "ListLevelOverride",
@@ -11342,7 +11740,9 @@
     "deprecated": false,
     "deprecated_reason": "",
     "canonical_namespace": "words_foss.light_document_model",
-    "class_import": "words_foss.light_document_model.ListLevelOverride"
+    "class_import": "words_foss.light_document_model.ListLevelOverride",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "DocList",
@@ -11397,7 +11797,9 @@
     "deprecated": false,
     "deprecated_reason": "",
     "canonical_namespace": "words_foss.light_document_model",
-    "class_import": "words_foss.light_document_model.DocList"
+    "class_import": "words_foss.light_document_model.DocList",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "Document",
@@ -11627,7 +12029,9 @@
     "canonical_namespace": "words_foss.light_document_model",
     "class_import": "words_foss.light_document_model.Document",
     "exported_via_package_init": true,
-    "public_import_module": "words_foss"
+    "public_import_module": "words_foss",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "parse_document",
@@ -11651,7 +12055,9 @@
     "return_type": "DocumentBlock",
     "reachable": false,
     "exported_via_package_init": true,
-    "public_import_module": "words_foss.md_import"
+    "public_import_module": "words_foss.md_import",
+    "module_key": "md_import",
+    "module_label": "Md Import"
   },
   {
     "name": "is_block_start",
@@ -11671,7 +12077,9 @@
     "return_type": "bool",
     "reachable": false,
     "exported_via_package_init": true,
-    "public_import_module": "words_foss.md_import"
+    "public_import_module": "words_foss.md_import",
+    "module_key": "md_import",
+    "module_label": "Md Import"
   },
   {
     "name": "is_ordered_list_item",
@@ -11691,7 +12099,9 @@
     "return_type": "bool",
     "reachable": false,
     "exported_via_package_init": true,
-    "public_import_module": "words_foss.md_import"
+    "public_import_module": "words_foss.md_import",
+    "module_key": "md_import",
+    "module_label": "Md Import"
   },
   {
     "name": "MarkdownBlockLevel",
@@ -11729,7 +12139,9 @@
     "canonical_namespace": "words_foss.md_import.blocks",
     "class_import": "words_foss.md_import.blocks.MarkdownBlockLevel",
     "exported_via_package_init": true,
-    "public_import_module": "words_foss.md_import"
+    "public_import_module": "words_foss.md_import",
+    "module_key": "md_import",
+    "module_label": "Md Import"
   },
   {
     "name": "BlockType",
@@ -11855,7 +12267,9 @@
     "canonical_namespace": "words_foss.md_import.blocks",
     "class_import": "words_foss.md_import.blocks.BlockType",
     "exported_via_package_init": true,
-    "public_import_module": "words_foss.md_import"
+    "public_import_module": "words_foss.md_import",
+    "module_key": "md_import",
+    "module_label": "Md Import"
   },
   {
     "name": "ListMarker",
@@ -11901,7 +12315,9 @@
     "canonical_namespace": "words_foss.md_import.blocks",
     "class_import": "words_foss.md_import.blocks.ListMarker",
     "exported_via_package_init": true,
-    "public_import_module": "words_foss.md_import"
+    "public_import_module": "words_foss.md_import",
+    "module_key": "md_import",
+    "module_label": "Md Import"
   },
   {
     "name": "Block",
@@ -12033,7 +12449,9 @@
     "canonical_namespace": "words_foss.md_import.blocks",
     "class_import": "words_foss.md_import.blocks.Block",
     "exported_via_package_init": true,
-    "public_import_module": "words_foss.md_import"
+    "public_import_module": "words_foss.md_import",
+    "module_key": "md_import",
+    "module_label": "Md Import"
   },
   {
     "name": "DocumentBlock",
@@ -12178,7 +12596,9 @@
     "canonical_namespace": "words_foss.md_import.blocks",
     "class_import": "words_foss.md_import.blocks.DocumentBlock",
     "exported_via_package_init": true,
-    "public_import_module": "words_foss.md_import"
+    "public_import_module": "words_foss.md_import",
+    "module_key": "md_import",
+    "module_label": "Md Import"
   },
   {
     "name": "TextBlock",
@@ -12336,7 +12756,9 @@
     "canonical_namespace": "words_foss.md_import.blocks",
     "class_import": "words_foss.md_import.blocks.TextBlock",
     "exported_via_package_init": true,
-    "public_import_module": "words_foss.md_import"
+    "public_import_module": "words_foss.md_import",
+    "module_key": "md_import",
+    "module_label": "Md Import"
   },
   {
     "name": "LineBreakBlock",
@@ -12494,7 +12916,9 @@
     "canonical_namespace": "words_foss.md_import.blocks",
     "class_import": "words_foss.md_import.blocks.LineBreakBlock",
     "exported_via_package_init": true,
-    "public_import_module": "words_foss.md_import"
+    "public_import_module": "words_foss.md_import",
+    "module_key": "md_import",
+    "module_label": "Md Import"
   },
   {
     "name": "ParagraphBlock",
@@ -12639,7 +13063,9 @@
     "canonical_namespace": "words_foss.md_import.blocks",
     "class_import": "words_foss.md_import.blocks.ParagraphBlock",
     "exported_via_package_init": true,
-    "public_import_module": "words_foss.md_import"
+    "public_import_module": "words_foss.md_import",
+    "module_key": "md_import",
+    "module_label": "Md Import"
   },
   {
     "name": "HeadingBlock",
@@ -12801,7 +13227,9 @@
     "canonical_namespace": "words_foss.md_import.blocks",
     "class_import": "words_foss.md_import.blocks.HeadingBlock",
     "exported_via_package_init": true,
-    "public_import_module": "words_foss.md_import"
+    "public_import_module": "words_foss.md_import",
+    "module_key": "md_import",
+    "module_label": "Md Import"
   },
   {
     "name": "AtxHeadingBlock",
@@ -12979,7 +13407,9 @@
     "canonical_namespace": "words_foss.md_import.blocks",
     "class_import": "words_foss.md_import.blocks.AtxHeadingBlock",
     "exported_via_package_init": true,
-    "public_import_module": "words_foss.md_import"
+    "public_import_module": "words_foss.md_import",
+    "module_key": "md_import",
+    "module_label": "Md Import"
   },
   {
     "name": "SetextHeadingBlock",
@@ -13157,7 +13587,9 @@
     "canonical_namespace": "words_foss.md_import.blocks",
     "class_import": "words_foss.md_import.blocks.SetextHeadingBlock",
     "exported_via_package_init": true,
-    "public_import_module": "words_foss.md_import"
+    "public_import_module": "words_foss.md_import",
+    "module_key": "md_import",
+    "module_label": "Md Import"
   },
   {
     "name": "QuoteBlock",
@@ -13302,7 +13734,9 @@
     "canonical_namespace": "words_foss.md_import.blocks",
     "class_import": "words_foss.md_import.blocks.QuoteBlock",
     "exported_via_package_init": true,
-    "public_import_module": "words_foss.md_import"
+    "public_import_module": "words_foss.md_import",
+    "module_key": "md_import",
+    "module_label": "Md Import"
   },
   {
     "name": "IndentedCodeBlock",
@@ -13460,7 +13894,9 @@
     "canonical_namespace": "words_foss.md_import.blocks",
     "class_import": "words_foss.md_import.blocks.IndentedCodeBlock",
     "exported_via_package_init": true,
-    "public_import_module": "words_foss.md_import"
+    "public_import_module": "words_foss.md_import",
+    "module_key": "md_import",
+    "module_label": "Md Import"
   },
   {
     "name": "FencedCodeBlock",
@@ -13642,7 +14078,9 @@
     "canonical_namespace": "words_foss.md_import.blocks",
     "class_import": "words_foss.md_import.blocks.FencedCodeBlock",
     "exported_via_package_init": true,
-    "public_import_module": "words_foss.md_import"
+    "public_import_module": "words_foss.md_import",
+    "module_key": "md_import",
+    "module_label": "Md Import"
   },
   {
     "name": "HorizontalRuleBlock",
@@ -13787,7 +14225,9 @@
     "canonical_namespace": "words_foss.md_import.blocks",
     "class_import": "words_foss.md_import.blocks.HorizontalRuleBlock",
     "exported_via_package_init": true,
-    "public_import_module": "words_foss.md_import"
+    "public_import_module": "words_foss.md_import",
+    "module_key": "md_import",
+    "module_label": "Md Import"
   },
   {
     "name": "ListBlock",
@@ -13957,7 +14397,9 @@
     "canonical_namespace": "words_foss.md_import.blocks",
     "class_import": "words_foss.md_import.blocks.ListBlock",
     "exported_via_package_init": true,
-    "public_import_module": "words_foss.md_import"
+    "public_import_module": "words_foss.md_import",
+    "module_key": "md_import",
+    "module_label": "Md Import"
   },
   {
     "name": "ListItemBlock",
@@ -14162,7 +14604,9 @@
     "canonical_namespace": "words_foss.md_import.blocks",
     "class_import": "words_foss.md_import.blocks.ListItemBlock",
     "exported_via_package_init": true,
-    "public_import_module": "words_foss.md_import"
+    "public_import_module": "words_foss.md_import",
+    "module_key": "md_import",
+    "module_label": "Md Import"
   },
   {
     "name": "BulletListItemBlock",
@@ -14383,7 +14827,9 @@
     "canonical_namespace": "words_foss.md_import.blocks",
     "class_import": "words_foss.md_import.blocks.BulletListItemBlock",
     "exported_via_package_init": true,
-    "public_import_module": "words_foss.md_import"
+    "public_import_module": "words_foss.md_import",
+    "module_key": "md_import",
+    "module_label": "Md Import"
   },
   {
     "name": "OrderedListItemBlock",
@@ -14608,7 +15054,9 @@
     "canonical_namespace": "words_foss.md_import.blocks",
     "class_import": "words_foss.md_import.blocks.OrderedListItemBlock",
     "exported_via_package_init": true,
-    "public_import_module": "words_foss.md_import"
+    "public_import_module": "words_foss.md_import",
+    "module_key": "md_import",
+    "module_label": "Md Import"
   },
   {
     "name": "TableBlock",
@@ -14775,7 +15223,9 @@
     "canonical_namespace": "words_foss.md_import.blocks",
     "class_import": "words_foss.md_import.blocks.TableBlock",
     "exported_via_package_init": true,
-    "public_import_module": "words_foss.md_import"
+    "public_import_module": "words_foss.md_import",
+    "module_key": "md_import",
+    "module_label": "Md Import"
   },
   {
     "name": "RowBlock",
@@ -14942,7 +15392,9 @@
     "canonical_namespace": "words_foss.md_import.blocks",
     "class_import": "words_foss.md_import.blocks.RowBlock",
     "exported_via_package_init": true,
-    "public_import_module": "words_foss.md_import"
+    "public_import_module": "words_foss.md_import",
+    "module_key": "md_import",
+    "module_label": "Md Import"
   },
   {
     "name": "CellBlock",
@@ -15100,7 +15552,9 @@
     "canonical_namespace": "words_foss.md_import.blocks",
     "class_import": "words_foss.md_import.blocks.CellBlock",
     "exported_via_package_init": true,
-    "public_import_module": "words_foss.md_import"
+    "public_import_module": "words_foss.md_import",
+    "module_key": "md_import",
+    "module_label": "Md Import"
   },
   {
     "name": "HtmlTagBlock",
@@ -15351,7 +15805,9 @@
     "canonical_namespace": "words_foss.md_import.blocks",
     "class_import": "words_foss.md_import.blocks.HtmlTagBlock",
     "exported_via_package_init": true,
-    "public_import_module": "words_foss.md_import"
+    "public_import_module": "words_foss.md_import",
+    "module_key": "md_import",
+    "module_label": "Md Import"
   },
   {
     "name": "LinkTextBlock",
@@ -15566,7 +16022,9 @@
     "canonical_namespace": "words_foss.md_import.blocks",
     "class_import": "words_foss.md_import.blocks.LinkTextBlock",
     "exported_via_package_init": true,
-    "public_import_module": "words_foss.md_import"
+    "public_import_module": "words_foss.md_import",
+    "module_key": "md_import",
+    "module_label": "Md Import"
   },
   {
     "name": "AutolinkBlock",
@@ -15736,7 +16194,9 @@
     "canonical_namespace": "words_foss.md_import.blocks",
     "class_import": "words_foss.md_import.blocks.AutolinkBlock",
     "exported_via_package_init": true,
-    "public_import_module": "words_foss.md_import"
+    "public_import_module": "words_foss.md_import",
+    "module_key": "md_import",
+    "module_label": "Md Import"
   },
   {
     "name": "BoldInlineBlock",
@@ -15881,7 +16341,9 @@
     "canonical_namespace": "words_foss.md_import.blocks",
     "class_import": "words_foss.md_import.blocks.BoldInlineBlock",
     "exported_via_package_init": true,
-    "public_import_module": "words_foss.md_import"
+    "public_import_module": "words_foss.md_import",
+    "module_key": "md_import",
+    "module_label": "Md Import"
   },
   {
     "name": "ItalicInlineBlock",
@@ -16026,7 +16488,9 @@
     "canonical_namespace": "words_foss.md_import.blocks",
     "class_import": "words_foss.md_import.blocks.ItalicInlineBlock",
     "exported_via_package_init": true,
-    "public_import_module": "words_foss.md_import"
+    "public_import_module": "words_foss.md_import",
+    "module_key": "md_import",
+    "module_label": "Md Import"
   },
   {
     "name": "StrikethroughBlock",
@@ -16171,7 +16635,9 @@
     "canonical_namespace": "words_foss.md_import.blocks",
     "class_import": "words_foss.md_import.blocks.StrikethroughBlock",
     "exported_via_package_init": true,
-    "public_import_module": "words_foss.md_import"
+    "public_import_module": "words_foss.md_import",
+    "module_key": "md_import",
+    "module_label": "Md Import"
   },
   {
     "name": "UnderlineBlock",
@@ -16316,7 +16782,9 @@
     "canonical_namespace": "words_foss.md_import.blocks",
     "class_import": "words_foss.md_import.blocks.UnderlineBlock",
     "exported_via_package_init": true,
-    "public_import_module": "words_foss.md_import"
+    "public_import_module": "words_foss.md_import",
+    "module_key": "md_import",
+    "module_label": "Md Import"
   },
   {
     "name": "InlineCodeBlock",
@@ -16486,7 +16954,9 @@
     "canonical_namespace": "words_foss.md_import.blocks",
     "class_import": "words_foss.md_import.blocks.InlineCodeBlock",
     "exported_via_package_init": true,
-    "public_import_module": "words_foss.md_import"
+    "public_import_module": "words_foss.md_import",
+    "module_key": "md_import",
+    "module_label": "Md Import"
   },
   {
     "name": "FootnoteReferenceBlock",
@@ -16644,7 +17114,9 @@
     "canonical_namespace": "words_foss.md_import.blocks",
     "class_import": "words_foss.md_import.blocks.FootnoteReferenceBlock",
     "exported_via_package_init": true,
-    "public_import_module": "words_foss.md_import"
+    "public_import_module": "words_foss.md_import",
+    "module_key": "md_import",
+    "module_label": "Md Import"
   },
   {
     "name": "FootnoteDefinitionBlock",
@@ -16802,7 +17274,9 @@
     "canonical_namespace": "words_foss.md_import.blocks",
     "class_import": "words_foss.md_import.blocks.FootnoteDefinitionBlock",
     "exported_via_package_init": true,
-    "public_import_module": "words_foss.md_import"
+    "public_import_module": "words_foss.md_import",
+    "module_key": "md_import",
+    "module_label": "Md Import"
   },
   {
     "name": "HtmlInsertOptions",
@@ -16830,7 +17304,9 @@
     "canonical_namespace": "words_foss.md_import.document_builder",
     "class_import": "words_foss.md_import.document_builder.HtmlInsertOptions",
     "exported_via_package_init": true,
-    "public_import_module": "words_foss.md_import"
+    "public_import_module": "words_foss.md_import",
+    "module_key": "md_import",
+    "module_label": "Md Import"
   },
   {
     "name": "MarkdownDocumentBuilder",
@@ -17230,7 +17706,9 @@
     "canonical_namespace": "words_foss.md_import.document_builder",
     "class_import": "words_foss.md_import.document_builder.MarkdownDocumentBuilder",
     "exported_via_package_init": true,
-    "public_import_module": "words_foss.md_import"
+    "public_import_module": "words_foss.md_import",
+    "module_key": "md_import",
+    "module_label": "Md Import"
   },
   {
     "name": "unescape_destination",
@@ -17248,7 +17726,9 @@
       }
     ],
     "return_type": "str",
-    "reachable": false
+    "reachable": false,
+    "module_key": "md_import",
+    "module_label": "Md Import"
   },
   {
     "name": "is_valid_autolink",
@@ -17268,7 +17748,9 @@
     "return_type": "bool",
     "reachable": false,
     "exported_via_package_init": true,
-    "public_import_module": "words_foss.md_import"
+    "public_import_module": "words_foss.md_import",
+    "module_key": "md_import",
+    "module_label": "Md Import"
   },
   {
     "name": "parse_inline",
@@ -17292,7 +17774,9 @@
     "return_type": "list[Block]",
     "reachable": false,
     "exported_via_package_init": true,
-    "public_import_module": "words_foss.md_import"
+    "public_import_module": "words_foss.md_import",
+    "module_key": "md_import",
+    "module_label": "Md Import"
   },
   {
     "name": "flush_text",
@@ -17305,7 +17789,9 @@
     "properties": [],
     "params": [],
     "return_type": "None",
-    "reachable": false
+    "reachable": false,
+    "module_key": "md_import",
+    "module_label": "Md Import"
   },
   {
     "name": "try_footnote_reference",
@@ -17327,7 +17813,9 @@
       }
     ],
     "return_type": "Optional[tuple[FootnoteReferenceBlock, int]]",
-    "reachable": false
+    "reachable": false,
+    "module_key": "md_import",
+    "module_label": "Md Import"
   },
   {
     "name": "drive_block",
@@ -17355,7 +17843,9 @@
     "return_type": "None",
     "reachable": false,
     "exported_via_package_init": true,
-    "public_import_module": "words_foss.md_import"
+    "public_import_module": "words_foss.md_import",
+    "module_key": "md_import",
+    "module_label": "Md Import"
   },
   {
     "name": "build_document",
@@ -17379,7 +17869,9 @@
     "return_type": "ldm.Document",
     "reachable": false,
     "exported_via_package_init": true,
-    "public_import_module": "words_foss.md_import"
+    "public_import_module": "words_foss.md_import",
+    "module_key": "md_import",
+    "module_label": "Md Import"
   },
   {
     "name": "parse_and_build",
@@ -17407,7 +17899,9 @@
     "return_type": "ldm.Document",
     "reachable": false,
     "exported_via_package_init": true,
-    "public_import_module": "words_foss.md_import"
+    "public_import_module": "words_foss.md_import",
+    "module_key": "md_import",
+    "module_label": "Md Import"
   },
   {
     "name": "LineStyle",
@@ -17533,7 +18027,9 @@
       }
     ],
     "canonical_namespace": "words_foss.model.enums.border",
-    "class_import": "words_foss.model.enums.border.LineStyle"
+    "class_import": "words_foss.model.enums.border.LineStyle",
+    "module_key": "model",
+    "module_label": "Model"
   },
   {
     "name": "Underline",
@@ -17623,7 +18119,9 @@
       }
     ],
     "canonical_namespace": "words_foss.model.enums.font",
-    "class_import": "words_foss.model.enums.font.Underline"
+    "class_import": "words_foss.model.enums.font.Underline",
+    "module_key": "model",
+    "module_label": "Model"
   },
   {
     "name": "ImageType",
@@ -17693,7 +18191,9 @@
       }
     ],
     "canonical_namespace": "words_foss.model.enums.image",
-    "class_import": "words_foss.model.enums.image.ImageType"
+    "class_import": "words_foss.model.enums.image.ImageType",
+    "module_key": "model",
+    "module_label": "Model"
   },
   {
     "name": "HeightRule",
@@ -17723,7 +18223,9 @@
       }
     ],
     "canonical_namespace": "words_foss.model.enums.layout",
-    "class_import": "words_foss.model.enums.layout.HeightRule"
+    "class_import": "words_foss.model.enums.layout.HeightRule",
+    "module_key": "model",
+    "module_label": "Model"
   },
   {
     "name": "SectionStart",
@@ -17761,7 +18263,9 @@
       }
     ],
     "canonical_namespace": "words_foss.model.enums.layout",
-    "class_import": "words_foss.model.enums.layout.SectionStart"
+    "class_import": "words_foss.model.enums.layout.SectionStart",
+    "module_key": "model",
+    "module_label": "Model"
   },
   {
     "name": "Orientation",
@@ -17787,7 +18291,9 @@
       }
     ],
     "canonical_namespace": "words_foss.model.enums.layout",
-    "class_import": "words_foss.model.enums.layout.Orientation"
+    "class_import": "words_foss.model.enums.layout.Orientation",
+    "module_key": "model",
+    "module_label": "Model"
   },
   {
     "name": "ParagraphAlignment",
@@ -17845,7 +18351,9 @@
       }
     ],
     "canonical_namespace": "words_foss.model.enums.paragraph",
-    "class_import": "words_foss.model.enums.paragraph.ParagraphAlignment"
+    "class_import": "words_foss.model.enums.paragraph.ParagraphAlignment",
+    "module_key": "model",
+    "module_label": "Model"
   },
   {
     "name": "LineSpacingRule",
@@ -17875,7 +18383,9 @@
       }
     ],
     "canonical_namespace": "words_foss.model.enums.paragraph",
-    "class_import": "words_foss.model.enums.paragraph.LineSpacingRule"
+    "class_import": "words_foss.model.enums.paragraph.LineSpacingRule",
+    "module_key": "model",
+    "module_label": "Model"
   },
   {
     "name": "StyleIdentifier",
@@ -19413,7 +19923,9 @@
       }
     ],
     "canonical_namespace": "words_foss.model.enums.style",
-    "class_import": "words_foss.model.enums.style.StyleIdentifier"
+    "class_import": "words_foss.model.enums.style.StyleIdentifier",
+    "module_key": "model",
+    "module_label": "Model"
   },
   {
     "name": "TabAlignment",
@@ -19459,7 +19971,9 @@
       }
     ],
     "canonical_namespace": "words_foss.model.enums.style",
-    "class_import": "words_foss.model.enums.style.TabAlignment"
+    "class_import": "words_foss.model.enums.style.TabAlignment",
+    "module_key": "model",
+    "module_label": "Model"
   },
   {
     "name": "TabLeader",
@@ -19501,7 +20015,9 @@
       }
     ],
     "canonical_namespace": "words_foss.model.enums.style",
-    "class_import": "words_foss.model.enums.style.TabLeader"
+    "class_import": "words_foss.model.enums.style.TabLeader",
+    "module_key": "model",
+    "module_label": "Model"
   },
   {
     "name": "StyleType",
@@ -19535,7 +20051,9 @@
       }
     ],
     "canonical_namespace": "words_foss.model.enums.style",
-    "class_import": "words_foss.model.enums.style.StyleType"
+    "class_import": "words_foss.model.enums.style.StyleType",
+    "module_key": "model",
+    "module_label": "Model"
   },
   {
     "name": "NumberStyle",
@@ -19801,7 +20319,9 @@
       }
     ],
     "canonical_namespace": "words_foss.model.enums.style",
-    "class_import": "words_foss.model.enums.style.NumberStyle"
+    "class_import": "words_foss.model.enums.style.NumberStyle",
+    "module_key": "model",
+    "module_label": "Model"
   },
   {
     "name": "PreferredWidthType",
@@ -19831,7 +20351,9 @@
       }
     ],
     "canonical_namespace": "words_foss.model.enums.table",
-    "class_import": "words_foss.model.enums.table.PreferredWidthType"
+    "class_import": "words_foss.model.enums.table.PreferredWidthType",
+    "module_key": "model",
+    "module_label": "Model"
   },
   {
     "name": "CellMerge",
@@ -19861,7 +20383,9 @@
       }
     ],
     "canonical_namespace": "words_foss.model.enums.table",
-    "class_import": "words_foss.model.enums.table.CellMerge"
+    "class_import": "words_foss.model.enums.table.CellMerge",
+    "module_key": "model",
+    "module_label": "Model"
   },
   {
     "name": "CellVerticalAlignment",
@@ -19891,7 +20415,9 @@
       }
     ],
     "canonical_namespace": "words_foss.model.enums.table",
-    "class_import": "words_foss.model.enums.table.CellVerticalAlignment"
+    "class_import": "words_foss.model.enums.table.CellVerticalAlignment",
+    "module_key": "model",
+    "module_label": "Model"
   },
   {
     "name": "resolve_style_identifier",
@@ -19913,7 +20439,9 @@
       }
     ],
     "return_type": "int",
-    "reachable": false
+    "reachable": false,
+    "module_key": "model",
+    "module_label": "Model"
   },
   {
     "name": "WrapType",
@@ -19955,7 +20483,9 @@
       }
     ],
     "canonical_namespace": "words_foss.model.wrap_type",
-    "class_import": "words_foss.model.wrap_type.WrapType"
+    "class_import": "words_foss.model.wrap_type.WrapType",
+    "module_key": "model",
+    "module_label": "Model"
   },
   {
     "name": "HeadingStyle",
@@ -19983,7 +20513,9 @@
       }
     ],
     "canonical_namespace": "words_foss.models",
-    "class_import": "words_foss.models.HeadingStyle"
+    "class_import": "words_foss.models.HeadingStyle",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "CodeBlockStyle",
@@ -20011,7 +20543,9 @@
       }
     ],
     "canonical_namespace": "words_foss.models",
-    "class_import": "words_foss.models.CodeBlockStyle"
+    "class_import": "words_foss.models.CodeBlockStyle",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "ConversionOptions",
@@ -20199,7 +20733,9 @@
     "deprecated": false,
     "deprecated_reason": "",
     "canonical_namespace": "words_foss.models",
-    "class_import": "words_foss.models.ConversionOptions"
+    "class_import": "words_foss.models.ConversionOptions",
+    "module_key": "conversion",
+    "module_label": "Conversion"
   },
   {
     "name": "RunFormatting",
@@ -20279,7 +20815,9 @@
     "deprecated": false,
     "deprecated_reason": "",
     "canonical_namespace": "words_foss.models",
-    "class_import": "words_foss.models.RunFormatting"
+    "class_import": "words_foss.models.RunFormatting",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "ParagraphInfo",
@@ -20395,7 +20933,9 @@
     "deprecated": false,
     "deprecated_reason": "",
     "canonical_namespace": "words_foss.models",
-    "class_import": "words_foss.models.ParagraphInfo"
+    "class_import": "words_foss.models.ParagraphInfo",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "TableCell",
@@ -20457,7 +20997,9 @@
     "deprecated": false,
     "deprecated_reason": "",
     "canonical_namespace": "words_foss.models",
-    "class_import": "words_foss.models.TableCell"
+    "class_import": "words_foss.models.TableCell",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "TableRow",
@@ -20492,7 +21034,9 @@
     "deprecated": false,
     "deprecated_reason": "",
     "canonical_namespace": "words_foss.models",
-    "class_import": "words_foss.models.TableRow"
+    "class_import": "words_foss.models.TableRow",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "ListLevelInfo",
@@ -20554,7 +21098,9 @@
     "deprecated": false,
     "deprecated_reason": "",
     "canonical_namespace": "words_foss.parsers.numbering_parser",
-    "class_import": "words_foss.parsers.numbering_parser.ListLevelInfo"
+    "class_import": "words_foss.parsers.numbering_parser.ListLevelInfo",
+    "module_key": "parsers",
+    "module_label": "Parsers"
   },
   {
     "name": "ListInfo",
@@ -20598,7 +21144,9 @@
     "deprecated": false,
     "deprecated_reason": "",
     "canonical_namespace": "words_foss.parsers.numbering_parser",
-    "class_import": "words_foss.parsers.numbering_parser.ListInfo"
+    "class_import": "words_foss.parsers.numbering_parser.ListInfo",
+    "module_key": "parsers",
+    "module_label": "Parsers"
   },
   {
     "name": "NumberingParser",
@@ -20740,7 +21288,9 @@
     "canonical_namespace": "words_foss.parsers.numbering_parser",
     "class_import": "words_foss.parsers.numbering_parser.NumberingParser",
     "exported_via_package_init": true,
-    "public_import_module": "words_foss.parsers"
+    "public_import_module": "words_foss.parsers",
+    "module_key": "parsers",
+    "module_label": "Parsers"
   },
   {
     "name": "ParsedStyle",
@@ -20838,7 +21388,9 @@
     "deprecated": false,
     "deprecated_reason": "",
     "canonical_namespace": "words_foss.parsers.style_parser",
-    "class_import": "words_foss.parsers.style_parser.ParsedStyle"
+    "class_import": "words_foss.parsers.style_parser.ParsedStyle",
+    "module_key": "parsers",
+    "module_label": "Parsers"
   },
   {
     "name": "StyleParser",
@@ -20943,7 +21495,9 @@
     "canonical_namespace": "words_foss.parsers.style_parser",
     "class_import": "words_foss.parsers.style_parser.StyleParser",
     "exported_via_package_init": true,
-    "public_import_module": "words_foss.parsers"
+    "public_import_module": "words_foss.parsers",
+    "module_key": "parsers",
+    "module_label": "Parsers"
   },
   {
     "name": "PDFWriterContext",
@@ -20971,7 +21525,9 @@
     "deprecated": false,
     "deprecated_reason": "",
     "canonical_namespace": "words_foss.pdf_writer._context",
-    "class_import": "words_foss.pdf_writer._context.PDFWriterContext"
+    "class_import": "words_foss.pdf_writer._context.PDFWriterContext",
+    "module_key": "pdf_writer",
+    "module_label": "Pdf Writer"
   },
   {
     "name": "parse_color",
@@ -20989,7 +21545,9 @@
       }
     ],
     "return_type": "Optional[Tuple[int, int, int]]",
-    "reachable": false
+    "reachable": false,
+    "module_key": "pdf_writer",
+    "module_label": "Pdf Writer"
   },
   {
     "name": "set_text_color",
@@ -21011,7 +21569,9 @@
       }
     ],
     "return_type": "None",
-    "reachable": false
+    "reachable": false,
+    "module_key": "pdf_writer",
+    "module_label": "Pdf Writer"
   },
   {
     "name": "set_fill_color",
@@ -21033,7 +21593,9 @@
       }
     ],
     "return_type": "bool",
-    "reachable": false
+    "reachable": false,
+    "module_key": "pdf_writer",
+    "module_label": "Pdf Writer"
   },
   {
     "name": "apply_run_font",
@@ -21059,7 +21621,9 @@
       }
     ],
     "return_type": "str",
-    "reachable": false
+    "reachable": false,
+    "module_key": "pdf_writer",
+    "module_label": "Pdf Writer"
   },
   {
     "name": "reset_font",
@@ -21077,7 +21641,9 @@
       }
     ],
     "return_type": "None",
-    "reachable": false
+    "reachable": false,
+    "module_key": "pdf_writer",
+    "module_label": "Pdf Writer"
   },
   {
     "name": "install_page_header",
@@ -21111,7 +21677,9 @@
       }
     ],
     "return_type": "None",
-    "reachable": false
+    "reachable": false,
+    "module_key": "pdf_writer",
+    "module_label": "Pdf Writer"
   },
   {
     "name": "install_page_footer",
@@ -21145,7 +21713,9 @@
       }
     ],
     "return_type": "None",
-    "reachable": false
+    "reachable": false,
+    "module_key": "pdf_writer",
+    "module_label": "Pdf Writer"
   },
   {
     "name": "register_bookmarks",
@@ -21171,7 +21741,9 @@
       }
     ],
     "return_type": "None",
-    "reachable": false
+    "reachable": false,
+    "module_key": "pdf_writer",
+    "module_label": "Pdf Writer"
   },
   {
     "name": "ParagraphRenderer",
@@ -21244,7 +21816,9 @@
     "deprecated": false,
     "deprecated_reason": "",
     "canonical_namespace": "words_foss.pdf_writer.paragraph_renderer",
-    "class_import": "words_foss.pdf_writer.paragraph_renderer.ParagraphRenderer"
+    "class_import": "words_foss.pdf_writer.paragraph_renderer.ParagraphRenderer",
+    "module_key": "pdf_writer",
+    "module_label": "Pdf Writer"
   },
   {
     "name": "RunRenderer",
@@ -21361,7 +21935,9 @@
     "deprecated": false,
     "deprecated_reason": "",
     "canonical_namespace": "words_foss.pdf_writer.run_renderer",
-    "class_import": "words_foss.pdf_writer.run_renderer.RunRenderer"
+    "class_import": "words_foss.pdf_writer.run_renderer.RunRenderer",
+    "module_key": "pdf_writer",
+    "module_label": "Pdf Writer"
   },
   {
     "name": "ShapeRenderer",
@@ -21598,7 +22174,9 @@
     "deprecated": false,
     "deprecated_reason": "",
     "canonical_namespace": "words_foss.pdf_writer.shape_renderer",
-    "class_import": "words_foss.pdf_writer.shape_renderer.ShapeRenderer"
+    "class_import": "words_foss.pdf_writer.shape_renderer.ShapeRenderer",
+    "module_key": "pdf_writer",
+    "module_label": "Pdf Writer"
   },
   {
     "name": "TableRenderer",
@@ -21683,7 +22261,9 @@
     "deprecated": false,
     "deprecated_reason": "",
     "canonical_namespace": "words_foss.pdf_writer.table_renderer",
-    "class_import": "words_foss.pdf_writer.table_renderer.TableRenderer"
+    "class_import": "words_foss.pdf_writer.table_renderer.TableRenderer",
+    "module_key": "pdf_writer",
+    "module_label": "Pdf Writer"
   },
   {
     "name": "safe_text",
@@ -21701,7 +22281,9 @@
       }
     ],
     "return_type": "str",
-    "reachable": false
+    "reachable": false,
+    "module_key": "pdf_writer",
+    "module_label": "Pdf Writer"
   },
   {
     "name": "extract_link_segments",
@@ -21719,7 +22301,9 @@
       }
     ],
     "return_type": "list[Tuple[str, Optional[str]]]",
-    "reachable": false
+    "reachable": false,
+    "module_key": "pdf_writer",
+    "module_label": "Pdf Writer"
   },
   {
     "name": "apply_caps",
@@ -21741,7 +22325,9 @@
       }
     ],
     "return_type": "str",
-    "reachable": false
+    "reachable": false,
+    "module_key": "pdf_writer",
+    "module_label": "Pdf Writer"
   },
   {
     "name": "plain_text",
@@ -21759,7 +22345,9 @@
       }
     ],
     "return_type": "str",
-    "reachable": false
+    "reachable": false,
+    "module_key": "pdf_writer",
+    "module_label": "Pdf Writer"
   },
   {
     "name": "cell_text",
@@ -21777,7 +22365,9 @@
       }
     ],
     "return_type": "str",
-    "reachable": false
+    "reachable": false,
+    "module_key": "pdf_writer",
+    "module_label": "Pdf Writer"
   },
   {
     "name": "is_pure_page_break",
@@ -21795,7 +22385,9 @@
       }
     ],
     "return_type": "bool",
-    "reachable": false
+    "reachable": false,
+    "module_key": "pdf_writer",
+    "module_label": "Pdf Writer"
   },
   {
     "name": "is_toc_style",
@@ -21813,7 +22405,9 @@
       }
     ],
     "return_type": "bool",
-    "reachable": false
+    "reachable": false,
+    "module_key": "pdf_writer",
+    "module_label": "Pdf Writer"
   },
   {
     "name": "get_dominant_font_size",
@@ -21831,7 +22425,9 @@
       }
     ],
     "return_type": "float",
-    "reachable": false
+    "reachable": false,
+    "module_key": "pdf_writer",
+    "module_label": "Pdf Writer"
   },
   {
     "name": "get_dominant_color",
@@ -21849,7 +22445,9 @@
       }
     ],
     "return_type": "Optional[Tuple[int, int, int]]",
-    "reachable": false
+    "reachable": false,
+    "module_key": "pdf_writer",
+    "module_label": "Pdf Writer"
   },
   {
     "name": "TableContentAlignment",
@@ -21885,7 +22483,9 @@
       }
     ],
     "canonical_namespace": "words_foss.saving",
-    "class_import": "words_foss.saving.TableContentAlignment"
+    "class_import": "words_foss.saving.TableContentAlignment",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "MarkdownListExportMode",
@@ -21913,7 +22513,9 @@
       }
     ],
     "canonical_namespace": "words_foss.saving",
-    "class_import": "words_foss.saving.MarkdownListExportMode"
+    "class_import": "words_foss.saving.MarkdownListExportMode",
+    "module_key": "conversion",
+    "module_label": "Conversion"
   },
   {
     "name": "MarkdownLinkExportMode",
@@ -21945,7 +22547,9 @@
       }
     ],
     "canonical_namespace": "words_foss.saving",
-    "class_import": "words_foss.saving.MarkdownLinkExportMode"
+    "class_import": "words_foss.saving.MarkdownLinkExportMode",
+    "module_key": "conversion",
+    "module_label": "Conversion"
   },
   {
     "name": "MarkdownExportAsHtml",
@@ -21977,7 +22581,9 @@
       }
     ],
     "canonical_namespace": "words_foss.saving",
-    "class_import": "words_foss.saving.MarkdownExportAsHtml"
+    "class_import": "words_foss.saving.MarkdownExportAsHtml",
+    "module_key": "conversion",
+    "module_label": "Conversion"
   },
   {
     "name": "MarkdownEmptyParagraphExportMode",
@@ -22009,7 +22615,9 @@
       }
     ],
     "canonical_namespace": "words_foss.saving",
-    "class_import": "words_foss.saving.MarkdownEmptyParagraphExportMode"
+    "class_import": "words_foss.saving.MarkdownEmptyParagraphExportMode",
+    "module_key": "conversion",
+    "module_label": "Conversion"
   },
   {
     "name": "PdfCompliance",
@@ -22081,7 +22689,9 @@
       }
     ],
     "canonical_namespace": "words_foss.saving",
-    "class_import": "words_foss.saving.PdfCompliance"
+    "class_import": "words_foss.saving.PdfCompliance",
+    "module_key": "compliance",
+    "module_label": "Compliance"
   },
   {
     "name": "PdfTextCompression",
@@ -22109,7 +22719,9 @@
       }
     ],
     "canonical_namespace": "words_foss.saving",
-    "class_import": "words_foss.saving.PdfTextCompression"
+    "class_import": "words_foss.saving.PdfTextCompression",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "PdfImageCompression",
@@ -22137,7 +22749,9 @@
       }
     ],
     "canonical_namespace": "words_foss.saving",
-    "class_import": "words_foss.saving.PdfImageCompression"
+    "class_import": "words_foss.saving.PdfImageCompression",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "PdfPageMode",
@@ -22181,7 +22795,9 @@
       }
     ],
     "canonical_namespace": "words_foss.saving",
-    "class_import": "words_foss.saving.PdfPageMode"
+    "class_import": "words_foss.saving.PdfPageMode",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "PdfZoomBehavior",
@@ -22225,7 +22841,9 @@
       }
     ],
     "canonical_namespace": "words_foss.saving",
-    "class_import": "words_foss.saving.PdfZoomBehavior"
+    "class_import": "words_foss.saving.PdfZoomBehavior",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "PdfFontEmbeddingMode",
@@ -22257,7 +22875,9 @@
       }
     ],
     "canonical_namespace": "words_foss.saving",
-    "class_import": "words_foss.saving.PdfFontEmbeddingMode"
+    "class_import": "words_foss.saving.PdfFontEmbeddingMode",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "ColorMode",
@@ -22285,7 +22905,9 @@
       }
     ],
     "canonical_namespace": "words_foss.saving",
-    "class_import": "words_foss.saving.ColorMode"
+    "class_import": "words_foss.saving.ColorMode",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "OutlineOptions",
@@ -22362,7 +22984,9 @@
     "deprecated": false,
     "deprecated_reason": "",
     "canonical_namespace": "words_foss.saving",
-    "class_import": "words_foss.saving.OutlineOptions"
+    "class_import": "words_foss.saving.OutlineOptions",
+    "module_key": "structure",
+    "module_label": "Structure"
   },
   {
     "name": "PdfSaveOptions",
@@ -22527,7 +23151,9 @@
     "deprecated": false,
     "deprecated_reason": "",
     "canonical_namespace": "words_foss.saving",
-    "class_import": "words_foss.saving.PdfSaveOptions"
+    "class_import": "words_foss.saving.PdfSaveOptions",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "OoxmlCompliance",
@@ -22559,7 +23185,9 @@
       }
     ],
     "canonical_namespace": "words_foss.saving",
-    "class_import": "words_foss.saving.OoxmlCompliance"
+    "class_import": "words_foss.saving.OoxmlCompliance",
+    "module_key": "compliance",
+    "module_label": "Compliance"
   },
   {
     "name": "CompressionLevel",
@@ -22595,7 +23223,9 @@
       }
     ],
     "canonical_namespace": "words_foss.saving",
-    "class_import": "words_foss.saving.CompressionLevel"
+    "class_import": "words_foss.saving.CompressionLevel",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "Zip64Mode",
@@ -22627,7 +23257,9 @@
       }
     ],
     "canonical_namespace": "words_foss.saving",
-    "class_import": "words_foss.saving.Zip64Mode"
+    "class_import": "words_foss.saving.Zip64Mode",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "OoxmlSaveOptions",
@@ -22701,7 +23333,9 @@
     "deprecated": false,
     "deprecated_reason": "",
     "canonical_namespace": "words_foss.saving",
-    "class_import": "words_foss.saving.OoxmlSaveOptions"
+    "class_import": "words_foss.saving.OoxmlSaveOptions",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "MarkdownSaveOptions",
@@ -22834,7 +23468,9 @@
     "deprecated": false,
     "deprecated_reason": "",
     "canonical_namespace": "words_foss.saving",
-    "class_import": "words_foss.saving.MarkdownSaveOptions"
+    "class_import": "words_foss.saving.MarkdownSaveOptions",
+    "module_key": "conversion",
+    "module_label": "Conversion"
   },
   {
     "name": "coerce_enum",
@@ -22856,7 +23492,9 @@
       }
     ],
     "return_type": "Any",
-    "reachable": false
+    "reachable": false,
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "get_element_text",
@@ -22880,7 +23518,9 @@
     "return_type": "str",
     "reachable": false,
     "exported_via_package_init": true,
-    "public_import_module": "words_foss.utils"
+    "public_import_module": "words_foss.utils",
+    "module_key": "utils",
+    "module_label": "Utils"
   },
   {
     "name": "find_all_elements",
@@ -22904,7 +23544,9 @@
     "return_type": "Iterator[ET.Element]",
     "reachable": false,
     "exported_via_package_init": true,
-    "public_import_module": "words_foss.utils"
+    "public_import_module": "words_foss.utils",
+    "module_key": "utils",
+    "module_label": "Utils"
   },
   {
     "name": "get_attribute",
@@ -22930,7 +23572,9 @@
       }
     ],
     "return_type": "str",
-    "reachable": false
+    "reachable": false,
+    "module_key": "utils",
+    "module_label": "Utils"
   },
   {
     "name": "has_element",
@@ -22952,7 +23596,9 @@
       }
     ],
     "return_type": "bool",
-    "reachable": false
+    "reachable": false,
+    "module_key": "utils",
+    "module_label": "Utils"
   },
   {
     "name": "get_bool_val",
@@ -22970,6 +23616,8 @@
       }
     ],
     "return_type": "bool",
-    "reachable": false
+    "reachable": false,
+    "module_key": "utils",
+    "module_label": "Utils"
   }
 ]

@@ -17,7 +17,11 @@
       "Worksheet.Cells"
     ],
     "formats_referenced": [],
-    "provenance": "scout"
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "267a0b4253b4f4d237fac138e4fb86edffa2e1d0aacad7fd4b435972183b681d",
+      "norm": "267a0b4253b4f4d237fac138e4fb86edffa2e1d0aacad7fd4b435972183b681d"
+    }
   },
   {
     "id": "snippet_002",
@@ -40,7 +44,11 @@
       "Worksheet.Cells"
     ],
     "formats_referenced": [],
-    "provenance": "scout"
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "563380089be588700a0fba201acbb278f6aeca41102269a8c3551580ccd13562",
+      "norm": "563380089be588700a0fba201acbb278f6aeca41102269a8c3551580ccd13562"
+    }
   },
   {
     "id": "snippet_003",
@@ -63,7 +71,11 @@
     "formats_referenced": [
       "byte"
     ],
-    "provenance": "scout"
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "0498a8de8870b027834aca97a9929fe19dc16e6d95a6f622f4cedddf26f3aa19",
+      "norm": "0498a8de8870b027834aca97a9929fe19dc16e6d95a6f622f4cedddf26f3aa19"
+    }
   },
   {
     "id": "snippet_004",
@@ -86,7 +98,11 @@
       "Worksheet.Cells"
     ],
     "formats_referenced": [],
-    "provenance": "scout"
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "82900b7daaf9b636e21b69065c7839552fb1903ec9f3174512c459b970fdf2ab",
+      "norm": "82900b7daaf9b636e21b69065c7839552fb1903ec9f3174512c459b970fdf2ab"
+    }
   },
   {
     "id": "snippet_005",
@@ -109,7 +125,11 @@
       "Worksheet.Cells"
     ],
     "formats_referenced": [],
-    "provenance": "scout"
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "a1b87ea438ffd7d159937481ff9ed8dabdd32b43cdb80d75833335f1d6605202",
+      "norm": "a1b87ea438ffd7d159937481ff9ed8dabdd32b43cdb80d75833335f1d6605202"
+    }
   },
   {
     "id": "snippet_006",
@@ -128,7 +148,11 @@
       "Worksheet.Cells"
     ],
     "formats_referenced": [],
-    "provenance": "scout"
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "d2e60d0250b3b1edd5f77ddf0af1839028dbd79ce3a8120c4e76b433d223c48a",
+      "norm": "d2e60d0250b3b1edd5f77ddf0af1839028dbd79ce3a8120c4e76b433d223c48a"
+    }
   },
   {
     "id": "snippet_007",
@@ -151,7 +175,11 @@
       "Worksheet.Cells"
     ],
     "formats_referenced": [],
-    "provenance": "scout"
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "4688d7e3ecc3e084a4b714fa45f58434354667601e76cf56fa9ec74977587214",
+      "norm": "4688d7e3ecc3e084a4b714fa45f58434354667601e76cf56fa9ec74977587214"
+    }
   },
   {
     "id": "snippet_008",
@@ -175,7 +203,11 @@
     "formats_referenced": [
       "streaming"
     ],
-    "provenance": "scout"
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "a08927bfdf79139ca6c810c0f5e676b0a48255e9acc6681df6216ee724e83a74",
+      "norm": "a08927bfdf79139ca6c810c0f5e676b0a48255e9acc6681df6216ee724e83a74"
+    }
   },
   {
     "id": "snippet_009",
@@ -202,7 +234,11 @@
       "Worksheet.Cells"
     ],
     "formats_referenced": [],
-    "provenance": "scout"
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "b314939fbf940126b3c5655d07b2c340bad0708dbd3b79f19d1ab7a2d8b10369",
+      "norm": "b314939fbf940126b3c5655d07b2c340bad0708dbd3b79f19d1ab7a2d8b10369"
+    }
   },
   {
     "id": "snippet_010",
@@ -227,7 +263,11 @@
       "Worksheet.Cells"
     ],
     "formats_referenced": [],
-    "provenance": "scout"
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "c64a810aa7c86a212f1df89160a0e6501e0435015657e7b3f215968966da064e",
+      "norm": "c64a810aa7c86a212f1df89160a0e6501e0435015657e7b3f215968966da064e"
+    }
   },
   {
     "id": "snippet_011",
@@ -241,7 +281,11 @@
     ],
     "methods_used": [],
     "formats_referenced": [],
-    "provenance": "scout"
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "9d75c57eeb69838f018fac1aa3e5bc41fbc40b4205598af3b9d49331811991d9",
+      "norm": "a8f2dc3e319d99175e0194658b68703bbc5ebef5dc767a8452533856765a5936"
+    }
   },
   {
     "id": "snippet_012",
@@ -261,7 +305,11 @@
       "Worksheet.Cells"
     ],
     "formats_referenced": [],
-    "provenance": "scout"
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "544eeddceb83e4225e873c2d96f0074f76e55d0cbd00c263dfbf5765b6eb273a",
+      "norm": "3668cddbd7e7992404639f2bfad370169155572ed327e198d52b5eb59c74b4a2"
+    }
   },
   {
     "id": "snippet_013",
@@ -282,7 +330,11 @@
       "Worksheet.Cells"
     ],
     "formats_referenced": [],
-    "provenance": "scout"
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "a8b6ae046ea7a75f556d70ea5e421580d46ffea1bf93e70d338b76549e3feee2",
+      "norm": "d437372e1003e87992254daf9cbde6ab5223b93fc63ddcd2711edcfa3a8e737d"
+    }
   },
   {
     "id": "snippet_014",
@@ -305,7 +357,11 @@
       "Worksheet.Cells"
     ],
     "formats_referenced": [],
-    "provenance": "scout"
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "4379581733c36562f7610e6a15253df0d182ec473bdd1510546a533fa141324b",
+      "norm": "4673884f495875cc4f248f6f9dda06a64e419f64b8f1c5008c67d3ff5b5f56c1"
+    }
   },
   {
     "id": "snippet_015",
@@ -328,7 +384,11 @@
       "Worksheet.Cells"
     ],
     "formats_referenced": [],
-    "provenance": "scout"
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "7ad05f302c84909fda8a8a2110e381482a4e257fc2000febc62e9c7eca86f2c4",
+      "norm": "0acf2352bae416ffc8cf46e184ac4ab242551256866f4fc812e48501d5338291"
+    }
   },
   {
     "id": "snippet_016",
@@ -351,7 +411,11 @@
       "Worksheet.Cells"
     ],
     "formats_referenced": [],
-    "provenance": "scout"
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "23527e4433cf9656c897c978bdb6e34ae90a32de8f0e0eec9d21d5515050e54f",
+      "norm": "2ca04b8a81434fd35c4dbe28820b7b03cec75feab5dc7ee0d571565a6ecfa36b"
+    }
   },
   {
     "id": "snippet_017",
@@ -368,7 +432,11 @@
     "formats_referenced": [
       "streaming"
     ],
-    "provenance": "scout"
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "6418b56e94c40c751318e4b08d1470b538277134df38d9a7599832a18f274a99",
+      "norm": "dbe0d475754144b90c5a1baae7cbf90361dcd9b0f662bbd6e8ec0a3fd4e7e141"
+    }
   },
   {
     "id": "snippet_018",
@@ -393,7 +461,11 @@
       "Worksheet.Cells"
     ],
     "formats_referenced": [],
-    "provenance": "scout"
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "64fe139f3742d5c9b665afa9a4b278305cea5ed6dd7c1c48c84584cfe964b251",
+      "norm": "a5af4882a1c0297923da6136f8abbb90452aaae3f21b60eb931d571ddfab64ed"
+    }
   },
   {
     "id": "snippet_019",
@@ -416,7 +488,11 @@
       "Worksheet.Cells"
     ],
     "formats_referenced": [],
-    "provenance": "scout"
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "933e1bc5bb6d1f713dd27bbd69f09e9993423be1e426c5a47e29ed024fa46347",
+      "norm": "2c346316e89d76887ff00d517930316dd3f6c2faee67f9591280ccb4dbc26e42"
+    }
   },
   {
     "id": "snippet_020",
@@ -433,6 +509,10 @@
       "Workbook.Save"
     ],
     "formats_referenced": [],
-    "provenance": "scout"
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "0c7d9187960ce6891bdf8890030f22dcd0ca0078189c29acb47bd470c739ee5c",
+      "norm": "b53b6e7473721388d90cdba2e4dbb303e8285731dacc916f36601f21fb7e53d7"
+    }
   }
 ]

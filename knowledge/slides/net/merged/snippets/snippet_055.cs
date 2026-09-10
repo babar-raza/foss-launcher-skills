@@ -1,15 +1,18 @@
 [Fact]
-    public void Test_remove_notes()
+    public void APictureFilledShapeCarriesARealRelationshipAndNoInternalMarker()
     {
-        // Removing notes persists.
-        using var pres = new Presentation();
-        var mgr = pres.Slides[0].NotesSlideManager;
-        mgr.AddNotesSlide();
-        mgr.NotesSlide.Should().NotBeNull();
+        var path = _workspace.PathFor("picture-fill.pptx");
 
-        mgr.RemoveNotesSlide();
-        mgr.NotesSlide.Should().BeNull();
+        using (var presentation = new Presentation())
+        {
+            var image = presentation.Images.AddImage(TestWorkspace.Png());
+            var shape = presentation.Slides[0].Shapes!.AddAutoShape(ShapeType.Rectangle, 10, 10, 100, 100);
+            shape.FillFormat!.FillType = FillType.Picture;
+            shape.FillFormat.PictureFillFormat.Picture.Image = image;
+            presentation.Save(path, SaveFormat.Pptx);
+        }
 
-        using var pres2 = TestHelpers.SaveAndReopen(pres, _tempDir);
-        pres2.Slides[0].NotesSlideManager.NotesSlide.Should().BeNull();
+        using var package = PptxPackage.Open(path);
+        PackageAssert.NoInternalMarkerAttributes(package, "ppt/slides/slide1.xml");
+        PackageAssert.AllRelationshipReferencesResolve(package);
     }

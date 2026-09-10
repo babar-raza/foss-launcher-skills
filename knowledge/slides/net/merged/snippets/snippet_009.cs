@@ -1,13 +1,15 @@
 [Fact]
-    public void TestClearComments()
+    public void ANotesSlideIsDeclaredAsANotesSlide()
     {
-        // clear() removes all comments from an author.
-        using var pres = new Presentation();
-        var author = pres.CommentAuthors.AddAuthor("Alice", "A");
-        var slide = pres.Slides[0];
-        var now = DateTime.Now;
-        author.Comments.AddComment("C1", slide, new PointF(1, 1), now);
-        author.Comments.AddComment("C2", slide, new PointF(2, 2), now);
-        author.Comments.Clear();
-        author.Comments.Count.Should().Be(0);
+        var path = _workspace.PathFor("speaker-notes.pptx");
+
+        using (var presentation = new Presentation())
+        {
+            var notes = presentation.Slides[0].NotesSlideManager.AddNotesSlide();
+            notes.NotesTextFrame!.Text = "Speaker notes";
+            presentation.Save(path, SaveFormat.Pptx);
+        }
+
+        using var package = PptxPackage.Open(path);
+        PackageAssert.EveryPartHasItsRequiredContentType(package);
     }

@@ -1,10 +1,9 @@
 [Fact]
-    public void TestCreateTable()
+    public void TestAddStraightConnector()
     {
-        // Create a table and verify row/column counts.
+        // Add a straight connector with correct type.
         using var pres = new Presentation();
-        var slide = BlankSlide(pres);
-        var table = slide.Shapes!.AddTable(50, 50, [100, 150, 200], [40, 40, 40]);
-        table.Rows.Count.Should().Be(3);
-        table.Columns.Count.Should().Be(3);
+        var slide = pres.Slides[0];
+        var conn = slide.Shapes!.AddConnector(ShapeType.StraightConnector1, 100, 100, 300, 200);
+        conn.ShapeType.Should().Be(ShapeType.StraightConnector1);
     }

@@ -1,11 +1,11 @@
 [Fact]
-    public void TestCustomIntProperty()
+    public void AnEnabledSoftEdgeCarriesItsRadius()
     {
-        // Custom integer properties persist.
-        using var pres = new Presentation();
-        pres.DocumentProperties.SetCustomPropertyValue("Count", 42);
+        var path = WriteShapeWithEffect("SoftEdge", "effect-softEdge-rad.pptx");
 
-        using var pres2 = TestHelpers.SaveAndReopen(pres, _tempDir);
-        var value = pres2.DocumentProperties.GetCustomPropertyValue("Count");
-        value.Should().Be(42);
+        using var package = PptxPackage.Open(path);
+        var element = PackageAssert.SingleElement(package, "ppt/slides/slide1.xml", "//a:effectLst/a:softEdge");
+
+        Assert.True(element.Attribute("rad") is not null,
+            $"<a:softEdge> was written as '{element}'. 'rad' is a required attribute of CT_SoftEdgesEffect.");
     }

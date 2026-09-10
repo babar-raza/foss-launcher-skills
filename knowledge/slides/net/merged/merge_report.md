@@ -1,16 +1,17 @@
 # Promote Report: slides/net
-Date: 2026-07-12T14:38:37.775877+00:00
-Scout SHA: bd19e16057b628310b4a04330585d366cb40e9b7
+Date: 2026-09-10T11:07:31.935889+00:00
+Scout SHA: f774962f9f463816bf35c4ee610a9a05791f9c6b
 Source: scout-only (standalone pipeline, no FL dependency)
 
 ## Statistics
 | Metric | Value |
 |--------|-------|
-| Scout claims | 2098 |
-| Enriched claims (S-37) | 2090 |
+| Scout claims | 2096 |
+| Enriched claims (S-37) | 1781 |
 | Supplemental claims (bridge) | 0 |
-| Total claims | 4176 |
+| Total claims | 3873 |
 | Classes | 264 |
+| API surface entries (incl. functions) | 264 |
 | Forbidden claims | 0 |
 | Snippets | 100 |
 

@@ -1,12 +1,18 @@
-private static byte[] createTestPng(int r, int g, int b) throws IOException {
-        BufferedImage buffered = new BufferedImage(10, 10, BufferedImage.TYPE_INT_ARGB);
-        int argb = (255 << 24) | (r << 16) | (g << 8) | b;
-        for (int y = 0; y < 10; y++) {
-            for (int x = 0; x < 10; x++) {
-                buffered.setRGB(x, y, argb);
-            }
-        }
-        ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        ImageIO.write(buffered, "png", baos);
-        return baos.toByteArray();
+@Test
+    void removingSpeakerNotesMustNotLeaveTheNotesPartDeclared() throws Exception {
+        Path withNotes = tempDir.resolve("with-notes.pptx");
+        try (var pres = new Presentation()) {
+            pres.getSlides().get(0).getNotesSlideManager().addNotesSlide()
+                    .getNotesTextFrame().setText("Speaker notes go here.");
+            pres.save(withNotes.toString(), SaveFormat.PPTX);
+        }
+
+        Path removed = tempDir.resolve("notes-removed.pptx");
+        try (var pres = new Presentation(withNotes.toString())) {
+            pres.getSlides().get(0).getNotesSlideManager().removeNotesSlide();
+            pres.save(removed.toString(), SaveFormat.PPTX);
+        }
+
+        assertNothingRefersToAMissingPart(removed);
+        ThirdPartyReadBack.assertOpens(removed);
     }

@@ -1,16 +1,17 @@
 # Promote Report: html/python
-Date: 2026-07-25T15:50:47.651515+00:00
-Scout SHA: c2356ec872fd7d64c14a0ae8cc043eea1a03847e
+Date: 2026-09-10T11:07:28.135963+00:00
+Scout SHA: 912f0ae078b5418226a51de08539bc591547682e
 Source: scout-only (standalone pipeline, no FL dependency)
 
 ## Statistics
 | Metric | Value |
 |--------|-------|
 | Scout claims | 2012 |
-| Enriched claims (S-37) | 132 |
+| Enriched claims (S-37) | 288 |
 | Supplemental claims (bridge) | 0 |
-| Total claims | 2144 |
-| Classes | 292 |
+| Total claims | 2300 |
+| Classes | 244 |
+| API surface entries (incl. functions) | 292 |
 | Forbidden claims | 14 |
 | Snippets | 100 |
 

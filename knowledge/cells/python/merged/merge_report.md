@@ -1,5 +1,5 @@
 # Promote Report: cells/python
-Date: 2026-08-18T18:25:45.794934+00:00
+Date: 2026-09-10T11:07:24.212625+00:00
 Scout SHA: 26c3bd1633e84b91c0f6fad1fd353662fd61fb54
 Source: scout-only (standalone pipeline, no FL dependency)
 
@@ -10,7 +10,8 @@ Source: scout-only (standalone pipeline, no FL dependency)
 | Enriched claims (S-37) | 0 |
 | Supplemental claims (bridge) | 0 |
 | Total claims | 1313 |
-| Classes | 141 |
+| Classes | 129 |
+| API surface entries (incl. functions) | 141 |
 | Forbidden claims | 5 |
 | Snippets | 100 |
 

@@ -9,7 +9,9 @@
     "methods": [],
     "properties": [],
     "visibility": "exported",
-    "reachable": true
+    "reachable": true,
+    "module_key": "aspose",
+    "module_label": "Aspose"
   },
   {
     "name": "StreamingReader",
@@ -40,7 +42,9 @@
     ],
     "properties": [],
     "visibility": "exported",
-    "reachable": true
+    "reachable": true,
+    "module_key": "aspose",
+    "module_label": "Aspose"
   },
   {
     "name": "NewStreamingReader",
@@ -58,7 +62,9 @@
       }
     ],
     "return_type": "*StreamingReader",
-    "reachable": true
+    "reachable": true,
+    "module_key": "aspose",
+    "module_label": "Aspose"
   },
   {
     "name": "LoadWorkbook",
@@ -76,7 +82,9 @@
       }
     ],
     "return_type": "(*Workbook, error)",
-    "reachable": true
+    "reachable": true,
+    "module_key": "aspose",
+    "module_label": "Aspose"
   },
   {
     "name": "LoadWithPassword",
@@ -98,7 +106,9 @@
       }
     ],
     "return_type": "(*Workbook, error)",
-    "reachable": true
+    "reachable": true,
+    "module_key": "aspose",
+    "module_label": "Aspose"
   },
   {
     "name": "Close",
@@ -112,7 +122,9 @@
     "params": [],
     "return_type": "error",
     "reachable": true,
-    "receiver_type": "zipReadCloserAdapter"
+    "receiver_type": "zipReadCloserAdapter",
+    "module_key": "aspose",
+    "module_label": "Aspose"
   },
   {
     "name": "SaveWorkbook",
@@ -134,7 +146,9 @@
       }
     ],
     "return_type": "error",
-    "reachable": true
+    "reachable": true,
+    "module_key": "aspose",
+    "module_label": "Aspose"
   },
   {
     "name": "Cell",
@@ -244,7 +258,9 @@
       }
     ],
     "visibility": "exported",
-    "reachable": true
+    "reachable": true,
+    "module_key": "aspose",
+    "module_label": "Aspose"
   },
   {
     "name": "Cells",
@@ -312,7 +328,9 @@
     ],
     "properties": [],
     "visibility": "exported",
-    "reachable": true
+    "reachable": true,
+    "module_key": "aspose",
+    "module_label": "Aspose"
   },
   {
     "name": "CellToString",
@@ -330,7 +348,9 @@
       }
     ],
     "return_type": "string",
-    "reachable": true
+    "reachable": true,
+    "module_key": "aspose",
+    "module_label": "Aspose"
   },
   {
     "name": "DataValidation",
@@ -433,7 +453,9 @@
       }
     ],
     "visibility": "exported",
-    "reachable": true
+    "reachable": true,
+    "module_key": "aspose",
+    "module_label": "Aspose"
   },
   {
     "name": "CalculateFormula",
@@ -455,7 +477,9 @@
       }
     ],
     "return_type": "(interface{}, error)",
-    "reachable": true
+    "reachable": true,
+    "module_key": "aspose",
+    "module_label": "Aspose"
   },
   {
     "name": "Picture",
@@ -577,7 +601,9 @@
       }
     ],
     "visibility": "exported",
-    "reachable": true
+    "reachable": true,
+    "module_key": "aspose",
+    "module_label": "Aspose"
   },
   {
     "name": "NewPicture",
@@ -599,7 +625,9 @@
       }
     ],
     "return_type": "*Picture",
-    "reachable": true
+    "reachable": true,
+    "module_key": "aspose",
+    "module_label": "Aspose"
   },
   {
     "name": "Font",
@@ -662,7 +690,9 @@
       }
     ],
     "visibility": "exported",
-    "reachable": true
+    "reachable": true,
+    "module_key": "aspose",
+    "module_label": "Aspose"
   },
   {
     "name": "Fill",
@@ -695,7 +725,9 @@
       }
     ],
     "visibility": "exported",
-    "reachable": true
+    "reachable": true,
+    "module_key": "aspose",
+    "module_label": "Aspose"
   },
   {
     "name": "Alignment",
@@ -738,7 +770,9 @@
       }
     ],
     "visibility": "exported",
-    "reachable": true
+    "reachable": true,
+    "module_key": "aspose",
+    "module_label": "Aspose"
   },
   {
     "name": "Border",
@@ -801,7 +835,9 @@
       }
     ],
     "visibility": "exported",
-    "reachable": true
+    "reachable": true,
+    "module_key": "aspose",
+    "module_label": "Aspose"
   },
   {
     "name": "Style",
@@ -854,7 +890,9 @@
       }
     ],
     "visibility": "exported",
-    "reachable": true
+    "reachable": true,
+    "module_key": "aspose",
+    "module_label": "Aspose"
   },
   {
     "name": "NewStyle",
@@ -867,7 +905,9 @@
     "properties": [],
     "params": [],
     "return_type": "*Style",
-    "reachable": true
+    "reachable": true,
+    "module_key": "aspose",
+    "module_label": "Aspose"
   },
   {
     "name": "DefaultStyle",
@@ -880,7 +920,9 @@
     "properties": [],
     "params": [],
     "return_type": "*Style",
-    "reachable": true
+    "reachable": true,
+    "module_key": "aspose",
+    "module_label": "Aspose"
   },
   {
     "name": "Table",
@@ -933,7 +975,9 @@
       }
     ],
     "visibility": "exported",
-    "reachable": true
+    "reachable": true,
+    "module_key": "aspose",
+    "module_label": "Aspose"
   },
   {
     "name": "NewTable",
@@ -955,7 +999,9 @@
       }
     ],
     "return_type": "*Table",
-    "reachable": true
+    "reachable": true,
+    "module_key": "aspose",
+    "module_label": "Aspose"
   },
   {
     "name": "WriteTestXLSX",
@@ -981,7 +1027,9 @@
       }
     ],
     "return_type": "error",
-    "reachable": true
+    "reachable": true,
+    "module_key": "aspose",
+    "module_label": "Aspose"
   },
   {
     "name": "ReadTestZipEntry",
@@ -1003,7 +1051,9 @@
       }
     ],
     "return_type": "([]byte, error)",
-    "reachable": true
+    "reachable": true,
+    "module_key": "aspose",
+    "module_label": "Aspose"
   },
   {
     "name": "MinimalPNG",
@@ -1016,7 +1066,9 @@
     "properties": [],
     "params": [],
     "return_type": "[]byte",
-    "reachable": true
+    "reachable": true,
+    "module_key": "aspose",
+    "module_label": "Aspose"
   },
   {
     "name": "Workbook",
@@ -1166,7 +1218,9 @@
       }
     ],
     "visibility": "exported",
-    "reachable": true
+    "reachable": true,
+    "module_key": "aspose",
+    "module_label": "Aspose"
   },
   {
     "name": "Load",
@@ -1184,7 +1238,9 @@
       }
     ],
     "return_type": "(*Workbook, error)",
-    "reachable": true
+    "reachable": true,
+    "module_key": "aspose",
+    "module_label": "Aspose"
   },
   {
     "name": "NewWorkbook",
@@ -1197,7 +1253,9 @@
     "properties": [],
     "params": [],
     "return_type": "*Workbook",
-    "reachable": true
+    "reachable": true,
+    "module_key": "aspose",
+    "module_label": "Aspose"
   },
   {
     "name": "Worksheet",
@@ -1376,7 +1434,9 @@
       }
     ],
     "visibility": "exported",
-    "reachable": true
+    "reachable": true,
+    "module_key": "aspose",
+    "module_label": "Aspose"
   },
   {
     "name": "ReadAt",
@@ -1399,6 +1459,8 @@
     ],
     "return_type": "(int, error)",
     "reachable": true,
-    "receiver_type": "byteReader"
+    "receiver_type": "byteReader",
+    "module_key": "verify",
+    "module_label": "Verify"
   }
 ]

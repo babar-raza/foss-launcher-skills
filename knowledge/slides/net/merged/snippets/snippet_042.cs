@@ -1,8 +1,5 @@
-[Fact]
-    public void TestAddImage()
-    {
-        // Adding an image increases collection count.
-        using var pres = new Presentation();
-        pres.Images.AddImage(TestHelpers.CreateTestPng(255, 0, 0));
-        pres.Images.Count.Should().BeGreaterThanOrEqualTo(1);
-    }
+private static bool IsMasterPart(string partName) =>
+        (partName.StartsWith("ppt/slideMasters/", StringComparison.Ordinal)
+            || partName.StartsWith("ppt/notesMasters/", StringComparison.Ordinal)
+            || partName.StartsWith("ppt/handoutMasters/", StringComparison.Ordinal))
+        && partName.EndsWith(".xml", StringComparison.Ordinal);

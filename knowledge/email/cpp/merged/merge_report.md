@@ -1,5 +1,5 @@
 # Promote Report: email/cpp
-Date: 2026-07-12T14:38:29.119851+00:00
+Date: 2026-09-10T11:07:25.410616+00:00
 Scout SHA: c7252b3e4f6bbec4bbe5e2f50f51eb2a7384eaf2
 Source: scout-only (standalone pipeline, no FL dependency)
 
@@ -11,6 +11,7 @@ Source: scout-only (standalone pipeline, no FL dependency)
 | Supplemental claims (bridge) | 0 |
 | Total claims | 237 |
 | Classes | 26 |
+| API surface entries (incl. functions) | 26 |
 | Forbidden claims | 0 |
 | Snippets | 5 |
 

@@ -1,12 +1,18 @@
 [Fact]
-    public void TestImageFromFile()
+    public void AnEmptyDeckIsAWellFormedPackage()
     {
-        // Load an image from the test_data directory.
-        var imgPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "test_data", "lotus.png");
+        var path = _workspace.PathFor("empty.pptx");
 
-        using var pres = new Presentation();
-        var imageData = File.ReadAllBytes(imgPath);
-        var ppImg = pres.Images.AddImage(imageData);
-        pres.Slides[0].Shapes!.AddPictureFrame(ShapeType.Rectangle, 50, 50, 200, 200, ppImg);
-        pres.Slides[0].Shapes!.Count.Should().BeGreaterThanOrEqualTo(1);
+        using (var presentation = new Presentation())
+        {
+            presentation.Save(path, SaveFormat.Pptx);
+        }
+
+        using var package = PptxPackage.Open(path);
+        PackageAssert.EveryPartResolvesAContentType(package);
+        PackageAssert.EveryPartHasItsRequiredContentType(package);
+        PackageAssert.NoOverrideNamesAMissingPart(package);
+        PackageAssert.EveryInternalRelationshipTargetExists(package);
+        PackageAssert.AllRelationshipReferencesResolve(package);
+        SchemaValidation.HasNoSchemaErrors(path);
     }

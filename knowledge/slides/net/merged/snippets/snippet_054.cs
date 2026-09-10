@@ -1,14 +1,19 @@
 [Fact]
-    public void Test_add_notes()
+    public void AnEmbeddedImageDeclaresItsContentType()
     {
-        // Notes text persists after save/reload.
-        using var pres = new Presentation();
-        var slide = pres.Slides[0];
-        var notes = slide.NotesSlideManager.AddNotesSlide();
-        notes.NotesTextFrame.Text = "Speaker notes";
+        var path = _workspace.PathFor("picture-content-type.pptx");
 
-        using var pres2 = TestHelpers.SaveAndReopen(pres, _tempDir);
-        var ns2 = pres2.Slides[0].NotesSlideManager.NotesSlide;
-        ns2.Should().NotBeNull();
-        ns2!.NotesTextFrame.Text.Should().Be("Speaker notes");
+        using (var presentation = new Presentation())
+        {
+            var image = presentation.Images.AddImage(TestWorkspace.Png());
+            presentation.Slides[0].Shapes!.AddPictureFrame(ShapeType.Rectangle, 50, 50, 100, 100, image);
+            presentation.Save(path, SaveFormat.Pptx);
+        }
+
+        using var package = PptxPackage.Open(path);
+
+        var media = package.PartNames.Where(n => n.StartsWith("ppt/media/", StringComparison.Ordinal)).ToList();
+        Assert.True(media.Count > 0, $"No media part was written. Parts: {string.Join(", ", package.PartNames)}");
+
+        PackageAssert.EveryPartHasItsRequiredContentType(package);
     }

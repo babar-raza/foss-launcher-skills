@@ -1,10 +1,14 @@
 @Test
-    void testReorderShapes() {
+    void testRemoveAuthor() throws IOException {
         try (var pres = new Presentation()) {
-            var slide = blankSlide(pres);
-            slide.getShapes().addAutoShape(ShapeType.RECTANGLE, 50, 50, 200, 100);
-            var ellipse = slide.getShapes().addAutoShape(ShapeType.ELLIPSE, 300, 50, 150, 150);
-            slide.getShapes().reorder(0, ellipse);
-            assertThat(slide.getShapes().get(0).getShapeType()).isEqualTo(ShapeType.ELLIPSE);
+            pres.getCommentAuthors().addAuthor("Alice", "A");
+            pres.getCommentAuthors().addAuthor("Bob", "B");
+            pres.getCommentAuthors().remove(pres.getCommentAuthors().get(0));
+            assertThat(pres.getCommentAuthors().size()).isEqualTo(1);
+
+            try (var pres2 = saveAndReopen(pres)) {
+                assertThat(pres2.getCommentAuthors().size()).isEqualTo(1);
+                assertThat(pres2.getCommentAuthors().get(0).getName()).isEqualTo("Bob");
+            }
         }
     }

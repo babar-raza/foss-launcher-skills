@@ -1,9 +1,14 @@
 @Test
-    void testIndexOf() {
-        try (var pres = new Presentation()) {
-            ILayoutSlide layout = pres.getLayoutSlides().get(0);
-            pres.getSlides().addEmptySlide(layout);
-            assertThat(pres.getSlides().indexOf(pres.getSlides().get(0))).isEqualTo(0);
-            assertThat(pres.getSlides().indexOf(pres.getSlides().get(1))).isEqualTo(1);
+    void testRemoveCustomProperty() {
+        try (Presentation pres = new Presentation()) {
+            IDocumentProperties props = pres.getDocumentProperties();
+            props.setCustomPropertyValue("A", "val");
+            props.setCustomPropertyValue("B", "val");
+            assertThat(props.getCountOfCustomProperties()).isEqualTo(2);
+
+            props.removeCustomProperty("A");
+            assertThat(props.getCountOfCustomProperties()).isEqualTo(1);
+            assertThat(props.containsCustomProperty("A")).isFalse();
+            assertThat(props.containsCustomProperty("B")).isTrue();
         }
     }

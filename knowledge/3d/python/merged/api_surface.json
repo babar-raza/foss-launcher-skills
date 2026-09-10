@@ -400,7 +400,9 @@
     "canonical_namespace": "threed.FileFormat",
     "class_import": "threed.FileFormat.FileFormat",
     "exported_via_package_init": true,
-    "public_import_module": "threed"
+    "public_import_module": "threed",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "FileFormatType",
@@ -444,7 +446,9 @@
     "canonical_namespace": "threed.FileFormatType",
     "class_import": "threed.FileFormatType.FileFormatType",
     "exported_via_package_init": true,
-    "public_import_module": "threed"
+    "public_import_module": "threed",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "DracoFormat",
@@ -462,7 +466,9 @@
     "canonical_namespace": "threed.formats.DracoFormat",
     "class_import": "threed.formats.DracoFormat.DracoFormat",
     "exported_via_package_init": true,
-    "public_import_module": "threed.formats"
+    "public_import_module": "threed.formats",
+    "module_key": "formats",
+    "module_label": "Formats"
   },
   {
     "name": "Exporter",
@@ -534,7 +540,9 @@
     "canonical_namespace": "threed.formats.Exporter",
     "class_import": "threed.formats.Exporter.Exporter",
     "exported_via_package_init": true,
-    "public_import_module": "threed.formats"
+    "public_import_module": "threed.formats",
+    "module_key": "formats",
+    "module_label": "Formats"
   },
   {
     "name": "FormatDetector",
@@ -585,7 +593,9 @@
     "canonical_namespace": "threed.formats.FormatDetector",
     "class_import": "threed.formats.FormatDetector.FormatDetector",
     "exported_via_package_init": true,
-    "public_import_module": "threed.formats"
+    "public_import_module": "threed.formats",
+    "module_key": "formats",
+    "module_label": "Formats"
   },
   {
     "name": "GltfEmbeddedImageFormat",
@@ -603,7 +613,9 @@
     "canonical_namespace": "threed.formats.GltfEmbeddedImageFormat",
     "class_import": "threed.formats.GltfEmbeddedImageFormat.GltfEmbeddedImageFormat",
     "exported_via_package_init": true,
-    "public_import_module": "threed.formats"
+    "public_import_module": "threed.formats",
+    "module_key": "formats",
+    "module_label": "Formats"
   },
   {
     "name": "Importer",
@@ -675,7 +687,9 @@
     "canonical_namespace": "threed.formats.Importer",
     "class_import": "threed.formats.Importer.Importer",
     "exported_via_package_init": true,
-    "public_import_module": "threed.formats"
+    "public_import_module": "threed.formats",
+    "module_key": "formats",
+    "module_label": "Formats"
   },
   {
     "name": "Microsoft3MFFormat",
@@ -693,7 +707,9 @@
     "canonical_namespace": "threed.formats.Microsoft3MFFormat",
     "class_import": "threed.formats.Microsoft3MFFormat.Microsoft3MFFormat",
     "exported_via_package_init": true,
-    "public_import_module": "threed.formats"
+    "public_import_module": "threed.formats",
+    "module_key": "formats",
+    "module_label": "Formats"
   },
   {
     "name": "PdfFormat",
@@ -711,7 +727,9 @@
     "canonical_namespace": "threed.formats.PdfFormat",
     "class_import": "threed.formats.PdfFormat.PdfFormat",
     "exported_via_package_init": true,
-    "public_import_module": "threed.formats"
+    "public_import_module": "threed.formats",
+    "module_key": "formats",
+    "module_label": "Formats"
   },
   {
     "name": "PlyFormat",
@@ -729,7 +747,9 @@
     "canonical_namespace": "threed.formats.PlyFormat",
     "class_import": "threed.formats.PlyFormat.PlyFormat",
     "exported_via_package_init": true,
-    "public_import_module": "threed.formats"
+    "public_import_module": "threed.formats",
+    "module_key": "formats",
+    "module_label": "Formats"
   },
   {
     "name": "RvmFormat",
@@ -747,7 +767,9 @@
     "canonical_namespace": "threed.formats.RvmFormat",
     "class_import": "threed.formats.RvmFormat.RvmFormat",
     "exported_via_package_init": true,
-    "public_import_module": "threed.formats"
+    "public_import_module": "threed.formats",
+    "module_key": "formats",
+    "module_label": "Formats"
   },
   {
     "name": "ColladaExporter",
@@ -834,7 +856,9 @@
     "deprecated": false,
     "deprecated_reason": "",
     "canonical_namespace": "threed.formats.collada.ColladaExporter",
-    "class_import": "threed.formats.collada.ColladaExporter.ColladaExporter"
+    "class_import": "threed.formats.collada.ColladaExporter.ColladaExporter",
+    "module_key": "formats",
+    "module_label": "Formats"
   },
   {
     "name": "ColladaFormat",
@@ -1039,7 +1063,9 @@
     "deprecated": false,
     "deprecated_reason": "",
     "canonical_namespace": "threed.formats.collada.ColladaFormat",
-    "class_import": "threed.formats.collada.ColladaFormat.ColladaFormat"
+    "class_import": "threed.formats.collada.ColladaFormat.ColladaFormat",
+    "module_key": "formats",
+    "module_label": "Formats"
   },
   {
     "name": "ColladaFormatDetector",
@@ -1089,7 +1115,9 @@
     "deprecated": false,
     "deprecated_reason": "",
     "canonical_namespace": "threed.formats.collada.ColladaFormatDetector",
-    "class_import": "threed.formats.collada.ColladaFormatDetector.ColladaFormatDetector"
+    "class_import": "threed.formats.collada.ColladaFormatDetector.ColladaFormatDetector",
+    "module_key": "formats",
+    "module_label": "Formats"
   },
   {
     "name": "ColladaImporter",
@@ -1201,7 +1229,9 @@
     "deprecated": false,
     "deprecated_reason": "",
     "canonical_namespace": "threed.formats.collada.ColladaImporter",
-    "class_import": "threed.formats.collada.ColladaImporter.ColladaImporter"
+    "class_import": "threed.formats.collada.ColladaImporter.ColladaImporter",
+    "module_key": "formats",
+    "module_label": "Formats"
   },
   {
     "name": "FbxExporter",
@@ -1323,7 +1353,9 @@
     "deprecated": false,
     "deprecated_reason": "",
     "canonical_namespace": "threed.formats.fbx.FbxExporter",
-    "class_import": "threed.formats.fbx.FbxExporter.FbxExporter"
+    "class_import": "threed.formats.fbx.FbxExporter.FbxExporter",
+    "module_key": "formats",
+    "module_label": "Formats"
   },
   {
     "name": "FbxFormat",
@@ -1528,7 +1560,9 @@
     "deprecated": false,
     "deprecated_reason": "",
     "canonical_namespace": "threed.formats.fbx.FbxFormat",
-    "class_import": "threed.formats.fbx.FbxFormat.FbxFormat"
+    "class_import": "threed.formats.fbx.FbxFormat.FbxFormat",
+    "module_key": "formats",
+    "module_label": "Formats"
   },
   {
     "name": "FbxFormatDetector",
@@ -1578,7 +1612,9 @@
     "deprecated": false,
     "deprecated_reason": "",
     "canonical_namespace": "threed.formats.fbx.FbxFormatDetector",
-    "class_import": "threed.formats.fbx.FbxFormatDetector.FbxFormatDetector"
+    "class_import": "threed.formats.fbx.FbxFormatDetector.FbxFormatDetector",
+    "module_key": "formats",
+    "module_label": "Formats"
   },
   {
     "name": "FbxImporter",
@@ -1730,7 +1766,9 @@
     "deprecated": false,
     "deprecated_reason": "",
     "canonical_namespace": "threed.formats.fbx.FbxImporter",
-    "class_import": "threed.formats.fbx.FbxImporter.FbxImporter"
+    "class_import": "threed.formats.fbx.FbxImporter.FbxImporter",
+    "module_key": "formats",
+    "module_label": "Formats"
   },
   {
     "name": "GltfExporter",
@@ -1835,7 +1873,9 @@
     "canonical_namespace": "threed.formats.gltf.GltfExporter",
     "class_import": "threed.formats.gltf.GltfExporter.GltfExporter",
     "exported_via_package_init": true,
-    "public_import_module": "threed.formats.gltf"
+    "public_import_module": "threed.formats.gltf",
+    "module_key": "formats",
+    "module_label": "Formats"
   },
   {
     "name": "GltfFormat",
@@ -1949,7 +1989,9 @@
     "canonical_namespace": "threed.formats.gltf.GltfFormat",
     "class_import": "threed.formats.gltf.GltfFormat.GltfFormat",
     "exported_via_package_init": true,
-    "public_import_module": "threed.formats.gltf"
+    "public_import_module": "threed.formats.gltf",
+    "module_key": "formats",
+    "module_label": "Formats"
   },
   {
     "name": "GltfFormatDetector",
@@ -2022,7 +2064,9 @@
     "canonical_namespace": "threed.formats.gltf.GltfFormatDetector",
     "class_import": "threed.formats.gltf.GltfFormatDetector.GltfFormatDetector",
     "exported_via_package_init": true,
-    "public_import_module": "threed.formats.gltf"
+    "public_import_module": "threed.formats.gltf",
+    "module_key": "formats",
+    "module_label": "Formats"
   },
   {
     "name": "GltfImporter",
@@ -2136,7 +2180,9 @@
     "canonical_namespace": "threed.formats.gltf.GltfImporter",
     "class_import": "threed.formats.gltf.GltfImporter.GltfImporter",
     "exported_via_package_init": true,
-    "public_import_module": "threed.formats.gltf"
+    "public_import_module": "threed.formats.gltf",
+    "module_key": "formats",
+    "module_label": "Formats"
   },
   {
     "name": "ObjExporter",
@@ -2223,7 +2269,9 @@
     "deprecated": false,
     "deprecated_reason": "",
     "canonical_namespace": "threed.formats.obj.ObjExporter",
-    "class_import": "threed.formats.obj.ObjExporter.ObjExporter"
+    "class_import": "threed.formats.obj.ObjExporter.ObjExporter",
+    "module_key": "formats",
+    "module_label": "Formats"
   },
   {
     "name": "ObjFormat",
@@ -2428,7 +2476,9 @@
     "deprecated": false,
     "deprecated_reason": "",
     "canonical_namespace": "threed.formats.obj.ObjFormat",
-    "class_import": "threed.formats.obj.ObjFormat.ObjFormat"
+    "class_import": "threed.formats.obj.ObjFormat.ObjFormat",
+    "module_key": "formats",
+    "module_label": "Formats"
   },
   {
     "name": "ObjFormatDetector",
@@ -2478,7 +2528,9 @@
     "deprecated": false,
     "deprecated_reason": "",
     "canonical_namespace": "threed.formats.obj.ObjFormatDetector",
-    "class_import": "threed.formats.obj.ObjFormatDetector.ObjFormatDetector"
+    "class_import": "threed.formats.obj.ObjFormatDetector.ObjFormatDetector",
+    "module_key": "formats",
+    "module_label": "Formats"
   },
   {
     "name": "ObjImporter",
@@ -2590,7 +2642,9 @@
     "deprecated": false,
     "deprecated_reason": "",
     "canonical_namespace": "threed.formats.obj.ObjImporter",
-    "class_import": "threed.formats.obj.ObjImporter.ObjImporter"
+    "class_import": "threed.formats.obj.ObjImporter.ObjImporter",
+    "module_key": "formats",
+    "module_label": "Formats"
   },
   {
     "name": "StlExporter",
@@ -2720,7 +2774,9 @@
     "canonical_namespace": "threed.formats.stl.StlExporter",
     "class_import": "threed.formats.stl.StlExporter.StlExporter",
     "exported_via_package_init": true,
-    "public_import_module": "threed.formats.stl"
+    "public_import_module": "threed.formats.stl",
+    "module_key": "formats",
+    "module_label": "Formats"
   },
   {
     "name": "StlFormat",
@@ -2834,7 +2890,9 @@
     "canonical_namespace": "threed.formats.stl.StlFormat",
     "class_import": "threed.formats.stl.StlFormat.StlFormat",
     "exported_via_package_init": true,
-    "public_import_module": "threed.formats.stl"
+    "public_import_module": "threed.formats.stl",
+    "module_key": "formats",
+    "module_label": "Formats"
   },
   {
     "name": "StlFormatDetector",
@@ -2905,7 +2963,9 @@
     "deprecated": false,
     "deprecated_reason": "",
     "canonical_namespace": "threed.formats.stl.StlFormatDetector",
-    "class_import": "threed.formats.stl.StlFormatDetector.StlFormatDetector"
+    "class_import": "threed.formats.stl.StlFormatDetector.StlFormatDetector",
+    "module_key": "formats",
+    "module_label": "Formats"
   },
   {
     "name": "StlImporter",
@@ -3019,7 +3079,9 @@
     "canonical_namespace": "threed.formats.stl.StlImporter",
     "class_import": "threed.formats.stl.StlImporter.StlImporter",
     "exported_via_package_init": true,
-    "public_import_module": "threed.formats.stl"
+    "public_import_module": "threed.formats.stl",
+    "module_key": "formats",
+    "module_label": "Formats"
   },
   {
     "name": "ThreeMfExporter",
@@ -3151,7 +3213,9 @@
     "deprecated": false,
     "deprecated_reason": "",
     "canonical_namespace": "threed.formats.threemf.ThreeMfExporter",
-    "class_import": "threed.formats.threemf.ThreeMfExporter.ThreeMfExporter"
+    "class_import": "threed.formats.threemf.ThreeMfExporter.ThreeMfExporter",
+    "module_key": "formats",
+    "module_label": "Formats"
   },
   {
     "name": "ThreeMfFormat",
@@ -3359,7 +3423,9 @@
     "canonical_namespace": "threed.formats.threemf.ThreeMfFormat",
     "class_import": "threed.formats.threemf.ThreeMfFormat.ThreeMfFormat",
     "exported_via_package_init": true,
-    "public_import_module": "threed.formats"
+    "public_import_module": "threed.formats",
+    "module_key": "formats",
+    "module_label": "Formats"
   },
   {
     "name": "ThreeMfFormatDetector",
@@ -3411,7 +3477,9 @@
     "canonical_namespace": "threed.formats.threemf.ThreeMfFormatDetector",
     "class_import": "threed.formats.threemf.ThreeMfFormatDetector.ThreeMfFormatDetector",
     "exported_via_package_init": true,
-    "public_import_module": "threed.formats.threemf"
+    "public_import_module": "threed.formats.threemf",
+    "module_key": "formats",
+    "module_label": "Formats"
   },
   {
     "name": "ThreeMfImporter",
@@ -3523,7 +3591,9 @@
     "deprecated": false,
     "deprecated_reason": "",
     "canonical_namespace": "threed.formats.threemf.ThreeMfImporter",
-    "class_import": "threed.formats.threemf.ThreeMfImporter.ThreeMfImporter"
+    "class_import": "threed.formats.threemf.ThreeMfImporter.ThreeMfImporter",
+    "module_key": "formats",
+    "module_label": "Formats"
   },
   {
     "name": "PixelFormat",
@@ -3567,7 +3637,9 @@
     "canonical_namespace": "threed.render.PixelFormat",
     "class_import": "threed.render.PixelFormat.PixelFormat",
     "exported_via_package_init": true,
-    "public_import_module": "threed.render"
+    "public_import_module": "threed.render",
+    "module_key": "render",
+    "module_label": "Render"
   },
   {
     "name": "A3DObject",
@@ -3692,7 +3764,9 @@
     "canonical_namespace": "threed.A3DObject",
     "class_import": "threed.A3DObject.A3DObject",
     "exported_via_package_init": true,
-    "public_import_module": "threed"
+    "public_import_module": "threed",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "AssetInfo",
@@ -3997,7 +4071,9 @@
     "canonical_namespace": "threed.AssetInfo",
     "class_import": "threed.AssetInfo.AssetInfo",
     "exported_via_package_init": true,
-    "public_import_module": "threed"
+    "public_import_module": "threed",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "Axis",
@@ -4041,7 +4117,9 @@
     "canonical_namespace": "threed.Axis",
     "class_import": "threed.Axis.Axis",
     "exported_via_package_init": true,
-    "public_import_module": "threed"
+    "public_import_module": "threed",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "AxisSystem",
@@ -4129,7 +4207,9 @@
     "canonical_namespace": "threed.AxisSystem",
     "class_import": "threed.AxisSystem.AxisSystem",
     "exported_via_package_init": true,
-    "public_import_module": "threed"
+    "public_import_module": "threed",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "BonePose",
@@ -4292,7 +4372,9 @@
     "canonical_namespace": "threed.BonePose",
     "class_import": "threed.BonePose.BonePose",
     "exported_via_package_init": true,
-    "public_import_module": "threed"
+    "public_import_module": "threed",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "CoordinateSystem",
@@ -4320,7 +4402,9 @@
     "canonical_namespace": "threed.CoordinateSystem",
     "class_import": "threed.CoordinateSystem.CoordinateSystem",
     "exported_via_package_init": true,
-    "public_import_module": "threed"
+    "public_import_module": "threed",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "CustomObject",
@@ -4445,7 +4529,9 @@
     "canonical_namespace": "threed.CustomObject",
     "class_import": "threed.CustomObject.CustomObject",
     "exported_via_package_init": true,
-    "public_import_module": "threed"
+    "public_import_module": "threed",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "Entity",
@@ -4632,7 +4718,9 @@
     "canonical_namespace": "threed.Entity",
     "class_import": "threed.Entity.Entity",
     "exported_via_package_init": true,
-    "public_import_module": "threed"
+    "public_import_module": "threed",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "ExportException",
@@ -4669,7 +4757,9 @@
     "canonical_namespace": "threed.ExportException",
     "class_import": "threed.ExportException.ExportException",
     "exported_via_package_init": true,
-    "public_import_module": "threed"
+    "public_import_module": "threed",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "FileContentType",
@@ -4708,7 +4798,9 @@
     "canonical_namespace": "threed.FileContentType",
     "class_import": "threed.FileContentType.FileContentType",
     "exported_via_package_init": true,
-    "public_import_module": "threed"
+    "public_import_module": "threed",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "GlobalTransform",
@@ -4789,7 +4881,9 @@
     "canonical_namespace": "threed.GlobalTransform",
     "class_import": "threed.GlobalTransform.GlobalTransform",
     "exported_via_package_init": true,
-    "public_import_module": "threed"
+    "public_import_module": "threed",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "Group",
@@ -4938,7 +5032,9 @@
     "canonical_namespace": "threed.Group",
     "class_import": "threed.Group.Group",
     "exported_via_package_init": true,
-    "public_import_module": "threed"
+    "public_import_module": "threed",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "INamedObject",
@@ -4966,7 +5062,9 @@
     "canonical_namespace": "threed.INamedObject",
     "class_import": "threed.INamedObject.INamedObject",
     "exported_via_package_init": true,
-    "public_import_module": "threed"
+    "public_import_module": "threed",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "ImageRenderOptions",
@@ -5129,7 +5227,9 @@
     "canonical_namespace": "threed.ImageRenderOptions",
     "class_import": "threed.ImageRenderOptions.ImageRenderOptions",
     "exported_via_package_init": true,
-    "public_import_module": "threed"
+    "public_import_module": "threed",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "ImportException",
@@ -5166,7 +5266,9 @@
     "canonical_namespace": "threed.ImportException",
     "class_import": "threed.ImportException.ImportException",
     "exported_via_package_init": true,
-    "public_import_module": "threed"
+    "public_import_module": "threed",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "Node",
@@ -5594,7 +5696,9 @@
     "canonical_namespace": "threed.Node",
     "class_import": "threed.Node.Node",
     "exported_via_package_init": true,
-    "public_import_module": "threed"
+    "public_import_module": "threed",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "Pose",
@@ -5762,7 +5866,9 @@
     "canonical_namespace": "threed.Pose",
     "class_import": "threed.Pose.Pose",
     "exported_via_package_init": true,
-    "public_import_module": "threed"
+    "public_import_module": "threed",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "PoseType",
@@ -5792,7 +5898,9 @@
     "canonical_namespace": "threed.PoseType",
     "class_import": "threed.PoseType.PoseType",
     "exported_via_package_init": true,
-    "public_import_module": "threed"
+    "public_import_module": "threed",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "Property",
@@ -5936,7 +6044,9 @@
     "canonical_namespace": "threed.Property",
     "class_import": "threed.Property.Property",
     "exported_via_package_init": true,
-    "public_import_module": "threed"
+    "public_import_module": "threed",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "PropertyCollection",
@@ -6024,7 +6134,9 @@
     "canonical_namespace": "threed.PropertyCollection",
     "class_import": "threed.PropertyCollection.PropertyCollection",
     "exported_via_package_init": true,
-    "public_import_module": "threed"
+    "public_import_module": "threed",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "PropertyFlags",
@@ -6068,7 +6180,9 @@
     "canonical_namespace": "threed.PropertyFlags",
     "class_import": "threed.PropertyFlags.PropertyFlags",
     "exported_via_package_init": true,
-    "public_import_module": "threed"
+    "public_import_module": "threed",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "Scene",
@@ -6427,7 +6541,9 @@
     "canonical_namespace": "threed.Scene",
     "class_import": "threed.Scene.Scene",
     "exported_via_package_init": true,
-    "public_import_module": "threed"
+    "public_import_module": "threed",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "SceneObject",
@@ -6561,7 +6677,9 @@
     "canonical_namespace": "threed.SceneObject",
     "class_import": "threed.SceneObject.SceneObject",
     "exported_via_package_init": true,
-    "public_import_module": "threed"
+    "public_import_module": "threed",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "Transform",
@@ -7041,7 +7159,9 @@
     "canonical_namespace": "threed.Transform",
     "class_import": "threed.Transform.Transform",
     "exported_via_package_init": true,
-    "public_import_module": "threed"
+    "public_import_module": "threed",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "TrialException",
@@ -7103,7 +7223,9 @@
     "canonical_namespace": "threed.TrialException",
     "class_import": "threed.TrialException.TrialException",
     "exported_via_package_init": true,
-    "public_import_module": "threed"
+    "public_import_module": "threed",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "AnimationChannel",
@@ -7326,7 +7448,9 @@
     "canonical_namespace": "threed.animation.AnimationChannel",
     "class_import": "threed.animation.AnimationChannel.AnimationChannel",
     "exported_via_package_init": true,
-    "public_import_module": "threed"
+    "public_import_module": "threed",
+    "module_key": "animation",
+    "module_label": "Animation"
   },
   {
     "name": "AnimationClip",
@@ -7512,7 +7636,9 @@
     "canonical_namespace": "threed.animation.AnimationClip",
     "class_import": "threed.animation.AnimationClip.AnimationClip",
     "exported_via_package_init": true,
-    "public_import_module": "threed"
+    "public_import_module": "threed",
+    "module_key": "animation",
+    "module_label": "Animation"
   },
   {
     "name": "AnimationNode",
@@ -7747,7 +7873,9 @@
     "canonical_namespace": "threed.animation.AnimationNode",
     "class_import": "threed.animation.AnimationNode.AnimationNode",
     "exported_via_package_init": true,
-    "public_import_module": "threed"
+    "public_import_module": "threed",
+    "module_key": "animation",
+    "module_label": "Animation"
   },
   {
     "name": "BindPoint",
@@ -8017,7 +8145,9 @@
     "canonical_namespace": "threed.animation.BindPoint",
     "class_import": "threed.animation.BindPoint.BindPoint",
     "exported_via_package_init": true,
-    "public_import_module": "threed"
+    "public_import_module": "threed",
+    "module_key": "animation",
+    "module_label": "Animation"
   },
   {
     "name": "Extrapolation",
@@ -8066,7 +8196,9 @@
     "canonical_namespace": "threed.animation.Extrapolation",
     "class_import": "threed.animation.Extrapolation.Extrapolation",
     "exported_via_package_init": true,
-    "public_import_module": "threed"
+    "public_import_module": "threed",
+    "module_key": "animation",
+    "module_label": "Animation"
   },
   {
     "name": "ExtrapolationType",
@@ -8108,7 +8240,9 @@
     "canonical_namespace": "threed.animation.ExtrapolationType",
     "class_import": "threed.animation.ExtrapolationType.ExtrapolationType",
     "exported_via_package_init": true,
-    "public_import_module": "threed"
+    "public_import_module": "threed",
+    "module_key": "animation",
+    "module_label": "Animation"
   },
   {
     "name": "Interpolation",
@@ -8154,7 +8288,9 @@
     "canonical_namespace": "threed.animation.Interpolation",
     "class_import": "threed.animation.Interpolation.Interpolation",
     "exported_via_package_init": true,
-    "public_import_module": "threed"
+    "public_import_module": "threed",
+    "module_key": "animation",
+    "module_label": "Animation"
   },
   {
     "name": "KeyFrame",
@@ -8329,7 +8465,9 @@
     "canonical_namespace": "threed.animation.KeyFrame",
     "class_import": "threed.animation.KeyFrame.KeyFrame",
     "exported_via_package_init": true,
-    "public_import_module": "threed"
+    "public_import_module": "threed",
+    "module_key": "animation",
+    "module_label": "Animation"
   },
   {
     "name": "KeyframeSequence",
@@ -8525,7 +8663,9 @@
     "canonical_namespace": "threed.animation.KeyframeSequence",
     "class_import": "threed.animation.KeyframeSequence.KeyframeSequence",
     "exported_via_package_init": true,
-    "public_import_module": "threed"
+    "public_import_module": "threed",
+    "module_key": "animation",
+    "module_label": "Animation"
   },
   {
     "name": "StepMode",
@@ -8555,7 +8695,9 @@
     "canonical_namespace": "threed.animation.StepMode",
     "class_import": "threed.animation.StepMode.StepMode",
     "exported_via_package_init": true,
-    "public_import_module": "threed"
+    "public_import_module": "threed",
+    "module_key": "animation",
+    "module_label": "Animation"
   },
   {
     "name": "WeightedMode",
@@ -8593,7 +8735,9 @@
     "canonical_namespace": "threed.animation.WeightedMode",
     "class_import": "threed.animation.WeightedMode.WeightedMode",
     "exported_via_package_init": true,
-    "public_import_module": "threed"
+    "public_import_module": "threed",
+    "module_key": "animation",
+    "module_label": "Animation"
   },
   {
     "name": "Bone",
@@ -8800,7 +8944,9 @@
     "canonical_namespace": "threed.deformers.Bone",
     "class_import": "threed.deformers.Bone.Bone",
     "exported_via_package_init": true,
-    "public_import_module": "threed.deformers"
+    "public_import_module": "threed.deformers",
+    "module_key": "deformers",
+    "module_label": "Deformers"
   },
   {
     "name": "BoneLinkMode",
@@ -8832,7 +8978,9 @@
     "canonical_namespace": "threed.deformers.BoneLinkMode",
     "class_import": "threed.deformers.BoneLinkMode.BoneLinkMode",
     "exported_via_package_init": true,
-    "public_import_module": "threed.deformers"
+    "public_import_module": "threed.deformers",
+    "module_key": "deformers",
+    "module_label": "Deformers"
   },
   {
     "name": "Deformer",
@@ -8966,7 +9114,9 @@
     "canonical_namespace": "threed.deformers.Deformer",
     "class_import": "threed.deformers.Deformer.Deformer",
     "exported_via_package_init": true,
-    "public_import_module": "threed.deformers"
+    "public_import_module": "threed.deformers",
+    "module_key": "deformers",
+    "module_label": "Deformers"
   },
   {
     "name": "MorphTargetChannel",
@@ -9198,7 +9348,9 @@
     "canonical_namespace": "threed.deformers.MorphTargetChannel",
     "class_import": "threed.deformers.MorphTargetChannel.MorphTargetChannel",
     "exported_via_package_init": true,
-    "public_import_module": "threed.deformers"
+    "public_import_module": "threed.deformers",
+    "module_key": "deformers",
+    "module_label": "Deformers"
   },
   {
     "name": "MorphTargetDeformer",
@@ -9341,7 +9493,9 @@
     "canonical_namespace": "threed.deformers.MorphTargetDeformer",
     "class_import": "threed.deformers.MorphTargetDeformer.MorphTargetDeformer",
     "exported_via_package_init": true,
-    "public_import_module": "threed.deformers"
+    "public_import_module": "threed.deformers",
+    "module_key": "deformers",
+    "module_label": "Deformers"
   },
   {
     "name": "SkinDeformer",
@@ -9484,7 +9638,9 @@
     "canonical_namespace": "threed.deformers.SkinDeformer",
     "class_import": "threed.deformers.SkinDeformer.SkinDeformer",
     "exported_via_package_init": true,
-    "public_import_module": "threed.deformers"
+    "public_import_module": "threed.deformers",
+    "module_key": "deformers",
+    "module_label": "Deformers"
   },
   {
     "name": "ApertureMode",
@@ -9519,7 +9675,9 @@
     "canonical_namespace": "threed.entities.ApertureMode",
     "class_import": "threed.entities.ApertureMode.ApertureMode",
     "exported_via_package_init": true,
-    "public_import_module": "threed.entities"
+    "public_import_module": "threed.entities",
+    "module_key": "entities",
+    "module_label": "Entities"
   },
   {
     "name": "BooleanOperand",
@@ -9599,7 +9757,9 @@
     "canonical_namespace": "threed.entities.BooleanOperand",
     "class_import": "threed.entities.BooleanOperand.BooleanOperand",
     "exported_via_package_init": true,
-    "public_import_module": "threed.entities"
+    "public_import_module": "threed.entities",
+    "module_key": "entities",
+    "module_label": "Entities"
   },
   {
     "name": "BooleanOperation",
@@ -9631,7 +9791,9 @@
     "canonical_namespace": "threed.entities.BooleanOperation",
     "class_import": "threed.entities.BooleanOperation.BooleanOperation",
     "exported_via_package_init": true,
-    "public_import_module": "threed.entities"
+    "public_import_module": "threed.entities",
+    "module_key": "entities",
+    "module_label": "Entities"
   },
   {
     "name": "BooleanOperator",
@@ -9866,7 +10028,9 @@
     "canonical_namespace": "threed.entities.BooleanOperator",
     "class_import": "threed.entities.BooleanOperator.BooleanOperator",
     "exported_via_package_init": true,
-    "public_import_module": "threed.entities"
+    "public_import_module": "threed.entities",
+    "module_key": "entities",
+    "module_label": "Entities"
   },
   {
     "name": "Box",
@@ -10339,7 +10503,9 @@
     "canonical_namespace": "threed.entities.Box",
     "class_import": "threed.entities.Box.Box",
     "exported_via_package_init": true,
-    "public_import_module": "threed"
+    "public_import_module": "threed",
+    "module_key": "entities",
+    "module_label": "Entities"
   },
   {
     "name": "Camera",
@@ -10739,7 +10905,9 @@
     "canonical_namespace": "threed.entities.Camera",
     "class_import": "threed.entities.Camera.Camera",
     "exported_via_package_init": true,
-    "public_import_module": "threed"
+    "public_import_module": "threed",
+    "module_key": "entities",
+    "module_label": "Entities"
   },
   {
     "name": "Circle",
@@ -11186,7 +11354,9 @@
     "canonical_namespace": "threed.entities.Circle",
     "class_import": "threed.entities.Circle.Circle",
     "exported_via_package_init": true,
-    "public_import_module": "threed"
+    "public_import_module": "threed",
+    "module_key": "entities",
+    "module_label": "Entities"
   },
   {
     "name": "CompositeCurve",
@@ -11421,7 +11591,9 @@
     "canonical_namespace": "threed.entities.CompositeCurve",
     "class_import": "threed.entities.CompositeCurve.CompositeCurve",
     "exported_via_package_init": true,
-    "public_import_module": "threed.entities"
+    "public_import_module": "threed.entities",
+    "module_key": "entities",
+    "module_label": "Entities"
   },
   {
     "name": "Curve",
@@ -11617,7 +11789,9 @@
     "canonical_namespace": "threed.entities.Curve",
     "class_import": "threed.entities.Curve.Curve",
     "exported_via_package_init": true,
-    "public_import_module": "threed"
+    "public_import_module": "threed",
+    "module_key": "entities",
+    "module_label": "Entities"
   },
   {
     "name": "CurveDimension",
@@ -11645,7 +11819,9 @@
     "canonical_namespace": "threed.entities.CurveDimension",
     "class_import": "threed.entities.CurveDimension.CurveDimension",
     "exported_via_package_init": true,
-    "public_import_module": "threed.entities"
+    "public_import_module": "threed.entities",
+    "module_key": "entities",
+    "module_label": "Entities"
   },
   {
     "name": "Cylinder",
@@ -12189,7 +12365,9 @@
     "canonical_namespace": "threed.entities.Cylinder",
     "class_import": "threed.entities.Cylinder.Cylinder",
     "exported_via_package_init": true,
-    "public_import_module": "threed"
+    "public_import_module": "threed",
+    "module_key": "entities",
+    "module_label": "Entities"
   },
   {
     "name": "Dish",
@@ -12636,7 +12814,9 @@
     "canonical_namespace": "threed.entities.Dish",
     "class_import": "threed.entities.Dish.Dish",
     "exported_via_package_init": true,
-    "public_import_module": "threed"
+    "public_import_module": "threed",
+    "module_key": "entities",
+    "module_label": "Entities"
   },
   {
     "name": "Ellipse",
@@ -13096,7 +13276,9 @@
     "canonical_namespace": "threed.entities.Ellipse",
     "class_import": "threed.entities.Ellipse.Ellipse",
     "exported_via_package_init": true,
-    "public_import_module": "threed"
+    "public_import_module": "threed",
+    "module_key": "entities",
+    "module_label": "Entities"
   },
   {
     "name": "EndPoint",
@@ -13184,7 +13366,9 @@
     "canonical_namespace": "threed.entities.EndPoint",
     "class_import": "threed.entities.EndPoint.EndPoint",
     "exported_via_package_init": true,
-    "public_import_module": "threed.entities"
+    "public_import_module": "threed.entities",
+    "module_key": "entities",
+    "module_label": "Entities"
   },
   {
     "name": "Frustum",
@@ -13670,7 +13854,9 @@
     "canonical_namespace": "threed.entities.Frustum",
     "class_import": "threed.entities.Frustum.Frustum",
     "exported_via_package_init": true,
-    "public_import_module": "threed"
+    "public_import_module": "threed",
+    "module_key": "entities",
+    "module_label": "Entities"
   },
   {
     "name": "Geometry",
@@ -14038,7 +14224,9 @@
     "canonical_namespace": "threed.entities.Geometry",
     "class_import": "threed.entities.Geometry.Geometry",
     "exported_via_package_init": true,
-    "public_import_module": "threed"
+    "public_import_module": "threed",
+    "module_key": "entities",
+    "module_label": "Entities"
   },
   {
     "name": "HalfSpace",
@@ -14228,7 +14416,9 @@
     "canonical_namespace": "threed.entities.HalfSpace",
     "class_import": "threed.entities.HalfSpace.HalfSpace",
     "exported_via_package_init": true,
-    "public_import_module": "threed.entities"
+    "public_import_module": "threed.entities",
+    "module_key": "entities",
+    "module_label": "Entities"
   },
   {
     "name": "IIndexedVertexElement",
@@ -14256,7 +14446,9 @@
     "canonical_namespace": "threed.entities.IIndexedVertexElement",
     "class_import": "threed.entities.IIndexedVertexElement.IIndexedVertexElement",
     "exported_via_package_init": true,
-    "public_import_module": "threed.entities"
+    "public_import_module": "threed.entities",
+    "module_key": "entities",
+    "module_label": "Entities"
   },
   {
     "name": "IMeshConvertible",
@@ -14286,7 +14478,9 @@
     "canonical_namespace": "threed.entities.IMeshConvertible",
     "class_import": "threed.entities.IMeshConvertible.IMeshConvertible",
     "exported_via_package_init": true,
-    "public_import_module": "threed.entities"
+    "public_import_module": "threed.entities",
+    "module_key": "entities",
+    "module_label": "Entities"
   },
   {
     "name": "IOrientable",
@@ -14489,7 +14683,9 @@
     "canonical_namespace": "threed.entities.IOrientable",
     "class_import": "threed.entities.IOrientable.IOrientable",
     "exported_via_package_init": true,
-    "public_import_module": "threed.entities"
+    "public_import_module": "threed.entities",
+    "module_key": "entities",
+    "module_label": "Entities"
   },
   {
     "name": "Light",
@@ -14889,7 +15085,9 @@
     "canonical_namespace": "threed.entities.Light",
     "class_import": "threed.entities.Light.Light",
     "exported_via_package_init": true,
-    "public_import_module": "threed"
+    "public_import_module": "threed",
+    "module_key": "entities",
+    "module_label": "Entities"
   },
   {
     "name": "LightType",
@@ -14924,7 +15122,9 @@
     "canonical_namespace": "threed.entities.LightType",
     "class_import": "threed.entities.LightType.LightType",
     "exported_via_package_init": true,
-    "public_import_module": "threed.entities"
+    "public_import_module": "threed.entities",
+    "module_key": "entities",
+    "module_label": "Entities"
   },
   {
     "name": "Line",
@@ -15155,7 +15355,9 @@
     "canonical_namespace": "threed.entities.Line",
     "class_import": "threed.entities.Line.Line",
     "exported_via_package_init": true,
-    "public_import_module": "threed.entities"
+    "public_import_module": "threed.entities",
+    "module_key": "entities",
+    "module_label": "Entities"
   },
   {
     "name": "LinearExtrusion",
@@ -15441,7 +15643,9 @@
     "canonical_namespace": "threed.entities.LinearExtrusion",
     "class_import": "threed.entities.LinearExtrusion.LinearExtrusion",
     "exported_via_package_init": true,
-    "public_import_module": "threed"
+    "public_import_module": "threed",
+    "module_key": "entities",
+    "module_label": "Entities"
   },
   {
     "name": "MappingMode",
@@ -15481,7 +15685,9 @@
     "canonical_namespace": "threed.entities.MappingMode",
     "class_import": "threed.entities.MappingMode.MappingMode",
     "exported_via_package_init": true,
-    "public_import_module": "threed.entities"
+    "public_import_module": "threed.entities",
+    "module_key": "entities",
+    "module_label": "Entities"
   },
   {
     "name": "Mesh",
@@ -16091,7 +16297,9 @@
     "canonical_namespace": "threed.entities.Mesh",
     "class_import": "threed.entities.Mesh.Mesh",
     "exported_via_package_init": true,
-    "public_import_module": "threed"
+    "public_import_module": "threed",
+    "module_key": "entities",
+    "module_label": "Entities"
   },
   {
     "name": "NurbsCurve",
@@ -16393,7 +16601,9 @@
     "canonical_namespace": "threed.entities.NurbsCurve",
     "class_import": "threed.entities.NurbsCurve.NurbsCurve",
     "exported_via_package_init": true,
-    "public_import_module": "threed.entities"
+    "public_import_module": "threed.entities",
+    "module_key": "entities",
+    "module_label": "Entities"
   },
   {
     "name": "NurbsDirection",
@@ -16487,7 +16697,9 @@
     "canonical_namespace": "threed.entities.NurbsDirection",
     "class_import": "threed.entities.NurbsDirection.NurbsDirection",
     "exported_via_package_init": true,
-    "public_import_module": "threed.entities"
+    "public_import_module": "threed.entities",
+    "module_key": "entities",
+    "module_label": "Entities"
   },
   {
     "name": "NurbsSurface",
@@ -16885,7 +17097,9 @@
     "canonical_namespace": "threed.entities.NurbsSurface",
     "class_import": "threed.entities.NurbsSurface.NurbsSurface",
     "exported_via_package_init": true,
-    "public_import_module": "threed.entities"
+    "public_import_module": "threed.entities",
+    "module_key": "entities",
+    "module_label": "Entities"
   },
   {
     "name": "NurbsType",
@@ -16917,7 +17131,9 @@
     "canonical_namespace": "threed.entities.NurbsType",
     "class_import": "threed.entities.NurbsType.NurbsType",
     "exported_via_package_init": true,
-    "public_import_module": "threed.entities"
+    "public_import_module": "threed.entities",
+    "module_key": "entities",
+    "module_label": "Entities"
   },
   {
     "name": "Patch",
@@ -17303,7 +17519,9 @@
     "canonical_namespace": "threed.entities.Patch",
     "class_import": "threed.entities.Patch.Patch",
     "exported_via_package_init": true,
-    "public_import_module": "threed.entities"
+    "public_import_module": "threed.entities",
+    "module_key": "entities",
+    "module_label": "Entities"
   },
   {
     "name": "PatchDirection",
@@ -17370,7 +17588,9 @@
     "canonical_namespace": "threed.entities.PatchDirection",
     "class_import": "threed.entities.PatchDirection.PatchDirection",
     "exported_via_package_init": true,
-    "public_import_module": "threed.entities"
+    "public_import_module": "threed.entities",
+    "module_key": "entities",
+    "module_label": "Entities"
   },
   {
     "name": "PatchDirectionType",
@@ -17410,7 +17630,9 @@
     "canonical_namespace": "threed.entities.PatchDirectionType",
     "class_import": "threed.entities.PatchDirectionType.PatchDirectionType",
     "exported_via_package_init": true,
-    "public_import_module": "threed.entities"
+    "public_import_module": "threed.entities",
+    "module_key": "entities",
+    "module_label": "Entities"
   },
   {
     "name": "Plane",
@@ -17866,7 +18088,9 @@
     "canonical_namespace": "threed.entities.Plane",
     "class_import": "threed.entities.Plane.Plane",
     "exported_via_package_init": true,
-    "public_import_module": "threed"
+    "public_import_module": "threed",
+    "module_key": "entities",
+    "module_label": "Entities"
   },
   {
     "name": "PointCloud",
@@ -17961,7 +18185,9 @@
     "canonical_namespace": "threed.entities.PointCloud",
     "class_import": "threed.entities.PointCloud.PointCloud",
     "exported_via_package_init": true,
-    "public_import_module": "threed.entities"
+    "public_import_module": "threed.entities",
+    "module_key": "entities",
+    "module_label": "Entities"
   },
   {
     "name": "InvalidOperationException",
@@ -17979,7 +18205,9 @@
     "deprecated": false,
     "deprecated_reason": "",
     "canonical_namespace": "threed.entities.PolygonBuilder",
-    "class_import": "threed.entities.PolygonBuilder.InvalidOperationException"
+    "class_import": "threed.entities.PolygonBuilder.InvalidOperationException",
+    "module_key": "entities",
+    "module_label": "Entities"
   },
   {
     "name": "PolygonBuilder",
@@ -18052,7 +18280,9 @@
     "canonical_namespace": "threed.entities.PolygonBuilder",
     "class_import": "threed.entities.PolygonBuilder.PolygonBuilder",
     "exported_via_package_init": true,
-    "public_import_module": "threed"
+    "public_import_module": "threed",
+    "module_key": "entities",
+    "module_label": "Entities"
   },
   {
     "name": "PolygonModifier",
@@ -18115,7 +18345,9 @@
     "canonical_namespace": "threed.entities.PolygonModifier",
     "class_import": "threed.entities.PolygonModifier.PolygonModifier",
     "exported_via_package_init": true,
-    "public_import_module": "threed.entities"
+    "public_import_module": "threed.entities",
+    "module_key": "entities",
+    "module_label": "Entities"
   },
   {
     "name": "Primitive",
@@ -18495,7 +18727,9 @@
     "canonical_namespace": "threed.entities.Primitive",
     "class_import": "threed.entities.Primitive.Primitive",
     "exported_via_package_init": true,
-    "public_import_module": "threed"
+    "public_import_module": "threed",
+    "module_key": "entities",
+    "module_label": "Entities"
   },
   {
     "name": "ProjectionType",
@@ -18530,7 +18764,9 @@
     "canonical_namespace": "threed.entities.ProjectionType",
     "class_import": "threed.entities.ProjectionType.ProjectionType",
     "exported_via_package_init": true,
-    "public_import_module": "threed.entities"
+    "public_import_module": "threed.entities",
+    "module_key": "entities",
+    "module_label": "Entities"
   },
   {
     "name": "Pyramid",
@@ -18977,7 +19213,9 @@
     "canonical_namespace": "threed.entities.Pyramid",
     "class_import": "threed.entities.Pyramid.Pyramid",
     "exported_via_package_init": true,
-    "public_import_module": "threed.entities"
+    "public_import_module": "threed.entities",
+    "module_key": "entities",
+    "module_label": "Entities"
   },
   {
     "name": "RectangularTorus",
@@ -19444,7 +19682,9 @@
     "canonical_namespace": "threed.entities.RectangularTorus",
     "class_import": "threed.entities.RectangularTorus.RectangularTorus",
     "exported_via_package_init": true,
-    "public_import_module": "threed.entities"
+    "public_import_module": "threed.entities",
+    "module_key": "entities",
+    "module_label": "Entities"
   },
   {
     "name": "ReferenceMode",
@@ -19476,7 +19716,9 @@
     "canonical_namespace": "threed.entities.ReferenceMode",
     "class_import": "threed.entities.ReferenceMode.ReferenceMode",
     "exported_via_package_init": true,
-    "public_import_module": "threed.entities"
+    "public_import_module": "threed.entities",
+    "module_key": "entities",
+    "module_label": "Entities"
   },
   {
     "name": "RevolvedAreaSolid",
@@ -19704,7 +19946,9 @@
     "canonical_namespace": "threed.entities.RevolvedAreaSolid",
     "class_import": "threed.entities.RevolvedAreaSolid.RevolvedAreaSolid",
     "exported_via_package_init": true,
-    "public_import_module": "threed.entities"
+    "public_import_module": "threed.entities",
+    "module_key": "entities",
+    "module_label": "Entities"
   },
   {
     "name": "RotationMode",
@@ -19739,7 +19983,9 @@
     "canonical_namespace": "threed.entities.RotationMode",
     "class_import": "threed.entities.RotationMode.RotationMode",
     "exported_via_package_init": true,
-    "public_import_module": "threed.entities"
+    "public_import_module": "threed.entities",
+    "module_key": "entities",
+    "module_label": "Entities"
   },
   {
     "name": "Shape",
@@ -19943,7 +20189,9 @@
     "canonical_namespace": "threed.entities.Shape",
     "class_import": "threed.entities.Shape.Shape",
     "exported_via_package_init": true,
-    "public_import_module": "threed.entities"
+    "public_import_module": "threed.entities",
+    "module_key": "entities",
+    "module_label": "Entities"
   },
   {
     "name": "Skeleton",
@@ -20162,7 +20410,9 @@
     "canonical_namespace": "threed.entities.Skeleton",
     "class_import": "threed.entities.Skeleton.Skeleton",
     "exported_via_package_init": true,
-    "public_import_module": "threed.entities"
+    "public_import_module": "threed.entities",
+    "module_key": "entities",
+    "module_label": "Entities"
   },
   {
     "name": "SkeletonType",
@@ -20190,7 +20440,9 @@
     "canonical_namespace": "threed.entities.SkeletonType",
     "class_import": "threed.entities.SkeletonType.SkeletonType",
     "exported_via_package_init": true,
-    "public_import_module": "threed.entities"
+    "public_import_module": "threed.entities",
+    "module_key": "entities",
+    "module_label": "Entities"
   },
   {
     "name": "Sphere",
@@ -20676,7 +20928,9 @@
     "canonical_namespace": "threed.entities.Sphere",
     "class_import": "threed.entities.Sphere.Sphere",
     "exported_via_package_init": true,
-    "public_import_module": "threed"
+    "public_import_module": "threed",
+    "module_key": "entities",
+    "module_label": "Entities"
   },
   {
     "name": "SplitMeshPolicy",
@@ -20711,7 +20965,9 @@
     "canonical_namespace": "threed.entities.SplitMeshPolicy",
     "class_import": "threed.entities.SplitMeshPolicy.SplitMeshPolicy",
     "exported_via_package_init": true,
-    "public_import_module": "threed.entities"
+    "public_import_module": "threed.entities",
+    "module_key": "entities",
+    "module_label": "Entities"
   },
   {
     "name": "SweptAreaSolid",
@@ -20923,7 +21179,9 @@
     "canonical_namespace": "threed.entities.SweptAreaSolid",
     "class_import": "threed.entities.SweptAreaSolid.SweptAreaSolid",
     "exported_via_package_init": true,
-    "public_import_module": "threed.entities"
+    "public_import_module": "threed.entities",
+    "module_key": "entities",
+    "module_label": "Entities"
   },
   {
     "name": "TextureMapping",
@@ -20991,7 +21249,9 @@
     "canonical_namespace": "threed.entities.TextureMapping",
     "class_import": "threed.entities.TextureMapping.TextureMapping",
     "exported_via_package_init": true,
-    "public_import_module": "threed.entities"
+    "public_import_module": "threed.entities",
+    "module_key": "entities",
+    "module_label": "Entities"
   },
   {
     "name": "Torus",
@@ -21446,7 +21706,9 @@
     "canonical_namespace": "threed.entities.Torus",
     "class_import": "threed.entities.Torus.Torus",
     "exported_via_package_init": true,
-    "public_import_module": "threed.entities"
+    "public_import_module": "threed.entities",
+    "module_key": "entities",
+    "module_label": "Entities"
   },
   {
     "name": "TransformedCurve",
@@ -21658,7 +21920,9 @@
     "canonical_namespace": "threed.entities.TransformedCurve",
     "class_import": "threed.entities.TransformedCurve.TransformedCurve",
     "exported_via_package_init": true,
-    "public_import_module": "threed.entities"
+    "public_import_module": "threed.entities",
+    "module_key": "entities",
+    "module_label": "Entities"
   },
   {
     "name": "TriMesh",
@@ -21861,7 +22125,9 @@
     "canonical_namespace": "threed.entities.TriMesh",
     "class_import": "threed.entities.TriMesh.TriMesh",
     "exported_via_package_init": true,
-    "public_import_module": "threed.entities"
+    "public_import_module": "threed.entities",
+    "module_key": "entities",
+    "module_label": "Entities"
   },
   {
     "name": "TrimmedCurve",
@@ -22081,7 +22347,9 @@
     "canonical_namespace": "threed.entities.TrimmedCurve",
     "class_import": "threed.entities.TrimmedCurve.TrimmedCurve",
     "exported_via_package_init": true,
-    "public_import_module": "threed.entities"
+    "public_import_module": "threed.entities",
+    "module_key": "entities",
+    "module_label": "Entities"
   },
   {
     "name": "VertexElement",
@@ -22202,7 +22470,9 @@
     "canonical_namespace": "threed.entities.VertexElement",
     "class_import": "threed.entities.VertexElement.VertexElement",
     "exported_via_package_init": true,
-    "public_import_module": "threed.entities"
+    "public_import_module": "threed.entities",
+    "module_key": "entities",
+    "module_label": "Entities"
   },
   {
     "name": "VertexElementBinormal",
@@ -22419,7 +22689,9 @@
     "canonical_namespace": "threed.entities.VertexElementBinormal",
     "class_import": "threed.entities.VertexElementBinormal.VertexElementBinormal",
     "exported_via_package_init": true,
-    "public_import_module": "threed.entities"
+    "public_import_module": "threed.entities",
+    "module_key": "entities",
+    "module_label": "Entities"
   },
   {
     "name": "VertexElementDoublesTemplate",
@@ -22582,7 +22854,9 @@
     "canonical_namespace": "threed.entities.VertexElementDoublesTemplate",
     "class_import": "threed.entities.VertexElementDoublesTemplate.VertexElementDoublesTemplate",
     "exported_via_package_init": true,
-    "public_import_module": "threed.entities"
+    "public_import_module": "threed.entities",
+    "module_key": "entities",
+    "module_label": "Entities"
   },
   {
     "name": "VertexElementEdgeCrease",
@@ -22759,7 +23033,9 @@
     "canonical_namespace": "threed.entities.VertexElementEdgeCrease",
     "class_import": "threed.entities.VertexElementEdgeCrease.VertexElementEdgeCrease",
     "exported_via_package_init": true,
-    "public_import_module": "threed.entities"
+    "public_import_module": "threed.entities",
+    "module_key": "entities",
+    "module_label": "Entities"
   },
   {
     "name": "VertexElementFVector",
@@ -22952,7 +23228,9 @@
     "canonical_namespace": "threed.entities.VertexElementFVector",
     "class_import": "threed.entities.VertexElementFVector.VertexElementFVector",
     "exported_via_package_init": true,
-    "public_import_module": "threed.entities"
+    "public_import_module": "threed.entities",
+    "module_key": "entities",
+    "module_label": "Entities"
   },
   {
     "name": "VertexElementHole",
@@ -23129,7 +23407,9 @@
     "canonical_namespace": "threed.entities.VertexElementHole",
     "class_import": "threed.entities.VertexElementHole.VertexElementHole",
     "exported_via_package_init": true,
-    "public_import_module": "threed.entities"
+    "public_import_module": "threed.entities",
+    "module_key": "entities",
+    "module_label": "Entities"
   },
   {
     "name": "VertexElementIntsTemplate",
@@ -23291,7 +23571,9 @@
     "canonical_namespace": "threed.entities.VertexElementIntsTemplate",
     "class_import": "threed.entities.VertexElementIntsTemplate.VertexElementIntsTemplate",
     "exported_via_package_init": true,
-    "public_import_module": "threed.entities"
+    "public_import_module": "threed.entities",
+    "module_key": "entities",
+    "module_label": "Entities"
   },
   {
     "name": "VertexElementMaterial",
@@ -23468,7 +23750,9 @@
     "canonical_namespace": "threed.entities.VertexElementMaterial",
     "class_import": "threed.entities.VertexElementMaterial.VertexElementMaterial",
     "exported_via_package_init": true,
-    "public_import_module": "threed.entities"
+    "public_import_module": "threed.entities",
+    "module_key": "entities",
+    "module_label": "Entities"
   },
   {
     "name": "VertexElementNormal",
@@ -23685,7 +23969,9 @@
     "canonical_namespace": "threed.entities.VertexElementNormal",
     "class_import": "threed.entities.VertexElementNormal.VertexElementNormal",
     "exported_via_package_init": true,
-    "public_import_module": "threed.entities"
+    "public_import_module": "threed.entities",
+    "module_key": "entities",
+    "module_label": "Entities"
   },
   {
     "name": "VertexElementPolygonGroup",
@@ -23862,7 +24148,9 @@
     "canonical_namespace": "threed.entities.VertexElementPolygonGroup",
     "class_import": "threed.entities.VertexElementPolygonGroup.VertexElementPolygonGroup",
     "exported_via_package_init": true,
-    "public_import_module": "threed.entities"
+    "public_import_module": "threed.entities",
+    "module_key": "entities",
+    "module_label": "Entities"
   },
   {
     "name": "VertexElementSmoothingGroup",
@@ -24048,7 +24336,9 @@
     "canonical_namespace": "threed.entities.VertexElementSmoothingGroup",
     "class_import": "threed.entities.VertexElementSmoothingGroup.VertexElementSmoothingGroup",
     "exported_via_package_init": true,
-    "public_import_module": "threed.entities"
+    "public_import_module": "threed.entities",
+    "module_key": "entities",
+    "module_label": "Entities"
   },
   {
     "name": "VertexElementSpecular",
@@ -24225,7 +24515,9 @@
     "canonical_namespace": "threed.entities.VertexElementSpecular",
     "class_import": "threed.entities.VertexElementSpecular.VertexElementSpecular",
     "exported_via_package_init": true,
-    "public_import_module": "threed.entities"
+    "public_import_module": "threed.entities",
+    "module_key": "entities",
+    "module_label": "Entities"
   },
   {
     "name": "VertexElementTangent",
@@ -24442,7 +24734,9 @@
     "canonical_namespace": "threed.entities.VertexElementTangent",
     "class_import": "threed.entities.VertexElementTangent.VertexElementTangent",
     "exported_via_package_init": true,
-    "public_import_module": "threed.entities"
+    "public_import_module": "threed.entities",
+    "module_key": "entities",
+    "module_label": "Entities"
   },
   {
     "name": "VertexElementTemplate",
@@ -24625,7 +24919,9 @@
     "canonical_namespace": "threed.entities.VertexElementTemplate",
     "class_import": "threed.entities.VertexElementTemplate.VertexElementTemplate",
     "exported_via_package_init": true,
-    "public_import_module": "threed.entities"
+    "public_import_module": "threed.entities",
+    "module_key": "entities",
+    "module_label": "Entities"
   },
   {
     "name": "VertexElementType",
@@ -24705,7 +25001,9 @@
     "canonical_namespace": "threed.entities.VertexElementType",
     "class_import": "threed.entities.VertexElementType.VertexElementType",
     "exported_via_package_init": true,
-    "public_import_module": "threed.entities"
+    "public_import_module": "threed.entities",
+    "module_key": "entities",
+    "module_label": "Entities"
   },
   {
     "name": "VertexElementUV",
@@ -24951,7 +25249,9 @@
     "canonical_namespace": "threed.entities.VertexElementUV",
     "class_import": "threed.entities.VertexElementUV.VertexElementUV",
     "exported_via_package_init": true,
-    "public_import_module": "threed.entities"
+    "public_import_module": "threed.entities",
+    "module_key": "entities",
+    "module_label": "Entities"
   },
   {
     "name": "VertexElementUserData",
@@ -25128,7 +25428,9 @@
     "canonical_namespace": "threed.entities.VertexElementUserData",
     "class_import": "threed.entities.VertexElementUserData.VertexElementUserData",
     "exported_via_package_init": true,
-    "public_import_module": "threed.entities"
+    "public_import_module": "threed.entities",
+    "module_key": "entities",
+    "module_label": "Entities"
   },
   {
     "name": "VertexElementVector4",
@@ -25297,7 +25599,9 @@
     "canonical_namespace": "threed.entities.VertexElementVector4",
     "class_import": "threed.entities.VertexElementVector4.VertexElementVector4",
     "exported_via_package_init": true,
-    "public_import_module": "threed.entities"
+    "public_import_module": "threed.entities",
+    "module_key": "entities",
+    "module_label": "Entities"
   },
   {
     "name": "VertexElementVertexColor",
@@ -25514,7 +25818,9 @@
     "canonical_namespace": "threed.entities.VertexElementVertexColor",
     "class_import": "threed.entities.VertexElementVertexColor.VertexElementVertexColor",
     "exported_via_package_init": true,
-    "public_import_module": "threed.entities"
+    "public_import_module": "threed.entities",
+    "module_key": "entities",
+    "module_label": "Entities"
   },
   {
     "name": "VertexElementVertexCrease",
@@ -25691,7 +25997,9 @@
     "canonical_namespace": "threed.entities.VertexElementVertexCrease",
     "class_import": "threed.entities.VertexElementVertexCrease.VertexElementVertexCrease",
     "exported_via_package_init": true,
-    "public_import_module": "threed.entities"
+    "public_import_module": "threed.entities",
+    "module_key": "entities",
+    "module_label": "Entities"
   },
   {
     "name": "VertexElementVisibility",
@@ -25868,7 +26176,9 @@
     "canonical_namespace": "threed.entities.VertexElementVisibility",
     "class_import": "threed.entities.VertexElementVisibility.VertexElementVisibility",
     "exported_via_package_init": true,
-    "public_import_module": "threed.entities"
+    "public_import_module": "threed.entities",
+    "module_key": "entities",
+    "module_label": "Entities"
   },
   {
     "name": "VertexElementWeight",
@@ -26045,7 +26355,9 @@
     "canonical_namespace": "threed.entities.VertexElementWeight",
     "class_import": "threed.entities.VertexElementWeight.VertexElementWeight",
     "exported_via_package_init": true,
-    "public_import_module": "threed.entities"
+    "public_import_module": "threed.entities",
+    "module_key": "entities",
+    "module_label": "Entities"
   },
   {
     "name": "A3dwSaveOptions",
@@ -26063,7 +26375,9 @@
     "canonical_namespace": "threed.formats.A3dwSaveOptions",
     "class_import": "threed.formats.A3dwSaveOptions.A3dwSaveOptions",
     "exported_via_package_init": true,
-    "public_import_module": "threed.formats"
+    "public_import_module": "threed.formats",
+    "module_key": "formats",
+    "module_label": "Formats"
   },
   {
     "name": "AmfSaveOptions",
@@ -26081,7 +26395,9 @@
     "canonical_namespace": "threed.formats.AmfSaveOptions",
     "class_import": "threed.formats.AmfSaveOptions.AmfSaveOptions",
     "exported_via_package_init": true,
-    "public_import_module": "threed.formats"
+    "public_import_module": "threed.formats",
+    "module_key": "formats",
+    "module_label": "Formats"
   },
   {
     "name": "BasicLoadOptions",
@@ -26157,7 +26473,9 @@
     "deprecated": false,
     "deprecated_reason": "",
     "canonical_namespace": "threed.formats.BasicLoadOptions",
-    "class_import": "threed.formats.BasicLoadOptions.BasicLoadOptions"
+    "class_import": "threed.formats.BasicLoadOptions.BasicLoadOptions",
+    "module_key": "formats",
+    "module_label": "Formats"
   },
   {
     "name": "ColladaTransformStyle",
@@ -26185,7 +26503,9 @@
     "canonical_namespace": "threed.formats.ColladaTransformStyle",
     "class_import": "threed.formats.ColladaTransformStyle.ColladaTransformStyle",
     "exported_via_package_init": true,
-    "public_import_module": "threed.formats"
+    "public_import_module": "threed.formats",
+    "module_key": "formats",
+    "module_label": "Formats"
   },
   {
     "name": "Discreet3dsLoadOptions",
@@ -26203,7 +26523,9 @@
     "canonical_namespace": "threed.formats.Discreet3dsLoadOptions",
     "class_import": "threed.formats.Discreet3dsLoadOptions.Discreet3dsLoadOptions",
     "exported_via_package_init": true,
-    "public_import_module": "threed.formats"
+    "public_import_module": "threed.formats",
+    "module_key": "formats",
+    "module_label": "Formats"
   },
   {
     "name": "Discreet3dsSaveOptions",
@@ -26221,7 +26543,9 @@
     "canonical_namespace": "threed.formats.Discreet3dsSaveOptions",
     "class_import": "threed.formats.Discreet3dsSaveOptions.Discreet3dsSaveOptions",
     "exported_via_package_init": true,
-    "public_import_module": "threed.formats"
+    "public_import_module": "threed.formats",
+    "module_key": "formats",
+    "module_label": "Formats"
   },
   {
     "name": "DracoCompressionLevel",
@@ -26257,7 +26581,9 @@
     "canonical_namespace": "threed.formats.DracoCompressionLevel",
     "class_import": "threed.formats.DracoCompressionLevel.DracoCompressionLevel",
     "exported_via_package_init": true,
-    "public_import_module": "threed.formats"
+    "public_import_module": "threed.formats",
+    "module_key": "formats",
+    "module_label": "Formats"
   },
   {
     "name": "DracoSaveOptions",
@@ -26275,7 +26601,9 @@
     "canonical_namespace": "threed.formats.DracoSaveOptions",
     "class_import": "threed.formats.DracoSaveOptions.DracoSaveOptions",
     "exported_via_package_init": true,
-    "public_import_module": "threed.formats"
+    "public_import_module": "threed.formats",
+    "module_key": "formats",
+    "module_label": "Formats"
   },
   {
     "name": "Html5SaveOptions",
@@ -26293,7 +26621,9 @@
     "canonical_namespace": "threed.formats.Html5SaveOptions",
     "class_import": "threed.formats.Html5SaveOptions.Html5SaveOptions",
     "exported_via_package_init": true,
-    "public_import_module": "threed.formats"
+    "public_import_module": "threed.formats",
+    "module_key": "formats",
+    "module_label": "Formats"
   },
   {
     "name": "IOConfig",
@@ -26369,7 +26699,9 @@
     "canonical_namespace": "threed.formats.IOConfig",
     "class_import": "threed.formats.IOConfig.IOConfig",
     "exported_via_package_init": true,
-    "public_import_module": "threed.formats"
+    "public_import_module": "threed.formats",
+    "module_key": "formats",
+    "module_label": "Formats"
   },
   {
     "name": "IOService",
@@ -26559,7 +26891,9 @@
     "canonical_namespace": "threed.formats.IOService",
     "class_import": "threed.formats.IOService.IOService",
     "exported_via_package_init": true,
-    "public_import_module": "threed.formats"
+    "public_import_module": "threed.formats",
+    "module_key": "formats",
+    "module_label": "Formats"
   },
   {
     "name": "JtLoadOptions",
@@ -26577,7 +26911,9 @@
     "canonical_namespace": "threed.formats.JtLoadOptions",
     "class_import": "threed.formats.JtLoadOptions.JtLoadOptions",
     "exported_via_package_init": true,
-    "public_import_module": "threed.formats"
+    "public_import_module": "threed.formats",
+    "module_key": "formats",
+    "module_label": "Formats"
   },
   {
     "name": "LoadOptions",
@@ -26655,7 +26991,9 @@
     "canonical_namespace": "threed.formats.LoadOptions",
     "class_import": "threed.formats.LoadOptions.LoadOptions",
     "exported_via_package_init": true,
-    "public_import_module": "threed.formats"
+    "public_import_module": "threed.formats",
+    "module_key": "formats",
+    "module_label": "Formats"
   },
   {
     "name": "Microsoft3MFSaveOptions",
@@ -26673,7 +27011,9 @@
     "canonical_namespace": "threed.formats.Microsoft3MFSaveOptions",
     "class_import": "threed.formats.Microsoft3MFSaveOptions.Microsoft3MFSaveOptions",
     "exported_via_package_init": true,
-    "public_import_module": "threed.formats"
+    "public_import_module": "threed.formats",
+    "module_key": "formats",
+    "module_label": "Formats"
   },
   {
     "name": "PdfLightingScheme",
@@ -26691,7 +27031,9 @@
     "canonical_namespace": "threed.formats.PdfLightingScheme",
     "class_import": "threed.formats.PdfLightingScheme.PdfLightingScheme",
     "exported_via_package_init": true,
-    "public_import_module": "threed.formats"
+    "public_import_module": "threed.formats",
+    "module_key": "formats",
+    "module_label": "Formats"
   },
   {
     "name": "PdfLoadOptions",
@@ -26709,7 +27051,9 @@
     "canonical_namespace": "threed.formats.PdfLoadOptions",
     "class_import": "threed.formats.PdfLoadOptions.PdfLoadOptions",
     "exported_via_package_init": true,
-    "public_import_module": "threed.formats"
+    "public_import_module": "threed.formats",
+    "module_key": "formats",
+    "module_label": "Formats"
   },
   {
     "name": "PdfRenderMode",
@@ -26727,7 +27071,9 @@
     "canonical_namespace": "threed.formats.PdfRenderMode",
     "class_import": "threed.formats.PdfRenderMode.PdfRenderMode",
     "exported_via_package_init": true,
-    "public_import_module": "threed.formats"
+    "public_import_module": "threed.formats",
+    "module_key": "formats",
+    "module_label": "Formats"
   },
   {
     "name": "PdfSaveOptions",
@@ -26776,7 +27122,9 @@
     "canonical_namespace": "threed.formats.PdfSaveOptions",
     "class_import": "threed.formats.PdfSaveOptions.PdfSaveOptions",
     "exported_via_package_init": true,
-    "public_import_module": "threed.formats"
+    "public_import_module": "threed.formats",
+    "module_key": "formats",
+    "module_label": "Formats"
   },
   {
     "name": "Plugin",
@@ -26867,7 +27215,9 @@
     "canonical_namespace": "threed.formats.Plugin",
     "class_import": "threed.formats.Plugin.Plugin",
     "exported_via_package_init": true,
-    "public_import_module": "threed.formats"
+    "public_import_module": "threed.formats",
+    "module_key": "formats",
+    "module_label": "Formats"
   },
   {
     "name": "PlyLoadOptions",
@@ -26885,7 +27235,9 @@
     "canonical_namespace": "threed.formats.PlyLoadOptions",
     "class_import": "threed.formats.PlyLoadOptions.PlyLoadOptions",
     "exported_via_package_init": true,
-    "public_import_module": "threed.formats"
+    "public_import_module": "threed.formats",
+    "module_key": "formats",
+    "module_label": "Formats"
   },
   {
     "name": "PlySaveOptions",
@@ -26903,7 +27255,9 @@
     "canonical_namespace": "threed.formats.PlySaveOptions",
     "class_import": "threed.formats.PlySaveOptions.PlySaveOptions",
     "exported_via_package_init": true,
-    "public_import_module": "threed.formats"
+    "public_import_module": "threed.formats",
+    "module_key": "formats",
+    "module_label": "Formats"
   },
   {
     "name": "RvmLoadOptions",
@@ -26921,7 +27275,9 @@
     "canonical_namespace": "threed.formats.RvmLoadOptions",
     "class_import": "threed.formats.RvmLoadOptions.RvmLoadOptions",
     "exported_via_package_init": true,
-    "public_import_module": "threed.formats"
+    "public_import_module": "threed.formats",
+    "module_key": "formats",
+    "module_label": "Formats"
   },
   {
     "name": "RvmSaveOptions",
@@ -26939,7 +27295,9 @@
     "canonical_namespace": "threed.formats.RvmSaveOptions",
     "class_import": "threed.formats.RvmSaveOptions.RvmSaveOptions",
     "exported_via_package_init": true,
-    "public_import_module": "threed.formats"
+    "public_import_module": "threed.formats",
+    "module_key": "formats",
+    "module_label": "Formats"
   },
   {
     "name": "SaveOptions",
@@ -27026,7 +27384,9 @@
     "canonical_namespace": "threed.formats.SaveOptions",
     "class_import": "threed.formats.SaveOptions.SaveOptions",
     "exported_via_package_init": true,
-    "public_import_module": "threed.formats"
+    "public_import_module": "threed.formats",
+    "module_key": "formats",
+    "module_label": "Formats"
   },
   {
     "name": "U3dLoadOptions",
@@ -27042,7 +27402,9 @@
     "deprecated": false,
     "deprecated_reason": "",
     "canonical_namespace": "threed.formats.U3dLoadOptions",
-    "class_import": "threed.formats.U3dLoadOptions.U3dLoadOptions"
+    "class_import": "threed.formats.U3dLoadOptions.U3dLoadOptions",
+    "module_key": "formats",
+    "module_label": "Formats"
   },
   {
     "name": "U3dSaveOptions",
@@ -27058,7 +27420,9 @@
     "deprecated": false,
     "deprecated_reason": "",
     "canonical_namespace": "threed.formats.U3dSaveOptions",
-    "class_import": "threed.formats.U3dSaveOptions.U3dSaveOptions"
+    "class_import": "threed.formats.U3dSaveOptions.U3dSaveOptions",
+    "module_key": "formats",
+    "module_label": "Formats"
   },
   {
     "name": "UsdSaveOptions",
@@ -27076,7 +27440,9 @@
     "canonical_namespace": "threed.formats.UsdSaveOptions",
     "class_import": "threed.formats.UsdSaveOptions.UsdSaveOptions",
     "exported_via_package_init": true,
-    "public_import_module": "threed.formats"
+    "public_import_module": "threed.formats",
+    "module_key": "formats",
+    "module_label": "Formats"
   },
   {
     "name": "XLoadOptions",
@@ -27092,7 +27458,9 @@
     "deprecated": false,
     "deprecated_reason": "",
     "canonical_namespace": "threed.formats.XLoadOptions",
-    "class_import": "threed.formats.XLoadOptions.XLoadOptions"
+    "class_import": "threed.formats.XLoadOptions.XLoadOptions",
+    "module_key": "formats",
+    "module_label": "Formats"
   },
   {
     "name": "ColladaLoadOptions",
@@ -27179,7 +27547,9 @@
     "canonical_namespace": "threed.formats.collada.ColladaLoadOptions",
     "class_import": "threed.formats.collada.ColladaLoadOptions.ColladaLoadOptions",
     "exported_via_package_init": true,
-    "public_import_module": "threed.formats"
+    "public_import_module": "threed.formats",
+    "module_key": "formats",
+    "module_label": "Formats"
   },
   {
     "name": "ColladaPlugin",
@@ -27279,7 +27649,9 @@
     "deprecated": false,
     "deprecated_reason": "",
     "canonical_namespace": "threed.formats.collada.ColladaPlugin",
-    "class_import": "threed.formats.collada.ColladaPlugin.ColladaPlugin"
+    "class_import": "threed.formats.collada.ColladaPlugin.ColladaPlugin",
+    "module_key": "formats",
+    "module_label": "Formats"
   },
   {
     "name": "ColladaSaveOptions",
@@ -27393,7 +27765,9 @@
     "canonical_namespace": "threed.formats.collada.ColladaSaveOptions",
     "class_import": "threed.formats.collada.ColladaSaveOptions.ColladaSaveOptions",
     "exported_via_package_init": true,
-    "public_import_module": "threed.formats"
+    "public_import_module": "threed.formats",
+    "module_key": "formats",
+    "module_label": "Formats"
   },
   {
     "name": "FbxLoadOptions",
@@ -27505,7 +27879,9 @@
     "canonical_namespace": "threed.formats.fbx.FbxLoadOptions",
     "class_import": "threed.formats.fbx.FbxLoadOptions.FbxLoadOptions",
     "exported_via_package_init": true,
-    "public_import_module": "threed.formats"
+    "public_import_module": "threed.formats",
+    "module_key": "formats",
+    "module_label": "Formats"
   },
   {
     "name": "FbxPlugin",
@@ -27605,7 +27981,9 @@
     "deprecated": false,
     "deprecated_reason": "",
     "canonical_namespace": "threed.formats.fbx.FbxPlugin",
-    "class_import": "threed.formats.fbx.FbxPlugin.FbxPlugin"
+    "class_import": "threed.formats.fbx.FbxPlugin.FbxPlugin",
+    "module_key": "formats",
+    "module_label": "Formats"
   },
   {
     "name": "FbxSaveOptions",
@@ -27771,7 +28149,9 @@
     "canonical_namespace": "threed.formats.fbx.FbxSaveOptions",
     "class_import": "threed.formats.fbx.FbxSaveOptions.FbxSaveOptions",
     "exported_via_package_init": true,
-    "public_import_module": "threed.formats"
+    "public_import_module": "threed.formats",
+    "module_key": "formats",
+    "module_label": "Formats"
   },
   {
     "name": "BinaryTokenizer",
@@ -27840,7 +28220,9 @@
     "deprecated": false,
     "deprecated_reason": "",
     "canonical_namespace": "threed.formats.fbx.binary_tokenizer",
-    "class_import": "threed.formats.fbx.binary_tokenizer.BinaryTokenizer"
+    "class_import": "threed.formats.fbx.binary_tokenizer.BinaryTokenizer",
+    "module_key": "formats",
+    "module_label": "Formats"
   },
   {
     "name": "FbxElement",
@@ -27934,7 +28316,9 @@
     "deprecated": false,
     "deprecated_reason": "",
     "canonical_namespace": "threed.formats.fbx.parser",
-    "class_import": "threed.formats.fbx.parser.FbxElement"
+    "class_import": "threed.formats.fbx.parser.FbxElement",
+    "module_key": "formats",
+    "module_label": "Formats"
   },
   {
     "name": "FbxScope",
@@ -28020,7 +28404,9 @@
     "deprecated": false,
     "deprecated_reason": "",
     "canonical_namespace": "threed.formats.fbx.parser",
-    "class_import": "threed.formats.fbx.parser.FbxScope"
+    "class_import": "threed.formats.fbx.parser.FbxScope",
+    "module_key": "formats",
+    "module_label": "Formats"
   },
   {
     "name": "FbxParser",
@@ -28079,7 +28465,9 @@
     "deprecated": false,
     "deprecated_reason": "",
     "canonical_namespace": "threed.formats.fbx.parser",
-    "class_import": "threed.formats.fbx.parser.FbxParser"
+    "class_import": "threed.formats.fbx.parser.FbxParser",
+    "module_key": "formats",
+    "module_label": "Formats"
   },
   {
     "name": "TokenType",
@@ -28134,7 +28522,9 @@
       }
     ],
     "canonical_namespace": "threed.formats.fbx.tokenizer",
-    "class_import": "threed.formats.fbx.tokenizer.TokenType"
+    "class_import": "threed.formats.fbx.tokenizer.TokenType",
+    "module_key": "formats",
+    "module_label": "Formats"
   },
   {
     "name": "Token",
@@ -28216,7 +28606,9 @@
     "deprecated": false,
     "deprecated_reason": "",
     "canonical_namespace": "threed.formats.fbx.tokenizer",
-    "class_import": "threed.formats.fbx.tokenizer.Token"
+    "class_import": "threed.formats.fbx.tokenizer.Token",
+    "module_key": "formats",
+    "module_label": "Formats"
   },
   {
     "name": "FbxTokenizer",
@@ -28260,7 +28652,9 @@
     "deprecated": false,
     "deprecated_reason": "",
     "canonical_namespace": "threed.formats.fbx.tokenizer",
-    "class_import": "threed.formats.fbx.tokenizer.FbxTokenizer"
+    "class_import": "threed.formats.fbx.tokenizer.FbxTokenizer",
+    "module_key": "formats",
+    "module_label": "Formats"
   },
   {
     "name": "GltfLoadOptions",
@@ -28347,7 +28741,9 @@
     "canonical_namespace": "threed.formats.gltf.GltfLoadOptions",
     "class_import": "threed.formats.gltf.GltfLoadOptions.GltfLoadOptions",
     "exported_via_package_init": true,
-    "public_import_module": "threed.formats"
+    "public_import_module": "threed.formats",
+    "module_key": "formats",
+    "module_label": "Formats"
   },
   {
     "name": "GltfPlugin",
@@ -28449,7 +28845,9 @@
     "canonical_namespace": "threed.formats.gltf.GltfPlugin",
     "class_import": "threed.formats.gltf.GltfPlugin.GltfPlugin",
     "exported_via_package_init": true,
-    "public_import_module": "threed.formats.gltf"
+    "public_import_module": "threed.formats.gltf",
+    "module_key": "formats",
+    "module_label": "Formats"
   },
   {
     "name": "GltfSaveOptions",
@@ -28570,7 +28968,9 @@
     "canonical_namespace": "threed.formats.gltf.GltfSaveOptions",
     "class_import": "threed.formats.gltf.GltfSaveOptions.GltfSaveOptions",
     "exported_via_package_init": true,
-    "public_import_module": "threed.formats"
+    "public_import_module": "threed.formats",
+    "module_key": "formats",
+    "module_label": "Formats"
   },
   {
     "name": "ObjLoadOptions",
@@ -28684,7 +29084,9 @@
     "canonical_namespace": "threed.formats.obj.ObjLoadOptions",
     "class_import": "threed.formats.obj.ObjLoadOptions.ObjLoadOptions",
     "exported_via_package_init": true,
-    "public_import_module": "threed.formats"
+    "public_import_module": "threed.formats",
+    "module_key": "formats",
+    "module_label": "Formats"
   },
   {
     "name": "ObjPlugin",
@@ -28784,7 +29186,9 @@
     "deprecated": false,
     "deprecated_reason": "",
     "canonical_namespace": "threed.formats.obj.ObjPlugin",
-    "class_import": "threed.formats.obj.ObjPlugin.ObjPlugin"
+    "class_import": "threed.formats.obj.ObjPlugin.ObjPlugin",
+    "module_key": "formats",
+    "module_label": "Formats"
   },
   {
     "name": "ObjSaveOptions",
@@ -28934,7 +29338,9 @@
     "canonical_namespace": "threed.formats.obj.ObjSaveOptions",
     "class_import": "threed.formats.obj.ObjSaveOptions.ObjSaveOptions",
     "exported_via_package_init": true,
-    "public_import_module": "threed.formats"
+    "public_import_module": "threed.formats",
+    "module_key": "formats",
+    "module_label": "Formats"
   },
   {
     "name": "StlLoadOptions",
@@ -29030,7 +29436,9 @@
     "canonical_namespace": "threed.formats.stl.StlLoadOptions",
     "class_import": "threed.formats.stl.StlLoadOptions.StlLoadOptions",
     "exported_via_package_init": true,
-    "public_import_module": "threed.formats"
+    "public_import_module": "threed.formats",
+    "module_key": "formats",
+    "module_label": "Formats"
   },
   {
     "name": "StlPlugin",
@@ -29130,7 +29538,9 @@
     "deprecated": false,
     "deprecated_reason": "",
     "canonical_namespace": "threed.formats.stl.StlPlugin",
-    "class_import": "threed.formats.stl.StlPlugin.StlPlugin"
+    "class_import": "threed.formats.stl.StlPlugin.StlPlugin",
+    "module_key": "formats",
+    "module_label": "Formats"
   },
   {
     "name": "StlSaveOptions",
@@ -29260,7 +29670,9 @@
     "canonical_namespace": "threed.formats.stl.StlSaveOptions",
     "class_import": "threed.formats.stl.StlSaveOptions.StlSaveOptions",
     "exported_via_package_init": true,
-    "public_import_module": "threed.formats"
+    "public_import_module": "threed.formats",
+    "module_key": "formats",
+    "module_label": "Formats"
   },
   {
     "name": "ThreeMfLoadOptions",
@@ -29347,7 +29759,9 @@
     "canonical_namespace": "threed.formats.threemf.ThreeMfLoadOptions",
     "class_import": "threed.formats.threemf.ThreeMfLoadOptions.ThreeMfLoadOptions",
     "exported_via_package_init": true,
-    "public_import_module": "threed.formats"
+    "public_import_module": "threed.formats",
+    "module_key": "formats",
+    "module_label": "Formats"
   },
   {
     "name": "ThreeMfPlugin",
@@ -29447,7 +29861,9 @@
     "deprecated": false,
     "deprecated_reason": "",
     "canonical_namespace": "threed.formats.threemf.ThreeMfPlugin",
-    "class_import": "threed.formats.threemf.ThreeMfPlugin.ThreeMfPlugin"
+    "class_import": "threed.formats.threemf.ThreeMfPlugin.ThreeMfPlugin",
+    "module_key": "formats",
+    "module_label": "Formats"
   },
   {
     "name": "ThreeMfSaveOptions",
@@ -29579,7 +29995,9 @@
     "canonical_namespace": "threed.formats.threemf.ThreeMfSaveOptions",
     "class_import": "threed.formats.threemf.ThreeMfSaveOptions.ThreeMfSaveOptions",
     "exported_via_package_init": true,
-    "public_import_module": "threed.formats"
+    "public_import_module": "threed.formats",
+    "module_key": "formats",
+    "module_label": "Formats"
   },
   {
     "name": "ArbitraryProfile",
@@ -29799,7 +30217,9 @@
     "canonical_namespace": "threed.profiles.ArbitraryProfile",
     "class_import": "threed.profiles.ArbitraryProfile.ArbitraryProfile",
     "exported_via_package_init": true,
-    "public_import_module": "threed.profiles"
+    "public_import_module": "threed.profiles",
+    "module_key": "profiles",
+    "module_label": "Profiles"
   },
   {
     "name": "CShape",
@@ -30041,7 +30461,9 @@
     "canonical_namespace": "threed.profiles.CShape",
     "class_import": "threed.profiles.CShape.CShape",
     "exported_via_package_init": true,
-    "public_import_module": "threed.profiles"
+    "public_import_module": "threed.profiles",
+    "module_key": "profiles",
+    "module_label": "Profiles"
   },
   {
     "name": "CenterLineProfile",
@@ -30269,7 +30691,9 @@
     "canonical_namespace": "threed.profiles.CenterLineProfile",
     "class_import": "threed.profiles.CenterLineProfile.CenterLineProfile",
     "exported_via_package_init": true,
-    "public_import_module": "threed.profiles"
+    "public_import_module": "threed.profiles",
+    "module_key": "profiles",
+    "module_label": "Profiles"
   },
   {
     "name": "CircleShape",
@@ -30495,7 +30919,9 @@
     "canonical_namespace": "threed.profiles.CircleShape",
     "class_import": "threed.profiles.CircleShape.CircleShape",
     "exported_via_package_init": true,
-    "public_import_module": "threed.profiles"
+    "public_import_module": "threed.profiles",
+    "module_key": "profiles",
+    "module_label": "Profiles"
   },
   {
     "name": "EllipseShape",
@@ -30734,7 +31160,9 @@
     "canonical_namespace": "threed.profiles.EllipseShape",
     "class_import": "threed.profiles.EllipseShape.EllipseShape",
     "exported_via_package_init": true,
-    "public_import_module": "threed.profiles"
+    "public_import_module": "threed.profiles",
+    "module_key": "profiles",
+    "module_label": "Profiles"
   },
   {
     "name": "FontFile",
@@ -30891,7 +31319,9 @@
     "canonical_namespace": "threed.profiles.FontFile",
     "class_import": "threed.profiles.FontFile.FontFile",
     "exported_via_package_init": true,
-    "public_import_module": "threed.profiles"
+    "public_import_module": "threed.profiles",
+    "module_key": "profiles",
+    "module_label": "Profiles"
   },
   {
     "name": "HShape",
@@ -31156,7 +31586,9 @@
     "canonical_namespace": "threed.profiles.HShape",
     "class_import": "threed.profiles.HShape.HShape",
     "exported_via_package_init": true,
-    "public_import_module": "threed.profiles"
+    "public_import_module": "threed.profiles",
+    "module_key": "profiles",
+    "module_label": "Profiles"
   },
   {
     "name": "HollowCircleShape",
@@ -31391,7 +31823,9 @@
     "canonical_namespace": "threed.profiles.HollowCircleShape",
     "class_import": "threed.profiles.HollowCircleShape.HollowCircleShape",
     "exported_via_package_init": true,
-    "public_import_module": "threed.profiles"
+    "public_import_module": "threed.profiles",
+    "module_key": "profiles",
+    "module_label": "Profiles"
   },
   {
     "name": "HollowRectangleShape",
@@ -31657,7 +32091,9 @@
     "canonical_namespace": "threed.profiles.HollowRectangleShape",
     "class_import": "threed.profiles.HollowRectangleShape.HollowRectangleShape",
     "exported_via_package_init": true,
-    "public_import_module": "threed.profiles"
+    "public_import_module": "threed.profiles",
+    "module_key": "profiles",
+    "module_label": "Profiles"
   },
   {
     "name": "LShape",
@@ -31899,7 +32335,9 @@
     "canonical_namespace": "threed.profiles.LShape",
     "class_import": "threed.profiles.LShape.LShape",
     "exported_via_package_init": true,
-    "public_import_module": "threed.profiles"
+    "public_import_module": "threed.profiles",
+    "module_key": "profiles",
+    "module_label": "Profiles"
   },
   {
     "name": "MirroredProfile",
@@ -32110,7 +32548,9 @@
     "canonical_namespace": "threed.profiles.MirroredProfile",
     "class_import": "threed.profiles.MirroredProfile.MirroredProfile",
     "exported_via_package_init": true,
-    "public_import_module": "threed.profiles"
+    "public_import_module": "threed.profiles",
+    "module_key": "profiles",
+    "module_label": "Profiles"
   },
   {
     "name": "ParameterizedProfile",
@@ -32307,7 +32747,9 @@
     "canonical_namespace": "threed.profiles.ParameterizedProfile",
     "class_import": "threed.profiles.ParameterizedProfile.ParameterizedProfile",
     "exported_via_package_init": true,
-    "public_import_module": "threed.profiles"
+    "public_import_module": "threed.profiles",
+    "module_key": "profiles",
+    "module_label": "Profiles"
   },
   {
     "name": "Profile",
@@ -32493,7 +32935,9 @@
     "canonical_namespace": "threed.profiles.Profile",
     "class_import": "threed.profiles.Profile.Profile",
     "exported_via_package_init": true,
-    "public_import_module": "threed.profiles"
+    "public_import_module": "threed.profiles",
+    "module_key": "profiles",
+    "module_label": "Profiles"
   },
   {
     "name": "RectangleShape",
@@ -32732,7 +33176,9 @@
     "canonical_namespace": "threed.profiles.RectangleShape",
     "class_import": "threed.profiles.RectangleShape.RectangleShape",
     "exported_via_package_init": true,
-    "public_import_module": "threed.profiles"
+    "public_import_module": "threed.profiles",
+    "module_key": "profiles",
+    "module_label": "Profiles"
   },
   {
     "name": "TShape",
@@ -32983,7 +33429,9 @@
     "canonical_namespace": "threed.profiles.TShape",
     "class_import": "threed.profiles.TShape.TShape",
     "exported_via_package_init": true,
-    "public_import_module": "threed.profiles"
+    "public_import_module": "threed.profiles",
+    "module_key": "profiles",
+    "module_label": "Profiles"
   },
   {
     "name": "Text",
@@ -33196,7 +33644,9 @@
     "canonical_namespace": "threed.profiles.Text",
     "class_import": "threed.profiles.Text.Text",
     "exported_via_package_init": true,
-    "public_import_module": "threed.profiles"
+    "public_import_module": "threed.profiles",
+    "module_key": "profiles",
+    "module_label": "Profiles"
   },
   {
     "name": "TrapeziumShape",
@@ -33429,7 +33879,9 @@
     "canonical_namespace": "threed.profiles.TrapeziumShape",
     "class_import": "threed.profiles.TrapeziumShape.TrapeziumShape",
     "exported_via_package_init": true,
-    "public_import_module": "threed.profiles"
+    "public_import_module": "threed.profiles",
+    "module_key": "profiles",
+    "module_label": "Profiles"
   },
   {
     "name": "UShape",
@@ -33680,7 +34132,9 @@
     "canonical_namespace": "threed.profiles.UShape",
     "class_import": "threed.profiles.UShape.UShape",
     "exported_via_package_init": true,
-    "public_import_module": "threed.profiles"
+    "public_import_module": "threed.profiles",
+    "module_key": "profiles",
+    "module_label": "Profiles"
   },
   {
     "name": "ZShape",
@@ -33931,7 +34385,9 @@
     "canonical_namespace": "threed.profiles.ZShape",
     "class_import": "threed.profiles.ZShape.ZShape",
     "exported_via_package_init": true,
-    "public_import_module": "threed.profiles"
+    "public_import_module": "threed.profiles",
+    "module_key": "profiles",
+    "module_label": "Profiles"
   },
   {
     "name": "BlendFactor",
@@ -34011,7 +34467,9 @@
     "canonical_namespace": "threed.render.BlendFactor",
     "class_import": "threed.render.BlendFactor.BlendFactor",
     "exported_via_package_init": true,
-    "public_import_module": "threed.render"
+    "public_import_module": "threed.render",
+    "module_key": "render",
+    "module_label": "Render"
   },
   {
     "name": "CompareFunction",
@@ -34063,7 +34521,9 @@
     "canonical_namespace": "threed.render.CompareFunction",
     "class_import": "threed.render.CompareFunction.CompareFunction",
     "exported_via_package_init": true,
-    "public_import_module": "threed.render"
+    "public_import_module": "threed.render",
+    "module_key": "render",
+    "module_label": "Render"
   },
   {
     "name": "CubeFace",
@@ -34107,7 +34567,9 @@
     "canonical_namespace": "threed.render.CubeFace",
     "class_import": "threed.render.CubeFace.CubeFace",
     "exported_via_package_init": true,
-    "public_import_module": "threed.render"
+    "public_import_module": "threed.render",
+    "module_key": "render",
+    "module_label": "Render"
   },
   {
     "name": "CullFaceMode",
@@ -34143,7 +34605,9 @@
     "canonical_namespace": "threed.render.CullFaceMode",
     "class_import": "threed.render.CullFaceMode.CullFaceMode",
     "exported_via_package_init": true,
-    "public_import_module": "threed.render"
+    "public_import_module": "threed.render",
+    "module_key": "render",
+    "module_label": "Render"
   },
   {
     "name": "DescriptorSetUpdater",
@@ -34174,7 +34638,9 @@
     "canonical_namespace": "threed.render.DescriptorSetUpdater",
     "class_import": "threed.render.DescriptorSetUpdater.DescriptorSetUpdater",
     "exported_via_package_init": true,
-    "public_import_module": "threed.render"
+    "public_import_module": "threed.render",
+    "module_key": "render",
+    "module_label": "Render"
   },
   {
     "name": "DrawOperation",
@@ -34218,7 +34684,9 @@
     "canonical_namespace": "threed.render.DrawOperation",
     "class_import": "threed.render.DrawOperation.DrawOperation",
     "exported_via_package_init": true,
-    "public_import_module": "threed.render"
+    "public_import_module": "threed.render",
+    "module_key": "render",
+    "module_label": "Render"
   },
   {
     "name": "DriverException",
@@ -34238,7 +34706,9 @@
     "canonical_namespace": "threed.render.DriverException",
     "class_import": "threed.render.DriverException.DriverException",
     "exported_via_package_init": true,
-    "public_import_module": "threed.render"
+    "public_import_module": "threed.render",
+    "module_key": "render",
+    "module_label": "Render"
   },
   {
     "name": "EntityRenderer",
@@ -34324,7 +34794,9 @@
     "canonical_namespace": "threed.render.EntityRenderer",
     "class_import": "threed.render.EntityRenderer.EntityRenderer",
     "exported_via_package_init": true,
-    "public_import_module": "threed.render"
+    "public_import_module": "threed.render",
+    "module_key": "render",
+    "module_label": "Render"
   },
   {
     "name": "EntityRendererFeatures",
@@ -34355,7 +34827,9 @@
     "canonical_namespace": "threed.render.EntityRendererFeatures",
     "class_import": "threed.render.EntityRendererFeatures.EntityRendererFeatures",
     "exported_via_package_init": true,
-    "public_import_module": "threed.render"
+    "public_import_module": "threed.render",
+    "module_key": "render",
+    "module_label": "Render"
   },
   {
     "name": "EntityRendererKey",
@@ -34390,7 +34864,9 @@
     "canonical_namespace": "threed.render.EntityRendererKey",
     "class_import": "threed.render.EntityRendererKey.EntityRendererKey",
     "exported_via_package_init": true,
-    "public_import_module": "threed.render"
+    "public_import_module": "threed.render",
+    "module_key": "render",
+    "module_label": "Render"
   },
   {
     "name": "FrontFace",
@@ -34418,7 +34894,9 @@
     "canonical_namespace": "threed.render.FrontFace",
     "class_import": "threed.render.FrontFace.FrontFace",
     "exported_via_package_init": true,
-    "public_import_module": "threed.render"
+    "public_import_module": "threed.render",
+    "module_key": "render",
+    "module_label": "Render"
   },
   {
     "name": "GLSLSource",
@@ -34454,7 +34932,9 @@
     "canonical_namespace": "threed.render.GLSLSource",
     "class_import": "threed.render.GLSLSource.GLSLSource",
     "exported_via_package_init": true,
-    "public_import_module": "threed.render"
+    "public_import_module": "threed.render",
+    "module_key": "render",
+    "module_label": "Render"
   },
   {
     "name": "IBuffer",
@@ -34524,7 +35004,9 @@
     "canonical_namespace": "threed.render.IBuffer",
     "class_import": "threed.render.IBuffer.IBuffer",
     "exported_via_package_init": true,
-    "public_import_module": "threed.render"
+    "public_import_module": "threed.render",
+    "module_key": "render",
+    "module_label": "Render"
   },
   {
     "name": "ICommandList",
@@ -34665,7 +35147,9 @@
     "canonical_namespace": "threed.render.ICommandList",
     "class_import": "threed.render.ICommandList.ICommandList",
     "exported_via_package_init": true,
-    "public_import_module": "threed.render"
+    "public_import_module": "threed.render",
+    "module_key": "render",
+    "module_label": "Render"
   },
   {
     "name": "IDescriptorSet",
@@ -34740,7 +35224,9 @@
     "canonical_namespace": "threed.render.IDescriptorSet",
     "class_import": "threed.render.IDescriptorSet.IDescriptorSet",
     "exported_via_package_init": true,
-    "public_import_module": "threed.render"
+    "public_import_module": "threed.render",
+    "module_key": "render",
+    "module_label": "Render"
   },
   {
     "name": "IIndexBuffer",
@@ -34771,7 +35257,9 @@
     "canonical_namespace": "threed.render.IIndexBuffer",
     "class_import": "threed.render.IIndexBuffer.IIndexBuffer",
     "exported_via_package_init": true,
-    "public_import_module": "threed.render"
+    "public_import_module": "threed.render",
+    "module_key": "render",
+    "module_label": "Render"
   },
   {
     "name": "IPipeline",
@@ -34802,7 +35290,9 @@
     "canonical_namespace": "threed.render.IPipeline",
     "class_import": "threed.render.IPipeline.IPipeline",
     "exported_via_package_init": true,
-    "public_import_module": "threed.render"
+    "public_import_module": "threed.render",
+    "module_key": "render",
+    "module_label": "Render"
   },
   {
     "name": "IRenderQueue",
@@ -34862,7 +35352,9 @@
     "canonical_namespace": "threed.render.IRenderQueue",
     "class_import": "threed.render.IRenderQueue.IRenderQueue",
     "exported_via_package_init": true,
-    "public_import_module": "threed.render"
+    "public_import_module": "threed.render",
+    "module_key": "render",
+    "module_label": "Render"
   },
   {
     "name": "IRenderTarget",
@@ -34912,7 +35404,9 @@
     "canonical_namespace": "threed.render.IRenderTarget",
     "class_import": "threed.render.IRenderTarget.IRenderTarget",
     "exported_via_package_init": true,
-    "public_import_module": "threed.render"
+    "public_import_module": "threed.render",
+    "module_key": "render",
+    "module_label": "Render"
   },
   {
     "name": "IRenderTexture",
@@ -34943,7 +35437,9 @@
     "canonical_namespace": "threed.render.IRenderTexture",
     "class_import": "threed.render.IRenderTexture.IRenderTexture",
     "exported_via_package_init": true,
-    "public_import_module": "threed.render"
+    "public_import_module": "threed.render",
+    "module_key": "render",
+    "module_label": "Render"
   },
   {
     "name": "IRenderWindow",
@@ -34998,7 +35494,9 @@
     "canonical_namespace": "threed.render.IRenderWindow",
     "class_import": "threed.render.IRenderWindow.IRenderWindow",
     "exported_via_package_init": true,
-    "public_import_module": "threed.render"
+    "public_import_module": "threed.render",
+    "module_key": "render",
+    "module_label": "Render"
   },
   {
     "name": "ITexture1D",
@@ -35029,7 +35527,9 @@
     "canonical_namespace": "threed.render.ITexture1D",
     "class_import": "threed.render.ITexture1D.ITexture1D",
     "exported_via_package_init": true,
-    "public_import_module": "threed.render"
+    "public_import_module": "threed.render",
+    "module_key": "render",
+    "module_label": "Render"
   },
   {
     "name": "ITexture2D",
@@ -35060,7 +35560,9 @@
     "canonical_namespace": "threed.render.ITexture2D",
     "class_import": "threed.render.ITexture2D.ITexture2D",
     "exported_via_package_init": true,
-    "public_import_module": "threed.render"
+    "public_import_module": "threed.render",
+    "module_key": "render",
+    "module_label": "Render"
   },
   {
     "name": "ITextureCodec",
@@ -35091,7 +35593,9 @@
     "canonical_namespace": "threed.render.ITextureCodec",
     "class_import": "threed.render.ITextureCodec.ITextureCodec",
     "exported_via_package_init": true,
-    "public_import_module": "threed.render"
+    "public_import_module": "threed.render",
+    "module_key": "render",
+    "module_label": "Render"
   },
   {
     "name": "ITextureCubemap",
@@ -35122,7 +35626,9 @@
     "canonical_namespace": "threed.render.ITextureCubemap",
     "class_import": "threed.render.ITextureCubemap.ITextureCubemap",
     "exported_via_package_init": true,
-    "public_import_module": "threed.render"
+    "public_import_module": "threed.render",
+    "module_key": "render",
+    "module_label": "Render"
   },
   {
     "name": "ITextureDecoder",
@@ -35153,7 +35659,9 @@
     "canonical_namespace": "threed.render.ITextureDecoder",
     "class_import": "threed.render.ITextureDecoder.ITextureDecoder",
     "exported_via_package_init": true,
-    "public_import_module": "threed.render"
+    "public_import_module": "threed.render",
+    "module_key": "render",
+    "module_label": "Render"
   },
   {
     "name": "ITextureEncoder",
@@ -35184,7 +35692,9 @@
     "canonical_namespace": "threed.render.ITextureEncoder",
     "class_import": "threed.render.ITextureEncoder.ITextureEncoder",
     "exported_via_package_init": true,
-    "public_import_module": "threed.render"
+    "public_import_module": "threed.render",
+    "module_key": "render",
+    "module_label": "Render"
   },
   {
     "name": "ITextureUnit",
@@ -35215,7 +35725,9 @@
     "canonical_namespace": "threed.render.ITextureUnit",
     "class_import": "threed.render.ITextureUnit.ITextureUnit",
     "exported_via_package_init": true,
-    "public_import_module": "threed.render"
+    "public_import_module": "threed.render",
+    "module_key": "render",
+    "module_label": "Render"
   },
   {
     "name": "IVertexBuffer",
@@ -35246,7 +35758,9 @@
     "canonical_namespace": "threed.render.IVertexBuffer",
     "class_import": "threed.render.IVertexBuffer.IVertexBuffer",
     "exported_via_package_init": true,
-    "public_import_module": "threed.render"
+    "public_import_module": "threed.render",
+    "module_key": "render",
+    "module_label": "Render"
   },
   {
     "name": "IndexDataType",
@@ -35274,7 +35788,9 @@
     "canonical_namespace": "threed.render.IndexDataType",
     "class_import": "threed.render.IndexDataType.IndexDataType",
     "exported_via_package_init": true,
-    "public_import_module": "threed.render"
+    "public_import_module": "threed.render",
+    "module_key": "render",
+    "module_label": "Render"
   },
   {
     "name": "InitializationException",
@@ -35294,7 +35810,9 @@
     "canonical_namespace": "threed.render.InitializationException",
     "class_import": "threed.render.InitializationException.InitializationException",
     "exported_via_package_init": true,
-    "public_import_module": "threed.render"
+    "public_import_module": "threed.render",
+    "module_key": "render",
+    "module_label": "Render"
   },
   {
     "name": "PixelMapMode",
@@ -35326,7 +35844,9 @@
     "canonical_namespace": "threed.render.PixelMapMode",
     "class_import": "threed.render.PixelMapMode.PixelMapMode",
     "exported_via_package_init": true,
-    "public_import_module": "threed.render"
+    "public_import_module": "threed.render",
+    "module_key": "render",
+    "module_label": "Render"
   },
   {
     "name": "PixelMapping",
@@ -35357,7 +35877,9 @@
     "canonical_namespace": "threed.render.PixelMapping",
     "class_import": "threed.render.PixelMapping.PixelMapping",
     "exported_via_package_init": true,
-    "public_import_module": "threed.render"
+    "public_import_module": "threed.render",
+    "module_key": "render",
+    "module_label": "Render"
   },
   {
     "name": "PolygonMode",
@@ -35389,7 +35911,9 @@
     "canonical_namespace": "threed.render.PolygonMode",
     "class_import": "threed.render.PolygonMode.PolygonMode",
     "exported_via_package_init": true,
-    "public_import_module": "threed.render"
+    "public_import_module": "threed.render",
+    "module_key": "render",
+    "module_label": "Render"
   },
   {
     "name": "PostProcessing",
@@ -35420,7 +35944,9 @@
     "canonical_namespace": "threed.render.PostProcessing",
     "class_import": "threed.render.PostProcessing.PostProcessing",
     "exported_via_package_init": true,
-    "public_import_module": "threed.render"
+    "public_import_module": "threed.render",
+    "module_key": "render",
+    "module_label": "Render"
   },
   {
     "name": "PresetShaders",
@@ -35451,7 +35977,9 @@
     "canonical_namespace": "threed.render.PresetShaders",
     "class_import": "threed.render.PresetShaders.PresetShaders",
     "exported_via_package_init": true,
-    "public_import_module": "threed.render"
+    "public_import_module": "threed.render",
+    "module_key": "render",
+    "module_label": "Render"
   },
   {
     "name": "PushConstant",
@@ -35482,7 +36010,9 @@
     "canonical_namespace": "threed.render.PushConstant",
     "class_import": "threed.render.PushConstant.PushConstant",
     "exported_via_package_init": true,
-    "public_import_module": "threed.render"
+    "public_import_module": "threed.render",
+    "module_key": "render",
+    "module_label": "Render"
   },
   {
     "name": "RenderFactory",
@@ -35739,7 +36269,9 @@
     "canonical_namespace": "threed.render.RenderFactory",
     "class_import": "threed.render.RenderFactory.RenderFactory",
     "exported_via_package_init": true,
-    "public_import_module": "threed.render"
+    "public_import_module": "threed.render",
+    "module_key": "render",
+    "module_label": "Render"
   },
   {
     "name": "RenderParameters",
@@ -35770,7 +36302,9 @@
     "canonical_namespace": "threed.render.RenderParameters",
     "class_import": "threed.render.RenderParameters.RenderParameters",
     "exported_via_package_init": true,
-    "public_import_module": "threed.render"
+    "public_import_module": "threed.render",
+    "module_key": "render",
+    "module_label": "Render"
   },
   {
     "name": "RenderQueueGroupId",
@@ -35802,7 +36336,9 @@
     "canonical_namespace": "threed.render.RenderQueueGroupId",
     "class_import": "threed.render.RenderQueueGroupId.RenderQueueGroupId",
     "exported_via_package_init": true,
-    "public_import_module": "threed.render"
+    "public_import_module": "threed.render",
+    "module_key": "render",
+    "module_label": "Render"
   },
   {
     "name": "RenderResource",
@@ -35833,7 +36369,9 @@
     "canonical_namespace": "threed.render.RenderResource",
     "class_import": "threed.render.RenderResource.RenderResource",
     "exported_via_package_init": true,
-    "public_import_module": "threed.render"
+    "public_import_module": "threed.render",
+    "module_key": "render",
+    "module_label": "Render"
   },
   {
     "name": "RenderStage",
@@ -35864,7 +36402,9 @@
     "canonical_namespace": "threed.render.RenderStage",
     "class_import": "threed.render.RenderStage.RenderStage",
     "exported_via_package_init": true,
-    "public_import_module": "threed.render"
+    "public_import_module": "threed.render",
+    "module_key": "render",
+    "module_label": "Render"
   },
   {
     "name": "RenderState",
@@ -35895,7 +36435,9 @@
     "canonical_namespace": "threed.render.RenderState",
     "class_import": "threed.render.RenderState.RenderState",
     "exported_via_package_init": true,
-    "public_import_module": "threed.render"
+    "public_import_module": "threed.render",
+    "module_key": "render",
+    "module_label": "Render"
   },
   {
     "name": "Renderer",
@@ -36149,7 +36691,9 @@
     "canonical_namespace": "threed.render.Renderer",
     "class_import": "threed.render.Renderer.Renderer",
     "exported_via_package_init": true,
-    "public_import_module": "threed.render"
+    "public_import_module": "threed.render",
+    "module_key": "render",
+    "module_label": "Render"
   },
   {
     "name": "RendererVariableManager",
@@ -36180,7 +36724,9 @@
     "canonical_namespace": "threed.render.RendererVariableManager",
     "class_import": "threed.render.RendererVariableManager.RendererVariableManager",
     "exported_via_package_init": true,
-    "public_import_module": "threed.render"
+    "public_import_module": "threed.render",
+    "module_key": "render",
+    "module_label": "Render"
   },
   {
     "name": "SPIRVSource",
@@ -36211,7 +36757,9 @@
     "canonical_namespace": "threed.render.SPIRVSource",
     "class_import": "threed.render.SPIRVSource.SPIRVSource",
     "exported_via_package_init": true,
-    "public_import_module": "threed.render"
+    "public_import_module": "threed.render",
+    "module_key": "render",
+    "module_label": "Render"
   },
   {
     "name": "ShaderException",
@@ -36231,7 +36779,9 @@
     "canonical_namespace": "threed.render.ShaderException",
     "class_import": "threed.render.ShaderException.ShaderException",
     "exported_via_package_init": true,
-    "public_import_module": "threed.render"
+    "public_import_module": "threed.render",
+    "module_key": "render",
+    "module_label": "Render"
   },
   {
     "name": "ShaderProgram",
@@ -36262,7 +36812,9 @@
     "canonical_namespace": "threed.render.ShaderProgram",
     "class_import": "threed.render.ShaderProgram.ShaderProgram",
     "exported_via_package_init": true,
-    "public_import_module": "threed.render"
+    "public_import_module": "threed.render",
+    "module_key": "render",
+    "module_label": "Render"
   },
   {
     "name": "ShaderSet",
@@ -36293,7 +36845,9 @@
     "canonical_namespace": "threed.render.ShaderSet",
     "class_import": "threed.render.ShaderSet.ShaderSet",
     "exported_via_package_init": true,
-    "public_import_module": "threed.render"
+    "public_import_module": "threed.render",
+    "module_key": "render",
+    "module_label": "Render"
   },
   {
     "name": "ShaderSource",
@@ -36324,7 +36878,9 @@
     "canonical_namespace": "threed.render.ShaderSource",
     "class_import": "threed.render.ShaderSource.ShaderSource",
     "exported_via_package_init": true,
-    "public_import_module": "threed.render"
+    "public_import_module": "threed.render",
+    "module_key": "render",
+    "module_label": "Render"
   },
   {
     "name": "ShaderStage",
@@ -36368,7 +36924,9 @@
     "canonical_namespace": "threed.render.ShaderStage",
     "class_import": "threed.render.ShaderStage.ShaderStage",
     "exported_via_package_init": true,
-    "public_import_module": "threed.render"
+    "public_import_module": "threed.render",
+    "module_key": "render",
+    "module_label": "Render"
   },
   {
     "name": "ShaderVariable",
@@ -36399,7 +36957,9 @@
     "canonical_namespace": "threed.render.ShaderVariable",
     "class_import": "threed.render.ShaderVariable.ShaderVariable",
     "exported_via_package_init": true,
-    "public_import_module": "threed.render"
+    "public_import_module": "threed.render",
+    "module_key": "render",
+    "module_label": "Render"
   },
   {
     "name": "StencilAction",
@@ -36451,7 +37011,9 @@
     "canonical_namespace": "threed.render.StencilAction",
     "class_import": "threed.render.StencilAction.StencilAction",
     "exported_via_package_init": true,
-    "public_import_module": "threed.render"
+    "public_import_module": "threed.render",
+    "module_key": "render",
+    "module_label": "Render"
   },
   {
     "name": "StencilState",
@@ -36482,7 +37044,9 @@
     "canonical_namespace": "threed.render.StencilState",
     "class_import": "threed.render.StencilState.StencilState",
     "exported_via_package_init": true,
-    "public_import_module": "threed.render"
+    "public_import_module": "threed.render",
+    "module_key": "render",
+    "module_label": "Render"
   },
   {
     "name": "TextureCodec",
@@ -36513,7 +37077,9 @@
     "canonical_namespace": "threed.render.TextureCodec",
     "class_import": "threed.render.TextureCodec.TextureCodec",
     "exported_via_package_init": true,
-    "public_import_module": "threed.render"
+    "public_import_module": "threed.render",
+    "module_key": "render",
+    "module_label": "Render"
   },
   {
     "name": "TextureData",
@@ -36544,7 +37110,9 @@
     "canonical_namespace": "threed.render.TextureData",
     "class_import": "threed.render.TextureData.TextureData",
     "exported_via_package_init": true,
-    "public_import_module": "threed.render"
+    "public_import_module": "threed.render",
+    "module_key": "render",
+    "module_label": "Render"
   },
   {
     "name": "TextureType",
@@ -36580,7 +37148,9 @@
     "canonical_namespace": "threed.render.TextureType",
     "class_import": "threed.render.TextureType.TextureType",
     "exported_via_package_init": true,
-    "public_import_module": "threed.render"
+    "public_import_module": "threed.render",
+    "module_key": "render",
+    "module_label": "Render"
   },
   {
     "name": "Viewport",
@@ -36636,7 +37206,9 @@
     "canonical_namespace": "threed.render.Viewport",
     "class_import": "threed.render.Viewport.Viewport",
     "exported_via_package_init": true,
-    "public_import_module": "threed.render"
+    "public_import_module": "threed.render",
+    "module_key": "render",
+    "module_label": "Render"
   },
   {
     "name": "WindowHandle",
@@ -36667,7 +37239,9 @@
     "canonical_namespace": "threed.render.WindowHandle",
     "class_import": "threed.render.WindowHandle.WindowHandle",
     "exported_via_package_init": true,
-    "public_import_module": "threed.render"
+    "public_import_module": "threed.render",
+    "module_key": "render",
+    "module_label": "Render"
   },
   {
     "name": "AlphaSource",
@@ -36699,7 +37273,9 @@
     "canonical_namespace": "threed.shading.AlphaSource",
     "class_import": "threed.shading.AlphaSource.AlphaSource",
     "exported_via_package_init": true,
-    "public_import_module": "threed.shading"
+    "public_import_module": "threed.shading",
+    "module_key": "shading",
+    "module_label": "Shading"
   },
   {
     "name": "LambertMaterial",
@@ -36930,7 +37506,9 @@
     "canonical_namespace": "threed.shading.LambertMaterial",
     "class_import": "threed.shading.LambertMaterial.LambertMaterial",
     "exported_via_package_init": true,
-    "public_import_module": "threed.shading"
+    "public_import_module": "threed.shading",
+    "module_key": "shading",
+    "module_label": "Shading"
   },
   {
     "name": "Material",
@@ -37116,7 +37694,9 @@
     "canonical_namespace": "threed.shading.Material",
     "class_import": "threed.shading.Material.Material",
     "exported_via_package_init": true,
-    "public_import_module": "threed.shading"
+    "public_import_module": "threed.shading",
+    "module_key": "shading",
+    "module_label": "Shading"
   },
   {
     "name": "PbrMaterial",
@@ -37415,7 +37995,9 @@
     "canonical_namespace": "threed.shading.PbrMaterial",
     "class_import": "threed.shading.PbrMaterial.PbrMaterial",
     "exported_via_package_init": true,
-    "public_import_module": "threed.shading"
+    "public_import_module": "threed.shading",
+    "module_key": "shading",
+    "module_label": "Shading"
   },
   {
     "name": "PbrSpecularMaterial",
@@ -37684,7 +38266,9 @@
     "canonical_namespace": "threed.shading.PbrSpecularMaterial",
     "class_import": "threed.shading.PbrSpecularMaterial.PbrSpecularMaterial",
     "exported_via_package_init": true,
-    "public_import_module": "threed.shading"
+    "public_import_module": "threed.shading",
+    "module_key": "shading",
+    "module_label": "Shading"
   },
   {
     "name": "PhongMaterial",
@@ -37938,7 +38522,9 @@
     "canonical_namespace": "threed.shading.PhongMaterial",
     "class_import": "threed.shading.PhongMaterial.PhongMaterial",
     "exported_via_package_init": true,
-    "public_import_module": "threed.shading"
+    "public_import_module": "threed.shading",
+    "module_key": "shading",
+    "module_label": "Shading"
   },
   {
     "name": "ShaderMaterial",
@@ -38122,7 +38708,9 @@
     "canonical_namespace": "threed.shading.ShaderMaterial",
     "class_import": "threed.shading.ShaderMaterial.ShaderMaterial",
     "exported_via_package_init": true,
-    "public_import_module": "threed.shading"
+    "public_import_module": "threed.shading",
+    "module_key": "shading",
+    "module_label": "Shading"
   },
   {
     "name": "ShaderTechnique",
@@ -38163,7 +38751,9 @@
     "canonical_namespace": "threed.shading.ShaderTechnique",
     "class_import": "threed.shading.ShaderTechnique.ShaderTechnique",
     "exported_via_package_init": true,
-    "public_import_module": "threed.shading"
+    "public_import_module": "threed.shading",
+    "module_key": "shading",
+    "module_label": "Shading"
   },
   {
     "name": "Texture",
@@ -38396,7 +38986,9 @@
     "canonical_namespace": "threed.shading.Texture",
     "class_import": "threed.shading.Texture.Texture",
     "exported_via_package_init": true,
-    "public_import_module": "threed.shading"
+    "public_import_module": "threed.shading",
+    "module_key": "shading",
+    "module_label": "Shading"
   },
   {
     "name": "TextureBase",
@@ -38437,7 +39029,9 @@
     "canonical_namespace": "threed.shading.TextureBase",
     "class_import": "threed.shading.TextureBase.TextureBase",
     "exported_via_package_init": true,
-    "public_import_module": "threed.shading"
+    "public_import_module": "threed.shading",
+    "module_key": "shading",
+    "module_label": "Shading"
   },
   {
     "name": "TextureFilter",
@@ -38469,7 +39063,9 @@
     "canonical_namespace": "threed.shading.TextureFilter",
     "class_import": "threed.shading.TextureFilter.TextureFilter",
     "exported_via_package_init": true,
-    "public_import_module": "threed.shading"
+    "public_import_module": "threed.shading",
+    "module_key": "shading",
+    "module_label": "Shading"
   },
   {
     "name": "TextureSlot",
@@ -38529,7 +39125,9 @@
     "canonical_namespace": "threed.shading.TextureSlot",
     "class_import": "threed.shading.TextureSlot.TextureSlot",
     "exported_via_package_init": true,
-    "public_import_module": "threed.shading"
+    "public_import_module": "threed.shading",
+    "module_key": "shading",
+    "module_label": "Shading"
   },
   {
     "name": "WrapMode",
@@ -38561,7 +39159,9 @@
     "canonical_namespace": "threed.shading.WrapMode",
     "class_import": "threed.shading.WrapMode.WrapMode",
     "exported_via_package_init": true,
-    "public_import_module": "threed.shading"
+    "public_import_module": "threed.shading",
+    "module_key": "shading",
+    "module_label": "Shading"
   },
   {
     "name": "ArrayListAdapter",
@@ -38734,7 +39334,9 @@
     "canonical_namespace": "threed.utilities.ArrayList",
     "class_import": "threed.utilities.ArrayList.ArrayListAdapter",
     "exported_via_package_init": true,
-    "public_import_module": "threed"
+    "public_import_module": "threed",
+    "module_key": "utilities",
+    "module_label": "Utilities"
   },
   {
     "name": "BoundingBox",
@@ -38905,7 +39507,9 @@
     "canonical_namespace": "threed.utilities.BoundingBox",
     "class_import": "threed.utilities.BoundingBox.BoundingBox",
     "exported_via_package_init": true,
-    "public_import_module": "threed.utilities"
+    "public_import_module": "threed.utilities",
+    "module_key": "utilities",
+    "module_label": "Utilities"
   },
   {
     "name": "BoundingBox2D",
@@ -39022,7 +39626,9 @@
     "canonical_namespace": "threed.utilities.BoundingBox2D",
     "class_import": "threed.utilities.BoundingBox2D.BoundingBox2D",
     "exported_via_package_init": true,
-    "public_import_module": "threed"
+    "public_import_module": "threed",
+    "module_key": "utilities",
+    "module_label": "Utilities"
   },
   {
     "name": "BoundingBoxExtent",
@@ -39054,7 +39660,9 @@
     "canonical_namespace": "threed.utilities.BoundingBoxExtent",
     "class_import": "threed.utilities.BoundingBoxExtent.BoundingBoxExtent",
     "exported_via_package_init": true,
-    "public_import_module": "threed"
+    "public_import_module": "threed",
+    "module_key": "utilities",
+    "module_label": "Utilities"
   },
   {
     "name": "ComposeOrder",
@@ -39082,7 +39690,9 @@
     "canonical_namespace": "threed.utilities.ComposeOrder",
     "class_import": "threed.utilities.ComposeOrder.ComposeOrder",
     "exported_via_package_init": true,
-    "public_import_module": "threed"
+    "public_import_module": "threed",
+    "module_key": "utilities",
+    "module_label": "Utilities"
   },
   {
     "name": "FMatrix4",
@@ -39405,7 +40015,9 @@
     "canonical_namespace": "threed.utilities.FMatrix4",
     "class_import": "threed.utilities.FMatrix4.FMatrix4",
     "exported_via_package_init": true,
-    "public_import_module": "threed"
+    "public_import_module": "threed",
+    "module_key": "utilities",
+    "module_label": "Utilities"
   },
   {
     "name": "FVector2",
@@ -39517,7 +40129,9 @@
     "canonical_namespace": "threed.utilities.FVector2",
     "class_import": "threed.utilities.FVector2.FVector2",
     "exported_via_package_init": true,
-    "public_import_module": "threed.utilities"
+    "public_import_module": "threed.utilities",
+    "module_key": "utilities",
+    "module_label": "Utilities"
   },
   {
     "name": "FVector3",
@@ -39654,7 +40268,9 @@
     "canonical_namespace": "threed.utilities.FVector3",
     "class_import": "threed.utilities.FVector3.FVector3",
     "exported_via_package_init": true,
-    "public_import_module": "threed.utilities"
+    "public_import_module": "threed.utilities",
+    "module_key": "utilities",
+    "module_label": "Utilities"
   },
   {
     "name": "FVector4",
@@ -39738,7 +40354,9 @@
     "canonical_namespace": "threed.utilities.FVector4",
     "class_import": "threed.utilities.FVector4.FVector4",
     "exported_via_package_init": true,
-    "public_import_module": "threed.utilities"
+    "public_import_module": "threed.utilities",
+    "module_key": "utilities",
+    "module_label": "Utilities"
   },
   {
     "name": "FileSystem",
@@ -39878,7 +40496,9 @@
     "canonical_namespace": "threed.utilities.FileSystem",
     "class_import": "threed.utilities.FileSystem.FileSystem",
     "exported_via_package_init": true,
-    "public_import_module": "threed.utilities"
+    "public_import_module": "threed.utilities",
+    "module_key": "utilities",
+    "module_label": "Utilities"
   },
   {
     "name": "IOExtension",
@@ -39917,7 +40537,9 @@
     "canonical_namespace": "threed.utilities.IOExtension",
     "class_import": "threed.utilities.IOExtension.IOExtension",
     "exported_via_package_init": true,
-    "public_import_module": "threed"
+    "public_import_module": "threed",
+    "module_key": "utilities",
+    "module_label": "Utilities"
   },
   {
     "name": "MathUtils",
@@ -39935,7 +40557,9 @@
     "canonical_namespace": "threed.utilities.MathUtils",
     "class_import": "threed.utilities.MathUtils.MathUtils",
     "exported_via_package_init": true,
-    "public_import_module": "threed"
+    "public_import_module": "threed",
+    "module_key": "utilities",
+    "module_label": "Utilities"
   },
   {
     "name": "Matrix4",
@@ -40332,7 +40956,9 @@
     "canonical_namespace": "threed.utilities.Matrix4",
     "class_import": "threed.utilities.Matrix4.Matrix4",
     "exported_via_package_init": true,
-    "public_import_module": "threed.utilities"
+    "public_import_module": "threed.utilities",
+    "module_key": "utilities",
+    "module_label": "Utilities"
   },
   {
     "name": "ParseException",
@@ -40369,7 +40995,9 @@
     "canonical_namespace": "threed.utilities.ParseException",
     "class_import": "threed.utilities.ParseException.ParseException",
     "exported_via_package_init": true,
-    "public_import_module": "threed"
+    "public_import_module": "threed",
+    "module_key": "utilities",
+    "module_label": "Utilities"
   },
   {
     "name": "Quaternion",
@@ -40746,7 +41374,9 @@
     "canonical_namespace": "threed.utilities.Quaternion",
     "class_import": "threed.utilities.Quaternion.Quaternion",
     "exported_via_package_init": true,
-    "public_import_module": "threed.utilities"
+    "public_import_module": "threed.utilities",
+    "module_key": "utilities",
+    "module_label": "Utilities"
   },
   {
     "name": "Rect",
@@ -40886,7 +41516,9 @@
     "canonical_namespace": "threed.utilities.Rect",
     "class_import": "threed.utilities.Rect.Rect",
     "exported_via_package_init": true,
-    "public_import_module": "threed"
+    "public_import_module": "threed",
+    "module_key": "utilities",
+    "module_label": "Utilities"
   },
   {
     "name": "RelativeRectangle",
@@ -41034,7 +41666,9 @@
     "canonical_namespace": "threed.utilities.RelativeRectangle",
     "class_import": "threed.utilities.RelativeRectangle.RelativeRectangle",
     "exported_via_package_init": true,
-    "public_import_module": "threed"
+    "public_import_module": "threed",
+    "module_key": "utilities",
+    "module_label": "Utilities"
   },
   {
     "name": "RotationOrder",
@@ -41078,7 +41712,9 @@
     "canonical_namespace": "threed.utilities.RotationOrder",
     "class_import": "threed.utilities.RotationOrder.RotationOrder",
     "exported_via_package_init": true,
-    "public_import_module": "threed"
+    "public_import_module": "threed",
+    "module_key": "utilities",
+    "module_label": "Utilities"
   },
   {
     "name": "SemanticAttribute",
@@ -41136,7 +41772,9 @@
     "canonical_namespace": "threed.utilities.SemanticAttribute",
     "class_import": "threed.utilities.SemanticAttribute.SemanticAttribute",
     "exported_via_package_init": true,
-    "public_import_module": "threed"
+    "public_import_module": "threed",
+    "module_key": "utilities",
+    "module_label": "Utilities"
   },
   {
     "name": "TransformBuilder",
@@ -41552,7 +42190,9 @@
     "canonical_namespace": "threed.utilities.TransformBuilder",
     "class_import": "threed.utilities.TransformBuilder.TransformBuilder",
     "exported_via_package_init": true,
-    "public_import_module": "threed"
+    "public_import_module": "threed",
+    "module_key": "utilities",
+    "module_label": "Utilities"
   },
   {
     "name": "Vector2",
@@ -41664,7 +42304,9 @@
     "canonical_namespace": "threed.utilities.Vector2",
     "class_import": "threed.utilities.Vector2.Vector2",
     "exported_via_package_init": true,
-    "public_import_module": "threed.utilities"
+    "public_import_module": "threed.utilities",
+    "module_key": "utilities",
+    "module_label": "Utilities"
   },
   {
     "name": "Vector3",
@@ -41939,7 +42581,9 @@
     "canonical_namespace": "threed.utilities.Vector3",
     "class_import": "threed.utilities.Vector3.Vector3",
     "exported_via_package_init": true,
-    "public_import_module": "threed.utilities"
+    "public_import_module": "threed.utilities",
+    "module_key": "utilities",
+    "module_label": "Utilities"
   },
   {
     "name": "Vector4",
@@ -42034,7 +42678,9 @@
     "canonical_namespace": "threed.utilities.Vector4",
     "class_import": "threed.utilities.Vector4.Vector4",
     "exported_via_package_init": true,
-    "public_import_module": "threed.utilities"
+    "public_import_module": "threed.utilities",
+    "module_key": "utilities",
+    "module_label": "Utilities"
   },
   {
     "name": "Vertex",
@@ -42206,7 +42852,9 @@
     "canonical_namespace": "threed.utilities.Vertex",
     "class_import": "threed.utilities.Vertex.Vertex",
     "exported_via_package_init": true,
-    "public_import_module": "threed"
+    "public_import_module": "threed",
+    "module_key": "utilities",
+    "module_label": "Utilities"
   },
   {
     "name": "VertexDeclaration",
@@ -42344,7 +42992,9 @@
     "canonical_namespace": "threed.utilities.VertexDeclaration",
     "class_import": "threed.utilities.VertexDeclaration.VertexDeclaration",
     "exported_via_package_init": true,
-    "public_import_module": "threed"
+    "public_import_module": "threed",
+    "module_key": "utilities",
+    "module_label": "Utilities"
   },
   {
     "name": "VertexField",
@@ -42435,7 +43085,9 @@
     "canonical_namespace": "threed.utilities.VertexField",
     "class_import": "threed.utilities.VertexField.VertexField",
     "exported_via_package_init": true,
-    "public_import_module": "threed"
+    "public_import_module": "threed",
+    "module_key": "utilities",
+    "module_label": "Utilities"
   },
   {
     "name": "VertexFieldDataType",
@@ -42507,7 +43159,9 @@
     "canonical_namespace": "threed.utilities.VertexFieldDataType",
     "class_import": "threed.utilities.VertexFieldDataType.VertexFieldDataType",
     "exported_via_package_init": true,
-    "public_import_module": "threed"
+    "public_import_module": "threed",
+    "module_key": "utilities",
+    "module_label": "Utilities"
   },
   {
     "name": "VertexFieldSemantic",
@@ -42583,7 +43237,9 @@
     "canonical_namespace": "threed.utilities.VertexFieldSemantic",
     "class_import": "threed.utilities.VertexFieldSemantic.VertexFieldSemantic",
     "exported_via_package_init": true,
-    "public_import_module": "threed"
+    "public_import_module": "threed",
+    "module_key": "utilities",
+    "module_label": "Utilities"
   },
   {
     "name": "Watermark",
@@ -42715,6 +43371,8 @@
     "canonical_namespace": "threed.utilities.Watermark",
     "class_import": "threed.utilities.Watermark.Watermark",
     "exported_via_package_init": true,
-    "public_import_module": "threed.utilities"
+    "public_import_module": "threed.utilities",
+    "module_key": "utilities",
+    "module_label": "Utilities"
   }
 ]

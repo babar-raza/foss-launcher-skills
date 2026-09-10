@@ -1,23 +1,23 @@
 {
   "schema_version": 2,
-  "bundle_id": "9e234717-dc1c-4645-9b1e-097d56fccde0",
+  "bundle_id": "6bfcf0b4-fbed-435e-824f-008b08a06a53",
   "family": "email",
   "platform": "python",
   "repo_sha": "10a906b48c0c11005c4d93b524e4431901c9717c",
-  "generated_at": "2026-08-28T04:48:47.571818+00:00",
-  "generator_fingerprint": "c2cc3c24c6bc5e66e0b6513ee648c9c1ae48a0a954349bd653beed452276da89",
+  "generated_at": "2026-09-10T11:07:26.250512+00:00",
+  "generator_fingerprint": "39b55c0381d862030a39cf289a74386dba0d96ba7bead7439ed295a74ed8206e",
   "generator_semver": "2.0.0",
   "members": {
     "model.yaml": {
-      "sha256": "0cec5437786cc68496021f944167ecd7a9893a188ddacb9e95d8223b4df1e425",
-      "bytes": 1220
+      "sha256": "a0db14620b8e3403f12066d695a3347e1632f9d18a22a775b3e2c94ced51c5c0",
+      "bytes": 1354
     },
     "api_surface.json": {
-      "sha256": "6764ae56163e68379fd4c0f909479e58772f6bf0b2d4772c3f793515d9bd740b",
-      "bytes": 117871
+      "sha256": "939de50753962530476db2c74c12f4f9d632f9c827b73811aa31c2ef41be92fe",
+      "bytes": 119599
     },
     "api_surface.md": {
-      "sha256": "5a6ee877880e38fbb5b0a452826b875f758003d5170e70f15257300e10ac5a97",
+      "sha256": "4b6f67901389b0bc4f0ef09f6afdd139d58c3c85c70a6baf58c935f554fdb79f",
       "bytes": 16380
     },
     "formats.json": {
@@ -25,7 +25,7 @@
       "bytes": 1141
     },
     "formats.md": {
-      "sha256": "4b9e6e1caf780387d1be8528bba92e6ff62255b8e3acb7348d88e1365233c379",
+      "sha256": "75bbd298e26516501cf34eab91596200720b2e1e02e0789ad8415e846beaf3f1",
       "bytes": 380
     },
     "claims.json": {
@@ -41,8 +41,8 @@
       "bytes": 176
     },
     "merge_report.md": {
-      "sha256": "c351c6786911f3d556c5054bf27199122f4b2e2accc47222b15fe25bb3b9ad12",
-      "bytes": 512
+      "sha256": "d557de6a539e120d1681501f481fa8b51235f7b92251fd890ee5a8db227b6a85",
+      "bytes": 560
     },
     "snippets/snippet_001.py": {
       "sha256": "eecc801c47889b5f6c34021d9f73b588c84c81fa8a86223c798aa0bb41626287",
@@ -141,10 +141,10 @@
       "bytes": 382
     },
     "snippets/snippets_index.json": {
-      "sha256": "96547d7f5b7ee851a0e0493587b73b2d274265dbf6a4e00b9aeebc2695357da4",
-      "bytes": 13902
+      "sha256": "9fd00111b9f6573c102c6f68ec333778464e91a11401559915f0613e23e85052",
+      "bytes": 18606
     }
   },
-  "promote_run_id": "promote-20260828T044847Z",
+  "promote_run_id": "promote-20260910T110726Z",
   "status": "COMPLETE"
 }

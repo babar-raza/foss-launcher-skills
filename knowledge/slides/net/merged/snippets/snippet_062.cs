@@ -1,8 +1,6 @@
-[Fact]
-    public void TestSaveAndReload()
-    {
-        // Round-trip: create → save → reload preserves slide count.
-        using var pres = new Presentation();
-        using var pres2 = TestHelpers.SaveAndReopen(pres, _tempDir);
-        pres2.Slides.Count.Should().Be(1);
-    }
+public static TheoryData<SaveFormat> FormatsThatCannotBeWritten() =>
+    [
+        SaveFormat.Ppt, SaveFormat.Pdf, SaveFormat.Xps, SaveFormat.Tiff, SaveFormat.Odp,
+        SaveFormat.Html, SaveFormat.Swf, SaveFormat.Otp, SaveFormat.Pps, SaveFormat.Pot,
+        SaveFormat.Fodp, SaveFormat.Gif, SaveFormat.Html5, SaveFormat.Md, SaveFormat.Xml,
+    ];

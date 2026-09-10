@@ -1,21 +1,19 @@
-@Test
-    void testNotesHeaderFooter() throws IOException {
-        try (var pres = new Presentation()) {
-            var notes = pres.getSlides().get(0).getNotesSlideManager().addNotesSlide();
-            notes.getNotesTextFrame().setText("Notes");
-            var hfm = notes.getHeaderFooterManager();
-            hfm.setFooterVisibility(true);
-            hfm.setFooterText("Confidential");
-            hfm.setSlideNumberVisibility(true);
-
-            assertThat(hfm.isFooterVisible()).isTrue();
-            assertThat(hfm.isSlideNumberVisible()).isTrue();
-
-            try (var pres2 = saveAndReopen(pres)) {
-                var ns2 = pres2.getSlides().get(0).getNotesSlideManager().getNotesSlide();
-                var hfm2 = ns2.getHeaderFooterManager();
-                assertThat(hfm2.isFooterVisible()).isTrue();
-                assertThat(hfm2.isSlideNumberVisible()).isTrue();
-            }
-        }
+@Test
+    void savingASubsetToAStreamMustWriteOnlyTheRequestedSlides() throws Exception {
+        Path source = Fixtures.authoredDeck(tempDir, "three.pptx", "First", "Second", "Third");
+        Path out = tempDir.resolve("subset-stream.pptx");
+        try (var pres = new Presentation(source.toString())) {
+            var buffer = new ByteArrayOutputStream();
+            pres.save(buffer, new int[]{0, 2}, SaveFormat.PPTX);
+            java.nio.file.Files.write(out, buffer.toByteArray());
+        }
+
+        try (PptxPackage pkg = PptxPackage.open(out)) {
+            PackageAssertions.assertRegisteredSlideCount(pkg, 2);
+            // Kept in document order, whatever order they were named in.
+            assertThat(slideTexts(pkg))
+                    .as("the slides kept in %s, which was asked for slides 0 and 2 of "
+                            + "[First, Second, Third]", out)
+                    .containsExactly("First", "Third");
+        }
     }

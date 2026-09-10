@@ -1,17 +1,19 @@
-@Test
-    void testPictureFill() throws IOException {
-        try (var pres = new Presentation()) {
-            var slide = clear(pres);
-            var shape = slide.getShapes().addAutoShape(ShapeType.RECTANGLE, 50, 50, 200, 200);
-            shape.getFillFormat().setFillType(FillType.PICTURE);
-            var pff = shape.getFillFormat().getPictureFillFormat();
-            pff.setPictureFillMode(PictureFillMode.STRETCH);
-            var img = pres.getImages().addImage(TestHelpers.createTestPng(0, 255, 0));
-            pff.getPicture().setImage(img);
-
-            try (var pres2 = saveAndReopen(pres)) {
-                var ff2 = pres2.getSlides().get(0).getShapes().get(0).getFillFormat();
-                assertThat(ff2.getFillType()).isEqualTo(FillType.PICTURE);
-            }
-        }
+@Test
+    void replacingTheTextMustNotLeaveABlankParagraphBehind() throws Exception {
+        Path out = tempDir.resolve("replaced.pptx");
+        try (var pres = new Presentation()) {
+            IAutoShape shape = pres.getSlides().get(0).getShapes()
+                    .addAutoShape(ShapeType.RECTANGLE, 50, 50, 400, 200);
+            shape.addTextFrame("First text");
+            shape.getTextFrame().setText("Replacement line one\nReplacement line two");
+            pres.save(out.toString(), SaveFormat.PPTX);
+        }
+
+        try (PptxPackage pkg = PptxPackage.open(out)) {
+            assertThat(PackageAssertions.selectNodes(pkg, "ppt/slides/slide1.xml",
+                    "//p:sp/p:txBody/a:p"))
+                    .as("a:p elements in the shape's text body of %s%n%s",
+                            out, pkg.text("ppt/slides/slide1.xml"))
+                    .hasSize(2);
+        }
     }

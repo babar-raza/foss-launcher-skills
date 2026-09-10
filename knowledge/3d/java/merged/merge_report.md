@@ -1,5 +1,5 @@
 # Promote Report: 3d/java
-Date: 2026-08-14T11:40:06.554026+00:00
+Date: 2026-09-10T11:07:21.598502+00:00
 Scout SHA: e308de58888635956cd66e5b0e2994dd42cd4356
 Source: scout-only (standalone pipeline, no FL dependency)
 
@@ -11,6 +11,7 @@ Source: scout-only (standalone pipeline, no FL dependency)
 | Supplemental claims (bridge) | 0 |
 | Total claims | 4147 |
 | Classes | 266 |
+| API surface entries (incl. functions) | 266 |
 | Forbidden claims | 80 |
 | Snippets | 75 |
 

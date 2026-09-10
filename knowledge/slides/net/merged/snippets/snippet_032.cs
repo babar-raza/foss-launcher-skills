@@ -1,5 +1,1 @@
-public FillFormatTests()
-    {
-        _tempDir = Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString("N"));
-        Directory.CreateDirectory(_tempDir);
-    }
+internal string PathFor(string fileName) => System.IO.Path.Combine(_root, fileName);

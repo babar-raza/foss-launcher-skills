@@ -1,10 +1,14 @@
-[Fact]
-    public void TestInsertEmptySlide()
+private static void AssertParagraphTexts(PptxPackage package, string[] expected)
     {
-        // insert_empty_slide places a slide at the given index.
-        using var pres = new Presentation();
-        var layout = pres.LayoutSlides[0];
-        pres.Slides.AddEmptySlide(layout);
-        pres.Slides.InsertEmptySlide(1, layout);
-        pres.Slides.Count.Should().Be(3);
+        var paragraphs = PackageAssert.Select(package, "ppt/slides/slide1.xml", "//p:txBody/a:p");
+
+        var written = paragraphs
+            .Select(paragraph => string.Concat(
+                paragraph.Elements(Ns.A + "r").Select(run => run.Element(Ns.A + "t")?.Value ?? string.Empty)))
+            .ToList();
+
+        Assert.True(written.SequenceEqual(expected),
+            $"The text body carries {written.Count} paragraph(s) [{string.Join(" | ", written)}], " +
+            $"expected {expected.Length} [{string.Join(" | ", expected)}]." +
+            $"{Environment.NewLine}{PackageAssert.Describe(package, "ppt/slides/slide1.xml")}");
     }

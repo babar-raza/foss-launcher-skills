@@ -104,7 +104,9 @@
     "canonical_namespace": "loader",
     "class_import": "loader.FontSourceInfo",
     "exported_via_package_init": true,
-    "public_import_module": ""
+    "public_import_module": "",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "LoadedFont",
@@ -185,7 +187,9 @@
     "canonical_namespace": "loader",
     "class_import": "loader.LoadedFont",
     "exported_via_package_init": true,
-    "public_import_module": ""
+    "public_import_module": "",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "FontLoader",
@@ -246,7 +250,9 @@
     "canonical_namespace": "loader",
     "class_import": "loader.FontLoader",
     "exported_via_package_init": true,
-    "public_import_module": ""
+    "public_import_module": "",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "decompress",
@@ -264,7 +270,9 @@
       }
     ],
     "return_type": "bytes",
-    "reachable": false
+    "reachable": false,
+    "module_key": "_brotli",
+    "module_label": "Brotli"
   },
   {
     "name": "compress",
@@ -286,7 +294,9 @@
       }
     ],
     "return_type": "bytes",
-    "reachable": false
+    "reachable": false,
+    "module_key": "_brotli",
+    "module_label": "Brotli"
   },
   {
     "name": "BrotliDecoder",
@@ -315,7 +325,9 @@
     "visibility": "internal",
     "reachable": false,
     "canonical_namespace": "_brotli._decode",
-    "class_import": "_brotli._decode.BrotliDecoder"
+    "class_import": "_brotli._decode.BrotliDecoder",
+    "module_key": "_brotli",
+    "module_label": "Brotli"
   },
   {
     "name": "fixture_woff2_payload",
@@ -328,7 +340,9 @@
     "properties": [],
     "params": [],
     "return_type": "bytes",
-    "reachable": false
+    "reachable": false,
+    "module_key": "_brotli",
+    "module_label": "Brotli"
   },
   {
     "name": "fixture_woff2_sfnt",
@@ -341,7 +355,9 @@
     "properties": [],
     "params": [],
     "return_type": "bytes",
-    "reachable": false
+    "reachable": false,
+    "module_key": "_brotli",
+    "module_label": "Brotli"
   },
   {
     "name": "BrotliEncoder",
@@ -384,7 +400,9 @@
     "visibility": "internal",
     "reachable": false,
     "canonical_namespace": "_brotli._encode",
-    "class_import": "_brotli._encode.BrotliEncoder"
+    "class_import": "_brotli._encode.BrotliEncoder",
+    "module_key": "_brotli",
+    "module_label": "Brotli"
   },
   {
     "name": "Enum",
@@ -446,7 +464,9 @@
     "visibility": "internal",
     "reachable": false,
     "canonical_namespace": "_brotli.vendor.brotlihaxe",
-    "class_import": "_brotli.vendor.brotlihaxe.Enum"
+    "class_import": "_brotli.vendor.brotlihaxe.Enum",
+    "module_key": "_brotli",
+    "module_label": "Brotli"
   },
   {
     "name": "Brotli",
@@ -585,7 +605,9 @@
     "visibility": "internal",
     "reachable": false,
     "canonical_namespace": "_brotli.vendor.brotlihaxe",
-    "class_import": "_brotli.vendor.brotlihaxe.Brotli"
+    "class_import": "_brotli.vendor.brotlihaxe.Brotli",
+    "module_key": "_brotli",
+    "module_label": "Brotli"
   },
   {
     "name": "Date",
@@ -652,7 +674,9 @@
     "visibility": "internal",
     "reachable": false,
     "canonical_namespace": "_brotli.vendor.brotlihaxe",
-    "class_import": "_brotli.vendor.brotlihaxe.Date"
+    "class_import": "_brotli.vendor.brotlihaxe.Date",
+    "module_key": "_brotli",
+    "module_label": "Brotli"
   },
   {
     "name": "DefaultFunctions",
@@ -878,7 +902,9 @@
     "visibility": "internal",
     "reachable": false,
     "canonical_namespace": "_brotli.vendor.brotlihaxe",
-    "class_import": "_brotli.vendor.brotlihaxe.DefaultFunctions"
+    "class_import": "_brotli.vendor.brotlihaxe.DefaultFunctions",
+    "module_key": "_brotli",
+    "module_label": "Brotli"
   },
   {
     "name": "EnumValue",
@@ -892,7 +918,9 @@
     "visibility": "internal",
     "reachable": false,
     "canonical_namespace": "_brotli.vendor.brotlihaxe",
-    "class_import": "_brotli.vendor.brotlihaxe.EnumValue"
+    "class_import": "_brotli.vendor.brotlihaxe.EnumValue",
+    "module_key": "_brotli",
+    "module_label": "Brotli"
   },
   {
     "name": "FunctionMalloc",
@@ -1062,7 +1090,9 @@
     "visibility": "internal",
     "reachable": false,
     "canonical_namespace": "_brotli.vendor.brotlihaxe",
-    "class_import": "_brotli.vendor.brotlihaxe.FunctionMalloc"
+    "class_import": "_brotli.vendor.brotlihaxe.FunctionMalloc",
+    "module_key": "_brotli",
+    "module_label": "Brotli"
   },
   {
     "name": "decode_Decode",
@@ -1554,7 +1584,9 @@
     "visibility": "internal",
     "reachable": false,
     "canonical_namespace": "_brotli.vendor.brotlihaxe",
-    "class_import": "_brotli.vendor.brotlihaxe.decode_Decode"
+    "class_import": "_brotli.vendor.brotlihaxe.decode_Decode",
+    "module_key": "_brotli",
+    "module_label": "Brotli"
   },
   {
     "name": "Main",
@@ -2122,7 +2154,9 @@
     "visibility": "internal",
     "reachable": false,
     "canonical_namespace": "_brotli.vendor.brotlihaxe",
-    "class_import": "_brotli.vendor.brotlihaxe.Main"
+    "class_import": "_brotli.vendor.brotlihaxe.Main",
+    "module_key": "_brotli",
+    "module_label": "Brotli"
   },
   {
     "name": "Reflect",
@@ -2155,7 +2189,9 @@
     "visibility": "internal",
     "reachable": false,
     "canonical_namespace": "_brotli.vendor.brotlihaxe",
-    "class_import": "_brotli.vendor.brotlihaxe.Reflect"
+    "class_import": "_brotli.vendor.brotlihaxe.Reflect",
+    "module_key": "_brotli",
+    "module_label": "Brotli"
   },
   {
     "name": "Std",
@@ -2226,7 +2262,9 @@
     "visibility": "internal",
     "reachable": false,
     "canonical_namespace": "_brotli.vendor.brotlihaxe",
-    "class_import": "_brotli.vendor.brotlihaxe.Std"
+    "class_import": "_brotli.vendor.brotlihaxe.Std",
+    "module_key": "_brotli",
+    "module_label": "Brotli"
   },
   {
     "name": "StringTools",
@@ -2259,7 +2297,9 @@
     "visibility": "internal",
     "reachable": false,
     "canonical_namespace": "_brotli.vendor.brotlihaxe",
-    "class_import": "_brotli.vendor.brotlihaxe.StringTools"
+    "class_import": "_brotli.vendor.brotlihaxe.StringTools",
+    "module_key": "_brotli",
+    "module_label": "Brotli"
   },
   {
     "name": "sys_FileSystem",
@@ -2302,7 +2342,9 @@
     "visibility": "internal",
     "reachable": false,
     "canonical_namespace": "_brotli.vendor.brotlihaxe",
-    "class_import": "_brotli.vendor.brotlihaxe.sys_FileSystem"
+    "class_import": "_brotli.vendor.brotlihaxe.sys_FileSystem",
+    "module_key": "_brotli",
+    "module_label": "Brotli"
   },
   {
     "name": "haxe_IMap",
@@ -2316,7 +2358,9 @@
     "visibility": "internal",
     "reachable": false,
     "canonical_namespace": "_brotli.vendor.brotlihaxe",
-    "class_import": "_brotli.vendor.brotlihaxe.haxe_IMap"
+    "class_import": "_brotli.vendor.brotlihaxe.haxe_IMap",
+    "module_key": "_brotli",
+    "module_label": "Brotli"
   },
   {
     "name": "haxe_ds_StringMap",
@@ -2349,7 +2393,9 @@
     "visibility": "internal",
     "reachable": false,
     "canonical_namespace": "_brotli.vendor.brotlihaxe",
-    "class_import": "_brotli.vendor.brotlihaxe.haxe_ds_StringMap"
+    "class_import": "_brotli.vendor.brotlihaxe.haxe_ds_StringMap",
+    "module_key": "_brotli",
+    "module_label": "Brotli"
   },
   {
     "name": "python_HaxeIterator",
@@ -2429,7 +2475,9 @@
     "visibility": "internal",
     "reachable": false,
     "canonical_namespace": "_brotli.vendor.brotlihaxe",
-    "class_import": "_brotli.vendor.brotlihaxe.python_HaxeIterator"
+    "class_import": "_brotli.vendor.brotlihaxe.python_HaxeIterator",
+    "module_key": "_brotli",
+    "module_label": "Brotli"
   },
   {
     "name": "Sys",
@@ -2691,7 +2739,9 @@
     "visibility": "internal",
     "reachable": false,
     "canonical_namespace": "_brotli.vendor.brotlihaxe",
-    "class_import": "_brotli.vendor.brotlihaxe.Sys"
+    "class_import": "_brotli.vendor.brotlihaxe.Sys",
+    "module_key": "_brotli",
+    "module_label": "Brotli"
   },
   {
     "name": "decode_BitReader",
@@ -2843,7 +2893,9 @@
     "visibility": "internal",
     "reachable": false,
     "canonical_namespace": "_brotli.vendor.brotlihaxe",
-    "class_import": "_brotli.vendor.brotlihaxe.decode_BitReader"
+    "class_import": "_brotli.vendor.brotlihaxe.decode_BitReader",
+    "module_key": "_brotli",
+    "module_label": "Brotli"
   },
   {
     "name": "decode_Context",
@@ -2867,7 +2919,9 @@
     "visibility": "internal",
     "reachable": false,
     "canonical_namespace": "_brotli.vendor.brotlihaxe",
-    "class_import": "_brotli.vendor.brotlihaxe.decode_Context"
+    "class_import": "_brotli.vendor.brotlihaxe.decode_Context",
+    "module_key": "_brotli",
+    "module_label": "Brotli"
   },
   {
     "name": "decode_Dictionary",
@@ -2891,7 +2945,9 @@
     "visibility": "internal",
     "reachable": false,
     "canonical_namespace": "_brotli.vendor.brotlihaxe",
-    "class_import": "_brotli.vendor.brotlihaxe.decode_Dictionary"
+    "class_import": "_brotli.vendor.brotlihaxe.decode_Dictionary",
+    "module_key": "_brotli",
+    "module_label": "Brotli"
   },
   {
     "name": "decode_Huffman",
@@ -3051,7 +3107,9 @@
     "visibility": "internal",
     "reachable": false,
     "canonical_namespace": "_brotli.vendor.brotlihaxe",
-    "class_import": "_brotli.vendor.brotlihaxe.decode_Huffman"
+    "class_import": "_brotli.vendor.brotlihaxe.decode_Huffman",
+    "module_key": "_brotli",
+    "module_label": "Brotli"
   },
   {
     "name": "decode_Port",
@@ -3117,7 +3175,9 @@
     "visibility": "internal",
     "reachable": false,
     "canonical_namespace": "_brotli.vendor.brotlihaxe",
-    "class_import": "_brotli.vendor.brotlihaxe.decode_Port"
+    "class_import": "_brotli.vendor.brotlihaxe.decode_Port",
+    "module_key": "_brotli",
+    "module_label": "Brotli"
   },
   {
     "name": "decode_prefix_PrefixCodeRange",
@@ -3167,7 +3227,9 @@
     "visibility": "internal",
     "reachable": false,
     "canonical_namespace": "_brotli.vendor.brotlihaxe",
-    "class_import": "_brotli.vendor.brotlihaxe.decode_prefix_PrefixCodeRange"
+    "class_import": "_brotli.vendor.brotlihaxe.decode_prefix_PrefixCodeRange",
+    "module_key": "_brotli",
+    "module_label": "Brotli"
   },
   {
     "name": "decode_Prefix",
@@ -3191,7 +3253,9 @@
     "visibility": "internal",
     "reachable": false,
     "canonical_namespace": "_brotli.vendor.brotlihaxe",
-    "class_import": "_brotli.vendor.brotlihaxe.decode_Prefix"
+    "class_import": "_brotli.vendor.brotlihaxe.decode_Prefix",
+    "module_key": "_brotli",
+    "module_label": "Brotli"
   },
   {
     "name": "decode_State",
@@ -3229,7 +3293,9 @@
     "visibility": "internal",
     "reachable": false,
     "canonical_namespace": "_brotli.vendor.brotlihaxe",
-    "class_import": "_brotli.vendor.brotlihaxe.decode_State"
+    "class_import": "_brotli.vendor.brotlihaxe.decode_State",
+    "module_key": "_brotli",
+    "module_label": "Brotli"
   },
   {
     "name": "decode_Streams",
@@ -3469,7 +3535,9 @@
     "visibility": "internal",
     "reachable": false,
     "canonical_namespace": "_brotli.vendor.brotlihaxe",
-    "class_import": "_brotli.vendor.brotlihaxe.decode_Streams"
+    "class_import": "_brotli.vendor.brotlihaxe.decode_Streams",
+    "module_key": "_brotli",
+    "module_label": "Brotli"
   },
   {
     "name": "decode_transform_Transform",
@@ -3531,7 +3599,9 @@
     "visibility": "internal",
     "reachable": false,
     "canonical_namespace": "_brotli.vendor.brotlihaxe",
-    "class_import": "_brotli.vendor.brotlihaxe.decode_transform_Transform"
+    "class_import": "_brotli.vendor.brotlihaxe.decode_transform_Transform",
+    "module_key": "_brotli",
+    "module_label": "Brotli"
   },
   {
     "name": "HxString",
@@ -3744,7 +3814,9 @@
     "visibility": "internal",
     "reachable": false,
     "canonical_namespace": "_brotli.vendor.brotlihaxe",
-    "class_import": "_brotli.vendor.brotlihaxe.HxString"
+    "class_import": "_brotli.vendor.brotlihaxe.HxString",
+    "module_key": "_brotli",
+    "module_label": "Brotli"
   },
   {
     "name": "decode_Transforms",
@@ -3820,7 +3892,9 @@
     "visibility": "internal",
     "reachable": false,
     "canonical_namespace": "_brotli.vendor.brotlihaxe",
-    "class_import": "_brotli.vendor.brotlihaxe.decode_Transforms"
+    "class_import": "_brotli.vendor.brotlihaxe.decode_Transforms",
+    "module_key": "_brotli",
+    "module_label": "Brotli"
   },
   {
     "name": "decode_bit_reader_BrotliBitReader",
@@ -3941,7 +4015,9 @@
     "visibility": "internal",
     "reachable": false,
     "canonical_namespace": "_brotli.vendor.brotlihaxe",
-    "class_import": "_brotli.vendor.brotlihaxe.decode_bit_reader_BrotliBitReader"
+    "class_import": "_brotli.vendor.brotlihaxe.decode_bit_reader_BrotliBitReader",
+    "module_key": "_brotli",
+    "module_label": "Brotli"
   },
   {
     "name": "decode_huffman_HuffmanCode",
@@ -3991,7 +4067,9 @@
     "visibility": "internal",
     "reachable": false,
     "canonical_namespace": "_brotli.vendor.brotlihaxe",
-    "class_import": "_brotli.vendor.brotlihaxe.decode_huffman_HuffmanCode"
+    "class_import": "_brotli.vendor.brotlihaxe.decode_huffman_HuffmanCode",
+    "module_key": "_brotli",
+    "module_label": "Brotli"
   },
   {
     "name": "decode_huffman_HuffmanTreeGroup",
@@ -4056,7 +4134,9 @@
     "visibility": "internal",
     "reachable": false,
     "canonical_namespace": "_brotli.vendor.brotlihaxe",
-    "class_import": "_brotli.vendor.brotlihaxe.decode_huffman_HuffmanTreeGroup"
+    "class_import": "_brotli.vendor.brotlihaxe.decode_huffman_HuffmanTreeGroup",
+    "module_key": "_brotli",
+    "module_label": "Brotli"
   },
   {
     "name": "decode_state_BrotliState",
@@ -4801,7 +4881,9 @@
     "visibility": "internal",
     "reachable": false,
     "canonical_namespace": "_brotli.vendor.brotlihaxe",
-    "class_import": "_brotli.vendor.brotlihaxe.decode_state_BrotliState"
+    "class_import": "_brotli.vendor.brotlihaxe.decode_state_BrotliState",
+    "module_key": "_brotli",
+    "module_label": "Brotli"
   },
   {
     "name": "decode_streams_BrotliInput",
@@ -4850,7 +4932,9 @@
     "visibility": "internal",
     "reachable": false,
     "canonical_namespace": "_brotli.vendor.brotlihaxe",
-    "class_import": "_brotli.vendor.brotlihaxe.decode_streams_BrotliInput"
+    "class_import": "_brotli.vendor.brotlihaxe.decode_streams_BrotliInput",
+    "module_key": "_brotli",
+    "module_label": "Brotli"
   },
   {
     "name": "decode_streams_BrotliMemInput",
@@ -4899,7 +4983,9 @@
     "visibility": "internal",
     "reachable": false,
     "canonical_namespace": "_brotli.vendor.brotlihaxe",
-    "class_import": "_brotli.vendor.brotlihaxe.decode_streams_BrotliMemInput"
+    "class_import": "_brotli.vendor.brotlihaxe.decode_streams_BrotliMemInput",
+    "module_key": "_brotli",
+    "module_label": "Brotli"
   },
   {
     "name": "decode_streams_BrotliMemOutput",
@@ -4940,7 +5026,9 @@
     "visibility": "internal",
     "reachable": false,
     "canonical_namespace": "_brotli.vendor.brotlihaxe",
-    "class_import": "_brotli.vendor.brotlihaxe.decode_streams_BrotliMemOutput"
+    "class_import": "_brotli.vendor.brotlihaxe.decode_streams_BrotliMemOutput",
+    "module_key": "_brotli",
+    "module_label": "Brotli"
   },
   {
     "name": "decode_streams_BrotliOutput",
@@ -4989,7 +5077,9 @@
     "visibility": "internal",
     "reachable": false,
     "canonical_namespace": "_brotli.vendor.brotlihaxe",
-    "class_import": "_brotli.vendor.brotlihaxe.decode_streams_BrotliOutput"
+    "class_import": "_brotli.vendor.brotlihaxe.decode_streams_BrotliOutput",
+    "module_key": "_brotli",
+    "module_label": "Brotli"
   },
   {
     "name": "encode_Backward_references",
@@ -5421,7 +5511,9 @@
     "visibility": "internal",
     "reachable": false,
     "canonical_namespace": "_brotli.vendor.brotlihaxe",
-    "class_import": "_brotli.vendor.brotlihaxe.encode_Backward_references"
+    "class_import": "_brotli.vendor.brotlihaxe.encode_Backward_references",
+    "module_key": "_brotli",
+    "module_label": "Brotli"
   },
   {
     "name": "encode_BinaryHeap",
@@ -5558,7 +5650,9 @@
     "visibility": "internal",
     "reachable": false,
     "canonical_namespace": "_brotli.vendor.brotlihaxe",
-    "class_import": "_brotli.vendor.brotlihaxe.encode_BinaryHeap"
+    "class_import": "_brotli.vendor.brotlihaxe.encode_BinaryHeap",
+    "module_key": "_brotli",
+    "module_label": "Brotli"
   },
   {
     "name": "encode_Bit_cost",
@@ -5618,7 +5712,9 @@
     "visibility": "internal",
     "reachable": false,
     "canonical_namespace": "_brotli.vendor.brotlihaxe",
-    "class_import": "_brotli.vendor.brotlihaxe.encode_Bit_cost"
+    "class_import": "_brotli.vendor.brotlihaxe.encode_Bit_cost",
+    "module_key": "_brotli",
+    "module_label": "Brotli"
   },
   {
     "name": "encode_Block_splitter",
@@ -6034,7 +6130,9 @@
     "visibility": "internal",
     "reachable": false,
     "canonical_namespace": "_brotli.vendor.brotlihaxe",
-    "class_import": "_brotli.vendor.brotlihaxe.encode_Block_splitter"
+    "class_import": "_brotli.vendor.brotlihaxe.encode_Block_splitter",
+    "module_key": "_brotli",
+    "module_label": "Brotli"
   },
   {
     "name": "encode_Brotli_bit_stream",
@@ -6696,7 +6794,9 @@
     "visibility": "internal",
     "reachable": false,
     "canonical_namespace": "_brotli.vendor.brotlihaxe",
-    "class_import": "_brotli.vendor.brotlihaxe.encode_Brotli_bit_stream"
+    "class_import": "_brotli.vendor.brotlihaxe.encode_Brotli_bit_stream",
+    "module_key": "_brotli",
+    "module_label": "Brotli"
   },
   {
     "name": "encode_Cluster",
@@ -6920,7 +7020,9 @@
     "visibility": "internal",
     "reachable": false,
     "canonical_namespace": "_brotli.vendor.brotlihaxe",
-    "class_import": "_brotli.vendor.brotlihaxe.encode_Cluster"
+    "class_import": "_brotli.vendor.brotlihaxe.encode_Cluster",
+    "module_key": "_brotli",
+    "module_label": "Brotli"
   },
   {
     "name": "encode_Command_functions",
@@ -7046,7 +7148,9 @@
     "visibility": "internal",
     "reachable": false,
     "canonical_namespace": "_brotli.vendor.brotlihaxe",
-    "class_import": "_brotli.vendor.brotlihaxe.encode_Command_functions"
+    "class_import": "_brotli.vendor.brotlihaxe.encode_Command_functions",
+    "module_key": "_brotli",
+    "module_label": "Brotli"
   },
   {
     "name": "encode_Context",
@@ -7092,7 +7196,9 @@
     "visibility": "internal",
     "reachable": false,
     "canonical_namespace": "_brotli.vendor.brotlihaxe",
-    "class_import": "_brotli.vendor.brotlihaxe.encode_Context"
+    "class_import": "_brotli.vendor.brotlihaxe.encode_Context",
+    "module_key": "_brotli",
+    "module_label": "Brotli"
   },
   {
     "name": "encode_Dictionary",
@@ -7116,7 +7222,9 @@
     "visibility": "internal",
     "reachable": false,
     "canonical_namespace": "_brotli.vendor.brotlihaxe",
-    "class_import": "_brotli.vendor.brotlihaxe.encode_Dictionary"
+    "class_import": "_brotli.vendor.brotlihaxe.encode_Dictionary",
+    "module_key": "_brotli",
+    "module_label": "Brotli"
   },
   {
     "name": "encode_Dictionary_hash",
@@ -7140,7 +7248,9 @@
     "visibility": "internal",
     "reachable": false,
     "canonical_namespace": "_brotli.vendor.brotlihaxe",
-    "class_import": "_brotli.vendor.brotlihaxe.encode_Dictionary_hash"
+    "class_import": "_brotli.vendor.brotlihaxe.encode_Dictionary_hash",
+    "module_key": "_brotli",
+    "module_label": "Brotli"
   },
   {
     "name": "encode_Encode",
@@ -7368,7 +7478,9 @@
     "visibility": "internal",
     "reachable": false,
     "canonical_namespace": "_brotli.vendor.brotlihaxe",
-    "class_import": "_brotli.vendor.brotlihaxe.encode_Encode"
+    "class_import": "_brotli.vendor.brotlihaxe.encode_Encode",
+    "module_key": "_brotli",
+    "module_label": "Brotli"
   },
   {
     "name": "encode_Entropy_encode",
@@ -7732,7 +7844,9 @@
     "visibility": "internal",
     "reachable": false,
     "canonical_namespace": "_brotli.vendor.brotlihaxe",
-    "class_import": "_brotli.vendor.brotlihaxe.encode_Entropy_encode"
+    "class_import": "_brotli.vendor.brotlihaxe.encode_Entropy_encode",
+    "module_key": "_brotli",
+    "module_label": "Brotli"
   },
   {
     "name": "encode_Fast_log",
@@ -7798,7 +7912,9 @@
     "visibility": "internal",
     "reachable": false,
     "canonical_namespace": "_brotli.vendor.brotlihaxe",
-    "class_import": "_brotli.vendor.brotlihaxe.encode_Fast_log"
+    "class_import": "_brotli.vendor.brotlihaxe.encode_Fast_log",
+    "module_key": "_brotli",
+    "module_label": "Brotli"
   },
   {
     "name": "encode_Find_match_length",
@@ -7852,7 +7968,9 @@
     "visibility": "internal",
     "reachable": false,
     "canonical_namespace": "_brotli.vendor.brotlihaxe",
-    "class_import": "_brotli.vendor.brotlihaxe.encode_Find_match_length"
+    "class_import": "_brotli.vendor.brotlihaxe.encode_Find_match_length",
+    "module_key": "_brotli",
+    "module_label": "Brotli"
   },
   {
     "name": "encode_Hash",
@@ -7934,7 +8052,9 @@
     "visibility": "internal",
     "reachable": false,
     "canonical_namespace": "_brotli.vendor.brotlihaxe",
-    "class_import": "_brotli.vendor.brotlihaxe.encode_Hash"
+    "class_import": "_brotli.vendor.brotlihaxe.encode_Hash",
+    "module_key": "_brotli",
+    "module_label": "Brotli"
   },
   {
     "name": "encode_Histogram_functions",
@@ -8078,7 +8198,9 @@
     "visibility": "internal",
     "reachable": false,
     "canonical_namespace": "_brotli.vendor.brotlihaxe",
-    "class_import": "_brotli.vendor.brotlihaxe.encode_Histogram_functions"
+    "class_import": "_brotli.vendor.brotlihaxe.encode_Histogram_functions",
+    "module_key": "_brotli",
+    "module_label": "Brotli"
   },
   {
     "name": "encode_Literal_cost",
@@ -8218,7 +8340,9 @@
     "visibility": "internal",
     "reachable": false,
     "canonical_namespace": "_brotli.vendor.brotlihaxe",
-    "class_import": "_brotli.vendor.brotlihaxe.encode_Literal_cost"
+    "class_import": "_brotli.vendor.brotlihaxe.encode_Literal_cost",
+    "module_key": "_brotli",
+    "module_label": "Brotli"
   },
   {
     "name": "encode_Metablock",
@@ -8398,7 +8522,9 @@
     "visibility": "internal",
     "reachable": false,
     "canonical_namespace": "_brotli.vendor.brotlihaxe",
-    "class_import": "_brotli.vendor.brotlihaxe.encode_Metablock"
+    "class_import": "_brotli.vendor.brotlihaxe.encode_Metablock",
+    "module_key": "_brotli",
+    "module_label": "Brotli"
   },
   {
     "name": "encode_Port",
@@ -8468,7 +8594,9 @@
     "visibility": "internal",
     "reachable": false,
     "canonical_namespace": "_brotli.vendor.brotlihaxe",
-    "class_import": "_brotli.vendor.brotlihaxe.encode_Port"
+    "class_import": "_brotli.vendor.brotlihaxe.encode_Port",
+    "module_key": "_brotli",
+    "module_label": "Brotli"
   },
   {
     "name": "encode_prefix_PrefixCodeRange",
@@ -8518,7 +8646,9 @@
     "visibility": "internal",
     "reachable": false,
     "canonical_namespace": "_brotli.vendor.brotlihaxe",
-    "class_import": "_brotli.vendor.brotlihaxe.encode_prefix_PrefixCodeRange"
+    "class_import": "_brotli.vendor.brotlihaxe.encode_prefix_PrefixCodeRange",
+    "module_key": "_brotli",
+    "module_label": "Brotli"
   },
   {
     "name": "encode_Prefix",
@@ -8610,7 +8740,9 @@
     "visibility": "internal",
     "reachable": false,
     "canonical_namespace": "_brotli.vendor.brotlihaxe",
-    "class_import": "_brotli.vendor.brotlihaxe.encode_Prefix"
+    "class_import": "_brotli.vendor.brotlihaxe.encode_Prefix",
+    "module_key": "_brotli",
+    "module_label": "Brotli"
   },
   {
     "name": "encode_RingBuffer",
@@ -8755,7 +8887,9 @@
     "visibility": "internal",
     "reachable": false,
     "canonical_namespace": "_brotli.vendor.brotlihaxe",
-    "class_import": "_brotli.vendor.brotlihaxe.encode_RingBuffer"
+    "class_import": "_brotli.vendor.brotlihaxe.encode_RingBuffer",
+    "module_key": "_brotli",
+    "module_label": "Brotli"
   },
   {
     "name": "encode_Static_dict",
@@ -8901,7 +9035,9 @@
     "visibility": "internal",
     "reachable": false,
     "canonical_namespace": "_brotli.vendor.brotlihaxe",
-    "class_import": "_brotli.vendor.brotlihaxe.encode_Static_dict"
+    "class_import": "_brotli.vendor.brotlihaxe.encode_Static_dict",
+    "module_key": "_brotli",
+    "module_label": "Brotli"
   },
   {
     "name": "encode_Static_dict_lut",
@@ -8925,7 +9061,9 @@
     "visibility": "internal",
     "reachable": false,
     "canonical_namespace": "_brotli.vendor.brotlihaxe",
-    "class_import": "_brotli.vendor.brotlihaxe.encode_Static_dict_lut"
+    "class_import": "_brotli.vendor.brotlihaxe.encode_Static_dict_lut",
+    "module_key": "_brotli",
+    "module_label": "Brotli"
   },
   {
     "name": "encode_Transform",
@@ -8949,7 +9087,9 @@
     "visibility": "internal",
     "reachable": false,
     "canonical_namespace": "_brotli.vendor.brotlihaxe",
-    "class_import": "_brotli.vendor.brotlihaxe.encode_Transform"
+    "class_import": "_brotli.vendor.brotlihaxe.encode_Transform",
+    "module_key": "_brotli",
+    "module_label": "Brotli"
   },
   {
     "name": "encode_Write_bits",
@@ -9017,7 +9157,9 @@
     "visibility": "internal",
     "reachable": false,
     "canonical_namespace": "_brotli.vendor.brotlihaxe",
-    "class_import": "_brotli.vendor.brotlihaxe.encode_Write_bits"
+    "class_import": "_brotli.vendor.brotlihaxe.encode_Write_bits",
+    "module_key": "_brotli",
+    "module_label": "Brotli"
   },
   {
     "name": "encode_backward_references_Pair",
@@ -9067,7 +9209,9 @@
     "visibility": "internal",
     "reachable": false,
     "canonical_namespace": "_brotli.vendor.brotlihaxe",
-    "class_import": "_brotli.vendor.brotlihaxe.encode_backward_references_Pair"
+    "class_import": "_brotli.vendor.brotlihaxe.encode_backward_references_Pair",
+    "module_key": "_brotli",
+    "module_label": "Brotli"
   },
   {
     "name": "encode_backward_references_StartPosQueue",
@@ -9171,7 +9315,9 @@
     "visibility": "internal",
     "reachable": false,
     "canonical_namespace": "_brotli.vendor.brotlihaxe",
-    "class_import": "_brotli.vendor.brotlihaxe.encode_backward_references_StartPosQueue"
+    "class_import": "_brotli.vendor.brotlihaxe.encode_backward_references_StartPosQueue",
+    "module_key": "_brotli",
+    "module_label": "Brotli"
   },
   {
     "name": "encode_backward_references_ZopfliCostModel",
@@ -9359,7 +9505,9 @@
     "visibility": "internal",
     "reachable": false,
     "canonical_namespace": "_brotli.vendor.brotlihaxe",
-    "class_import": "_brotli.vendor.brotlihaxe.encode_backward_references_ZopfliCostModel"
+    "class_import": "_brotli.vendor.brotlihaxe.encode_backward_references_ZopfliCostModel",
+    "module_key": "_brotli",
+    "module_label": "Brotli"
   },
   {
     "name": "encode_backward_references_ZopfliNode",
@@ -9440,7 +9588,9 @@
     "visibility": "internal",
     "reachable": false,
     "canonical_namespace": "_brotli.vendor.brotlihaxe",
-    "class_import": "_brotli.vendor.brotlihaxe.encode_backward_references_ZopfliNode"
+    "class_import": "_brotli.vendor.brotlihaxe.encode_backward_references_ZopfliNode",
+    "module_key": "_brotli",
+    "module_label": "Brotli"
   },
   {
     "name": "encode_block_splitter_BlockSplitIterator",
@@ -9511,7 +9661,9 @@
     "visibility": "internal",
     "reachable": false,
     "canonical_namespace": "_brotli.vendor.brotlihaxe",
-    "class_import": "_brotli.vendor.brotlihaxe.encode_block_splitter_BlockSplitIterator"
+    "class_import": "_brotli.vendor.brotlihaxe.encode_block_splitter_BlockSplitIterator",
+    "module_key": "_brotli",
+    "module_label": "Brotli"
   },
   {
     "name": "encode_brotli_bit_stream_BlockEncoder",
@@ -9729,7 +9881,9 @@
     "visibility": "internal",
     "reachable": false,
     "canonical_namespace": "_brotli.vendor.brotlihaxe",
-    "class_import": "_brotli.vendor.brotlihaxe.encode_brotli_bit_stream_BlockEncoder"
+    "class_import": "_brotli.vendor.brotlihaxe.encode_brotli_bit_stream_BlockEncoder",
+    "module_key": "_brotli",
+    "module_label": "Brotli"
   },
   {
     "name": "encode_brotli_bit_stream_BlockSplitCode",
@@ -9818,7 +9972,9 @@
     "visibility": "internal",
     "reachable": false,
     "canonical_namespace": "_brotli.vendor.brotlihaxe",
-    "class_import": "_brotli.vendor.brotlihaxe.encode_brotli_bit_stream_BlockSplitCode"
+    "class_import": "_brotli.vendor.brotlihaxe.encode_brotli_bit_stream_BlockSplitCode",
+    "module_key": "_brotli",
+    "module_label": "Brotli"
   },
   {
     "name": "encode_cluster_HistogramPair",
@@ -9883,7 +10039,9 @@
     "visibility": "internal",
     "reachable": false,
     "canonical_namespace": "_brotli.vendor.brotlihaxe",
-    "class_import": "_brotli.vendor.brotlihaxe.encode_cluster_HistogramPair"
+    "class_import": "_brotli.vendor.brotlihaxe.encode_cluster_HistogramPair",
+    "module_key": "_brotli",
+    "module_label": "Brotli"
   },
   {
     "name": "encode_command_Command",
@@ -10023,7 +10181,9 @@
     "visibility": "internal",
     "reachable": false,
     "canonical_namespace": "_brotli.vendor.brotlihaxe",
-    "class_import": "_brotli.vendor.brotlihaxe.encode_command_Command"
+    "class_import": "_brotli.vendor.brotlihaxe.encode_command_Command",
+    "module_key": "_brotli",
+    "module_label": "Brotli"
   },
   {
     "name": "encode_encode_BrotliCompressor",
@@ -10348,7 +10508,9 @@
     "visibility": "internal",
     "reachable": false,
     "canonical_namespace": "_brotli.vendor.brotlihaxe",
-    "class_import": "_brotli.vendor.brotlihaxe.encode_encode_BrotliCompressor"
+    "class_import": "_brotli.vendor.brotlihaxe.encode_encode_BrotliCompressor",
+    "module_key": "_brotli",
+    "module_label": "Brotli"
   },
   {
     "name": "encode_encode_BrotliParams",
@@ -10437,7 +10599,9 @@
     "visibility": "internal",
     "reachable": false,
     "canonical_namespace": "_brotli.vendor.brotlihaxe",
-    "class_import": "_brotli.vendor.brotlihaxe.encode_encode_BrotliParams"
+    "class_import": "_brotli.vendor.brotlihaxe.encode_encode_BrotliParams",
+    "module_key": "_brotli",
+    "module_label": "Brotli"
   },
   {
     "name": "encode_entropy_encode_EntropyCode",
@@ -10499,7 +10663,9 @@
     "visibility": "internal",
     "reachable": false,
     "canonical_namespace": "_brotli.vendor.brotlihaxe",
-    "class_import": "_brotli.vendor.brotlihaxe.encode_entropy_encode_EntropyCode"
+    "class_import": "_brotli.vendor.brotlihaxe.encode_entropy_encode_EntropyCode",
+    "module_key": "_brotli",
+    "module_label": "Brotli"
   },
   {
     "name": "encode_entropy_encode_HuffmanTree",
@@ -10570,7 +10736,9 @@
     "visibility": "internal",
     "reachable": false,
     "canonical_namespace": "_brotli.vendor.brotlihaxe",
-    "class_import": "_brotli.vendor.brotlihaxe.encode_entropy_encode_HuffmanTree"
+    "class_import": "_brotli.vendor.brotlihaxe.encode_entropy_encode_HuffmanTree",
+    "module_key": "_brotli",
+    "module_label": "Brotli"
   },
   {
     "name": "encode_hash_BackwardMatch",
@@ -10678,7 +10846,9 @@
     "visibility": "internal",
     "reachable": false,
     "canonical_namespace": "_brotli.vendor.brotlihaxe",
-    "class_import": "_brotli.vendor.brotlihaxe.encode_hash_BackwardMatch"
+    "class_import": "_brotli.vendor.brotlihaxe.encode_hash_BackwardMatch",
+    "module_key": "_brotli",
+    "module_label": "Brotli"
   },
   {
     "name": "encode_hash_HashLongestMatch",
@@ -10923,7 +11093,9 @@
     "visibility": "internal",
     "reachable": false,
     "canonical_namespace": "_brotli.vendor.brotlihaxe",
-    "class_import": "_brotli.vendor.brotlihaxe.encode_hash_HashLongestMatch"
+    "class_import": "_brotli.vendor.brotlihaxe.encode_hash_HashLongestMatch",
+    "module_key": "_brotli",
+    "module_label": "Brotli"
   },
   {
     "name": "encode_hash_HashLongestMatchQuickly",
@@ -11098,7 +11270,9 @@
     "visibility": "internal",
     "reachable": false,
     "canonical_namespace": "_brotli.vendor.brotlihaxe",
-    "class_import": "_brotli.vendor.brotlihaxe.encode_hash_HashLongestMatchQuickly"
+    "class_import": "_brotli.vendor.brotlihaxe.encode_hash_HashLongestMatchQuickly",
+    "module_key": "_brotli",
+    "module_label": "Brotli"
   },
   {
     "name": "encode_hash_Hashers",
@@ -11275,7 +11449,9 @@
     "visibility": "internal",
     "reachable": false,
     "canonical_namespace": "_brotli.vendor.brotlihaxe",
-    "class_import": "_brotli.vendor.brotlihaxe.encode_hash_Hashers"
+    "class_import": "_brotli.vendor.brotlihaxe.encode_hash_Hashers",
+    "module_key": "_brotli",
+    "module_label": "Brotli"
   },
   {
     "name": "encode_histogram_Histogram",
@@ -11410,7 +11586,9 @@
     "visibility": "internal",
     "reachable": false,
     "canonical_namespace": "_brotli.vendor.brotlihaxe",
-    "class_import": "_brotli.vendor.brotlihaxe.encode_histogram_Histogram"
+    "class_import": "_brotli.vendor.brotlihaxe.encode_histogram_Histogram",
+    "module_key": "_brotli",
+    "module_label": "Brotli"
   },
   {
     "name": "encode_metablock_BlockSplit",
@@ -11459,7 +11637,9 @@
     "visibility": "internal",
     "reachable": false,
     "canonical_namespace": "_brotli.vendor.brotlihaxe",
-    "class_import": "_brotli.vendor.brotlihaxe.encode_metablock_BlockSplit"
+    "class_import": "_brotli.vendor.brotlihaxe.encode_metablock_BlockSplit",
+    "module_key": "_brotli",
+    "module_label": "Brotli"
   },
   {
     "name": "encode_metablock_BlockSplitter",
@@ -11645,7 +11825,9 @@
     "visibility": "internal",
     "reachable": false,
     "canonical_namespace": "_brotli.vendor.brotlihaxe",
-    "class_import": "_brotli.vendor.brotlihaxe.encode_metablock_BlockSplitter"
+    "class_import": "_brotli.vendor.brotlihaxe.encode_metablock_BlockSplitter",
+    "module_key": "_brotli",
+    "module_label": "Brotli"
   },
   {
     "name": "encode_metablock_ContextBlockSplitter",
@@ -11855,7 +12037,9 @@
     "visibility": "internal",
     "reachable": false,
     "canonical_namespace": "_brotli.vendor.brotlihaxe",
-    "class_import": "_brotli.vendor.brotlihaxe.encode_metablock_ContextBlockSplitter"
+    "class_import": "_brotli.vendor.brotlihaxe.encode_metablock_ContextBlockSplitter",
+    "module_key": "_brotli",
+    "module_label": "Brotli"
   },
   {
     "name": "encode_metablock_MetaBlockSplit",
@@ -11944,7 +12128,9 @@
     "visibility": "internal",
     "reachable": false,
     "canonical_namespace": "_brotli.vendor.brotlihaxe",
-    "class_import": "_brotli.vendor.brotlihaxe.encode_metablock_MetaBlockSplit"
+    "class_import": "_brotli.vendor.brotlihaxe.encode_metablock_MetaBlockSplit",
+    "module_key": "_brotli",
+    "module_label": "Brotli"
   },
   {
     "name": "encode_static_dict_lut_DictWord",
@@ -12006,7 +12192,9 @@
     "visibility": "internal",
     "reachable": false,
     "canonical_namespace": "_brotli.vendor.brotlihaxe",
-    "class_import": "_brotli.vendor.brotlihaxe.encode_static_dict_lut_DictWord"
+    "class_import": "_brotli.vendor.brotlihaxe.encode_static_dict_lut_DictWord",
+    "module_key": "_brotli",
+    "module_label": "Brotli"
   },
   {
     "name": "encode_streams_BrotliIn",
@@ -12082,7 +12270,9 @@
     "visibility": "internal",
     "reachable": false,
     "canonical_namespace": "_brotli.vendor.brotlihaxe",
-    "class_import": "_brotli.vendor.brotlihaxe.encode_streams_BrotliIn"
+    "class_import": "_brotli.vendor.brotlihaxe.encode_streams_BrotliIn",
+    "module_key": "_brotli",
+    "module_label": "Brotli"
   },
   {
     "name": "encode_streams_BrotliMemIn",
@@ -12185,7 +12375,9 @@
     "visibility": "internal",
     "reachable": false,
     "canonical_namespace": "_brotli.vendor.brotlihaxe",
-    "class_import": "_brotli.vendor.brotlihaxe.encode_streams_BrotliMemIn"
+    "class_import": "_brotli.vendor.brotlihaxe.encode_streams_BrotliMemIn",
+    "module_key": "_brotli",
+    "module_label": "Brotli"
   },
   {
     "name": "encode_streams_BrotliMemOut",
@@ -12276,7 +12468,9 @@
     "visibility": "internal",
     "reachable": false,
     "canonical_namespace": "_brotli.vendor.brotlihaxe",
-    "class_import": "_brotli.vendor.brotlihaxe.encode_streams_BrotliMemOut"
+    "class_import": "_brotli.vendor.brotlihaxe.encode_streams_BrotliMemOut",
+    "module_key": "_brotli",
+    "module_label": "Brotli"
   },
   {
     "name": "encode_streams_BrotliOut",
@@ -12332,7 +12526,9 @@
     "visibility": "internal",
     "reachable": false,
     "canonical_namespace": "_brotli.vendor.brotlihaxe",
-    "class_import": "_brotli.vendor.brotlihaxe.encode_streams_BrotliOut"
+    "class_import": "_brotli.vendor.brotlihaxe.encode_streams_BrotliOut",
+    "module_key": "_brotli",
+    "module_label": "Brotli"
   },
   {
     "name": "haxe__Int32_Int32_Impl_",
@@ -12365,7 +12561,9 @@
     "visibility": "internal",
     "reachable": false,
     "canonical_namespace": "_brotli.vendor.brotlihaxe",
-    "class_import": "_brotli.vendor.brotlihaxe.haxe__Int32_Int32_Impl_"
+    "class_import": "_brotli.vendor.brotlihaxe.haxe__Int32_Int32_Impl_",
+    "module_key": "_brotli",
+    "module_label": "Brotli"
   },
   {
     "name": "haxe__Int64____Int64",
@@ -12415,7 +12613,9 @@
     "visibility": "internal",
     "reachable": false,
     "canonical_namespace": "_brotli.vendor.brotlihaxe",
-    "class_import": "_brotli.vendor.brotlihaxe.haxe__Int64____Int64"
+    "class_import": "_brotli.vendor.brotlihaxe.haxe__Int64____Int64",
+    "module_key": "_brotli",
+    "module_label": "Brotli"
   },
   {
     "name": "haxe_ds_IntMap",
@@ -12466,7 +12666,9 @@
     "visibility": "internal",
     "reachable": false,
     "canonical_namespace": "_brotli.vendor.brotlihaxe",
-    "class_import": "_brotli.vendor.brotlihaxe.haxe_ds_IntMap"
+    "class_import": "_brotli.vendor.brotlihaxe.haxe_ds_IntMap",
+    "module_key": "_brotli",
+    "module_label": "Brotli"
   },
   {
     "name": "haxe_io_Bytes",
@@ -12588,7 +12790,9 @@
     "visibility": "internal",
     "reachable": false,
     "canonical_namespace": "_brotli.vendor.brotlihaxe",
-    "class_import": "_brotli.vendor.brotlihaxe.haxe_io_Bytes"
+    "class_import": "_brotli.vendor.brotlihaxe.haxe_io_Bytes",
+    "module_key": "_brotli",
+    "module_label": "Brotli"
   },
   {
     "name": "haxe_io_Input",
@@ -12618,7 +12822,9 @@
     "visibility": "internal",
     "reachable": false,
     "canonical_namespace": "_brotli.vendor.brotlihaxe",
-    "class_import": "_brotli.vendor.brotlihaxe.haxe_io_Input"
+    "class_import": "_brotli.vendor.brotlihaxe.haxe_io_Input",
+    "module_key": "_brotli",
+    "module_label": "Brotli"
   },
   {
     "name": "haxe_io_Output",
@@ -12698,7 +12904,9 @@
     "visibility": "internal",
     "reachable": false,
     "canonical_namespace": "_brotli.vendor.brotlihaxe",
-    "class_import": "_brotli.vendor.brotlihaxe.haxe_io_Output"
+    "class_import": "_brotli.vendor.brotlihaxe.haxe_io_Output",
+    "module_key": "_brotli",
+    "module_label": "Brotli"
   },
   {
     "name": "haxe_io_Eof",
@@ -12731,7 +12939,9 @@
     "visibility": "internal",
     "reachable": false,
     "canonical_namespace": "_brotli.vendor.brotlihaxe",
-    "class_import": "_brotli.vendor.brotlihaxe.haxe_io_Eof"
+    "class_import": "_brotli.vendor.brotlihaxe.haxe_io_Eof",
+    "module_key": "_brotli",
+    "module_label": "Brotli"
   },
   {
     "name": "haxe_io_Error",
@@ -12810,7 +13020,9 @@
     "reachable": false,
     "enum_members": [],
     "canonical_namespace": "_brotli.vendor.brotlihaxe",
-    "class_import": "_brotli.vendor.brotlihaxe.haxe_io_Error"
+    "class_import": "_brotli.vendor.brotlihaxe.haxe_io_Error",
+    "module_key": "_brotli",
+    "module_label": "Brotli"
   },
   {
     "name": "python_Boot",
@@ -12949,7 +13161,9 @@
     "visibility": "internal",
     "reachable": false,
     "canonical_namespace": "_brotli.vendor.brotlihaxe",
-    "class_import": "_brotli.vendor.brotlihaxe.python_Boot"
+    "class_import": "_brotli.vendor.brotlihaxe.python_Boot",
+    "module_key": "_brotli",
+    "module_label": "Brotli"
   },
   {
     "name": "python__KwArgs_KwArgs_Impl_",
@@ -12978,7 +13192,9 @@
     "visibility": "internal",
     "reachable": false,
     "canonical_namespace": "_brotli.vendor.brotlihaxe",
-    "class_import": "_brotli.vendor.brotlihaxe.python__KwArgs_KwArgs_Impl_"
+    "class_import": "_brotli.vendor.brotlihaxe.python__KwArgs_KwArgs_Impl_",
+    "module_key": "_brotli",
+    "module_label": "Brotli"
   },
   {
     "name": "python_Lib",
@@ -13063,7 +13279,9 @@
     "visibility": "internal",
     "reachable": false,
     "canonical_namespace": "_brotli.vendor.brotlihaxe",
-    "class_import": "_brotli.vendor.brotlihaxe.python_Lib"
+    "class_import": "_brotli.vendor.brotlihaxe.python_Lib",
+    "module_key": "_brotli",
+    "module_label": "Brotli"
   },
   {
     "name": "python_internal_ArrayImpl",
@@ -13398,7 +13616,9 @@
     "visibility": "internal",
     "reachable": false,
     "canonical_namespace": "_brotli.vendor.brotlihaxe",
-    "class_import": "_brotli.vendor.brotlihaxe.python_internal_ArrayImpl"
+    "class_import": "_brotli.vendor.brotlihaxe.python_internal_ArrayImpl",
+    "module_key": "_brotli",
+    "module_label": "Brotli"
   },
   {
     "name": "HxOverrides",
@@ -13535,7 +13755,9 @@
     "visibility": "internal",
     "reachable": false,
     "canonical_namespace": "_brotli.vendor.brotlihaxe",
-    "class_import": "_brotli.vendor.brotlihaxe.HxOverrides"
+    "class_import": "_brotli.vendor.brotlihaxe.HxOverrides",
+    "module_key": "_brotli",
+    "module_label": "Brotli"
   },
   {
     "name": "python_io_NativeInput",
@@ -13661,7 +13883,9 @@
     "visibility": "internal",
     "reachable": false,
     "canonical_namespace": "_brotli.vendor.brotlihaxe",
-    "class_import": "_brotli.vendor.brotlihaxe.python_io_NativeInput"
+    "class_import": "_brotli.vendor.brotlihaxe.python_io_NativeInput",
+    "module_key": "_brotli",
+    "module_label": "Brotli"
   },
   {
     "name": "python_io_IInput",
@@ -13675,7 +13899,9 @@
     "visibility": "internal",
     "reachable": false,
     "canonical_namespace": "_brotli.vendor.brotlihaxe",
-    "class_import": "_brotli.vendor.brotlihaxe.python_io_IInput"
+    "class_import": "_brotli.vendor.brotlihaxe.python_io_IInput",
+    "module_key": "_brotli",
+    "module_label": "Brotli"
   },
   {
     "name": "python_io_NativeBytesInput",
@@ -13801,7 +14027,9 @@
     "visibility": "internal",
     "reachable": false,
     "canonical_namespace": "_brotli.vendor.brotlihaxe",
-    "class_import": "_brotli.vendor.brotlihaxe.python_io_NativeBytesInput"
+    "class_import": "_brotli.vendor.brotlihaxe.python_io_NativeBytesInput",
+    "module_key": "_brotli",
+    "module_label": "Brotli"
   },
   {
     "name": "python_io_IFileInput",
@@ -13815,7 +14043,9 @@
     "visibility": "internal",
     "reachable": false,
     "canonical_namespace": "_brotli.vendor.brotlihaxe",
-    "class_import": "_brotli.vendor.brotlihaxe.python_io_IFileInput"
+    "class_import": "_brotli.vendor.brotlihaxe.python_io_IFileInput",
+    "module_key": "_brotli",
+    "module_label": "Brotli"
   },
   {
     "name": "python_io_FileBytesInput",
@@ -13941,7 +14171,9 @@
     "visibility": "internal",
     "reachable": false,
     "canonical_namespace": "_brotli.vendor.brotlihaxe",
-    "class_import": "_brotli.vendor.brotlihaxe.python_io_FileBytesInput"
+    "class_import": "_brotli.vendor.brotlihaxe.python_io_FileBytesInput",
+    "module_key": "_brotli",
+    "module_label": "Brotli"
   },
   {
     "name": "python_io_NativeOutput",
@@ -14055,7 +14287,9 @@
     "visibility": "internal",
     "reachable": false,
     "canonical_namespace": "_brotli.vendor.brotlihaxe",
-    "class_import": "_brotli.vendor.brotlihaxe.python_io_NativeOutput"
+    "class_import": "_brotli.vendor.brotlihaxe.python_io_NativeOutput",
+    "module_key": "_brotli",
+    "module_label": "Brotli"
   },
   {
     "name": "python_io_NativeBytesOutput",
@@ -14169,7 +14403,9 @@
     "visibility": "internal",
     "reachable": false,
     "canonical_namespace": "_brotli.vendor.brotlihaxe",
-    "class_import": "_brotli.vendor.brotlihaxe.python_io_NativeBytesOutput"
+    "class_import": "_brotli.vendor.brotlihaxe.python_io_NativeBytesOutput",
+    "module_key": "_brotli",
+    "module_label": "Brotli"
   },
   {
     "name": "python_io_IOutput",
@@ -14183,7 +14419,9 @@
     "visibility": "internal",
     "reachable": false,
     "canonical_namespace": "_brotli.vendor.brotlihaxe",
-    "class_import": "_brotli.vendor.brotlihaxe.python_io_IOutput"
+    "class_import": "_brotli.vendor.brotlihaxe.python_io_IOutput",
+    "module_key": "_brotli",
+    "module_label": "Brotli"
   },
   {
     "name": "python_io_IFileOutput",
@@ -14197,7 +14435,9 @@
     "visibility": "internal",
     "reachable": false,
     "canonical_namespace": "_brotli.vendor.brotlihaxe",
-    "class_import": "_brotli.vendor.brotlihaxe.python_io_IFileOutput"
+    "class_import": "_brotli.vendor.brotlihaxe.python_io_IFileOutput",
+    "module_key": "_brotli",
+    "module_label": "Brotli"
   },
   {
     "name": "python_io_FileBytesOutput",
@@ -14311,7 +14551,9 @@
     "visibility": "internal",
     "reachable": false,
     "canonical_namespace": "_brotli.vendor.brotlihaxe",
-    "class_import": "_brotli.vendor.brotlihaxe.python_io_FileBytesOutput"
+    "class_import": "_brotli.vendor.brotlihaxe.python_io_FileBytesOutput",
+    "module_key": "_brotli",
+    "module_label": "Brotli"
   },
   {
     "name": "python_io_NativeTextInput",
@@ -14437,7 +14679,9 @@
     "visibility": "internal",
     "reachable": false,
     "canonical_namespace": "_brotli.vendor.brotlihaxe",
-    "class_import": "_brotli.vendor.brotlihaxe.python_io_NativeTextInput"
+    "class_import": "_brotli.vendor.brotlihaxe.python_io_NativeTextInput",
+    "module_key": "_brotli",
+    "module_label": "Brotli"
   },
   {
     "name": "python_io_FileTextInput",
@@ -14563,7 +14807,9 @@
     "visibility": "internal",
     "reachable": false,
     "canonical_namespace": "_brotli.vendor.brotlihaxe",
-    "class_import": "_brotli.vendor.brotlihaxe.python_io_FileTextInput"
+    "class_import": "_brotli.vendor.brotlihaxe.python_io_FileTextInput",
+    "module_key": "_brotli",
+    "module_label": "Brotli"
   },
   {
     "name": "python_io_NativeTextOutput",
@@ -14677,7 +14923,9 @@
     "visibility": "internal",
     "reachable": false,
     "canonical_namespace": "_brotli.vendor.brotlihaxe",
-    "class_import": "_brotli.vendor.brotlihaxe.python_io_NativeTextOutput"
+    "class_import": "_brotli.vendor.brotlihaxe.python_io_NativeTextOutput",
+    "module_key": "_brotli",
+    "module_label": "Brotli"
   },
   {
     "name": "python_io_FileTextOutput",
@@ -14791,7 +15039,9 @@
     "visibility": "internal",
     "reachable": false,
     "canonical_namespace": "_brotli.vendor.brotlihaxe",
-    "class_import": "_brotli.vendor.brotlihaxe.python_io_FileTextOutput"
+    "class_import": "_brotli.vendor.brotlihaxe.python_io_FileTextOutput",
+    "module_key": "_brotli",
+    "module_label": "Brotli"
   },
   {
     "name": "python_io_IoTools",
@@ -14862,7 +15112,9 @@
     "visibility": "internal",
     "reachable": false,
     "canonical_namespace": "_brotli.vendor.brotlihaxe",
-    "class_import": "_brotli.vendor.brotlihaxe.python_io_IoTools"
+    "class_import": "_brotli.vendor.brotlihaxe.python_io_IoTools",
+    "module_key": "_brotli",
+    "module_label": "Brotli"
   },
   {
     "name": "sys_io_File",
@@ -14927,7 +15179,9 @@
     "visibility": "internal",
     "reachable": false,
     "canonical_namespace": "_brotli.vendor.brotlihaxe",
-    "class_import": "_brotli.vendor.brotlihaxe.sys_io_File"
+    "class_import": "_brotli.vendor.brotlihaxe.sys_io_File",
+    "module_key": "_brotli",
+    "module_label": "Brotli"
   },
   {
     "name": "sys_io_FileInput",
@@ -15022,7 +15276,9 @@
     "visibility": "internal",
     "reachable": false,
     "canonical_namespace": "_brotli.vendor.brotlihaxe",
-    "class_import": "_brotli.vendor.brotlihaxe.sys_io_FileInput"
+    "class_import": "_brotli.vendor.brotlihaxe.sys_io_FileInput",
+    "module_key": "_brotli",
+    "module_label": "Brotli"
   },
   {
     "name": "sys_io_FileOutput",
@@ -15136,7 +15392,9 @@
     "visibility": "internal",
     "reachable": false,
     "canonical_namespace": "_brotli.vendor.brotlihaxe",
-    "class_import": "_brotli.vendor.brotlihaxe.sys_io_FileOutput"
+    "class_import": "_brotli.vendor.brotlihaxe.sys_io_FileOutput",
+    "module_key": "_brotli",
+    "module_label": "Brotli"
   },
   {
     "name": "sys_net_Socket",
@@ -15160,7 +15418,9 @@
     "visibility": "internal",
     "reachable": false,
     "canonical_namespace": "_brotli.vendor.brotlihaxe",
-    "class_import": "_brotli.vendor.brotlihaxe.sys_net_Socket"
+    "class_import": "_brotli.vendor.brotlihaxe.sys_net_Socket",
+    "module_key": "_brotli",
+    "module_label": "Brotli"
   },
   {
     "name": "FontException",
@@ -15178,7 +15438,9 @@
     "canonical_namespace": "_exceptions",
     "class_import": "_exceptions.FontException",
     "exported_via_package_init": true,
-    "public_import_module": ""
+    "public_import_module": "",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "FontParseException",
@@ -15236,7 +15498,9 @@
     "canonical_namespace": "_exceptions",
     "class_import": "_exceptions.FontParseException",
     "exported_via_package_init": true,
-    "public_import_module": ""
+    "public_import_module": "",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "FontConversionException",
@@ -15254,7 +15518,9 @@
     "canonical_namespace": "_exceptions",
     "class_import": "_exceptions.FontConversionException",
     "exported_via_package_init": true,
-    "public_import_module": ""
+    "public_import_module": "",
+    "module_key": "conversion",
+    "module_label": "Conversion"
   },
   {
     "name": "FontNotSupportedException",
@@ -15272,7 +15538,9 @@
     "canonical_namespace": "_exceptions",
     "class_import": "_exceptions.FontNotSupportedException",
     "exported_via_package_init": true,
-    "public_import_module": ""
+    "public_import_module": "",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "GlyphNotFoundException",
@@ -15314,7 +15582,9 @@
     "canonical_namespace": "_exceptions",
     "class_import": "_exceptions.GlyphNotFoundException",
     "exported_via_package_init": true,
-    "public_import_module": ""
+    "public_import_module": "",
+    "module_key": "text",
+    "module_label": "Text"
   },
   {
     "name": "UnsupportedFontFormatException",
@@ -15332,7 +15602,9 @@
     "canonical_namespace": "_exceptions",
     "class_import": "_exceptions.UnsupportedFontFormatException",
     "exported_via_package_init": true,
-    "public_import_module": ""
+    "public_import_module": "",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "FontType",
@@ -15384,7 +15656,9 @@
     "canonical_namespace": "_font_base",
     "class_import": "_font_base.FontType",
     "exported_via_package_init": true,
-    "public_import_module": ""
+    "public_import_module": "",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "FontEncoding",
@@ -15427,7 +15701,9 @@
     "canonical_namespace": "_font_base",
     "class_import": "_font_base.FontEncoding",
     "exported_via_package_init": true,
-    "public_import_module": ""
+    "public_import_module": "",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "GlyphAccessor",
@@ -15512,7 +15788,9 @@
     "canonical_namespace": "_font_base",
     "class_import": "_font_base.GlyphAccessor",
     "exported_via_package_init": true,
-    "public_import_module": ""
+    "public_import_module": "",
+    "module_key": "text",
+    "module_label": "Text"
   },
   {
     "name": "Font",
@@ -15673,7 +15951,9 @@
     "canonical_namespace": "_font_base",
     "class_import": "_font_base.Font",
     "exported_via_package_init": true,
-    "public_import_module": ""
+    "public_import_module": "",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "BinaryReader",
@@ -15887,7 +16167,9 @@
     "visibility": "public",
     "reachable": false,
     "canonical_namespace": "_io",
-    "class_import": "_io.BinaryReader"
+    "class_import": "_io.BinaryReader",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "BinaryWriter",
@@ -16153,7 +16435,9 @@
     "visibility": "public",
     "reachable": false,
     "canonical_namespace": "_io",
-    "class_import": "_io.BinaryWriter"
+    "class_import": "_io.BinaryWriter",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "PathCommand",
@@ -16169,7 +16453,9 @@
     "canonical_namespace": "_types",
     "class_import": "_types.PathCommand",
     "exported_via_package_init": true,
-    "public_import_module": ""
+    "public_import_module": "",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "MoveTo",
@@ -16206,7 +16492,9 @@
     "canonical_namespace": "_types",
     "class_import": "_types.MoveTo",
     "exported_via_package_init": true,
-    "public_import_module": ""
+    "public_import_module": "",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "LineTo",
@@ -16243,7 +16531,9 @@
     "canonical_namespace": "_types",
     "class_import": "_types.LineTo",
     "exported_via_package_init": true,
-    "public_import_module": ""
+    "public_import_module": "",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "QuadraticTo",
@@ -16298,7 +16588,9 @@
     "canonical_namespace": "_types",
     "class_import": "_types.QuadraticTo",
     "exported_via_package_init": true,
-    "public_import_module": ""
+    "public_import_module": "",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "CurveTo",
@@ -16371,7 +16663,9 @@
     "canonical_namespace": "_types",
     "class_import": "_types.CurveTo",
     "exported_via_package_init": true,
-    "public_import_module": ""
+    "public_import_module": "",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "ClosePath",
@@ -16389,7 +16683,9 @@
     "canonical_namespace": "_types",
     "class_import": "_types.ClosePath",
     "exported_via_package_init": true,
-    "public_import_module": ""
+    "public_import_module": "",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "GlyphPath",
@@ -16448,7 +16744,9 @@
     "canonical_namespace": "_types",
     "class_import": "_types.GlyphPath",
     "exported_via_package_init": true,
-    "public_import_module": ""
+    "public_import_module": "",
+    "module_key": "text",
+    "module_label": "Text"
   },
   {
     "name": "GlyphId",
@@ -16474,7 +16772,9 @@
     "canonical_namespace": "_types",
     "class_import": "_types.GlyphId",
     "exported_via_package_init": true,
-    "public_import_module": ""
+    "public_import_module": "",
+    "module_key": "text",
+    "module_label": "Text"
   },
   {
     "name": "Glyph",
@@ -16536,7 +16836,9 @@
     "canonical_namespace": "_types",
     "class_import": "_types.Glyph",
     "exported_via_package_init": true,
-    "public_import_module": ""
+    "public_import_module": "",
+    "module_key": "text",
+    "module_label": "Text"
   },
   {
     "name": "KernPair",
@@ -16580,7 +16882,9 @@
     "canonical_namespace": "_types",
     "class_import": "_types.KernPair",
     "exported_via_package_init": true,
-    "public_import_module": ""
+    "public_import_module": "",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "FontMetrics",
@@ -16660,7 +16964,9 @@
     "canonical_namespace": "_types",
     "class_import": "_types.FontMetrics",
     "exported_via_package_init": true,
-    "public_import_module": ""
+    "public_import_module": "",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "AnimationAsset",
@@ -16746,7 +17052,9 @@
     "canonical_namespace": "animation",
     "class_import": "animation.AnimationAsset",
     "exported_via_package_init": true,
-    "public_import_module": ""
+    "public_import_module": "",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "AnimationFramePackage",
@@ -16832,7 +17140,9 @@
     "canonical_namespace": "animation",
     "class_import": "animation.AnimationFramePackage",
     "exported_via_package_init": true,
-    "public_import_module": ""
+    "public_import_module": "",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "AnimationReviewPackage",
@@ -16936,7 +17246,9 @@
     "canonical_namespace": "animation",
     "class_import": "animation.AnimationReviewPackage",
     "exported_via_package_init": true,
-    "public_import_module": ""
+    "public_import_module": "",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "AnimationShowcasePackage",
@@ -17031,7 +17343,9 @@
     "canonical_namespace": "animation",
     "class_import": "animation.AnimationShowcasePackage",
     "exported_via_package_init": true,
-    "public_import_module": ""
+    "public_import_module": "",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "AnimationPreset",
@@ -17102,7 +17416,9 @@
     "canonical_namespace": "animation",
     "class_import": "animation.AnimationPreset",
     "exported_via_package_init": true,
-    "public_import_module": ""
+    "public_import_module": "",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "AnimationStep",
@@ -17146,7 +17462,9 @@
     "canonical_namespace": "animation",
     "class_import": "animation.AnimationStep",
     "exported_via_package_init": true,
-    "public_import_module": ""
+    "public_import_module": "",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "AnimationPreviewBuilder",
@@ -17654,7 +17972,9 @@
     "canonical_namespace": "animation",
     "class_import": "animation.AnimationPreviewBuilder",
     "exported_via_package_init": true,
-    "public_import_module": ""
+    "public_import_module": "",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "CffCharset",
@@ -17735,7 +18055,9 @@
     "canonical_namespace": "cff.charset",
     "class_import": "cff.charset.CffCharset",
     "exported_via_package_init": true,
-    "public_import_module": "cff"
+    "public_import_module": "cff",
+    "module_key": "cff",
+    "module_label": "Cff"
   },
   {
     "name": "resolve_sid",
@@ -17757,7 +18079,9 @@
       }
     ],
     "return_type": "str",
-    "reachable": false
+    "reachable": false,
+    "module_key": "cff",
+    "module_label": "Cff"
   },
   {
     "name": "TopDictOp",
@@ -17837,7 +18161,9 @@
       }
     ],
     "canonical_namespace": "cff.dict_",
-    "class_import": "cff.dict_.TopDictOp"
+    "class_import": "cff.dict_.TopDictOp",
+    "module_key": "cff",
+    "module_label": "Cff"
   },
   {
     "name": "PrivateDictOp",
@@ -17881,7 +18207,9 @@
       }
     ],
     "canonical_namespace": "cff.dict_",
-    "class_import": "cff.dict_.PrivateDictOp"
+    "class_import": "cff.dict_.PrivateDictOp",
+    "module_key": "cff",
+    "module_label": "Cff"
   },
   {
     "name": "CffDict",
@@ -17957,7 +18285,9 @@
     "canonical_namespace": "cff.dict_",
     "class_import": "cff.dict_.CffDict",
     "exported_via_package_init": true,
-    "public_import_module": "cff"
+    "public_import_module": "cff",
+    "module_key": "cff",
+    "module_label": "Cff"
   },
   {
     "name": "TopDict",
@@ -18151,7 +18481,9 @@
     "canonical_namespace": "cff.dict_",
     "class_import": "cff.dict_.TopDict",
     "exported_via_package_init": true,
-    "public_import_module": "cff"
+    "public_import_module": "cff",
+    "module_key": "cff",
+    "module_label": "Cff"
   },
   {
     "name": "PrivateDict",
@@ -18228,7 +18560,9 @@
     "canonical_namespace": "cff.dict_",
     "class_import": "cff.dict_.PrivateDict",
     "exported_via_package_init": true,
-    "public_import_module": "cff"
+    "public_import_module": "cff",
+    "module_key": "cff",
+    "module_label": "Cff"
   },
   {
     "name": "CffEncoding",
@@ -18325,7 +18659,9 @@
     "canonical_namespace": "cff.encoding",
     "class_import": "cff.encoding.CffEncoding",
     "exported_via_package_init": true,
-    "public_import_module": "cff"
+    "public_import_module": "cff",
+    "module_key": "cff",
+    "module_label": "Cff"
   },
   {
     "name": "CffFont",
@@ -18596,7 +18932,9 @@
     "canonical_namespace": "cff.font",
     "class_import": "cff.font.CffFont",
     "exported_via_package_init": true,
-    "public_import_module": ""
+    "public_import_module": "",
+    "module_key": "cff",
+    "module_label": "Cff"
   },
   {
     "name": "CffIndex",
@@ -18650,7 +18988,9 @@
     "canonical_namespace": "cff.index",
     "class_import": "cff.index.CffIndex",
     "exported_via_package_init": true,
-    "public_import_module": "cff"
+    "public_import_module": "cff",
+    "module_key": "cff",
+    "module_label": "Cff"
   },
   {
     "name": "Type2Interpreter",
@@ -18711,7 +19051,9 @@
     "canonical_namespace": "cff.type2",
     "class_import": "cff.type2.Type2Interpreter",
     "exported_via_package_init": true,
-    "public_import_module": "cff"
+    "public_import_module": "cff",
+    "module_key": "cff",
+    "module_label": "Cff"
   },
   {
     "name": "FontCleaner",
@@ -18754,7 +19096,9 @@
     "canonical_namespace": "cleaner",
     "class_import": "cleaner.FontCleaner",
     "exported_via_package_init": true,
-    "public_import_module": ""
+    "public_import_module": "",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "GlyphOutlineStats",
@@ -18898,7 +19242,9 @@
     "canonical_namespace": "compatibility",
     "class_import": "compatibility.GlyphOutlineStats",
     "exported_via_package_init": true,
-    "public_import_module": ""
+    "public_import_module": "",
+    "module_key": "text",
+    "module_label": "Text"
   },
   {
     "name": "GlyphCompatibilityIssue",
@@ -18997,7 +19343,9 @@
     "canonical_namespace": "compatibility",
     "class_import": "compatibility.GlyphCompatibilityIssue",
     "exported_via_package_init": true,
-    "public_import_module": ""
+    "public_import_module": "",
+    "module_key": "text",
+    "module_label": "Text"
   },
   {
     "name": "ActiveTupleSummary",
@@ -19069,7 +19417,9 @@
     "canonical_namespace": "compatibility",
     "class_import": "compatibility.ActiveTupleSummary",
     "exported_via_package_init": true,
-    "public_import_module": ""
+    "public_import_module": "",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "TupleScalarDelta",
@@ -19123,7 +19473,9 @@
     "canonical_namespace": "compatibility",
     "class_import": "compatibility.TupleScalarDelta",
     "exported_via_package_init": true,
-    "public_import_module": ""
+    "public_import_module": "",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "GlyphInterpolationIssue",
@@ -19222,7 +19574,9 @@
     "canonical_namespace": "compatibility",
     "class_import": "compatibility.GlyphInterpolationIssue",
     "exported_via_package_init": true,
-    "public_import_module": ""
+    "public_import_module": "",
+    "module_key": "text",
+    "module_label": "Text"
   },
   {
     "name": "CompatibilityReport",
@@ -19370,7 +19724,9 @@
     "canonical_namespace": "compatibility",
     "class_import": "compatibility.CompatibilityReport",
     "exported_via_package_init": true,
-    "public_import_module": ""
+    "public_import_module": "",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "CompatibilityChecker",
@@ -19459,7 +19815,9 @@
     "canonical_namespace": "compatibility",
     "class_import": "compatibility.CompatibilityChecker",
     "exported_via_package_init": true,
-    "public_import_module": ""
+    "public_import_module": "",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "record_point",
@@ -19481,7 +19839,9 @@
       }
     ],
     "return_type": "None",
-    "reachable": false
+    "reachable": false,
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "FontConverter",
@@ -19514,7 +19874,9 @@
     "visibility": "exported",
     "reachable": false,
     "canonical_namespace": "converter",
-    "class_import": "converter.FontConverter"
+    "class_import": "converter.FontConverter",
+    "module_key": "conversion",
+    "module_label": "Conversion"
   },
   {
     "name": "CurveAdapter",
@@ -19613,7 +19975,9 @@
     "visibility": "exported",
     "reachable": false,
     "canonical_namespace": "converter",
-    "class_import": "converter.CurveAdapter"
+    "class_import": "converter.CurveAdapter",
+    "module_key": "conversion",
+    "module_label": "Conversion"
   },
   {
     "name": "quad_to_cubic",
@@ -19639,7 +20003,9 @@
       }
     ],
     "return_type": "tuple[Point, Point, Point, Point]",
-    "reachable": false
+    "reachable": false,
+    "module_key": "conversion",
+    "module_label": "Conversion"
   },
   {
     "name": "cubic_to_quads",
@@ -19673,7 +20039,9 @@
       }
     ],
     "return_type": "list[QuadSegment]",
-    "reachable": false
+    "reachable": false,
+    "module_key": "conversion",
+    "module_label": "Conversion"
   },
   {
     "name": "close_current",
@@ -19686,7 +20054,9 @@
     "properties": [],
     "params": [],
     "return_type": "None",
-    "reachable": false
+    "reachable": false,
+    "module_key": "conversion",
+    "module_label": "Conversion"
   },
   {
     "name": "DeltaPoint",
@@ -19749,7 +20119,9 @@
     "canonical_namespace": "delta",
     "class_import": "delta.DeltaPoint",
     "exported_via_package_init": true,
-    "public_import_module": ""
+    "public_import_module": "",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "DeltaTupleReport",
@@ -19920,7 +20292,9 @@
     "canonical_namespace": "delta",
     "class_import": "delta.DeltaTupleReport",
     "exported_via_package_init": true,
-    "public_import_module": ""
+    "public_import_module": "",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "CompositeGlyphComponent",
@@ -20010,7 +20384,9 @@
     "canonical_namespace": "delta",
     "class_import": "delta.CompositeGlyphComponent",
     "exported_via_package_init": true,
-    "public_import_module": ""
+    "public_import_module": "",
+    "module_key": "text",
+    "module_label": "Text"
   },
   {
     "name": "CompositeComponentMovement",
@@ -20154,7 +20530,9 @@
     "canonical_namespace": "delta",
     "class_import": "delta.CompositeComponentMovement",
     "exported_via_package_init": true,
-    "public_import_module": ""
+    "public_import_module": "",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "GlyphDeltaReport",
@@ -20325,7 +20703,9 @@
     "canonical_namespace": "delta",
     "class_import": "delta.GlyphDeltaReport",
     "exported_via_package_init": true,
-    "public_import_module": ""
+    "public_import_module": "",
+    "module_key": "text",
+    "module_label": "Text"
   },
   {
     "name": "TextDeltaReport",
@@ -20424,7 +20804,9 @@
     "canonical_namespace": "delta",
     "class_import": "delta.TextDeltaReport",
     "exported_via_package_init": true,
-    "public_import_module": ""
+    "public_import_module": "",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "GlyphDeltaComparisonReport",
@@ -20541,7 +20923,9 @@
     "canonical_namespace": "delta",
     "class_import": "delta.GlyphDeltaComparisonReport",
     "exported_via_package_init": true,
-    "public_import_module": ""
+    "public_import_module": "",
+    "module_key": "text",
+    "module_label": "Text"
   },
   {
     "name": "TextDeltaComparisonReport",
@@ -20667,7 +21051,9 @@
     "canonical_namespace": "delta",
     "class_import": "delta.TextDeltaComparisonReport",
     "exported_via_package_init": true,
-    "public_import_module": ""
+    "public_import_module": "",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "DeltaInspector",
@@ -21012,7 +21398,9 @@
     "canonical_namespace": "delta",
     "class_import": "delta.DeltaInspector",
     "exported_via_package_init": true,
-    "public_import_module": ""
+    "public_import_module": "",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "record",
@@ -21034,7 +21422,9 @@
       }
     ],
     "return_type": "None",
-    "reachable": false
+    "reachable": false,
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "EotHeader",
@@ -21139,7 +21529,9 @@
     "visibility": "conventional",
     "reachable": false,
     "canonical_namespace": "eot.font",
-    "class_import": "eot.font.EotHeader"
+    "class_import": "eot.font.EotHeader",
+    "module_key": "eot",
+    "module_label": "Eot"
   },
   {
     "name": "EotFont",
@@ -21402,7 +21794,9 @@
     "canonical_namespace": "eot.font",
     "class_import": "eot.font.EotFont",
     "exported_via_package_init": true,
-    "public_import_module": ""
+    "public_import_module": "",
+    "module_key": "eot",
+    "module_label": "Eot"
   },
   {
     "name": "ResolvedInstance",
@@ -21455,7 +21849,9 @@
     "canonical_namespace": "instancing",
     "class_import": "instancing.ResolvedInstance",
     "exported_via_package_init": true,
-    "public_import_module": ""
+    "public_import_module": "",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "SmartInstancer",
@@ -22689,7 +23085,9 @@
     "canonical_namespace": "instancing",
     "class_import": "instancing.SmartInstancer",
     "exported_via_package_init": true,
-    "public_import_module": ""
+    "public_import_module": "",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "font_info",
@@ -22707,7 +23105,9 @@
       }
     ],
     "return_type": "dict",
-    "reachable": false
+    "reachable": false,
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "font_convert",
@@ -22733,7 +23133,9 @@
       }
     ],
     "return_type": "dict",
-    "reachable": false
+    "reachable": false,
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "glyph_outline",
@@ -22755,7 +23157,9 @@
       }
     ],
     "return_type": "dict",
-    "reachable": false
+    "reachable": false,
+    "module_key": "text",
+    "module_label": "Text"
   },
   {
     "name": "text_layout",
@@ -22785,7 +23189,9 @@
       }
     ],
     "return_type": "dict",
-    "reachable": false
+    "reachable": false,
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "font_subset",
@@ -22811,7 +23217,9 @@
       }
     ],
     "return_type": "dict",
-    "reachable": false
+    "reachable": false,
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "web_build",
@@ -22905,7 +23313,9 @@
       }
     ],
     "return_type": "dict",
-    "reachable": false
+    "reachable": false,
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "web_family_package",
@@ -22999,7 +23409,9 @@
       }
     ],
     "return_type": "dict",
-    "reachable": false
+    "reachable": false,
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "var_compat",
@@ -23041,7 +23453,9 @@
       }
     ],
     "return_type": "dict",
-    "reachable": false
+    "reachable": false,
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "PreviewImage",
@@ -23100,7 +23514,9 @@
     "canonical_namespace": "preview",
     "class_import": "preview.PreviewImage",
     "exported_via_package_init": true,
-    "public_import_module": ""
+    "public_import_module": "",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "FontPreviewBuilder",
@@ -23309,7 +23725,9 @@
     "canonical_namespace": "preview",
     "class_import": "preview.FontPreviewBuilder",
     "exported_via_package_init": true,
-    "public_import_module": ""
+    "public_import_module": "",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "FontQaReport",
@@ -23399,7 +23817,9 @@
     "canonical_namespace": "qa",
     "class_import": "qa.FontQaReport",
     "exported_via_package_init": true,
-    "public_import_module": ""
+    "public_import_module": "",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "FontQaPackage",
@@ -23470,7 +23890,9 @@
     "canonical_namespace": "qa",
     "class_import": "qa.FontQaPackage",
     "exported_via_package_init": true,
-    "public_import_module": ""
+    "public_import_module": "",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "FontQaReporter",
@@ -23575,7 +23997,9 @@
     "canonical_namespace": "qa",
     "class_import": "qa.FontQaReporter",
     "exported_via_package_init": true,
-    "public_import_module": ""
+    "public_import_module": "",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "Rasterizer",
@@ -23694,7 +24118,9 @@
     "canonical_namespace": "rasterizer",
     "class_import": "rasterizer.Rasterizer",
     "exported_via_package_init": true,
-    "public_import_module": ""
+    "public_import_module": "",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "encode_apng_from_rgb",
@@ -23724,7 +24150,9 @@
       }
     ],
     "return_type": "bytes",
-    "reachable": false
+    "reachable": false,
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "TaskTokenEstimate",
@@ -23802,7 +24230,9 @@
     "visibility": "conventional",
     "reachable": false,
     "canonical_namespace": "reporting",
-    "class_import": "reporting.TaskTokenEstimate"
+    "class_import": "reporting.TaskTokenEstimate",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "TaskCompletionReceipt",
@@ -23934,7 +24364,9 @@
     "visibility": "conventional",
     "reachable": false,
     "canonical_namespace": "reporting",
-    "class_import": "reporting.TaskCompletionReceipt"
+    "class_import": "reporting.TaskCompletionReceipt",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "CompletedTaskRecord",
@@ -23976,7 +24408,9 @@
     "visibility": "conventional",
     "reachable": false,
     "canonical_namespace": "reporting",
-    "class_import": "reporting.CompletedTaskRecord"
+    "class_import": "reporting.CompletedTaskRecord",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "repository_root",
@@ -23989,7 +24423,9 @@
     "properties": [],
     "params": [],
     "return_type": "Path",
-    "reachable": false
+    "reachable": false,
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "normalize_task_stage",
@@ -24007,7 +24443,9 @@
       }
     ],
     "return_type": "str",
-    "reachable": false
+    "reachable": false,
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "token_usage_record_key",
@@ -24029,7 +24467,9 @@
       }
     ],
     "return_type": "str",
-    "reachable": false
+    "reachable": false,
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "token_usage_store_path",
@@ -24042,7 +24482,9 @@
     "properties": [],
     "params": [],
     "return_type": "Path",
-    "reachable": false
+    "reachable": false,
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "completion_receipts_store_path",
@@ -24055,7 +24497,9 @@
     "properties": [],
     "params": [],
     "return_type": "Path",
-    "reachable": false
+    "reachable": false,
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "completed_tasks_dir_path",
@@ -24068,7 +24512,9 @@
     "properties": [],
     "params": [],
     "return_type": "Path",
-    "reachable": false
+    "reachable": false,
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "load_token_usage_store",
@@ -24086,7 +24532,9 @@
       }
     ],
     "return_type": "dict[str, TaskTokenEstimate]",
-    "reachable": false
+    "reachable": false,
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "save_token_usage_store",
@@ -24108,7 +24556,9 @@
       }
     ],
     "return_type": "None",
-    "reachable": false
+    "reachable": false,
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "load_completion_receipts_store",
@@ -24126,7 +24576,9 @@
       }
     ],
     "return_type": "dict[str, TaskCompletionReceipt]",
-    "reachable": false
+    "reachable": false,
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "save_completion_receipts_store",
@@ -24148,7 +24600,9 @@
       }
     ],
     "return_type": "None",
-    "reachable": false
+    "reachable": false,
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "record_task_token_estimate",
@@ -24190,7 +24644,9 @@
       }
     ],
     "return_type": "TaskTokenEstimate",
-    "reachable": false
+    "reachable": false,
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "get_task_token_estimate",
@@ -24216,7 +24672,9 @@
       }
     ],
     "return_type": "TaskTokenEstimate | None",
-    "reachable": false
+    "reachable": false,
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "get_task_completion_receipt",
@@ -24242,7 +24700,9 @@
       }
     ],
     "return_type": "TaskCompletionReceipt | None",
-    "reachable": false
+    "reachable": false,
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "build_task_completion_payload",
@@ -24316,7 +24776,9 @@
       }
     ],
     "return_type": "dict[str, Any]",
-    "reachable": false
+    "reachable": false,
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "record_task_completion_receipt",
@@ -24346,7 +24808,9 @@
       }
     ],
     "return_type": "TaskCompletionReceipt",
-    "reachable": false
+    "reachable": false,
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "send_task_completion_report",
@@ -24376,7 +24840,9 @@
       }
     ],
     "return_type": "tuple[int, str]",
-    "reachable": false
+    "reachable": false,
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "maybe_send_task_completion_report",
@@ -24442,7 +24908,9 @@
       }
     ],
     "return_type": "dict[str, Any] | None",
-    "reachable": false
+    "reachable": false,
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "read_completed_task_record",
@@ -24460,7 +24928,9 @@
       }
     ],
     "return_type": "CompletedTaskRecord",
-    "reachable": false
+    "reachable": false,
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "iter_completed_task_records",
@@ -24478,7 +24948,9 @@
       }
     ],
     "return_type": "list[CompletedTaskRecord]",
-    "reachable": false
+    "reachable": false,
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "sync_completed_task_reports",
@@ -24540,7 +25012,9 @@
       }
     ],
     "return_type": "dict[str, Any]",
-    "reachable": false
+    "reachable": false,
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "TtfSerializer",
@@ -24573,7 +25047,9 @@
     "visibility": "conventional",
     "reachable": false,
     "canonical_namespace": "serializer",
-    "class_import": "serializer.TtfSerializer"
+    "class_import": "serializer.TtfSerializer",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "CffSerializer",
@@ -24602,7 +25078,9 @@
     "visibility": "conventional",
     "reachable": false,
     "canonical_namespace": "serializer",
-    "class_import": "serializer.CffSerializer"
+    "class_import": "serializer.CffSerializer",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "Type1Serializer",
@@ -24659,7 +25137,9 @@
     "visibility": "conventional",
     "reachable": false,
     "canonical_namespace": "serializer",
-    "class_import": "serializer.Type1Serializer"
+    "class_import": "serializer.Type1Serializer",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "EotSerializer",
@@ -24688,7 +25168,9 @@
     "visibility": "conventional",
     "reachable": false,
     "canonical_namespace": "serializer",
-    "class_import": "serializer.EotSerializer"
+    "class_import": "serializer.EotSerializer",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "available_subset_presets",
@@ -24703,7 +25185,9 @@
     "return_type": "tuple[str, ...]",
     "reachable": true,
     "exported_via_package_init": true,
-    "public_import_module": ""
+    "public_import_module": "",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "codepoints_for_preset",
@@ -24721,7 +25205,9 @@
       }
     ],
     "return_type": "set[int]",
-    "reachable": false
+    "reachable": false,
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "codepoints_for_presets",
@@ -24739,7 +25225,9 @@
       }
     ],
     "return_type": "set[int]",
-    "reachable": false
+    "reachable": false,
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "expand_unicode_ranges",
@@ -24757,7 +25245,9 @@
       }
     ],
     "return_type": "set[int]",
-    "reachable": false
+    "reachable": false,
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "CoverageGroup",
@@ -24874,7 +25364,9 @@
     "canonical_namespace": "subsetter",
     "class_import": "subsetter.CoverageGroup",
     "exported_via_package_init": true,
-    "public_import_module": ""
+    "public_import_module": "",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "SubsetCoverage",
@@ -24991,7 +25483,9 @@
     "canonical_namespace": "subsetter",
     "class_import": "subsetter.SubsetCoverage",
     "exported_via_package_init": true,
-    "public_import_module": ""
+    "public_import_module": "",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "SubsetResult",
@@ -25026,7 +25520,9 @@
     "canonical_namespace": "subsetter",
     "class_import": "subsetter.SubsetResult",
     "exported_via_package_init": true,
-    "public_import_module": ""
+    "public_import_module": "",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "FontSubsetter",
@@ -25280,7 +25776,9 @@
     "canonical_namespace": "subsetter",
     "class_import": "subsetter.FontSubsetter",
     "exported_via_package_init": true,
-    "public_import_module": ""
+    "public_import_module": "",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "GlyphLayout",
@@ -25351,7 +25849,9 @@
     "canonical_namespace": "text",
     "class_import": "text.GlyphLayout",
     "exported_via_package_init": true,
-    "public_import_module": ""
+    "public_import_module": "",
+    "module_key": "text",
+    "module_label": "Text"
   },
   {
     "name": "TextLayout",
@@ -25404,7 +25904,9 @@
     "canonical_namespace": "text",
     "class_import": "text.TextLayout",
     "exported_via_package_init": true,
-    "public_import_module": ""
+    "public_import_module": "",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "TextRenderer",
@@ -25591,7 +26093,9 @@
     "canonical_namespace": "text",
     "class_import": "text.TextRenderer",
     "exported_via_package_init": true,
-    "public_import_module": ""
+    "public_import_module": "",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "TtcFaceRecord",
@@ -25633,7 +26137,9 @@
     "visibility": "conventional",
     "reachable": false,
     "canonical_namespace": "ttf.collection",
-    "class_import": "ttf.collection.TtcFaceRecord"
+    "class_import": "ttf.collection.TtcFaceRecord",
+    "module_key": "ttf",
+    "module_label": "Ttf"
   },
   {
     "name": "is_ttc",
@@ -25651,7 +26157,9 @@
       }
     ],
     "return_type": "bool",
-    "reachable": false
+    "reachable": false,
+    "module_key": "ttf",
+    "module_label": "Ttf"
   },
   {
     "name": "parse_ttc_faces",
@@ -25669,7 +26177,9 @@
       }
     ],
     "return_type": "list[TtcFaceRecord]",
-    "reachable": false
+    "reachable": false,
+    "module_key": "ttf",
+    "module_label": "Ttf"
   },
   {
     "name": "slice_ttc_face",
@@ -25691,7 +26201,9 @@
       }
     ],
     "return_type": "tuple[bytes, int]",
-    "reachable": false
+    "reachable": false,
+    "module_key": "ttf",
+    "module_label": "Ttf"
   },
   {
     "name": "TtfFont",
@@ -26154,7 +26666,9 @@
     "canonical_namespace": "ttf.font",
     "class_import": "ttf.font.TtfFont",
     "exported_via_package_init": true,
-    "public_import_module": ""
+    "public_import_module": "",
+    "module_key": "ttf",
+    "module_label": "Ttf"
   },
   {
     "name": "TtfGlyphParser",
@@ -26223,7 +26737,9 @@
     "visibility": "conventional",
     "reachable": false,
     "canonical_namespace": "ttf.glyph",
-    "class_import": "ttf.glyph.TtfGlyphParser"
+    "class_import": "ttf.glyph.TtfGlyphParser",
+    "module_key": "ttf",
+    "module_label": "Ttf"
   },
   {
     "name": "NamingPolicyPreview",
@@ -26376,7 +26892,9 @@
     "canonical_namespace": "ttf.instancer",
     "class_import": "ttf.instancer.NamingPolicyPreview",
     "exported_via_package_init": true,
-    "public_import_module": ""
+    "public_import_module": "",
+    "module_key": "ttf",
+    "module_label": "Ttf"
   },
   {
     "name": "StatNamingDiagnostics",
@@ -26646,7 +27164,9 @@
     "canonical_namespace": "ttf.instancer",
     "class_import": "ttf.instancer.StatNamingDiagnostics",
     "exported_via_package_init": true,
-    "public_import_module": ""
+    "public_import_module": "",
+    "module_key": "ttf",
+    "module_label": "Ttf"
   },
   {
     "name": "PlatformNamingDiagnostics",
@@ -26754,7 +27274,9 @@
     "canonical_namespace": "ttf.instancer",
     "class_import": "ttf.instancer.PlatformNamingDiagnostics",
     "exported_via_package_init": true,
-    "public_import_module": ""
+    "public_import_module": "",
+    "module_key": "ttf",
+    "module_label": "Ttf"
   },
   {
     "name": "TtfInstancer",
@@ -26898,7 +27420,9 @@
     "visibility": "conventional",
     "reachable": false,
     "canonical_namespace": "ttf.instancer",
-    "class_import": "ttf.instancer.TtfInstancer"
+    "class_import": "ttf.instancer.TtfInstancer",
+    "module_key": "ttf",
+    "module_label": "Ttf"
   },
   {
     "name": "TtfTableSet",
@@ -27066,7 +27590,9 @@
     "canonical_namespace": "ttf.tables",
     "class_import": "ttf.tables.TtfTableSet",
     "exported_via_package_init": true,
-    "public_import_module": "ttf"
+    "public_import_module": "ttf",
+    "module_key": "ttf",
+    "module_label": "Ttf"
   },
   {
     "name": "AvarAxisMap",
@@ -27090,7 +27616,9 @@
     "visibility": "conventional",
     "reachable": false,
     "canonical_namespace": "ttf.tables.avar",
-    "class_import": "ttf.tables.avar.AvarAxisMap"
+    "class_import": "ttf.tables.avar.AvarAxisMap",
+    "module_key": "ttf",
+    "module_label": "Ttf"
   },
   {
     "name": "AvarTable",
@@ -27151,7 +27679,9 @@
     "visibility": "conventional",
     "reachable": false,
     "canonical_namespace": "ttf.tables.avar",
-    "class_import": "ttf.tables.avar.AvarTable"
+    "class_import": "ttf.tables.avar.AvarTable",
+    "module_key": "ttf",
+    "module_label": "Ttf"
   },
   {
     "name": "CmapSubtable",
@@ -27208,7 +27738,9 @@
     "visibility": "conventional",
     "reachable": false,
     "canonical_namespace": "ttf.tables.cmap",
-    "class_import": "ttf.tables.cmap.CmapSubtable"
+    "class_import": "ttf.tables.cmap.CmapSubtable",
+    "module_key": "ttf",
+    "module_label": "Ttf"
   },
   {
     "name": "CmapTable",
@@ -27271,7 +27803,9 @@
     "canonical_namespace": "ttf.tables.cmap",
     "class_import": "ttf.tables.cmap.CmapTable",
     "exported_via_package_init": true,
-    "public_import_module": "ttf.tables"
+    "public_import_module": "ttf.tables",
+    "module_key": "ttf",
+    "module_label": "Ttf"
   },
   {
     "name": "AxisRecord",
@@ -27342,7 +27876,9 @@
     "canonical_namespace": "ttf.tables.fvar",
     "class_import": "ttf.tables.fvar.AxisRecord",
     "exported_via_package_init": true,
-    "public_import_module": ""
+    "public_import_module": "",
+    "module_key": "ttf",
+    "module_label": "Ttf"
   },
   {
     "name": "NamedInstance",
@@ -27386,7 +27922,9 @@
     "canonical_namespace": "ttf.tables.fvar",
     "class_import": "ttf.tables.fvar.NamedInstance",
     "exported_via_package_init": true,
-    "public_import_module": ""
+    "public_import_module": "",
+    "module_key": "ttf",
+    "module_label": "Ttf"
   },
   {
     "name": "FvarTable",
@@ -27449,7 +27987,9 @@
     "canonical_namespace": "ttf.tables.fvar",
     "class_import": "ttf.tables.fvar.FvarTable",
     "exported_via_package_init": true,
-    "public_import_module": ""
+    "public_import_module": "",
+    "module_key": "ttf",
+    "module_label": "Ttf"
   },
   {
     "name": "GlyfTable",
@@ -27511,7 +28051,9 @@
     "canonical_namespace": "ttf.tables.glyf",
     "class_import": "ttf.tables.glyf.GlyfTable",
     "exported_via_package_init": true,
-    "public_import_module": "ttf.tables"
+    "public_import_module": "ttf.tables",
+    "module_key": "ttf",
+    "module_label": "Ttf"
   },
   {
     "name": "TupleVariation",
@@ -27571,7 +28113,9 @@
     "visibility": "conventional",
     "reachable": false,
     "canonical_namespace": "ttf.tables.gvar",
-    "class_import": "ttf.tables.gvar.TupleVariation"
+    "class_import": "ttf.tables.gvar.TupleVariation",
+    "module_key": "ttf",
+    "module_label": "Ttf"
   },
   {
     "name": "GvarTable",
@@ -27663,7 +28207,9 @@
     "visibility": "conventional",
     "reachable": false,
     "canonical_namespace": "ttf.tables.gvar",
-    "class_import": "ttf.tables.gvar.GvarTable"
+    "class_import": "ttf.tables.gvar.GvarTable",
+    "module_key": "ttf",
+    "module_label": "Ttf"
   },
   {
     "name": "HeadTable",
@@ -27866,7 +28412,9 @@
     "canonical_namespace": "ttf.tables.head",
     "class_import": "ttf.tables.head.HeadTable",
     "exported_via_package_init": true,
-    "public_import_module": "ttf.tables"
+    "public_import_module": "ttf.tables",
+    "module_key": "ttf",
+    "module_label": "Ttf"
   },
   {
     "name": "HheaTable",
@@ -28033,7 +28581,9 @@
     "canonical_namespace": "ttf.tables.hhea",
     "class_import": "ttf.tables.hhea.HheaTable",
     "exported_via_package_init": true,
-    "public_import_module": "ttf.tables"
+    "public_import_module": "ttf.tables",
+    "module_key": "ttf",
+    "module_label": "Ttf"
   },
   {
     "name": "HMetric",
@@ -28068,7 +28618,9 @@
     "canonical_namespace": "ttf.tables.hmtx",
     "class_import": "ttf.tables.hmtx.HMetric",
     "exported_via_package_init": true,
-    "public_import_module": "ttf.tables"
+    "public_import_module": "ttf.tables",
+    "module_key": "ttf",
+    "module_label": "Ttf"
   },
   {
     "name": "HmtxTable",
@@ -28149,7 +28701,9 @@
     "canonical_namespace": "ttf.tables.hmtx",
     "class_import": "ttf.tables.hmtx.HmtxTable",
     "exported_via_package_init": true,
-    "public_import_module": "ttf.tables"
+    "public_import_module": "ttf.tables",
+    "module_key": "ttf",
+    "module_label": "Ttf"
   },
   {
     "name": "DeltaSetIndex",
@@ -28182,7 +28736,9 @@
     "visibility": "conventional",
     "reachable": false,
     "canonical_namespace": "ttf.tables.hvar",
-    "class_import": "ttf.tables.hvar.DeltaSetIndex"
+    "class_import": "ttf.tables.hvar.DeltaSetIndex",
+    "module_key": "ttf",
+    "module_label": "Ttf"
   },
   {
     "name": "DeltaSetIndexMap",
@@ -28235,7 +28791,9 @@
     "visibility": "conventional",
     "reachable": false,
     "canonical_namespace": "ttf.tables.hvar",
-    "class_import": "ttf.tables.hvar.DeltaSetIndexMap"
+    "class_import": "ttf.tables.hvar.DeltaSetIndexMap",
+    "module_key": "ttf",
+    "module_label": "Ttf"
   },
   {
     "name": "VariationRegionAxis",
@@ -28292,7 +28850,9 @@
     "visibility": "conventional",
     "reachable": false,
     "canonical_namespace": "ttf.tables.hvar",
-    "class_import": "ttf.tables.hvar.VariationRegionAxis"
+    "class_import": "ttf.tables.hvar.VariationRegionAxis",
+    "module_key": "ttf",
+    "module_label": "Ttf"
   },
   {
     "name": "VariationRegion",
@@ -28335,7 +28895,9 @@
     "visibility": "conventional",
     "reachable": false,
     "canonical_namespace": "ttf.tables.hvar",
-    "class_import": "ttf.tables.hvar.VariationRegion"
+    "class_import": "ttf.tables.hvar.VariationRegion",
+    "module_key": "ttf",
+    "module_label": "Ttf"
   },
   {
     "name": "ItemVariationData",
@@ -28409,7 +28971,9 @@
     "visibility": "conventional",
     "reachable": false,
     "canonical_namespace": "ttf.tables.hvar",
-    "class_import": "ttf.tables.hvar.ItemVariationData"
+    "class_import": "ttf.tables.hvar.ItemVariationData",
+    "module_key": "ttf",
+    "module_label": "Ttf"
   },
   {
     "name": "ItemVariationStore",
@@ -28488,7 +29052,9 @@
     "visibility": "conventional",
     "reachable": false,
     "canonical_namespace": "ttf.tables.hvar",
-    "class_import": "ttf.tables.hvar.ItemVariationStore"
+    "class_import": "ttf.tables.hvar.ItemVariationStore",
+    "module_key": "ttf",
+    "module_label": "Ttf"
   },
   {
     "name": "HvarTable",
@@ -28564,7 +29130,9 @@
     "canonical_namespace": "ttf.tables.hvar",
     "class_import": "ttf.tables.hvar.HvarTable",
     "exported_via_package_init": true,
-    "public_import_module": "ttf.tables"
+    "public_import_module": "ttf.tables",
+    "module_key": "ttf",
+    "module_label": "Ttf"
   },
   {
     "name": "KernTable",
@@ -28645,7 +29213,9 @@
     "canonical_namespace": "ttf.tables.kern",
     "class_import": "ttf.tables.kern.KernTable",
     "exported_via_package_init": true,
-    "public_import_module": "ttf.tables"
+    "public_import_module": "ttf.tables",
+    "module_key": "ttf",
+    "module_label": "Ttf"
   },
   {
     "name": "LocaTable",
@@ -28740,7 +29310,9 @@
     "canonical_namespace": "ttf.tables.loca",
     "class_import": "ttf.tables.loca.LocaTable",
     "exported_via_package_init": true,
-    "public_import_module": "ttf.tables"
+    "public_import_module": "ttf.tables",
+    "module_key": "ttf",
+    "module_label": "Ttf"
   },
   {
     "name": "MaxpTable",
@@ -28812,7 +29384,9 @@
     "canonical_namespace": "ttf.tables.maxp",
     "class_import": "ttf.tables.maxp.MaxpTable",
     "exported_via_package_init": true,
-    "public_import_module": "ttf.tables"
+    "public_import_module": "ttf.tables",
+    "module_key": "ttf",
+    "module_label": "Ttf"
   },
   {
     "name": "NameRecord",
@@ -28872,7 +29446,9 @@
     "visibility": "conventional",
     "reachable": false,
     "canonical_namespace": "ttf.tables.name",
-    "class_import": "ttf.tables.name.NameRecord"
+    "class_import": "ttf.tables.name.NameRecord",
+    "module_key": "ttf",
+    "module_label": "Ttf"
   },
   {
     "name": "NameTable",
@@ -29092,7 +29668,9 @@
     "canonical_namespace": "ttf.tables.name",
     "class_import": "ttf.tables.name.NameTable",
     "exported_via_package_init": true,
-    "public_import_module": "ttf.tables"
+    "public_import_module": "ttf.tables",
+    "module_key": "ttf",
+    "module_label": "Ttf"
   },
   {
     "name": "Os2Table",
@@ -29227,7 +29805,9 @@
     "canonical_namespace": "ttf.tables.os2",
     "class_import": "ttf.tables.os2.Os2Table",
     "exported_via_package_init": true,
-    "public_import_module": "ttf.tables"
+    "public_import_module": "ttf.tables",
+    "module_key": "ttf",
+    "module_label": "Ttf"
   },
   {
     "name": "PostTable",
@@ -29340,7 +29920,9 @@
     "canonical_namespace": "ttf.tables.post",
     "class_import": "ttf.tables.post.PostTable",
     "exported_via_package_init": true,
-    "public_import_module": "ttf.tables"
+    "public_import_module": "ttf.tables",
+    "module_key": "ttf",
+    "module_label": "Ttf"
   },
   {
     "name": "normalize_static_stat_policy",
@@ -29358,7 +29940,9 @@
       }
     ],
     "return_type": "str",
-    "reachable": false
+    "reachable": false,
+    "module_key": "ttf",
+    "module_label": "Ttf"
   },
   {
     "name": "build_static_stat_table",
@@ -29392,7 +29976,9 @@
       }
     ],
     "return_type": "bytes",
-    "reachable": false
+    "reachable": false,
+    "module_key": "ttf",
+    "module_label": "Ttf"
   },
   {
     "name": "extract_stat_axis_value_flags",
@@ -29410,7 +29996,9 @@
       }
     ],
     "return_type": "tuple[int, ...]",
-    "reachable": false
+    "reachable": false,
+    "module_key": "ttf",
+    "module_label": "Ttf"
   },
   {
     "name": "describe_stat_axis_value_flags",
@@ -29428,7 +30016,9 @@
       }
     ],
     "return_type": "tuple[str, ...]",
-    "reachable": false
+    "reachable": false,
+    "module_key": "ttf",
+    "module_label": "Ttf"
   },
   {
     "name": "summarize_stat_axis_value_flags",
@@ -29446,7 +30036,9 @@
       }
     ],
     "return_type": "dict[str, int]",
-    "reachable": false
+    "reachable": false,
+    "module_key": "ttf",
+    "module_label": "Ttf"
   },
   {
     "name": "extract_stat_name_ids",
@@ -29464,7 +30056,9 @@
       }
     ],
     "return_type": "tuple[int, ...]",
-    "reachable": false
+    "reachable": false,
+    "module_key": "ttf",
+    "module_label": "Ttf"
   },
   {
     "name": "AfmGlyphMetric",
@@ -29517,7 +30111,9 @@
     "canonical_namespace": "type1.afm",
     "class_import": "type1.afm.AfmGlyphMetric",
     "exported_via_package_init": true,
-    "public_import_module": "type1"
+    "public_import_module": "type1",
+    "module_key": "type1",
+    "module_label": "Type1"
   },
   {
     "name": "AfmData",
@@ -29669,7 +30265,9 @@
     "canonical_namespace": "type1.afm",
     "class_import": "type1.afm.AfmData",
     "exported_via_package_init": true,
-    "public_import_module": "type1"
+    "public_import_module": "type1",
+    "module_key": "type1",
+    "module_label": "Type1"
   },
   {
     "name": "parse_afm",
@@ -29689,7 +30287,9 @@
     "return_type": "AfmData",
     "reachable": false,
     "exported_via_package_init": true,
-    "public_import_module": "type1"
+    "public_import_module": "type1",
+    "module_key": "type1",
+    "module_label": "Type1"
   },
   {
     "name": "parse_afm_bytes",
@@ -29709,7 +30309,9 @@
     "return_type": "AfmData",
     "reachable": false,
     "exported_via_package_init": true,
-    "public_import_module": "type1"
+    "public_import_module": "type1",
+    "module_key": "type1",
+    "module_label": "Type1"
   },
   {
     "name": "Type1Interpreter",
@@ -29758,7 +30360,9 @@
     "canonical_namespace": "type1.charstring",
     "class_import": "type1.charstring.Type1Interpreter",
     "exported_via_package_init": true,
-    "public_import_module": "type1"
+    "public_import_module": "type1",
+    "module_key": "type1",
+    "module_label": "Type1"
   },
   {
     "name": "eexec_decrypt",
@@ -29782,7 +30386,9 @@
     "return_type": "bytes",
     "reachable": false,
     "exported_via_package_init": true,
-    "public_import_module": "type1"
+    "public_import_module": "type1",
+    "module_key": "type1",
+    "module_label": "Type1"
   },
   {
     "name": "eexec_encrypt",
@@ -29814,7 +30420,9 @@
     "return_type": "bytes",
     "reachable": false,
     "exported_via_package_init": true,
-    "public_import_module": "type1"
+    "public_import_module": "type1",
+    "module_key": "type1",
+    "module_label": "Type1"
   },
   {
     "name": "charstring_decrypt_full",
@@ -29838,7 +30446,9 @@
     "return_type": "bytes",
     "reachable": false,
     "exported_via_package_init": true,
-    "public_import_module": "type1"
+    "public_import_module": "type1",
+    "module_key": "type1",
+    "module_label": "Type1"
   },
   {
     "name": "Type1Font",
@@ -30036,7 +30646,9 @@
     "canonical_namespace": "type1.font",
     "class_import": "type1.font.Type1Font",
     "exported_via_package_init": true,
-    "public_import_module": ""
+    "public_import_module": "",
+    "module_key": "type1",
+    "module_label": "Type1"
   },
   {
     "name": "pfa_to_ps_stream",
@@ -30056,7 +30668,9 @@
     "return_type": "bytes",
     "reachable": false,
     "exported_via_package_init": true,
-    "public_import_module": "type1"
+    "public_import_module": "type1",
+    "module_key": "type1",
+    "module_label": "Type1"
   },
   {
     "name": "PfbSegment",
@@ -30091,7 +30705,9 @@
     "canonical_namespace": "type1.pfb",
     "class_import": "type1.pfb.PfbSegment",
     "exported_via_package_init": true,
-    "public_import_module": "type1"
+    "public_import_module": "type1",
+    "module_key": "type1",
+    "module_label": "Type1"
   },
   {
     "name": "parse_pfb",
@@ -30111,7 +30727,9 @@
     "return_type": "list[PfbSegment]",
     "reachable": false,
     "exported_via_package_init": true,
-    "public_import_module": "type1"
+    "public_import_module": "type1",
+    "module_key": "type1",
+    "module_label": "Type1"
   },
   {
     "name": "pfb_to_ps_stream",
@@ -30131,7 +30749,9 @@
     "return_type": "bytes",
     "reachable": false,
     "exported_via_package_init": true,
-    "public_import_module": "type1"
+    "public_import_module": "type1",
+    "module_key": "type1",
+    "module_label": "Type1"
   },
   {
     "name": "Type1FontData",
@@ -30265,7 +30885,9 @@
     "canonical_namespace": "type1.ps_lexer",
     "class_import": "type1.ps_lexer.Type1FontData",
     "exported_via_package_init": true,
-    "public_import_module": "type1"
+    "public_import_module": "type1",
+    "module_key": "type1",
+    "module_label": "Type1"
   },
   {
     "name": "parse_type1_ps",
@@ -30285,7 +30907,9 @@
     "return_type": "Type1FontData",
     "reachable": false,
     "exported_via_package_init": true,
-    "public_import_module": "type1"
+    "public_import_module": "type1",
+    "module_key": "type1",
+    "module_label": "Type1"
   },
   {
     "name": "LocalizationResolution",
@@ -30366,7 +30990,9 @@
     "canonical_namespace": "variation",
     "class_import": "variation.LocalizationResolution",
     "exported_via_package_init": true,
-    "public_import_module": ""
+    "public_import_module": "",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "LocalizationCoverage",
@@ -30474,7 +31100,9 @@
     "canonical_namespace": "variation",
     "class_import": "variation.LocalizationCoverage",
     "exported_via_package_init": true,
-    "public_import_module": ""
+    "public_import_module": "",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "RequestedLanguageHint",
@@ -30546,7 +31174,9 @@
     "canonical_namespace": "variation",
     "class_import": "variation.RequestedLanguageHint",
     "exported_via_package_init": true,
-    "public_import_module": ""
+    "public_import_module": "",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "LanguageProfile",
@@ -30618,7 +31248,9 @@
     "canonical_namespace": "variation",
     "class_import": "variation.LanguageProfile",
     "exported_via_package_init": true,
-    "public_import_module": ""
+    "public_import_module": "",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "VariableAxisPreset",
@@ -30677,7 +31309,9 @@
     "canonical_namespace": "variation",
     "class_import": "variation.VariableAxisPreset",
     "exported_via_package_init": true,
-    "public_import_module": ""
+    "public_import_module": "",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "VariableAxis",
@@ -31102,7 +31736,9 @@
     "canonical_namespace": "variation",
     "class_import": "variation.VariableAxis",
     "exported_via_package_init": true,
-    "public_import_module": ""
+    "public_import_module": "",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "VariableInstance",
@@ -31325,7 +31961,9 @@
     "canonical_namespace": "variation",
     "class_import": "variation.VariableInstance",
     "exported_via_package_init": true,
-    "public_import_module": ""
+    "public_import_module": "",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "build_language_profiles",
@@ -31357,7 +31995,9 @@
     "return_type": "tuple[LanguageProfile, ...]",
     "reachable": true,
     "exported_via_package_init": true,
-    "public_import_module": ""
+    "public_import_module": "",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "WebFontAsset",
@@ -31401,7 +32041,9 @@
     "canonical_namespace": "web",
     "class_import": "web.WebFontAsset",
     "exported_via_package_init": true,
-    "public_import_module": ""
+    "public_import_module": "",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "WebFontBundle",
@@ -31532,7 +32174,9 @@
     "canonical_namespace": "web",
     "class_import": "web.WebFontBundle",
     "exported_via_package_init": true,
-    "public_import_module": ""
+    "public_import_module": "",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "WebFontFamilyPackage",
@@ -31645,7 +32289,9 @@
     "canonical_namespace": "web",
     "class_import": "web.WebFontFamilyPackage",
     "exported_via_package_init": true,
-    "public_import_module": ""
+    "public_import_module": "",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "WebFontOptimizerPackage",
@@ -31731,7 +32377,9 @@
     "canonical_namespace": "web",
     "class_import": "web.WebFontOptimizerPackage",
     "exported_via_package_init": true,
-    "public_import_module": ""
+    "public_import_module": "",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "FamilyReviewExportPackage",
@@ -31844,7 +32492,9 @@
     "canonical_namespace": "web",
     "class_import": "web.FamilyReviewExportPackage",
     "exported_via_package_init": true,
-    "public_import_module": ""
+    "public_import_module": "",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "WebFontOptimizer",
@@ -31955,7 +32605,9 @@
     "canonical_namespace": "web",
     "class_import": "web.WebFontOptimizer",
     "exported_via_package_init": true,
-    "public_import_module": ""
+    "public_import_module": "",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "WebFontBuilder",
@@ -32192,7 +32844,9 @@
     "canonical_namespace": "web",
     "class_import": "web.WebFontBuilder",
     "exported_via_package_init": true,
-    "public_import_module": ""
+    "public_import_module": "",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "WoffFont",
@@ -32390,7 +33044,9 @@
     "canonical_namespace": "woff.woff1",
     "class_import": "woff.woff1.WoffFont",
     "exported_via_package_init": true,
-    "public_import_module": ""
+    "public_import_module": "",
+    "module_key": "woff",
+    "module_label": "Woff"
   },
   {
     "name": "Woff2Font",
@@ -32588,7 +33244,9 @@
     "canonical_namespace": "woff.woff2",
     "class_import": "woff.woff2.Woff2Font",
     "exported_via_package_init": true,
-    "public_import_module": ""
+    "public_import_module": "",
+    "module_key": "woff",
+    "module_label": "Woff"
   },
   {
     "name": "with_sign",
@@ -32610,7 +33268,9 @@
       }
     ],
     "return_type": "int",
-    "reachable": false
+    "reachable": false,
+    "module_key": "woff",
+    "module_label": "Woff"
   },
   {
     "name": "bbox_present",
@@ -32628,7 +33288,9 @@
       }
     ],
     "return_type": "bool",
-    "reachable": false
+    "reachable": false,
+    "module_key": "woff",
+    "module_label": "Woff"
   },
   {
     "name": "overlap_present",
@@ -32646,6 +33308,8 @@
       }
     ],
     "return_type": "bool",
-    "reachable": false
+    "reachable": false,
+    "module_key": "woff",
+    "module_label": "Woff"
   }
 ]

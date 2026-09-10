@@ -1,11 +1,15 @@
 [Fact]
-    public void TestRemoveAt()
+    public void ATableReferencesItsStyleThroughTheSchemaElementName()
     {
-        // remove_at removes by index.
-        using var pres = new Presentation();
-        var slide = BlankSlide(pres);
-        slide.Shapes!.AddAutoShape(ShapeType.Rectangle, 50, 50, 200, 100);
-        slide.Shapes!.AddAutoShape(ShapeType.Ellipse, 300, 50, 150, 150);
-        slide.Shapes!.RemoveAt(0);
-        slide.Shapes!.Count.Should().Be(1);
+        var path = WriteDeckWithATable("table-style-id.pptx");
+
+        using var package = PptxPackage.Open(path);
+
+        var wrongName = PackageAssert.Select(package, "ppt/slides/slide1.xml", "//a:tblPr/a:tblStyleId");
+        Assert.True(wrongName.Count == 0,
+            $"The table style is written as <a:tblStyleId>, which is not an element of CT_TableProperties. " +
+            $"ECMA-376 names it <a:tableStyleId>.{Environment.NewLine}" +
+            $"written: {string.Join(", ", wrongName)}");
+
+        PackageAssert.SingleElement(package, "ppt/slides/slide1.xml", "//a:tblPr/a:tableStyleId");
     }

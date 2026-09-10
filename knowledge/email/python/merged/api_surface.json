@@ -196,7 +196,9 @@
     "canonical_namespace": "aspose.email_foss.cfb.reader",
     "class_import": "aspose.email_foss.cfb.reader.Header",
     "exported_via_package_init": true,
-    "public_import_module": "aspose.email_foss.cfb"
+    "public_import_module": "aspose.email_foss.cfb",
+    "module_key": "cfb",
+    "module_label": "Cfb"
   },
   {
     "name": "DirectoryEntry",
@@ -378,7 +380,9 @@
     "canonical_namespace": "aspose.email_foss.cfb.reader",
     "class_import": "aspose.email_foss.cfb.reader.DirectoryEntry",
     "exported_via_package_init": true,
-    "public_import_module": "aspose.email_foss.cfb"
+    "public_import_module": "aspose.email_foss.cfb",
+    "module_key": "cfb",
+    "module_label": "Cfb"
   },
   {
     "name": "CFBError",
@@ -398,7 +402,9 @@
     "canonical_namespace": "aspose.email_foss.cfb.reader",
     "class_import": "aspose.email_foss.cfb.reader.CFBError",
     "exported_via_package_init": true,
-    "public_import_module": "aspose.email_foss.cfb"
+    "public_import_module": "aspose.email_foss.cfb",
+    "module_key": "cfb",
+    "module_label": "Cfb"
   },
   {
     "name": "CFBReader",
@@ -755,7 +761,9 @@
     "canonical_namespace": "aspose.email_foss.cfb.reader",
     "class_import": "aspose.email_foss.cfb.reader.CFBReader",
     "exported_via_package_init": true,
-    "public_import_module": "aspose.email_foss.cfb"
+    "public_import_module": "aspose.email_foss.cfb",
+    "module_key": "cfb",
+    "module_label": "Cfb"
   },
   {
     "name": "CFBStream",
@@ -828,7 +836,9 @@
     "canonical_namespace": "aspose.email_foss.cfb.writer",
     "class_import": "aspose.email_foss.cfb.writer.CFBStream",
     "exported_via_package_init": true,
-    "public_import_module": "aspose.email_foss.cfb"
+    "public_import_module": "aspose.email_foss.cfb",
+    "module_key": "cfb",
+    "module_label": "Cfb"
   },
   {
     "name": "CFBStorage",
@@ -934,7 +944,9 @@
     "canonical_namespace": "aspose.email_foss.cfb.writer",
     "class_import": "aspose.email_foss.cfb.writer.CFBStorage",
     "exported_via_package_init": true,
-    "public_import_module": "aspose.email_foss.cfb"
+    "public_import_module": "aspose.email_foss.cfb",
+    "module_key": "cfb",
+    "module_label": "Cfb"
   },
   {
     "name": "CFBDocument",
@@ -1038,7 +1050,9 @@
     "canonical_namespace": "aspose.email_foss.cfb.writer",
     "class_import": "aspose.email_foss.cfb.writer.CFBDocument",
     "exported_via_package_init": true,
-    "public_import_module": "aspose.email_foss.cfb"
+    "public_import_module": "aspose.email_foss.cfb",
+    "module_key": "cfb",
+    "module_label": "Cfb"
   },
   {
     "name": "CFBWriter",
@@ -1093,7 +1107,9 @@
     "canonical_namespace": "aspose.email_foss.cfb.writer",
     "class_import": "aspose.email_foss.cfb.writer.CFBWriter",
     "exported_via_package_init": true,
-    "public_import_module": "aspose.email_foss.cfb"
+    "public_import_module": "aspose.email_foss.cfb",
+    "module_key": "cfb",
+    "module_label": "Cfb"
   },
   {
     "name": "compare_directory_entry_names",
@@ -1117,7 +1133,9 @@
     "return_type": "int",
     "reachable": true,
     "exported_via_package_init": true,
-    "public_import_module": "aspose.email_foss.cfb"
+    "public_import_module": "aspose.email_foss.cfb",
+    "module_key": "cfb",
+    "module_label": "Cfb"
   },
   {
     "name": "MsgError",
@@ -1137,7 +1155,9 @@
     "canonical_namespace": "aspose.email_foss.msg.reader",
     "class_import": "aspose.email_foss.msg.reader.MsgError",
     "exported_via_package_init": true,
-    "public_import_module": "aspose.email_foss.msg"
+    "public_import_module": "aspose.email_foss.msg",
+    "module_key": "msg",
+    "module_label": "Msg"
   },
   {
     "name": "StorageLayout",
@@ -1192,7 +1212,9 @@
     "canonical_namespace": "aspose.email_foss.msg.reader",
     "class_import": "aspose.email_foss.msg.reader.StorageLayout",
     "exported_via_package_init": true,
-    "public_import_module": "aspose.email_foss.msg"
+    "public_import_module": "aspose.email_foss.msg",
+    "module_key": "msg",
+    "module_label": "Msg"
   },
   {
     "name": "MsgReader",
@@ -1437,7 +1459,9 @@
     "canonical_namespace": "aspose.email_foss.msg.reader",
     "class_import": "aspose.email_foss.msg.reader.MsgReader",
     "exported_via_package_init": true,
-    "public_import_module": "aspose.email_foss.msg"
+    "public_import_module": "aspose.email_foss.msg",
+    "module_key": "msg",
+    "module_label": "Msg"
   },
   {
     "name": "MsgStream",
@@ -1510,7 +1534,9 @@
     "canonical_namespace": "aspose.email_foss.msg.writer",
     "class_import": "aspose.email_foss.msg.writer.MsgStream",
     "exported_via_package_init": true,
-    "public_import_module": "aspose.email_foss.msg"
+    "public_import_module": "aspose.email_foss.msg",
+    "module_key": "msg",
+    "module_label": "Msg"
   },
   {
     "name": "MsgStorage",
@@ -1724,7 +1750,9 @@
     "canonical_namespace": "aspose.email_foss.msg.writer",
     "class_import": "aspose.email_foss.msg.writer.MsgStorage",
     "exported_via_package_init": true,
-    "public_import_module": "aspose.email_foss.msg"
+    "public_import_module": "aspose.email_foss.msg",
+    "module_key": "msg",
+    "module_label": "Msg"
   },
   {
     "name": "MsgDocument",
@@ -1856,7 +1884,9 @@
     "canonical_namespace": "aspose.email_foss.msg.writer",
     "class_import": "aspose.email_foss.msg.writer.MsgDocument",
     "exported_via_package_init": true,
-    "public_import_module": "aspose.email_foss.msg"
+    "public_import_module": "aspose.email_foss.msg",
+    "module_key": "msg",
+    "module_label": "Msg"
   },
   {
     "name": "MsgWriter",
@@ -1911,7 +1941,9 @@
     "canonical_namespace": "aspose.email_foss.msg.writer",
     "class_import": "aspose.email_foss.msg.writer.MsgWriter",
     "exported_via_package_init": true,
-    "public_import_module": "aspose.email_foss.msg"
+    "public_import_module": "aspose.email_foss.msg",
+    "module_key": "msg",
+    "module_label": "Msg"
   },
   {
     "name": "hash_payload",
@@ -1929,7 +1961,9 @@
       }
     ],
     "return_type": "str",
-    "reachable": true
+    "reachable": true,
+    "module_key": "msg",
+    "module_label": "Msg"
   },
   {
     "name": "SectorMarker",
@@ -1967,7 +2001,9 @@
     "canonical_namespace": "aspose.email_foss.cfb.types",
     "class_import": "aspose.email_foss.cfb.types.SectorMarker",
     "exported_via_package_init": true,
-    "public_import_module": "aspose.email_foss.cfb"
+    "public_import_module": "aspose.email_foss.cfb",
+    "module_key": "cfb",
+    "module_label": "Cfb"
   },
   {
     "name": "DirectoryObjectType",
@@ -2005,7 +2041,9 @@
     "canonical_namespace": "aspose.email_foss.cfb.types",
     "class_import": "aspose.email_foss.cfb.types.DirectoryObjectType",
     "exported_via_package_init": true,
-    "public_import_module": "aspose.email_foss.cfb"
+    "public_import_module": "aspose.email_foss.cfb",
+    "module_key": "cfb",
+    "module_label": "Cfb"
   },
   {
     "name": "DirectoryColorFlag",
@@ -2035,7 +2073,9 @@
     "canonical_namespace": "aspose.email_foss.cfb.types",
     "class_import": "aspose.email_foss.cfb.types.DirectoryColorFlag",
     "exported_via_package_init": true,
-    "public_import_module": "aspose.email_foss.cfb"
+    "public_import_module": "aspose.email_foss.cfb",
+    "module_key": "cfb",
+    "module_label": "Cfb"
   },
   {
     "name": "MapiNamedProperty",
@@ -2140,7 +2180,9 @@
     "canonical_namespace": "aspose.email_foss.msg.mapi_message",
     "class_import": "aspose.email_foss.msg.mapi_message.MapiNamedProperty",
     "exported_via_package_init": true,
-    "public_import_module": "aspose.email_foss.msg"
+    "public_import_module": "aspose.email_foss.msg",
+    "module_key": "msg",
+    "module_label": "Msg"
   },
   {
     "name": "MapiProperty",
@@ -2290,7 +2332,9 @@
     "canonical_namespace": "aspose.email_foss.msg.mapi_message",
     "class_import": "aspose.email_foss.msg.mapi_message.MapiProperty",
     "exported_via_package_init": true,
-    "public_import_module": "aspose.email_foss.msg"
+    "public_import_module": "aspose.email_foss.msg",
+    "module_key": "msg",
+    "module_label": "Msg"
   },
   {
     "name": "MapiPropertyCollection",
@@ -2417,7 +2461,9 @@
     "deprecated": false,
     "deprecated_reason": "",
     "canonical_namespace": "aspose.email_foss.msg.mapi_message",
-    "class_import": "aspose.email_foss.msg.mapi_message.MapiPropertyCollection"
+    "class_import": "aspose.email_foss.msg.mapi_message.MapiPropertyCollection",
+    "module_key": "msg",
+    "module_label": "Msg"
   },
   {
     "name": "MapiRecipient",
@@ -2547,7 +2593,9 @@
     "canonical_namespace": "aspose.email_foss.msg.mapi_message",
     "class_import": "aspose.email_foss.msg.mapi_message.MapiRecipient",
     "exported_via_package_init": true,
-    "public_import_module": "aspose.email_foss.msg"
+    "public_import_module": "aspose.email_foss.msg",
+    "module_key": "msg",
+    "module_label": "Msg"
   },
   {
     "name": "MapiAttachment",
@@ -2783,7 +2831,9 @@
     "canonical_namespace": "aspose.email_foss.msg.mapi_message",
     "class_import": "aspose.email_foss.msg.mapi_message.MapiAttachment",
     "exported_via_package_init": true,
-    "public_import_module": "aspose.email_foss.msg"
+    "public_import_module": "aspose.email_foss.msg",
+    "module_key": "msg",
+    "module_label": "Msg"
   },
   {
     "name": "MapiMessage",
@@ -3438,7 +3488,9 @@
     "canonical_namespace": "aspose.email_foss.msg.mapi_message",
     "class_import": "aspose.email_foss.msg.mapi_message.MapiMessage",
     "exported_via_package_init": true,
-    "public_import_module": "aspose.email_foss.msg"
+    "public_import_module": "aspose.email_foss.msg",
+    "module_key": "msg",
+    "module_label": "Msg"
   },
   {
     "name": "PropertyId",
@@ -3568,7 +3620,9 @@
     "canonical_namespace": "aspose.email_foss.msg.property_id",
     "class_import": "aspose.email_foss.msg.property_id.PropertyId",
     "exported_via_package_init": true,
-    "public_import_module": "aspose.email_foss.msg"
+    "public_import_module": "aspose.email_foss.msg",
+    "module_key": "msg",
+    "module_label": "Msg"
   },
   {
     "name": "CommonMessagePropertyId",
@@ -3698,7 +3752,9 @@
     "canonical_namespace": "aspose.email_foss.msg.property_tags",
     "class_import": "aspose.email_foss.msg.property_tags.CommonMessagePropertyId",
     "exported_via_package_init": true,
-    "public_import_module": "aspose.email_foss.msg"
+    "public_import_module": "aspose.email_foss.msg",
+    "module_key": "msg",
+    "module_label": "Msg"
   },
   {
     "name": "PropertyTypeCode",
@@ -3828,7 +3884,9 @@
     "canonical_namespace": "aspose.email_foss.msg.property_types",
     "class_import": "aspose.email_foss.msg.property_types.PropertyTypeCode",
     "exported_via_package_init": true,
-    "public_import_module": "aspose.email_foss.msg"
+    "public_import_module": "aspose.email_foss.msg",
+    "module_key": "msg",
+    "module_label": "Msg"
   },
   {
     "name": "PropertyStreamHeaderTopLevel",
@@ -3901,7 +3959,9 @@
     "canonical_namespace": "aspose.email_foss.msg.types",
     "class_import": "aspose.email_foss.msg.types.PropertyStreamHeaderTopLevel",
     "exported_via_package_init": true,
-    "public_import_module": "aspose.email_foss.msg"
+    "public_import_module": "aspose.email_foss.msg",
+    "module_key": "msg",
+    "module_label": "Msg"
   },
   {
     "name": "PropertyStreamHeaderSubobject",
@@ -3929,7 +3989,9 @@
     "canonical_namespace": "aspose.email_foss.msg.types",
     "class_import": "aspose.email_foss.msg.types.PropertyStreamHeaderSubobject",
     "exported_via_package_init": true,
-    "public_import_module": "aspose.email_foss.msg"
+    "public_import_module": "aspose.email_foss.msg",
+    "module_key": "msg",
+    "module_label": "Msg"
   },
   {
     "name": "PropertyEntryFixedLength",
@@ -4012,6 +4074,8 @@
     "canonical_namespace": "aspose.email_foss.msg.types",
     "class_import": "aspose.email_foss.msg.types.PropertyEntryFixedLength",
     "exported_via_package_init": true,
-    "public_import_module": "aspose.email_foss.msg"
+    "public_import_module": "aspose.email_foss.msg",
+    "module_key": "msg",
+    "module_label": "Msg"
   }
 ]

@@ -1,19 +1,24 @@
 [Fact]
-    public void TestGradientFill()
+    public void ANotesSlideReferencesANotesMasterThatIsInThePackage()
     {
-        // Gradient stops and angle persist.
-        using var pres = new Presentation();
-        var slide = ClearSlide(pres);
-        var shape = slide.Shapes!.AddAutoShape(ShapeType.Rectangle, 50, 50, 300, 150);
-        shape.FillFormat.FillType = FillType.Gradient;
-        var gf = shape.FillFormat.GradientFormat;
-        gf.GradientShape = GradientShape.Linear;
-        gf.LinearGradientAngle = 45;
-        gf.GradientStops.Add(0.0f, Color.Blue);
-        gf.GradientStops.Add(1.0f, Color.Red);
+        var path = WriteDeckWithNotes("notes-master.pptx");
 
-        using var pres2 = TestHelpers.SaveAndReopen(pres, _tempDir);
-        var ff2 = pres2.Slides[0].Shapes![0].FillFormat;
-        ff2.FillType.Should().Be(FillType.Gradient);
-        ff2.GradientFormat.GradientStops.Count.Should().BeGreaterThanOrEqualTo(2);
+        using var package = PptxPackage.Open(path);
+
+        const string notesSlide = "ppt/notesSlides/notesSlide1.xml";
+        Assert.True(package.Contains(notesSlide),
+            $"No notes slide was written. Parts: {string.Join(", ", package.PartNames)}");
+
+        var toMaster = package.Relationships(notesSlide)
+            .Where(relationship => relationship.Type == Ns.NotesMasterRelationshipType)
+            .ToList();
+
+        Assert.True(toMaster.Count == 1,
+            $"The notes slide declares {toMaster.Count} notesMaster relationship(s), expected exactly one." +
+            $"{Environment.NewLine}{PackageAssert.Describe(package, PptxPackage.RelationshipsPartNameFor(notesSlide))}");
+
+        var target = PptxPackage.ResolveTarget(notesSlide, toMaster[0].Target);
+        Assert.True(package.Contains(target),
+            $"The notes slide points at '{target}', which is not in the package. " +
+            $"Parts: {string.Join(", ", package.PartNames)}");
     }

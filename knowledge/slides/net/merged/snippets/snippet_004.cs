@@ -1,18 +1,13 @@
-[Fact]
-    public void TestAddComment()
+private string WriteDeckWithAReply(string fileName)
     {
-        // Comment text, position, and time persist.
-        using var pres = new Presentation();
-        var author = pres.CommentAuthors.AddAuthor("Alice", "A");
-        var slide = pres.Slides[0];
-        var now = new DateTime(2026, 1, 15, 12, 0, 0);
-        var comment = author.Comments.AddComment("Review note", slide, new PointF(2.0f, 3.0f), now);
-        comment.Text.Should().Be("Review note");
-        comment.Author.Name.Should().Be("Alice");
+        var path = _workspace.PathFor(fileName);
 
-        using var pres2 = TestHelpers.SaveAndReopen(pres, _tempDir);
-        var a2 = pres2.CommentAuthors[0];
-        a2.Comments.Count.Should().Be(1);
-        var c = a2.Comments[0];
-        c.Text.Should().Be("Review note");
+        using var presentation = new Presentation();
+        var author = presentation.CommentAuthors.AddAuthor("Reviewer", "RV");
+        var parent = author.Comments.AddComment("Please check this", presentation.Slides[0], new PointF(10, 10), new DateTime(2024, 1, 1, 9, 0, 0, DateTimeKind.Utc));
+        var reply = author.Comments.AddComment("Checked", presentation.Slides[0], new PointF(20, 20), new DateTime(2024, 1, 1, 10, 0, 0, DateTimeKind.Utc));
+        reply.ParentComment = parent;
+        presentation.Save(path, SaveFormat.Pptx);
+
+        return path;
     }

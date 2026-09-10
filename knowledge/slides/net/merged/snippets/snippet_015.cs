@@ -1,32 +1,24 @@
 [Fact]
-    public void TestBentConnectorAdjustments()
+    public void ExtendedPropertiesReportTheNumberOfSlidesInTheDeck()
     {
-        // Adjustment values persist after save/reload.
-        using var pres = new Presentation();
-        var shapes = pres.Slides[0].Shapes!;
-        shapes.Clear();
-        var conn = shapes.AddConnector(ShapeType.BentConnector3, 50, 50, 300, 200);
-        var adjustments = conn.Adjustments;
-        if (adjustments is not null && adjustments.Count > 0)
+        var path = _workspace.PathFor("app-properties.pptx");
+
+        using (var presentation = new Presentation())
         {
-            adjustments[0].RawValue = 30000;
+            presentation.Slides.AddEmptySlide(presentation.LayoutSlides[0]);
+            presentation.Slides.AddEmptySlide(presentation.LayoutSlides[0]);
+            presentation.Save(path, SaveFormat.Pptx);
         }
 
-        using var pres2 = TestHelpers.SaveAndReopen(pres, _tempDir);
-        // Find the connector shape
-        Connector? conn2 = null;
-        foreach (var sh in pres2.Slides[0].Shapes!)
-        {
-            if (sh is Connector c)
-            {
-                conn2 = c;
-                break;
-            }
-        }
-        conn2.Should().NotBeNull("Connector not found after reload");
-        var adj2 = conn2!.Adjustments;
-        if (adj2 is not null && adj2.Count > 0)
-        {
-            adj2[0].RawValue.Should().Be(30000);
-        }
+        using var package = PptxPackage.Open(path);
+
+        var slideCount = PackageAssert.Select(package, "ppt/presentation.xml", "//p:sldIdLst/p:sldId").Count;
+        Assert.Equal(3, slideCount);
+
+        var declared = package.Xml("docProps/app.xml").Root?.Element(Ns.Ep + "Slides")?.Value;
+
+        Assert.True(declared == slideCount.ToString(),
+            $"The deck registers {slideCount} slides and docProps/app.xml declares " +
+            $"{(declared is null ? "no <Slides> element at all" : $"'{declared}'")}." +
+            $"{Environment.NewLine}{PackageAssert.Describe(package, "docProps/app.xml")}");
     }

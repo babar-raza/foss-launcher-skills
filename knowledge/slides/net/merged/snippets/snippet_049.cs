@@ -1,19 +1,24 @@
 [Fact]
-    public void TestLineColorAndWidth()
+    public void EffectsAreWrittenInTheOrderTheEffectListRequires()
     {
-        // Line colour and width persist after save/reload.
-        using var pres = new Presentation();
-        var slide = ClearSlide(pres);
-        var shape = slide.Shapes!.AddAutoShape(ShapeType.Rectangle, 50, 50, 200, 100);
-        var lf = shape.LineFormat;
-        lf.Width = 5;
-        lf.FillFormat.FillType = FillType.Solid;
-        lf.FillFormat.SolidFillColor.Color = Color.DarkRed;
+        var path = _workspace.PathFor("effect-order.pptx");
 
-        using var pres2 = TestHelpers.SaveAndReopen(pres, _tempDir);
-        var lf2 = pres2.Slides[0].Shapes![0].LineFormat;
-        lf2.Width.Should().Be(5);
-        lf2.FillFormat.FillType.Should().Be(FillType.Solid);
-        var c = lf2.FillFormat.SolidFillColor.Color;
-        c!.R.Should().Be(Color.DarkRed.R);
+        using (var presentation = new Presentation())
+        {
+            var shape = presentation.Slides[0].Shapes!.AddAutoShape(ShapeType.Rectangle, 10, 10, 100, 100);
+            // Enabled in the reverse of schema order on purpose: the writer, not the caller, owns the order.
+            shape.EffectFormat!.EnableSoftEdgeEffect();
+            shape.EffectFormat.EnableOuterShadowEffect();
+            shape.EffectFormat.EnableGlowEffect();
+            shape.EffectFormat.EnableBlurEffect();
+            presentation.Save(path, SaveFormat.Pptx);
+        }
+
+        using var package = PptxPackage.Open(path);
+        var effectList = PackageAssert.SingleElement(package, "ppt/slides/slide1.xml", "//a:effectLst");
+
+        PackageAssert.ChildrenInSchemaOrder(
+            effectList,
+            Ns.A + "blur", Ns.A + "fillOverlay", Ns.A + "glow", Ns.A + "innerShdw",
+            Ns.A + "outerShdw", Ns.A + "prstShdw", Ns.A + "reflection", Ns.A + "softEdge");
     }

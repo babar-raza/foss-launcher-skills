@@ -7,15 +7,31 @@ repo_url: https://github.com/aspose-email-foss/Aspose.Email-FOSS-for-Cpp.git
 repo_sha: c7252b3e4f6bbec4bbe5e2f50f51eb2a7384eaf2
 config_sha: a1fb6a852b9b8451
 stale_since: null
-promoted_at: '2026-07-12T14:38:29.110909+00:00'
+promoted_at: '2026-09-10T11:07:25.354273+00:00'
 source: scout_only
 enrichment_status: scout-only
 has_conflicts: false
+schema_version: 2
+generator_fingerprint: 39b55c0381d862030a39cf289a74386dba0d96ba7bead7439ed295a74ed8206e
+generator_semver: 2.0.0
+bundle_id: 3ec0454f-4658-4a9d-9b47-77dddc76e1de
+bundle_generated_at: '2026-09-10T11:07:25.324824+00:00'
+module_assignment_version: 1
+input_hashes:
+  extractor_config_sha: a1fb6a852b9b8451
+  scout_claims_sha: 33d519602035682ac6b6b0e0e688e4bc23831c74b59ef71feb04442154f93317
+  scout_api_surface_sha: fb5517466d5122ee9eaab726710da8fb990115b69b11e48c10d0be3378b5dd2a
+  enriched_claims_sha: 4783e273d9e8bb8cf3445bd2275378b4e5f732e060dd927ed766741f20b467f7
+  products_json_entry_sha: d835b047982a52fee4a9427e6f02821edea31062d56e8c6b4f8b1e4e36178aea
 stats:
   scout_claims: 251
   enriched_claims: 0
   supplemental_claims: 0
   total_claims: 237
   class_count: 26
+  classes:
+    total_declared: 26
+    public_documented: 26
+    raw_entries_including_non_class: 26
   forbidden_count: 0
   snippet_count: 5

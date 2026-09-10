@@ -1,12 +1,18 @@
 @Test
-    void testMultipleShapeTypes() {
-        ShapeType[] types = {ShapeType.RECTANGLE, ShapeType.ELLIPSE, ShapeType.TRIANGLE};
+    void testAddComment() throws IOException {
         try (var pres = new Presentation()) {
-            var slide = blankSlide(pres);
-            for (ShapeType st : types) {
-                var s = slide.getShapes().addAutoShape(st, 10, 10, 100, 100);
-                assertThat(s.getShapeType()).isEqualTo(st);
+            ICommentAuthor author = pres.getCommentAuthors().addAuthor("Alice", "A");
+            ISlide slide = pres.getSlides().get(0);
+            LocalDateTime now = LocalDateTime.of(2026, 1, 15, 12, 0, 0);
+            IComment comment = author.getComments().addComment("Review note", slide,
+                    new PointF(2.0f, 3.0f), now);
+            assertThat(comment.getText()).isEqualTo("Review note");
+            assertThat(comment.getAuthor().getName()).isEqualTo("Alice");
+
+            try (var pres2 = saveAndReopen(pres)) {
+                ICommentAuthor a2 = pres2.getCommentAuthors().get(0);
+                assertThat(a2.getComments().size()).isEqualTo(1);
+                assertThat(a2.getComments().get(0).getText()).isEqualTo("Review note");
             }
-            assertThat(slide.getShapes().size()).isEqualTo(3);
         }
     }

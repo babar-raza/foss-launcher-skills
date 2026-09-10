@@ -1,18 +1,14 @@
 [Fact]
-    public void TestPatternFill()
+    public void ANotesMasterIsRegisteredInThePresentationPart()
     {
-        // Pattern style and colours persist.
-        using var pres = new Presentation();
-        var slide = ClearSlide(pres);
-        var shape = slide.Shapes!.AddAutoShape(ShapeType.Rectangle, 50, 50, 200, 100);
-        shape.FillFormat.FillType = FillType.Pattern;
-        var pf = shape.FillFormat.PatternFormat;
-        pf.PatternStyle = PatternStyle.Percent50;
-        pf.ForeColor.Color = Color.DarkBlue;
-        pf.BackColor.Color = Color.LightYellow;
+        var path = WriteDeckWithNotes("notes-master-idlst.pptx");
 
-        using var pres2 = TestHelpers.SaveAndReopen(pres, _tempDir);
-        var ff2 = pres2.Slides[0].Shapes![0].FillFormat;
-        ff2.FillType.Should().Be(FillType.Pattern);
-        ff2.PatternFormat.PatternStyle.Should().Be(PatternStyle.Percent50);
+        using var package = PptxPackage.Open(path);
+
+        var registered = PackageAssert.Select(
+            package, "ppt/presentation.xml", "//p:notesMasterIdLst/p:notesMasterId");
+
+        Assert.True(registered.Count == 1,
+            $"ppt/presentation.xml registers {registered.Count} notes master(s), expected exactly one." +
+            $"{Environment.NewLine}{PackageAssert.Describe(package, "ppt/presentation.xml")}");
     }

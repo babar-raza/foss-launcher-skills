@@ -1,18 +1,17 @@
 [Fact]
-    public void TestReroute()
+    public void ExtendedPropertiesProduceASchemaValidPackage()
     {
-        // reroute() updates connector position.
-        using var pres = new Presentation();
-        var slide = pres.Slides[0];
-        var shapes = slide.Shapes!;
-        var s1 = shapes.AddAutoShape(ShapeType.Ellipse, 50, 100, 80, 80);
-        var s2 = shapes.AddAutoShape(ShapeType.Ellipse, 400, 100, 80, 80);
-        var conn = shapes.AddConnector(ShapeType.BentConnector3, 0, 0, 1, 1);
-        conn.StartShapeConnectedTo = s1;
-        conn.StartShapeConnectionSiteIndex = 3;
-        conn.EndShapeConnectedTo = s2;
-        conn.EndShapeConnectionSiteIndex = 1;
-        conn.Reroute();
-        // After reroute the connector should span between the shapes
-        (conn.Width > 0 || conn.Height > 0).Should().BeTrue();
+        var path = _workspace.PathFor("app-properties-valid.pptx");
+
+        using (var presentation = new Presentation())
+        {
+            // Deliberately set in an order the schema does not declare them in.
+            presentation.DocumentProperties.HyperlinkBase = "https://example.com/";
+            presentation.DocumentProperties.PresentationFormat = "On-screen Show (4:3)";
+            presentation.DocumentProperties.Company = "Example";
+            presentation.DocumentProperties.ApplicationTemplate = "Blank";
+            presentation.Save(path, SaveFormat.Pptx);
+        }
+
+        SchemaValidation.HasNoSchemaErrors(path);
     }

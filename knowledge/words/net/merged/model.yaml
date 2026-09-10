@@ -1,34 +1,37 @@
-bundle_generated_at: '2026-09-04T08:25:19.349377+00:00'
-bundle_id: 462cb987-477e-4952-9b75-6730038ea5b6
-config_sha: 57d1f0a83e7eb176
-enrichment_status: full
-extractor_hash: e68fa5d338053db1
 family: words
-generator_fingerprint: 357e0654f5c32e9eebe5593e44391ff193bb63675e29587281bbf07e9e630bf6
-generator_semver: 2.0.0
-has_conflicts: false
-input_hashes:
-  enriched_claims_sha: b18bf6c5fa811d26218db87ddb560e9ee703d0ad8651545053158cad1180258e
-  extractor_config_sha: 57d1f0a83e7eb176
-  products_json_entry_sha: 07ba14c0e40f30fca2058f42bd49c52aefab8ace78348e8e629e24d3b26a2b98
-  scout_api_surface_sha: 62302b462283bd8b3b58dc8400a82ba80fd0d607e3445f3f44d3ae9518473ff5
-  scout_claims_sha: 85188bcf7bbe86ea8bee311326c5375300eb331c0a1ee982bb92eff01b833af7
-license: ''
-module_assignment_version: 1
 platform: net
 product_name: Aspose.WORDS-FOSS for Net
-promoted_at: '2026-09-04T08:25:19.589000+00:00'
-repo_sha: 0d3f1add920f5294d726b4f286c2d6ba7c3ae22c
+version: ''
+license: ''
 repo_url: https://github.com/aspose-words-foss/Aspose.Words-FOSS-for-.NET.git
-schema_version: 2
-source: scout_and_enriched
+repo_sha: 0d3f1add920f5294d726b4f286c2d6ba7c3ae22c
+config_sha: 57d1f0a83e7eb176
 stale_since: null
+promoted_at: '2026-09-10T11:07:33.510543+00:00'
+source: scout_and_enriched
+enrichment_status: full
+has_conflicts: false
+schema_version: 2
+generator_fingerprint: 39b55c0381d862030a39cf289a74386dba0d96ba7bead7439ed295a74ed8206e
+generator_semver: 2.0.0
+bundle_id: 65b4f26f-8f36-40fb-a635-d7b9cb1397dc
+bundle_generated_at: '2026-09-10T11:07:33.207709+00:00'
+module_assignment_version: 1
+input_hashes:
+  extractor_config_sha: 57d1f0a83e7eb176
+  scout_claims_sha: 85188bcf7bbe86ea8bee311326c5375300eb331c0a1ee982bb92eff01b833af7
+  scout_api_surface_sha: 62302b462283bd8b3b58dc8400a82ba80fd0d607e3445f3f44d3ae9518473ff5
+  enriched_claims_sha: b18bf6c5fa811d26218db87ddb560e9ee703d0ad8651545053158cad1180258e
+  products_json_entry_sha: 07ba14c0e40f30fca2058f42bd49c52aefab8ace78348e8e629e24d3b26a2b98
 stats:
-  class_count: 618
-  enriched_claims: 1163
-  forbidden_count: 32
   scout_claims: 4141
-  snippet_count: 100
+  enriched_claims: 1163
   supplemental_claims: 0
   total_claims: 5294
-version: ''
+  class_count: 618
+  classes:
+    total_declared: 618
+    public_documented: 618
+    raw_entries_including_non_class: 618
+  forbidden_count: 32
+  snippet_count: 100

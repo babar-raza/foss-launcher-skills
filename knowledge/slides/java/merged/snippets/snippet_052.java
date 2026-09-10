@@ -1,17 +1,16 @@
-@Test
-    void testLineDashStyle() throws IOException {
-        try (var pres = new Presentation()) {
-            var slide = clear(pres);
-            var shape = slide.getShapes().addAutoShape(ShapeType.RECTANGLE, 50, 50, 200, 100);
-            var lf = shape.getLineFormat();
-            lf.setWidth(3);
-            lf.setDashStyle(LineDashStyle.DASH);
-            lf.getFillFormat().setFillType(FillType.SOLID);
-            lf.getFillFormat().getSolidFillColor().setColor(Color.BLACK);
-
-            try (var pres2 = saveAndReopen(pres)) {
-                var lf2 = pres2.getSlides().get(0).getShapes().get(0).getLineFormat();
-                assertThat(lf2.getDashStyle()).isEqualTo(LineDashStyle.DASH);
-            }
-        }
+@Test
+    void theFormatsThatAreWrittenMustDifferFromEachOther() throws Exception {
+        Set<String> contentTypes = new LinkedHashSet<>();
+        for (SaveFormat format : MAIN_PART_CONTENT_TYPES.keySet()) {
+            Path out = tempDir.resolve("distinct." + format.name().toLowerCase(Locale.ROOT));
+            try (var pres = new Presentation()) {
+                pres.save(out.toString(), format);
+            }
+            try (PptxPackage pkg = PptxPackage.open(out)) {
+                contentTypes.add(PackageAssertions.mainPartContentType(pkg));
+            }
+        }
+        assertThat(contentTypes)
+                .as("each written format must declare its own main-part content type")
+                .hasSize(MAIN_PART_CONTENT_TYPES.size());
     }

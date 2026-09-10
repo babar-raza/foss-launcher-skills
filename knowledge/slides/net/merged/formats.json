@@ -32,8 +32,8 @@
     "value": "",
     "file": "src/Aspose.Slides.Foss/Export/SaveFormat.cs",
     "line": 6,
-    "direction": "export",
-    "functional": true
+    "direction": "enum_only",
+    "functional": false
   },
   {
     "format": "Ppsx",
@@ -180,22 +180,6 @@
     "functional": false
   },
   {
-    "format": "Pptx",
-    "enum": "",
-    "value": "",
-    "file": "src/Aspose.Slides.Foss/Internal/Export/PptxExporter.cs",
-    "line": 18,
-    "direction": "export"
-  },
-  {
-    "format": "Pptx",
-    "enum": "",
-    "value": "",
-    "file": "src/Aspose.Slides.Foss/Internal/Export/PptxExporter.cs",
-    "line": 88,
-    "direction": "export"
-  },
-  {
     "format": "Ppt",
     "enum": "SourceFormat",
     "value": "",
@@ -210,8 +194,8 @@
     "value": "",
     "file": "src/Aspose.Slides.Foss/SourceFormat.cs",
     "line": 6,
-    "direction": "import",
-    "functional": true
+    "direction": "enum_only",
+    "functional": false
   },
   {
     "format": "Odp",

@@ -31,7 +31,9 @@
       }
     ],
     "visibility": "internal",
-    "class_import": "_input.reader.SourceLocation"
+    "class_import": "_input.reader.SourceLocation",
+    "module_key": "_input",
+    "module_label": "Input"
   },
   {
     "name": "InputSource",
@@ -62,7 +64,9 @@
     ],
     "properties": [],
     "visibility": "internal",
-    "class_import": "_input.reader.InputSource"
+    "class_import": "_input.reader.InputSource",
+    "module_key": "_input",
+    "module_label": "Input"
   },
   {
     "name": "FileInputSource",
@@ -114,7 +118,9 @@
       }
     ],
     "visibility": "internal",
-    "class_import": "_input.reader.FileInputSource"
+    "class_import": "_input.reader.FileInputSource",
+    "module_key": "_input",
+    "module_label": "Input"
   },
   {
     "name": "StringInputSource",
@@ -170,7 +176,9 @@
       }
     ],
     "visibility": "internal",
-    "class_import": "_input.reader.StringInputSource"
+    "class_import": "_input.reader.StringInputSource",
+    "module_key": "_input",
+    "module_label": "Input"
   },
   {
     "name": "InputReader",
@@ -240,7 +248,9 @@
       }
     ],
     "visibility": "internal",
-    "class_import": "_input.reader.InputReader"
+    "class_import": "_input.reader.InputReader",
+    "module_key": "_input",
+    "module_label": "Input"
   },
   {
     "name": "DviFontDef",
@@ -295,7 +305,9 @@
       }
     ],
     "visibility": "internal",
-    "class_import": "_output.dvi_writer.DviFontDef"
+    "class_import": "_output.dvi_writer.DviFontDef",
+    "module_key": "_output",
+    "module_label": "Output"
   },
   {
     "name": "DviWriter",
@@ -382,7 +394,9 @@
       }
     ],
     "visibility": "internal",
-    "class_import": "_output.dvi_writer.DviWriter"
+    "class_import": "_output.dvi_writer.DviWriter",
+    "module_key": "_output",
+    "module_label": "Output"
   },
   {
     "name": "PdfWriter",
@@ -484,7 +498,9 @@
       }
     ],
     "visibility": "internal",
-    "class_import": "_output.pdf_writer.PdfWriter"
+    "class_import": "_output.pdf_writer.PdfWriter",
+    "module_key": "_output",
+    "module_label": "Output"
   },
   {
     "name": "SvgWriter",
@@ -591,7 +607,9 @@
       }
     ],
     "visibility": "internal",
-    "class_import": "_output.svg_writer.SvgWriter"
+    "class_import": "_output.svg_writer.SvgWriter",
+    "module_key": "_output",
+    "module_label": "Output"
   },
   {
     "name": "build_stub_handlers",
@@ -603,7 +621,9 @@
     "methods": [],
     "properties": [],
     "params": [],
-    "return_type": "dict[str, Callable[[], None]]"
+    "return_type": "dict[str, Callable[[], None]]",
+    "module_key": "_engine",
+    "module_label": "Engine"
   },
   {
     "name": "HBoxBuilder",
@@ -744,7 +764,9 @@
     ],
     "properties": [],
     "visibility": "internal",
-    "class_import": "_engine.box_builder.HBoxBuilder"
+    "class_import": "_engine.box_builder.HBoxBuilder",
+    "module_key": "_engine",
+    "module_label": "Engine"
   },
   {
     "name": "VBoxBuilder",
@@ -877,7 +899,9 @@
     ],
     "properties": [],
     "visibility": "internal",
-    "class_import": "_engine.box_builder.VBoxBuilder"
+    "class_import": "_engine.box_builder.VBoxBuilder",
+    "module_key": "_engine",
+    "module_label": "Engine"
   },
   {
     "name": "vsplit_at_height",
@@ -902,7 +926,9 @@
         "type": "Glue"
       }
     ],
-    "return_type": "tuple[VlistNode, VlistNode | None]"
+    "return_type": "tuple[VlistNode, VlistNode | None]",
+    "module_key": "_engine",
+    "module_label": "Engine"
   },
   {
     "name": "compute_badness",
@@ -923,7 +949,9 @@
         "type": "int"
       }
     ],
-    "return_type": "int"
+    "return_type": "int",
+    "module_key": "_engine",
+    "module_label": "Engine"
   },
   {
     "name": "set_glue_hbox",
@@ -944,7 +972,9 @@
         "type": "int"
       }
     ],
-    "return_type": "None"
+    "return_type": "None",
+    "module_key": "_engine",
+    "module_label": "Engine"
   },
   {
     "name": "set_glue_vbox",
@@ -965,7 +995,9 @@
         "type": "int"
       }
     ],
-    "return_type": "None"
+    "return_type": "None",
+    "module_key": "_engine",
+    "module_label": "Engine"
   },
   {
     "name": "OverfullBoxWarning",
@@ -979,7 +1011,9 @@
     "methods": [],
     "properties": [],
     "visibility": "internal",
-    "class_import": "_engine.box_primitives.OverfullBoxWarning"
+    "class_import": "_engine.box_primitives.OverfullBoxWarning",
+    "module_key": "_engine",
+    "module_label": "Engine"
   },
   {
     "name": "UnderfullBoxWarning",
@@ -993,7 +1027,9 @@
     "methods": [],
     "properties": [],
     "visibility": "internal",
-    "class_import": "_engine.box_primitives.UnderfullBoxWarning"
+    "class_import": "_engine.box_primitives.UnderfullBoxWarning",
+    "module_key": "_engine",
+    "module_label": "Engine"
   },
   {
     "name": "apply_shift",
@@ -1018,7 +1054,9 @@
         "type": "bool"
       }
     ],
-    "return_type": "HlistNode | VlistNode"
+    "return_type": "HlistNode | VlistNode",
+    "module_key": "_engine",
+    "module_label": "Engine"
   },
   {
     "name": "exec_vtop",
@@ -1055,7 +1093,9 @@
         "type": "int | None"
       }
     ],
-    "return_type": "VlistNode"
+    "return_type": "VlistNode",
+    "module_key": "_engine",
+    "module_label": "Engine"
   },
   {
     "name": "exec_unbox",
@@ -1084,7 +1124,9 @@
         "type": "bool"
       }
     ],
-    "return_type": "list"
+    "return_type": "list",
+    "module_key": "_engine",
+    "module_label": "Engine"
   },
   {
     "name": "exec_unskip",
@@ -1101,7 +1143,9 @@
         "type": ""
       }
     ],
-    "return_type": "None"
+    "return_type": "None",
+    "module_key": "_engine",
+    "module_label": "Engine"
   },
   {
     "name": "exec_unkern",
@@ -1118,7 +1162,9 @@
         "type": ""
       }
     ],
-    "return_type": "None"
+    "return_type": "None",
+    "module_key": "_engine",
+    "module_label": "Engine"
   },
   {
     "name": "exec_unpenalty",
@@ -1135,7 +1181,9 @@
         "type": ""
       }
     ],
-    "return_type": "None"
+    "return_type": "None",
+    "module_key": "_engine",
+    "module_label": "Engine"
   },
   {
     "name": "exec_lastbox",
@@ -1156,7 +1204,9 @@
         "type": ""
       }
     ],
-    "return_type": "HlistNode | VlistNode | None"
+    "return_type": "HlistNode | VlistNode | None",
+    "module_key": "_engine",
+    "module_label": "Engine"
   },
   {
     "name": "exec_vsplit",
@@ -1185,7 +1235,9 @@
         "type": ""
       }
     ],
-    "return_type": "VlistNode | None"
+    "return_type": "VlistNode | None",
+    "module_key": "_engine",
+    "module_label": "Engine"
   },
   {
     "name": "exec_char",
@@ -1210,7 +1262,9 @@
         "type": ""
       }
     ],
-    "return_type": "None"
+    "return_type": "None",
+    "module_key": "_engine",
+    "module_label": "Engine"
   },
   {
     "name": "exec_accent",
@@ -1235,7 +1289,9 @@
         "type": ""
       }
     ],
-    "return_type": "None"
+    "return_type": "None",
+    "module_key": "_engine",
+    "module_label": "Engine"
   },
   {
     "name": "exec_discretionary",
@@ -1268,7 +1324,9 @@
         "type": ""
       }
     ],
-    "return_type": "None"
+    "return_type": "None",
+    "module_key": "_engine",
+    "module_label": "Engine"
   },
   {
     "name": "exec_hbox",
@@ -1305,7 +1363,9 @@
         "type": "int | None"
       }
     ],
-    "return_type": "HlistNode"
+    "return_type": "HlistNode",
+    "module_key": "_engine",
+    "module_label": "Engine"
   },
   {
     "name": "exec_vbox",
@@ -1342,7 +1402,9 @@
         "type": "int | None"
       }
     ],
-    "return_type": "VlistNode"
+    "return_type": "VlistNode",
+    "module_key": "_engine",
+    "module_label": "Engine"
   },
   {
     "name": "BoxRegisterSet",
@@ -1533,7 +1595,9 @@
     ],
     "properties": [],
     "visibility": "internal",
-    "class_import": "_engine.box_registers.BoxRegisterSet"
+    "class_import": "_engine.box_registers.BoxRegisterSet",
+    "module_key": "_engine",
+    "module_label": "Engine"
   },
   {
     "name": "CodeArrays",
@@ -1714,7 +1778,9 @@
     ],
     "properties": [],
     "visibility": "internal",
-    "class_import": "_engine.code_arrays.CodeArrays"
+    "class_import": "_engine.code_arrays.CodeArrays",
+    "module_key": "_engine",
+    "module_label": "Engine"
   },
   {
     "name": "parse_integer",
@@ -1735,7 +1801,9 @@
         "type": "bool"
       }
     ],
-    "return_type": "int"
+    "return_type": "int",
+    "module_key": "_engine",
+    "module_label": "Engine"
   },
   {
     "name": "parse_dimen",
@@ -1764,7 +1832,9 @@
         "type": "bool"
       }
     ],
-    "return_type": "int"
+    "return_type": "int",
+    "module_key": "_engine",
+    "module_label": "Engine"
   },
   {
     "name": "parse_glue",
@@ -1789,7 +1859,9 @@
         "type": "int"
       }
     ],
-    "return_type": "Glue"
+    "return_type": "Glue",
+    "module_key": "_engine",
+    "module_label": "Engine"
   },
   {
     "name": "RegisterProvider",
@@ -1821,7 +1893,9 @@
     ],
     "properties": [],
     "visibility": "internal",
-    "class_import": "_engine.expansion.RegisterProvider"
+    "class_import": "_engine.expansion.RegisterProvider",
+    "module_key": "_engine",
+    "module_label": "Engine"
   },
   {
     "name": "BoxProvider",
@@ -1849,7 +1923,9 @@
     ],
     "properties": [],
     "visibility": "internal",
-    "class_import": "_engine.expansion.BoxProvider"
+    "class_import": "_engine.expansion.BoxProvider",
+    "module_key": "_engine",
+    "module_label": "Engine"
   },
   {
     "name": "Expander",
@@ -2067,7 +2143,9 @@
       }
     ],
     "visibility": "internal",
-    "class_import": "_engine.expansion.Expander"
+    "class_import": "_engine.expansion.Expander",
+    "module_key": "_engine",
+    "module_label": "Engine"
   },
   {
     "name": "GroupKind",
@@ -2091,7 +2169,9 @@
         "value": "auto()"
       }
     ],
-    "class_import": "_engine.group.GroupKind"
+    "class_import": "_engine.group.GroupKind",
+    "module_key": "_engine",
+    "module_label": "Engine"
   },
   {
     "name": "GroupStack",
@@ -2194,7 +2274,9 @@
       }
     ],
     "visibility": "internal",
-    "class_import": "_engine.group.GroupStack"
+    "class_import": "_engine.group.GroupStack",
+    "module_key": "_engine",
+    "module_label": "Engine"
   },
   {
     "name": "InsertAccumulator",
@@ -2271,7 +2353,9 @@
     ],
     "properties": [],
     "visibility": "internal",
-    "class_import": "_engine.inserts.InsertAccumulator"
+    "class_import": "_engine.inserts.InsertAccumulator",
+    "module_key": "_engine",
+    "module_label": "Engine"
   },
   {
     "name": "QuantityKind",
@@ -2303,7 +2387,9 @@
         "value": "4"
       }
     ],
-    "class_import": "_engine.internal_quantities.QuantityKind"
+    "class_import": "_engine.internal_quantities.QuantityKind",
+    "module_key": "_engine",
+    "module_label": "Engine"
   },
   {
     "name": "InternalQuantityRegistry",
@@ -2426,7 +2512,9 @@
       }
     ],
     "visibility": "internal",
-    "class_import": "_engine.internal_quantities.InternalQuantityRegistry"
+    "class_import": "_engine.internal_quantities.InternalQuantityRegistry",
+    "module_key": "_engine",
+    "module_label": "Engine"
   },
   {
     "name": "ModeKind",
@@ -2466,7 +2554,9 @@
         "value": "auto()"
       }
     ],
-    "class_import": "_engine.interpreter.ModeKind"
+    "class_import": "_engine.interpreter.ModeKind",
+    "module_key": "_engine",
+    "module_label": "Engine"
   },
   {
     "name": "ModeStack",
@@ -2516,7 +2606,9 @@
       }
     ],
     "visibility": "internal",
-    "class_import": "_engine.interpreter.ModeStack"
+    "class_import": "_engine.interpreter.ModeStack",
+    "module_key": "_engine",
+    "module_label": "Engine"
   },
   {
     "name": "TeXInterpreter",
@@ -2648,7 +2740,9 @@
       }
     ],
     "visibility": "internal",
-    "class_import": "_engine.interpreter.TeXInterpreter"
+    "class_import": "_engine.interpreter.TeXInterpreter",
+    "module_key": "_engine",
+    "module_label": "Engine"
   },
   {
     "name": "exec_message",
@@ -2665,7 +2759,9 @@
         "type": "TeXInterpreter"
       }
     ],
-    "return_type": "None"
+    "return_type": "None",
+    "module_key": "_engine",
+    "module_label": "Engine"
   },
   {
     "name": "exec_write",
@@ -2686,7 +2782,9 @@
         "type": "bool"
       }
     ],
-    "return_type": "None"
+    "return_type": "None",
+    "module_key": "_engine",
+    "module_label": "Engine"
   },
   {
     "name": "exec_errmessage",
@@ -2703,7 +2801,9 @@
         "type": "TeXInterpreter"
       }
     ],
-    "return_type": "None"
+    "return_type": "None",
+    "module_key": "_engine",
+    "module_label": "Engine"
   },
   {
     "name": "exec_immediate",
@@ -2720,7 +2820,9 @@
         "type": "TeXInterpreter"
       }
     ],
-    "return_type": "None"
+    "return_type": "None",
+    "module_key": "_engine",
+    "module_label": "Engine"
   },
   {
     "name": "exec_openin",
@@ -2737,7 +2839,9 @@
         "type": "TeXInterpreter"
       }
     ],
-    "return_type": "None"
+    "return_type": "None",
+    "module_key": "_engine",
+    "module_label": "Engine"
   },
   {
     "name": "exec_openout",
@@ -2758,7 +2862,9 @@
         "type": "bool"
       }
     ],
-    "return_type": "None"
+    "return_type": "None",
+    "module_key": "_engine",
+    "module_label": "Engine"
   },
   {
     "name": "exec_closein",
@@ -2775,7 +2881,9 @@
         "type": "TeXInterpreter"
       }
     ],
-    "return_type": "None"
+    "return_type": "None",
+    "module_key": "_engine",
+    "module_label": "Engine"
   },
   {
     "name": "exec_closeout",
@@ -2796,7 +2904,9 @@
         "type": "bool"
       }
     ],
-    "return_type": "None"
+    "return_type": "None",
+    "module_key": "_engine",
+    "module_label": "Engine"
   },
   {
     "name": "exec_read",
@@ -2813,7 +2923,9 @@
         "type": "TeXInterpreter"
       }
     ],
-    "return_type": "None"
+    "return_type": "None",
+    "module_key": "_engine",
+    "module_label": "Engine"
   },
   {
     "name": "exec_ifeof",
@@ -2830,7 +2942,9 @@
         "type": "TeXInterpreter"
       }
     ],
-    "return_type": "bool"
+    "return_type": "bool",
+    "module_key": "_engine",
+    "module_label": "Engine"
   },
   {
     "name": "exec_dump",
@@ -2847,7 +2961,9 @@
         "type": "TeXInterpreter"
       }
     ],
-    "return_type": "None"
+    "return_type": "None",
+    "module_key": "_engine",
+    "module_label": "Engine"
   },
   {
     "name": "make_leaders",
@@ -2872,7 +2988,9 @@
         "type": "Glue"
       }
     ],
-    "return_type": "LeadersNode"
+    "return_type": "LeadersNode",
+    "module_key": "_engine",
+    "module_label": "Engine"
   },
   {
     "name": "parse_leaders",
@@ -2905,7 +3023,9 @@
         "type": "LeadersKind"
       }
     ],
-    "return_type": "LeadersNode"
+    "return_type": "LeadersNode",
+    "module_key": "_engine",
+    "module_label": "Engine"
   },
   {
     "name": "LinebreakParams",
@@ -2974,7 +3094,9 @@
       }
     ],
     "visibility": "internal",
-    "class_import": "_engine.linebreak.LinebreakParams"
+    "class_import": "_engine.linebreak.LinebreakParams",
+    "module_key": "_engine",
+    "module_label": "Engine"
   },
   {
     "name": "break_paragraph",
@@ -3003,7 +3125,9 @@
         "type": "list[str] | None"
       }
     ],
-    "return_type": "list[HlistNode]"
+    "return_type": "list[HlistNode]",
+    "module_key": "_engine",
+    "module_label": "Engine"
   },
   {
     "name": "MacroDefinition",
@@ -3044,7 +3168,9 @@
       }
     ],
     "visibility": "internal",
-    "class_import": "_engine.macro.MacroDefinition"
+    "class_import": "_engine.macro.MacroDefinition",
+    "module_key": "_engine",
+    "module_label": "Engine"
   },
   {
     "name": "MarksProvider",
@@ -3072,7 +3198,9 @@
     ],
     "properties": [],
     "visibility": "internal",
-    "class_import": "_engine.marks.MarksProvider"
+    "class_import": "_engine.marks.MarksProvider",
+    "module_key": "_engine",
+    "module_label": "Engine"
   },
   {
     "name": "MarksRegistry",
@@ -3201,7 +3329,9 @@
       }
     ],
     "visibility": "internal",
-    "class_import": "_engine.marks.MarksRegistry"
+    "class_import": "_engine.marks.MarksRegistry",
+    "module_key": "_engine",
+    "module_label": "Engine"
   },
   {
     "name": "MathOperandKind",
@@ -3269,7 +3399,9 @@
         "value": "12"
       }
     ],
-    "class_import": "_engine.math_shell.MathOperandKind"
+    "class_import": "_engine.math_shell.MathOperandKind",
+    "module_key": "_engine",
+    "module_label": "Engine"
   },
   {
     "name": "MathShellRegistry",
@@ -3357,7 +3489,9 @@
       }
     ],
     "visibility": "internal",
-    "class_import": "_engine.math_shell.MathShellRegistry"
+    "class_import": "_engine.math_shell.MathShellRegistry",
+    "module_key": "_engine",
+    "module_label": "Engine"
   },
   {
     "name": "ParamKind",
@@ -3393,7 +3527,9 @@
         "value": "5"
       }
     ],
-    "class_import": "_engine.named_parameters.ParamKind"
+    "class_import": "_engine.named_parameters.ParamKind",
+    "module_key": "_engine",
+    "module_label": "Engine"
   },
   {
     "name": "NamedParameterRegistry",
@@ -3525,7 +3661,9 @@
       }
     ],
     "visibility": "internal",
-    "class_import": "_engine.named_parameters.NamedParameterRegistry"
+    "class_import": "_engine.named_parameters.NamedParameterRegistry",
+    "module_key": "_engine",
+    "module_label": "Engine"
   },
   {
     "name": "GlueSign",
@@ -3553,7 +3691,9 @@
         "value": "2"
       }
     ],
-    "class_import": "_engine.nodes.GlueSign"
+    "class_import": "_engine.nodes.GlueSign",
+    "module_key": "_engine",
+    "module_label": "Engine"
   },
   {
     "name": "LeadersKind",
@@ -3581,7 +3721,9 @@
         "value": "2"
       }
     ],
-    "class_import": "_engine.nodes.LeadersKind"
+    "class_import": "_engine.nodes.LeadersKind",
+    "module_key": "_engine",
+    "module_label": "Engine"
   },
   {
     "name": "CharNode",
@@ -3608,7 +3750,9 @@
       }
     ],
     "visibility": "internal",
-    "class_import": "_engine.nodes.CharNode"
+    "class_import": "_engine.nodes.CharNode",
+    "module_key": "_engine",
+    "module_label": "Engine"
   },
   {
     "name": "KernNode",
@@ -3635,7 +3779,9 @@
       }
     ],
     "visibility": "internal",
-    "class_import": "_engine.nodes.KernNode"
+    "class_import": "_engine.nodes.KernNode",
+    "module_key": "_engine",
+    "module_label": "Engine"
   },
   {
     "name": "GlueNode",
@@ -3655,7 +3801,9 @@
       }
     ],
     "visibility": "internal",
-    "class_import": "_engine.nodes.GlueNode"
+    "class_import": "_engine.nodes.GlueNode",
+    "module_key": "_engine",
+    "module_label": "Engine"
   },
   {
     "name": "PenaltyNode",
@@ -3675,7 +3823,9 @@
       }
     ],
     "visibility": "internal",
-    "class_import": "_engine.nodes.PenaltyNode"
+    "class_import": "_engine.nodes.PenaltyNode",
+    "module_key": "_engine",
+    "module_label": "Engine"
   },
   {
     "name": "RuleNode",
@@ -3709,7 +3859,9 @@
       }
     ],
     "visibility": "internal",
-    "class_import": "_engine.nodes.RuleNode"
+    "class_import": "_engine.nodes.RuleNode",
+    "module_key": "_engine",
+    "module_label": "Engine"
   },
   {
     "name": "DiscretionaryNode",
@@ -3743,7 +3895,9 @@
       }
     ],
     "visibility": "internal",
-    "class_import": "_engine.nodes.DiscretionaryNode"
+    "class_import": "_engine.nodes.DiscretionaryNode",
+    "module_key": "_engine",
+    "module_label": "Engine"
   },
   {
     "name": "LeadersNode",
@@ -3777,7 +3931,9 @@
       }
     ],
     "visibility": "internal",
-    "class_import": "_engine.nodes.LeadersNode"
+    "class_import": "_engine.nodes.LeadersNode",
+    "module_key": "_engine",
+    "module_label": "Engine"
   },
   {
     "name": "MarkNode",
@@ -3797,7 +3953,9 @@
       }
     ],
     "visibility": "internal",
-    "class_import": "_engine.nodes.MarkNode"
+    "class_import": "_engine.nodes.MarkNode",
+    "module_key": "_engine",
+    "module_label": "Engine"
   },
   {
     "name": "InsertNode",
@@ -3859,7 +4017,9 @@
       }
     ],
     "visibility": "internal",
-    "class_import": "_engine.nodes.InsertNode"
+    "class_import": "_engine.nodes.InsertNode",
+    "module_key": "_engine",
+    "module_label": "Engine"
   },
   {
     "name": "WhatsitNode",
@@ -3879,7 +4039,9 @@
       }
     ],
     "visibility": "internal",
-    "class_import": "_engine.nodes.WhatsitNode"
+    "class_import": "_engine.nodes.WhatsitNode",
+    "module_key": "_engine",
+    "module_label": "Engine"
   },
   {
     "name": "HlistNode",
@@ -3948,7 +4110,9 @@
       }
     ],
     "visibility": "internal",
-    "class_import": "_engine.nodes.HlistNode"
+    "class_import": "_engine.nodes.HlistNode",
+    "module_key": "_engine",
+    "module_label": "Engine"
   },
   {
     "name": "VlistNode",
@@ -4017,7 +4181,9 @@
       }
     ],
     "visibility": "internal",
-    "class_import": "_engine.nodes.VlistNode"
+    "class_import": "_engine.nodes.VlistNode",
+    "module_key": "_engine",
+    "module_label": "Engine"
   },
   {
     "name": "deep_copy_node",
@@ -4034,7 +4200,9 @@
         "type": "(\r\n CharNode\r\n | HlistNode\r\n | VlistNode\r\n | GlueNode\r\n | KernNode\r\n | PenaltyNode\r\n | RuleNode\r\n | DiscretionaryNode\r\n | LeadersNode\r\n | MarkNode\r\n | InsertNode\r\n | WhatsitNode\r\n )"
       }
     ],
-    "return_type": "(\r\n CharNode\r\n | HlistNode\r\n | VlistNode\r\n | GlueNode\r\n | KernNode\r\n | PenaltyNode\r\n | RuleNode\r\n | DiscretionaryNode\r\n | LeadersNode\r\n | MarkNode\r\n | InsertNode\r\n | WhatsitNode\r\n)"
+    "return_type": "(\r\n CharNode\r\n | HlistNode\r\n | VlistNode\r\n | GlueNode\r\n | KernNode\r\n | PenaltyNode\r\n | RuleNode\r\n | DiscretionaryNode\r\n | LeadersNode\r\n | MarkNode\r\n | InsertNode\r\n | WhatsitNode\r\n)",
+    "module_key": "_engine",
+    "module_label": "Engine"
   },
   {
     "name": "PageBuilderConfig",
@@ -4103,7 +4271,9 @@
       }
     ],
     "visibility": "internal",
-    "class_import": "_engine.page_builder.PageBuilderConfig"
+    "class_import": "_engine.page_builder.PageBuilderConfig",
+    "module_key": "_engine",
+    "module_label": "Engine"
   },
   {
     "name": "ShipoutBackend",
@@ -4135,7 +4305,9 @@
     ],
     "properties": [],
     "visibility": "internal",
-    "class_import": "_engine.page_builder.ShipoutBackend"
+    "class_import": "_engine.page_builder.ShipoutBackend",
+    "module_key": "_engine",
+    "module_label": "Engine"
   },
   {
     "name": "PageNumberRegister",
@@ -4173,7 +4345,9 @@
     ],
     "properties": [],
     "visibility": "internal",
-    "class_import": "_engine.page_builder.PageNumberRegister"
+    "class_import": "_engine.page_builder.PageNumberRegister",
+    "module_key": "_engine",
+    "module_label": "Engine"
   },
   {
     "name": "OutputRoutineBase",
@@ -4209,7 +4383,9 @@
     ],
     "properties": [],
     "visibility": "internal",
-    "class_import": "_engine.page_builder.OutputRoutineBase"
+    "class_import": "_engine.page_builder.OutputRoutineBase",
+    "module_key": "_engine",
+    "module_label": "Engine"
   },
   {
     "name": "PlainOutputRoutine",
@@ -4293,7 +4469,9 @@
       }
     ],
     "visibility": "internal",
-    "class_import": "_engine.page_builder.PlainOutputRoutine"
+    "class_import": "_engine.page_builder.PlainOutputRoutine",
+    "module_key": "_engine",
+    "module_label": "Engine"
   },
   {
     "name": "PageBuilder",
@@ -4520,7 +4698,9 @@
       }
     ],
     "visibility": "internal",
-    "class_import": "_engine.page_builder.PageBuilder"
+    "class_import": "_engine.page_builder.PageBuilder",
+    "module_key": "_engine",
+    "module_label": "Engine"
   },
   {
     "name": "make_vfil_glue",
@@ -4532,7 +4712,9 @@
     "methods": [],
     "properties": [],
     "params": [],
-    "return_type": "GlueNode"
+    "return_type": "GlueNode",
+    "module_key": "_engine",
+    "module_label": "Engine"
   },
   {
     "name": "make_vfill_glue",
@@ -4544,7 +4726,9 @@
     "methods": [],
     "properties": [],
     "params": [],
-    "return_type": "GlueNode"
+    "return_type": "GlueNode",
+    "module_key": "_engine",
+    "module_label": "Engine"
   },
   {
     "name": "make_vfilneg_glue",
@@ -4556,7 +4740,9 @@
     "methods": [],
     "properties": [],
     "params": [],
-    "return_type": "GlueNode"
+    "return_type": "GlueNode",
+    "module_key": "_engine",
+    "module_label": "Engine"
   },
   {
     "name": "make_vss_glue",
@@ -4568,7 +4754,9 @@
     "methods": [],
     "properties": [],
     "params": [],
-    "return_type": "GlueNode"
+    "return_type": "GlueNode",
+    "module_key": "_engine",
+    "module_label": "Engine"
   },
   {
     "name": "exec_nointerlineskip",
@@ -4585,7 +4773,9 @@
         "type": "PageBuilder"
       }
     ],
-    "return_type": "None"
+    "return_type": "None",
+    "module_key": "_engine",
+    "module_label": "Engine"
   },
   {
     "name": "exec_offinterlineskip",
@@ -4602,7 +4792,9 @@
         "type": "PageBuilder"
       }
     ],
-    "return_type": "None"
+    "return_type": "None",
+    "module_key": "_engine",
+    "module_label": "Engine"
   },
   {
     "name": "exec_shipout",
@@ -4631,7 +4823,9 @@
         "type": "PageBuilder"
       }
     ],
-    "return_type": "None"
+    "return_type": "None",
+    "module_key": "_engine",
+    "module_label": "Engine"
   },
   {
     "name": "ParagraphList",
@@ -4685,7 +4879,9 @@
       }
     ],
     "visibility": "internal",
-    "class_import": "_engine.par_primitives.ParagraphList"
+    "class_import": "_engine.par_primitives.ParagraphList",
+    "module_key": "_engine",
+    "module_label": "Engine"
   },
   {
     "name": "exec_par",
@@ -4714,7 +4910,9 @@
         "type": "list[str] | None"
       }
     ],
-    "return_type": "list[HlistNode]"
+    "return_type": "list[HlistNode]",
+    "module_key": "_engine",
+    "module_label": "Engine"
   },
   {
     "name": "exec_penalty",
@@ -4735,7 +4933,9 @@
         "type": "ParagraphList"
       }
     ],
-    "return_type": "None"
+    "return_type": "None",
+    "module_key": "_engine",
+    "module_label": "Engine"
   },
   {
     "name": "make_hfil_glue",
@@ -4747,7 +4947,9 @@
     "methods": [],
     "properties": [],
     "params": [],
-    "return_type": "GlueNode"
+    "return_type": "GlueNode",
+    "module_key": "_engine",
+    "module_label": "Engine"
   },
   {
     "name": "make_hfill_glue",
@@ -4759,7 +4961,9 @@
     "methods": [],
     "properties": [],
     "params": [],
-    "return_type": "GlueNode"
+    "return_type": "GlueNode",
+    "module_key": "_engine",
+    "module_label": "Engine"
   },
   {
     "name": "make_hfilneg_glue",
@@ -4771,7 +4975,9 @@
     "methods": [],
     "properties": [],
     "params": [],
-    "return_type": "GlueNode"
+    "return_type": "GlueNode",
+    "module_key": "_engine",
+    "module_label": "Engine"
   },
   {
     "name": "make_hss_glue",
@@ -4783,7 +4989,9 @@
     "methods": [],
     "properties": [],
     "params": [],
-    "return_type": "GlueNode"
+    "return_type": "GlueNode",
+    "module_key": "_engine",
+    "module_label": "Engine"
   },
   {
     "name": "GlueOrder",
@@ -4815,7 +5023,9 @@
         "value": "3"
       }
     ],
-    "class_import": "_engine.registers.GlueOrder"
+    "class_import": "_engine.registers.GlueOrder",
+    "module_key": "_engine",
+    "module_label": "Engine"
   },
   {
     "name": "Glue",
@@ -4863,7 +5073,9 @@
       }
     ],
     "visibility": "internal",
-    "class_import": "_engine.registers.Glue"
+    "class_import": "_engine.registers.Glue",
+    "module_key": "_engine",
+    "module_label": "Engine"
   },
   {
     "name": "RegisterBank",
@@ -4884,7 +5096,9 @@
     ],
     "properties": [],
     "visibility": "internal",
-    "class_import": "_engine.registers.RegisterBank"
+    "class_import": "_engine.registers.RegisterBank",
+    "module_key": "_engine",
+    "module_label": "Engine"
   },
   {
     "name": "RegisterSet",
@@ -5223,7 +5437,9 @@
     ],
     "properties": [],
     "visibility": "internal",
-    "class_import": "_engine.registers.RegisterSet"
+    "class_import": "_engine.registers.RegisterSet",
+    "module_key": "_engine",
+    "module_label": "Engine"
   },
   {
     "name": "FontEncoding",
@@ -5296,7 +5512,9 @@
     ],
     "properties": [],
     "visibility": "internal",
-    "class_import": "_fonts.encoding.FontEncoding"
+    "class_import": "_fonts.encoding.FontEncoding",
+    "module_key": "_fonts",
+    "module_label": "Fonts"
   },
   {
     "name": "FontManager",
@@ -5538,7 +5756,9 @@
       }
     ],
     "visibility": "internal",
-    "class_import": "_fonts.font_manager.FontManager"
+    "class_import": "_fonts.font_manager.FontManager",
+    "module_key": "_fonts",
+    "module_label": "Fonts"
   },
   {
     "name": "CharMetrics",
@@ -5579,7 +5799,9 @@
       }
     ],
     "visibility": "internal",
-    "class_import": "_fonts.font_metrics.CharMetrics"
+    "class_import": "_fonts.font_metrics.CharMetrics",
+    "module_key": "_fonts",
+    "module_label": "Fonts"
   },
   {
     "name": "FontMetrics",
@@ -5733,7 +5955,9 @@
       }
     ],
     "visibility": "internal",
-    "class_import": "_fonts.font_metrics.FontMetrics"
+    "class_import": "_fonts.font_metrics.FontMetrics",
+    "module_key": "_fonts",
+    "module_label": "Fonts"
   },
   {
     "name": "MathFamilyRegistry",
@@ -5868,7 +6092,9 @@
     ],
     "properties": [],
     "visibility": "internal",
-    "class_import": "_fonts.math_family_registry.MathFamilyRegistry"
+    "class_import": "_fonts.math_family_registry.MathFamilyRegistry",
+    "module_key": "_fonts",
+    "module_label": "Fonts"
   },
   {
     "name": "PfbData",
@@ -5916,7 +6142,9 @@
       }
     ],
     "visibility": "internal",
-    "class_import": "_fonts.pfb_parser.PfbData"
+    "class_import": "_fonts.pfb_parser.PfbData",
+    "module_key": "_fonts",
+    "module_label": "Fonts"
   },
   {
     "name": "parse_pfb",
@@ -5933,7 +6161,9 @@
         "type": "bytes"
       }
     ],
-    "return_type": "PfbData"
+    "return_type": "PfbData",
+    "module_key": "_fonts",
+    "module_label": "Fonts"
   },
   {
     "name": "TfmData",
@@ -6030,7 +6260,9 @@
       }
     ],
     "visibility": "internal",
-    "class_import": "_fonts.tfm_parser.TfmData"
+    "class_import": "_fonts.tfm_parser.TfmData",
+    "module_key": "_fonts",
+    "module_label": "Fonts"
   },
   {
     "name": "parse_tfm",
@@ -6047,7 +6279,9 @@
         "type": "bytes"
       }
     ],
-    "return_type": "TfmData"
+    "return_type": "TfmData",
+    "module_key": "_fonts",
+    "module_label": "Fonts"
   },
   {
     "name": "GlyphOutline",
@@ -6074,7 +6308,9 @@
       }
     ],
     "visibility": "internal",
-    "class_import": "_fonts.type1_outlines.GlyphOutline"
+    "class_import": "_fonts.type1_outlines.GlyphOutline",
+    "module_key": "_fonts",
+    "module_label": "Fonts"
   },
   {
     "name": "decrypt_eexec",
@@ -6091,7 +6327,9 @@
         "type": "bytes"
       }
     ],
-    "return_type": "bytes"
+    "return_type": "bytes",
+    "module_key": "_fonts",
+    "module_label": "Fonts"
   },
   {
     "name": "decrypt_charstring",
@@ -6112,7 +6350,9 @@
         "type": "int"
       }
     ],
-    "return_type": "bytes"
+    "return_type": "bytes",
+    "module_key": "_fonts",
+    "module_label": "Fonts"
   },
   {
     "name": "extract_glyph_outlines",
@@ -6129,7 +6369,9 @@
         "type": "PfbData"
       }
     ],
-    "return_type": "dict[int, GlyphOutline]"
+    "return_type": "dict[int, GlyphOutline]",
+    "module_key": "_fonts",
+    "module_label": "Fonts"
   },
   {
     "name": "Catcode",
@@ -6209,7 +6451,9 @@
         "value": "15"
       }
     ],
-    "class_import": "_input.catcode.Catcode"
+    "class_import": "_input.catcode.Catcode",
+    "module_key": "_input",
+    "module_label": "Input"
   },
   {
     "name": "CatcodeTable",
@@ -6265,7 +6509,9 @@
     ],
     "properties": [],
     "visibility": "internal",
-    "class_import": "_input.catcode.CatcodeTable"
+    "class_import": "_input.catcode.CatcodeTable",
+    "module_key": "_input",
+    "module_label": "Input"
   },
   {
     "name": "CharToken",
@@ -6292,7 +6538,9 @@
       }
     ],
     "visibility": "internal",
-    "class_import": "_input.token.CharToken"
+    "class_import": "_input.token.CharToken",
+    "module_key": "_input",
+    "module_label": "Input"
   },
   {
     "name": "ControlSequenceToken",
@@ -6312,7 +6560,9 @@
       }
     ],
     "visibility": "internal",
-    "class_import": "_input.token.ControlSequenceToken"
+    "class_import": "_input.token.ControlSequenceToken",
+    "module_key": "_input",
+    "module_label": "Input"
   },
   {
     "name": "Tokenizer",
@@ -6358,7 +6608,9 @@
       }
     ],
     "visibility": "internal",
-    "class_import": "_input.tokenizer.Tokenizer"
+    "class_import": "_input.tokenizer.Tokenizer",
+    "module_key": "_input",
+    "module_label": "Input"
   },
   {
     "name": "AsposeTeXError",
@@ -6372,7 +6624,9 @@
     "methods": [],
     "properties": [],
     "visibility": "public",
-    "class_import": "exceptions.AsposeTeXError"
+    "class_import": "exceptions.AsposeTeXError",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "InputError",
@@ -6386,7 +6640,9 @@
     "methods": [],
     "properties": [],
     "visibility": "public",
-    "class_import": "exceptions.InputError"
+    "class_import": "exceptions.InputError",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "EngineError",
@@ -6400,7 +6656,9 @@
     "methods": [],
     "properties": [],
     "visibility": "public",
-    "class_import": "exceptions.EngineError"
+    "class_import": "exceptions.EngineError",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "FontError",
@@ -6414,7 +6672,9 @@
     "methods": [],
     "properties": [],
     "visibility": "public",
-    "class_import": "exceptions.FontError"
+    "class_import": "exceptions.FontError",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "OutputFormat",
@@ -6442,12 +6702,14 @@
         "value": "\"svg\""
       }
     ],
-    "class_import": "presentation.OutputFormat"
+    "class_import": "presentation.OutputFormat",
+    "module_key": "presentation",
+    "module_label": "Presentation"
   },
   {
     "name": "TeXOptions",
     "kind": "class_definition",
-    "doc": "Configuration for a TeX processing job.",
+    "doc": "r\"\"\"Configuration for a TeX processing job.",
     "file": "src/aspose_tex/presentation/__init__.py",
     "line": 45,
     "bases": [],
@@ -6490,7 +6752,9 @@
       }
     ],
     "visibility": "public",
-    "class_import": "presentation.TeXOptions"
+    "class_import": "presentation.TeXOptions",
+    "module_key": "presentation",
+    "module_label": "Presentation"
   },
   {
     "name": "OutputDevice",
@@ -6543,7 +6807,9 @@
       }
     ],
     "visibility": "public",
-    "class_import": "presentation.OutputDevice"
+    "class_import": "presentation.OutputDevice",
+    "module_key": "presentation",
+    "module_label": "Presentation"
   },
   {
     "name": "DviDevice",
@@ -6596,7 +6862,9 @@
       }
     ],
     "visibility": "public",
-    "class_import": "presentation.DviDevice"
+    "class_import": "presentation.DviDevice",
+    "module_key": "presentation",
+    "module_label": "Presentation"
   },
   {
     "name": "PdfDevice",
@@ -6649,7 +6917,9 @@
       }
     ],
     "visibility": "public",
-    "class_import": "presentation.PdfDevice"
+    "class_import": "presentation.PdfDevice",
+    "module_key": "presentation",
+    "module_label": "Presentation"
   },
   {
     "name": "SvgDevice",
@@ -6711,7 +6981,9 @@
       }
     ],
     "visibility": "public",
-    "class_import": "presentation.SvgDevice"
+    "class_import": "presentation.SvgDevice",
+    "module_key": "presentation",
+    "module_label": "Presentation"
   },
   {
     "name": "TeXJob",
@@ -6761,7 +7033,9 @@
       }
     ],
     "visibility": "public",
-    "class_import": "presentation.TeXJob"
+    "class_import": "presentation.TeXJob",
+    "module_key": "presentation",
+    "module_label": "Presentation"
   },
   {
     "name": "create_input_source",
@@ -6778,6 +7052,8 @@
         "type": "Path | str | bytes"
       }
     ],
-    "return_type": "InputSource"
+    "return_type": "InputSource",
+    "module_key": "presentation",
+    "module_label": "Presentation"
   }
 ]

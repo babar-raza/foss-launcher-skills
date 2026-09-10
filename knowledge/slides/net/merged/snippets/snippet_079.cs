@@ -1,11 +1,10 @@
-[Fact]
-    public void TestReorderShapes()
+private string WriteDeckWithATable(string fileName)
     {
-        // reorder() changes the z-order of shapes.
-        using var pres = new Presentation();
-        var slide = BlankSlide(pres);
-        slide.Shapes!.AddAutoShape(ShapeType.Rectangle, 50, 50, 200, 100);
-        var ellipse = slide.Shapes!.AddAutoShape(ShapeType.Ellipse, 300, 50, 150, 150);
-        slide.Shapes!.Reorder(0, ellipse);
-        ((IGeometryShape)slide.Shapes![0]).ShapeType.Should().Be(ShapeType.Ellipse);
+        var path = _workspace.PathFor(fileName);
+
+        using var presentation = new Presentation();
+        presentation.Slides[0].Shapes!.AddTable(50, 50, [100, 100], [30, 30]);
+        presentation.Save(path, SaveFormat.Pptx);
+
+        return path;
     }

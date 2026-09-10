@@ -1,5 +1,12 @@
-private static ISlide ClearSlide(Presentation pres)
+public void Dispose()
     {
-        pres.Slides[0].Shapes!.Clear();
-        return pres.Slides[0];
+        try
+        {
+            if (Directory.Exists(_root))
+                Directory.Delete(_root, recursive: true);
+        }
+        catch (IOException)
+        {
+            // A leftover temp directory is not worth failing a test run over.
+        }
     }

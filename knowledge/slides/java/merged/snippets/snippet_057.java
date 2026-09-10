@@ -1,14 +1,13 @@
-@Test
-    void testAddNotes() throws IOException {
-        try (var pres = new Presentation()) {
-            var slide = pres.getSlides().get(0);
-            var notes = slide.getNotesSlideManager().addNotesSlide();
-            notes.getNotesTextFrame().setText("Speaker notes");
-
-            try (var pres2 = saveAndReopen(pres)) {
-                var ns2 = pres2.getSlides().get(0).getNotesSlideManager().getNotesSlide();
-                assertThat(ns2).isNotNull();
-                assertThat(ns2.getNotesTextFrame().getText()).isEqualTo("Speaker notes");
-            }
-        }
+@Test
+    void aSlideRemovedByReferenceMustBeGoneFromTheSavedFile() throws Exception {
+        Path source = Fixtures.authoredDeck(tempDir, "three.pptx", "First", "Second", "Third");
+        Path out = tempDir.resolve("removed-by-ref.pptx");
+        try (var pres = new Presentation(source.toString())) {
+            pres.getSlides().remove(pres.getSlides().get(2));
+            pres.save(out.toString(), SaveFormat.PPTX);
+        }
+
+        try (PptxPackage pkg = PptxPackage.open(out)) {
+            PackageAssertions.assertRegisteredSlideCount(pkg, 2);
+        }
     }

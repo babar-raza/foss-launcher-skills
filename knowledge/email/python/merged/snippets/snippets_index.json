@@ -22,7 +22,11 @@
     "formats_referenced": [
       "cfb"
     ],
-    "provenance": "scout"
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "e9f602fd9aef7448347d5aa1c3721a70babb6c70269f303b04750bd79f824264",
+      "norm": "e9f602fd9aef7448347d5aa1c3721a70babb6c70269f303b04750bd79f824264"
+    }
   },
   {
     "id": "snippet_002",
@@ -46,7 +50,11 @@
     "formats_referenced": [
       "cfb"
     ],
-    "provenance": "scout"
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "48fdca6962bea1c3c920a191d17b49a6d0d6ccefbd1f6a38c1e915068d91b519",
+      "norm": "48fdca6962bea1c3c920a191d17b49a6d0d6ccefbd1f6a38c1e915068d91b519"
+    }
   },
   {
     "id": "snippet_003",
@@ -70,7 +78,11 @@
     "formats_referenced": [
       "cfb"
     ],
-    "provenance": "scout"
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "b2013573bc62f25e59b37f7718a6cfe17b2f9e002f8c2018fe941d6a2646601c",
+      "norm": "b2013573bc62f25e59b37f7718a6cfe17b2f9e002f8c2018fe941d6a2646601c"
+    }
   },
   {
     "id": "snippet_004",
@@ -92,7 +104,11 @@
     "formats_referenced": [
       "cfb"
     ],
-    "provenance": "scout"
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "a480795aedf38f0405af65bc5e009a963e3ea52c4c337aa3016e20062db8e5a6",
+      "norm": "a480795aedf38f0405af65bc5e009a963e3ea52c4c337aa3016e20062db8e5a6"
+    }
   },
   {
     "id": "snippet_005",
@@ -115,7 +131,11 @@
     "formats_referenced": [
       "cfb"
     ],
-    "provenance": "scout"
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "8464b1b7f49a5a7972860633685b99d249dac2a2cc6614bbc46328f37cab8704",
+      "norm": "8464b1b7f49a5a7972860633685b99d249dac2a2cc6614bbc46328f37cab8704"
+    }
   },
   {
     "id": "snippet_006",
@@ -136,7 +156,11 @@
       "cfb",
       "msg"
     ],
-    "provenance": "scout"
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "81a001e148c9dfa7f6418f94bb4bd51581c52b40eb6fb72ccb67eccda313d711",
+      "norm": "81a001e148c9dfa7f6418f94bb4bd51581c52b40eb6fb72ccb67eccda313d711"
+    }
   },
   {
     "id": "snippet_007",
@@ -156,7 +180,11 @@
     "formats_referenced": [
       "msg"
     ],
-    "provenance": "scout"
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "e35f3b855a27781dbf7aa7c0e7b11c7e4b03c77d3c22b7f027b0ab07f99edf82",
+      "norm": "e35f3b855a27781dbf7aa7c0e7b11c7e4b03c77d3c22b7f027b0ab07f99edf82"
+    }
   },
   {
     "id": "snippet_008",
@@ -176,7 +204,11 @@
     "formats_referenced": [
       "msg"
     ],
-    "provenance": "scout"
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "63a4d14beae29e1636628e9c59e091449e2d0e77dda2ff5893fcac584ff9c9e0",
+      "norm": "63a4d14beae29e1636628e9c59e091449e2d0e77dda2ff5893fcac584ff9c9e0"
+    }
   },
   {
     "id": "snippet_009",
@@ -211,7 +243,11 @@
       "cfb",
       "msg"
     ],
-    "provenance": "scout"
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "76d072fe5a9dc7e5eb25ddaed871a4784471c565d32f821ede8c028d4d5e3ffc",
+      "norm": "76d072fe5a9dc7e5eb25ddaed871a4784471c565d32f821ede8c028d4d5e3ffc"
+    }
   },
   {
     "id": "snippet_010",
@@ -237,7 +273,11 @@
       "cfb",
       "msg"
     ],
-    "provenance": "scout"
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "5c5bef4744532dc070388fe5180e6d31c2b6ddca28a16e4f5b43098fbe7e9bea",
+      "norm": "5c5bef4744532dc070388fe5180e6d31c2b6ddca28a16e4f5b43098fbe7e9bea"
+    }
   },
   {
     "id": "snippet_011",
@@ -263,7 +303,11 @@
       "cfb",
       "msg"
     ],
-    "provenance": "scout"
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "43b1a04638b01d8295d1628854809a451ddb9c898b91afdb49bd9e9f67cee374",
+      "norm": "43b1a04638b01d8295d1628854809a451ddb9c898b91afdb49bd9e9f67cee374"
+    }
   },
   {
     "id": "snippet_012",
@@ -286,7 +330,11 @@
     "formats_referenced": [
       "msg"
     ],
-    "provenance": "scout"
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "f8c6ea355793070d4c0bc1eff708c67b500abc8bc748f51c8e35028ab989396f",
+      "norm": "f8c6ea355793070d4c0bc1eff708c67b500abc8bc748f51c8e35028ab989396f"
+    }
   },
   {
     "id": "snippet_013",
@@ -303,7 +351,11 @@
       "MapiMessage.to_email_message"
     ],
     "formats_referenced": [],
-    "provenance": "scout"
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "3032911e5b949f2a87433ceb0866d3bdad433ed4313246eddfd4f7e4cce93c04",
+      "norm": "3032911e5b949f2a87433ceb0866d3bdad433ed4313246eddfd4f7e4cce93c04"
+    }
   },
   {
     "id": "snippet_014",
@@ -332,7 +384,11 @@
       "cfb",
       "msg"
     ],
-    "provenance": "scout"
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "eaf8c608e4bce4e6a8253e3c052371fc89107f7020c2a75f2db5d1a14a57bf3c",
+      "norm": "eaf8c608e4bce4e6a8253e3c052371fc89107f7020c2a75f2db5d1a14a57bf3c"
+    }
   },
   {
     "id": "snippet_015",
@@ -353,7 +409,11 @@
       "MapiMessage.set_property"
     ],
     "formats_referenced": [],
-    "provenance": "scout"
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "c1104f4c046a0368dbbc9742f46ef0a7236705af04f0884efded4f8631bd8b4a",
+      "norm": "c1104f4c046a0368dbbc9742f46ef0a7236705af04f0884efded4f8631bd8b4a"
+    }
   },
   {
     "id": "snippet_016",
@@ -372,7 +432,11 @@
       "MapiMessage.set_property"
     ],
     "formats_referenced": [],
-    "provenance": "scout"
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "cd1edf1d5c6ee72261b3cca9d7321b8a0ec596ff5bc3befce4c4dbb07ff99a46",
+      "norm": "cd1edf1d5c6ee72261b3cca9d7321b8a0ec596ff5bc3befce4c4dbb07ff99a46"
+    }
   },
   {
     "id": "snippet_017",
@@ -401,7 +465,11 @@
       "cfb",
       "msg"
     ],
-    "provenance": "scout"
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "d1b19b2528c50bfd92ad2dbf620541df5f637778ea4576b3f5de2268c635c23d",
+      "norm": "d1b19b2528c50bfd92ad2dbf620541df5f637778ea4576b3f5de2268c635c23d"
+    }
   },
   {
     "id": "snippet_018",
@@ -430,7 +498,11 @@
       "cfb",
       "msg"
     ],
-    "provenance": "scout"
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "644aa12bd3d0963f06e82cfb93d3d31ed2b541e14c657d6a643896fc48256400",
+      "norm": "644aa12bd3d0963f06e82cfb93d3d31ed2b541e14c657d6a643896fc48256400"
+    }
   },
   {
     "id": "snippet_019",
@@ -447,7 +519,11 @@
     "formats_referenced": [
       "msg"
     ],
-    "provenance": "scout"
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "3bcf42d6441b1d8d7d2380c256a227605e0749b2da441fe0e9709cd44549d781",
+      "norm": "5c23ded180295369421c8bf3ce248c74f142f02f9476ee2d8331a94d5ed05cec"
+    }
   },
   {
     "id": "snippet_020",
@@ -472,7 +548,11 @@
       "eml",
       "msg"
     ],
-    "provenance": "scout"
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "ba97f0463dd2e2eb1f7fb46e8f21aa5fd64c088210c22626f049ddc2cbab66b6",
+      "norm": "e306050f9651d1ae8613873ef3a4ca44b68f5bb9843862cb66d86ec08e665670"
+    }
   },
   {
     "id": "snippet_021",
@@ -491,7 +571,11 @@
       "eml",
       "msg"
     ],
-    "provenance": "scout"
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "acb8a77fc8817ec875875fd74297e30c0d0d10c7e502eac30143cf3393e3df5e",
+      "norm": "c91e33f0379bf72b5b7e7226364cce8c8b4cc692e432494da0a05f6d35581bd6"
+    }
   },
   {
     "id": "snippet_022",
@@ -510,7 +594,11 @@
       "eml",
       "msg"
     ],
-    "provenance": "scout"
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "0db4d90f73d5aebcbe697d8d58a404eedc7afab5a760677c325559274ecd2b9d",
+      "norm": "6bb89a00392c1a1191d213248828bd22268fcbab1fd95140bddbf20fd67b90ae"
+    }
   },
   {
     "id": "snippet_023",
@@ -529,7 +617,11 @@
       "cfb",
       "msg"
     ],
-    "provenance": "scout"
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "ece2ea3182ab06c78cec31a8bd755ccde3a98577a7f93009e3b50c38b949e209",
+      "norm": "81fb9978d61b96de06358512794e9f353d46c56935cfcc4c8b5e22dada61d081"
+    }
   },
   {
     "id": "snippet_024",
@@ -553,6 +645,10 @@
     "formats_referenced": [
       "cfb"
     ],
-    "provenance": "scout"
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "8d523a7d51c3800cf4b3d0bbe2f4cc1a328a676808cd7b187ec420e9f3bdfb08",
+      "norm": "bb098ffe26d46926140fbea9aebfe4e24632850e52b231c4dce4ff26320977bc"
+    }
   }
 ]

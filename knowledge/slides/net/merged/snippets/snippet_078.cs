@@ -1,17 +1,19 @@
 [Fact]
-    public void TestShapeFrameProperties()
+    public void SettingTheStyleOfATableThatCarriesAnExtensionListKeepsSchemaOrder()
     {
-        // x, y, width, height, rotation persist after save/reload.
-        using var pres = new Presentation();
-        var slide = BlankSlide(pres);
-        var shape = slide.Shapes!.AddAutoShape(ShapeType.Rectangle, 200, 200, 300, 250);
-        shape.Rotation = 45;
+        var path = _workspace.PathFor("table-style-order.pptx");
 
-        using var pres2 = TestHelpers.SaveAndReopen(pres, _tempDir);
-        var s2 = pres2.Slides[0].Shapes![0];
-        s2.X.Should().Be(200);
-        s2.Y.Should().Be(200);
-        s2.Width.Should().Be(300);
-        s2.Height.Should().Be(250);
-        s2.Rotation.Should().Be(45);
+        using (var presentation = new Presentation(TestFixtures.TableWithExtension))
+        {
+            var table = (ITable)presentation.Slides[0].Shapes![0];
+            table.StylePreset = TableStylePreset.MediumStyle2Accent3;
+            presentation.Save(path, SaveFormat.Pptx);
+        }
+
+        using var package = PptxPackage.Open(path);
+
+        var properties = PackageAssert.SingleElement(package, "ppt/slides/slide1.xml", "//a:tbl/a:tblPr");
+        PackageAssert.ChildrenInSchemaOrder(properties, Ns.A + "tableStyleId", Ns.A + "extLst");
+
+        SchemaValidation.HasNoSchemaErrors(path);
     }

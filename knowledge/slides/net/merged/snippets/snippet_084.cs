@@ -1,9 +1,21 @@
 [Fact]
-    public void TestAddEmptySlide()
+    public void ADeckWithSeveralParagraphsIsSchemaValid()
     {
-        // add_empty_slide increases slide count.
-        using var pres = new Presentation();
-        var layout = pres.LayoutSlides[0];
-        pres.Slides.AddEmptySlide(layout);
-        pres.Slides.Count.Should().Be(2);
+        var path = _workspace.PathFor("paragraph-valid.pptx");
+
+        using (var presentation = new Presentation())
+        {
+            var shape = presentation.Slides[0].Shapes!.AddAutoShape(ShapeType.Rectangle, 50, 50, 300, 100);
+            var textFrame = shape.TextFrame!;
+            textFrame.Text = "First paragraph";
+
+            var second = new Paragraph();
+            second.Portions.Add(new Portion("Second-A "));
+            second.Portions.Add(new Portion("Second-B"));
+            textFrame.Paragraphs.Add(second);
+
+            presentation.Save(path, SaveFormat.Pptx);
+        }
+
+        SchemaValidation.HasNoSchemaErrors(path);
     }

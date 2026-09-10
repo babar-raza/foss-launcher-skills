@@ -1,11 +1,19 @@
 [Fact]
-    public void TestSlideName()
+    public void TestGetSlideComments()
     {
-        // Slide name persists after save/reload.
+        // get_slide_comments filters by author.
         using var pres = new Presentation();
-        pres.Slides[0].Name = "MySlide";
-        pres.Slides[0].Name.Should().Be("MySlide");
+        var a1 = pres.CommentAuthors.AddAuthor("Alice", "A");
+        var a2 = pres.CommentAuthors.AddAuthor("Bob", "B");
+        var slide = pres.Slides[0];
+        var now = DateTime.Now;
+        a1.Comments.AddComment("Alice's", slide, new PointF(1, 1), now);
+        a2.Comments.AddComment("Bob's", slide, new PointF(2, 2), now);
 
-        using var pres2 = TestHelpers.SaveAndReopen(pres, _tempDir);
-        pres2.Slides[0].Name.Should().Be("MySlide");
+        var allC = slide.GetSlideComments(null);
+        allC.Count.Should().Be(2);
+
+        var bobC = slide.GetSlideComments(a2);
+        bobC.Count.Should().Be(1);
+        bobC[0].Text.Should().Be("Bob's");
     }

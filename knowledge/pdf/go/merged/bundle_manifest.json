@@ -1,23 +1,23 @@
 {
   "schema_version": 2,
-  "bundle_id": "4adb337d-1976-4417-9fb1-d5043038ed3b",
+  "bundle_id": "de3baa3d-bc54-4642-8c02-fa848cedb40a",
   "family": "pdf",
   "platform": "go",
   "repo_sha": "2306eeb06216be4d9cb663adcb85155594572c11",
-  "generated_at": "2026-09-06T15:20:37.299682+00:00",
-  "generator_fingerprint": "1307a98d936bc698c6b3ec3027e12176fb3a5ce9cb39b22ee092c11785932031",
+  "generated_at": "2026-09-10T11:07:29.396611+00:00",
+  "generator_fingerprint": "39b55c0381d862030a39cf289a74386dba0d96ba7bead7439ed295a74ed8206e",
   "generator_semver": "2.0.0",
   "members": {
     "model.yaml": {
-      "sha256": "52e2d674211152092342cb07f8a0bc600830c359322ddc454a9dd571c05c044e",
-      "bytes": 1240
+      "sha256": "84f7c9b5fb25cb5f10cfeb4038714291985f81ac9fd0962f59ce253955d99285",
+      "bytes": 1348
     },
     "api_surface.json": {
       "sha256": "b21d4158e7929aedec8f81036fe958f6c155f4b47f58a8098698556d3e4520c5",
       "bytes": 1253858
     },
     "api_surface.md": {
-      "sha256": "e448fab12e035266af01f402af0e76f1b31c2abbbaac187070ace953d07d4e8f",
+      "sha256": "fdd01bc9745856b7a3ab456ce9c39f7783c3fb414a3b71c7459656fdae1e2042",
       "bytes": 62215
     },
     "formats.json": {
@@ -25,7 +25,7 @@
       "bytes": 3935
     },
     "formats.md": {
-      "sha256": "e553d554f64fb3c9e7b1f00e347bf6f741833b2dd9c6ec195e6039491a4fa671",
+      "sha256": "6bf1c691367e539ec8e3fd537e23a5a90e7b5015bc02d9b36d892249c31907e7",
       "bytes": 564
     },
     "claims.json": {
@@ -41,8 +41,8 @@
       "bytes": 228
     },
     "merge_report.md": {
-      "sha256": "02b128e6b8c5b8050e19f6f1cef3bd8998b3dde0b2b027e7534ea3af44259b93",
-      "bytes": 511
+      "sha256": "b48354659bdeb168fce8e368c86a9756e7666920ebe9e220e4124ed4ebadf660",
+      "bytes": 560
     },
     "snippets/snippet_001.go": {
       "sha256": "a7c8b3c9ae7b5fd1b2ad7d3573359d81bbd8647170827473ab787f5c19333d2b",
@@ -449,6 +449,6 @@
       "bytes": 57182
     }
   },
-  "promote_run_id": "promote-20260906T152037Z",
+  "promote_run_id": "promote-20260910T110730Z",
   "status": "COMPLETE"
 }

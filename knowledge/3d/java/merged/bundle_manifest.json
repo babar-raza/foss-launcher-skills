@@ -1,23 +1,23 @@
 {
   "schema_version": 2,
-  "bundle_id": "7c599758-7608-40d0-be37-b28713bb21a9",
+  "bundle_id": "b0ee0ccd-9dcc-4980-874d-85abb9a9945a",
   "family": "3d",
   "platform": "java",
   "repo_sha": "e308de58888635956cd66e5b0e2994dd42cd4356",
-  "generated_at": "2026-08-14T11:40:06.147544+00:00",
-  "generator_fingerprint": "5e6328590c0e805170cc6bce174d1ac7cfd92aa6292bde33a8f962dc23266fec",
+  "generated_at": "2026-09-10T11:07:21.302005+00:00",
+  "generator_fingerprint": "39b55c0381d862030a39cf289a74386dba0d96ba7bead7439ed295a74ed8206e",
   "generator_semver": "2.0.0",
   "members": {
     "model.yaml": {
-      "sha256": "4be37fcbec169af1eef853af3b8387d477ba6a53a63c5a8fa919bccc75b18749",
-      "bytes": 1208
+      "sha256": "080e5bcc1aac8a213eef7706a8c89f169c542b2deeb2c1d25429923a466b53db",
+      "bytes": 1345
     },
     "api_surface.json": {
-      "sha256": "14ecbad5ddbdbf6f5c96c2e292c8ff0be657e77c05ddac8c63e56351aebe3bca",
-      "bytes": 2024673
+      "sha256": "bcbf5649b2121c8d698017bd647e22c37c91c4556b81c5d5c5dc865b225bd903",
+      "bytes": 2040641
     },
     "api_surface.md": {
-      "sha256": "fcc5b076045f6172e1111b6f818c56e592257dc9922b9342239f8b8a07e80474",
+      "sha256": "ec43cb282b59494750acb49280018acf73234bdd3440afe853eaa020198abff9",
       "bytes": 212002
     },
     "formats.json": {
@@ -25,7 +25,7 @@
       "bytes": 5746
     },
     "formats.md": {
-      "sha256": "e49d67cbdfe9baf146f13d90fe255639410dd11259dcf2f0d5e5cbc9abd6b5ac",
+      "sha256": "d52164d527bfa8916cc37cd30ab8734501f4447978a51317538960fd06361792",
       "bytes": 593
     },
     "claims.json": {
@@ -41,8 +41,8 @@
       "bytes": 244
     },
     "merge_report.md": {
-      "sha256": "a5750b85d79c7fcf2a5b59dd467e45f08f822360ca1a9879ed034a510b08637d",
-      "bytes": 512
+      "sha256": "f3506fcbe9320e7d4ab76947d7ebf7c3fed6a14fa69197151dc79ad8d9717fe8",
+      "bytes": 561
     },
     "snippets/snippet_001.java": {
       "sha256": "306300553ae116383a973bb105388d9ba56426f1cc1c9d0c98e75430071beb9f",
@@ -345,10 +345,10 @@
       "bytes": 249
     },
     "snippets/snippets_index.json": {
-      "sha256": "194b90fbbb2273c406d8110f69cd0ea6a9e020f4bfd593660ed04137c0524172",
-      "bytes": 38184
+      "sha256": "d94ac13025cdcc93ed65d0391486b6be6edc008022855655235e58c31bd13b7f",
+      "bytes": 52884
     }
   },
-  "promote_run_id": "promote-20260814T114006Z",
+  "promote_run_id": "promote-20260910T110721Z",
   "status": "COMPLETE"
 }

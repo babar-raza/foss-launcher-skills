@@ -1,5 +1,6 @@
-private static ISlide blankSlide(Presentation pres) {
-        ISlide slide = pres.getSlides().get(0);
-        slide.getShapes().clear();
-        return slide;
+private Presentation saveAndReopen(Presentation pres) throws IOException {
+        String path = tempDir.resolve("roundtrip.pptx").toString();
+        pres.save(path, SaveFormat.PPTX);
+        pres.dispose();
+        return new Presentation(path);
     }

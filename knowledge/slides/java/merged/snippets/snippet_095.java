@@ -1,12 +1,13 @@
 @Test
-    void testIterateSlides() {
+    void testCustomIntProperty() throws IOException {
         try (var pres = new Presentation()) {
-            ILayoutSlide layout = pres.getLayoutSlides().get(0);
-            pres.getSlides().addEmptySlide(layout);
-            List<ISlide> slides = new ArrayList<>();
-            for (ISlide slide : pres.getSlides()) {
-                slides.add(slide);
+            pres.getDocumentProperties().setCustomPropertyValue("Count", 42);
+
+            try (var pres2 = saveAndReopen(pres)) {
+                List<Object> out = new ArrayList<>();
+                out.add(null);
+                pres2.getDocumentProperties().getCustomPropertyValue("Count", out);
+                assertThat(out.get(0)).isEqualTo(42);
             }
-            assertThat(slides).hasSize(2);
         }
     }

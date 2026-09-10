@@ -961,7 +961,9 @@
     "reachable": true,
     "class_package": "com.aspose.threed",
     "class_import": "com.aspose.threed.DracoFormat",
-    "canonical_namespace": "com.aspose.threed"
+    "canonical_namespace": "com.aspose.threed",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "FileFormat",
@@ -1775,7 +1777,9 @@
     "reachable": true,
     "class_package": "com.aspose.threed",
     "class_import": "com.aspose.threed.FileFormat",
-    "canonical_namespace": "com.aspose.threed"
+    "canonical_namespace": "com.aspose.threed",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "FileFormatType",
@@ -2089,7 +2093,9 @@
     "reachable": true,
     "class_package": "com.aspose.threed",
     "class_import": "com.aspose.threed.FileFormatType",
-    "canonical_namespace": "com.aspose.threed"
+    "canonical_namespace": "com.aspose.threed",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "GltfEmbeddedImageFormat",
@@ -2118,7 +2124,9 @@
     ],
     "class_package": "com.aspose.threed",
     "class_import": "com.aspose.threed.GltfEmbeddedImageFormat",
-    "canonical_namespace": "com.aspose.threed"
+    "canonical_namespace": "com.aspose.threed",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "A3DObject",
@@ -2286,7 +2294,9 @@
     "reachable": true,
     "class_package": "com.aspose.threed",
     "class_import": "com.aspose.threed.A3DObject",
-    "canonical_namespace": "com.aspose.threed"
+    "canonical_namespace": "com.aspose.threed",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "A3dwSaveOptions",
@@ -2609,7 +2619,9 @@
     "reachable": true,
     "class_package": "com.aspose.threed",
     "class_import": "com.aspose.threed.A3dwSaveOptions",
-    "canonical_namespace": "com.aspose.threed"
+    "canonical_namespace": "com.aspose.threed",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "AlphaSource",
@@ -2638,7 +2650,9 @@
     ],
     "class_package": "com.aspose.threed",
     "class_import": "com.aspose.threed.AlphaSource",
-    "canonical_namespace": "com.aspose.threed"
+    "canonical_namespace": "com.aspose.threed",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "AmfSaveOptions",
@@ -2931,7 +2945,9 @@
     "reachable": true,
     "class_package": "com.aspose.threed",
     "class_import": "com.aspose.threed.AmfSaveOptions",
-    "canonical_namespace": "com.aspose.threed"
+    "canonical_namespace": "com.aspose.threed",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "AnimationChannel",
@@ -3099,7 +3115,9 @@
     "reachable": true,
     "class_package": "com.aspose.threed",
     "class_import": "com.aspose.threed.AnimationChannel",
-    "canonical_namespace": "com.aspose.threed"
+    "canonical_namespace": "com.aspose.threed",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "AnimationClip",
@@ -3290,7 +3308,9 @@
     "reachable": true,
     "class_package": "com.aspose.threed",
     "class_import": "com.aspose.threed.AnimationClip",
-    "canonical_namespace": "com.aspose.threed"
+    "canonical_namespace": "com.aspose.threed",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "AnimationNode",
@@ -3458,7 +3478,9 @@
     "reachable": true,
     "class_package": "com.aspose.threed",
     "class_import": "com.aspose.threed.AnimationNode",
-    "canonical_namespace": "com.aspose.threed"
+    "canonical_namespace": "com.aspose.threed",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "ApertureMode",
@@ -3491,7 +3513,9 @@
     ],
     "class_package": "com.aspose.threed",
     "class_import": "com.aspose.threed.ApertureMode",
-    "canonical_namespace": "com.aspose.threed"
+    "canonical_namespace": "com.aspose.threed",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "ArbitraryProfile",
@@ -3911,7 +3935,9 @@
     "reachable": true,
     "class_package": "com.aspose.threed",
     "class_import": "com.aspose.threed.ArbitraryProfile",
-    "canonical_namespace": "com.aspose.threed"
+    "canonical_namespace": "com.aspose.threed",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "ArrayListAdapter",
@@ -4247,7 +4273,9 @@
     "reachable": true,
     "class_package": "com.aspose.threed",
     "class_import": "com.aspose.threed.ArrayListAdapter",
-    "canonical_namespace": "com.aspose.threed"
+    "canonical_namespace": "com.aspose.threed",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "AssetInfo",
@@ -4834,7 +4862,9 @@
     "reachable": true,
     "class_package": "com.aspose.threed",
     "class_import": "com.aspose.threed.AssetInfo",
-    "canonical_namespace": "com.aspose.threed"
+    "canonical_namespace": "com.aspose.threed",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "Axis",
@@ -4875,7 +4905,9 @@
     ],
     "class_package": "com.aspose.threed",
     "class_import": "com.aspose.threed.Axis",
-    "canonical_namespace": "com.aspose.threed"
+    "canonical_namespace": "com.aspose.threed",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "AxisSystem",
@@ -4996,7 +5028,9 @@
     "reachable": true,
     "class_package": "com.aspose.threed",
     "class_import": "com.aspose.threed.AxisSystem",
-    "canonical_namespace": "com.aspose.threed"
+    "canonical_namespace": "com.aspose.threed",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "BindPoint",
@@ -5029,7 +5063,9 @@
     ],
     "class_package": "com.aspose.threed",
     "class_import": "com.aspose.threed.BindPoint",
-    "canonical_namespace": "com.aspose.threed"
+    "canonical_namespace": "com.aspose.threed",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "BlendFactor",
@@ -5106,7 +5142,9 @@
     ],
     "class_package": "com.aspose.threed",
     "class_import": "com.aspose.threed.BlendFactor",
-    "canonical_namespace": "com.aspose.threed"
+    "canonical_namespace": "com.aspose.threed",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "Bone",
@@ -5497,7 +5535,9 @@
     "reachable": true,
     "class_package": "com.aspose.threed",
     "class_import": "com.aspose.threed.Bone",
-    "canonical_namespace": "com.aspose.threed"
+    "canonical_namespace": "com.aspose.threed",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "BoneLinkMode",
@@ -5526,7 +5566,9 @@
     ],
     "class_package": "com.aspose.threed",
     "class_import": "com.aspose.threed.BoneLinkMode",
-    "canonical_namespace": "com.aspose.threed"
+    "canonical_namespace": "com.aspose.threed",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "BonePose",
@@ -5799,7 +5841,9 @@
     "reachable": true,
     "class_package": "com.aspose.threed",
     "class_import": "com.aspose.threed.BonePose",
-    "canonical_namespace": "com.aspose.threed"
+    "canonical_namespace": "com.aspose.threed",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "BooleanOperand",
@@ -5887,7 +5931,9 @@
     "reachable": true,
     "class_package": "com.aspose.threed",
     "class_import": "com.aspose.threed.BooleanOperand",
-    "canonical_namespace": "com.aspose.threed"
+    "canonical_namespace": "com.aspose.threed",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "BooleanOperation",
@@ -5916,7 +5962,9 @@
     ],
     "class_package": "com.aspose.threed",
     "class_import": "com.aspose.threed.BooleanOperation",
-    "canonical_namespace": "com.aspose.threed"
+    "canonical_namespace": "com.aspose.threed",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "BooleanOperator",
@@ -6364,7 +6412,9 @@
     "reachable": true,
     "class_package": "com.aspose.threed",
     "class_import": "com.aspose.threed.BooleanOperator",
-    "canonical_namespace": "com.aspose.threed"
+    "canonical_namespace": "com.aspose.threed",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "BoundingBox",
@@ -6791,7 +6841,9 @@
     "reachable": true,
     "class_package": "com.aspose.threed",
     "class_import": "com.aspose.threed.BoundingBox",
-    "canonical_namespace": "com.aspose.threed"
+    "canonical_namespace": "com.aspose.threed",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "BoundingBox2D",
@@ -6969,7 +7021,9 @@
     "reachable": true,
     "class_package": "com.aspose.threed",
     "class_import": "com.aspose.threed.BoundingBox2D",
-    "canonical_namespace": "com.aspose.threed"
+    "canonical_namespace": "com.aspose.threed",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "BoundingBoxExtent",
@@ -6998,7 +7052,9 @@
     ],
     "class_package": "com.aspose.threed",
     "class_import": "com.aspose.threed.BoundingBoxExtent",
-    "canonical_namespace": "com.aspose.threed"
+    "canonical_namespace": "com.aspose.threed",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "Box",
@@ -7652,7 +7708,9 @@
     "reachable": true,
     "class_package": "com.aspose.threed",
     "class_import": "com.aspose.threed.Box",
-    "canonical_namespace": "com.aspose.threed"
+    "canonical_namespace": "com.aspose.threed",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "CShape",
@@ -8187,7 +8245,9 @@
     "reachable": true,
     "class_package": "com.aspose.threed",
     "class_import": "com.aspose.threed.CShape",
-    "canonical_namespace": "com.aspose.threed"
+    "canonical_namespace": "com.aspose.threed",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "Camera",
@@ -9135,7 +9195,9 @@
     "reachable": true,
     "class_package": "com.aspose.threed",
     "class_import": "com.aspose.threed.Camera",
-    "canonical_namespace": "com.aspose.threed"
+    "canonical_namespace": "com.aspose.threed",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "Cancellation",
@@ -9188,7 +9250,9 @@
     "reachable": true,
     "class_package": "com.aspose.threed",
     "class_import": "com.aspose.threed.Cancellation",
-    "canonical_namespace": "com.aspose.threed"
+    "canonical_namespace": "com.aspose.threed",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "CenterLineProfile",
@@ -9617,7 +9681,9 @@
     "reachable": true,
     "class_package": "com.aspose.threed",
     "class_import": "com.aspose.threed.CenterLineProfile",
-    "canonical_namespace": "com.aspose.threed"
+    "canonical_namespace": "com.aspose.threed",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "Circle",
@@ -10038,7 +10104,9 @@
     "reachable": true,
     "class_package": "com.aspose.threed",
     "class_import": "com.aspose.threed.Circle",
-    "canonical_namespace": "com.aspose.threed"
+    "canonical_namespace": "com.aspose.threed",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "CircleShape",
@@ -10467,7 +10535,9 @@
     "reachable": true,
     "class_package": "com.aspose.threed",
     "class_import": "com.aspose.threed.CircleShape",
-    "canonical_namespace": "com.aspose.threed"
+    "canonical_namespace": "com.aspose.threed",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "ColladaSaveOptions",
@@ -10796,7 +10866,9 @@
     "reachable": true,
     "class_package": "com.aspose.threed",
     "class_import": "com.aspose.threed.ColladaSaveOptions",
-    "canonical_namespace": "com.aspose.threed"
+    "canonical_namespace": "com.aspose.threed",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "ColladaTransformStyle",
@@ -10821,7 +10893,9 @@
     ],
     "class_package": "com.aspose.threed",
     "class_import": "com.aspose.threed.ColladaTransformStyle",
-    "canonical_namespace": "com.aspose.threed"
+    "canonical_namespace": "com.aspose.threed",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "CompareFunction",
@@ -10870,7 +10944,9 @@
     ],
     "class_package": "com.aspose.threed",
     "class_import": "com.aspose.threed.CompareFunction",
-    "canonical_namespace": "com.aspose.threed"
+    "canonical_namespace": "com.aspose.threed",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "ComposeOrder",
@@ -10895,7 +10971,9 @@
     ],
     "class_package": "com.aspose.threed",
     "class_import": "com.aspose.threed.ComposeOrder",
-    "canonical_namespace": "com.aspose.threed"
+    "canonical_namespace": "com.aspose.threed",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "CompositeCurve",
@@ -11330,7 +11408,9 @@
     "reachable": true,
     "class_package": "com.aspose.threed",
     "class_import": "com.aspose.threed.CompositeCurve",
-    "canonical_namespace": "com.aspose.threed"
+    "canonical_namespace": "com.aspose.threed",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "Segment",
@@ -11398,7 +11478,9 @@
     "is_static": true,
     "class_package": "com.aspose.threed",
     "class_import": "com.aspose.threed.Segment",
-    "canonical_namespace": "com.aspose.threed"
+    "canonical_namespace": "com.aspose.threed",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "CoordinateSystem",
@@ -11423,7 +11505,9 @@
     ],
     "class_package": "com.aspose.threed",
     "class_import": "com.aspose.threed.CoordinateSystem",
-    "canonical_namespace": "com.aspose.threed"
+    "canonical_namespace": "com.aspose.threed",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "CryptoUtils",
@@ -11509,7 +11593,9 @@
     "reachable": true,
     "class_package": "com.aspose.threed",
     "class_import": "com.aspose.threed.CryptoUtils",
-    "canonical_namespace": "com.aspose.threed"
+    "canonical_namespace": "com.aspose.threed",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "CubeFace",
@@ -11550,7 +11636,9 @@
     ],
     "class_package": "com.aspose.threed",
     "class_import": "com.aspose.threed.CubeFace",
-    "canonical_namespace": "com.aspose.threed"
+    "canonical_namespace": "com.aspose.threed",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "CullFaceMode",
@@ -11603,7 +11691,9 @@
     "reachable": true,
     "class_package": "com.aspose.threed",
     "class_import": "com.aspose.threed.CullFaceMode",
-    "canonical_namespace": "com.aspose.threed"
+    "canonical_namespace": "com.aspose.threed",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "Curve",
@@ -11983,7 +12073,9 @@
     "is_abstract": true,
     "class_package": "com.aspose.threed",
     "class_import": "com.aspose.threed.Curve",
-    "canonical_namespace": "com.aspose.threed"
+    "canonical_namespace": "com.aspose.threed",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "CurveDimension",
@@ -12008,7 +12100,9 @@
     ],
     "class_package": "com.aspose.threed",
     "class_import": "com.aspose.threed.CurveDimension",
-    "canonical_namespace": "com.aspose.threed"
+    "canonical_namespace": "com.aspose.threed",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "CustomObject",
@@ -12199,7 +12293,9 @@
     "reachable": true,
     "class_package": "com.aspose.threed",
     "class_import": "com.aspose.threed.CustomObject",
-    "canonical_namespace": "com.aspose.threed"
+    "canonical_namespace": "com.aspose.threed",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "Cylinder",
@@ -13081,7 +13177,9 @@
     "reachable": true,
     "class_package": "com.aspose.threed",
     "class_import": "com.aspose.threed.Cylinder",
-    "canonical_namespace": "com.aspose.threed"
+    "canonical_namespace": "com.aspose.threed",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "Deformer",
@@ -13280,7 +13378,9 @@
     "is_abstract": true,
     "class_package": "com.aspose.threed",
     "class_import": "com.aspose.threed.Deformer",
-    "canonical_namespace": "com.aspose.threed"
+    "canonical_namespace": "com.aspose.threed",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "Discreet3dsLoadOptions",
@@ -13588,7 +13688,9 @@
     "reachable": true,
     "class_package": "com.aspose.threed",
     "class_import": "com.aspose.threed.Discreet3dsLoadOptions",
-    "canonical_namespace": "com.aspose.threed"
+    "canonical_namespace": "com.aspose.threed",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "Discreet3dsSaveOptions",
@@ -14121,7 +14223,9 @@
     "reachable": true,
     "class_package": "com.aspose.threed",
     "class_import": "com.aspose.threed.Discreet3dsSaveOptions",
-    "canonical_namespace": "com.aspose.threed"
+    "canonical_namespace": "com.aspose.threed",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "Dish",
@@ -14718,7 +14822,9 @@
     "reachable": true,
     "class_package": "com.aspose.threed",
     "class_import": "com.aspose.threed.Dish",
-    "canonical_namespace": "com.aspose.threed"
+    "canonical_namespace": "com.aspose.threed",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "DracoCompressionLevel",
@@ -14751,7 +14857,9 @@
     ],
     "class_package": "com.aspose.threed",
     "class_import": "com.aspose.threed.DracoCompressionLevel",
-    "canonical_namespace": "com.aspose.threed"
+    "canonical_namespace": "com.aspose.threed",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "DracoSaveOptions",
@@ -15224,7 +15332,9 @@
     "reachable": true,
     "class_package": "com.aspose.threed",
     "class_import": "com.aspose.threed.DracoSaveOptions",
-    "canonical_namespace": "com.aspose.threed"
+    "canonical_namespace": "com.aspose.threed",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "DrawOperation",
@@ -15324,7 +15434,9 @@
     "reachable": true,
     "class_package": "com.aspose.threed",
     "class_import": "com.aspose.threed.DrawOperation",
-    "canonical_namespace": "com.aspose.threed"
+    "canonical_namespace": "com.aspose.threed",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "Ellipse",
@@ -15776,7 +15888,9 @@
     "reachable": true,
     "class_package": "com.aspose.threed",
     "class_import": "com.aspose.threed.Ellipse",
-    "canonical_namespace": "com.aspose.threed"
+    "canonical_namespace": "com.aspose.threed",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "EllipseShape",
@@ -16240,7 +16354,9 @@
     "reachable": true,
     "class_package": "com.aspose.threed",
     "class_import": "com.aspose.threed.EllipseShape",
-    "canonical_namespace": "com.aspose.threed"
+    "canonical_namespace": "com.aspose.threed",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "EndPoint",
@@ -16441,7 +16557,9 @@
     "reachable": true,
     "class_package": "com.aspose.threed",
     "class_import": "com.aspose.threed.EndPoint",
-    "canonical_namespace": "com.aspose.threed"
+    "canonical_namespace": "com.aspose.threed",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "Entity",
@@ -16785,7 +16903,9 @@
     "is_abstract": true,
     "class_package": "com.aspose.threed",
     "class_import": "com.aspose.threed.Entity",
-    "canonical_namespace": "com.aspose.threed"
+    "canonical_namespace": "com.aspose.threed",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "EntityRendererKey",
@@ -16824,7 +16944,9 @@
     "reachable": true,
     "class_package": "com.aspose.threed",
     "class_import": "com.aspose.threed.EntityRendererKey",
-    "canonical_namespace": "com.aspose.threed"
+    "canonical_namespace": "com.aspose.threed",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "Enumerable",
@@ -16849,7 +16971,9 @@
     "reachable": true,
     "class_package": "com.aspose.threed",
     "class_import": "com.aspose.threed.Enumerable",
-    "canonical_namespace": "com.aspose.threed"
+    "canonical_namespace": "com.aspose.threed",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "Enumerator",
@@ -16891,7 +17015,9 @@
     "reachable": true,
     "class_package": "com.aspose.threed",
     "class_import": "com.aspose.threed.Enumerator",
-    "canonical_namespace": "com.aspose.threed"
+    "canonical_namespace": "com.aspose.threed",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "EventCallback",
@@ -16925,7 +17051,9 @@
     "reachable": true,
     "class_package": "com.aspose.threed",
     "class_import": "com.aspose.threed.EventCallback",
-    "canonical_namespace": "com.aspose.threed"
+    "canonical_namespace": "com.aspose.threed",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "ExportException",
@@ -16975,7 +17103,9 @@
     "reachable": true,
     "class_package": "com.aspose.threed",
     "class_import": "com.aspose.threed.ExportException",
-    "canonical_namespace": "com.aspose.threed"
+    "canonical_namespace": "com.aspose.threed",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "Extrapolation",
@@ -17061,7 +17191,9 @@
     "reachable": true,
     "class_package": "com.aspose.threed",
     "class_import": "com.aspose.threed.Extrapolation",
-    "canonical_namespace": "com.aspose.threed"
+    "canonical_namespace": "com.aspose.threed",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "ExtrapolationType",
@@ -17098,7 +17230,9 @@
     ],
     "class_package": "com.aspose.threed",
     "class_import": "com.aspose.threed.ExtrapolationType",
-    "canonical_namespace": "com.aspose.threed"
+    "canonical_namespace": "com.aspose.threed",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "FMatrix4",
@@ -17379,7 +17513,9 @@
     "reachable": true,
     "class_package": "com.aspose.threed",
     "class_import": "com.aspose.threed.FMatrix4",
-    "canonical_namespace": "com.aspose.threed"
+    "canonical_namespace": "com.aspose.threed",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "FVector2",
@@ -17641,7 +17777,9 @@
     "reachable": true,
     "class_package": "com.aspose.threed",
     "class_import": "com.aspose.threed.FVector2",
-    "canonical_namespace": "com.aspose.threed"
+    "canonical_namespace": "com.aspose.threed",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "FVector3",
@@ -18099,7 +18237,9 @@
     "reachable": true,
     "class_package": "com.aspose.threed",
     "class_import": "com.aspose.threed.FVector3",
-    "canonical_namespace": "com.aspose.threed"
+    "canonical_namespace": "com.aspose.threed",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "FVector4",
@@ -18152,7 +18292,9 @@
     "reachable": true,
     "class_package": "com.aspose.threed",
     "class_import": "com.aspose.threed.FVector4",
-    "canonical_namespace": "com.aspose.threed"
+    "canonical_namespace": "com.aspose.threed",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "FbxLoadOptions",
@@ -18445,7 +18587,9 @@
     "reachable": true,
     "class_package": "com.aspose.threed",
     "class_import": "com.aspose.threed.FbxLoadOptions",
-    "canonical_namespace": "com.aspose.threed"
+    "canonical_namespace": "com.aspose.threed",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "FbxSaveOptions",
@@ -18946,7 +19090,9 @@
     "reachable": true,
     "class_package": "com.aspose.threed",
     "class_import": "com.aspose.threed.FbxSaveOptions",
-    "canonical_namespace": "com.aspose.threed"
+    "canonical_namespace": "com.aspose.threed",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "FileContentType",
@@ -18971,7 +19117,9 @@
     ],
     "class_package": "com.aspose.threed",
     "class_import": "com.aspose.threed.FileContentType",
-    "canonical_namespace": "com.aspose.threed"
+    "canonical_namespace": "com.aspose.threed",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "FileStream",
@@ -19359,7 +19507,9 @@
     "reachable": true,
     "class_package": "com.aspose.threed",
     "class_import": "com.aspose.threed.FileStream",
-    "canonical_namespace": "com.aspose.threed"
+    "canonical_namespace": "com.aspose.threed",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "FileSystem",
@@ -19492,7 +19642,9 @@
     "is_abstract": true,
     "class_package": "com.aspose.threed",
     "class_import": "com.aspose.threed.FileSystem",
-    "canonical_namespace": "com.aspose.threed"
+    "canonical_namespace": "com.aspose.threed",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "LocalFileSystem",
@@ -19639,7 +19791,9 @@
     "is_static": true,
     "class_package": "com.aspose.threed",
     "class_import": "com.aspose.threed.LocalFileSystem",
-    "canonical_namespace": "com.aspose.threed"
+    "canonical_namespace": "com.aspose.threed",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "MemoryFileSystem",
@@ -19786,7 +19940,9 @@
     "is_static": true,
     "class_package": "com.aspose.threed",
     "class_import": "com.aspose.threed.MemoryFileSystem",
-    "canonical_namespace": "com.aspose.threed"
+    "canonical_namespace": "com.aspose.threed",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "DummyFileSystem",
@@ -19919,7 +20075,9 @@
     "is_static": true,
     "class_package": "com.aspose.threed",
     "class_import": "com.aspose.threed.DummyFileSystem",
-    "canonical_namespace": "com.aspose.threed"
+    "canonical_namespace": "com.aspose.threed",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "ZipFileSystem",
@@ -20086,7 +20244,9 @@
     "is_static": true,
     "class_package": "com.aspose.threed",
     "class_import": "com.aspose.threed.ZipFileSystem",
-    "canonical_namespace": "com.aspose.threed"
+    "canonical_namespace": "com.aspose.threed",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "FileSystemFactory",
@@ -20111,7 +20271,9 @@
     "reachable": true,
     "class_package": "com.aspose.threed",
     "class_import": "com.aspose.threed.FileSystemFactory",
-    "canonical_namespace": "com.aspose.threed"
+    "canonical_namespace": "com.aspose.threed",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "FrontFace",
@@ -20136,7 +20298,9 @@
     ],
     "class_package": "com.aspose.threed",
     "class_import": "com.aspose.threed.FrontFace",
-    "canonical_namespace": "com.aspose.threed"
+    "canonical_namespace": "com.aspose.threed",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "Frustum",
@@ -20751,7 +20915,9 @@
     "is_abstract": true,
     "class_package": "com.aspose.threed",
     "class_import": "com.aspose.threed.Frustum",
-    "canonical_namespace": "com.aspose.threed"
+    "canonical_namespace": "com.aspose.threed",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "Geometry",
@@ -21416,7 +21582,9 @@
     "reachable": true,
     "class_package": "com.aspose.threed",
     "class_import": "com.aspose.threed.Geometry",
-    "canonical_namespace": "com.aspose.threed"
+    "canonical_namespace": "com.aspose.threed",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "GlobalTransform",
@@ -21536,7 +21704,9 @@
     "reachable": true,
     "class_package": "com.aspose.threed",
     "class_import": "com.aspose.threed.GlobalTransform",
-    "canonical_namespace": "com.aspose.threed"
+    "canonical_namespace": "com.aspose.threed",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "GltfLoadOptions",
@@ -21785,7 +21955,9 @@
     "reachable": true,
     "class_package": "com.aspose.threed",
     "class_import": "com.aspose.threed.GltfLoadOptions",
-    "canonical_namespace": "com.aspose.threed"
+    "canonical_namespace": "com.aspose.threed",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "GltfSaveOptions",
@@ -22427,7 +22599,9 @@
     "reachable": true,
     "class_package": "com.aspose.threed",
     "class_import": "com.aspose.threed.GltfSaveOptions",
-    "canonical_namespace": "com.aspose.threed"
+    "canonical_namespace": "com.aspose.threed",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "Group",
@@ -22675,7 +22849,9 @@
     "reachable": true,
     "class_package": "com.aspose.threed",
     "class_import": "com.aspose.threed.Group",
-    "canonical_namespace": "com.aspose.threed"
+    "canonical_namespace": "com.aspose.threed",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "HShape",
@@ -23357,7 +23533,9 @@
     "reachable": true,
     "class_package": "com.aspose.threed",
     "class_import": "com.aspose.threed.HShape",
-    "canonical_namespace": "com.aspose.threed"
+    "canonical_namespace": "com.aspose.threed",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "HalfSpace",
@@ -23769,7 +23947,9 @@
     "reachable": true,
     "class_package": "com.aspose.threed",
     "class_import": "com.aspose.threed.HalfSpace",
-    "canonical_namespace": "com.aspose.threed"
+    "canonical_namespace": "com.aspose.threed",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "HollowCircleShape",
@@ -24237,7 +24417,9 @@
     "reachable": true,
     "class_package": "com.aspose.threed",
     "class_import": "com.aspose.threed.HollowCircleShape",
-    "canonical_namespace": "com.aspose.threed"
+    "canonical_namespace": "com.aspose.threed",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "HollowRectangleShape",
@@ -24779,7 +24961,9 @@
     "reachable": true,
     "class_package": "com.aspose.threed",
     "class_import": "com.aspose.threed.HollowRectangleShape",
-    "canonical_namespace": "com.aspose.threed"
+    "canonical_namespace": "com.aspose.threed",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "Html5SaveOptions",
@@ -25072,7 +25256,9 @@
     "reachable": true,
     "class_package": "com.aspose.threed",
     "class_import": "com.aspose.threed.Html5SaveOptions",
-    "canonical_namespace": "com.aspose.threed"
+    "canonical_namespace": "com.aspose.threed",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "IBuffer",
@@ -25087,7 +25273,9 @@
     "reachable": true,
     "class_package": "com.aspose.threed",
     "class_import": "com.aspose.threed.IBuffer",
-    "canonical_namespace": "com.aspose.threed"
+    "canonical_namespace": "com.aspose.threed",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "IDescriptorSet",
@@ -25102,7 +25290,9 @@
     "reachable": true,
     "class_package": "com.aspose.threed",
     "class_import": "com.aspose.threed.IDescriptorSet",
-    "canonical_namespace": "com.aspose.threed"
+    "canonical_namespace": "com.aspose.threed",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "IIndexBuffer",
@@ -25117,7 +25307,9 @@
     "reachable": true,
     "class_package": "com.aspose.threed",
     "class_import": "com.aspose.threed.IIndexBuffer",
-    "canonical_namespace": "com.aspose.threed"
+    "canonical_namespace": "com.aspose.threed",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "IIndexedVertexElement",
@@ -25150,7 +25342,9 @@
     "reachable": true,
     "class_package": "com.aspose.threed",
     "class_import": "com.aspose.threed.IIndexedVertexElement",
-    "canonical_namespace": "com.aspose.threed"
+    "canonical_namespace": "com.aspose.threed",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "IMeshConvertible",
@@ -25175,7 +25369,9 @@
     "reachable": true,
     "class_package": "com.aspose.threed",
     "class_import": "com.aspose.threed.IMeshConvertible",
-    "canonical_namespace": "com.aspose.threed"
+    "canonical_namespace": "com.aspose.threed",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "INamedObject",
@@ -25225,7 +25421,9 @@
     "reachable": true,
     "class_package": "com.aspose.threed",
     "class_import": "com.aspose.threed.INamedObject",
-    "canonical_namespace": "com.aspose.threed"
+    "canonical_namespace": "com.aspose.threed",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "IOConfig",
@@ -25408,7 +25606,9 @@
     "reachable": true,
     "class_package": "com.aspose.threed",
     "class_import": "com.aspose.threed.IOConfig",
-    "canonical_namespace": "com.aspose.threed"
+    "canonical_namespace": "com.aspose.threed",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "IOExtension",
@@ -25568,7 +25768,9 @@
     "reachable": true,
     "class_package": "com.aspose.threed",
     "class_import": "com.aspose.threed.IOExtension",
-    "canonical_namespace": "com.aspose.threed"
+    "canonical_namespace": "com.aspose.threed",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "IOrientable",
@@ -25645,7 +25847,9 @@
     "reachable": true,
     "class_package": "com.aspose.threed",
     "class_import": "com.aspose.threed.IOrientable",
-    "canonical_namespace": "com.aspose.threed"
+    "canonical_namespace": "com.aspose.threed",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "IPipeline",
@@ -25660,7 +25864,9 @@
     "reachable": true,
     "class_package": "com.aspose.threed",
     "class_import": "com.aspose.threed.IPipeline",
-    "canonical_namespace": "com.aspose.threed"
+    "canonical_namespace": "com.aspose.threed",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "IRenderQueue",
@@ -25675,7 +25881,9 @@
     "reachable": true,
     "class_package": "com.aspose.threed",
     "class_import": "com.aspose.threed.IRenderQueue",
-    "canonical_namespace": "com.aspose.threed"
+    "canonical_namespace": "com.aspose.threed",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "IRenderTarget",
@@ -25690,7 +25898,9 @@
     "reachable": true,
     "class_package": "com.aspose.threed",
     "class_import": "com.aspose.threed.IRenderTarget",
-    "canonical_namespace": "com.aspose.threed"
+    "canonical_namespace": "com.aspose.threed",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "IRenderTexture",
@@ -25705,7 +25915,9 @@
     "reachable": true,
     "class_package": "com.aspose.threed",
     "class_import": "com.aspose.threed.IRenderTexture",
-    "canonical_namespace": "com.aspose.threed"
+    "canonical_namespace": "com.aspose.threed",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "IRenderWindow",
@@ -25720,7 +25932,9 @@
     "reachable": true,
     "class_package": "com.aspose.threed",
     "class_import": "com.aspose.threed.IRenderWindow",
-    "canonical_namespace": "com.aspose.threed"
+    "canonical_namespace": "com.aspose.threed",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "ITextureUnit",
@@ -25735,7 +25949,9 @@
     "reachable": true,
     "class_package": "com.aspose.threed",
     "class_import": "com.aspose.threed.ITextureUnit",
-    "canonical_namespace": "com.aspose.threed"
+    "canonical_namespace": "com.aspose.threed",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "IVertexBuffer",
@@ -25750,7 +25966,9 @@
     "reachable": true,
     "class_package": "com.aspose.threed",
     "class_import": "com.aspose.threed.IVertexBuffer",
-    "canonical_namespace": "com.aspose.threed"
+    "canonical_namespace": "com.aspose.threed",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "ImageRenderOptions",
@@ -26130,7 +26348,9 @@
     "reachable": true,
     "class_package": "com.aspose.threed",
     "class_import": "com.aspose.threed.ImageRenderOptions",
-    "canonical_namespace": "com.aspose.threed"
+    "canonical_namespace": "com.aspose.threed",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "ImportException",
@@ -26180,7 +26400,9 @@
     "reachable": true,
     "class_package": "com.aspose.threed",
     "class_import": "com.aspose.threed.ImportException",
-    "canonical_namespace": "com.aspose.threed"
+    "canonical_namespace": "com.aspose.threed",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "IndexDataType",
@@ -26205,7 +26427,9 @@
     ],
     "class_package": "com.aspose.threed",
     "class_import": "com.aspose.threed.IndexDataType",
-    "canonical_namespace": "com.aspose.threed"
+    "canonical_namespace": "com.aspose.threed",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "InitializationException",
@@ -26246,7 +26470,9 @@
     "reachable": true,
     "class_package": "com.aspose.threed",
     "class_import": "com.aspose.threed.InitializationException",
-    "canonical_namespace": "com.aspose.threed"
+    "canonical_namespace": "com.aspose.threed",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "Interpolation",
@@ -26287,7 +26513,9 @@
     ],
     "class_package": "com.aspose.threed",
     "class_import": "com.aspose.threed.Interpolation",
-    "canonical_namespace": "com.aspose.threed"
+    "canonical_namespace": "com.aspose.threed",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "JtLoadOptions",
@@ -26536,7 +26764,9 @@
     "reachable": true,
     "class_package": "com.aspose.threed",
     "class_import": "com.aspose.threed.JtLoadOptions",
-    "canonical_namespace": "com.aspose.threed"
+    "canonical_namespace": "com.aspose.threed",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "KeyFrame",
@@ -27077,7 +27307,9 @@
     "reachable": true,
     "class_package": "com.aspose.threed",
     "class_import": "com.aspose.threed.KeyFrame",
-    "canonical_namespace": "com.aspose.threed"
+    "canonical_namespace": "com.aspose.threed",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "KeyframeSequence",
@@ -27390,7 +27622,9 @@
     "reachable": true,
     "class_package": "com.aspose.threed",
     "class_import": "com.aspose.threed.KeyframeSequence",
-    "canonical_namespace": "com.aspose.threed"
+    "canonical_namespace": "com.aspose.threed",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "LShape",
@@ -27926,7 +28160,9 @@
     "reachable": true,
     "class_package": "com.aspose.threed",
     "class_import": "com.aspose.threed.LShape",
-    "canonical_namespace": "com.aspose.threed"
+    "canonical_namespace": "com.aspose.threed",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "LambertMaterial",
@@ -28367,7 +28603,9 @@
     "reachable": true,
     "class_package": "com.aspose.threed",
     "class_import": "com.aspose.threed.LambertMaterial",
-    "canonical_namespace": "com.aspose.threed"
+    "canonical_namespace": "com.aspose.threed",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "License",
@@ -28422,7 +28660,9 @@
     "reachable": true,
     "class_package": "com.aspose.threed",
     "class_import": "com.aspose.threed.License",
-    "canonical_namespace": "com.aspose.threed"
+    "canonical_namespace": "com.aspose.threed",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "Light",
@@ -29052,7 +29292,9 @@
     "reachable": true,
     "class_package": "com.aspose.threed",
     "class_import": "com.aspose.threed.Light",
-    "canonical_namespace": "com.aspose.threed"
+    "canonical_namespace": "com.aspose.threed",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "LightType",
@@ -29089,7 +29331,9 @@
     ],
     "class_package": "com.aspose.threed",
     "class_import": "com.aspose.threed.LightType",
-    "canonical_namespace": "com.aspose.threed"
+    "canonical_namespace": "com.aspose.threed",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "Line",
@@ -29572,7 +29816,9 @@
     "reachable": true,
     "class_package": "com.aspose.threed",
     "class_import": "com.aspose.threed.Line",
-    "canonical_namespace": "com.aspose.threed"
+    "canonical_namespace": "com.aspose.threed",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "LinearExtrusion",
@@ -30160,7 +30406,9 @@
     "reachable": true,
     "class_package": "com.aspose.threed",
     "class_import": "com.aspose.threed.LinearExtrusion",
-    "canonical_namespace": "com.aspose.threed"
+    "canonical_namespace": "com.aspose.threed",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "LoadOptions",
@@ -30370,7 +30618,9 @@
     "reachable": true,
     "class_package": "com.aspose.threed",
     "class_import": "com.aspose.threed.LoadOptions",
-    "canonical_namespace": "com.aspose.threed"
+    "canonical_namespace": "com.aspose.threed",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "MappingMode",
@@ -30403,7 +30653,9 @@
     ],
     "class_package": "com.aspose.threed",
     "class_import": "com.aspose.threed.MappingMode",
-    "canonical_namespace": "com.aspose.threed"
+    "canonical_namespace": "com.aspose.threed",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "Material",
@@ -30667,7 +30919,9 @@
     "is_abstract": true,
     "class_package": "com.aspose.threed",
     "class_import": "com.aspose.threed.Material",
-    "canonical_namespace": "com.aspose.threed"
+    "canonical_namespace": "com.aspose.threed",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "MaterialConverter",
@@ -30697,7 +30951,9 @@
     "reachable": true,
     "class_package": "com.aspose.threed",
     "class_import": "com.aspose.threed.MaterialConverter",
-    "canonical_namespace": "com.aspose.threed"
+    "canonical_namespace": "com.aspose.threed",
+    "module_key": "conversion",
+    "module_label": "Conversion"
   },
   {
     "name": "MathUtils",
@@ -30931,7 +31187,9 @@
     "reachable": true,
     "class_package": "com.aspose.threed",
     "class_import": "com.aspose.threed.MathUtils",
-    "canonical_namespace": "com.aspose.threed"
+    "canonical_namespace": "com.aspose.threed",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "Matrix4",
@@ -31573,7 +31831,9 @@
     "reachable": true,
     "class_package": "com.aspose.threed",
     "class_import": "com.aspose.threed.Matrix4",
-    "canonical_namespace": "com.aspose.threed"
+    "canonical_namespace": "com.aspose.threed",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "MemoryStream",
@@ -31968,7 +32228,9 @@
     "reachable": true,
     "class_package": "com.aspose.threed",
     "class_import": "com.aspose.threed.MemoryStream",
-    "canonical_namespace": "com.aspose.threed"
+    "canonical_namespace": "com.aspose.threed",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "Mesh",
@@ -33089,7 +33351,9 @@
     "reachable": true,
     "class_package": "com.aspose.threed",
     "class_import": "com.aspose.threed.Mesh",
-    "canonical_namespace": "com.aspose.threed"
+    "canonical_namespace": "com.aspose.threed",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "Metered",
@@ -33168,7 +33432,9 @@
     "reachable": true,
     "class_package": "com.aspose.threed",
     "class_import": "com.aspose.threed.Metered",
-    "canonical_namespace": "com.aspose.threed"
+    "canonical_namespace": "com.aspose.threed",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "Microsoft3MFSaveOptions",
@@ -33431,7 +33697,9 @@
     "reachable": true,
     "class_package": "com.aspose.threed",
     "class_import": "com.aspose.threed.Microsoft3MFSaveOptions",
-    "canonical_namespace": "com.aspose.threed"
+    "canonical_namespace": "com.aspose.threed",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "MirroredProfile",
@@ -33796,7 +34064,9 @@
     "reachable": true,
     "class_package": "com.aspose.threed",
     "class_import": "com.aspose.threed.MirroredProfile",
-    "canonical_namespace": "com.aspose.threed"
+    "canonical_namespace": "com.aspose.threed",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "MorphTargetChannel",
@@ -34122,7 +34392,9 @@
     "reachable": true,
     "class_package": "com.aspose.threed",
     "class_import": "com.aspose.threed.MorphTargetChannel",
-    "canonical_namespace": "com.aspose.threed"
+    "canonical_namespace": "com.aspose.threed",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "MorphTargetDeformer",
@@ -34391,7 +34663,9 @@
     "reachable": true,
     "class_package": "com.aspose.threed",
     "class_import": "com.aspose.threed.MorphTargetDeformer",
-    "canonical_namespace": "com.aspose.threed"
+    "canonical_namespace": "com.aspose.threed",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "Node",
@@ -35177,7 +35451,9 @@
     "reachable": true,
     "class_package": "com.aspose.threed",
     "class_import": "com.aspose.threed.Node",
-    "canonical_namespace": "com.aspose.threed"
+    "canonical_namespace": "com.aspose.threed",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "NodeVisitor",
@@ -35207,7 +35483,9 @@
     "reachable": true,
     "class_package": "com.aspose.threed",
     "class_import": "com.aspose.threed.NodeVisitor",
-    "canonical_namespace": "com.aspose.threed"
+    "canonical_namespace": "com.aspose.threed",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "NotImplementedException",
@@ -35234,7 +35512,9 @@
     "reachable": true,
     "class_package": "com.aspose.threed",
     "class_import": "com.aspose.threed.NotImplementedException",
-    "canonical_namespace": "com.aspose.threed"
+    "canonical_namespace": "com.aspose.threed",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "NurbsCurve",
@@ -35878,7 +36158,9 @@
     "reachable": true,
     "class_package": "com.aspose.threed",
     "class_import": "com.aspose.threed.NurbsCurve",
-    "canonical_namespace": "com.aspose.threed"
+    "canonical_namespace": "com.aspose.threed",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "NurbsDirection",
@@ -36096,7 +36378,9 @@
     "reachable": true,
     "class_package": "com.aspose.threed",
     "class_import": "com.aspose.threed.NurbsDirection",
-    "canonical_namespace": "com.aspose.threed"
+    "canonical_namespace": "com.aspose.threed",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "NurbsType",
@@ -36125,7 +36409,9 @@
     ],
     "class_package": "com.aspose.threed",
     "class_import": "com.aspose.threed.NurbsType",
-    "canonical_namespace": "com.aspose.threed"
+    "canonical_namespace": "com.aspose.threed",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "ObjLoadOptions",
@@ -36476,7 +36762,9 @@
     "reachable": true,
     "class_package": "com.aspose.threed",
     "class_import": "com.aspose.threed.ObjLoadOptions",
-    "canonical_namespace": "com.aspose.threed"
+    "canonical_namespace": "com.aspose.threed",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "ObjSaveOptions",
@@ -36970,7 +37258,9 @@
     "reachable": true,
     "class_package": "com.aspose.threed",
     "class_import": "com.aspose.threed.ObjSaveOptions",
-    "canonical_namespace": "com.aspose.threed"
+    "canonical_namespace": "com.aspose.threed",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "ParameterizedProfile",
@@ -37347,7 +37637,9 @@
     "is_abstract": true,
     "class_package": "com.aspose.threed",
     "class_import": "com.aspose.threed.ParameterizedProfile",
-    "canonical_namespace": "com.aspose.threed"
+    "canonical_namespace": "com.aspose.threed",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "ParseException",
@@ -37397,7 +37689,9 @@
     "reachable": true,
     "class_package": "com.aspose.threed",
     "class_import": "com.aspose.threed.ParseException",
-    "canonical_namespace": "com.aspose.threed"
+    "canonical_namespace": "com.aspose.threed",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "PatchDirection",
@@ -37422,7 +37716,9 @@
     ],
     "class_package": "com.aspose.threed",
     "class_import": "com.aspose.threed.PatchDirection",
-    "canonical_namespace": "com.aspose.threed"
+    "canonical_namespace": "com.aspose.threed",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "PatchDirectionType",
@@ -37447,7 +37743,9 @@
     ],
     "class_package": "com.aspose.threed",
     "class_import": "com.aspose.threed.PatchDirectionType",
-    "canonical_namespace": "com.aspose.threed"
+    "canonical_namespace": "com.aspose.threed",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "PbrMaterial",
@@ -38105,7 +38403,9 @@
     "reachable": true,
     "class_package": "com.aspose.threed",
     "class_import": "com.aspose.threed.PbrMaterial",
-    "canonical_namespace": "com.aspose.threed"
+    "canonical_namespace": "com.aspose.threed",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "PbrSpecularMaterial",
@@ -38673,7 +38973,9 @@
     "reachable": true,
     "class_package": "com.aspose.threed",
     "class_import": "com.aspose.threed.PbrSpecularMaterial",
-    "canonical_namespace": "com.aspose.threed"
+    "canonical_namespace": "com.aspose.threed",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "PdfLightingScheme",
@@ -38738,7 +39040,9 @@
     ],
     "class_package": "com.aspose.threed",
     "class_import": "com.aspose.threed.PdfLightingScheme",
-    "canonical_namespace": "com.aspose.threed"
+    "canonical_namespace": "com.aspose.threed",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "PdfLoadOptions",
@@ -38987,7 +39291,9 @@
     "reachable": true,
     "class_package": "com.aspose.threed",
     "class_import": "com.aspose.threed.PdfLoadOptions",
-    "canonical_namespace": "com.aspose.threed"
+    "canonical_namespace": "com.aspose.threed",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "PdfRenderMode",
@@ -39064,7 +39370,9 @@
     ],
     "class_package": "com.aspose.threed",
     "class_import": "com.aspose.threed.PdfRenderMode",
-    "canonical_namespace": "com.aspose.threed"
+    "canonical_namespace": "com.aspose.threed",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "PdfSaveOptions",
@@ -39537,7 +39845,9 @@
     "reachable": true,
     "class_package": "com.aspose.threed",
     "class_import": "com.aspose.threed.PdfSaveOptions",
-    "canonical_namespace": "com.aspose.threed"
+    "canonical_namespace": "com.aspose.threed",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "PhongMaterial",
@@ -40155,7 +40465,9 @@
     "reachable": true,
     "class_package": "com.aspose.threed",
     "class_import": "com.aspose.threed.PhongMaterial",
-    "canonical_namespace": "com.aspose.threed"
+    "canonical_namespace": "com.aspose.threed",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "Plane",
@@ -40802,7 +41114,9 @@
     "reachable": true,
     "class_package": "com.aspose.threed",
     "class_import": "com.aspose.threed.Plane",
-    "canonical_namespace": "com.aspose.threed"
+    "canonical_namespace": "com.aspose.threed",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "PlyLoadOptions",
@@ -41021,7 +41335,9 @@
     "reachable": true,
     "class_package": "com.aspose.threed",
     "class_import": "com.aspose.threed.PlyLoadOptions",
-    "canonical_namespace": "com.aspose.threed"
+    "canonical_namespace": "com.aspose.threed",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "PlySaveOptions",
@@ -41284,7 +41600,9 @@
     "reachable": true,
     "class_package": "com.aspose.threed",
     "class_import": "com.aspose.threed.PlySaveOptions",
-    "canonical_namespace": "com.aspose.threed"
+    "canonical_namespace": "com.aspose.threed",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "PointCloud",
@@ -41650,7 +41968,9 @@
     "reachable": true,
     "class_package": "com.aspose.threed",
     "class_import": "com.aspose.threed.PointCloud",
-    "canonical_namespace": "com.aspose.threed"
+    "canonical_namespace": "com.aspose.threed",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "PolygonMode",
@@ -41679,7 +41999,9 @@
     ],
     "class_package": "com.aspose.threed",
     "class_import": "com.aspose.threed.PolygonMode",
-    "canonical_namespace": "com.aspose.threed"
+    "canonical_namespace": "com.aspose.threed",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "PolygonModifier",
@@ -41723,7 +42045,9 @@
     "reachable": true,
     "class_package": "com.aspose.threed",
     "class_import": "com.aspose.threed.PolygonModifier",
-    "canonical_namespace": "com.aspose.threed"
+    "canonical_namespace": "com.aspose.threed",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "Pose",
@@ -42002,7 +42326,9 @@
     "reachable": true,
     "class_package": "com.aspose.threed",
     "class_import": "com.aspose.threed.Pose",
-    "canonical_namespace": "com.aspose.threed"
+    "canonical_namespace": "com.aspose.threed",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "PoseType",
@@ -42027,7 +42353,9 @@
     ],
     "class_package": "com.aspose.threed",
     "class_import": "com.aspose.threed.PoseType",
-    "canonical_namespace": "com.aspose.threed"
+    "canonical_namespace": "com.aspose.threed",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "PresetShaders",
@@ -42052,7 +42380,9 @@
     ],
     "class_package": "com.aspose.threed",
     "class_import": "com.aspose.threed.PresetShaders",
-    "canonical_namespace": "com.aspose.threed"
+    "canonical_namespace": "com.aspose.threed",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "Primitive",
@@ -42491,7 +42821,9 @@
     "is_abstract": true,
     "class_package": "com.aspose.threed",
     "class_import": "com.aspose.threed.Primitive",
-    "canonical_namespace": "com.aspose.threed"
+    "canonical_namespace": "com.aspose.threed",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "Profile",
@@ -42843,7 +43175,9 @@
     "is_abstract": true,
     "class_package": "com.aspose.threed",
     "class_import": "com.aspose.threed.Profile",
-    "canonical_namespace": "com.aspose.threed"
+    "canonical_namespace": "com.aspose.threed",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "ProjectionType",
@@ -42868,7 +43202,9 @@
     ],
     "class_package": "com.aspose.threed",
     "class_import": "com.aspose.threed.ProjectionType",
-    "canonical_namespace": "com.aspose.threed"
+    "canonical_namespace": "com.aspose.threed",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "Property",
@@ -43059,7 +43395,9 @@
     "is_abstract": true,
     "class_package": "com.aspose.threed",
     "class_import": "com.aspose.threed.Property",
-    "canonical_namespace": "com.aspose.threed"
+    "canonical_namespace": "com.aspose.threed",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "PropertyCollection",
@@ -43183,7 +43521,9 @@
     "reachable": true,
     "class_package": "com.aspose.threed",
     "class_import": "com.aspose.threed.PropertyCollection",
-    "canonical_namespace": "com.aspose.threed"
+    "canonical_namespace": "com.aspose.threed",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "ObjectProperty",
@@ -43409,7 +43749,9 @@
     "is_static": true,
     "class_package": "com.aspose.threed",
     "class_import": "com.aspose.threed.ObjectProperty",
-    "canonical_namespace": "com.aspose.threed"
+    "canonical_namespace": "com.aspose.threed",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "Pyramid",
@@ -44007,7 +44349,9 @@
     "reachable": true,
     "class_package": "com.aspose.threed",
     "class_import": "com.aspose.threed.Pyramid",
-    "canonical_namespace": "com.aspose.threed"
+    "canonical_namespace": "com.aspose.threed",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "Quaternion",
@@ -44169,7 +44513,9 @@
     "reachable": true,
     "class_package": "com.aspose.threed",
     "class_import": "com.aspose.threed.Quaternion",
-    "canonical_namespace": "com.aspose.threed"
+    "canonical_namespace": "com.aspose.threed",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "Rect",
@@ -44472,7 +44818,9 @@
     "reachable": true,
     "class_package": "com.aspose.threed",
     "class_import": "com.aspose.threed.Rect",
-    "canonical_namespace": "com.aspose.threed"
+    "canonical_namespace": "com.aspose.threed",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "RectangleShape",
@@ -44945,7 +45293,9 @@
     "reachable": true,
     "class_package": "com.aspose.threed",
     "class_import": "com.aspose.threed.RectangleShape",
-    "canonical_namespace": "com.aspose.threed"
+    "canonical_namespace": "com.aspose.threed",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "RectangularTorus",
@@ -45576,7 +45926,9 @@
     "reachable": true,
     "class_package": "com.aspose.threed",
     "class_import": "com.aspose.threed.RectangularTorus",
-    "canonical_namespace": "com.aspose.threed"
+    "canonical_namespace": "com.aspose.threed",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "ReferenceMode",
@@ -45605,7 +45957,9 @@
     ],
     "class_package": "com.aspose.threed",
     "class_import": "com.aspose.threed.ReferenceMode",
-    "canonical_namespace": "com.aspose.threed"
+    "canonical_namespace": "com.aspose.threed",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "RelativeRectangle",
@@ -46007,7 +46361,9 @@
     "reachable": true,
     "class_package": "com.aspose.threed",
     "class_import": "com.aspose.threed.RelativeRectangle",
-    "canonical_namespace": "com.aspose.threed"
+    "canonical_namespace": "com.aspose.threed",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "RenderFactory",
@@ -46227,7 +46583,9 @@
     "is_abstract": true,
     "class_package": "com.aspose.threed",
     "class_import": "com.aspose.threed.RenderFactory",
-    "canonical_namespace": "com.aspose.threed"
+    "canonical_namespace": "com.aspose.threed",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "RenderParameters",
@@ -46252,7 +46610,9 @@
     "reachable": true,
     "class_package": "com.aspose.threed",
     "class_import": "com.aspose.threed.RenderParameters",
-    "canonical_namespace": "com.aspose.threed"
+    "canonical_namespace": "com.aspose.threed",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "RenderQueueGroupId",
@@ -46277,7 +46637,9 @@
     "reachable": true,
     "class_package": "com.aspose.threed",
     "class_import": "com.aspose.threed.RenderQueueGroupId",
-    "canonical_namespace": "com.aspose.threed"
+    "canonical_namespace": "com.aspose.threed",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "RenderResource",
@@ -46302,7 +46664,9 @@
     "reachable": true,
     "class_package": "com.aspose.threed",
     "class_import": "com.aspose.threed.RenderResource",
-    "canonical_namespace": "com.aspose.threed"
+    "canonical_namespace": "com.aspose.threed",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "RenderStage",
@@ -46327,7 +46691,9 @@
     "reachable": true,
     "class_package": "com.aspose.threed",
     "class_import": "com.aspose.threed.RenderStage",
-    "canonical_namespace": "com.aspose.threed"
+    "canonical_namespace": "com.aspose.threed",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "RenderState",
@@ -46352,7 +46718,9 @@
     "reachable": true,
     "class_package": "com.aspose.threed",
     "class_import": "com.aspose.threed.RenderState",
-    "canonical_namespace": "com.aspose.threed"
+    "canonical_namespace": "com.aspose.threed",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "Renderer",
@@ -46377,7 +46745,9 @@
     "reachable": true,
     "class_package": "com.aspose.threed",
     "class_import": "com.aspose.threed.Renderer",
-    "canonical_namespace": "com.aspose.threed"
+    "canonical_namespace": "com.aspose.threed",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "RendererException",
@@ -46402,7 +46772,9 @@
     "reachable": true,
     "class_package": "com.aspose.threed",
     "class_import": "com.aspose.threed.RendererException",
-    "canonical_namespace": "com.aspose.threed"
+    "canonical_namespace": "com.aspose.threed",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "RendererVariableManager",
@@ -46427,7 +46799,9 @@
     "reachable": true,
     "class_package": "com.aspose.threed",
     "class_import": "com.aspose.threed.RendererVariableManager",
-    "canonical_namespace": "com.aspose.threed"
+    "canonical_namespace": "com.aspose.threed",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "RevolvedAreaSolid",
@@ -46944,7 +47318,9 @@
     "reachable": true,
     "class_package": "com.aspose.threed",
     "class_import": "com.aspose.threed.RevolvedAreaSolid",
-    "canonical_namespace": "com.aspose.threed"
+    "canonical_namespace": "com.aspose.threed",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "RotationMode",
@@ -46969,7 +47345,9 @@
     ],
     "class_package": "com.aspose.threed",
     "class_import": "com.aspose.threed.RotationMode",
-    "canonical_namespace": "com.aspose.threed"
+    "canonical_namespace": "com.aspose.threed",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "RotationOrder",
@@ -47010,7 +47388,9 @@
     ],
     "class_package": "com.aspose.threed",
     "class_import": "com.aspose.threed.RotationOrder",
-    "canonical_namespace": "com.aspose.threed"
+    "canonical_namespace": "com.aspose.threed",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "RvmLoadOptions",
@@ -47513,7 +47893,9 @@
     "reachable": true,
     "class_package": "com.aspose.threed",
     "class_import": "com.aspose.threed.RvmLoadOptions",
-    "canonical_namespace": "com.aspose.threed"
+    "canonical_namespace": "com.aspose.threed",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "RvmSaveOptions",
@@ -47970,7 +48352,9 @@
     "reachable": true,
     "class_package": "com.aspose.threed",
     "class_import": "com.aspose.threed.RvmSaveOptions",
-    "canonical_namespace": "com.aspose.threed"
+    "canonical_namespace": "com.aspose.threed",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "SaveOptions",
@@ -48224,7 +48608,9 @@
     "reachable": true,
     "class_package": "com.aspose.threed",
     "class_import": "com.aspose.threed.SaveOptions",
-    "canonical_namespace": "com.aspose.threed"
+    "canonical_namespace": "com.aspose.threed",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "Scene",
@@ -49764,7 +50150,9 @@
     "reachable": true,
     "class_package": "com.aspose.threed",
     "class_import": "com.aspose.threed.Scene",
-    "canonical_namespace": "com.aspose.threed"
+    "canonical_namespace": "com.aspose.threed",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "SceneObject",
@@ -49974,7 +50362,9 @@
     "is_abstract": true,
     "class_package": "com.aspose.threed",
     "class_import": "com.aspose.threed.SceneObject",
-    "canonical_namespace": "com.aspose.threed"
+    "canonical_namespace": "com.aspose.threed",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "ShaderMaterial",
@@ -50276,7 +50666,9 @@
     "reachable": true,
     "class_package": "com.aspose.threed",
     "class_import": "com.aspose.threed.ShaderMaterial",
-    "canonical_namespace": "com.aspose.threed"
+    "canonical_namespace": "com.aspose.threed",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "ShaderProgram",
@@ -50305,7 +50697,9 @@
     "is_abstract": true,
     "class_package": "com.aspose.threed",
     "class_import": "com.aspose.threed.ShaderProgram",
-    "canonical_namespace": "com.aspose.threed"
+    "canonical_namespace": "com.aspose.threed",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "ShaderSource",
@@ -50321,7 +50715,9 @@
     "is_abstract": true,
     "class_package": "com.aspose.threed",
     "class_import": "com.aspose.threed.ShaderSource",
-    "canonical_namespace": "com.aspose.threed"
+    "canonical_namespace": "com.aspose.threed",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "ShaderTechnique",
@@ -50621,7 +51017,9 @@
     "reachable": true,
     "class_package": "com.aspose.threed",
     "class_import": "com.aspose.threed.ShaderTechnique",
-    "canonical_namespace": "com.aspose.threed"
+    "canonical_namespace": "com.aspose.threed",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "Shape",
@@ -51332,7 +51730,9 @@
     "reachable": true,
     "class_package": "com.aspose.threed",
     "class_import": "com.aspose.threed.Shape",
-    "canonical_namespace": "com.aspose.threed"
+    "canonical_namespace": "com.aspose.threed",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "Skeleton",
@@ -51744,7 +52144,9 @@
     "reachable": true,
     "class_package": "com.aspose.threed",
     "class_import": "com.aspose.threed.Skeleton",
-    "canonical_namespace": "com.aspose.threed"
+    "canonical_namespace": "com.aspose.threed",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "SkeletonType",
@@ -51769,7 +52171,9 @@
     ],
     "class_package": "com.aspose.threed",
     "class_import": "com.aspose.threed.SkeletonType",
-    "canonical_namespace": "com.aspose.threed"
+    "canonical_namespace": "com.aspose.threed",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "SkinDeformer",
@@ -52005,7 +52409,9 @@
     "reachable": true,
     "class_package": "com.aspose.threed",
     "class_import": "com.aspose.threed.SkinDeformer",
-    "canonical_namespace": "com.aspose.threed"
+    "canonical_namespace": "com.aspose.threed",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "Sphere",
@@ -52981,7 +53387,9 @@
     "reachable": true,
     "class_package": "com.aspose.threed",
     "class_import": "com.aspose.threed.Sphere",
-    "canonical_namespace": "com.aspose.threed"
+    "canonical_namespace": "com.aspose.threed",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "SplitMeshPolicy",
@@ -53006,7 +53414,9 @@
     ],
     "class_package": "com.aspose.threed",
     "class_import": "com.aspose.threed.SplitMeshPolicy",
-    "canonical_namespace": "com.aspose.threed"
+    "canonical_namespace": "com.aspose.threed",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "StepMode",
@@ -53031,7 +53441,9 @@
     ],
     "class_package": "com.aspose.threed",
     "class_import": "com.aspose.threed.StepMode",
-    "canonical_namespace": "com.aspose.threed"
+    "canonical_namespace": "com.aspose.threed",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "StlLoadOptions",
@@ -53324,7 +53736,9 @@
     "reachable": true,
     "class_package": "com.aspose.threed",
     "class_import": "com.aspose.threed.StlLoadOptions",
-    "canonical_namespace": "com.aspose.threed"
+    "canonical_namespace": "com.aspose.threed",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "StlSaveOptions",
@@ -53661,7 +54075,9 @@
     "reachable": true,
     "class_package": "com.aspose.threed",
     "class_import": "com.aspose.threed.StlSaveOptions",
-    "canonical_namespace": "com.aspose.threed"
+    "canonical_namespace": "com.aspose.threed",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "Stream",
@@ -53953,7 +54369,9 @@
     "is_abstract": true,
     "class_package": "com.aspose.threed",
     "class_import": "com.aspose.threed.Stream",
-    "canonical_namespace": "com.aspose.threed"
+    "canonical_namespace": "com.aspose.threed",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "Struct",
@@ -53995,7 +54413,9 @@
     "reachable": true,
     "class_package": "com.aspose.threed",
     "class_import": "com.aspose.threed.Struct",
-    "canonical_namespace": "com.aspose.threed"
+    "canonical_namespace": "com.aspose.threed",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "Structs",
@@ -54071,7 +54491,9 @@
     "is_abstract": true,
     "class_package": "com.aspose.threed",
     "class_import": "com.aspose.threed.Structs",
-    "canonical_namespace": "com.aspose.threed"
+    "canonical_namespace": "com.aspose.threed",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "TShape",
@@ -54666,7 +55088,9 @@
     "reachable": true,
     "class_package": "com.aspose.threed",
     "class_import": "com.aspose.threed.TShape",
-    "canonical_namespace": "com.aspose.threed"
+    "canonical_namespace": "com.aspose.threed",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "Texture",
@@ -55358,7 +55782,9 @@
     "reachable": true,
     "class_package": "com.aspose.threed",
     "class_import": "com.aspose.threed.Texture",
-    "canonical_namespace": "com.aspose.threed"
+    "canonical_namespace": "com.aspose.threed",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "TextureBase",
@@ -55935,7 +56361,9 @@
     "reachable": true,
     "class_package": "com.aspose.threed",
     "class_import": "com.aspose.threed.TextureBase",
-    "canonical_namespace": "com.aspose.threed"
+    "canonical_namespace": "com.aspose.threed",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "TextureData",
@@ -55960,7 +56388,9 @@
     "reachable": true,
     "class_package": "com.aspose.threed",
     "class_import": "com.aspose.threed.TextureData",
-    "canonical_namespace": "com.aspose.threed"
+    "canonical_namespace": "com.aspose.threed",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "TextureFilter",
@@ -55993,7 +56423,9 @@
     ],
     "class_package": "com.aspose.threed",
     "class_import": "com.aspose.threed.TextureFilter",
-    "canonical_namespace": "com.aspose.threed"
+    "canonical_namespace": "com.aspose.threed",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "TextureMapping",
@@ -56046,7 +56478,9 @@
     ],
     "class_package": "com.aspose.threed",
     "class_import": "com.aspose.threed.TextureMapping",
-    "canonical_namespace": "com.aspose.threed"
+    "canonical_namespace": "com.aspose.threed",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "TextureSlot",
@@ -56095,7 +56529,9 @@
     "reachable": true,
     "class_package": "com.aspose.threed",
     "class_import": "com.aspose.threed.TextureSlot",
-    "canonical_namespace": "com.aspose.threed"
+    "canonical_namespace": "com.aspose.threed",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "TextureType",
@@ -56132,7 +56568,9 @@
     ],
     "class_package": "com.aspose.threed",
     "class_import": "com.aspose.threed.TextureType",
-    "canonical_namespace": "com.aspose.threed"
+    "canonical_namespace": "com.aspose.threed",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "Torus",
@@ -56768,7 +57206,9 @@
     "reachable": true,
     "class_package": "com.aspose.threed",
     "class_import": "com.aspose.threed.Torus",
-    "canonical_namespace": "com.aspose.threed"
+    "canonical_namespace": "com.aspose.threed",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "Transform",
@@ -57632,7 +58072,9 @@
     "reachable": true,
     "class_package": "com.aspose.threed",
     "class_import": "com.aspose.threed.Transform",
-    "canonical_namespace": "com.aspose.threed"
+    "canonical_namespace": "com.aspose.threed",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "TransformBuilder",
@@ -58022,7 +58464,9 @@
     "reachable": true,
     "class_package": "com.aspose.threed",
     "class_import": "com.aspose.threed.TransformBuilder",
-    "canonical_namespace": "com.aspose.threed"
+    "canonical_namespace": "com.aspose.threed",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "TrapeziumShape",
@@ -58524,7 +58968,9 @@
     "reachable": true,
     "class_package": "com.aspose.threed",
     "class_import": "com.aspose.threed.TrapeziumShape",
-    "canonical_namespace": "com.aspose.threed"
+    "canonical_namespace": "com.aspose.threed",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "TriMesh",
@@ -59286,7 +59732,9 @@
     "reachable": true,
     "class_package": "com.aspose.threed",
     "class_import": "com.aspose.threed.TriMesh",
-    "canonical_namespace": "com.aspose.threed"
+    "canonical_namespace": "com.aspose.threed",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "TrialException",
@@ -59345,7 +59793,9 @@
     "reachable": true,
     "class_package": "com.aspose.threed",
     "class_import": "com.aspose.threed.TrialException",
-    "canonical_namespace": "com.aspose.threed"
+    "canonical_namespace": "com.aspose.threed",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "U3dLoadOptions",
@@ -59594,7 +60044,9 @@
     "reachable": true,
     "class_package": "com.aspose.threed",
     "class_import": "com.aspose.threed.U3dLoadOptions",
-    "canonical_namespace": "com.aspose.threed"
+    "canonical_namespace": "com.aspose.threed",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "U3dSaveOptions",
@@ -60067,7 +60519,9 @@
     "reachable": true,
     "class_package": "com.aspose.threed",
     "class_import": "com.aspose.threed.U3dSaveOptions",
-    "canonical_namespace": "com.aspose.threed"
+    "canonical_namespace": "com.aspose.threed",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "UShape",
@@ -60662,7 +61116,9 @@
     "reachable": true,
     "class_package": "com.aspose.threed",
     "class_import": "com.aspose.threed.UShape",
-    "canonical_namespace": "com.aspose.threed"
+    "canonical_namespace": "com.aspose.threed",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "UsdSaveOptions",
@@ -60925,7 +61381,9 @@
     "reachable": true,
     "class_package": "com.aspose.threed",
     "class_import": "com.aspose.threed.UsdSaveOptions",
-    "canonical_namespace": "com.aspose.threed"
+    "canonical_namespace": "com.aspose.threed",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "Vector2",
@@ -61307,7 +61765,9 @@
     "reachable": true,
     "class_package": "com.aspose.threed",
     "class_import": "com.aspose.threed.Vector2",
-    "canonical_namespace": "com.aspose.threed"
+    "canonical_namespace": "com.aspose.threed",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "Vector3",
@@ -61941,7 +62401,9 @@
     "reachable": true,
     "class_package": "com.aspose.threed",
     "class_import": "com.aspose.threed.Vector3",
-    "canonical_namespace": "com.aspose.threed"
+    "canonical_namespace": "com.aspose.threed",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "Vector4",
@@ -61994,7 +62456,9 @@
     "reachable": true,
     "class_package": "com.aspose.threed",
     "class_import": "com.aspose.threed.Vector4",
-    "canonical_namespace": "com.aspose.threed"
+    "canonical_namespace": "com.aspose.threed",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "Version",
@@ -62163,7 +62627,9 @@
     "reachable": true,
     "class_package": "com.aspose.threed",
     "class_import": "com.aspose.threed.Version",
-    "canonical_namespace": "com.aspose.threed"
+    "canonical_namespace": "com.aspose.threed",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "Vertex",
@@ -62325,7 +62791,9 @@
     "is_abstract": true,
     "class_package": "com.aspose.threed",
     "class_import": "com.aspose.threed.Vertex",
-    "canonical_namespace": "com.aspose.threed"
+    "canonical_namespace": "com.aspose.threed",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "VertexDeclaration",
@@ -62489,7 +62957,9 @@
     "reachable": true,
     "class_package": "com.aspose.threed",
     "class_import": "com.aspose.threed.VertexDeclaration",
-    "canonical_namespace": "com.aspose.threed"
+    "canonical_namespace": "com.aspose.threed",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "VertexElement",
@@ -62702,7 +63172,9 @@
     "is_abstract": true,
     "class_package": "com.aspose.threed",
     "class_import": "com.aspose.threed.VertexElement",
-    "canonical_namespace": "com.aspose.threed"
+    "canonical_namespace": "com.aspose.threed",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "VertexElementBinormal",
@@ -63022,7 +63494,9 @@
     "reachable": true,
     "class_package": "com.aspose.threed",
     "class_import": "com.aspose.threed.VertexElementBinormal",
-    "canonical_namespace": "com.aspose.threed"
+    "canonical_namespace": "com.aspose.threed",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "VertexElementDoublesTemplate",
@@ -63283,7 +63757,9 @@
     "reachable": true,
     "class_package": "com.aspose.threed",
     "class_import": "com.aspose.threed.VertexElementDoublesTemplate",
-    "canonical_namespace": "com.aspose.threed"
+    "canonical_namespace": "com.aspose.threed",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "VertexElementEdgeCrease",
@@ -63555,7 +64031,9 @@
     "reachable": true,
     "class_package": "com.aspose.threed",
     "class_import": "com.aspose.threed.VertexElementEdgeCrease",
-    "canonical_namespace": "com.aspose.threed"
+    "canonical_namespace": "com.aspose.threed",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "VertexElementFVector",
@@ -63846,7 +64324,9 @@
     "reachable": true,
     "class_package": "com.aspose.threed",
     "class_import": "com.aspose.threed.VertexElementFVector",
-    "canonical_namespace": "com.aspose.threed"
+    "canonical_namespace": "com.aspose.threed",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "VertexElementHole",
@@ -63901,7 +64381,9 @@
     "reachable": true,
     "class_package": "com.aspose.threed",
     "class_import": "com.aspose.threed.VertexElementHole",
-    "canonical_namespace": "com.aspose.threed"
+    "canonical_namespace": "com.aspose.threed",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "VertexElementIntsTemplate",
@@ -64162,7 +64644,9 @@
     "reachable": true,
     "class_package": "com.aspose.threed",
     "class_import": "com.aspose.threed.VertexElementIntsTemplate",
-    "canonical_namespace": "com.aspose.threed"
+    "canonical_namespace": "com.aspose.threed",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "VertexElementMaterial",
@@ -64405,7 +64889,9 @@
     "reachable": true,
     "class_package": "com.aspose.threed",
     "class_import": "com.aspose.threed.VertexElementMaterial",
-    "canonical_namespace": "com.aspose.threed"
+    "canonical_namespace": "com.aspose.threed",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "VertexElementNormal",
@@ -64725,7 +65211,9 @@
     "reachable": true,
     "class_package": "com.aspose.threed",
     "class_import": "com.aspose.threed.VertexElementNormal",
-    "canonical_namespace": "com.aspose.threed"
+    "canonical_namespace": "com.aspose.threed",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "VertexElementPolygonGroup",
@@ -64997,7 +65485,9 @@
     "reachable": true,
     "class_package": "com.aspose.threed",
     "class_import": "com.aspose.threed.VertexElementPolygonGroup",
-    "canonical_namespace": "com.aspose.threed"
+    "canonical_namespace": "com.aspose.threed",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "VertexElementSmoothingGroup",
@@ -65269,7 +65759,9 @@
     "reachable": true,
     "class_package": "com.aspose.threed",
     "class_import": "com.aspose.threed.VertexElementSmoothingGroup",
-    "canonical_namespace": "com.aspose.threed"
+    "canonical_namespace": "com.aspose.threed",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "VertexElementSpecular",
@@ -65571,7 +66063,9 @@
     "reachable": true,
     "class_package": "com.aspose.threed",
     "class_import": "com.aspose.threed.VertexElementSpecular",
-    "canonical_namespace": "com.aspose.threed"
+    "canonical_namespace": "com.aspose.threed",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "VertexElementTangent",
@@ -65891,7 +66385,9 @@
     "reachable": true,
     "class_package": "com.aspose.threed",
     "class_import": "com.aspose.threed.VertexElementTangent",
-    "canonical_namespace": "com.aspose.threed"
+    "canonical_namespace": "com.aspose.threed",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "VertexElementTemplate",
@@ -66152,7 +66648,9 @@
     "reachable": true,
     "class_package": "com.aspose.threed",
     "class_import": "com.aspose.threed.VertexElementTemplate",
-    "canonical_namespace": "com.aspose.threed"
+    "canonical_namespace": "com.aspose.threed",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "VertexElementType",
@@ -66229,7 +66727,9 @@
     ],
     "class_package": "com.aspose.threed",
     "class_import": "com.aspose.threed.VertexElementType",
-    "canonical_namespace": "com.aspose.threed"
+    "canonical_namespace": "com.aspose.threed",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "VertexElementUV",
@@ -66573,7 +67073,9 @@
     "reachable": true,
     "class_package": "com.aspose.threed",
     "class_import": "com.aspose.threed.VertexElementUV",
-    "canonical_namespace": "com.aspose.threed"
+    "canonical_namespace": "com.aspose.threed",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "VertexElementUserData",
@@ -66829,7 +67331,9 @@
     "reachable": true,
     "class_package": "com.aspose.threed",
     "class_import": "com.aspose.threed.VertexElementUserData",
-    "canonical_namespace": "com.aspose.threed"
+    "canonical_namespace": "com.aspose.threed",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "VertexElementVector4",
@@ -67090,7 +67594,9 @@
     "reachable": true,
     "class_package": "com.aspose.threed",
     "class_import": "com.aspose.threed.VertexElementVector4",
-    "canonical_namespace": "com.aspose.threed"
+    "canonical_namespace": "com.aspose.threed",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "VertexElementVertexColor",
@@ -67410,7 +67916,9 @@
     "reachable": true,
     "class_package": "com.aspose.threed",
     "class_import": "com.aspose.threed.VertexElementVertexColor",
-    "canonical_namespace": "com.aspose.threed"
+    "canonical_namespace": "com.aspose.threed",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "VertexElementVertexCrease",
@@ -67682,7 +68190,9 @@
     "reachable": true,
     "class_package": "com.aspose.threed",
     "class_import": "com.aspose.threed.VertexElementVertexCrease",
-    "canonical_namespace": "com.aspose.threed"
+    "canonical_namespace": "com.aspose.threed",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "VertexElementVisibility",
@@ -67737,7 +68247,9 @@
     "reachable": true,
     "class_package": "com.aspose.threed",
     "class_import": "com.aspose.threed.VertexElementVisibility",
-    "canonical_namespace": "com.aspose.threed"
+    "canonical_namespace": "com.aspose.threed",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "VertexElementWeight",
@@ -68009,7 +68521,9 @@
     "reachable": true,
     "class_package": "com.aspose.threed",
     "class_import": "com.aspose.threed.VertexElementWeight",
-    "canonical_namespace": "com.aspose.threed"
+    "canonical_namespace": "com.aspose.threed",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "VertexField",
@@ -68202,7 +68716,9 @@
     "reachable": true,
     "class_package": "com.aspose.threed",
     "class_import": "com.aspose.threed.VertexField",
-    "canonical_namespace": "com.aspose.threed"
+    "canonical_namespace": "com.aspose.threed",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "VertexFieldDataType",
@@ -68271,7 +68787,9 @@
     ],
     "class_package": "com.aspose.threed",
     "class_import": "com.aspose.threed.VertexFieldDataType",
-    "canonical_namespace": "com.aspose.threed"
+    "canonical_namespace": "com.aspose.threed",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "VertexFieldSemantic",
@@ -68344,7 +68862,9 @@
     ],
     "class_package": "com.aspose.threed",
     "class_import": "com.aspose.threed.VertexFieldSemantic",
-    "canonical_namespace": "com.aspose.threed"
+    "canonical_namespace": "com.aspose.threed",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "Watermark",
@@ -68472,7 +68992,9 @@
     "reachable": true,
     "class_package": "com.aspose.threed",
     "class_import": "com.aspose.threed.Watermark",
-    "canonical_namespace": "com.aspose.threed"
+    "canonical_namespace": "com.aspose.threed",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "WeightedMode",
@@ -68534,7 +69056,9 @@
     "reachable": true,
     "class_package": "com.aspose.threed",
     "class_import": "com.aspose.threed.WeightedMode",
-    "canonical_namespace": "com.aspose.threed"
+    "canonical_namespace": "com.aspose.threed",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "WindowHandle",
@@ -68600,7 +69124,9 @@
     "reachable": true,
     "class_package": "com.aspose.threed",
     "class_import": "com.aspose.threed.WindowHandle",
-    "canonical_namespace": "com.aspose.threed"
+    "canonical_namespace": "com.aspose.threed",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "WrapMode",
@@ -68637,7 +69163,9 @@
     ],
     "class_package": "com.aspose.threed",
     "class_import": "com.aspose.threed.WrapMode",
-    "canonical_namespace": "com.aspose.threed"
+    "canonical_namespace": "com.aspose.threed",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "XLoadOptions",
@@ -68886,7 +69414,9 @@
     "reachable": true,
     "class_package": "com.aspose.threed",
     "class_import": "com.aspose.threed.XLoadOptions",
-    "canonical_namespace": "com.aspose.threed"
+    "canonical_namespace": "com.aspose.threed",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "ZShape",
@@ -69481,6 +70011,8 @@
     "reachable": true,
     "class_package": "com.aspose.threed",
     "class_import": "com.aspose.threed.ZShape",
-    "canonical_namespace": "com.aspose.threed"
+    "canonical_namespace": "com.aspose.threed",
+    "module_key": "core",
+    "module_label": "Core API"
   }
 ]

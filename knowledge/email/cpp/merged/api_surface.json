@@ -228,7 +228,9 @@
     "properties": [],
     "visibility": "public",
     "canonical_namespace": "aspose::email::foss::cfb",
-    "class_import": "aspose::email::foss::cfb::cfb_reader"
+    "class_import": "aspose::email::foss::cfb::cfb_reader",
+    "module_key": "cfb",
+    "module_label": "Cfb"
   },
   {
     "name": "cfb_writer",
@@ -289,7 +291,9 @@
     "properties": [],
     "visibility": "public",
     "canonical_namespace": "aspose::email::foss::cfb",
-    "class_import": "aspose::email::foss::cfb::cfb_writer"
+    "class_import": "aspose::email::foss::cfb::cfb_writer",
+    "module_key": "cfb",
+    "module_label": "Cfb"
   },
   {
     "name": "msg_reader",
@@ -361,7 +365,9 @@
     "properties": [],
     "visibility": "public",
     "canonical_namespace": "aspose::email::foss::msg",
-    "class_import": "aspose::email::foss::msg::msg_reader"
+    "class_import": "aspose::email::foss::msg::msg_reader",
+    "module_key": "msg",
+    "module_label": "Msg"
   },
   {
     "name": "msg_writer",
@@ -422,7 +428,9 @@
     "properties": [],
     "visibility": "public",
     "canonical_namespace": "aspose::email::foss::msg",
-    "class_import": "aspose::email::foss::msg::msg_writer"
+    "class_import": "aspose::email::foss::msg::msg_writer",
+    "module_key": "msg",
+    "module_label": "Msg"
   },
   {
     "name": "cfb_document",
@@ -584,7 +592,9 @@
     "properties": [],
     "visibility": "public",
     "canonical_namespace": "aspose::email::foss::cfb",
-    "class_import": "aspose::email::foss::cfb::cfb_document"
+    "class_import": "aspose::email::foss::cfb::cfb_document",
+    "module_key": "cfb",
+    "module_label": "Cfb"
   },
   {
     "name": "cfb_exception",
@@ -597,7 +607,9 @@
     "properties": [],
     "visibility": "public",
     "canonical_namespace": "aspose::email::foss::cfb",
-    "class_import": "aspose::email::foss::cfb::cfb_exception"
+    "class_import": "aspose::email::foss::cfb::cfb_exception",
+    "module_key": "cfb",
+    "module_label": "Cfb"
   },
   {
     "name": "cfb_node",
@@ -746,7 +758,9 @@
     "properties": [],
     "visibility": "public",
     "canonical_namespace": "aspose::email::foss::cfb",
-    "class_import": "aspose::email::foss::cfb::cfb_node"
+    "class_import": "aspose::email::foss::cfb::cfb_node",
+    "module_key": "cfb",
+    "module_label": "Cfb"
   },
   {
     "name": "cfb_storage",
@@ -827,7 +841,9 @@
     ],
     "visibility": "public",
     "canonical_namespace": "aspose::email::foss::cfb",
-    "class_import": "aspose::email::foss::cfb::cfb_storage"
+    "class_import": "aspose::email::foss::cfb::cfb_storage",
+    "module_key": "cfb",
+    "module_label": "Cfb"
   },
   {
     "name": "cfb_stream",
@@ -870,7 +886,9 @@
     "properties": [],
     "visibility": "public",
     "canonical_namespace": "aspose::email::foss::cfb",
-    "class_import": "aspose::email::foss::cfb::cfb_stream"
+    "class_import": "aspose::email::foss::cfb::cfb_stream",
+    "module_key": "cfb",
+    "module_label": "Cfb"
   },
   {
     "name": "directory_color_flag",
@@ -893,7 +911,9 @@
       }
     ],
     "canonical_namespace": "aspose::email::foss::cfb",
-    "class_import": "aspose::email::foss::cfb::directory_color_flag"
+    "class_import": "aspose::email::foss::cfb::directory_color_flag",
+    "module_key": "cfb",
+    "module_label": "Cfb"
   },
   {
     "name": "directory_entry",
@@ -1044,7 +1064,9 @@
     ],
     "visibility": "public",
     "canonical_namespace": "aspose::email::foss::cfb",
-    "class_import": "aspose::email::foss::cfb::directory_entry"
+    "class_import": "aspose::email::foss::cfb::directory_entry",
+    "module_key": "cfb",
+    "module_label": "Cfb"
   },
   {
     "name": "directory_object_type",
@@ -1075,7 +1097,9 @@
       }
     ],
     "canonical_namespace": "aspose::email::foss::cfb",
-    "class_import": "aspose::email::foss::cfb::directory_object_type"
+    "class_import": "aspose::email::foss::cfb::directory_object_type",
+    "module_key": "cfb",
+    "module_label": "Cfb"
   },
   {
     "name": "header",
@@ -1250,7 +1274,9 @@
     ],
     "visibility": "public",
     "canonical_namespace": "aspose::email::foss::cfb",
-    "class_import": "aspose::email::foss::cfb::header"
+    "class_import": "aspose::email::foss::cfb::header",
+    "module_key": "cfb",
+    "module_label": "Cfb"
   },
   {
     "name": "sector_marker",
@@ -1281,7 +1307,9 @@
       }
     ],
     "canonical_namespace": "aspose::email::foss::cfb",
-    "class_import": "aspose::email::foss::cfb::sector_marker"
+    "class_import": "aspose::email::foss::cfb::sector_marker",
+    "module_key": "cfb",
+    "module_label": "Cfb"
   },
   {
     "name": "common_message_property_id",
@@ -1404,7 +1432,9 @@
       }
     ],
     "canonical_namespace": "aspose::email::foss::msg",
-    "class_import": "aspose::email::foss::msg::common_message_property_id"
+    "class_import": "aspose::email::foss::msg::common_message_property_id",
+    "module_key": "msg",
+    "module_label": "Msg"
   },
   {
     "name": "mapi_attachment",
@@ -1538,7 +1568,9 @@
     ],
     "visibility": "public",
     "canonical_namespace": "aspose::email::foss::msg",
-    "class_import": "aspose::email::foss::msg::mapi_attachment"
+    "class_import": "aspose::email::foss::msg::mapi_attachment",
+    "module_key": "msg",
+    "module_label": "Msg"
   },
   {
     "name": "mapi_message",
@@ -2150,7 +2182,9 @@
     ],
     "visibility": "public",
     "canonical_namespace": "aspose::email::foss::msg",
-    "class_import": "aspose::email::foss::msg::mapi_message"
+    "class_import": "aspose::email::foss::msg::mapi_message",
+    "module_key": "msg",
+    "module_label": "Msg"
   },
   {
     "name": "mapi_property",
@@ -2238,7 +2272,9 @@
     "properties": [],
     "visibility": "public",
     "canonical_namespace": "aspose::email::foss::msg",
-    "class_import": "aspose::email::foss::msg::mapi_property"
+    "class_import": "aspose::email::foss::msg::mapi_property",
+    "module_key": "msg",
+    "module_label": "Msg"
   },
   {
     "name": "mapi_property_collection",
@@ -2349,7 +2385,9 @@
     "properties": [],
     "visibility": "public",
     "canonical_namespace": "aspose::email::foss::msg",
-    "class_import": "aspose::email::foss::msg::mapi_property_collection"
+    "class_import": "aspose::email::foss::msg::mapi_property_collection",
+    "module_key": "msg",
+    "module_label": "Msg"
   },
   {
     "name": "mapi_recipient",
@@ -2403,7 +2441,9 @@
     ],
     "visibility": "public",
     "canonical_namespace": "aspose::email::foss::msg",
-    "class_import": "aspose::email::foss::msg::mapi_recipient"
+    "class_import": "aspose::email::foss::msg::mapi_recipient",
+    "module_key": "msg",
+    "module_label": "Msg"
   },
   {
     "name": "msg_document",
@@ -2520,7 +2560,9 @@
     "properties": [],
     "visibility": "public",
     "canonical_namespace": "aspose::email::foss::msg",
-    "class_import": "aspose::email::foss::msg::msg_document"
+    "class_import": "aspose::email::foss::msg::msg_document",
+    "module_key": "msg",
+    "module_label": "Msg"
   },
   {
     "name": "msg_exception",
@@ -2533,7 +2575,9 @@
     "properties": [],
     "visibility": "public",
     "canonical_namespace": "aspose::email::foss::msg",
-    "class_import": "aspose::email::foss::msg::msg_exception"
+    "class_import": "aspose::email::foss::msg::msg_exception",
+    "module_key": "msg",
+    "module_label": "Msg"
   },
   {
     "name": "msg_storage",
@@ -2690,7 +2734,9 @@
     ],
     "visibility": "public",
     "canonical_namespace": "aspose::email::foss::msg",
-    "class_import": "aspose::email::foss::msg::msg_storage"
+    "class_import": "aspose::email::foss::msg::msg_storage",
+    "module_key": "msg",
+    "module_label": "Msg"
   },
   {
     "name": "msg_storage_role",
@@ -2733,7 +2779,9 @@
       }
     ],
     "canonical_namespace": "aspose::email::foss::msg",
-    "class_import": "aspose::email::foss::msg::msg_storage_role"
+    "class_import": "aspose::email::foss::msg::msg_storage_role",
+    "module_key": "msg",
+    "module_label": "Msg"
   },
   {
     "name": "msg_stream",
@@ -2795,7 +2843,9 @@
     ],
     "visibility": "public",
     "canonical_namespace": "aspose::email::foss::msg",
-    "class_import": "aspose::email::foss::msg::msg_stream"
+    "class_import": "aspose::email::foss::msg::msg_stream",
+    "module_key": "msg",
+    "module_label": "Msg"
   },
   {
     "name": "property_type_code",
@@ -2918,6 +2968,8 @@
       }
     ],
     "canonical_namespace": "aspose::email::foss::msg",
-    "class_import": "aspose::email::foss::msg::property_type_code"
+    "class_import": "aspose::email::foss::msg::property_type_code",
+    "module_key": "msg",
+    "module_label": "Msg"
   }
 ]

@@ -1,14 +1,20 @@
 [Fact]
-    public void TestMultipleShapeTypes()
+    public void SavingASubsetToAStreamWritesOnlyTheSlidesThatWereAskedFor()
     {
-        // Various ShapeType values are preserved.
-        ShapeType[] types = [ShapeType.Rectangle, ShapeType.Ellipse, ShapeType.Triangle];
-        using var pres = new Presentation();
-        var slide = BlankSlide(pres);
-        foreach (var st in types)
+        var path = _workspace.PathFor("subset-stream.pptx");
+
+        using (var presentation = new Presentation())
         {
-            var s = slide.Shapes!.AddAutoShape(st, 10, 10, 100, 100);
-            s.ShapeType.Should().Be(st);
+            presentation.Slides.AddEmptySlide(presentation.LayoutSlides[0]);
+            presentation.Slides.AddEmptySlide(presentation.LayoutSlides[0]);
+            using var stream = File.Create(path);
+            presentation.Save(stream, [0], SaveFormat.Pptx);
         }
-        slide.Shapes!.Count.Should().Be(3);
+
+        using var package = PptxPackage.Open(path);
+        var slideIds = PackageAssert.Select(package, "ppt/presentation.xml", "//p:sldIdLst/p:sldId");
+
+        Assert.True(slideIds.Count == 1,
+            $"One slide was requested and the saved package registers {slideIds.Count}:{Environment.NewLine}" +
+            string.Join(Environment.NewLine, slideIds));
     }

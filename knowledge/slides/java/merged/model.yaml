@@ -1,33 +1,37 @@
-bundle_generated_at: '2026-08-14T11:55:16.236823+00:00'
-bundle_id: 9d90204c-df52-465c-abcf-d12dfbf799ae
-config_sha: 58e5766a6f6833a4
-enrichment_status: full
-extractor_hash: a52df5d20ccdf3ca
 family: slides
-generator_fingerprint: 5e6328590c0e805170cc6bce174d1ac7cfd92aa6292bde33a8f962dc23266fec
-generator_semver: 2.0.0
-has_conflicts: false
-input_hashes:
-  enriched_claims_sha: 149f77fee2c9851f0b49e0626388042a7f500c355dd84a9e38b59905fbf970f0
-  extractor_config_sha: 58e5766a6f6833a4
-  products_json_entry_sha: 5e1d42e1faed9a1fcbdf1d23f9ae851456fec3dc2f695cdc713350b8c5d386d3
-  scout_api_surface_sha: e6bad4c43967b18f9138ab9aa06a33f8cd1a8a4be8c36abd30bd34c34ac8896b
-  scout_claims_sha: 8b3270e2f539b5ba96ea099017c27fa28face7759815e4574afce35bc051d31e
-license: ''
 platform: java
 product_name: aspose-slides-foss
-promoted_at: '2026-08-14T11:55:16.439597+00:00'
-repo_sha: 9968c5b42525919f50bca3cdbcedd3ae1dc382c4
+version: 26.8.0
+license: ''
 repo_url: https://github.com/aspose-slides-foss/Aspose.Slides-FOSS-for-Java.git
-schema_version: 2
-source: scout_and_enriched
+repo_sha: a03b119a38e1061f1345a094fc2db7f5e7db5494
+config_sha: 58e5766a6f6833a4
 stale_since: null
+promoted_at: '2026-09-10T11:07:30.985463+00:00'
+source: scout_and_enriched
+enrichment_status: full
+has_conflicts: false
+schema_version: 2
+generator_fingerprint: 39b55c0381d862030a39cf289a74386dba0d96ba7bead7439ed295a74ed8206e
+generator_semver: 2.0.0
+bundle_id: d82a6b1a-0f77-4fa6-aac8-ff2b1f3ce215
+bundle_generated_at: '2026-09-10T11:07:30.673044+00:00'
+module_assignment_version: 1
+input_hashes:
+  extractor_config_sha: 58e5766a6f6833a4
+  scout_claims_sha: ca0a10cc305a219567fd19c1f3046ab9e67b0a9db03c0857a9105e234a134eb8
+  scout_api_surface_sha: e9ebad9943aeff71bc5b25ca605650d4186c8eca419b0a530fcca1ccd30e3888
+  enriched_claims_sha: 5fceeb8483b39de9040a7e4f6c84ef88a88f4401e723d835564c0d2b9777dcaf
+  products_json_entry_sha: 5e1d42e1faed9a1fcbdf1d23f9ae851456fec3dc2f695cdc713350b8c5d386d3
 stats:
-  class_count: 238
-  enriched_claims: 2621
-  forbidden_count: 2
-  scout_claims: 3685
-  snippet_count: 100
+  scout_claims: 3692
+  enriched_claims: 2303
   supplemental_claims: 0
-  total_claims: 6304
-version: 26.7.0
+  total_claims: 5995
+  class_count: 238
+  classes:
+    total_declared: 238
+    public_documented: 238
+    raw_entries_including_non_class: 240
+  forbidden_count: 2
+  snippet_count: 100

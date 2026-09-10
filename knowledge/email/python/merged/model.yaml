@@ -1,33 +1,37 @@
-bundle_generated_at: '2026-08-28T04:48:47.571818+00:00'
-bundle_id: 9e234717-dc1c-4645-9b1e-097d56fccde0
-config_sha: a1fb6a852b9b8451
-enrichment_status: full
-extractor_hash: 662d97a270edc5c5
 family: email
-generator_fingerprint: c2cc3c24c6bc5e66e0b6513ee648c9c1ae48a0a954349bd653beed452276da89
-generator_semver: 2.0.0
-has_conflicts: false
-input_hashes:
-  enriched_claims_sha: 0505eb7efcd498a0214917579ac223f5e63400f052413b31ee4b6dbcd049e33f
-  extractor_config_sha: a1fb6a852b9b8451
-  products_json_entry_sha: 8ba7ee39bc88a2757a6c8764adaa0ac621a2375783829d73642d09e79e4bcbbd
-  scout_api_surface_sha: ef3668c9c29e1509795434d8f179030932a964b66d4094ab480e3aef74ced7a7
-  scout_claims_sha: 7276e386651b7d76e05be5c397d55423feb1f45c6c35c2e17488a1944c93e3fe
-license: MIT
 platform: python
 product_name: aspose-email-foss
-promoted_at: '2026-08-28T04:48:47.632320+00:00'
-repo_sha: 10a906b48c0c11005c4d93b524e4431901c9717c
+version: '26.3'
+license: MIT
 repo_url: https://github.com/aspose-email-foss/Aspose.Email-FOSS-for-Python.git
-schema_version: 2
-source: scout_and_enriched
+repo_sha: 10a906b48c0c11005c4d93b524e4431901c9717c
+config_sha: a1fb6a852b9b8451
 stale_since: null
+promoted_at: '2026-09-10T11:07:26.298797+00:00'
+source: scout_and_enriched
+enrichment_status: full
+has_conflicts: false
+schema_version: 2
+generator_fingerprint: 39b55c0381d862030a39cf289a74386dba0d96ba7bead7439ed295a74ed8206e
+generator_semver: 2.0.0
+bundle_id: 6bfcf0b4-fbed-435e-824f-008b08a06a53
+bundle_generated_at: '2026-09-10T11:07:26.250512+00:00'
+module_assignment_version: 1
+input_hashes:
+  extractor_config_sha: a1fb6a852b9b8451
+  scout_claims_sha: 7276e386651b7d76e05be5c397d55423feb1f45c6c35c2e17488a1944c93e3fe
+  scout_api_surface_sha: ef590be4a297d3eaa0c3d1e7d32060740ddc0c81b74d00fdc1e071643b0f2f53
+  enriched_claims_sha: 0505eb7efcd498a0214917579ac223f5e63400f052413b31ee4b6dbcd049e33f
+  products_json_entry_sha: 8ba7ee39bc88a2757a6c8764adaa0ac621a2375783829d73642d09e79e4bcbbd
 stats:
-  class_count: 30
-  enriched_claims: 302
-  forbidden_count: 0
   scout_claims: 303
-  snippet_count: 24
+  enriched_claims: 302
   supplemental_claims: 0
   total_claims: 605
-version: '26.3'
+  class_count: 30
+  classes:
+    total_declared: 30
+    public_documented: 30
+    raw_entries_including_non_class: 32
+  forbidden_count: 0
+  snippet_count: 24

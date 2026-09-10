@@ -1,11 +1,13 @@
 @Test
-    void testSlideName() throws IOException {
+    void testCustomStringProperty() throws IOException {
         try (var pres = new Presentation()) {
-            pres.getSlides().get(0).setName("MySlide");
-            assertThat(pres.getSlides().get(0).getName()).isEqualTo("MySlide");
+            pres.getDocumentProperties().setCustomPropertyValue("MyProp", "hello");
 
             try (var pres2 = saveAndReopen(pres)) {
-                assertThat(pres2.getSlides().get(0).getName()).isEqualTo("MySlide");
+                List<Object> out = new ArrayList<>();
+                out.add(null);
+                pres2.getDocumentProperties().getCustomPropertyValue("MyProp", out);
+                assertThat(out.get(0)).isEqualTo("hello");
             }
         }
     }

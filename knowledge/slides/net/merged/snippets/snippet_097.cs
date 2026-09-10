@@ -1,6 +1,5 @@
-private static ISlide BlankSlide(Presentation pres)
+public void Dispose()
     {
-        var slide = pres.Slides[0];
-        slide.Shapes!.Clear();
-        return slide;
+        if (Directory.Exists(_tempDir))
+            Directory.Delete(_tempDir, recursive: true);
     }

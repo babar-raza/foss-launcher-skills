@@ -1,11 +1,18 @@
 [Fact]
-    public void TestCloneSlide()
+    public void TestAddComment()
     {
-        // add_clone duplicates a slide with its shapes.
+        // Comment text, position, and time persist.
         using var pres = new Presentation();
+        var author = pres.CommentAuthors.AddAuthor("Alice", "A");
         var slide = pres.Slides[0];
-        slide.Shapes!.AddAutoShape(ShapeType.Rectangle, 50, 50, 200, 100);
-        pres.Slides.AddClone(slide);
-        pres.Slides.Count.Should().Be(2);
-        pres.Slides[1].Shapes!.Count.Should().BeGreaterThanOrEqualTo(1);
+        var now = new DateTime(2026, 1, 15, 12, 0, 0);
+        var comment = author.Comments.AddComment("Review note", slide, new PointF(2.0f, 3.0f), now);
+        comment.Text.Should().Be("Review note");
+        comment.Author.Name.Should().Be("Alice");
+
+        using var pres2 = TestHelpers.SaveAndReopen(pres, _tempDir);
+        var a2 = pres2.CommentAuthors[0];
+        a2.Comments.Count.Should().Be(1);
+        var c = a2.Comments[0];
+        c.Text.Should().Be("Review note");
     }

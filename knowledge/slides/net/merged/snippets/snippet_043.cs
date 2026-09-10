@@ -1,15 +1,11 @@
-[Fact]
-    public void TestMultipleImages()
+private string WriteDeckWithNotes(string fileName)
     {
-        // Multiple images can be added and iterated.
-        using var pres = new Presentation();
-        var colors = new (byte r, byte g, byte b)[] { (255, 0, 0), (0, 255, 0), (0, 0, 255) };
-        foreach (var (r, g, b) in colors)
-        {
-            pres.Images.AddImage(TestHelpers.CreateTestPng(r, g, b));
-        }
+        var path = _workspace.PathFor(fileName);
 
-        pres.Images.Count.Should().BeGreaterThanOrEqualTo(3);
-        var imgs = pres.Images.AsIEnumerable.ToList();
-        imgs.Count.Should().BeGreaterThanOrEqualTo(3);
+        using var presentation = new Presentation();
+        var notes = presentation.Slides[0].NotesSlideManager.AddNotesSlide();
+        notes.NotesTextFrame!.Text = "Speaker notes";
+        presentation.Save(path, SaveFormat.Pptx);
+
+        return path;
     }

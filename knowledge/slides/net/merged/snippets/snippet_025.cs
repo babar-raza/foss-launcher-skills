@@ -1,5 +1,11 @@
-public EffectFormatTests()
+private string WriteShapeWithEffect(string effect, string fileName)
     {
-        _tempDir = Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString("N"));
-        Directory.CreateDirectory(_tempDir);
+        var path = _workspace.PathFor(fileName);
+
+        using var presentation = new Presentation();
+        var shape = presentation.Slides[0].Shapes!.AddAutoShape(ShapeType.Rectangle, 10, 10, 100, 100);
+        Enable(shape.EffectFormat!, effect);
+        presentation.Save(path, SaveFormat.Pptx);
+
+        return path;
     }

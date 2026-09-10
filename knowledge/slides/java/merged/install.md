@@ -5,7 +5,7 @@
 <dependency>
   <groupId>org.aspose</groupId>
   <artifactId>aspose-slides-foss</artifactId>
-  <version>26.7.0</version>
+  <version>26.8.0</version>
 </dependency>
 ```
 
