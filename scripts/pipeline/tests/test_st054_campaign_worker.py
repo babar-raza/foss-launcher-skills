@@ -168,6 +168,115 @@ class TestStepFunctions:
         assert "--files-from" in calls[0]
 
 
+class TestFrontmatterSafety:
+    """Regression coverage for a real content-corruption bug caught live
+    during the TC-20 pilot: 36 products.aspose.org/note/python pages had a
+    `pip install` mention inside a YAML `faq.answer` frontmatter field.
+    Hugo shortcodes never render inside frontmatter data values (only body
+    markdown) -- the unwrapped migrator broke YAML on one locale outright
+    (caught by the Tier-1 pre-commit gate) and would have landed
+    non-functional literal shortcode text on the other 35."""
+
+    def test_split_frontmatter_separates_delimiters_from_body(self):
+        text = '---\ntitle: X\nfaq:\n  - answer: "run `pip install x`"\n---\nBody `pip install x` here.\n'
+        fm, body = sut._split_frontmatter(text)
+        assert fm == '---\ntitle: X\nfaq:\n  - answer: "run `pip install x`"\n---\n'
+        assert body == "Body `pip install x` here.\n"
+
+    def test_split_frontmatter_no_frontmatter_returns_empty(self):
+        text = "Just body `pip install x` text.\n"
+        fm, body = sut._split_frontmatter(text)
+        assert fm == ""
+        assert body == text
+
+    def test_inline_migrate_does_not_touch_frontmatter_faq_answer(self, tmp_path):
+        _write_registry(tmp_path, {
+            "note": {"python": {"registry_type": "pypi", "candidate": {"name": "aspose-note"},
+                                  "verification": {"published": True}}},
+        })
+        page = _write(
+            tmp_path, "content/products.aspose.org/tr/note/python/_index.md",
+            '---\n'
+            'title: "Aspose.Note"\n'
+            'faq:\n'
+            '  - question: "Nasil?"\n'
+            '    answer: "`pip install aspose-note`\'i calistirin."\n'
+            '---\n'
+            '\n'
+            'Body text: `pip install aspose-note` here.\n',
+        )
+        result = sut._step_inline_migrate("note", "python", dry_run=False)
+        assert result["ok"] is True
+        content = page.read_text(encoding="utf-8")
+        # Frontmatter's backtick command must survive untouched...
+        assert '`pip install aspose-note`\'i calistirin' in content
+        # ...while the body mention IS migrated.
+        assert 'package-install-inline "note" "python"' in content
+        body_part = content.split("---\n", 2)[2]
+        assert "package-install-inline" in body_part
+        fm_part = content.split("---\n", 2)[1]
+        assert "package-install-inline" not in fm_part
+
+    def test_inline_migrate_preview_reports_frontmatter_file_without_writing(self, tmp_path):
+        _write_registry(tmp_path, {
+            "note": {"python": {"registry_type": "pypi", "candidate": {"name": "aspose-note"},
+                                  "verification": {"published": True}}},
+        })
+        original = (
+            '---\n'
+            'faq:\n'
+            '  - answer: "`pip install aspose-note`"\n'
+            '---\n'
+            '\n'
+            'Body: `pip install aspose-note`\n'
+        )
+        page = _write(tmp_path, "content/products.aspose.org/tr/note/python/_index.md", original)
+        result = sut._step_inline_migrate("note", "python", dry_run=True)
+        assert result["ok"] is True
+        assert page.read_text(encoding="utf-8") == original  # untouched in dry-run
+
+    def test_block_migrate_does_not_touch_frontmatter_fenced_block(self, tmp_path):
+        """Same protection for the block-level migrator -- a YAML literal
+        block scalar containing a fenced-code-shaped install command must
+        not be touched."""
+        _write_registry(tmp_path, {
+            "words": {"net": {"registry_type": "nuget", "candidate": {"name": "Aspose.Words.FOSS"},
+                                "verification": {"published": True}}},
+        })
+        page = _write(
+            tmp_path, "content/docs.aspose.org/en/words/net/getting-started/installation.md",
+            '---\n'
+            'title: "Install"\n'
+            'note: |\n'
+            '  ```bash\n'
+            '  dotnet add package Aspose.Words.FOSS\n'
+            '  ```\n'
+            '---\n'
+            '\n'
+            '```bash\n'
+            'dotnet add package Aspose.Words.FOSS\n'
+            '```\n',
+        )
+        result = sut._step_block_migrate("words", "net", dry_run=False)
+        assert result["ok"] is True
+        content = page.read_text(encoding="utf-8")
+        fm_part, body_part = content.split("---\n", 2)[1], content.split("---\n", 2)[2]
+        assert "dotnet add package" in fm_part  # untouched
+        assert "package-install" in body_part  # migrated
+
+    def test_no_frontmatter_file_behaves_exactly_as_before(self, tmp_path):
+        """Files with no frontmatter at all must go through migrate_file()
+        directly, unchanged behavior from before this wrapper existed."""
+        _write_registry(tmp_path, _NUGET_REGISTRY)
+        page = _write(
+            tmp_path, "content/blog.aspose.org/words/net/post/index.md",
+            "Run `dotnet add package Aspose.Words.FOSS` to install it.\n",
+        )
+        result = sut._step_inline_migrate("words", "net", dry_run=False)
+        assert result["ok"] is True
+        assert 'package-install-inline "words" "net"' in page.read_text(encoding="utf-8")
+
+
 class TestProcessOneStepOverRealTaskcardCli:
     """Real subprocess integration against the actual taskcard_cli.py, not
     mocked -- exercises the real CAS/ready/claim/advance contract this

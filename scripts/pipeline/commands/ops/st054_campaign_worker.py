@@ -48,8 +48,10 @@ CLI:
 from __future__ import annotations
 
 import json
+import os
 import subprocess
 import sys
+import tempfile
 from pathlib import Path
 from typing import Any
 
@@ -144,21 +146,112 @@ def _latest(mission: str, tid: str) -> "dict[str, Any] | None":
 
 # ── step implementations ────────────────────────────────────────────────────
 
+def _split_frontmatter(text: str) -> "tuple[str, str]":
+    """(frontmatter_including_both_delimiter_lines, body). Empty frontmatter
+    string means the file has none (or an unterminated/malformed one, in
+    which case we deliberately do NOT guess -- treat the whole thing as
+    frontmatter-free and let the migrator's own existing behavior apply,
+    since there is nothing to safely split)."""
+    if not text.startswith("---"):
+        return "", text
+    end = text.find("\n---", 3)
+    if end == -1:
+        return "", text
+    line_end = text.find("\n", end + 1)
+    line_end = len(text) if line_end == -1 else line_end + 1
+    return text[:line_end], text[line_end:]
+
+
+def _migrate_file_frontmatter_safe(
+    migrator_module, filepath: Path, family: str, platform: str, *, dry_run: bool, registry: dict,
+) -> dict[str, Any]:
+    """Wraps migrator_module.migrate_file() (either package_install_migrator
+    or package_install_inline_migrator -- both share an identical
+    migrate_file(filepath, family, platform, dry_run=, registry=) signature
+    and R_* result constants) so it can never touch YAML frontmatter --
+    Hugo shortcodes only render in body markdown, never in frontmatter data
+    values. Confirmed real during the TC-20 pilot: 36
+    content/products.aspose.org/*/note/python/_index.md pages had a
+    `pip install` mention inside a YAML `faq.answer` field; the unwrapped
+    migrate_file() (which scans the whole file text with no frontmatter
+    awareness) replaced it with a shortcode call whose own embedded double
+    quotes broke the YAML string outright on one locale (caught by the
+    Tier-1 pre-commit gate, not silently landed) and would have landed
+    non-functional literal shortcode text on the other 35 (shortcodes never
+    execute inside frontmatter regardless of whether the YAML happens to
+    still parse).
+
+    Deliberately implemented here rather than inside the shared migrator
+    modules themselves: both are being actively, concurrently edited by
+    another live session right now (building install_collision_classifier.py
+    -- confirmed via skill_context's own conflict detection refusing to grant
+    this session a context over the same files), so this reuses their
+    unmodified, already-tested migrate_file() against a body-only temp file
+    instead of risking a concurrent edit to shared code neither session owns
+    exclusively right now."""
+    if not filepath.is_file():
+        return {"result": migrator_module.R_NOOP, "path": str(filepath)}
+
+    original = filepath.read_text(encoding="utf-8", errors="replace")
+    frontmatter, body = _split_frontmatter(original)
+    if not frontmatter:
+        return migrator_module.migrate_file(filepath, family, platform, dry_run=dry_run, registry=registry)
+
+    tmp_dir = _REPO_ROOT / "reports"
+    tmp_dir.mkdir(parents=True, exist_ok=True)
+    fd, tmp_path_str = tempfile.mkstemp(prefix="st054_fmsafe_", suffix=".md", dir=str(tmp_dir))
+    os.close(fd)
+    tmp_path = Path(tmp_path_str)
+    try:
+        tmp_path.write_text(body, encoding="utf-8")
+        # Always "execute" against the disposable temp copy -- there is
+        # nothing to protect there, and it is the only way to learn the real
+        # transformed text (dry-run mode never writes, so its output text is
+        # unobservable). The OUTER dry_run only gates whether we write back
+        # to the REAL file below.
+        result = migrator_module.migrate_file(tmp_path, family, platform, dry_run=False, registry=registry)
+        result = dict(result)
+        result["path"] = str(filepath)
+        if result["result"] != migrator_module.R_MIGRATED:
+            return result
+        if dry_run:
+            result["result"] = migrator_module.R_DRY_RUN
+            return result
+        new_body = tmp_path.read_text(encoding="utf-8")
+        from lib.provenance import safe_content_write
+        safe_content_write(filepath, frontmatter + new_body, mechanism=f"{migrator_module.__name__}-frontmatter-safe")
+        return result
+    finally:
+        try:
+            tmp_path.unlink()
+        except OSError:
+            pass
+
+
 def _step_block_migrate(family: str, platform: str, *, dry_run: bool) -> dict[str, Any]:
     registry = load_registry(_REPO_ROOT / "data" / "package_registry.json")
-    summary = block_migrator.run_migration(family, platform, dry_run=dry_run, registry=registry)
-    modified = [
-        r["path"] for r in summary["results"]
-        if r["result"] == block_migrator.R_MIGRATED
-    ]
+    files = block_migrator.discover_files(family, platform)
+    modified: list[str] = []
+    checked = 0
+    migrated = 0
+    skipped_protected = 0
+    no_registry_entry = 0
+    for fp in files:
+        checked += 1
+        res = _migrate_file_frontmatter_safe(block_migrator, fp, family, platform, dry_run=dry_run, registry=registry)
+        if res["result"] == block_migrator.R_NO_REGISTRY_ENTRY:
+            no_registry_entry += 1
+            continue
+        if res["result"] == block_migrator.R_SKIPPED_PROTECTED:
+            skipped_protected += 1
+            continue
+        if res["result"] in (block_migrator.R_MIGRATED, block_migrator.R_DRY_RUN):
+            migrated += 1
+            modified.append(res["path"])
     return {
         "ok": True, "modified_files": modified,
-        "detail": (f"files_checked={summary['files_checked']} "
-                   f"files_migrated={summary['files_migrated']} "
-                   f"block_replacements={summary['block_replacements']} "
-                   f"inline_mentions_found_not_touched={summary['inline_mentions_found']} "
-                   f"skipped_protected={summary['skipped_protected']} "
-                   f"no_registry_entry={summary['no_registry_entry']}"),
+        "detail": (f"files_checked={checked} files_migrated={migrated} "
+                   f"skipped_protected={skipped_protected} no_registry_entry={no_registry_entry}"),
     }
 
 
@@ -176,14 +269,14 @@ def _step_inline_migrate(family: str, platform: str, *, dry_run: bool) -> dict[s
     no_registry_entry = 0
     for fp in files:
         checked += 1
-        res = inline_migrator.migrate_file(fp, family, platform, dry_run=dry_run, registry=registry)
+        res = _migrate_file_frontmatter_safe(inline_migrator, fp, family, platform, dry_run=dry_run, registry=registry)
         if res["result"] == inline_migrator.R_NO_REGISTRY_ENTRY:
             no_registry_entry += 1
             continue
         if res["result"] == inline_migrator.R_SKIPPED_PROTECTED:
             skipped_protected += 1
             continue
-        if res["result"] in (inline_migrator.R_MIGRATED, inline_migrator.R_DRY_RUN) and res["inline_replacements"] > 0:
+        if res["result"] in (inline_migrator.R_MIGRATED, inline_migrator.R_DRY_RUN):
             migrated += 1
             modified.append(res["path"])
     return {
