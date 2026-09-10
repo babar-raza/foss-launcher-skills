@@ -3505,6 +3505,35 @@ scripts:
       (1223 files eligible) but not executed against it in this pass -- see
       backlog/BACKLOG.md for that row's own scope.
 
+  # ── ST-054 TC-06 (2026-09-10, plans/from_backlog/2026-08-16-st-054-inline-install-command-remediation.md) ─────
+
+  - path: scripts/pipeline/commands/content/package_install_inline_migrator.py
+    kind: entrypoint
+    lifecycle: active
+    canonical_impl_path: null
+    public_entrypoint: true
+    cli_contract: "python -m commands.content.package_install_inline_migrator {family} {platform} [--dry-run|--execute] [--limit N]"
+    owner_domain: content
+    backing:
+      kind: internal
+      ref: null
+    test_targets:
+      - scripts/pipeline/tests/test_package_install_inline_migrator.py
+    test_exempt_reason: null
+    requires_test: true
+    deprecated_since: null
+    notes: >-
+      Sibling of package_install_migrator.py: rewrites an INLINE
+      single-backtick install-command span with the package-install-inline
+      shortcode (ST-054 TC-01), for pypi/nuget/npm/go_modules entries.
+      English source only (ST-054 TC-07 propagates to locales separately, via
+      S-75); never touches fenced-block content (the other migrator's scope)
+      or <PackageReference> XML; reuses package_install_literal.py's
+      _is_noise_line() heading guard directly. Caller is responsible for only
+      invoking this against SAFE_FOR_MECHANICAL_MIGRATION products per
+      ST-054 TC-05's classification -- this module has no COLLISION_RISK
+      gate of its own, matching package_install_migrator.py's own posture.
+
   - path: scripts/pipeline/commands/ops/package_publish_watch.py
     kind: entrypoint
     lifecycle: active
