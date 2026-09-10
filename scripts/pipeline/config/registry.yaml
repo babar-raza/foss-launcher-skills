@@ -3560,6 +3560,34 @@ scripts:
       .github/workflows/package-publish-watch.yml for scheduled
       notification-only detection.
 
+  # ── ST-054 TC-09 (2026-09-10, plans/from_backlog/2026-08-16-st-054-inline-install-command-remediation.md) ─────
+
+  - path: scripts/pipeline/commands/ops/install_literal_sweep.py
+    kind: entrypoint
+    lifecycle: active
+    canonical_impl_path: null
+    public_entrypoint: true
+    cli_contract: "python -m commands.ops.install_literal_sweep [--issue-body-out PATH]"
+    owner_domain: ops
+    backing:
+      kind: internal
+      ref: null
+    test_targets:
+      - scripts/pipeline/tests/test_install_literal_sweep.py
+    test_exempt_reason: null
+    requires_test: true
+    deprecated_since: null
+    notes: >-
+      Recurring full-corpus durability sweep for literal (non-shortcode)
+      install-command text -- reuses verify_package_install_literals()
+      (audit/package_install_literal.py) unchanged, adding only
+      corpus-iteration, aggregation, and issue-body formatting. Deliberate
+      sibling of package_publish_watch.py, not an extension of it: that
+      module detects registry-state changes on a daily cadence; this is a
+      content-quality sweep (~20k files, much heavier) on a weekly cadence,
+      via .github/workflows/install-literal-sweep.yml. Read-only -- never
+      writes content, only files a GitHub issue on findings.
+
   # ── Mission MT018-2026-08-01-PACKAGE-IDENTITY-COVERAGE, TC-MT018-03 ────────
 
   - path: scripts/pipeline/commands/ops/registry_coverage_scan.py
