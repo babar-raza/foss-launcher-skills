@@ -59,8 +59,16 @@ _TRACKED_REGISTRY_TYPES = {"pypi", "nuget", "npm", "go_modules"}
 # maven_coordinates.py's "any literal coordinate is banned, correct or not"
 # philosophy: a hand-authored command is a staleness risk regardless of
 # whether it happens to be right today.
+#
+# ST-054 TC-02 (2026-09-10): added Install-Package (PowerShell Package Manager
+# Console syntax) and <PackageReference Include="..."> (raw .csproj XML) --
+# both real, live .NET-family patterns this regex previously missed entirely,
+# undercounting true .NET scope in every sweep run before this fix (confirmed:
+# content/docs.aspose.org/en/cells/net/getting-started/installation.md has
+# both forms, live, alongside the correct package-install shortcode call).
 _INSTALL_CMD_RE = re.compile(
-    r"\b(pip install|dotnet add package|npm install|go get)\s+(\S+)",
+    r"\b(pip install|dotnet add package|npm install|go get|Install-Package)\s+(\S+)"
+    r"|<PackageReference\s+Include=\"[^\"]+\"",
     re.IGNORECASE,
 )
 

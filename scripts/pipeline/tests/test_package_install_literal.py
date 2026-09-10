@@ -106,6 +106,60 @@ class TestScopeGuards:
         assert verify_package_install_literals(page, "pdf", None, registry=_registry("npm", True)) == []
 
 
+class TestInstallPackageAndPackageReferenceDetection:
+    """ST-054 TC-02: _INSTALL_CMD_RE previously missed PowerShell's
+    Install-Package syntax and raw .csproj <PackageReference> XML, both real
+    and live in .NET-family content (content/docs.aspose.org/en/cells/net/
+    getting-started/installation.md) -- undercounting true .NET scope in
+    every sweep before this fix."""
+
+    def test_install_package_powershell_syntax_flagged_when_published(self, tmp_path):
+        page = _write(tmp_path, "Run this in the Package Manager Console:\n\nInstall-Package Aspose.Words.FOSS\n")
+        findings = verify_package_install_literals(page, "words", "net", registry=_registry("nuget", True))
+        assert len(findings) == 1
+        assert findings[0].level == "FAIL"
+
+    def test_package_reference_xml_flagged_when_published(self, tmp_path):
+        page = _write(
+            tmp_path,
+            'Add to your .csproj:\n\n<PackageReference Include="Aspose.Words.FOSS" Version="*" />\n',
+        )
+        findings = verify_package_install_literals(page, "words", "net", registry=_registry("nuget", True))
+        assert len(findings) == 1
+        assert findings[0].level == "FAIL"
+
+    def test_install_package_flagged_as_fabrication_when_unpublished(self, tmp_path):
+        page = _write(tmp_path, "Install-Package Aspose.Words.FOSS\n")
+        findings = verify_package_install_literals(page, "words", "net", registry=_registry("nuget", False))
+        assert len(findings) == 1
+        assert "UNPUBLISHED" in findings[0].message
+
+    def test_package_reference_with_different_attribute_order_still_matches(self, tmp_path):
+        page = _write(tmp_path, '<PackageReference Include="Aspose.Cells_FOSS" />\n')
+        findings = verify_package_install_literals(page, "words", "net", registry=_registry("nuget", True))
+        assert len(findings) == 1
+
+    def test_existing_pip_dotnet_npm_go_patterns_still_work_alongside_the_new_ones(self, tmp_path):
+        """Regression guard: the regex extension must not break any of the 4
+        original patterns it was OR'd onto."""
+        for cmd, registry_type in [
+            ("pip install aspose-words-foss", "pypi"),
+            ("dotnet add package Aspose.Words.FOSS", "nuget"),
+            ("npm install @asposefoss/words", "npm"),
+            ("go get github.com/aspose-words-foss/x", "go_modules"),
+        ]:
+            page = _write(tmp_path, f"{cmd}\n")
+            findings = verify_package_install_literals(page, "words", "net", registry=_registry(registry_type, True))
+            assert len(findings) == 1, f"expected a finding for {cmd!r} ({registry_type})"
+
+    def test_bare_word_packagereference_without_xml_shape_is_not_flagged(self, tmp_path):
+        """No false positive: prose mentioning 'PackageReference' generically,
+        not the actual XML tag shape, must not match."""
+        page = _write(tmp_path, "The PackageReference element is how .NET projects declare dependencies.\n")
+        findings = verify_package_install_literals(page, "words", "net", registry=_registry("nuget", True))
+        assert findings == []
+
+
 class TestTroubleshootingHeadingFalsePositiveGuard:
     """Regression pin for a real false positive found before this gate went
     live: content/kb.aspose.org/en/words/net/troubleshooting.md has the
