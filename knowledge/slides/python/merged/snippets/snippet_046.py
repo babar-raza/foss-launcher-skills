@@ -1,4 +1,4 @@
-def test_effect_trigger_type_values(self):
-        assert anim.EffectTriggerType.ON_CLICK.value == 'OnClick'
-        assert anim.EffectTriggerType.WITH_PREVIOUS.value == 'WithPrevious'
-        assert anim.EffectTriggerType.AFTER_PREVIOUS.value == 'AfterPrevious'
+def test_main_sequence_not_none(self):
+        with Presentation() as pres:
+            seq = pres.slides[0].timeline.main_sequence
+            assert seq is not None

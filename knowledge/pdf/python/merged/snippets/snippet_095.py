@@ -1,13 +1,5 @@
-def test_generate_appearance_keeps_existing_unless_forced():
+def test_caret_generate_appearance_end_to_end():
     doc = _new_page_doc()
-    ann = doc.pages[0].annotations.add(
-        "Square", (0, 0, 50, 50), "x", appearance_normal=b"0 0 50 50 re f\n"
-    )
-    assert ann.has_appearance
-    original = ann.appearance_normal
-    # Idempotent: an existing appearance is preserved.
+    ann = doc.pages[0].annotations.add("Caret", (100, 100, 120, 120), "")
     assert ann.generate_appearance() is True
-    assert ann.appearance_normal == original
-    # force=True regenerates from the annotation geometry.
-    assert ann.generate_appearance(force=True) is True
-    assert ann.appearance_normal != original
+    assert b"\nf\n" in ann.appearance_normal

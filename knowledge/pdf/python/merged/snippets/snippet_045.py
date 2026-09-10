@@ -1,7 +1,9 @@
-def test_compute_hash_v5_deterministic(self):
-        """Same inputs produce same output (deterministic)."""
-        password = b"password"
-        salt = b"12345678"
-        result1 = EncryptionUtils.compute_hash_v5(password, salt)
-        result2 = EncryptionUtils.compute_hash_v5(password, salt)
-        assert result1 == result2, "Same inputs must produce same hash"
+def test_bundle_is_deterministic() -> None:
+    """The checked-in bundle matches a fresh build (SHA-verified generator)."""
+    script = Path(__file__).resolve().parents[1] / "scripts" / "build_agl_data.py"
+    result = subprocess.run(
+        [sys.executable, str(script), "--check"],
+        capture_output=True,
+        text=True,
+    )
+    assert result.returncode == 0, result.stderr + result.stdout

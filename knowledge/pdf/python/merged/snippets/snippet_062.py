@@ -1,5 +1,8 @@
-def test_line_none_ending_draws_only_the_shaft():
+def test_line_closed_arrow_is_filled():
     gen = build_appearance(
-        "Line", _RECT, {"L": [10, 40, 100, 40], "LE": [N("None"), N("None")]}
+        "Line",
+        _RECT,
+        {"L": [10, 40, 100, 40], "C": [1, 0, 0], "LE": [N("None"), N("ClosedArrow")]},
     )
-    assert gen.content.count(b"\nS\n") == 1  # shaft only
+    assert b"\nb\n" in gen.content  # closepath-fill-stroke triangle
+    assert b"1 0 0 rg" in gen.content  # filled with the line colour

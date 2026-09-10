@@ -1,12 +1,7 @@
-def test_generated_appearance_survives_save_load():
+def test_page_generate_appearances_counts_created():
     doc = _new_page_doc()
-    ann = doc.pages[0].annotations.add(
-        "Circle", (100, 100, 200, 160), "", properties={"C": [0, 0, 1]}
-    )
-    ann.generate_appearance()
-    buf = io.BytesIO()
-    doc.save(buf)
-    buf.seek(0)
-    reopened = Document()
-    reopened.load_from(buf)
-    assert reopened.pages[0].annotations[0].has_appearance
+    page = doc.pages[0]
+    page.annotations.add("Square", (0, 0, 50, 50), "")
+    page.annotations.add("Circle", (60, 0, 110, 50), "")
+    page.annotations.add("Sound", (0, 60, 20, 80), "")  # unsupported -> skipped
+    assert page.annotations.generate_appearances() == 2

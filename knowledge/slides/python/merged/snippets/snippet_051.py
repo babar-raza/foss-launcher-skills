@@ -1,18 +1,13 @@
-def test_add_effect_paragraph_targets_correct_paragraph(self):
-        """The XML should contain <p:pRg st='N' end='N'> for the targeted paragraph."""
+def test_add_multiple_effects(self):
         with Presentation() as pres:
             slide = pres.slides[0]
-            shape, paras = self._make_shape_with_paragraphs(slide)
+            s1 = slide.shapes.add_auto_shape(ShapeType.RECTANGLE, 10, 10, 100, 50)
+            s2 = slide.shapes.add_auto_shape(ShapeType.ELLIPSE, 200, 10, 100, 50)
             seq = slide.timeline.main_sequence
 
-            # Animate second paragraph (index 1)
-            seq.add_effect(
-                paras[1], anim.EffectType.FADE,
-                anim.EffectSubtype.NONE,
-                anim.EffectTriggerType.ON_CLICK,
-            )
+            seq.add_effect(s1, anim.EffectType.FADE, anim.EffectSubtype.NONE,
+                           anim.EffectTriggerType.ON_CLICK)
+            seq.add_effect(s2, anim.EffectType.APPEAR, anim.EffectSubtype.NONE,
+                           anim.EffectTriggerType.AFTER_PREVIOUS)
 
-            # Verify via get_effects_by_paragraph
-            assert len(seq.get_effects_by_paragraph(paras[0])) == 0
-            assert len(seq.get_effects_by_paragraph(paras[1])) == 1
-            assert len(seq.get_effects_by_paragraph(paras[2])) == 0
+            assert seq.count == 2

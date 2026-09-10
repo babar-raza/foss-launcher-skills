@@ -1,5 +1,13 @@
 [
   {
+    "format": "Encryption",
+    "enum": "",
+    "value": "",
+    "file": "src/aspose_pdf/engine/pdf_writer_cos.py",
+    "line": 37,
+    "direction": "export"
+  },
+  {
     "format": "PDF",
     "enum": "SaveFormat",
     "value": "\"PDF\"",
@@ -110,7 +118,7 @@
     "enum": "",
     "value": "",
     "file": "src/aspose_pdf/document.py",
-    "line": 686,
+    "line": 757,
     "direction": "export"
   },
   {
@@ -118,7 +126,7 @@
     "enum": "",
     "value": "",
     "file": "src/aspose_pdf/document.py",
-    "line": 780,
+    "line": 851,
     "direction": "export"
   },
   {
@@ -126,7 +134,7 @@
     "enum": "",
     "value": "",
     "file": "src/aspose_pdf/document.py",
-    "line": 797,
+    "line": 868,
     "direction": "export"
   },
   {
@@ -134,7 +142,7 @@
     "enum": "",
     "value": "",
     "file": "src/aspose_pdf/document.py",
-    "line": 807,
+    "line": 878,
     "direction": "export"
   },
   {
@@ -166,7 +174,7 @@
     "enum": "",
     "value": "",
     "file": "src/aspose_pdf/engine/rasterizer.py",
-    "line": 103,
+    "line": 105,
     "direction": "export"
   },
   {
@@ -174,7 +182,7 @@
     "enum": "",
     "value": "",
     "file": "src/aspose_pdf/engine/rasterizer.py",
-    "line": 107,
+    "line": 109,
     "direction": "export"
   },
   {
@@ -182,7 +190,7 @@
     "enum": "",
     "value": "",
     "file": "src/aspose_pdf/engine/rasterizer.py",
-    "line": 183,
+    "line": 185,
     "direction": "export"
   },
   {
@@ -190,7 +198,7 @@
     "enum": "",
     "value": "",
     "file": "src/aspose_pdf/engine/rasterizer.py",
-    "line": 1665,
+    "line": 1706,
     "direction": "export"
   },
   {
@@ -198,7 +206,7 @@
     "enum": "",
     "value": "",
     "file": "src/aspose_pdf/engine/simple_pdf.py",
-    "line": 2546,
+    "line": 2860,
     "direction": "export"
   },
   {
@@ -206,7 +214,7 @@
     "enum": "",
     "value": "",
     "file": "src/aspose_pdf/engine/simple_pdf.py",
-    "line": 12020,
+    "line": 13655,
     "direction": "export"
   },
   {

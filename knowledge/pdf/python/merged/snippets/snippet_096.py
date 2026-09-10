@@ -1,7 +1,5 @@
-def test_page_generate_appearances_counts_created():
+def test_generate_appearance_unsupported_subtype_returns_false():
     doc = _new_page_doc()
-    page = doc.pages[0]
-    page.annotations.add("Square", (0, 0, 50, 50), "")
-    page.annotations.add("Circle", (60, 0, 110, 50), "")
-    page.annotations.add("Sound", (0, 60, 20, 80), "")  # unsupported -> skipped
-    assert page.annotations.generate_appearances() == 2
+    ann = doc.pages[0].annotations.add("Sound", (0, 0, 20, 20), "note")
+    assert ann.generate_appearance() is False
+    assert not ann.has_appearance

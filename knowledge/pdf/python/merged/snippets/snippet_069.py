@@ -1,5 +1,7 @@
-def test_build_square_without_colour_defaults_to_black_border():
-    gen = build_appearance("Square", (0, 0, 50, 50), {})
-    assert gen is not None
-    assert b"0 G" in gen.content
-    assert b"\nS\n" in gen.content  # stroke only
+def test_be_non_cloud_style_is_ignored():
+    # /BE with a solid style ("S") is not a cloud: the border stays straight.
+    gen = build_appearance(
+        "Square", _RECT, {"C": [0, 0, 0], "BE": {"S": N("S")}, "BS": {"W": 1}}
+    )
+    assert b" re" in gen.content
+    assert b" c\n" not in gen.content

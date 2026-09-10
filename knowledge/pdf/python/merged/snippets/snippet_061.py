@@ -1,9 +1,10 @@
-def test_line_diamond_and_circle_endings():
-    diamond = build_appearance(
-        "Line", _RECT, {"L": [10, 40, 100, 40], "LE": [N("Diamond"), N("None")]}
+def test_line_open_arrow_end_adds_strokes():
+    plain = build_appearance("Line", _RECT, {"L": [10, 40, 100, 40], "C": [0, 0, 0]})
+    arrow = build_appearance(
+        "Line",
+        _RECT,
+        {"L": [10, 40, 100, 40], "C": [0, 0, 0], "LE": [N("None"), N("OpenArrow")]},
     )
-    assert b"\nb\n" in diamond.content
-    circle = build_appearance(
-        "Line", _RECT, {"L": [10, 40, 100, 40], "LE": [N("None"), N("Circle")]}
-    )
-    assert circle.content.count(b" c") == 4  # four Bézier arcs
+    # The arrowhead adds two more line segments and a stroke beyond the shaft.
+    assert arrow.content.count(b" l") > plain.content.count(b" l")
+    assert arrow.content.count(b"\nS\n") == 2  # shaft + arrowhead

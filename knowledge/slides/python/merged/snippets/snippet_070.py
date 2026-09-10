@@ -1,19 +1,17 @@
-def test_picture_background_stretch(tmp_pptx):
-    """Picture background in stretch mode round-trips."""
-    pres = Presentation()
-    slide = pres.slides[0]
+def test_get_effects_by_shape(self):
+        with Presentation() as pres:
+            slide = pres.slides[0]
+            s1 = slide.shapes.add_auto_shape(ShapeType.RECTANGLE, 10, 10, 100, 50)
+            s2 = slide.shapes.add_auto_shape(ShapeType.ELLIPSE, 200, 10, 100, 50)
+            seq = slide.timeline.main_sequence
+            seq.add_effect(s1, anim.EffectType.FADE, anim.EffectSubtype.NONE,
+                           anim.EffectTriggerType.ON_CLICK)
+            seq.add_effect(s2, anim.EffectType.APPEAR, anim.EffectSubtype.NONE,
+                           anim.EffectTriggerType.ON_CLICK)
+            seq.add_effect(s1, anim.EffectType.FLY, anim.EffectSubtype.LEFT,
+                           anim.EffectTriggerType.AFTER_PREVIOUS)
 
-    slide.background.type = BackgroundType.OWN_BACKGROUND
-    slide.background.fill_format.fill_type = FillType.PICTURE
-    slide.background.fill_format.picture_fill_format.picture_fill_mode = PictureFillMode.STRETCH
-
-    png_bytes = create_test_png(0, 128, 0)
-    pp_image = pres.images.add_image(png_bytes)
-    slide.background.fill_format.picture_fill_format.picture.image = pp_image
-
-    pres2 = tmp_pptx(pres)
-    bg = pres2.slides[0].background
-    assert bg.type == BackgroundType.OWN_BACKGROUND
-    assert bg.fill_format.fill_type == FillType.PICTURE
-    assert bg.fill_format.picture_fill_format.picture_fill_mode == PictureFillMode.STRETCH
-    pres2.dispose()
+            effs = seq.get_effects_by_shape(s1)
+            assert len(effs) == 2
+            effs2 = seq.get_effects_by_shape(s2)
+            assert len(effs2) == 1

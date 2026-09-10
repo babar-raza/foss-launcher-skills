@@ -1,5 +1,3 @@
-def test_effect_preset_class_type_values(self):
-        assert anim.EffectPresetClassType.ENTRANCE.value == 'Entrance'
-        assert anim.EffectPresetClassType.EXIT.value == 'Exit'
-        assert anim.EffectPresetClassType.EMPHASIS.value == 'Emphasis'
-        assert anim.EffectPresetClassType.PATH.value == 'Path'
+def test_main_sequence_initially_empty(self):
+        with Presentation() as pres:
+            assert pres.slides[0].timeline.main_sequence.count == 0

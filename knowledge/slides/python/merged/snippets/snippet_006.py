@@ -1,17 +1,17 @@
-def test_add_fade_effect(self):
-        with Presentation() as pres:
-            slide = pres.slides[0]
-            shape = slide.shapes.add_auto_shape(ShapeType.RECTANGLE, 10, 10, 100, 50)
-            seq = slide.timeline.main_sequence
+def test_a_repeatedly_saved_deck_has_no_unreachable_parts(tmp_path):
+    """Nothing may ship that no relationship names."""
+    pres = Presentation()
+    author = pres.comment_authors.add_author("Alice", "A")
+    slide = pres.slides[0]
+    author.comments.add_comment("Please review", slide, PointF(2.0, 3.0), WHEN)
 
-            effect = seq.add_effect(
-                shape, anim.EffectType.FADE,
-                anim.EffectSubtype.NONE,
-                anim.EffectTriggerType.ON_CLICK,
-            )
+    try:
+        _save(pres, tmp_path, "first.pptx").close()
+        pkg = _save(pres, tmp_path, "second.pptx")
+    finally:
+        pres.dispose()
 
-            assert effect is not None
-            assert effect.type == anim.EffectType.FADE
-            assert effect.subtype == anim.EffectSubtype.NONE
-            assert effect.preset_class_type == anim.EffectPresetClassType.ENTRANCE
-            assert seq.count == 1
+    try:
+        pkg.assert_every_part_is_reachable()
+    finally:
+        pkg.close()

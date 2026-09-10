@@ -1,15 +1,9 @@
-def test_solid_background_on_master(tmp_pptx):
-    """Solid-colour background on master slide round-trips."""
-    pres = Presentation()
-    master = pres.masters[0]
-    master.background.type = BackgroundType.OWN_BACKGROUND
-    master.background.fill_format.fill_type = FillType.SOLID
-    master.background.fill_format.solid_fill_color.color = Color.forest_green
+def test_add_interactive_sequence(self):
+        with Presentation() as pres:
+            slide = pres.slides[0]
+            trigger = slide.shapes.add_auto_shape(ShapeType.BEVEL, 10, 10, 20, 20)
+            target = slide.shapes.add_auto_shape(ShapeType.RECTANGLE, 100, 100, 200, 100)
 
-    pres2 = tmp_pptx(pres)
-    bg = pres2.masters[0].background
-    assert bg.type == BackgroundType.OWN_BACKGROUND
-    assert bg.fill_format.fill_type == FillType.SOLID
-    c = bg.fill_format.solid_fill_color.color
-    assert c.r == 34 and c.g == 139 and c.b == 34
-    pres2.dispose()
+            seq = slide.timeline.interactive_sequences.add(trigger)
+            assert seq is not None
+            assert len(slide.timeline.interactive_sequences) == 1

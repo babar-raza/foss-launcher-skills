@@ -1,3 +1,6 @@
-def test_solid_border_emits_no_dash():
-    gen = build_appearance("Square", _RECT, {"C": [0, 0, 0], "BS": {"W": 1}})
-    assert b" d\n" not in gen.content
+def test_dash_from_border_style_array():
+    gen = build_appearance(
+        "Square", _RECT, {"C": [0, 0, 0], "BS": {"S": N("D"), "D": [3, 2], "W": 2}}
+    )
+    assert gen is not None
+    assert b"[3 2] 0 d" in gen.content

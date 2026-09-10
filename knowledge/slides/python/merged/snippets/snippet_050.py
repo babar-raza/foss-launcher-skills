@@ -1,13 +1,14 @@
-def test_add_effect_paragraph_returns_effect(self):
+def test_add_fly_effect_with_subtype(self):
         with Presentation() as pres:
             slide = pres.slides[0]
-            shape, paras = self._make_shape_with_paragraphs(slide)
+            shape = slide.shapes.add_auto_shape(ShapeType.RECTANGLE, 10, 10, 100, 50)
             seq = slide.timeline.main_sequence
 
             effect = seq.add_effect(
-                paras[0], anim.EffectType.FLY,
+                shape, anim.EffectType.FLY,
                 anim.EffectSubtype.LEFT,
                 anim.EffectTriggerType.ON_CLICK,
             )
-            assert effect is not None
-            assert effect.type == anim.EffectType.FLY
+
+            assert effect.type == anim.EffectType.FLY
+            assert effect.subtype == anim.EffectSubtype.LEFT

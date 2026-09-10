@@ -1,7 +1,9 @@
-def test_build_freetext_fills_background_from_c():
-    gen = build_appearance(
-        "FreeText", (0, 0, 100, 40), {"Contents": "hi", "C": [1, 1, 0]}
-    )
-    assert gen is not None
-    assert b"1 1 0 rg" in gen.content  # yellow background fill
-    assert b"\nf\n" in gen.content
+def test_build_underline_and_strikeout_draw_lines():
+    quad = {"QuadPoints": [0, 20, 100, 20, 0, 0, 100, 0]}
+    under = build_appearance("Underline", (0, 0, 100, 20), quad)
+    strike = build_appearance("StrikeOut", (0, 0, 100, 20), quad)
+    assert under is not None and strike is not None
+    assert b"\nS\n" in under.content
+    assert b"\nS\n" in strike.content
+    # Strike-out sits higher than the underline.
+    assert under.content != strike.content

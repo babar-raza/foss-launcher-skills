@@ -158,11 +158,27 @@
         "file": "aspose/slides_foss/_internal/export/exporter_base.py"
       },
       {
+        "name": "create_for_format",
+        "params": [
+          {
+            "name": "format_value",
+            "type": "str"
+          }
+        ],
+        "return_type": "\"ExporterBase\"",
+        "doc": "Create an instance of this exporter bound to one of its formats.",
+        "line": 67,
+        "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
+        "file": "aspose/slides_foss/_internal/export/exporter_base.py"
+      },
+      {
         "name": "get_supported_formats",
         "params": [],
         "return_type": "list[str]",
         "doc": "Get the list of SaveFormat values this exporter supports.",
-        "line": 67,
+        "line": 80,
         "is_constructor": false,
         "deprecated": false,
         "deprecated_reason": "",
@@ -186,7 +202,7 @@
         ],
         "return_type": "None",
         "doc": "Export to either a file path or stream.",
-        "line": 76,
+        "line": 89,
         "is_constructor": false,
         "deprecated": false,
         "deprecated_reason": "",
@@ -269,7 +285,7 @@
         ],
         "return_type": "Optional[Type[ExporterBase]]",
         "doc": "Get the exporter class for a specific format.",
-        "line": 81,
+        "line": 84,
         "is_constructor": false,
         "deprecated": false,
         "deprecated_reason": "",
@@ -285,7 +301,7 @@
         ],
         "return_type": "bool",
         "doc": "Check if a format has a registered exporter.",
-        "line": 94,
+        "line": 97,
         "is_constructor": false,
         "deprecated": false,
         "deprecated_reason": "",
@@ -296,7 +312,7 @@
         "params": [],
         "return_type": "list[str]",
         "doc": "Get all formats that have registered exporters.",
-        "line": 107,
+        "line": 110,
         "is_constructor": false,
         "deprecated": false,
         "deprecated_reason": "",
@@ -307,7 +323,7 @@
         "params": [],
         "return_type": "None",
         "doc": "Clear all registered exporters.",
-        "line": 117,
+        "line": 120,
         "is_constructor": false,
         "deprecated": false,
         "deprecated_reason": "",
@@ -1180,7 +1196,7 @@
     "kind": "class_definition",
     "doc": "Exporter for PPTX and related Office Open XML formats.",
     "file": "aspose/slides_foss/_internal/export/pptx_exporter.py",
-    "line": 18,
+    "line": 19,
     "bases": [
       "ExporterBase"
     ],
@@ -1195,8 +1211,24 @@
         ],
         "return_type": "",
         "doc": "Initialize the PPTX exporter.",
-        "line": 44,
+        "line": 48,
         "is_constructor": true,
+        "deprecated": false,
+        "deprecated_reason": "",
+        "file": "aspose/slides_foss/_internal/export/pptx_exporter.py"
+      },
+      {
+        "name": "create_for_format",
+        "params": [
+          {
+            "name": "format_value",
+            "type": "str"
+          }
+        ],
+        "return_type": "PptxExporter",
+        "doc": "Create an exporter bound to a specific target format.",
+        "line": 66,
+        "is_constructor": false,
         "deprecated": false,
         "deprecated_reason": "",
         "file": "aspose/slides_foss/_internal/export/pptx_exporter.py"
@@ -1219,7 +1251,7 @@
         ],
         "return_type": "None",
         "doc": "Export the presentation to a PPTX file.",
-        "line": 53,
+        "line": 70,
         "is_constructor": false,
         "deprecated": false,
         "deprecated_reason": "",
@@ -1243,7 +1275,7 @@
         ],
         "return_type": "None",
         "doc": "Export the presentation to a stream.",
-        "line": 70,
+        "line": 87,
         "is_constructor": false,
         "deprecated": false,
         "deprecated_reason": "",
@@ -1254,7 +1286,7 @@
         "params": [],
         "return_type": "list[str]",
         "doc": "Get all OPC-based presentation formats.",
-        "line": 99,
+        "line": 124,
         "is_constructor": false,
         "deprecated": false,
         "deprecated_reason": "",
@@ -1278,7 +1310,7 @@
         ],
         "return_type": "None",
         "doc": "Export to either a file path or stream.",
-        "line": 76,
+        "line": 89,
         "is_constructor": false,
         "deprecated": false,
         "deprecated_reason": "",
@@ -1290,43 +1322,14 @@
     "reachable": true,
     "deprecated": false,
     "deprecated_reason": "",
-    "canonical_namespace": "aspose.slides_foss._internal.export.pptx_exporter",
-    "class_import": "aspose.slides_foss._internal.export.pptx_exporter.PptxExporter",
-    "module_key": "_internal",
-    "module_label": "Internal"
-  },
-  {
-    "name": "PptxExporterFactory",
-    "kind": "class_definition",
-    "doc": "Factory for creating PPTX exporters with specific target formats.",
-    "file": "aspose/slides_foss/_internal/export/pptx_exporter.py",
-    "line": 104,
-    "bases": [],
-    "methods": [
+    "enum_members": [
       {
-        "name": "create_for_format",
-        "params": [
-          {
-            "name": "format_value",
-            "type": "str"
-          }
-        ],
-        "return_type": "PptxExporter",
-        "doc": "Create a PPTX exporter for a specific format.",
-        "line": 112,
-        "is_constructor": false,
-        "deprecated": false,
-        "deprecated_reason": "",
-        "file": "aspose/slides_foss/_internal/export/pptx_exporter.py"
+        "name": "MAIN_PART_NAME",
+        "value": "'/ppt/presentation.xml'"
       }
     ],
-    "properties": [],
-    "visibility": "public",
-    "reachable": true,
-    "deprecated": false,
-    "deprecated_reason": "",
     "canonical_namespace": "aspose.slides_foss._internal.export.pptx_exporter",
-    "class_import": "aspose.slides_foss._internal.export.pptx_exporter.PptxExporterFactory",
+    "class_import": "aspose.slides_foss._internal.export.pptx_exporter.PptxExporter",
     "module_key": "_internal",
     "module_label": "Internal"
   },
@@ -1335,7 +1338,7 @@
     "kind": "class_definition",
     "doc": "Manages the [Content_Types].xml file in an OPC package.",
     "file": "aspose/slides_foss/_internal/opc/content_types.py",
-    "line": 39,
+    "line": 42,
     "bases": [],
     "methods": [
       {
@@ -1348,7 +1351,7 @@
         ],
         "return_type": "",
         "doc": "Initialize the content types manager.",
-        "line": 52,
+        "line": 55,
         "is_constructor": true,
         "deprecated": false,
         "deprecated_reason": "",
@@ -1368,7 +1371,7 @@
         ],
         "return_type": "None",
         "doc": "Add a content type override for a specific part.",
-        "line": 80,
+        "line": 83,
         "is_constructor": false,
         "deprecated": false,
         "deprecated_reason": "",
@@ -1384,7 +1387,7 @@
         ],
         "return_type": "bool",
         "doc": "Remove a content type override for a specific part.",
-        "line": 103,
+        "line": 106,
         "is_constructor": false,
         "deprecated": false,
         "deprecated_reason": "",
@@ -1400,7 +1403,7 @@
         ],
         "return_type": "Optional[str]",
         "doc": "Get the content type for a specific part.",
-        "line": 122,
+        "line": 125,
         "is_constructor": false,
         "deprecated": false,
         "deprecated_reason": "",
@@ -1411,7 +1414,7 @@
         "params": [],
         "return_type": "None",
         "doc": "Save the content types back to the package.",
-        "line": 148,
+        "line": 151,
         "is_constructor": false,
         "deprecated": false,
         "deprecated_reason": "",
@@ -1611,7 +1614,7 @@
     "kind": "class_definition",
     "doc": "Represents a single relationship in a .rels file.",
     "file": "aspose/slides_foss/_internal/opc/relationships.py",
-    "line": 46,
+    "line": 49,
     "bases": [
       "NamedTuple"
     ],
@@ -1622,7 +1625,7 @@
         "type": "str",
         "writable": false,
         "doc": "Gets the id.",
-        "line": 48,
+        "line": 51,
         "file": "aspose/slides_foss/_internal/opc/relationships.py",
         "doc_source": "name_inference"
       },
@@ -1631,7 +1634,7 @@
         "type": "str",
         "writable": false,
         "doc": "Gets the type.",
-        "line": 49,
+        "line": 52,
         "file": "aspose/slides_foss/_internal/opc/relationships.py",
         "doc_source": "name_inference"
       },
@@ -1640,7 +1643,7 @@
         "type": "str",
         "writable": false,
         "doc": "Gets the target.",
-        "line": 50,
+        "line": 53,
         "file": "aspose/slides_foss/_internal/opc/relationships.py",
         "doc_source": "name_inference"
       },
@@ -1649,7 +1652,7 @@
         "type": "Optional[str]",
         "writable": false,
         "doc": "Gets the target mode.",
-        "line": 51,
+        "line": 54,
         "file": "aspose/slides_foss/_internal/opc/relationships.py",
         "doc_source": "name_inference"
       }
@@ -1668,7 +1671,7 @@
     "kind": "class_definition",
     "doc": "Manages relationships (.rels) files in an OPC package.",
     "file": "aspose/slides_foss/_internal/opc/relationships.py",
-    "line": 54,
+    "line": 57,
     "bases": [],
     "methods": [
       {
@@ -1685,7 +1688,7 @@
         ],
         "return_type": "",
         "doc": "Initialize the relationships manager for a specific part.",
-        "line": 66,
+        "line": 69,
         "is_constructor": true,
         "deprecated": false,
         "deprecated_reason": "",
@@ -1701,7 +1704,7 @@
         ],
         "return_type": "Optional[Relationship]",
         "doc": "Get a relationship by ID.",
-        "line": 127,
+        "line": 130,
         "is_constructor": false,
         "deprecated": false,
         "deprecated_reason": "",
@@ -1717,7 +1720,7 @@
         ],
         "return_type": "list[Relationship]",
         "doc": "Get all relationships of a specific type.",
-        "line": 139,
+        "line": 142,
         "is_constructor": false,
         "deprecated": false,
         "deprecated_reason": "",
@@ -1728,7 +1731,7 @@
         "params": [],
         "return_type": "list[Relationship]",
         "doc": "Get all relationships.",
-        "line": 151,
+        "line": 154,
         "is_constructor": false,
         "deprecated": false,
         "deprecated_reason": "",
@@ -1756,7 +1759,7 @@
         ],
         "return_type": "str",
         "doc": "Add a new relationship.",
-        "line": 170,
+        "line": 173,
         "is_constructor": false,
         "deprecated": false,
         "deprecated_reason": "",
@@ -1772,7 +1775,7 @@
         ],
         "return_type": "bool",
         "doc": "Remove a relationship by ID.",
-        "line": 210,
+        "line": 213,
         "is_constructor": false,
         "deprecated": false,
         "deprecated_reason": "",
@@ -1783,7 +1786,7 @@
         "params": [],
         "return_type": "None",
         "doc": "Save the relationships back to the package.",
-        "line": 233,
+        "line": 236,
         "is_constructor": false,
         "deprecated": false,
         "deprecated_reason": "",
@@ -1796,7 +1799,7 @@
         "type": "str",
         "writable": false,
         "doc": "Get the .rels file part name.",
-        "line": 253,
+        "line": 256,
         "file": "aspose/slides_foss/_internal/opc/relationships.py"
       }
     ],
@@ -2439,6 +2442,54 @@
     "module_label": "Internal"
   },
   {
+    "name": "insert_in_order",
+    "kind": "function",
+    "doc": "Insert ``element`` under ``parent`` where its schema sequence puts it.",
+    "file": "aspose/slides_foss/_internal/pptx/child_order.py",
+    "line": 101,
+    "bases": [],
+    "methods": [],
+    "properties": [],
+    "params": [
+      {
+        "name": "parent",
+        "type": "ET._Element"
+      },
+      {
+        "name": "element",
+        "type": "ET._Element"
+      }
+    ],
+    "return_type": "ET._Element",
+    "reachable": true,
+    "module_key": "_internal",
+    "module_label": "Internal"
+  },
+  {
+    "name": "sub_element_in_order",
+    "kind": "function",
+    "doc": "``ET.SubElement`` that respects the container's schema sequence.",
+    "file": "aspose/slides_foss/_internal/pptx/child_order.py",
+    "line": 117,
+    "bases": [],
+    "methods": [],
+    "properties": [],
+    "params": [
+      {
+        "name": "parent",
+        "type": "ET._Element"
+      },
+      {
+        "name": "tag",
+        "type": "str"
+      }
+    ],
+    "return_type": "ET._Element",
+    "reachable": true,
+    "module_key": "_internal",
+    "module_label": "Internal"
+  },
+  {
     "name": "AuthorData",
     "kind": "class_definition",
     "doc": "Raw data for a comment author parsed from XML.",
@@ -2726,20 +2777,19 @@
         "doc_source": "name_inference"
       },
       {
-        "name": "parent_cm_id",
-        "type": "Optional[int]",
+        "name": "parent_ref",
+        "type": "Optional[tuple]",
         "writable": true,
-        "doc": "Gets or sets the parent cm id.",
+        "doc": "The ``(authorId, idx)`` of the comment this one replies to.",
         "line": 78,
-        "file": "aspose/slides_foss/_internal/pptx/comments_part.py",
-        "doc_source": "name_inference"
+        "file": "aspose/slides_foss/_internal/pptx/comments_part.py"
       },
       {
         "name": "text",
         "type": "str",
         "writable": true,
         "doc": "Gets or sets the text.",
-        "line": 91,
+        "line": 95,
         "file": "aspose/slides_foss/_internal/pptx/comments_part.py",
         "doc_source": "name_inference"
       },
@@ -2748,7 +2798,7 @@
         "type": "float",
         "writable": true,
         "doc": "Position x in cm.",
-        "line": 105,
+        "line": 109,
         "file": "aspose/slides_foss/_internal/pptx/comments_part.py"
       },
       {
@@ -2756,7 +2806,7 @@
         "type": "float",
         "writable": true,
         "doc": "Position y in cm.",
-        "line": 120,
+        "line": 124,
         "file": "aspose/slides_foss/_internal/pptx/comments_part.py"
       }
     ],
@@ -2774,7 +2824,7 @@
     "kind": "class_definition",
     "doc": "Manages a slide comments XML part (ppt/comments/slideN.xml).",
     "file": "aspose/slides_foss/_internal/pptx/comments_part.py",
-    "line": 135,
+    "line": 139,
     "bases": [],
     "methods": [
       {
@@ -2791,7 +2841,7 @@
         ],
         "return_type": "",
         "doc": "",
-        "line": 142,
+        "line": 146,
         "is_constructor": true,
         "deprecated": false,
         "deprecated_reason": "",
@@ -2802,7 +2852,7 @@
         "params": [],
         "return_type": "List[CommentData]",
         "doc": "Returns the comments.",
-        "line": 159,
+        "line": 163,
         "is_constructor": false,
         "deprecated": false,
         "deprecated_reason": "",
@@ -2819,7 +2869,7 @@
         ],
         "return_type": "List[CommentData]",
         "doc": "",
-        "line": 162,
+        "line": 166,
         "is_constructor": false,
         "deprecated": false,
         "deprecated_reason": "",
@@ -2839,7 +2889,7 @@
         ],
         "return_type": "Optional[CommentData]",
         "doc": "",
-        "line": 168,
+        "line": 172,
         "is_constructor": false,
         "deprecated": false,
         "deprecated_reason": "",
@@ -2854,8 +2904,8 @@
           }
         ],
         "return_type": "Optional[CommentData]",
-        "doc": "Find a comment by idx across all authors (for parentCmId lookup).",
-        "line": 175,
+        "doc": "Find a comment by idx across all authors.",
+        "line": 179,
         "is_constructor": false,
         "deprecated": false,
         "deprecated_reason": "",
@@ -2889,13 +2939,13 @@
             "type": "str"
           },
           {
-            "name": "parent_idx",
-            "type": "Optional[int]"
+            "name": "parent_ref",
+            "type": "Optional[tuple]"
           }
         ],
         "return_type": "CommentData",
         "doc": "Append a new comment element and return its CommentData.",
-        "line": 182,
+        "line": 186,
         "is_constructor": false,
         "deprecated": false,
         "deprecated_reason": "",
@@ -2933,13 +2983,13 @@
             "type": "str"
           },
           {
-            "name": "parent_idx",
-            "type": "Optional[int]"
+            "name": "parent_ref",
+            "type": "Optional[tuple]"
           }
         ],
         "return_type": "CommentData",
         "doc": "Insert a comment at the given index.",
-        "line": 202,
+        "line": 207,
         "is_constructor": false,
         "deprecated": false,
         "deprecated_reason": "",
@@ -2959,7 +3009,7 @@
         ],
         "return_type": "None",
         "doc": "",
-        "line": 231,
+        "line": 237,
         "is_constructor": false,
         "deprecated": false,
         "deprecated_reason": "",
@@ -2975,7 +3025,7 @@
         ],
         "return_type": "None",
         "doc": "",
-        "line": 238,
+        "line": 244,
         "is_constructor": false,
         "deprecated": false,
         "deprecated_reason": "",
@@ -2991,7 +3041,7 @@
         ],
         "return_type": "None",
         "doc": "",
-        "line": 244,
+        "line": 250,
         "is_constructor": false,
         "deprecated": false,
         "deprecated_reason": "",
@@ -3002,7 +3052,7 @@
         "params": [],
         "return_type": "None",
         "doc": "",
-        "line": 249,
+        "line": 255,
         "is_constructor": false,
         "deprecated": false,
         "deprecated_reason": "",
@@ -3013,7 +3063,7 @@
         "params": [],
         "return_type": "int",
         "doc": "",
-        "line": 253,
+        "line": 259,
         "is_constructor": false,
         "deprecated": false,
         "deprecated_reason": "",
@@ -3024,7 +3074,7 @@
         "params": [],
         "return_type": "bool",
         "doc": "Returns true if empty is set.",
-        "line": 256,
+        "line": 262,
         "is_constructor": false,
         "deprecated": false,
         "deprecated_reason": "",
@@ -3036,7 +3086,7 @@
         "params": [],
         "return_type": "None",
         "doc": "",
-        "line": 259,
+        "line": 265,
         "is_constructor": false,
         "deprecated": false,
         "deprecated_reason": "",
@@ -3060,7 +3110,7 @@
         ],
         "return_type": "'CommentsPart'",
         "doc": "Create a new empty comments part for a slide and register all relationships.",
-        "line": 271,
+        "line": 277,
         "is_constructor": false,
         "deprecated": false,
         "deprecated_reason": "",
@@ -3080,7 +3130,7 @@
         ],
         "return_type": "Optional['CommentsPart']",
         "doc": "Load the comments part for a slide, if it exists.",
-        "line": 321,
+        "line": 327,
         "is_constructor": false,
         "deprecated": false,
         "deprecated_reason": "",
@@ -3100,7 +3150,7 @@
         ],
         "return_type": "None",
         "doc": "Delete the comments part for a slide.",
-        "line": 337,
+        "line": 343,
         "is_constructor": false,
         "deprecated": false,
         "deprecated_reason": "",
@@ -3113,7 +3163,7 @@
         "type": "str",
         "writable": false,
         "doc": "Gets the part name.",
-        "line": 149,
+        "line": 153,
         "file": "aspose/slides_foss/_internal/pptx/comments_part.py",
         "doc_source": "name_inference"
       }
@@ -3132,7 +3182,7 @@
     "kind": "class_definition",
     "doc": "Namespace helper class providing formatted namespace strings.",
     "file": "aspose/slides_foss/_internal/pptx/constants.py",
-    "line": 62,
+    "line": 63,
     "bases": [],
     "methods": [
       {
@@ -3145,7 +3195,7 @@
         ],
         "return_type": "str",
         "doc": "Get formatted namespace string by prefix.",
-        "line": 79,
+        "line": 80,
         "is_constructor": false,
         "deprecated": false,
         "deprecated_reason": "",
@@ -3197,7 +3247,7 @@
     "kind": "class_definition",
     "doc": "Common PPTX element names with full namespace qualification.",
     "file": "aspose/slides_foss/_internal/pptx/constants.py",
-    "line": 96,
+    "line": 97,
     "bases": [],
     "methods": [],
     "properties": [],
@@ -3493,6 +3543,18 @@
       {
         "name": "A_SYM",
         "value": "f\"{NS.A}sym\""
+      },
+      {
+        "name": "A_HLINK_CLICK",
+        "value": "f\"{NS.A}hlinkClick\""
+      },
+      {
+        "name": "A_HLINK_MOUSE_OVER",
+        "value": "f\"{NS.A}hlinkMouseOver\""
+      },
+      {
+        "name": "A_HLINK_HOVER",
+        "value": "f\"{NS.A}hlinkHover\""
       },
       {
         "name": "A_NO_AUTOFIT",
@@ -3859,8 +3921,8 @@
         "value": "f\"{NS.P}cNvGraphicFramePr\""
       },
       {
-        "name": "A_GRAPHIC_FRAME_LOCKING",
-        "value": "f\"{NS.A}graphicFrameLocking\""
+        "name": "A_GRAPHIC_FRAME_LOCKS",
+        "value": "f\"{NS.A}graphicFrameLocks\""
       },
       {
         "name": "P_NV_PR",
@@ -3897,7 +3959,7 @@
     "kind": "class_definition",
     "doc": "Common PPTX attribute names.",
     "file": "aspose/slides_foss/_internal/pptx/constants.py",
-    "line": 322,
+    "line": 329,
     "bases": [],
     "methods": [],
     "properties": [],
@@ -4266,6 +4328,86 @@
     "deprecated_reason": "",
     "canonical_namespace": "aspose.slides_foss._internal.pptx.custom_properties_part",
     "class_import": "aspose.slides_foss._internal.pptx.custom_properties_part.CustomPropertiesPart",
+    "module_key": "_internal",
+    "module_label": "Internal"
+  },
+  {
+    "name": "refresh_document_summary",
+    "kind": "function",
+    "doc": "Rewrite ``docProps/app.xml``'s counts and titles from the package.",
+    "file": "aspose/slides_foss/_internal/pptx/document_summary.py",
+    "line": 127,
+    "bases": [],
+    "methods": [],
+    "properties": [],
+    "params": [
+      {
+        "name": "package",
+        "type": ""
+      }
+    ],
+    "return_type": "None",
+    "reachable": true,
+    "module_key": "_internal",
+    "module_label": "Internal"
+  },
+  {
+    "name": "get_hyperlink",
+    "kind": "function",
+    "doc": "Return the hyperlink held by ``parent``'s ``tag`` child, or ``None``.",
+    "file": "aspose/slides_foss/_internal/pptx/hyperlinks.py",
+    "line": 25,
+    "bases": [],
+    "methods": [],
+    "properties": [],
+    "params": [
+      {
+        "name": "parent",
+        "type": "ET._Element"
+      },
+      {
+        "name": "part",
+        "type": ""
+      },
+      {
+        "name": "tag",
+        "type": "str"
+      }
+    ],
+    "return_type": "",
+    "reachable": true,
+    "module_key": "_internal",
+    "module_label": "Internal"
+  },
+  {
+    "name": "set_hyperlink",
+    "kind": "function",
+    "doc": "Set or clear the hyperlink held by ``parent``'s ``tag`` child.",
+    "file": "aspose/slides_foss/_internal/pptx/hyperlinks.py",
+    "line": 46,
+    "bases": [],
+    "methods": [],
+    "properties": [],
+    "params": [
+      {
+        "name": "parent",
+        "type": "ET._Element"
+      },
+      {
+        "name": "part",
+        "type": ""
+      },
+      {
+        "name": "tag",
+        "type": "str"
+      },
+      {
+        "name": "value",
+        "type": ""
+      }
+    ],
+    "return_type": "None",
+    "reachable": true,
     "module_key": "_internal",
     "module_label": "Internal"
   },
@@ -5461,6 +5603,126 @@
     "module_label": "Internal"
   },
   {
+    "name": "comment_guid",
+    "kind": "function",
+    "doc": "The threaded identifier of one classic comment.",
+    "file": "aspose/slides_foss/_internal/pptx/threaded_comments.py",
+    "line": 74,
+    "bases": [],
+    "methods": [],
+    "properties": [],
+    "params": [
+      {
+        "name": "slide_part_name",
+        "type": "str"
+      },
+      {
+        "name": "author_id",
+        "type": ""
+      },
+      {
+        "name": "idx",
+        "type": ""
+      }
+    ],
+    "return_type": "str",
+    "reachable": true,
+    "module_key": "_internal",
+    "module_label": "Internal"
+  },
+  {
+    "name": "author_guid",
+    "kind": "function",
+    "doc": "The threaded identifier of one comment author.",
+    "file": "aspose/slides_foss/_internal/pptx/threaded_comments.py",
+    "line": 79,
+    "bases": [],
+    "methods": [],
+    "properties": [],
+    "params": [
+      {
+        "name": "author_id",
+        "type": ""
+      },
+      {
+        "name": "name",
+        "type": "str"
+      }
+    ],
+    "return_type": "str",
+    "reachable": true,
+    "module_key": "_internal",
+    "module_label": "Internal"
+  },
+  {
+    "name": "parent_of",
+    "kind": "function",
+    "doc": "The ``(authorId, idx)`` this classic comment replies to, if any.",
+    "file": "aspose/slides_foss/_internal/pptx/threaded_comments.py",
+    "line": 84,
+    "bases": [],
+    "methods": [],
+    "properties": [],
+    "params": [
+      {
+        "name": "comment_elem",
+        "type": "ET._Element"
+      }
+    ],
+    "return_type": "Optional[tuple]",
+    "reachable": true,
+    "module_key": "_internal",
+    "module_label": "Internal"
+  },
+  {
+    "name": "set_parent",
+    "kind": "function",
+    "doc": "Record, or clear, the comment this classic comment replies to.",
+    "file": "aspose/slides_foss/_internal/pptx/threaded_comments.py",
+    "line": 95,
+    "bases": [],
+    "methods": [],
+    "properties": [],
+    "params": [
+      {
+        "name": "comment_elem",
+        "type": "ET._Element"
+      },
+      {
+        "name": "parent",
+        "type": "Optional[tuple]"
+      }
+    ],
+    "return_type": "None",
+    "reachable": true,
+    "module_key": "_internal",
+    "module_label": "Internal"
+  },
+  {
+    "name": "write_threaded_comments",
+    "kind": "function",
+    "doc": "Mirror every slide's classic comment list into a modern thread part.",
+    "file": "aspose/slides_foss/_internal/pptx/threaded_comments.py",
+    "line": 332,
+    "bases": [],
+    "methods": [],
+    "properties": [],
+    "params": [
+      {
+        "name": "package",
+        "type": ""
+      },
+      {
+        "name": "slide_rels",
+        "type": "Optional[dict]"
+      }
+    ],
+    "return_type": "None",
+    "reachable": true,
+    "module_key": "_internal",
+    "module_label": "Internal"
+  },
+  {
     "name": "get_transition_info",
     "kind": "function",
     "doc": "Get (full_xml_tag, value_class_name, extra_attrs) for a TransitionType value.",
@@ -5497,6 +5759,24 @@
     ],
     "return_type": "str | None",
     "reachable": true,
+    "module_key": "_internal",
+    "module_label": "Internal"
+  },
+  {
+    "name": "StrictAttributes",
+    "kind": "class_definition",
+    "doc": "Mixin that turns an unknown property assignment into ``AttributeError``.",
+    "file": "aspose/slides_foss/_internal/strict_attributes.py",
+    "line": 17,
+    "bases": [],
+    "methods": [],
+    "properties": [],
+    "visibility": "public",
+    "reachable": true,
+    "deprecated": false,
+    "deprecated_reason": "",
+    "canonical_namespace": "aspose.slides_foss._internal.strict_attributes",
+    "class_import": "aspose.slides_foss._internal.strict_attributes.StrictAttributes",
     "module_key": "_internal",
     "module_label": "Internal"
   },
@@ -6659,7 +6939,7 @@
     "kind": "class_definition",
     "doc": "Common text portion formatting properties.",
     "file": "aspose/slides_foss/BasePortionFormat.py",
-    "line": 42,
+    "line": 43,
     "bases": [
       "PVIObject",
       "IBasePortionFormat"
@@ -6670,7 +6950,7 @@
         "params": [],
         "return_type": "",
         "doc": "",
-        "line": 45,
+        "line": 46,
         "is_constructor": true,
         "deprecated": false,
         "deprecated_reason": "",
@@ -6683,7 +6963,7 @@
         "type": "ILineFormat",
         "writable": false,
         "doc": "Returns the LineFormat properties for text outlining.",
-        "line": 123,
+        "line": 124,
         "file": "aspose/slides_foss/BasePortionFormat.py"
       },
       {
@@ -6691,7 +6971,7 @@
         "type": "IFillFormat",
         "writable": false,
         "doc": "Returns the text FillFormat properties.",
-        "line": 133,
+        "line": 134,
         "file": "aspose/slides_foss/BasePortionFormat.py"
       },
       {
@@ -6699,7 +6979,7 @@
         "type": "IEffectFormat",
         "writable": false,
         "doc": "Returns the text EffectFormat properties.",
-        "line": 143,
+        "line": 144,
         "file": "aspose/slides_foss/BasePortionFormat.py"
       },
       {
@@ -6707,7 +6987,7 @@
         "type": "IColorFormat",
         "writable": false,
         "doc": "Returns the color used to highlight a text.",
-        "line": 153,
+        "line": 154,
         "file": "aspose/slides_foss/BasePortionFormat.py"
       },
       {
@@ -6715,7 +6995,7 @@
         "type": "ILineFormat",
         "writable": false,
         "doc": "Returns the LineFormat properties used to outline underline line.",
-        "line": 166,
+        "line": 167,
         "file": "aspose/slides_foss/BasePortionFormat.py"
       },
       {
@@ -6723,7 +7003,7 @@
         "type": "IFillFormat",
         "writable": false,
         "doc": "Returns the underline line FillFormat properties.",
-        "line": 176,
+        "line": 177,
         "file": "aspose/slides_foss/BasePortionFormat.py"
       },
       {
@@ -6731,7 +7011,7 @@
         "type": "NullableBool",
         "writable": true,
         "doc": "Determines whether the font is bold.",
-        "line": 192,
+        "line": 193,
         "file": "aspose/slides_foss/BasePortionFormat.py"
       },
       {
@@ -6739,7 +7019,7 @@
         "type": "NullableBool",
         "writable": true,
         "doc": "Determines whether the font is itallic.",
-        "line": 201,
+        "line": 202,
         "file": "aspose/slides_foss/BasePortionFormat.py"
       },
       {
@@ -6747,7 +7027,7 @@
         "type": "NullableBool",
         "writable": true,
         "doc": "Determines whether the numbers should ignore text eastern language-specific vertical text layout.",
-        "line": 210,
+        "line": 211,
         "file": "aspose/slides_foss/BasePortionFormat.py"
       },
       {
@@ -6755,7 +7035,7 @@
         "type": "NullableBool",
         "writable": true,
         "doc": "Determines whether the height of a text should be normalized.",
-        "line": 219,
+        "line": 220,
         "file": "aspose/slides_foss/BasePortionFormat.py"
       },
       {
@@ -6763,7 +7043,7 @@
         "type": "NullableBool",
         "writable": true,
         "doc": "Determines whether the text shouldn't be proofed.",
-        "line": 228,
+        "line": 229,
         "file": "aspose/slides_foss/BasePortionFormat.py"
       },
       {
@@ -6771,7 +7051,7 @@
         "type": "TextUnderlineType",
         "writable": true,
         "doc": "Returns or sets the text underline type.",
-        "line": 239,
+        "line": 240,
         "file": "aspose/slides_foss/BasePortionFormat.py"
       },
       {
@@ -6779,7 +7059,7 @@
         "type": "TextCapType",
         "writable": true,
         "doc": "Returns or sets the type of text capitalization.",
-        "line": 265,
+        "line": 266,
         "file": "aspose/slides_foss/BasePortionFormat.py"
       },
       {
@@ -6787,7 +7067,7 @@
         "type": "TextStrikethroughType",
         "writable": true,
         "doc": "Returns or sets the strikethrough type of a text.",
-        "line": 291,
+        "line": 292,
         "file": "aspose/slides_foss/BasePortionFormat.py"
       },
       {
@@ -6795,7 +7075,7 @@
         "type": "NullableBool",
         "writable": true,
         "doc": "Determines whether the underline style has own LineFormat properties or inherits it from the LineFormat properties of the text.",
-        "line": 319,
+        "line": 320,
         "file": "aspose/slides_foss/BasePortionFormat.py"
       },
       {
@@ -6803,7 +7083,7 @@
         "type": "NullableBool",
         "writable": true,
         "doc": "Determines whether the underline style has own FillFormat properties or inherits it from the FillFormat properties of the text.",
-        "line": 347,
+        "line": 348,
         "file": "aspose/slides_foss/BasePortionFormat.py"
       },
       {
@@ -6811,7 +7091,7 @@
         "type": "float",
         "writable": true,
         "doc": "Returns or sets the font height of a portion.",
-        "line": 377,
+        "line": 378,
         "file": "aspose/slides_foss/BasePortionFormat.py"
       },
       {
@@ -6819,7 +7099,7 @@
         "type": "float",
         "writable": true,
         "doc": "Returns or sets the superscript or subscript text.",
-        "line": 399,
+        "line": 400,
         "file": "aspose/slides_foss/BasePortionFormat.py"
       },
       {
@@ -6827,7 +7107,7 @@
         "type": "float",
         "writable": true,
         "doc": "Returns or sets the minimal font size, for which kerning should be switched on.",
-        "line": 421,
+        "line": 422,
         "file": "aspose/slides_foss/BasePortionFormat.py"
       },
       {
@@ -6835,7 +7115,7 @@
         "type": "float",
         "writable": true,
         "doc": "Returns or sets the intercharacter spacing increment.",
-        "line": 443,
+        "line": 444,
         "file": "aspose/slides_foss/BasePortionFormat.py"
       },
       {
@@ -6843,7 +7123,7 @@
         "type": "IFontData",
         "writable": true,
         "doc": "Returns or sets the Latin font info.",
-        "line": 467,
+        "line": 468,
         "file": "aspose/slides_foss/BasePortionFormat.py"
       },
       {
@@ -6851,7 +7131,7 @@
         "type": "IFontData",
         "writable": true,
         "doc": "Returns or sets the East Asian font info.",
-        "line": 476,
+        "line": 477,
         "file": "aspose/slides_foss/BasePortionFormat.py"
       },
       {
@@ -6859,7 +7139,7 @@
         "type": "IFontData",
         "writable": true,
         "doc": "Returns or sets the complex script font info.",
-        "line": 485,
+        "line": 486,
         "file": "aspose/slides_foss/BasePortionFormat.py"
       },
       {
@@ -6867,7 +7147,7 @@
         "type": "IFontData",
         "writable": true,
         "doc": "Returns or sets the symbolic font info.",
-        "line": 494,
+        "line": 495,
         "file": "aspose/slides_foss/BasePortionFormat.py"
       },
       {
@@ -6875,7 +7155,7 @@
         "type": "str",
         "writable": true,
         "doc": "Returns or sets the Id of a proofing language.",
-        "line": 505,
+        "line": 506,
         "file": "aspose/slides_foss/BasePortionFormat.py"
       },
       {
@@ -6883,7 +7163,7 @@
         "type": "str",
         "writable": true,
         "doc": "Returns or sets the Id of an alternative language.",
-        "line": 523,
+        "line": 524,
         "file": "aspose/slides_foss/BasePortionFormat.py"
       },
       {
@@ -6891,7 +7171,7 @@
         "type": "bool",
         "writable": true,
         "doc": "Gets or sets a value indicating whether spell checking is enabled for the text portion.",
-        "line": 543,
+        "line": 544,
         "file": "aspose/slides_foss/BasePortionFormat.py"
       },
       {
@@ -6899,7 +7179,7 @@
         "type": "IPresentationComponent",
         "writable": false,
         "doc": "Allows to get base IPresentationComponent interface.",
-        "line": 13,
+        "line": 14,
         "file": "aspose/slides_foss/PVIObject.py"
       },
       {
@@ -6907,7 +7187,7 @@
         "type": "IBaseSlide",
         "writable": false,
         "doc": "Gets the slide.",
-        "line": 18,
+        "line": 19,
         "file": "aspose/slides_foss/PVIObject.py",
         "doc_source": "name_inference"
       },
@@ -6916,7 +7196,7 @@
         "type": "IPresentation",
         "writable": false,
         "doc": "Gets the presentation.",
-        "line": 24,
+        "line": 25,
         "file": "aspose/slides_foss/PVIObject.py",
         "doc_source": "name_inference"
       }
@@ -7031,7 +7311,7 @@
         "type": "IPresentationComponent",
         "writable": false,
         "doc": "Allows to get base IPresentationComponent interface.",
-        "line": 13,
+        "line": 14,
         "file": "aspose/slides_foss/PVIObject.py"
       },
       {
@@ -7039,7 +7319,7 @@
         "type": "IBaseSlide",
         "writable": false,
         "doc": "Gets the slide.",
-        "line": 18,
+        "line": 19,
         "file": "aspose/slides_foss/PVIObject.py",
         "doc_source": "name_inference"
       },
@@ -7048,7 +7328,7 @@
         "type": "IPresentation",
         "writable": false,
         "doc": "Gets the presentation.",
-        "line": 24,
+        "line": 25,
         "file": "aspose/slides_foss/PVIObject.py",
         "doc_source": "name_inference"
       }
@@ -7139,7 +7419,7 @@
         "type": "IPresentationComponent",
         "writable": false,
         "doc": "Allows to get base IPresentationComponent interface.",
-        "line": 13,
+        "line": 14,
         "file": "aspose/slides_foss/PVIObject.py"
       },
       {
@@ -7147,7 +7427,7 @@
         "type": "IBaseSlide",
         "writable": false,
         "doc": "Gets the slide.",
-        "line": 18,
+        "line": 19,
         "file": "aspose/slides_foss/PVIObject.py",
         "doc_source": "name_inference"
       },
@@ -7156,7 +7436,7 @@
         "type": "IPresentation",
         "writable": false,
         "doc": "Gets the presentation.",
-        "line": 24,
+        "line": 25,
         "file": "aspose/slides_foss/PVIObject.py",
         "doc_source": "name_inference"
       }
@@ -7272,7 +7552,7 @@
         "type": "IPresentationComponent",
         "writable": false,
         "doc": "Allows to get base IPresentationComponent interface.",
-        "line": 13,
+        "line": 14,
         "file": "aspose/slides_foss/PVIObject.py"
       },
       {
@@ -7280,7 +7560,7 @@
         "type": "IBaseSlide",
         "writable": false,
         "doc": "Gets the slide.",
-        "line": 18,
+        "line": 19,
         "file": "aspose/slides_foss/PVIObject.py",
         "doc_source": "name_inference"
       },
@@ -7289,7 +7569,7 @@
         "type": "IPresentation",
         "writable": false,
         "doc": "Gets the presentation.",
-        "line": 24,
+        "line": 25,
         "file": "aspose/slides_foss/PVIObject.py",
         "doc_source": "name_inference"
       }
@@ -7310,7 +7590,7 @@
     "kind": "class_definition",
     "doc": "Represents effect properties of shape.",
     "file": "aspose/slides_foss/EffectFormat.py",
-    "line": 35,
+    "line": 77,
     "bases": [
       "PVIObject",
       "ISlideComponent",
@@ -7333,7 +7613,7 @@
         ],
         "return_type": "None",
         "doc": "Sets the blur effect value.",
-        "line": 305,
+        "line": 348,
         "is_constructor": false,
         "deprecated": false,
         "deprecated_reason": "",
@@ -7345,7 +7625,7 @@
         "params": [],
         "return_type": "None",
         "doc": "",
-        "line": 311,
+        "line": 354,
         "is_constructor": false,
         "deprecated": false,
         "deprecated_reason": "",
@@ -7356,7 +7636,7 @@
         "params": [],
         "return_type": "None",
         "doc": "",
-        "line": 315,
+        "line": 358,
         "is_constructor": false,
         "deprecated": false,
         "deprecated_reason": "",
@@ -7367,7 +7647,7 @@
         "params": [],
         "return_type": "None",
         "doc": "",
-        "line": 319,
+        "line": 362,
         "is_constructor": false,
         "deprecated": false,
         "deprecated_reason": "",
@@ -7378,7 +7658,7 @@
         "params": [],
         "return_type": "None",
         "doc": "",
-        "line": 323,
+        "line": 366,
         "is_constructor": false,
         "deprecated": false,
         "deprecated_reason": "",
@@ -7389,7 +7669,7 @@
         "params": [],
         "return_type": "None",
         "doc": "",
-        "line": 327,
+        "line": 370,
         "is_constructor": false,
         "deprecated": false,
         "deprecated_reason": "",
@@ -7400,7 +7680,7 @@
         "params": [],
         "return_type": "None",
         "doc": "",
-        "line": 331,
+        "line": 374,
         "is_constructor": false,
         "deprecated": false,
         "deprecated_reason": "",
@@ -7411,7 +7691,7 @@
         "params": [],
         "return_type": "None",
         "doc": "",
-        "line": 335,
+        "line": 378,
         "is_constructor": false,
         "deprecated": false,
         "deprecated_reason": "",
@@ -7422,7 +7702,7 @@
         "params": [],
         "return_type": "None",
         "doc": "",
-        "line": 339,
+        "line": 382,
         "is_constructor": false,
         "deprecated": false,
         "deprecated_reason": "",
@@ -7433,7 +7713,7 @@
         "params": [],
         "return_type": "None",
         "doc": "",
-        "line": 343,
+        "line": 386,
         "is_constructor": false,
         "deprecated": false,
         "deprecated_reason": "",
@@ -7444,7 +7724,7 @@
         "params": [],
         "return_type": "None",
         "doc": "",
-        "line": 347,
+        "line": 390,
         "is_constructor": false,
         "deprecated": false,
         "deprecated_reason": "",
@@ -7455,7 +7735,7 @@
         "params": [],
         "return_type": "None",
         "doc": "",
-        "line": 351,
+        "line": 394,
         "is_constructor": false,
         "deprecated": false,
         "deprecated_reason": "",
@@ -7466,7 +7746,7 @@
         "params": [],
         "return_type": "None",
         "doc": "",
-        "line": 355,
+        "line": 398,
         "is_constructor": false,
         "deprecated": false,
         "deprecated_reason": "",
@@ -7477,7 +7757,7 @@
         "params": [],
         "return_type": "None",
         "doc": "",
-        "line": 359,
+        "line": 402,
         "is_constructor": false,
         "deprecated": false,
         "deprecated_reason": "",
@@ -7488,7 +7768,7 @@
         "params": [],
         "return_type": "None",
         "doc": "",
-        "line": 363,
+        "line": 406,
         "is_constructor": false,
         "deprecated": false,
         "deprecated_reason": "",
@@ -7499,7 +7779,7 @@
         "params": [],
         "return_type": "None",
         "doc": "",
-        "line": 367,
+        "line": 410,
         "is_constructor": false,
         "deprecated": false,
         "deprecated_reason": "",
@@ -7512,7 +7792,7 @@
         "type": "bool",
         "writable": false,
         "doc": "Returns true if all effects are disabled (as just created, default EffectFormat object).",
-        "line": 125,
+        "line": 168,
         "file": "aspose/slides_foss/EffectFormat.py"
       },
       {
@@ -7520,7 +7800,7 @@
         "type": "IBlur",
         "writable": true,
         "doc": "Blur effect.",
-        "line": 133,
+        "line": 176,
         "file": "aspose/slides_foss/EffectFormat.py"
       },
       {
@@ -7528,7 +7808,7 @@
         "type": "IFillOverlay",
         "writable": true,
         "doc": "Fill overlay effect.",
-        "line": 154,
+        "line": 197,
         "file": "aspose/slides_foss/EffectFormat.py"
       },
       {
@@ -7536,7 +7816,7 @@
         "type": "IGlow",
         "writable": true,
         "doc": "Glow effect.",
-        "line": 177,
+        "line": 220,
         "file": "aspose/slides_foss/EffectFormat.py"
       },
       {
@@ -7544,7 +7824,7 @@
         "type": "IInnerShadow",
         "writable": true,
         "doc": "Inner shadow.",
-        "line": 197,
+        "line": 240,
         "file": "aspose/slides_foss/EffectFormat.py"
       },
       {
@@ -7552,7 +7832,7 @@
         "type": "IOuterShadow",
         "writable": true,
         "doc": "Outer shadow.",
-        "line": 219,
+        "line": 262,
         "file": "aspose/slides_foss/EffectFormat.py"
       },
       {
@@ -7560,7 +7840,7 @@
         "type": "IPresetShadow",
         "writable": true,
         "doc": "Preset shadow.",
-        "line": 241,
+        "line": 284,
         "file": "aspose/slides_foss/EffectFormat.py"
       },
       {
@@ -7568,7 +7848,7 @@
         "type": "IReflection",
         "writable": true,
         "doc": "Reflection.",
-        "line": 263,
+        "line": 306,
         "file": "aspose/slides_foss/EffectFormat.py"
       },
       {
@@ -7576,7 +7856,7 @@
         "type": "ISoftEdge",
         "writable": true,
         "doc": "Soft edge.",
-        "line": 282,
+        "line": 325,
         "file": "aspose/slides_foss/EffectFormat.py"
       },
       {
@@ -7584,7 +7864,7 @@
         "type": "IEffectParamSource",
         "writable": false,
         "doc": "Gets the as i effect param source.",
-        "line": 302,
+        "line": 345,
         "file": "aspose/slides_foss/EffectFormat.py",
         "doc_source": "name_inference"
       },
@@ -7593,7 +7873,7 @@
         "type": "IPresentationComponent",
         "writable": false,
         "doc": "Allows to get base IPresentationComponent interface.",
-        "line": 13,
+        "line": 14,
         "file": "aspose/slides_foss/PVIObject.py"
       },
       {
@@ -7601,7 +7881,7 @@
         "type": "IBaseSlide",
         "writable": false,
         "doc": "Gets the slide.",
-        "line": 18,
+        "line": 19,
         "file": "aspose/slides_foss/PVIObject.py",
         "doc_source": "name_inference"
       },
@@ -7610,7 +7890,7 @@
         "type": "IPresentation",
         "writable": false,
         "doc": "Gets the presentation.",
-        "line": 24,
+        "line": 25,
         "file": "aspose/slides_foss/PVIObject.py",
         "doc_source": "name_inference"
       }
@@ -7631,7 +7911,7 @@
     "kind": "class_definition",
     "doc": "Represents a fill formatting options.",
     "file": "aspose/slides_foss/FillFormat.py",
-    "line": 27,
+    "line": 28,
     "bases": [
       "PVIObject",
       "ISlideComponent",
@@ -7646,7 +7926,7 @@
         "type": "FillType",
         "writable": true,
         "doc": "Returns or sets the type of filling.",
-        "line": 83,
+        "line": 72,
         "file": "aspose/slides_foss/FillFormat.py"
       },
       {
@@ -7654,7 +7934,7 @@
         "type": "IColorFormat",
         "writable": false,
         "doc": "Returns the fill color.",
-        "line": 151,
+        "line": 140,
         "file": "aspose/slides_foss/FillFormat.py"
       },
       {
@@ -7662,7 +7942,7 @@
         "type": "IGradientFormat",
         "writable": false,
         "doc": "Returns the gradient fill format.",
-        "line": 160,
+        "line": 149,
         "file": "aspose/slides_foss/FillFormat.py"
       },
       {
@@ -7670,7 +7950,7 @@
         "type": "IPatternFormat",
         "writable": false,
         "doc": "Returns the pattern fill format.",
-        "line": 171,
+        "line": 160,
         "file": "aspose/slides_foss/FillFormat.py"
       },
       {
@@ -7678,7 +7958,7 @@
         "type": "IPictureFillFormat",
         "writable": false,
         "doc": "Returns the picture fill format.",
-        "line": 182,
+        "line": 171,
         "file": "aspose/slides_foss/FillFormat.py"
       },
       {
@@ -7686,7 +7966,7 @@
         "type": "NullableBool",
         "writable": true,
         "doc": "Determines whether the fill should be rotated with shape.",
-        "line": 193,
+        "line": 182,
         "file": "aspose/slides_foss/FillFormat.py"
       },
       {
@@ -7694,7 +7974,7 @@
         "type": "IPresentationComponent",
         "writable": false,
         "doc": "Allows to get base IPresentationComponent interface.",
-        "line": 13,
+        "line": 14,
         "file": "aspose/slides_foss/PVIObject.py"
       },
       {
@@ -7702,7 +7982,7 @@
         "type": "IBaseSlide",
         "writable": false,
         "doc": "Gets the slide.",
-        "line": 18,
+        "line": 19,
         "file": "aspose/slides_foss/PVIObject.py",
         "doc_source": "name_inference"
       },
@@ -7711,7 +7991,7 @@
         "type": "IPresentation",
         "writable": false,
         "doc": "Gets the presentation.",
-        "line": 24,
+        "line": 25,
         "file": "aspose/slides_foss/PVIObject.py",
         "doc_source": "name_inference"
       }
@@ -7795,7 +8075,7 @@
         "type": "IPresentationComponent",
         "writable": false,
         "doc": "Allows to get base IPresentationComponent interface.",
-        "line": 13,
+        "line": 14,
         "file": "aspose/slides_foss/PVIObject.py"
       },
       {
@@ -7803,7 +8083,7 @@
         "type": "IBaseSlide",
         "writable": false,
         "doc": "Gets the slide.",
-        "line": 18,
+        "line": 19,
         "file": "aspose/slides_foss/PVIObject.py",
         "doc_source": "name_inference"
       },
@@ -7812,7 +8092,7 @@
         "type": "IPresentation",
         "writable": false,
         "doc": "Gets the presentation.",
-        "line": 24,
+        "line": 25,
         "file": "aspose/slides_foss/PVIObject.py",
         "doc_source": "name_inference"
       }
@@ -9664,6 +9944,22 @@
         "doc": "Gets or sets a value indicating whether spell checking is enabled for the text portion.",
         "line": 229,
         "file": "aspose/slides_foss/IBasePortionFormat.py"
+      },
+      {
+        "name": "hyperlink_click",
+        "type": "IHyperlink",
+        "writable": true,
+        "doc": "Returns or sets the hyperlink followed on a mouse click.",
+        "line": 12,
+        "file": "aspose/slides_foss/IHyperlinkContainer.py"
+      },
+      {
+        "name": "hyperlink_mouse_over",
+        "type": "IHyperlink",
+        "writable": true,
+        "doc": "Returns or sets the hyperlink followed on a mouse over.",
+        "line": 22,
+        "file": "aspose/slides_foss/IHyperlinkContainer.py"
       }
     ],
     "visibility": "conventional",
@@ -10015,7 +10311,7 @@
         "type": "IPresentationComponent",
         "writable": false,
         "doc": "Allows to get base IPresentationComponent interface.",
-        "line": 13,
+        "line": 14,
         "file": "aspose/slides_foss/PVIObject.py"
       },
       {
@@ -10023,7 +10319,7 @@
         "type": "IBaseSlide",
         "writable": false,
         "doc": "Gets the slide.",
-        "line": 18,
+        "line": 19,
         "file": "aspose/slides_foss/PVIObject.py",
         "doc_source": "name_inference"
       },
@@ -10032,7 +10328,7 @@
         "type": "IPresentation",
         "writable": false,
         "doc": "Gets the presentation.",
-        "line": 24,
+        "line": 25,
         "file": "aspose/slides_foss/PVIObject.py",
         "doc_source": "name_inference"
       }
@@ -10053,7 +10349,7 @@
     "kind": "class_definition",
     "doc": "Represents format of a line.",
     "file": "aspose/slides_foss/LineFormat.py",
-    "line": 64,
+    "line": 65,
     "bases": [
       "PVIObject",
       "ISlideComponent",
@@ -10068,7 +10364,7 @@
         "type": "bool",
         "writable": false,
         "doc": "Returns true if line format is not defined (as just created, default).",
-        "line": 170,
+        "line": 112,
         "file": "aspose/slides_foss/LineFormat.py"
       },
       {
@@ -10076,7 +10372,7 @@
         "type": "ILineFillFormat",
         "writable": false,
         "doc": "Returns the fill format of a line.",
-        "line": 179,
+        "line": 121,
         "file": "aspose/slides_foss/LineFormat.py"
       },
       {
@@ -10084,7 +10380,7 @@
         "type": "float",
         "writable": true,
         "doc": "Returns or sets the width of a line.",
-        "line": 189,
+        "line": 131,
         "file": "aspose/slides_foss/LineFormat.py"
       },
       {
@@ -10092,7 +10388,7 @@
         "type": "LineDashStyle",
         "writable": true,
         "doc": "Returns or sets the line dash style.",
-        "line": 206,
+        "line": 148,
         "file": "aspose/slides_foss/LineFormat.py"
       },
       {
@@ -10100,7 +10396,7 @@
         "type": "list[float]",
         "writable": true,
         "doc": "Returns or sets the custom dash pattern.",
-        "line": 243,
+        "line": 185,
         "file": "aspose/slides_foss/LineFormat.py"
       },
       {
@@ -10108,7 +10404,7 @@
         "type": "LineCapStyle",
         "writable": true,
         "doc": "Returns or sets the line cap style.",
-        "line": 279,
+        "line": 221,
         "file": "aspose/slides_foss/LineFormat.py"
       },
       {
@@ -10116,7 +10412,7 @@
         "type": "LineStyle",
         "writable": true,
         "doc": "Returns or sets the line style.",
-        "line": 305,
+        "line": 247,
         "file": "aspose/slides_foss/LineFormat.py"
       },
       {
@@ -10124,7 +10420,7 @@
         "type": "LineAlignment",
         "writable": true,
         "doc": "Returns or sets the line alignment.",
-        "line": 331,
+        "line": 273,
         "file": "aspose/slides_foss/LineFormat.py"
       },
       {
@@ -10132,7 +10428,7 @@
         "type": "LineJoinStyle",
         "writable": true,
         "doc": "Returns or sets the lines join style.",
-        "line": 357,
+        "line": 299,
         "file": "aspose/slides_foss/LineFormat.py"
       },
       {
@@ -10140,7 +10436,7 @@
         "type": "float",
         "writable": true,
         "doc": "Returns or sets the miter limit of a line.",
-        "line": 389,
+        "line": 331,
         "file": "aspose/slides_foss/LineFormat.py"
       },
       {
@@ -10148,7 +10444,7 @@
         "type": "LineArrowheadStyle",
         "writable": true,
         "doc": "Returns or sets the arrowhead style at the beginning of a line.",
-        "line": 440,
+        "line": 382,
         "file": "aspose/slides_foss/LineFormat.py"
       },
       {
@@ -10156,7 +10452,7 @@
         "type": "LineArrowheadStyle",
         "writable": true,
         "doc": "Returns or sets the arrowhead style at the end of a line.",
-        "line": 459,
+        "line": 401,
         "file": "aspose/slides_foss/LineFormat.py"
       },
       {
@@ -10164,7 +10460,7 @@
         "type": "LineArrowheadWidth",
         "writable": true,
         "doc": "Returns or sets the arrowhead width at the beginning of a line.",
-        "line": 478,
+        "line": 420,
         "file": "aspose/slides_foss/LineFormat.py"
       },
       {
@@ -10172,7 +10468,7 @@
         "type": "LineArrowheadWidth",
         "writable": true,
         "doc": "Returns or sets the arrowhead width at the end of a line.",
-        "line": 497,
+        "line": 439,
         "file": "aspose/slides_foss/LineFormat.py"
       },
       {
@@ -10180,7 +10476,7 @@
         "type": "LineArrowheadLength",
         "writable": true,
         "doc": "Returns or sets the arrowhead length at the beginning of a line.",
-        "line": 516,
+        "line": 458,
         "file": "aspose/slides_foss/LineFormat.py"
       },
       {
@@ -10188,7 +10484,7 @@
         "type": "LineArrowheadLength",
         "writable": true,
         "doc": "Returns or sets the arrowhead length at the end of a line.",
-        "line": 535,
+        "line": 477,
         "file": "aspose/slides_foss/LineFormat.py"
       },
       {
@@ -10196,7 +10492,7 @@
         "type": "IPresentationComponent",
         "writable": false,
         "doc": "Allows to get base IPresentationComponent interface.",
-        "line": 13,
+        "line": 14,
         "file": "aspose/slides_foss/PVIObject.py"
       },
       {
@@ -10204,7 +10500,7 @@
         "type": "IBaseSlide",
         "writable": false,
         "doc": "Gets the slide.",
-        "line": 18,
+        "line": 19,
         "file": "aspose/slides_foss/PVIObject.py",
         "doc_source": "name_inference"
       },
@@ -10213,7 +10509,7 @@
         "type": "IPresentation",
         "writable": false,
         "doc": "Gets the presentation.",
-        "line": 24,
+        "line": 25,
         "file": "aspose/slides_foss/PVIObject.py",
         "doc_source": "name_inference"
       }
@@ -10391,7 +10687,7 @@
         "type": "IPresentationComponent",
         "writable": false,
         "doc": "Allows to get base IPresentationComponent interface.",
-        "line": 13,
+        "line": 14,
         "file": "aspose/slides_foss/PVIObject.py"
       },
       {
@@ -10399,7 +10695,7 @@
         "type": "IBaseSlide",
         "writable": false,
         "doc": "Gets the slide.",
-        "line": 18,
+        "line": 19,
         "file": "aspose/slides_foss/PVIObject.py",
         "doc_source": "name_inference"
       },
@@ -10408,7 +10704,7 @@
         "type": "IPresentation",
         "writable": false,
         "doc": "Gets the presentation.",
-        "line": 24,
+        "line": 25,
         "file": "aspose/slides_foss/PVIObject.py",
         "doc_source": "name_inference"
       }
@@ -10467,7 +10763,7 @@
         "type": "IPresentationComponent",
         "writable": false,
         "doc": "Allows to get base IPresentationComponent interface.",
-        "line": 13,
+        "line": 14,
         "file": "aspose/slides_foss/PVIObject.py"
       },
       {
@@ -10475,7 +10771,7 @@
         "type": "IBaseSlide",
         "writable": false,
         "doc": "Gets the slide.",
-        "line": 18,
+        "line": 19,
         "file": "aspose/slides_foss/PVIObject.py",
         "doc_source": "name_inference"
       },
@@ -10484,7 +10780,7 @@
         "type": "IPresentation",
         "writable": false,
         "doc": "Gets the presentation.",
-        "line": 24,
+        "line": 25,
         "file": "aspose/slides_foss/PVIObject.py",
         "doc_source": "name_inference"
       }
@@ -10656,7 +10952,7 @@
         "type": "IPresentationComponent",
         "writable": false,
         "doc": "Allows to get base IPresentationComponent interface.",
-        "line": 13,
+        "line": 14,
         "file": "aspose/slides_foss/PVIObject.py"
       },
       {
@@ -10664,7 +10960,7 @@
         "type": "IBaseSlide",
         "writable": false,
         "doc": "Gets the slide.",
-        "line": 18,
+        "line": 19,
         "file": "aspose/slides_foss/PVIObject.py",
         "doc_source": "name_inference"
       },
@@ -10673,7 +10969,7 @@
         "type": "IPresentation",
         "writable": false,
         "doc": "Gets the presentation.",
-        "line": 24,
+        "line": 25,
         "file": "aspose/slides_foss/PVIObject.py",
         "doc_source": "name_inference"
       }
@@ -10694,7 +10990,7 @@
     "kind": "class_definition",
     "doc": "This class contains the text portion formatting properties.",
     "file": "aspose/slides_foss/PortionFormat.py",
-    "line": 10,
+    "line": 13,
     "bases": [
       "BasePortionFormat",
       "IPortionFormat"
@@ -10705,7 +11001,7 @@
         "params": [],
         "return_type": "",
         "doc": "",
-        "line": 12,
+        "line": 15,
         "is_constructor": true,
         "deprecated": false,
         "deprecated_reason": "",
@@ -10714,11 +11010,27 @@
     ],
     "properties": [
       {
+        "name": "hyperlink_click",
+        "type": "IHyperlink",
+        "writable": true,
+        "doc": "Returns or sets the hyperlink followed on a mouse click.",
+        "line": 19,
+        "file": "aspose/slides_foss/PortionFormat.py"
+      },
+      {
+        "name": "hyperlink_mouse_over",
+        "type": "IHyperlink",
+        "writable": true,
+        "doc": "Returns or sets the hyperlink followed on a mouse over.",
+        "line": 29,
+        "file": "aspose/slides_foss/PortionFormat.py"
+      },
+      {
         "name": "line_format",
         "type": "ILineFormat",
         "writable": false,
         "doc": "Returns the LineFormat properties for text outlining.",
-        "line": 123,
+        "line": 124,
         "file": "aspose/slides_foss/BasePortionFormat.py"
       },
       {
@@ -10726,7 +11038,7 @@
         "type": "IFillFormat",
         "writable": false,
         "doc": "Returns the text FillFormat properties.",
-        "line": 133,
+        "line": 134,
         "file": "aspose/slides_foss/BasePortionFormat.py"
       },
       {
@@ -10734,7 +11046,7 @@
         "type": "IEffectFormat",
         "writable": false,
         "doc": "Returns the text EffectFormat properties.",
-        "line": 143,
+        "line": 144,
         "file": "aspose/slides_foss/BasePortionFormat.py"
       },
       {
@@ -10742,7 +11054,7 @@
         "type": "IColorFormat",
         "writable": false,
         "doc": "Returns the color used to highlight a text.",
-        "line": 153,
+        "line": 154,
         "file": "aspose/slides_foss/BasePortionFormat.py"
       },
       {
@@ -10750,7 +11062,7 @@
         "type": "ILineFormat",
         "writable": false,
         "doc": "Returns the LineFormat properties used to outline underline line.",
-        "line": 166,
+        "line": 167,
         "file": "aspose/slides_foss/BasePortionFormat.py"
       },
       {
@@ -10758,7 +11070,7 @@
         "type": "IFillFormat",
         "writable": false,
         "doc": "Returns the underline line FillFormat properties.",
-        "line": 176,
+        "line": 177,
         "file": "aspose/slides_foss/BasePortionFormat.py"
       },
       {
@@ -10766,7 +11078,7 @@
         "type": "NullableBool",
         "writable": true,
         "doc": "Determines whether the font is bold.",
-        "line": 192,
+        "line": 193,
         "file": "aspose/slides_foss/BasePortionFormat.py"
       },
       {
@@ -10774,7 +11086,7 @@
         "type": "NullableBool",
         "writable": true,
         "doc": "Determines whether the font is itallic.",
-        "line": 201,
+        "line": 202,
         "file": "aspose/slides_foss/BasePortionFormat.py"
       },
       {
@@ -10782,7 +11094,7 @@
         "type": "NullableBool",
         "writable": true,
         "doc": "Determines whether the numbers should ignore text eastern language-specific vertical text layout.",
-        "line": 210,
+        "line": 211,
         "file": "aspose/slides_foss/BasePortionFormat.py"
       },
       {
@@ -10790,7 +11102,7 @@
         "type": "NullableBool",
         "writable": true,
         "doc": "Determines whether the height of a text should be normalized.",
-        "line": 219,
+        "line": 220,
         "file": "aspose/slides_foss/BasePortionFormat.py"
       },
       {
@@ -10798,7 +11110,7 @@
         "type": "NullableBool",
         "writable": true,
         "doc": "Determines whether the text shouldn't be proofed.",
-        "line": 228,
+        "line": 229,
         "file": "aspose/slides_foss/BasePortionFormat.py"
       },
       {
@@ -10806,7 +11118,7 @@
         "type": "TextUnderlineType",
         "writable": true,
         "doc": "Returns or sets the text underline type.",
-        "line": 239,
+        "line": 240,
         "file": "aspose/slides_foss/BasePortionFormat.py"
       },
       {
@@ -10814,7 +11126,7 @@
         "type": "TextCapType",
         "writable": true,
         "doc": "Returns or sets the type of text capitalization.",
-        "line": 265,
+        "line": 266,
         "file": "aspose/slides_foss/BasePortionFormat.py"
       },
       {
@@ -10822,7 +11134,7 @@
         "type": "TextStrikethroughType",
         "writable": true,
         "doc": "Returns or sets the strikethrough type of a text.",
-        "line": 291,
+        "line": 292,
         "file": "aspose/slides_foss/BasePortionFormat.py"
       },
       {
@@ -10830,7 +11142,7 @@
         "type": "NullableBool",
         "writable": true,
         "doc": "Determines whether the underline style has own LineFormat properties or inherits it from the LineFormat properties of the text.",
-        "line": 319,
+        "line": 320,
         "file": "aspose/slides_foss/BasePortionFormat.py"
       },
       {
@@ -10838,7 +11150,7 @@
         "type": "NullableBool",
         "writable": true,
         "doc": "Determines whether the underline style has own FillFormat properties or inherits it from the FillFormat properties of the text.",
-        "line": 347,
+        "line": 348,
         "file": "aspose/slides_foss/BasePortionFormat.py"
       },
       {
@@ -10846,7 +11158,7 @@
         "type": "float",
         "writable": true,
         "doc": "Returns or sets the font height of a portion.",
-        "line": 377,
+        "line": 378,
         "file": "aspose/slides_foss/BasePortionFormat.py"
       },
       {
@@ -10854,7 +11166,7 @@
         "type": "float",
         "writable": true,
         "doc": "Returns or sets the superscript or subscript text.",
-        "line": 399,
+        "line": 400,
         "file": "aspose/slides_foss/BasePortionFormat.py"
       },
       {
@@ -10862,7 +11174,7 @@
         "type": "float",
         "writable": true,
         "doc": "Returns or sets the minimal font size, for which kerning should be switched on.",
-        "line": 421,
+        "line": 422,
         "file": "aspose/slides_foss/BasePortionFormat.py"
       },
       {
@@ -10870,7 +11182,7 @@
         "type": "float",
         "writable": true,
         "doc": "Returns or sets the intercharacter spacing increment.",
-        "line": 443,
+        "line": 444,
         "file": "aspose/slides_foss/BasePortionFormat.py"
       },
       {
@@ -10878,7 +11190,7 @@
         "type": "IFontData",
         "writable": true,
         "doc": "Returns or sets the Latin font info.",
-        "line": 467,
+        "line": 468,
         "file": "aspose/slides_foss/BasePortionFormat.py"
       },
       {
@@ -10886,7 +11198,7 @@
         "type": "IFontData",
         "writable": true,
         "doc": "Returns or sets the East Asian font info.",
-        "line": 476,
+        "line": 477,
         "file": "aspose/slides_foss/BasePortionFormat.py"
       },
       {
@@ -10894,7 +11206,7 @@
         "type": "IFontData",
         "writable": true,
         "doc": "Returns or sets the complex script font info.",
-        "line": 485,
+        "line": 486,
         "file": "aspose/slides_foss/BasePortionFormat.py"
       },
       {
@@ -10902,7 +11214,7 @@
         "type": "IFontData",
         "writable": true,
         "doc": "Returns or sets the symbolic font info.",
-        "line": 494,
+        "line": 495,
         "file": "aspose/slides_foss/BasePortionFormat.py"
       },
       {
@@ -10910,7 +11222,7 @@
         "type": "str",
         "writable": true,
         "doc": "Returns or sets the Id of a proofing language.",
-        "line": 505,
+        "line": 506,
         "file": "aspose/slides_foss/BasePortionFormat.py"
       },
       {
@@ -10918,7 +11230,7 @@
         "type": "str",
         "writable": true,
         "doc": "Returns or sets the Id of an alternative language.",
-        "line": 523,
+        "line": 524,
         "file": "aspose/slides_foss/BasePortionFormat.py"
       },
       {
@@ -10926,7 +11238,7 @@
         "type": "bool",
         "writable": true,
         "doc": "Gets or sets a value indicating whether spell checking is enabled for the text portion.",
-        "line": 543,
+        "line": 544,
         "file": "aspose/slides_foss/BasePortionFormat.py"
       },
       {
@@ -10934,7 +11246,7 @@
         "type": "IPresentationComponent",
         "writable": false,
         "doc": "Allows to get base IPresentationComponent interface.",
-        "line": 13,
+        "line": 14,
         "file": "aspose/slides_foss/PVIObject.py"
       },
       {
@@ -10942,7 +11254,7 @@
         "type": "IBaseSlide",
         "writable": false,
         "doc": "Gets the slide.",
-        "line": 18,
+        "line": 19,
         "file": "aspose/slides_foss/PVIObject.py",
         "doc_source": "name_inference"
       },
@@ -10951,7 +11263,7 @@
         "type": "IPresentation",
         "writable": false,
         "doc": "Gets the presentation.",
-        "line": 24,
+        "line": 25,
         "file": "aspose/slides_foss/PVIObject.py",
         "doc_source": "name_inference"
       }
@@ -11224,7 +11536,7 @@
     "kind": "class_definition",
     "doc": "Represents 3-D properties.",
     "file": "aspose/slides_foss/ThreeDFormat.py",
-    "line": 34,
+    "line": 43,
     "bases": [
       "PVIObject",
       "ISlideComponent",
@@ -11239,7 +11551,7 @@
         "type": "float",
         "writable": true,
         "doc": "Returns or sets the width of a 3D contour.",
-        "line": 95,
+        "line": 115,
         "file": "aspose/slides_foss/ThreeDFormat.py"
       },
       {
@@ -11247,7 +11559,7 @@
         "type": "float",
         "writable": true,
         "doc": "Returns or sets the height of an extrusion effect.",
-        "line": 112,
+        "line": 132,
         "file": "aspose/slides_foss/ThreeDFormat.py"
       },
       {
@@ -11255,7 +11567,7 @@
         "type": "float",
         "writable": true,
         "doc": "Returns or sets the depth of a 3D shape.",
-        "line": 129,
+        "line": 149,
         "file": "aspose/slides_foss/ThreeDFormat.py"
       },
       {
@@ -11263,7 +11575,7 @@
         "type": "IShapeBevel",
         "writable": false,
         "doc": "Returns or sets the type of a top 3D bevel.",
-        "line": 146,
+        "line": 166,
         "file": "aspose/slides_foss/ThreeDFormat.py"
       },
       {
@@ -11271,7 +11583,7 @@
         "type": "IShapeBevel",
         "writable": false,
         "doc": "Returns or sets the type of a bottom 3D bevel.",
-        "line": 158,
+        "line": 178,
         "file": "aspose/slides_foss/ThreeDFormat.py"
       },
       {
@@ -11279,7 +11591,7 @@
         "type": "IColorFormat",
         "writable": false,
         "doc": "Returns or sets the color of a contour.",
-        "line": 170,
+        "line": 190,
         "file": "aspose/slides_foss/ThreeDFormat.py"
       },
       {
@@ -11287,7 +11599,7 @@
         "type": "IColorFormat",
         "writable": false,
         "doc": "Returns or sets the color of an extrusion.",
-        "line": 182,
+        "line": 202,
         "file": "aspose/slides_foss/ThreeDFormat.py"
       },
       {
@@ -11295,7 +11607,7 @@
         "type": "ICamera",
         "writable": false,
         "doc": "Returns or sets the settings of a camera.",
-        "line": 194,
+        "line": 214,
         "file": "aspose/slides_foss/ThreeDFormat.py"
       },
       {
@@ -11303,7 +11615,7 @@
         "type": "ILightRig",
         "writable": false,
         "doc": "Returns or sets the type of a light.",
-        "line": 203,
+        "line": 223,
         "file": "aspose/slides_foss/ThreeDFormat.py"
       },
       {
@@ -11311,7 +11623,7 @@
         "type": "MaterialPresetType",
         "writable": true,
         "doc": "Returns or sets the type of a material.",
-        "line": 212,
+        "line": 232,
         "file": "aspose/slides_foss/ThreeDFormat.py"
       },
       {
@@ -11319,7 +11631,7 @@
         "type": "IPresentationComponent",
         "writable": false,
         "doc": "Allows to get base IPresentationComponent interface.",
-        "line": 13,
+        "line": 14,
         "file": "aspose/slides_foss/PVIObject.py"
       },
       {
@@ -11327,7 +11639,7 @@
         "type": "IBaseSlide",
         "writable": false,
         "doc": "Gets the slide.",
-        "line": 18,
+        "line": 19,
         "file": "aspose/slides_foss/PVIObject.py",
         "doc_source": "name_inference"
       },
@@ -11336,7 +11648,7 @@
         "type": "IPresentation",
         "writable": false,
         "doc": "Gets the presentation.",
-        "line": 24,
+        "line": 25,
         "file": "aspose/slides_foss/PVIObject.py",
         "doc_source": "name_inference"
       }
@@ -11638,7 +11950,7 @@
         "type": "IPresentationComponent",
         "writable": false,
         "doc": "Allows to get base IPresentationComponent interface.",
-        "line": 13,
+        "line": 14,
         "file": "aspose/slides_foss/PVIObject.py"
       },
       {
@@ -11646,7 +11958,7 @@
         "type": "IBaseSlide",
         "writable": false,
         "doc": "Gets the slide.",
-        "line": 18,
+        "line": 19,
         "file": "aspose/slides_foss/PVIObject.py",
         "doc_source": "name_inference"
       },
@@ -11655,7 +11967,7 @@
         "type": "IPresentation",
         "writable": false,
         "doc": "Gets the presentation.",
-        "line": 24,
+        "line": 25,
         "file": "aspose/slides_foss/PVIObject.py",
         "doc_source": "name_inference"
       }
@@ -13543,7 +13855,7 @@
         "params": [],
         "return_type": "",
         "doc": "Initialize an empty shape.",
-        "line": 25,
+        "line": 27,
         "is_constructor": true,
         "deprecated": false,
         "deprecated_reason": "",
@@ -13590,7 +13902,7 @@
         "type": "IShapeFrame",
         "writable": true,
         "doc": "Returns or sets the raw shape frame's properties.",
-        "line": 91,
+        "line": 93,
         "file": "aspose/slides_foss/Shape.py"
       },
       {
@@ -13598,7 +13910,7 @@
         "type": "IShapeFrame",
         "writable": true,
         "doc": "Returns or sets the shape frame's properties.",
-        "line": 100,
+        "line": 102,
         "file": "aspose/slides_foss/Shape.py"
       },
       {
@@ -13606,7 +13918,7 @@
         "type": "ILineFormat",
         "writable": false,
         "doc": "Returns the LineFormat object that contains line formatting properties for a shape.",
-        "line": 127,
+        "line": 140,
         "file": "aspose/slides_foss/Shape.py"
       },
       {
@@ -13614,7 +13926,7 @@
         "type": "IThreeDFormat",
         "writable": false,
         "doc": "Returns the ThreeDFormat object that 3d effect properties for a shape.",
-        "line": 138,
+        "line": 154,
         "file": "aspose/slides_foss/Shape.py"
       },
       {
@@ -13622,7 +13934,7 @@
         "type": "IEffectFormat",
         "writable": false,
         "doc": "Returns the EffectFormat object which contains pixel effects applied to a shape.",
-        "line": 149,
+        "line": 169,
         "file": "aspose/slides_foss/Shape.py"
       },
       {
@@ -13630,7 +13942,7 @@
         "type": "IFillFormat",
         "writable": false,
         "doc": "Returns the FillFormat object that contains fill formatting properties for a shape.",
-        "line": 160,
+        "line": 180,
         "file": "aspose/slides_foss/Shape.py"
       },
       {
@@ -13638,7 +13950,7 @@
         "type": "bool",
         "writable": true,
         "doc": "Determines whether the shape is hidden.",
-        "line": 176,
+        "line": 196,
         "file": "aspose/slides_foss/Shape.py"
       },
       {
@@ -13646,7 +13958,7 @@
         "type": "int",
         "writable": false,
         "doc": "Returns the position of a shape in the z-order.",
-        "line": 197,
+        "line": 217,
         "file": "aspose/slides_foss/Shape.py"
       },
       {
@@ -13654,7 +13966,7 @@
         "type": "int",
         "writable": false,
         "doc": "Returns the number of connection sites on the shape.",
-        "line": 208,
+        "line": 228,
         "file": "aspose/slides_foss/Shape.py"
       },
       {
@@ -13662,7 +13974,7 @@
         "type": "float",
         "writable": true,
         "doc": "Returns or sets the number of degrees the specified shape is rotated around the z-axis.",
-        "line": 224,
+        "line": 244,
         "file": "aspose/slides_foss/Shape.py"
       },
       {
@@ -13670,7 +13982,7 @@
         "type": "float",
         "writable": true,
         "doc": "Gets or sets the x-coordinate of the shape's upper-left corner, measured in points.",
-        "line": 241,
+        "line": 261,
         "file": "aspose/slides_foss/Shape.py"
       },
       {
@@ -13678,7 +13990,7 @@
         "type": "float",
         "writable": true,
         "doc": "Gets or sets the y-coordinate of the shape's upper-left corner, measured in points.",
-        "line": 261,
+        "line": 281,
         "file": "aspose/slides_foss/Shape.py"
       },
       {
@@ -13686,7 +13998,7 @@
         "type": "float",
         "writable": true,
         "doc": "Gets or sets the width of the shape, measured in points.",
-        "line": 281,
+        "line": 301,
         "file": "aspose/slides_foss/Shape.py"
       },
       {
@@ -13694,7 +14006,7 @@
         "type": "float",
         "writable": true,
         "doc": "Gets or sets the height of the shape, measured in points.",
-        "line": 301,
+        "line": 321,
         "file": "aspose/slides_foss/Shape.py"
       },
       {
@@ -13702,7 +14014,7 @@
         "type": "int",
         "writable": false,
         "doc": "Returns an internal, presentation-scoped identifier intended for use by add-ins or other code.",
-        "line": 323,
+        "line": 343,
         "file": "aspose/slides_foss/Shape.py"
       },
       {
@@ -13710,7 +14022,7 @@
         "type": "int",
         "writable": false,
         "doc": "Returns a slide-scoped unique identifier that remains constant for the lifetime of the shape and lets PowerPoint or interop code reliably reference the shape from anywhere in the document.",
-        "line": 483,
+        "line": 503,
         "file": "aspose/slides_foss/Shape.py"
       },
       {
@@ -13718,7 +14030,7 @@
         "type": "str",
         "writable": true,
         "doc": "Returns or sets the alternative text associated with a shape.",
-        "line": 493,
+        "line": 513,
         "file": "aspose/slides_foss/Shape.py"
       },
       {
@@ -13726,7 +14038,23 @@
         "type": "str",
         "writable": true,
         "doc": "Returns or sets the title of alternative text associated with a shape.",
-        "line": 510,
+        "line": 530,
+        "file": "aspose/slides_foss/Shape.py"
+      },
+      {
+        "name": "hyperlink_click",
+        "type": "IHyperlink",
+        "writable": true,
+        "doc": "Returns or sets the hyperlink followed when the shape is clicked.",
+        "line": 547,
+        "file": "aspose/slides_foss/Shape.py"
+      },
+      {
+        "name": "hyperlink_mouse_over",
+        "type": "IHyperlink",
+        "writable": true,
+        "doc": "Returns or sets the hyperlink followed when the pointer rests on the shape.",
+        "line": 560,
         "file": "aspose/slides_foss/Shape.py"
       },
       {
@@ -13734,7 +14062,7 @@
         "type": "str",
         "writable": true,
         "doc": "Returns or sets the name of a shape.",
-        "line": 527,
+        "line": 573,
         "file": "aspose/slides_foss/Shape.py"
       },
       {
@@ -13742,7 +14070,7 @@
         "type": "bool",
         "writable": true,
         "doc": "Gets or sets 'Mark as decorative' option Reed/write .",
-        "line": 546,
+        "line": 592,
         "file": "aspose/slides_foss/Shape.py"
       },
       {
@@ -13750,7 +14078,7 @@
         "type": "bool",
         "writable": false,
         "doc": "Determines whether the shape is grouped.",
-        "line": 586,
+        "line": 632,
         "file": "aspose/slides_foss/Shape.py"
       },
       {
@@ -13758,7 +14086,7 @@
         "type": "IBaseSlide",
         "writable": false,
         "doc": "Returns the parent slide of a shape.",
-        "line": 596,
+        "line": 642,
         "file": "aspose/slides_foss/Shape.py"
       },
       {
@@ -13766,7 +14094,7 @@
         "type": "IPresentation",
         "writable": false,
         "doc": "Returns the parent presentation of a slide.",
-        "line": 601,
+        "line": 647,
         "file": "aspose/slides_foss/Shape.py"
       },
       {
@@ -13774,7 +14102,7 @@
         "type": "ISlideComponent",
         "writable": false,
         "doc": "Gets the as i slide component.",
-        "line": 609,
+        "line": 655,
         "file": "aspose/slides_foss/Shape.py",
         "doc_source": "name_inference"
       },
@@ -13783,7 +14111,7 @@
         "type": "IPresentationComponent",
         "writable": false,
         "doc": "Gets the as i presentation component.",
-        "line": 613,
+        "line": 659,
         "file": "aspose/slides_foss/Shape.py",
         "doc_source": "name_inference"
       },
@@ -13926,7 +14254,7 @@
         "type": "IPresentationComponent",
         "writable": false,
         "doc": "Allows to get base IPresentationComponent interface.",
-        "line": 13,
+        "line": 14,
         "file": "aspose/slides_foss/PVIObject.py"
       },
       {
@@ -13934,7 +14262,7 @@
         "type": "IBaseSlide",
         "writable": false,
         "doc": "Gets the slide.",
-        "line": 18,
+        "line": 19,
         "file": "aspose/slides_foss/PVIObject.py",
         "doc_source": "name_inference"
       },
@@ -13943,7 +14271,7 @@
         "type": "IPresentation",
         "writable": false,
         "doc": "Gets the presentation.",
-        "line": 24,
+        "line": 25,
         "file": "aspose/slides_foss/PVIObject.py",
         "doc_source": "name_inference"
       }
@@ -14315,7 +14643,7 @@
         ],
         "return_type": "None",
         "doc": "Sets the rotation value.",
-        "line": 136,
+        "line": 141,
         "is_constructor": false,
         "deprecated": false,
         "deprecated_reason": "",
@@ -14327,7 +14655,7 @@
         "params": [],
         "return_type": "list[float]",
         "doc": "Returns the rotation.",
-        "line": 146,
+        "line": 151,
         "is_constructor": false,
         "deprecated": false,
         "deprecated_reason": "",
@@ -14341,7 +14669,7 @@
         "type": "CameraPresetType",
         "writable": true,
         "doc": "Camera type.",
-        "line": 77,
+        "line": 82,
         "file": "aspose/slides_foss/Camera.py"
       },
       {
@@ -14349,7 +14677,7 @@
         "type": "float",
         "writable": true,
         "doc": "Camera FOV (0-180 deg, field of View).",
-        "line": 103,
+        "line": 108,
         "file": "aspose/slides_foss/Camera.py"
       },
       {
@@ -14357,7 +14685,7 @@
         "type": "float",
         "writable": true,
         "doc": "Camera zoom (positive value in percentage).",
-        "line": 120,
+        "line": 125,
         "file": "aspose/slides_foss/Camera.py"
       },
       {
@@ -14365,7 +14693,7 @@
         "type": "IPresentationComponent",
         "writable": false,
         "doc": "Allows to get base IPresentationComponent interface.",
-        "line": 13,
+        "line": 14,
         "file": "aspose/slides_foss/PVIObject.py"
       },
       {
@@ -14373,7 +14701,7 @@
         "type": "IBaseSlide",
         "writable": false,
         "doc": "Gets the slide.",
-        "line": 18,
+        "line": 19,
         "file": "aspose/slides_foss/PVIObject.py",
         "doc_source": "name_inference"
       },
@@ -14382,7 +14710,7 @@
         "type": "IPresentation",
         "writable": false,
         "doc": "Gets the presentation.",
-        "line": 24,
+        "line": 25,
         "file": "aspose/slides_foss/PVIObject.py",
         "doc_source": "name_inference"
       }
@@ -15314,7 +15642,7 @@
         "params": [],
         "return_type": "None",
         "doc": "Removes comment and all its replies from the parent collection.",
-        "line": 109,
+        "line": 111,
         "is_constructor": false,
         "deprecated": false,
         "deprecated_reason": "",
@@ -15934,7 +16262,7 @@
         "params": [],
         "return_type": "",
         "doc": "Initialize an empty shape.",
-        "line": 25,
+        "line": 27,
         "is_constructor": true,
         "deprecated": false,
         "deprecated_reason": "",
@@ -16049,7 +16377,7 @@
         "type": "IShapeFrame",
         "writable": true,
         "doc": "Returns or sets the raw shape frame's properties.",
-        "line": 91,
+        "line": 93,
         "file": "aspose/slides_foss/Shape.py"
       },
       {
@@ -16057,7 +16385,7 @@
         "type": "IShapeFrame",
         "writable": true,
         "doc": "Returns or sets the shape frame's properties.",
-        "line": 100,
+        "line": 102,
         "file": "aspose/slides_foss/Shape.py"
       },
       {
@@ -16065,7 +16393,7 @@
         "type": "ILineFormat",
         "writable": false,
         "doc": "Returns the LineFormat object that contains line formatting properties for a shape.",
-        "line": 127,
+        "line": 140,
         "file": "aspose/slides_foss/Shape.py"
       },
       {
@@ -16073,7 +16401,7 @@
         "type": "IThreeDFormat",
         "writable": false,
         "doc": "Returns the ThreeDFormat object that 3d effect properties for a shape.",
-        "line": 138,
+        "line": 154,
         "file": "aspose/slides_foss/Shape.py"
       },
       {
@@ -16081,7 +16409,7 @@
         "type": "IEffectFormat",
         "writable": false,
         "doc": "Returns the EffectFormat object which contains pixel effects applied to a shape.",
-        "line": 149,
+        "line": 169,
         "file": "aspose/slides_foss/Shape.py"
       },
       {
@@ -16089,7 +16417,7 @@
         "type": "IFillFormat",
         "writable": false,
         "doc": "Returns the FillFormat object that contains fill formatting properties for a shape.",
-        "line": 160,
+        "line": 180,
         "file": "aspose/slides_foss/Shape.py"
       },
       {
@@ -16097,7 +16425,7 @@
         "type": "bool",
         "writable": true,
         "doc": "Determines whether the shape is hidden.",
-        "line": 176,
+        "line": 196,
         "file": "aspose/slides_foss/Shape.py"
       },
       {
@@ -16105,7 +16433,7 @@
         "type": "int",
         "writable": false,
         "doc": "Returns the position of a shape in the z-order.",
-        "line": 197,
+        "line": 217,
         "file": "aspose/slides_foss/Shape.py"
       },
       {
@@ -16113,7 +16441,7 @@
         "type": "int",
         "writable": false,
         "doc": "Returns the number of connection sites on the shape.",
-        "line": 208,
+        "line": 228,
         "file": "aspose/slides_foss/Shape.py"
       },
       {
@@ -16121,7 +16449,7 @@
         "type": "float",
         "writable": true,
         "doc": "Returns or sets the number of degrees the specified shape is rotated around the z-axis.",
-        "line": 224,
+        "line": 244,
         "file": "aspose/slides_foss/Shape.py"
       },
       {
@@ -16129,7 +16457,7 @@
         "type": "float",
         "writable": true,
         "doc": "Gets or sets the x-coordinate of the shape's upper-left corner, measured in points.",
-        "line": 241,
+        "line": 261,
         "file": "aspose/slides_foss/Shape.py"
       },
       {
@@ -16137,7 +16465,7 @@
         "type": "float",
         "writable": true,
         "doc": "Gets or sets the y-coordinate of the shape's upper-left corner, measured in points.",
-        "line": 261,
+        "line": 281,
         "file": "aspose/slides_foss/Shape.py"
       },
       {
@@ -16145,7 +16473,7 @@
         "type": "float",
         "writable": true,
         "doc": "Gets or sets the width of the shape, measured in points.",
-        "line": 281,
+        "line": 301,
         "file": "aspose/slides_foss/Shape.py"
       },
       {
@@ -16153,7 +16481,7 @@
         "type": "float",
         "writable": true,
         "doc": "Gets or sets the height of the shape, measured in points.",
-        "line": 301,
+        "line": 321,
         "file": "aspose/slides_foss/Shape.py"
       },
       {
@@ -16161,7 +16489,7 @@
         "type": "int",
         "writable": false,
         "doc": "Returns an internal, presentation-scoped identifier intended for use by add-ins or other code.",
-        "line": 323,
+        "line": 343,
         "file": "aspose/slides_foss/Shape.py"
       },
       {
@@ -16169,7 +16497,7 @@
         "type": "int",
         "writable": false,
         "doc": "Returns a slide-scoped unique identifier that remains constant for the lifetime of the shape and lets PowerPoint or interop code reliably reference the shape from anywhere in the document.",
-        "line": 483,
+        "line": 503,
         "file": "aspose/slides_foss/Shape.py"
       },
       {
@@ -16177,7 +16505,7 @@
         "type": "str",
         "writable": true,
         "doc": "Returns or sets the alternative text associated with a shape.",
-        "line": 493,
+        "line": 513,
         "file": "aspose/slides_foss/Shape.py"
       },
       {
@@ -16185,7 +16513,23 @@
         "type": "str",
         "writable": true,
         "doc": "Returns or sets the title of alternative text associated with a shape.",
-        "line": 510,
+        "line": 530,
+        "file": "aspose/slides_foss/Shape.py"
+      },
+      {
+        "name": "hyperlink_click",
+        "type": "IHyperlink",
+        "writable": true,
+        "doc": "Returns or sets the hyperlink followed when the shape is clicked.",
+        "line": 547,
+        "file": "aspose/slides_foss/Shape.py"
+      },
+      {
+        "name": "hyperlink_mouse_over",
+        "type": "IHyperlink",
+        "writable": true,
+        "doc": "Returns or sets the hyperlink followed when the pointer rests on the shape.",
+        "line": 560,
         "file": "aspose/slides_foss/Shape.py"
       },
       {
@@ -16193,7 +16537,7 @@
         "type": "str",
         "writable": true,
         "doc": "Returns or sets the name of a shape.",
-        "line": 527,
+        "line": 573,
         "file": "aspose/slides_foss/Shape.py"
       },
       {
@@ -16201,7 +16545,7 @@
         "type": "bool",
         "writable": true,
         "doc": "Gets or sets 'Mark as decorative' option Reed/write .",
-        "line": 546,
+        "line": 592,
         "file": "aspose/slides_foss/Shape.py"
       },
       {
@@ -16209,7 +16553,7 @@
         "type": "bool",
         "writable": false,
         "doc": "Determines whether the shape is grouped.",
-        "line": 586,
+        "line": 632,
         "file": "aspose/slides_foss/Shape.py"
       },
       {
@@ -16217,7 +16561,7 @@
         "type": "IBaseSlide",
         "writable": false,
         "doc": "Returns the parent slide of a shape.",
-        "line": 596,
+        "line": 642,
         "file": "aspose/slides_foss/Shape.py"
       },
       {
@@ -16225,7 +16569,7 @@
         "type": "IPresentation",
         "writable": false,
         "doc": "Returns the parent presentation of a slide.",
-        "line": 601,
+        "line": 647,
         "file": "aspose/slides_foss/Shape.py"
       },
       {
@@ -16233,7 +16577,7 @@
         "type": "ISlideComponent",
         "writable": false,
         "doc": "Gets the as i slide component.",
-        "line": 609,
+        "line": 655,
         "file": "aspose/slides_foss/Shape.py",
         "doc_source": "name_inference"
       },
@@ -16242,7 +16586,7 @@
         "type": "IPresentationComponent",
         "writable": false,
         "doc": "Gets the as i presentation component.",
-        "line": 613,
+        "line": 659,
         "file": "aspose/slides_foss/Shape.py",
         "doc_source": "name_inference"
       }
@@ -16959,7 +17303,7 @@
         "params": [],
         "return_type": "",
         "doc": "Initialize an empty shape.",
-        "line": 25,
+        "line": 27,
         "is_constructor": true,
         "deprecated": false,
         "deprecated_reason": "",
@@ -16972,7 +17316,7 @@
         "type": "IShapeFrame",
         "writable": true,
         "doc": "Returns or sets the raw shape frame's properties.",
-        "line": 91,
+        "line": 93,
         "file": "aspose/slides_foss/Shape.py"
       },
       {
@@ -16980,7 +17324,7 @@
         "type": "IShapeFrame",
         "writable": true,
         "doc": "Returns or sets the shape frame's properties.",
-        "line": 100,
+        "line": 102,
         "file": "aspose/slides_foss/Shape.py"
       },
       {
@@ -16988,7 +17332,7 @@
         "type": "ILineFormat",
         "writable": false,
         "doc": "Returns the LineFormat object that contains line formatting properties for a shape.",
-        "line": 127,
+        "line": 140,
         "file": "aspose/slides_foss/Shape.py"
       },
       {
@@ -16996,7 +17340,7 @@
         "type": "IThreeDFormat",
         "writable": false,
         "doc": "Returns the ThreeDFormat object that 3d effect properties for a shape.",
-        "line": 138,
+        "line": 154,
         "file": "aspose/slides_foss/Shape.py"
       },
       {
@@ -17004,7 +17348,7 @@
         "type": "IEffectFormat",
         "writable": false,
         "doc": "Returns the EffectFormat object which contains pixel effects applied to a shape.",
-        "line": 149,
+        "line": 169,
         "file": "aspose/slides_foss/Shape.py"
       },
       {
@@ -17012,7 +17356,7 @@
         "type": "IFillFormat",
         "writable": false,
         "doc": "Returns the FillFormat object that contains fill formatting properties for a shape.",
-        "line": 160,
+        "line": 180,
         "file": "aspose/slides_foss/Shape.py"
       },
       {
@@ -17020,7 +17364,7 @@
         "type": "bool",
         "writable": true,
         "doc": "Determines whether the shape is hidden.",
-        "line": 176,
+        "line": 196,
         "file": "aspose/slides_foss/Shape.py"
       },
       {
@@ -17028,7 +17372,7 @@
         "type": "int",
         "writable": false,
         "doc": "Returns the position of a shape in the z-order.",
-        "line": 197,
+        "line": 217,
         "file": "aspose/slides_foss/Shape.py"
       },
       {
@@ -17036,7 +17380,7 @@
         "type": "int",
         "writable": false,
         "doc": "Returns the number of connection sites on the shape.",
-        "line": 208,
+        "line": 228,
         "file": "aspose/slides_foss/Shape.py"
       },
       {
@@ -17044,7 +17388,7 @@
         "type": "float",
         "writable": true,
         "doc": "Returns or sets the number of degrees the specified shape is rotated around the z-axis.",
-        "line": 224,
+        "line": 244,
         "file": "aspose/slides_foss/Shape.py"
       },
       {
@@ -17052,7 +17396,7 @@
         "type": "float",
         "writable": true,
         "doc": "Gets or sets the x-coordinate of the shape's upper-left corner, measured in points.",
-        "line": 241,
+        "line": 261,
         "file": "aspose/slides_foss/Shape.py"
       },
       {
@@ -17060,7 +17404,7 @@
         "type": "float",
         "writable": true,
         "doc": "Gets or sets the y-coordinate of the shape's upper-left corner, measured in points.",
-        "line": 261,
+        "line": 281,
         "file": "aspose/slides_foss/Shape.py"
       },
       {
@@ -17068,7 +17412,7 @@
         "type": "float",
         "writable": true,
         "doc": "Gets or sets the width of the shape, measured in points.",
-        "line": 281,
+        "line": 301,
         "file": "aspose/slides_foss/Shape.py"
       },
       {
@@ -17076,7 +17420,7 @@
         "type": "float",
         "writable": true,
         "doc": "Gets or sets the height of the shape, measured in points.",
-        "line": 301,
+        "line": 321,
         "file": "aspose/slides_foss/Shape.py"
       },
       {
@@ -17084,7 +17428,7 @@
         "type": "int",
         "writable": false,
         "doc": "Returns an internal, presentation-scoped identifier intended for use by add-ins or other code.",
-        "line": 323,
+        "line": 343,
         "file": "aspose/slides_foss/Shape.py"
       },
       {
@@ -17092,7 +17436,7 @@
         "type": "int",
         "writable": false,
         "doc": "Returns a slide-scoped unique identifier that remains constant for the lifetime of the shape and lets PowerPoint or interop code reliably reference the shape from anywhere in the document.",
-        "line": 483,
+        "line": 503,
         "file": "aspose/slides_foss/Shape.py"
       },
       {
@@ -17100,7 +17444,7 @@
         "type": "str",
         "writable": true,
         "doc": "Returns or sets the alternative text associated with a shape.",
-        "line": 493,
+        "line": 513,
         "file": "aspose/slides_foss/Shape.py"
       },
       {
@@ -17108,7 +17452,23 @@
         "type": "str",
         "writable": true,
         "doc": "Returns or sets the title of alternative text associated with a shape.",
-        "line": 510,
+        "line": 530,
+        "file": "aspose/slides_foss/Shape.py"
+      },
+      {
+        "name": "hyperlink_click",
+        "type": "IHyperlink",
+        "writable": true,
+        "doc": "Returns or sets the hyperlink followed when the shape is clicked.",
+        "line": 547,
+        "file": "aspose/slides_foss/Shape.py"
+      },
+      {
+        "name": "hyperlink_mouse_over",
+        "type": "IHyperlink",
+        "writable": true,
+        "doc": "Returns or sets the hyperlink followed when the pointer rests on the shape.",
+        "line": 560,
         "file": "aspose/slides_foss/Shape.py"
       },
       {
@@ -17116,7 +17476,7 @@
         "type": "str",
         "writable": true,
         "doc": "Returns or sets the name of a shape.",
-        "line": 527,
+        "line": 573,
         "file": "aspose/slides_foss/Shape.py"
       },
       {
@@ -17124,7 +17484,7 @@
         "type": "bool",
         "writable": true,
         "doc": "Gets or sets 'Mark as decorative' option Reed/write .",
-        "line": 546,
+        "line": 592,
         "file": "aspose/slides_foss/Shape.py"
       },
       {
@@ -17132,7 +17492,7 @@
         "type": "bool",
         "writable": false,
         "doc": "Determines whether the shape is grouped.",
-        "line": 586,
+        "line": 632,
         "file": "aspose/slides_foss/Shape.py"
       },
       {
@@ -17140,7 +17500,7 @@
         "type": "IBaseSlide",
         "writable": false,
         "doc": "Returns the parent slide of a shape.",
-        "line": 596,
+        "line": 642,
         "file": "aspose/slides_foss/Shape.py"
       },
       {
@@ -17148,7 +17508,7 @@
         "type": "IPresentation",
         "writable": false,
         "doc": "Returns the parent presentation of a slide.",
-        "line": 601,
+        "line": 647,
         "file": "aspose/slides_foss/Shape.py"
       },
       {
@@ -17156,7 +17516,7 @@
         "type": "ISlideComponent",
         "writable": false,
         "doc": "Gets the as i slide component.",
-        "line": 609,
+        "line": 655,
         "file": "aspose/slides_foss/Shape.py",
         "doc_source": "name_inference"
       },
@@ -17165,7 +17525,7 @@
         "type": "IPresentationComponent",
         "writable": false,
         "doc": "Gets the as i presentation component.",
-        "line": 613,
+        "line": 659,
         "file": "aspose/slides_foss/Shape.py",
         "doc_source": "name_inference"
       },
@@ -17432,7 +17792,7 @@
         "type": "IPresentationComponent",
         "writable": false,
         "doc": "Allows to get base IPresentationComponent interface.",
-        "line": 13,
+        "line": 14,
         "file": "aspose/slides_foss/PVIObject.py"
       },
       {
@@ -17440,7 +17800,7 @@
         "type": "IBaseSlide",
         "writable": false,
         "doc": "Gets the slide.",
-        "line": 18,
+        "line": 19,
         "file": "aspose/slides_foss/PVIObject.py",
         "doc_source": "name_inference"
       },
@@ -17449,7 +17809,7 @@
         "type": "IPresentation",
         "writable": false,
         "doc": "Gets the presentation.",
-        "line": 24,
+        "line": 25,
         "file": "aspose/slides_foss/PVIObject.py",
         "doc_source": "name_inference"
       }
@@ -17596,7 +17956,7 @@
         "type": "IPresentationComponent",
         "writable": false,
         "doc": "Allows to get base IPresentationComponent interface.",
-        "line": 13,
+        "line": 14,
         "file": "aspose/slides_foss/PVIObject.py"
       },
       {
@@ -17604,7 +17964,7 @@
         "type": "IBaseSlide",
         "writable": false,
         "doc": "Gets the slide.",
-        "line": 18,
+        "line": 19,
         "file": "aspose/slides_foss/PVIObject.py",
         "doc_source": "name_inference"
       },
@@ -17613,7 +17973,7 @@
         "type": "IPresentation",
         "writable": false,
         "doc": "Gets the presentation.",
-        "line": 24,
+        "line": 25,
         "file": "aspose/slides_foss/PVIObject.py",
         "doc_source": "name_inference"
       }
@@ -17646,7 +18006,7 @@
         "params": [],
         "return_type": "",
         "doc": "Initialize an empty shape.",
-        "line": 25,
+        "line": 27,
         "is_constructor": true,
         "deprecated": false,
         "deprecated_reason": "",
@@ -17659,7 +18019,7 @@
         "type": "IShapeFrame",
         "writable": true,
         "doc": "Returns or sets the raw shape frame's properties.",
-        "line": 91,
+        "line": 93,
         "file": "aspose/slides_foss/Shape.py"
       },
       {
@@ -17667,7 +18027,7 @@
         "type": "IShapeFrame",
         "writable": true,
         "doc": "Returns or sets the shape frame's properties.",
-        "line": 100,
+        "line": 102,
         "file": "aspose/slides_foss/Shape.py"
       },
       {
@@ -17675,7 +18035,7 @@
         "type": "ILineFormat",
         "writable": false,
         "doc": "Returns the LineFormat object that contains line formatting properties for a shape.",
-        "line": 127,
+        "line": 140,
         "file": "aspose/slides_foss/Shape.py"
       },
       {
@@ -17683,7 +18043,7 @@
         "type": "IThreeDFormat",
         "writable": false,
         "doc": "Returns the ThreeDFormat object that 3d effect properties for a shape.",
-        "line": 138,
+        "line": 154,
         "file": "aspose/slides_foss/Shape.py"
       },
       {
@@ -17691,7 +18051,7 @@
         "type": "IEffectFormat",
         "writable": false,
         "doc": "Returns the EffectFormat object which contains pixel effects applied to a shape.",
-        "line": 149,
+        "line": 169,
         "file": "aspose/slides_foss/Shape.py"
       },
       {
@@ -17699,7 +18059,7 @@
         "type": "IFillFormat",
         "writable": false,
         "doc": "Returns the FillFormat object that contains fill formatting properties for a shape.",
-        "line": 160,
+        "line": 180,
         "file": "aspose/slides_foss/Shape.py"
       },
       {
@@ -17707,7 +18067,7 @@
         "type": "bool",
         "writable": true,
         "doc": "Determines whether the shape is hidden.",
-        "line": 176,
+        "line": 196,
         "file": "aspose/slides_foss/Shape.py"
       },
       {
@@ -17715,7 +18075,7 @@
         "type": "int",
         "writable": false,
         "doc": "Returns the position of a shape in the z-order.",
-        "line": 197,
+        "line": 217,
         "file": "aspose/slides_foss/Shape.py"
       },
       {
@@ -17723,7 +18083,7 @@
         "type": "int",
         "writable": false,
         "doc": "Returns the number of connection sites on the shape.",
-        "line": 208,
+        "line": 228,
         "file": "aspose/slides_foss/Shape.py"
       },
       {
@@ -17731,7 +18091,7 @@
         "type": "float",
         "writable": true,
         "doc": "Returns or sets the number of degrees the specified shape is rotated around the z-axis.",
-        "line": 224,
+        "line": 244,
         "file": "aspose/slides_foss/Shape.py"
       },
       {
@@ -17739,7 +18099,7 @@
         "type": "float",
         "writable": true,
         "doc": "Gets or sets the x-coordinate of the shape's upper-left corner, measured in points.",
-        "line": 241,
+        "line": 261,
         "file": "aspose/slides_foss/Shape.py"
       },
       {
@@ -17747,7 +18107,7 @@
         "type": "float",
         "writable": true,
         "doc": "Gets or sets the y-coordinate of the shape's upper-left corner, measured in points.",
-        "line": 261,
+        "line": 281,
         "file": "aspose/slides_foss/Shape.py"
       },
       {
@@ -17755,7 +18115,7 @@
         "type": "float",
         "writable": true,
         "doc": "Gets or sets the width of the shape, measured in points.",
-        "line": 281,
+        "line": 301,
         "file": "aspose/slides_foss/Shape.py"
       },
       {
@@ -17763,7 +18123,7 @@
         "type": "float",
         "writable": true,
         "doc": "Gets or sets the height of the shape, measured in points.",
-        "line": 301,
+        "line": 321,
         "file": "aspose/slides_foss/Shape.py"
       },
       {
@@ -17771,7 +18131,7 @@
         "type": "int",
         "writable": false,
         "doc": "Returns an internal, presentation-scoped identifier intended for use by add-ins or other code.",
-        "line": 323,
+        "line": 343,
         "file": "aspose/slides_foss/Shape.py"
       },
       {
@@ -17779,7 +18139,7 @@
         "type": "int",
         "writable": false,
         "doc": "Returns a slide-scoped unique identifier that remains constant for the lifetime of the shape and lets PowerPoint or interop code reliably reference the shape from anywhere in the document.",
-        "line": 483,
+        "line": 503,
         "file": "aspose/slides_foss/Shape.py"
       },
       {
@@ -17787,7 +18147,7 @@
         "type": "str",
         "writable": true,
         "doc": "Returns or sets the alternative text associated with a shape.",
-        "line": 493,
+        "line": 513,
         "file": "aspose/slides_foss/Shape.py"
       },
       {
@@ -17795,7 +18155,23 @@
         "type": "str",
         "writable": true,
         "doc": "Returns or sets the title of alternative text associated with a shape.",
-        "line": 510,
+        "line": 530,
+        "file": "aspose/slides_foss/Shape.py"
+      },
+      {
+        "name": "hyperlink_click",
+        "type": "IHyperlink",
+        "writable": true,
+        "doc": "Returns or sets the hyperlink followed when the shape is clicked.",
+        "line": 547,
+        "file": "aspose/slides_foss/Shape.py"
+      },
+      {
+        "name": "hyperlink_mouse_over",
+        "type": "IHyperlink",
+        "writable": true,
+        "doc": "Returns or sets the hyperlink followed when the pointer rests on the shape.",
+        "line": 560,
         "file": "aspose/slides_foss/Shape.py"
       },
       {
@@ -17803,7 +18179,7 @@
         "type": "str",
         "writable": true,
         "doc": "Returns or sets the name of a shape.",
-        "line": 527,
+        "line": 573,
         "file": "aspose/slides_foss/Shape.py"
       },
       {
@@ -17811,7 +18187,7 @@
         "type": "bool",
         "writable": true,
         "doc": "Gets or sets 'Mark as decorative' option Reed/write .",
-        "line": 546,
+        "line": 592,
         "file": "aspose/slides_foss/Shape.py"
       },
       {
@@ -17819,7 +18195,7 @@
         "type": "bool",
         "writable": false,
         "doc": "Determines whether the shape is grouped.",
-        "line": 586,
+        "line": 632,
         "file": "aspose/slides_foss/Shape.py"
       },
       {
@@ -17827,7 +18203,7 @@
         "type": "IBaseSlide",
         "writable": false,
         "doc": "Returns the parent slide of a shape.",
-        "line": 596,
+        "line": 642,
         "file": "aspose/slides_foss/Shape.py"
       },
       {
@@ -17835,7 +18211,7 @@
         "type": "IPresentation",
         "writable": false,
         "doc": "Returns the parent presentation of a slide.",
-        "line": 601,
+        "line": 647,
         "file": "aspose/slides_foss/Shape.py"
       },
       {
@@ -17843,7 +18219,7 @@
         "type": "ISlideComponent",
         "writable": false,
         "doc": "Gets the as i slide component.",
-        "line": 609,
+        "line": 655,
         "file": "aspose/slides_foss/Shape.py",
         "doc_source": "name_inference"
       },
@@ -17852,7 +18228,7 @@
         "type": "IPresentationComponent",
         "writable": false,
         "doc": "Gets the as i presentation component.",
-        "line": 613,
+        "line": 659,
         "file": "aspose/slides_foss/Shape.py",
         "doc_source": "name_inference"
       },
@@ -18002,7 +18378,7 @@
         "type": "IShapeFrame",
         "writable": true,
         "doc": "Returns or sets the raw shape frame's properties.",
-        "line": 91,
+        "line": 93,
         "file": "aspose/slides_foss/Shape.py"
       },
       {
@@ -18010,7 +18386,7 @@
         "type": "IShapeFrame",
         "writable": true,
         "doc": "Returns or sets the shape frame's properties.",
-        "line": 100,
+        "line": 102,
         "file": "aspose/slides_foss/Shape.py"
       },
       {
@@ -18018,7 +18394,7 @@
         "type": "ILineFormat",
         "writable": false,
         "doc": "Returns the LineFormat object that contains line formatting properties for a shape.",
-        "line": 127,
+        "line": 140,
         "file": "aspose/slides_foss/Shape.py"
       },
       {
@@ -18026,7 +18402,7 @@
         "type": "IThreeDFormat",
         "writable": false,
         "doc": "Returns the ThreeDFormat object that 3d effect properties for a shape.",
-        "line": 138,
+        "line": 154,
         "file": "aspose/slides_foss/Shape.py"
       },
       {
@@ -18034,7 +18410,7 @@
         "type": "IEffectFormat",
         "writable": false,
         "doc": "Returns the EffectFormat object which contains pixel effects applied to a shape.",
-        "line": 149,
+        "line": 169,
         "file": "aspose/slides_foss/Shape.py"
       },
       {
@@ -18042,7 +18418,7 @@
         "type": "IFillFormat",
         "writable": false,
         "doc": "Returns the FillFormat object that contains fill formatting properties for a shape.",
-        "line": 160,
+        "line": 180,
         "file": "aspose/slides_foss/Shape.py"
       },
       {
@@ -18050,7 +18426,7 @@
         "type": "bool",
         "writable": true,
         "doc": "Determines whether the shape is hidden.",
-        "line": 176,
+        "line": 196,
         "file": "aspose/slides_foss/Shape.py"
       },
       {
@@ -18058,7 +18434,7 @@
         "type": "int",
         "writable": false,
         "doc": "Returns the position of a shape in the z-order.",
-        "line": 197,
+        "line": 217,
         "file": "aspose/slides_foss/Shape.py"
       },
       {
@@ -18066,7 +18442,7 @@
         "type": "int",
         "writable": false,
         "doc": "Returns the number of connection sites on the shape.",
-        "line": 208,
+        "line": 228,
         "file": "aspose/slides_foss/Shape.py"
       },
       {
@@ -18074,7 +18450,7 @@
         "type": "float",
         "writable": true,
         "doc": "Returns or sets the number of degrees the specified shape is rotated around the z-axis.",
-        "line": 224,
+        "line": 244,
         "file": "aspose/slides_foss/Shape.py"
       },
       {
@@ -18082,7 +18458,7 @@
         "type": "float",
         "writable": true,
         "doc": "Gets or sets the x-coordinate of the shape's upper-left corner, measured in points.",
-        "line": 241,
+        "line": 261,
         "file": "aspose/slides_foss/Shape.py"
       },
       {
@@ -18090,7 +18466,7 @@
         "type": "float",
         "writable": true,
         "doc": "Gets or sets the y-coordinate of the shape's upper-left corner, measured in points.",
-        "line": 261,
+        "line": 281,
         "file": "aspose/slides_foss/Shape.py"
       },
       {
@@ -18098,7 +18474,7 @@
         "type": "float",
         "writable": true,
         "doc": "Gets or sets the width of the shape, measured in points.",
-        "line": 281,
+        "line": 301,
         "file": "aspose/slides_foss/Shape.py"
       },
       {
@@ -18106,7 +18482,7 @@
         "type": "float",
         "writable": true,
         "doc": "Gets or sets the height of the shape, measured in points.",
-        "line": 301,
+        "line": 321,
         "file": "aspose/slides_foss/Shape.py"
       },
       {
@@ -18114,7 +18490,7 @@
         "type": "int",
         "writable": false,
         "doc": "Returns an internal, presentation-scoped identifier intended for use by add-ins or other code.",
-        "line": 323,
+        "line": 343,
         "file": "aspose/slides_foss/Shape.py"
       },
       {
@@ -18122,7 +18498,7 @@
         "type": "int",
         "writable": false,
         "doc": "Returns a slide-scoped unique identifier that remains constant for the lifetime of the shape and lets PowerPoint or interop code reliably reference the shape from anywhere in the document.",
-        "line": 483,
+        "line": 503,
         "file": "aspose/slides_foss/Shape.py"
       },
       {
@@ -18130,7 +18506,7 @@
         "type": "str",
         "writable": true,
         "doc": "Returns or sets the alternative text associated with a shape.",
-        "line": 493,
+        "line": 513,
         "file": "aspose/slides_foss/Shape.py"
       },
       {
@@ -18138,7 +18514,23 @@
         "type": "str",
         "writable": true,
         "doc": "Returns or sets the title of alternative text associated with a shape.",
-        "line": 510,
+        "line": 530,
+        "file": "aspose/slides_foss/Shape.py"
+      },
+      {
+        "name": "hyperlink_click",
+        "type": "IHyperlink",
+        "writable": true,
+        "doc": "Returns or sets the hyperlink followed when the shape is clicked.",
+        "line": 547,
+        "file": "aspose/slides_foss/Shape.py"
+      },
+      {
+        "name": "hyperlink_mouse_over",
+        "type": "IHyperlink",
+        "writable": true,
+        "doc": "Returns or sets the hyperlink followed when the pointer rests on the shape.",
+        "line": 560,
         "file": "aspose/slides_foss/Shape.py"
       },
       {
@@ -18146,7 +18538,7 @@
         "type": "str",
         "writable": true,
         "doc": "Returns or sets the name of a shape.",
-        "line": 527,
+        "line": 573,
         "file": "aspose/slides_foss/Shape.py"
       },
       {
@@ -18154,7 +18546,7 @@
         "type": "bool",
         "writable": true,
         "doc": "Gets or sets 'Mark as decorative' option Reed/write .",
-        "line": 546,
+        "line": 592,
         "file": "aspose/slides_foss/Shape.py"
       },
       {
@@ -18162,7 +18554,7 @@
         "type": "bool",
         "writable": false,
         "doc": "Determines whether the shape is grouped.",
-        "line": 586,
+        "line": 632,
         "file": "aspose/slides_foss/Shape.py"
       },
       {
@@ -18170,7 +18562,7 @@
         "type": "IBaseSlide",
         "writable": false,
         "doc": "Returns the parent slide of a shape.",
-        "line": 596,
+        "line": 642,
         "file": "aspose/slides_foss/Shape.py"
       },
       {
@@ -18178,7 +18570,7 @@
         "type": "IPresentation",
         "writable": false,
         "doc": "Returns the parent presentation of a slide.",
-        "line": 601,
+        "line": 647,
         "file": "aspose/slides_foss/Shape.py"
       },
       {
@@ -18186,7 +18578,7 @@
         "type": "ISlideComponent",
         "writable": false,
         "doc": "Gets the as i slide component.",
-        "line": 609,
+        "line": 655,
         "file": "aspose/slides_foss/Shape.py",
         "doc_source": "name_inference"
       },
@@ -18195,7 +18587,7 @@
         "type": "IPresentationComponent",
         "writable": false,
         "doc": "Gets the as i presentation component.",
-        "line": 613,
+        "line": 659,
         "file": "aspose/slides_foss/Shape.py",
         "doc_source": "name_inference"
       }
@@ -18357,6 +18749,78 @@
     "public_import_module": "aspose.slides_foss",
     "module_key": "core",
     "module_label": "Core API"
+  },
+  {
+    "name": "Hyperlink",
+    "kind": "class_definition",
+    "doc": "Represents a hyperlink to an external target.",
+    "file": "aspose/slides_foss/Hyperlink.py",
+    "line": 5,
+    "bases": [
+      "IHyperlink"
+    ],
+    "methods": [
+      {
+        "name": "__init__",
+        "params": [
+          {
+            "name": "external_url",
+            "type": "str"
+          },
+          {
+            "name": "tooltip",
+            "type": "str"
+          },
+          {
+            "name": "target_frame",
+            "type": "str"
+          }
+        ],
+        "return_type": "",
+        "doc": "",
+        "line": 8,
+        "is_constructor": true,
+        "deprecated": false,
+        "deprecated_reason": "",
+        "file": "aspose/slides_foss/Hyperlink.py"
+      }
+    ],
+    "properties": [
+      {
+        "name": "external_url",
+        "type": "str",
+        "writable": false,
+        "doc": "Returns the target URL of the hyperlink.",
+        "line": 14,
+        "file": "aspose/slides_foss/Hyperlink.py"
+      },
+      {
+        "name": "tooltip",
+        "type": "str",
+        "writable": false,
+        "doc": "Returns the text shown when the pointer rests on the link.",
+        "line": 19,
+        "file": "aspose/slides_foss/Hyperlink.py"
+      },
+      {
+        "name": "target_frame",
+        "type": "str",
+        "writable": false,
+        "doc": "Returns the frame the link opens in.",
+        "line": 24,
+        "file": "aspose/slides_foss/Hyperlink.py"
+      }
+    ],
+    "visibility": "public",
+    "reachable": true,
+    "deprecated": false,
+    "deprecated_reason": "",
+    "canonical_namespace": "aspose.slides_foss.Hyperlink",
+    "class_import": "aspose.slides_foss.Hyperlink.Hyperlink",
+    "exported_via_package_init": true,
+    "public_import_module": "aspose.slides_foss",
+    "module_key": "navigation",
+    "module_label": "Navigation"
   },
   {
     "name": "IAdjustValue",
@@ -18791,6 +19255,22 @@
         "doc": "Returns the presentation.",
         "line": 11,
         "file": "aspose/slides_foss/IPresentationComponent.py"
+      },
+      {
+        "name": "hyperlink_click",
+        "type": "IHyperlink",
+        "writable": true,
+        "doc": "Returns or sets the hyperlink followed on a mouse click.",
+        "line": 12,
+        "file": "aspose/slides_foss/IHyperlinkContainer.py"
+      },
+      {
+        "name": "hyperlink_mouse_over",
+        "type": "IHyperlink",
+        "writable": true,
+        "doc": "Returns or sets the hyperlink followed on a mouse over.",
+        "line": 22,
+        "file": "aspose/slides_foss/IHyperlinkContainer.py"
       }
     ],
     "visibility": "public",
@@ -20502,6 +20982,22 @@
         "doc": "Returns the presentation.",
         "line": 11,
         "file": "aspose/slides_foss/IPresentationComponent.py"
+      },
+      {
+        "name": "hyperlink_click",
+        "type": "IHyperlink",
+        "writable": true,
+        "doc": "Returns or sets the hyperlink followed on a mouse click.",
+        "line": 12,
+        "file": "aspose/slides_foss/IHyperlinkContainer.py"
+      },
+      {
+        "name": "hyperlink_mouse_over",
+        "type": "IHyperlink",
+        "writable": true,
+        "doc": "Returns or sets the hyperlink followed on a mouse over.",
+        "line": 22,
+        "file": "aspose/slides_foss/IHyperlinkContainer.py"
       }
     ],
     "visibility": "public",
@@ -21525,6 +22021,22 @@
         "doc": "Returns the presentation.",
         "line": 11,
         "file": "aspose/slides_foss/IPresentationComponent.py"
+      },
+      {
+        "name": "hyperlink_click",
+        "type": "IHyperlink",
+        "writable": true,
+        "doc": "Returns or sets the hyperlink followed on a mouse click.",
+        "line": 12,
+        "file": "aspose/slides_foss/IHyperlinkContainer.py"
+      },
+      {
+        "name": "hyperlink_mouse_over",
+        "type": "IHyperlink",
+        "writable": true,
+        "doc": "Returns or sets the hyperlink followed on a mouse over.",
+        "line": 22,
+        "file": "aspose/slides_foss/IHyperlinkContainer.py"
       }
     ],
     "visibility": "public",
@@ -22088,6 +22600,22 @@
         "doc": "Returns the presentation.",
         "line": 11,
         "file": "aspose/slides_foss/IPresentationComponent.py"
+      },
+      {
+        "name": "hyperlink_click",
+        "type": "IHyperlink",
+        "writable": true,
+        "doc": "Returns or sets the hyperlink followed on a mouse click.",
+        "line": 12,
+        "file": "aspose/slides_foss/IHyperlinkContainer.py"
+      },
+      {
+        "name": "hyperlink_mouse_over",
+        "type": "IHyperlink",
+        "writable": true,
+        "doc": "Returns or sets the hyperlink followed on a mouse over.",
+        "line": 22,
+        "file": "aspose/slides_foss/IHyperlinkContainer.py"
       }
     ],
     "visibility": "public",
@@ -22360,6 +22888,22 @@
         "doc": "Returns the presentation.",
         "line": 11,
         "file": "aspose/slides_foss/IPresentationComponent.py"
+      },
+      {
+        "name": "hyperlink_click",
+        "type": "IHyperlink",
+        "writable": true,
+        "doc": "Returns or sets the hyperlink followed on a mouse click.",
+        "line": 12,
+        "file": "aspose/slides_foss/IHyperlinkContainer.py"
+      },
+      {
+        "name": "hyperlink_mouse_over",
+        "type": "IHyperlink",
+        "writable": true,
+        "doc": "Returns or sets the hyperlink followed on a mouse over.",
+        "line": 22,
+        "file": "aspose/slides_foss/IHyperlinkContainer.py"
       }
     ],
     "visibility": "public",
@@ -22509,17 +23053,81 @@
     "module_label": "Core API"
   },
   {
-    "name": "IHyperlinkContainer",
+    "name": "IHyperlink",
     "kind": "class_definition",
-    "doc": "",
-    "file": "aspose/slides_foss/IHyperlinkContainer.py",
-    "line": 8,
+    "doc": "Represents a hyperlink.",
+    "file": "aspose/slides_foss/IHyperlink.py",
+    "line": 5,
     "bases": [
       "ABC"
     ],
     "methods": [],
-    "properties": [],
-    "visibility": "conventional",
+    "properties": [
+      {
+        "name": "external_url",
+        "type": "str",
+        "writable": false,
+        "doc": "Returns the target URL of the hyperlink.",
+        "line": 10,
+        "file": "aspose/slides_foss/IHyperlink.py"
+      },
+      {
+        "name": "tooltip",
+        "type": "str",
+        "writable": false,
+        "doc": "Returns the text shown when the pointer rests on the link.",
+        "line": 15,
+        "file": "aspose/slides_foss/IHyperlink.py"
+      },
+      {
+        "name": "target_frame",
+        "type": "str",
+        "writable": false,
+        "doc": "Returns the frame the link opens in.",
+        "line": 20,
+        "file": "aspose/slides_foss/IHyperlink.py"
+      }
+    ],
+    "visibility": "public",
+    "reachable": true,
+    "deprecated": false,
+    "deprecated_reason": "",
+    "canonical_namespace": "aspose.slides_foss.IHyperlink",
+    "class_import": "aspose.slides_foss.IHyperlink.IHyperlink",
+    "exported_via_package_init": true,
+    "public_import_module": "aspose.slides_foss",
+    "module_key": "navigation",
+    "module_label": "Navigation"
+  },
+  {
+    "name": "IHyperlinkContainer",
+    "kind": "class_definition",
+    "doc": "Represents an object that can carry hyperlinks.",
+    "file": "aspose/slides_foss/IHyperlinkContainer.py",
+    "line": 7,
+    "bases": [
+      "ABC"
+    ],
+    "methods": [],
+    "properties": [
+      {
+        "name": "hyperlink_click",
+        "type": "IHyperlink",
+        "writable": true,
+        "doc": "Returns or sets the hyperlink followed on a mouse click.",
+        "line": 12,
+        "file": "aspose/slides_foss/IHyperlinkContainer.py"
+      },
+      {
+        "name": "hyperlink_mouse_over",
+        "type": "IHyperlink",
+        "writable": true,
+        "doc": "Returns or sets the hyperlink followed on a mouse over.",
+        "line": 22,
+        "file": "aspose/slides_foss/IHyperlinkContainer.py"
+      }
+    ],
+    "visibility": "public",
     "reachable": true,
     "deprecated": false,
     "deprecated_reason": "",
@@ -24230,6 +24838,22 @@
         "doc": "Returns the presentation.",
         "line": 11,
         "file": "aspose/slides_foss/IPresentationComponent.py"
+      },
+      {
+        "name": "hyperlink_click",
+        "type": "IHyperlink",
+        "writable": true,
+        "doc": "Returns or sets the hyperlink followed on a mouse click.",
+        "line": 12,
+        "file": "aspose/slides_foss/IHyperlinkContainer.py"
+      },
+      {
+        "name": "hyperlink_mouse_over",
+        "type": "IHyperlink",
+        "writable": true,
+        "doc": "Returns or sets the hyperlink followed on a mouse over.",
+        "line": 22,
+        "file": "aspose/slides_foss/IHyperlinkContainer.py"
       }
     ],
     "visibility": "public",
@@ -25428,6 +26052,22 @@
         "doc": "Returns the presentation.",
         "line": 11,
         "file": "aspose/slides_foss/IPresentationComponent.py"
+      },
+      {
+        "name": "hyperlink_click",
+        "type": "IHyperlink",
+        "writable": true,
+        "doc": "Returns or sets the hyperlink followed on a mouse click.",
+        "line": 12,
+        "file": "aspose/slides_foss/IHyperlinkContainer.py"
+      },
+      {
+        "name": "hyperlink_mouse_over",
+        "type": "IHyperlink",
+        "writable": true,
+        "doc": "Returns or sets the hyperlink followed on a mouse over.",
+        "line": 22,
+        "file": "aspose/slides_foss/IHyperlinkContainer.py"
       }
     ],
     "visibility": "public",
@@ -27303,6 +27943,22 @@
         "doc": "Returns the presentation.",
         "line": 11,
         "file": "aspose/slides_foss/IPresentationComponent.py"
+      },
+      {
+        "name": "hyperlink_click",
+        "type": "IHyperlink",
+        "writable": true,
+        "doc": "Returns or sets the hyperlink followed on a mouse click.",
+        "line": 12,
+        "file": "aspose/slides_foss/IHyperlinkContainer.py"
+      },
+      {
+        "name": "hyperlink_mouse_over",
+        "type": "IHyperlink",
+        "writable": true,
+        "doc": "Returns or sets the hyperlink followed on a mouse over.",
+        "line": 22,
+        "file": "aspose/slides_foss/IHyperlinkContainer.py"
       }
     ],
     "visibility": "public",
@@ -27937,7 +28593,7 @@
         ],
         "return_type": "None",
         "doc": "Sets the rotation value.",
-        "line": 110,
+        "line": 119,
         "is_constructor": false,
         "deprecated": false,
         "deprecated_reason": "",
@@ -27949,7 +28605,7 @@
         "params": [],
         "return_type": "list[float]",
         "doc": "Returns the rotation.",
-        "line": 120,
+        "line": 129,
         "is_constructor": false,
         "deprecated": false,
         "deprecated_reason": "",
@@ -27963,7 +28619,7 @@
         "type": "LightingDirection",
         "writable": true,
         "doc": "Light direction.",
-        "line": 59,
+        "line": 68,
         "file": "aspose/slides_foss/LightRig.py"
       },
       {
@@ -27971,7 +28627,7 @@
         "type": "LightRigPresetType",
         "writable": true,
         "doc": "Represents a preset light right that can be applied to a shape.",
-        "line": 85,
+        "line": 94,
         "file": "aspose/slides_foss/LightRig.py"
       },
       {
@@ -27979,7 +28635,7 @@
         "type": "IPresentationComponent",
         "writable": false,
         "doc": "Allows to get base IPresentationComponent interface.",
-        "line": 13,
+        "line": 14,
         "file": "aspose/slides_foss/PVIObject.py"
       },
       {
@@ -27987,7 +28643,7 @@
         "type": "IBaseSlide",
         "writable": false,
         "doc": "Gets the slide.",
-        "line": 18,
+        "line": 19,
         "file": "aspose/slides_foss/PVIObject.py",
         "doc_source": "name_inference"
       },
@@ -27996,7 +28652,7 @@
         "type": "IPresentation",
         "writable": false,
         "doc": "Gets the presentation.",
-        "line": 24,
+        "line": 25,
         "file": "aspose/slides_foss/PVIObject.py",
         "doc_source": "name_inference"
       }
@@ -29770,8 +30426,9 @@
     "kind": "class_definition",
     "doc": "Encapsulates basic service infrastructure for objects can be a subject of property value inheritance.",
     "file": "aspose/slides_foss/PVIObject.py",
-    "line": 10,
+    "line": 11,
     "bases": [
+      "StrictAttributes",
       "ISlideComponent",
       "IPresentationComponent"
     ],
@@ -29782,7 +30439,7 @@
         "type": "IPresentationComponent",
         "writable": false,
         "doc": "Allows to get base IPresentationComponent interface.",
-        "line": 13,
+        "line": 14,
         "file": "aspose/slides_foss/PVIObject.py"
       },
       {
@@ -29790,7 +30447,7 @@
         "type": "IBaseSlide",
         "writable": false,
         "doc": "Gets the slide.",
-        "line": 18,
+        "line": 19,
         "file": "aspose/slides_foss/PVIObject.py",
         "doc_source": "name_inference"
       },
@@ -29799,7 +30456,7 @@
         "type": "IPresentation",
         "writable": false,
         "doc": "Gets the presentation.",
-        "line": 24,
+        "line": 25,
         "file": "aspose/slides_foss/PVIObject.py",
         "doc_source": "name_inference"
       }
@@ -30539,7 +31196,7 @@
         "params": [],
         "return_type": "",
         "doc": "Initialize an empty shape.",
-        "line": 25,
+        "line": 27,
         "is_constructor": true,
         "deprecated": false,
         "deprecated_reason": "",
@@ -30600,7 +31257,7 @@
         "type": "IShapeFrame",
         "writable": true,
         "doc": "Returns or sets the raw shape frame's properties.",
-        "line": 91,
+        "line": 93,
         "file": "aspose/slides_foss/Shape.py"
       },
       {
@@ -30608,7 +31265,7 @@
         "type": "IShapeFrame",
         "writable": true,
         "doc": "Returns or sets the shape frame's properties.",
-        "line": 100,
+        "line": 102,
         "file": "aspose/slides_foss/Shape.py"
       },
       {
@@ -30616,7 +31273,7 @@
         "type": "ILineFormat",
         "writable": false,
         "doc": "Returns the LineFormat object that contains line formatting properties for a shape.",
-        "line": 127,
+        "line": 140,
         "file": "aspose/slides_foss/Shape.py"
       },
       {
@@ -30624,7 +31281,7 @@
         "type": "IThreeDFormat",
         "writable": false,
         "doc": "Returns the ThreeDFormat object that 3d effect properties for a shape.",
-        "line": 138,
+        "line": 154,
         "file": "aspose/slides_foss/Shape.py"
       },
       {
@@ -30632,7 +31289,7 @@
         "type": "IEffectFormat",
         "writable": false,
         "doc": "Returns the EffectFormat object which contains pixel effects applied to a shape.",
-        "line": 149,
+        "line": 169,
         "file": "aspose/slides_foss/Shape.py"
       },
       {
@@ -30640,7 +31297,7 @@
         "type": "IFillFormat",
         "writable": false,
         "doc": "Returns the FillFormat object that contains fill formatting properties for a shape.",
-        "line": 160,
+        "line": 180,
         "file": "aspose/slides_foss/Shape.py"
       },
       {
@@ -30648,7 +31305,7 @@
         "type": "bool",
         "writable": true,
         "doc": "Determines whether the shape is hidden.",
-        "line": 176,
+        "line": 196,
         "file": "aspose/slides_foss/Shape.py"
       },
       {
@@ -30656,7 +31313,7 @@
         "type": "int",
         "writable": false,
         "doc": "Returns the position of a shape in the z-order.",
-        "line": 197,
+        "line": 217,
         "file": "aspose/slides_foss/Shape.py"
       },
       {
@@ -30664,7 +31321,7 @@
         "type": "int",
         "writable": false,
         "doc": "Returns the number of connection sites on the shape.",
-        "line": 208,
+        "line": 228,
         "file": "aspose/slides_foss/Shape.py"
       },
       {
@@ -30672,7 +31329,7 @@
         "type": "float",
         "writable": true,
         "doc": "Returns or sets the number of degrees the specified shape is rotated around the z-axis.",
-        "line": 224,
+        "line": 244,
         "file": "aspose/slides_foss/Shape.py"
       },
       {
@@ -30680,7 +31337,7 @@
         "type": "float",
         "writable": true,
         "doc": "Gets or sets the x-coordinate of the shape's upper-left corner, measured in points.",
-        "line": 241,
+        "line": 261,
         "file": "aspose/slides_foss/Shape.py"
       },
       {
@@ -30688,7 +31345,7 @@
         "type": "float",
         "writable": true,
         "doc": "Gets or sets the y-coordinate of the shape's upper-left corner, measured in points.",
-        "line": 261,
+        "line": 281,
         "file": "aspose/slides_foss/Shape.py"
       },
       {
@@ -30696,7 +31353,7 @@
         "type": "float",
         "writable": true,
         "doc": "Gets or sets the width of the shape, measured in points.",
-        "line": 281,
+        "line": 301,
         "file": "aspose/slides_foss/Shape.py"
       },
       {
@@ -30704,7 +31361,7 @@
         "type": "float",
         "writable": true,
         "doc": "Gets or sets the height of the shape, measured in points.",
-        "line": 301,
+        "line": 321,
         "file": "aspose/slides_foss/Shape.py"
       },
       {
@@ -30712,7 +31369,7 @@
         "type": "int",
         "writable": false,
         "doc": "Returns an internal, presentation-scoped identifier intended for use by add-ins or other code.",
-        "line": 323,
+        "line": 343,
         "file": "aspose/slides_foss/Shape.py"
       },
       {
@@ -30720,7 +31377,7 @@
         "type": "int",
         "writable": false,
         "doc": "Returns a slide-scoped unique identifier that remains constant for the lifetime of the shape and lets PowerPoint or interop code reliably reference the shape from anywhere in the document.",
-        "line": 483,
+        "line": 503,
         "file": "aspose/slides_foss/Shape.py"
       },
       {
@@ -30728,7 +31385,7 @@
         "type": "str",
         "writable": true,
         "doc": "Returns or sets the alternative text associated with a shape.",
-        "line": 493,
+        "line": 513,
         "file": "aspose/slides_foss/Shape.py"
       },
       {
@@ -30736,7 +31393,23 @@
         "type": "str",
         "writable": true,
         "doc": "Returns or sets the title of alternative text associated with a shape.",
-        "line": 510,
+        "line": 530,
+        "file": "aspose/slides_foss/Shape.py"
+      },
+      {
+        "name": "hyperlink_click",
+        "type": "IHyperlink",
+        "writable": true,
+        "doc": "Returns or sets the hyperlink followed when the shape is clicked.",
+        "line": 547,
+        "file": "aspose/slides_foss/Shape.py"
+      },
+      {
+        "name": "hyperlink_mouse_over",
+        "type": "IHyperlink",
+        "writable": true,
+        "doc": "Returns or sets the hyperlink followed when the pointer rests on the shape.",
+        "line": 560,
         "file": "aspose/slides_foss/Shape.py"
       },
       {
@@ -30744,7 +31417,7 @@
         "type": "str",
         "writable": true,
         "doc": "Returns or sets the name of a shape.",
-        "line": 527,
+        "line": 573,
         "file": "aspose/slides_foss/Shape.py"
       },
       {
@@ -30752,7 +31425,7 @@
         "type": "bool",
         "writable": true,
         "doc": "Gets or sets 'Mark as decorative' option Reed/write .",
-        "line": 546,
+        "line": 592,
         "file": "aspose/slides_foss/Shape.py"
       },
       {
@@ -30760,7 +31433,7 @@
         "type": "bool",
         "writable": false,
         "doc": "Determines whether the shape is grouped.",
-        "line": 586,
+        "line": 632,
         "file": "aspose/slides_foss/Shape.py"
       },
       {
@@ -30768,7 +31441,7 @@
         "type": "IBaseSlide",
         "writable": false,
         "doc": "Returns the parent slide of a shape.",
-        "line": 596,
+        "line": 642,
         "file": "aspose/slides_foss/Shape.py"
       },
       {
@@ -30776,7 +31449,7 @@
         "type": "IPresentation",
         "writable": false,
         "doc": "Returns the parent presentation of a slide.",
-        "line": 601,
+        "line": 647,
         "file": "aspose/slides_foss/Shape.py"
       },
       {
@@ -30784,7 +31457,7 @@
         "type": "ISlideComponent",
         "writable": false,
         "doc": "Gets the as i slide component.",
-        "line": 609,
+        "line": 655,
         "file": "aspose/slides_foss/Shape.py",
         "doc_source": "name_inference"
       },
@@ -30793,7 +31466,7 @@
         "type": "IPresentationComponent",
         "writable": false,
         "doc": "Gets the as i presentation component.",
-        "line": 613,
+        "line": 659,
         "file": "aspose/slides_foss/Shape.py",
         "doc_source": "name_inference"
       },
@@ -31254,7 +31927,7 @@
         "params": [],
         "return_type": "None",
         "doc": "Save the presentation to a file or stream.",
-        "line": 357,
+        "line": 375,
         "is_constructor": false,
         "deprecated": false,
         "deprecated_reason": "",
@@ -31265,7 +31938,7 @@
         "params": [],
         "return_type": "None",
         "doc": "Release all resources used by this Presentation object.",
-        "line": 490,
+        "line": 533,
         "is_constructor": false,
         "deprecated": false,
         "deprecated_reason": "",
@@ -32598,8 +33271,9 @@
     "kind": "class_definition",
     "doc": "Represents a shape on a slide.",
     "file": "aspose/slides_foss/Shape.py",
-    "line": 22,
+    "line": 24,
     "bases": [
+      "StrictAttributes",
       "IShape",
       "ISlideComponent",
       "IPresentationComponent",
@@ -32612,7 +33286,7 @@
         "params": [],
         "return_type": "",
         "doc": "Initialize an empty shape.",
-        "line": 25,
+        "line": 27,
         "is_constructor": true,
         "deprecated": false,
         "deprecated_reason": "",
@@ -32625,7 +33299,7 @@
         "type": "IShapeFrame",
         "writable": true,
         "doc": "Returns or sets the raw shape frame's properties.",
-        "line": 91,
+        "line": 93,
         "file": "aspose/slides_foss/Shape.py"
       },
       {
@@ -32633,7 +33307,7 @@
         "type": "IShapeFrame",
         "writable": true,
         "doc": "Returns or sets the shape frame's properties.",
-        "line": 100,
+        "line": 102,
         "file": "aspose/slides_foss/Shape.py"
       },
       {
@@ -32641,7 +33315,7 @@
         "type": "ILineFormat",
         "writable": false,
         "doc": "Returns the LineFormat object that contains line formatting properties for a shape.",
-        "line": 127,
+        "line": 140,
         "file": "aspose/slides_foss/Shape.py"
       },
       {
@@ -32649,7 +33323,7 @@
         "type": "IThreeDFormat",
         "writable": false,
         "doc": "Returns the ThreeDFormat object that 3d effect properties for a shape.",
-        "line": 138,
+        "line": 154,
         "file": "aspose/slides_foss/Shape.py"
       },
       {
@@ -32657,7 +33331,7 @@
         "type": "IEffectFormat",
         "writable": false,
         "doc": "Returns the EffectFormat object which contains pixel effects applied to a shape.",
-        "line": 149,
+        "line": 169,
         "file": "aspose/slides_foss/Shape.py"
       },
       {
@@ -32665,7 +33339,7 @@
         "type": "IFillFormat",
         "writable": false,
         "doc": "Returns the FillFormat object that contains fill formatting properties for a shape.",
-        "line": 160,
+        "line": 180,
         "file": "aspose/slides_foss/Shape.py"
       },
       {
@@ -32673,7 +33347,7 @@
         "type": "bool",
         "writable": true,
         "doc": "Determines whether the shape is hidden.",
-        "line": 176,
+        "line": 196,
         "file": "aspose/slides_foss/Shape.py"
       },
       {
@@ -32681,7 +33355,7 @@
         "type": "int",
         "writable": false,
         "doc": "Returns the position of a shape in the z-order.",
-        "line": 197,
+        "line": 217,
         "file": "aspose/slides_foss/Shape.py"
       },
       {
@@ -32689,7 +33363,7 @@
         "type": "int",
         "writable": false,
         "doc": "Returns the number of connection sites on the shape.",
-        "line": 208,
+        "line": 228,
         "file": "aspose/slides_foss/Shape.py"
       },
       {
@@ -32697,7 +33371,7 @@
         "type": "float",
         "writable": true,
         "doc": "Returns or sets the number of degrees the specified shape is rotated around the z-axis.",
-        "line": 224,
+        "line": 244,
         "file": "aspose/slides_foss/Shape.py"
       },
       {
@@ -32705,7 +33379,7 @@
         "type": "float",
         "writable": true,
         "doc": "Gets or sets the x-coordinate of the shape's upper-left corner, measured in points.",
-        "line": 241,
+        "line": 261,
         "file": "aspose/slides_foss/Shape.py"
       },
       {
@@ -32713,7 +33387,7 @@
         "type": "float",
         "writable": true,
         "doc": "Gets or sets the y-coordinate of the shape's upper-left corner, measured in points.",
-        "line": 261,
+        "line": 281,
         "file": "aspose/slides_foss/Shape.py"
       },
       {
@@ -32721,7 +33395,7 @@
         "type": "float",
         "writable": true,
         "doc": "Gets or sets the width of the shape, measured in points.",
-        "line": 281,
+        "line": 301,
         "file": "aspose/slides_foss/Shape.py"
       },
       {
@@ -32729,7 +33403,7 @@
         "type": "float",
         "writable": true,
         "doc": "Gets or sets the height of the shape, measured in points.",
-        "line": 301,
+        "line": 321,
         "file": "aspose/slides_foss/Shape.py"
       },
       {
@@ -32737,7 +33411,7 @@
         "type": "int",
         "writable": false,
         "doc": "Returns an internal, presentation-scoped identifier intended for use by add-ins or other code.",
-        "line": 323,
+        "line": 343,
         "file": "aspose/slides_foss/Shape.py"
       },
       {
@@ -32745,7 +33419,7 @@
         "type": "int",
         "writable": false,
         "doc": "Returns a slide-scoped unique identifier that remains constant for the lifetime of the shape and lets PowerPoint or interop code reliably reference the shape from anywhere in the document.",
-        "line": 483,
+        "line": 503,
         "file": "aspose/slides_foss/Shape.py"
       },
       {
@@ -32753,7 +33427,7 @@
         "type": "str",
         "writable": true,
         "doc": "Returns or sets the alternative text associated with a shape.",
-        "line": 493,
+        "line": 513,
         "file": "aspose/slides_foss/Shape.py"
       },
       {
@@ -32761,7 +33435,23 @@
         "type": "str",
         "writable": true,
         "doc": "Returns or sets the title of alternative text associated with a shape.",
-        "line": 510,
+        "line": 530,
+        "file": "aspose/slides_foss/Shape.py"
+      },
+      {
+        "name": "hyperlink_click",
+        "type": "IHyperlink",
+        "writable": true,
+        "doc": "Returns or sets the hyperlink followed when the shape is clicked.",
+        "line": 547,
+        "file": "aspose/slides_foss/Shape.py"
+      },
+      {
+        "name": "hyperlink_mouse_over",
+        "type": "IHyperlink",
+        "writable": true,
+        "doc": "Returns or sets the hyperlink followed when the pointer rests on the shape.",
+        "line": 560,
         "file": "aspose/slides_foss/Shape.py"
       },
       {
@@ -32769,7 +33459,7 @@
         "type": "str",
         "writable": true,
         "doc": "Returns or sets the name of a shape.",
-        "line": 527,
+        "line": 573,
         "file": "aspose/slides_foss/Shape.py"
       },
       {
@@ -32777,7 +33467,7 @@
         "type": "bool",
         "writable": true,
         "doc": "Gets or sets 'Mark as decorative' option Reed/write .",
-        "line": 546,
+        "line": 592,
         "file": "aspose/slides_foss/Shape.py"
       },
       {
@@ -32785,7 +33475,7 @@
         "type": "bool",
         "writable": false,
         "doc": "Determines whether the shape is grouped.",
-        "line": 586,
+        "line": 632,
         "file": "aspose/slides_foss/Shape.py"
       },
       {
@@ -32793,7 +33483,7 @@
         "type": "IBaseSlide",
         "writable": false,
         "doc": "Returns the parent slide of a shape.",
-        "line": 596,
+        "line": 642,
         "file": "aspose/slides_foss/Shape.py"
       },
       {
@@ -32801,7 +33491,7 @@
         "type": "IPresentation",
         "writable": false,
         "doc": "Returns the parent presentation of a slide.",
-        "line": 601,
+        "line": 647,
         "file": "aspose/slides_foss/Shape.py"
       },
       {
@@ -32809,7 +33499,7 @@
         "type": "ISlideComponent",
         "writable": false,
         "doc": "Gets the as i slide component.",
-        "line": 609,
+        "line": 655,
         "file": "aspose/slides_foss/Shape.py",
         "doc_source": "name_inference"
       },
@@ -32818,7 +33508,7 @@
         "type": "IPresentationComponent",
         "writable": false,
         "doc": "Gets the as i presentation component.",
-        "line": 613,
+        "line": 659,
         "file": "aspose/slides_foss/Shape.py",
         "doc_source": "name_inference"
       },
@@ -32918,7 +33608,7 @@
         "type": "IPresentationComponent",
         "writable": false,
         "doc": "Allows to get base IPresentationComponent interface.",
-        "line": 13,
+        "line": 14,
         "file": "aspose/slides_foss/PVIObject.py"
       },
       {
@@ -32926,7 +33616,7 @@
         "type": "IBaseSlide",
         "writable": false,
         "doc": "Gets the slide.",
-        "line": 18,
+        "line": 19,
         "file": "aspose/slides_foss/PVIObject.py",
         "doc_source": "name_inference"
       },
@@ -32935,7 +33625,7 @@
         "type": "IPresentation",
         "writable": false,
         "doc": "Gets the presentation.",
-        "line": 24,
+        "line": 25,
         "file": "aspose/slides_foss/PVIObject.py",
         "doc_source": "name_inference"
       }
@@ -35457,7 +36147,7 @@
         "params": [],
         "return_type": "",
         "doc": "Initialize an empty shape.",
-        "line": 25,
+        "line": 27,
         "is_constructor": true,
         "deprecated": false,
         "deprecated_reason": "",
@@ -35602,7 +36292,7 @@
         "type": "IShapeFrame",
         "writable": true,
         "doc": "Returns or sets the raw shape frame's properties.",
-        "line": 91,
+        "line": 93,
         "file": "aspose/slides_foss/Shape.py"
       },
       {
@@ -35610,7 +36300,7 @@
         "type": "IShapeFrame",
         "writable": true,
         "doc": "Returns or sets the shape frame's properties.",
-        "line": 100,
+        "line": 102,
         "file": "aspose/slides_foss/Shape.py"
       },
       {
@@ -35618,7 +36308,7 @@
         "type": "ILineFormat",
         "writable": false,
         "doc": "Returns the LineFormat object that contains line formatting properties for a shape.",
-        "line": 127,
+        "line": 140,
         "file": "aspose/slides_foss/Shape.py"
       },
       {
@@ -35626,7 +36316,7 @@
         "type": "IThreeDFormat",
         "writable": false,
         "doc": "Returns the ThreeDFormat object that 3d effect properties for a shape.",
-        "line": 138,
+        "line": 154,
         "file": "aspose/slides_foss/Shape.py"
       },
       {
@@ -35634,7 +36324,7 @@
         "type": "IEffectFormat",
         "writable": false,
         "doc": "Returns the EffectFormat object which contains pixel effects applied to a shape.",
-        "line": 149,
+        "line": 169,
         "file": "aspose/slides_foss/Shape.py"
       },
       {
@@ -35642,7 +36332,7 @@
         "type": "IFillFormat",
         "writable": false,
         "doc": "Returns the FillFormat object that contains fill formatting properties for a shape.",
-        "line": 160,
+        "line": 180,
         "file": "aspose/slides_foss/Shape.py"
       },
       {
@@ -35650,7 +36340,7 @@
         "type": "bool",
         "writable": true,
         "doc": "Determines whether the shape is hidden.",
-        "line": 176,
+        "line": 196,
         "file": "aspose/slides_foss/Shape.py"
       },
       {
@@ -35658,7 +36348,7 @@
         "type": "int",
         "writable": false,
         "doc": "Returns the position of a shape in the z-order.",
-        "line": 197,
+        "line": 217,
         "file": "aspose/slides_foss/Shape.py"
       },
       {
@@ -35666,7 +36356,7 @@
         "type": "int",
         "writable": false,
         "doc": "Returns the number of connection sites on the shape.",
-        "line": 208,
+        "line": 228,
         "file": "aspose/slides_foss/Shape.py"
       },
       {
@@ -35674,7 +36364,7 @@
         "type": "float",
         "writable": true,
         "doc": "Returns or sets the number of degrees the specified shape is rotated around the z-axis.",
-        "line": 224,
+        "line": 244,
         "file": "aspose/slides_foss/Shape.py"
       },
       {
@@ -35682,7 +36372,7 @@
         "type": "float",
         "writable": true,
         "doc": "Gets or sets the x-coordinate of the shape's upper-left corner, measured in points.",
-        "line": 241,
+        "line": 261,
         "file": "aspose/slides_foss/Shape.py"
       },
       {
@@ -35690,7 +36380,7 @@
         "type": "float",
         "writable": true,
         "doc": "Gets or sets the y-coordinate of the shape's upper-left corner, measured in points.",
-        "line": 261,
+        "line": 281,
         "file": "aspose/slides_foss/Shape.py"
       },
       {
@@ -35698,7 +36388,7 @@
         "type": "float",
         "writable": true,
         "doc": "Gets or sets the width of the shape, measured in points.",
-        "line": 281,
+        "line": 301,
         "file": "aspose/slides_foss/Shape.py"
       },
       {
@@ -35706,7 +36396,7 @@
         "type": "float",
         "writable": true,
         "doc": "Gets or sets the height of the shape, measured in points.",
-        "line": 301,
+        "line": 321,
         "file": "aspose/slides_foss/Shape.py"
       },
       {
@@ -35714,7 +36404,7 @@
         "type": "int",
         "writable": false,
         "doc": "Returns an internal, presentation-scoped identifier intended for use by add-ins or other code.",
-        "line": 323,
+        "line": 343,
         "file": "aspose/slides_foss/Shape.py"
       },
       {
@@ -35722,7 +36412,7 @@
         "type": "int",
         "writable": false,
         "doc": "Returns a slide-scoped unique identifier that remains constant for the lifetime of the shape and lets PowerPoint or interop code reliably reference the shape from anywhere in the document.",
-        "line": 483,
+        "line": 503,
         "file": "aspose/slides_foss/Shape.py"
       },
       {
@@ -35730,7 +36420,7 @@
         "type": "str",
         "writable": true,
         "doc": "Returns or sets the alternative text associated with a shape.",
-        "line": 493,
+        "line": 513,
         "file": "aspose/slides_foss/Shape.py"
       },
       {
@@ -35738,7 +36428,23 @@
         "type": "str",
         "writable": true,
         "doc": "Returns or sets the title of alternative text associated with a shape.",
-        "line": 510,
+        "line": 530,
+        "file": "aspose/slides_foss/Shape.py"
+      },
+      {
+        "name": "hyperlink_click",
+        "type": "IHyperlink",
+        "writable": true,
+        "doc": "Returns or sets the hyperlink followed when the shape is clicked.",
+        "line": 547,
+        "file": "aspose/slides_foss/Shape.py"
+      },
+      {
+        "name": "hyperlink_mouse_over",
+        "type": "IHyperlink",
+        "writable": true,
+        "doc": "Returns or sets the hyperlink followed when the pointer rests on the shape.",
+        "line": 560,
         "file": "aspose/slides_foss/Shape.py"
       },
       {
@@ -35746,7 +36452,7 @@
         "type": "str",
         "writable": true,
         "doc": "Returns or sets the name of a shape.",
-        "line": 527,
+        "line": 573,
         "file": "aspose/slides_foss/Shape.py"
       },
       {
@@ -35754,7 +36460,7 @@
         "type": "bool",
         "writable": true,
         "doc": "Gets or sets 'Mark as decorative' option Reed/write .",
-        "line": 546,
+        "line": 592,
         "file": "aspose/slides_foss/Shape.py"
       },
       {
@@ -35762,7 +36468,7 @@
         "type": "bool",
         "writable": false,
         "doc": "Determines whether the shape is grouped.",
-        "line": 586,
+        "line": 632,
         "file": "aspose/slides_foss/Shape.py"
       },
       {
@@ -35770,7 +36476,7 @@
         "type": "IBaseSlide",
         "writable": false,
         "doc": "Returns the parent slide of a shape.",
-        "line": 596,
+        "line": 642,
         "file": "aspose/slides_foss/Shape.py"
       },
       {
@@ -35778,7 +36484,7 @@
         "type": "IPresentation",
         "writable": false,
         "doc": "Returns the parent presentation of a slide.",
-        "line": 601,
+        "line": 647,
         "file": "aspose/slides_foss/Shape.py"
       },
       {
@@ -35786,7 +36492,7 @@
         "type": "ISlideComponent",
         "writable": false,
         "doc": "Gets the as i slide component.",
-        "line": 609,
+        "line": 655,
         "file": "aspose/slides_foss/Shape.py",
         "doc_source": "name_inference"
       },
@@ -35795,7 +36501,7 @@
         "type": "IPresentationComponent",
         "writable": false,
         "doc": "Gets the as i presentation component.",
-        "line": 613,
+        "line": 659,
         "file": "aspose/slides_foss/Shape.py",
         "doc_source": "name_inference"
       },
@@ -45659,7 +46365,7 @@
         "params": [],
         "return_type": "",
         "doc": "Initialize an empty shape.",
-        "line": 25,
+        "line": 27,
         "is_constructor": true,
         "deprecated": false,
         "deprecated_reason": "",
@@ -46091,6 +46797,22 @@
         "doc": "Returns the presentation.",
         "line": 11,
         "file": "aspose/slides_foss/IPresentationComponent.py"
+      },
+      {
+        "name": "hyperlink_click",
+        "type": "IHyperlink",
+        "writable": true,
+        "doc": "Returns or sets the hyperlink followed on a mouse click.",
+        "line": 12,
+        "file": "aspose/slides_foss/IHyperlinkContainer.py"
+      },
+      {
+        "name": "hyperlink_mouse_over",
+        "type": "IHyperlink",
+        "writable": true,
+        "doc": "Returns or sets the hyperlink followed on a mouse over.",
+        "line": 22,
+        "file": "aspose/slides_foss/IHyperlinkContainer.py"
       },
       {
         "name": "as_i_chart_component",
@@ -51052,6 +51774,22 @@
         "doc": "Returns the presentation.",
         "line": 11,
         "file": "aspose/slides_foss/IPresentationComponent.py"
+      },
+      {
+        "name": "hyperlink_click",
+        "type": "IHyperlink",
+        "writable": true,
+        "doc": "Returns or sets the hyperlink followed on a mouse click.",
+        "line": 12,
+        "file": "aspose/slides_foss/IHyperlinkContainer.py"
+      },
+      {
+        "name": "hyperlink_mouse_over",
+        "type": "IHyperlink",
+        "writable": true,
+        "doc": "Returns or sets the hyperlink followed on a mouse over.",
+        "line": 22,
+        "file": "aspose/slides_foss/IHyperlinkContainer.py"
       },
       {
         "name": "as_i_chart_component",
@@ -57813,7 +58551,7 @@
         "type": "IPresentation",
         "writable": false,
         "doc": "Gets the presentation.",
-        "line": 24,
+        "line": 25,
         "file": "aspose/slides_foss/PVIObject.py",
         "doc_source": "name_inference"
       }
@@ -57892,7 +58630,7 @@
         "type": "IPresentation",
         "writable": false,
         "doc": "Gets the presentation.",
-        "line": 24,
+        "line": 25,
         "file": "aspose/slides_foss/PVIObject.py",
         "doc_source": "name_inference"
       }
@@ -58566,7 +59304,7 @@
         "type": "IPresentationComponent",
         "writable": false,
         "doc": "Allows to get base IPresentationComponent interface.",
-        "line": 13,
+        "line": 14,
         "file": "aspose/slides_foss/PVIObject.py"
       },
       {
@@ -58574,7 +59312,7 @@
         "type": "IBaseSlide",
         "writable": false,
         "doc": "Gets the slide.",
-        "line": 18,
+        "line": 19,
         "file": "aspose/slides_foss/PVIObject.py",
         "doc_source": "name_inference"
       },
@@ -58583,7 +59321,7 @@
         "type": "IPresentation",
         "writable": false,
         "doc": "Gets the presentation.",
-        "line": 24,
+        "line": 25,
         "file": "aspose/slides_foss/PVIObject.py",
         "doc_source": "name_inference"
       }

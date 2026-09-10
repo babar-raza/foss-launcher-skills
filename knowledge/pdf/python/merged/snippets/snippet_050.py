@@ -1,7 +1,10 @@
-def test_compute_hash_v5_long_password_truncated(self):
-        """Password should be max 127 bytes as per spec (caller responsibility)."""
-        # Note: The function expects properly prepared password bytes
+def test_compute_hash_v5_with_user_key(self):
+        """User key affects the hash result."""
+        password = b"password"
         salt = b"12345678"
-        long_pwd = b"x" * 127  # Max allowed
-        result = EncryptionUtils.compute_hash_v5(long_pwd, salt)
-        assert len(result) == 32
+        user_key = os.urandom(48)
+
+        result_without = EncryptionUtils.compute_hash_v5(password, salt, b"")
+        result_with = EncryptionUtils.compute_hash_v5(password, salt, user_key)
+
+        assert result_without != result_with, "User key must affect hash"

@@ -1,12 +1,17 @@
-def test_text_format_color(self):
-        prs = Presentation()
-        chart = prs.slides[0].shapes.add_chart(ChartType.CLUSTERED_COLUMN, 0, 0, 400, 300)
-        pf = chart.axes.vertical_axis.text_format.portion_format
-        pf.fill_format.fill_type = FillType.SOLID
-        pf.fill_format.solid_fill_color.color = Color.from_argb(255, 0, 100, 0)
+def test_timing_persists(self, tmp_pptx):
+        pres = Presentation()
+        slide = pres.slides[0]
+        shape = slide.shapes.add_auto_shape(ShapeType.RECTANGLE, 10, 10, 100, 50)
+        effect = slide.timeline.main_sequence.add_effect(
+            shape, anim.EffectType.FADE,
+            anim.EffectSubtype.NONE,
+            anim.EffectTriggerType.ON_CLICK,
+        )
+        effect.timing.duration = 2.5
+        effect.timing.trigger_delay_time = 0.5
 
-        prs2 = _save_and_reload(prs)
-        chart2 = prs2.slides[0].shapes[0]
-        pf2 = chart2.axes.vertical_axis.text_format.portion_format
-        assert pf2.fill_format.fill_type == FillType.SOLID
-        assert pf2.fill_format.solid_fill_color.color.g == 100
+        pres2 = tmp_pptx(pres)
+        eff2 = pres2.slides[0].timeline.main_sequence[0]
+        assert eff2.timing.duration == 2.5
+        assert eff2.timing.trigger_delay_time == 0.5
+        pres2.dispose()

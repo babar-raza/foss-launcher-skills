@@ -1,21 +1,11 @@
-def test_effective_inherits_from_layout():
-    """Slide with NOT_DEFINED bg inherits from layout before master."""
-    pres = Presentation()
-
-    # Set master to blue
-    master = pres.masters[0]
-    master.background.type = BackgroundType.OWN_BACKGROUND
-    master.background.fill_format.fill_type = FillType.SOLID
-    master.background.fill_format.solid_fill_color.color = Color.blue
-
-    # Set layout to red — should take priority
-    layout = pres.slides[0].layout_slide
-    layout.background.type = BackgroundType.OWN_BACKGROUND
-    layout.background.fill_format.fill_type = FillType.SOLID
-    layout.background.fill_format.solid_fill_color.color = Color.red
-
-    eff = pres.slides[0].background.get_effective()
-    assert eff.fill_format.fill_type == FillType.SOLID
-    c = eff.fill_format.solid_fill_color
-    assert c.r == 255 and c.g == 0 and c.b == 0
-    pres.dispose()
+def test_iteration(self):
+        with Presentation() as pres:
+            slide = pres.slides[0]
+            shape = slide.shapes.add_auto_shape(ShapeType.RECTANGLE, 10, 10, 100, 50)
+            seq = slide.timeline.main_sequence
+            seq.add_effect(shape, anim.EffectType.FADE, anim.EffectSubtype.NONE,
+                           anim.EffectTriggerType.ON_CLICK)
+            seq.add_effect(shape, anim.EffectType.APPEAR, anim.EffectSubtype.NONE,
+                           anim.EffectTriggerType.AFTER_PREVIOUS)
+            types = [e.type for e in seq]
+            assert types == [anim.EffectType.FADE, anim.EffectType.APPEAR]

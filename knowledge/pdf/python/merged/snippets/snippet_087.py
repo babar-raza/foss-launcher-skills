@@ -1,4 +1,4 @@
-def test_build_missing_geometry_returns_none():
-    assert build_appearance("Line", (0, 0, 100, 100), {}) is None
-    assert build_appearance("Ink", (0, 0, 100, 100), {}) is None
-    assert build_appearance("Highlight", (0, 0, 100, 100), {}) is None
+def test_build_caret_honours_rgb_colour():
+    gen = build_appearance("Caret", (0, 0, 20, 20), {"C": [1, 0, 0]})
+    assert gen is not None
+    assert b"1 0 0 rg" in gen.content

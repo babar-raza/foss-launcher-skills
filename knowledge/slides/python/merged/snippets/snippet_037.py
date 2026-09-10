@@ -1,11 +1,12 @@
-def test_set_build_type(self):
-        with Presentation() as pres:
-            slide = pres.slides[0]
-            shape = slide.shapes.add_auto_shape(ShapeType.RECTANGLE, 10, 10, 100, 50)
-            effect = slide.timeline.main_sequence.add_effect(
-                shape, anim.EffectType.FADE,
-                anim.EffectSubtype.NONE,
-                anim.EffectTriggerType.ON_CLICK,
-            )
-            effect.text_animation.build_type = anim.BuildType.BY_LEVEL_PARAGRAPHS1
-            assert effect.text_animation.build_type == anim.BuildType.BY_LEVEL_PARAGRAPHS1
+def test_the_six_office_formats_do_not_all_produce_the_same_file(produced, tmp_path):
+    """Six requested formats must not collapse into one content type."""
+    written = {}
+    for save_format, extension in EXTENSION.items():
+        pkg = produced(Presentation(), save_format, "distinct." + extension)
+        written[save_format] = pkg.content_type_of("ppt/presentation.xml")
+
+    assert len(set(written.values())) == len(written), (
+        "the six formats produced %d distinct main content types, not %d: %r"
+        % (len(set(written.values())), len(written),
+           {f.value: t for f, t in written.items()})
+    )

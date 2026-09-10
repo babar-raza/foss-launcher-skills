@@ -1,3 +1,3 @@
-def test_build_type_values(self):
-        assert anim.BuildType.AS_ONE_OBJECT.value == 'AsOneObject'
-        assert anim.BuildType.BY_LEVEL_PARAGRAPHS1.value == 'ByLevelParagraphs1'
+def test_interactive_sequences_initially_empty(self):
+        with Presentation() as pres:
+            assert len(pres.slides[0].timeline.interactive_sequences) == 0

@@ -1,48 +1,48 @@
 {
   "schema_version": 2,
-  "bundle_id": "4b27b18e-8921-4d4e-9e36-47e2a745f480",
+  "bundle_id": "91fa9423-57ae-4e3b-9c7a-7f925c4d7a8d",
   "family": "cells",
   "platform": "net",
-  "repo_sha": "6ee32c08a6090a778fab03e66afac731859f93a9",
-  "generated_at": "2026-08-24T06:32:35.029633+00:00",
-  "generator_fingerprint": "c2cc3c24c6bc5e66e0b6513ee648c9c1ae48a0a954349bd653beed452276da89",
+  "repo_sha": "941814fd138dc28cf47123d48194f329f283498d",
+  "generated_at": "2026-09-10T12:40:28.911016+00:00",
+  "generator_fingerprint": "39b55c0381d862030a39cf289a74386dba0d96ba7bead7439ed295a74ed8206e",
   "generator_semver": "2.0.0",
   "members": {
     "model.yaml": {
-      "sha256": "bb7ee87d5870925b6473a5751cde83895c1a3c472796d9159ea691dfc2533d75",
-      "bytes": 1211
+      "sha256": "7422e079aeb379e54b91cb906bc1025c730f8876282e188141edd3046dd959ff",
+      "bytes": 1350
     },
     "api_surface.json": {
-      "sha256": "3b46557923e0e2884536a96f0c4b4bf8db662e9596c6247fa143f8ca873ba115",
-      "bytes": 246694
+      "sha256": "0c677ed6e90486ad8656f7fbae1d836fb0f7b38df1363a4c5ebb3c48176750a5",
+      "bytes": 259298
     },
     "api_surface.md": {
-      "sha256": "8c3dfccc0f08770084288a7990f996b9c28727f73a8dd7c4e71cf542d1537707",
-      "bytes": 32369
+      "sha256": "214f254e11b3088c08893592fffb8c8dba2ba96f538c31a26385406c26b15181",
+      "bytes": 33110
     },
     "formats.json": {
-      "sha256": "5fa95f112d0ccbbba4d580d5eb60f5be9d2f8c02774f8fcf80142b22fe861449",
-      "bytes": 401
+      "sha256": "f324aa1a8922e993c8eb158c071dd4b9f3bc35db8f5042f574c43726f33a6b1a",
+      "bytes": 767
     },
     "formats.md": {
-      "sha256": "2fd650b0522d7f2aecd6519f6bd64b8f8a539e05f79335b502830b685f5c05a4",
-      "bytes": 280
+      "sha256": "4b26daa53445db5c2f155b7e18cb56dc72af0e145fa6b0b4afa3a07798d56d1b",
+      "bytes": 299
     },
     "claims.json": {
-      "sha256": "dab9ccdc626a02141eeeab9d850713c1ec52f49016a2d5bb2697bfdef56255dd",
-      "bytes": 233098
+      "sha256": "3b73b4bb0f796ad5e151be4f3a076b08a383166b2c19d82b88a55362469527db",
+      "bytes": 490507
     },
     "limitations.md": {
       "sha256": "d1f1db82c7047f517a9b0de14177621990880f596d8c260c69a6f3236d969c9e",
       "bytes": 78
     },
     "install.md": {
-      "sha256": "cb4f5d700bcd5d45bbe9c9bcefb31b841d980740b3044994684b11bd7966819e",
+      "sha256": "c5f0470c511b8e6c3c1d2ac9a889870c8c52b24b45b29b992d7a27984cdb10ec",
       "bytes": 151
     },
     "merge_report.md": {
-      "sha256": "55def029457bafb68811ee0b1723bda304f351cc21d97dfefcc0c31d26ba8f3b",
-      "bytes": 506
+      "sha256": "45b22cc94e4e7a3993e7afcfc1ded707ddb2a6578025b32e942131ebbc226936",
+      "bytes": 557
     },
     "snippets/snippet_001.cs": {
       "sha256": "ed57d9b379b3cebd05b2dcda48e08e732f42bd8155c98b16702f57f68b3debb3",
@@ -53,30 +53,38 @@
       "bytes": 444
     },
     "snippets/snippet_003.cs": {
+      "sha256": "7b2fbe71e4fb418b9daf01bc968198ad5b830e9594a5af8ac82c8b88542435cb",
+      "bytes": 312
+    },
+    "snippets/snippet_004.cs": {
       "sha256": "5e5ffd2712d50c1bc40bfd50a205be4de1a109131c0471a2e2093e18e559c119",
       "bytes": 691
     },
-    "snippets/snippet_004.cs": {
+    "snippets/snippet_005.cs": {
       "sha256": "de46ca54e50b30441ec18aa387b03ceb2795b6f2d07cfe5d62739c168166a775",
       "bytes": 562
     },
-    "snippets/snippet_005.cs": {
+    "snippets/snippet_006.cs": {
       "sha256": "7f1f252f51ec8b85c5b216ce72b1eec8b6cccbaa1d05625007f73cd76e022f99",
       "bytes": 567
     },
-    "snippets/snippet_006.cs": {
+    "snippets/snippet_007.cs": {
       "sha256": "1b83c0ed4fe9e04f210ad36a8ace72ce11374a4e8e87e90b84c5547fc035822c",
       "bytes": 426
     },
-    "snippets/snippet_007.cs": {
-      "sha256": "3e3de350db53e149c31e0809b327e9fce7045ce473747d89132c16f4e620400c",
-      "bytes": 419
+    "snippets/snippet_008.cs": {
+      "sha256": "da3483c6611a8a73a84e2bd9165bb3e8e0520dfeeb4456df1422ba701a500f02",
+      "bytes": 444
+    },
+    "snippets/snippet_009.cs": {
+      "sha256": "41cff9544d11865bf4ab35978c3f282d908b4531b8d31e0c2c8f55592c5069da",
+      "bytes": 142
     },
     "snippets/snippets_index.json": {
-      "sha256": "43d2bb1b48ff901c06fa834b5bf516b870292a54e210d78aa77423f47c371b11",
-      "bytes": 3645
+      "sha256": "c820dcd98a50035d6eeed873fdb74b377658b2025a900410f4531f2de3071fa8",
+      "bytes": 6371
     }
   },
-  "promote_run_id": "promote-20260824T063235Z",
+  "promote_run_id": "promote-20260910T124029Z",
   "status": "COMPLETE"
 }

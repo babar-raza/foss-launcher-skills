@@ -1,12 +1,13 @@
-def test_add_path_effect(self):
-        with Presentation() as pres:
-            slide = pres.slides[0]
-            shape = slide.shapes.add_auto_shape(ShapeType.RECTANGLE, 10, 10, 100, 50)
-            effect = slide.timeline.main_sequence.add_effect(
-                shape, anim.EffectType.PATH_FOOTBALL,
-                anim.EffectSubtype.NONE,
-                anim.EffectTriggerType.ON_CLICK,
-            )
+def test_a_commented_deck_leaves_the_package_consistent(produced):
+    """Comment parts must be content-typed and their relationships resolvable."""
+    pres = Presentation()
+    author = pres.comment_authors.add_author("Alice", "A")
+    slide = pres.slides[0]
+    when = datetime.datetime(2026, 1, 15, 12, 0, 0)
+    root = author.comments.add_comment("Please review", slide, PointF(2.0, 3.0), when)
+    reply = author.comments.add_comment("Reviewed", slide, PointF(2.0, 3.0), when)
+    reply.parent_comment = root
 
-            assert effect.type == anim.EffectType.PATH_FOOTBALL
-            assert effect.preset_class_type == anim.EffectPresetClassType.PATH
+    pkg = produced(pres)
+
+    pkg.assert_package_is_consistent()

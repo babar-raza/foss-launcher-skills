@@ -1,17 +1,19 @@
-def test_interactive_sequence_persists(self, tmp_pptx):
-        pres = Presentation()
-        slide = pres.slides[0]
-        trigger = slide.shapes.add_auto_shape(ShapeType.BEVEL, 10, 10, 20, 20)
-        target = slide.shapes.add_auto_shape(ShapeType.RECTANGLE, 100, 100, 200, 100)
+def test_clearing_a_shape_hyperlink_removes_its_relationship(produced, shape_on_blank_slide):
+    """Setting the link back to None must take the .rels entry with it."""
+    pres, shape = shape_on_blank_slide()
+    shape.hyperlink_click = URL
+    shape.hyperlink_click = None
+    pkg = produced(pres)
 
-        seq = slide.timeline.interactive_sequences.add(trigger)
-        seq.add_effect(target, anim.EffectType.FADE,
-                       anim.EffectSubtype.NONE,
-                       anim.EffectTriggerType.ON_CLICK)
-
-        pres2 = tmp_pptx(pres)
-        iseqs = pres2.slides[0].timeline.interactive_sequences
-        assert len(iseqs) == 1
-        assert iseqs[0].count == 1
-        assert iseqs[0][0].type == anim.EffectType.FADE
-        pres2.dispose()
+    assert not pkg.findall(SLIDE, "//p:cNvPr/a:hlinkClick"), (
+        "the hyperlink element survived being cleared"
+    )
+    external = [
+        rel for rel in pkg.relationships(SLIDE).values()
+        if rel["type"] == REL_TYPE["hyperlink"]
+    ]
+    assert not external, (
+        "the element is gone but its external relationship is still declared: "
+        "%r" % external
+    )
+    pkg.assert_package_is_consistent()

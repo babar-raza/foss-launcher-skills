@@ -1,10 +1,7 @@
-def test_default_build_type(self):
-        with Presentation() as pres:
-            slide = pres.slides[0]
-            shape = slide.shapes.add_auto_shape(ShapeType.RECTANGLE, 10, 10, 100, 50)
-            effect = slide.timeline.main_sequence.add_effect(
-                shape, anim.EffectType.FADE,
-                anim.EffectSubtype.NONE,
-                anim.EffectTriggerType.ON_CLICK,
-            )
-            assert effect.text_animation.build_type == anim.BuildType.AS_ONE_OBJECT
+def test_the_saved_file_declares_the_format_that_was_asked_for(produced, save_format):
+    """The main part's content type must match the requested format."""
+    pkg = produced(
+        Presentation(), save_format, "deck." + EXTENSION[save_format]
+    )
+
+    assert pkg.content_type_of("ppt/presentation.xml") == MAIN_PART_CONTENT_TYPE[save_format]

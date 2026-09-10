@@ -1,21 +1,12 @@
-def test_change_background_type(tmp_pptx):
-    """Changing background type clears previous data."""
-    pres = Presentation()
-    slide = pres.slides[0]
-
-    # Start with solid
-    slide.background.type = BackgroundType.OWN_BACKGROUND
-    slide.background.fill_format.fill_type = FillType.SOLID
-    slide.background.fill_format.solid_fill_color.color = Color.red
-    assert slide.background.type == BackgroundType.OWN_BACKGROUND
-
-    # Switch to themed
-    slide.background.type = BackgroundType.THEMED
-    assert slide.background.type == BackgroundType.THEMED
-    slide.background.style_index = 5
-
-    pres2 = tmp_pptx(pres)
-    bg = pres2.slides[0].background
-    assert bg.type == BackgroundType.THEMED
-    assert bg.style_index == 5
-    pres2.dispose()
+def test_remove_at(self):
+        with Presentation() as pres:
+            slide = pres.slides[0]
+            shape = slide.shapes.add_auto_shape(ShapeType.RECTANGLE, 10, 10, 100, 50)
+            seq = slide.timeline.main_sequence
+            seq.add_effect(shape, anim.EffectType.FADE, anim.EffectSubtype.NONE,
+                           anim.EffectTriggerType.ON_CLICK)
+            seq.add_effect(shape, anim.EffectType.APPEAR, anim.EffectSubtype.NONE,
+                           anim.EffectTriggerType.AFTER_PREVIOUS)
+            seq.remove_at(0)
+            assert seq.count == 1
+            assert seq[0].type == anim.EffectType.APPEAR

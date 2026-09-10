@@ -1,18 +1,29 @@
-def test_gradient_background_with_stops(tmp_pptx):
-    """Gradient background with colour stops round-trips."""
-    pres = Presentation()
-    slide = pres.slides[0]
-    slide.background.type = BackgroundType.OWN_BACKGROUND
-    slide.background.fill_format.fill_type = FillType.GRADIENT
-    gf = slide.background.fill_format.gradient_format
-    gf.gradient_shape = GradientShape.LINEAR
-    gf.linear_gradient_angle = 90
-    gf.gradient_stops.add(0.0, Color.red)
-    gf.gradient_stops.add(1.0, Color.blue)
+def test_user_path_commands(self):
+        from aspose.slides_foss.drawing import PointF
 
-    pres2 = tmp_pptx(pres)
-    bg = pres2.slides[0].background
-    assert bg.fill_format.fill_type == FillType.GRADIENT
-    stops = bg.fill_format.gradient_format.gradient_stops
-    assert len(stops) >= 2
-    pres2.dispose()
+        with Presentation() as pres:
+            slide = pres.slides[0]
+            shape = slide.shapes.add_auto_shape(ShapeType.RECTANGLE, 100, 100, 200, 100)
+            seq = slide.timeline.interactive_sequences.add(
+                slide.shapes.add_auto_shape(ShapeType.BEVEL, 10, 10, 20, 20)
+            )
+            fx = seq.add_effect(shape, anim.EffectType.PATH_USER,
+                                anim.EffectSubtype.NONE,
+                                anim.EffectTriggerType.ON_CLICK)
+
+            motion = fx.behaviors[0]
+            assert isinstance(motion, anim.MotionEffect)
+
+            pts1 = [PointF(0.076, 0.59)]
+            motion.path.add(anim.MotionCommandPathType.LINE_TO, pts1,
+                            anim.MotionPathPointsType.AUTO, True)
+            pts2 = [PointF(-0.076, -0.59)]
+            motion.path.add(anim.MotionCommandPathType.LINE_TO, pts2,
+                            anim.MotionPathPointsType.AUTO, False)
+            motion.path.add(anim.MotionCommandPathType.END, None,
+                            anim.MotionPathPointsType.AUTO, False)
+
+            assert motion.path.count == 3
+            assert motion.path[0].command_type == anim.MotionCommandPathType.LINE_TO
+            assert motion.path[0].is_relative is True
+            assert motion.path[2].command_type == anim.MotionCommandPathType.END

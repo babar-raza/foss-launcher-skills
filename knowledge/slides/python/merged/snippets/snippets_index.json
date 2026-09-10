@@ -2,17 +2,817 @@
   {
     "id": "snippet_001",
     "file": "snippet_001.py",
-    "source_file": "tests/conftest.py",
-    "source_function": "test_data_dir",
+    "source_file": "tests/conformance/test_character_format_order.py",
+    "source_function": "test_run_properties_keep_their_schema_order_however_they_were_set",
     "source_line": 48,
-    "classes_used": [],
+    "classes_used": [
+      "Format"
+    ],
     "methods_used": [],
     "formats_referenced": [],
-    "provenance": "scout"
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "f7122a148afd38412a3431ac5381490818b8442d2f607418e5747258d8a6670c",
+      "norm": "f7122a148afd38412a3431ac5381490818b8442d2f607418e5747258d8a6670c"
+    }
   },
   {
     "id": "snippet_002",
     "file": "snippet_002.py",
+    "source_file": "tests/conformance/test_character_format_order.py",
+    "source_function": "test_run_properties_come_before_the_run_text",
+    "source_line": 65,
+    "classes_used": [
+      "Format"
+    ],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "a979f4e2f685be2b2638feed14f4453e9c0d63d696f6d882e873168923ca0f4e",
+      "norm": "a979f4e2f685be2b2638feed14f4453e9c0d63d696f6d882e873168923ca0f4e"
+    }
+  },
+  {
+    "id": "snippet_003",
+    "file": "snippet_003.py",
+    "source_file": "tests/conformance/test_comment_lifecycle.py",
+    "source_function": "test_saving_the_same_deck_repeatedly_writes_one_thread_part",
+    "source_line": 45,
+    "classes_used": [
+      "Point",
+      "PointF",
+      "Presentation"
+    ],
+    "methods_used": [
+      "Presentation.dispose"
+    ],
+    "formats_referenced": [
+      "ppt",
+      "pptx"
+    ],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "ed478277a0917a35b34a3027fa7eb09d93b6addc362138c0889795a558073c1c",
+      "norm": "ed478277a0917a35b34a3027fa7eb09d93b6addc362138c0889795a558073c1c"
+    }
+  },
+  {
+    "id": "snippet_004",
+    "file": "snippet_004.py",
+    "source_file": "tests/conformance/test_comment_lifecycle.py",
+    "source_function": "test_a_deleted_comment_is_not_left_behind_in_an_orphaned_part",
+    "source_line": 67,
+    "classes_used": [
+      "Point",
+      "PointF",
+      "Presentation"
+    ],
+    "methods_used": [
+      "Presentation.dispose"
+    ],
+    "formats_referenced": [
+      "ppt",
+      "pptx"
+    ],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "796a1e867941d9ffcedda85f41d2942bd2a8920f2c3631fe62a729c56f956a35",
+      "norm": "796a1e867941d9ffcedda85f41d2942bd2a8920f2c3631fe62a729c56f956a35"
+    }
+  },
+  {
+    "id": "snippet_005",
+    "file": "snippet_005.py",
+    "source_file": "tests/conformance/test_comment_lifecycle.py",
+    "source_function": "test_removing_every_comment_removes_the_thread_part",
+    "source_line": 96,
+    "classes_used": [
+      "Point",
+      "PointF",
+      "Presentation"
+    ],
+    "methods_used": [
+      "Presentation.dispose"
+    ],
+    "formats_referenced": [
+      "ppt",
+      "pptx"
+    ],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "a4c76a3e371d6d088cab1585fa8638676eaec3e255943a97718c489fd09f85b1",
+      "norm": "a4c76a3e371d6d088cab1585fa8638676eaec3e255943a97718c489fd09f85b1"
+    }
+  },
+  {
+    "id": "snippet_006",
+    "file": "snippet_006.py",
+    "source_file": "tests/conformance/test_comment_lifecycle.py",
+    "source_function": "test_a_repeatedly_saved_deck_has_no_unreachable_parts",
+    "source_line": 123,
+    "classes_used": [
+      "Point",
+      "PointF",
+      "Presentation"
+    ],
+    "methods_used": [
+      "Presentation.dispose"
+    ],
+    "formats_referenced": [
+      "ppt",
+      "pptx"
+    ],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "4c28a62c132e44c7ced073ae6c835e8e9422682af421a039d5d4ab58196a9b8f",
+      "norm": "4c28a62c132e44c7ced073ae6c835e8e9422682af421a039d5d4ab58196a9b8f"
+    }
+  },
+  {
+    "id": "snippet_007",
+    "file": "snippet_007.py",
+    "source_file": "tests/conformance/test_comment_replies.py",
+    "source_function": "test_a_comment_reply_survives_being_saved",
+    "source_line": 35,
+    "classes_used": [
+      "Comment",
+      "Point",
+      "PointF",
+      "Presentation"
+    ],
+    "methods_used": [],
+    "formats_referenced": [
+      "ppt"
+    ],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "46ae9780c52b493eab24038846200b6f8db81d1138076c7afb3dbbb81d7c008a",
+      "norm": "46ae9780c52b493eab24038846200b6f8db81d1138076c7afb3dbbb81d7c008a"
+    }
+  },
+  {
+    "id": "snippet_008",
+    "file": "snippet_008.py",
+    "source_file": "tests/conformance/test_comment_replies.py",
+    "source_function": "test_the_classic_comment_carries_the_extension_powerpoint_reads",
+    "source_line": 73,
+    "classes_used": [
+      "Comment",
+      "Point",
+      "PointF",
+      "Presentation"
+    ],
+    "methods_used": [],
+    "formats_referenced": [
+      "ppt"
+    ],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "c5ee14670814d1ab740ee5d3756c420fff47dd9ee56b1d9caff25170588fe415",
+      "norm": "c5ee14670814d1ab740ee5d3756c420fff47dd9ee56b1d9caff25170588fe415"
+    }
+  },
+  {
+    "id": "snippet_009",
+    "file": "snippet_009.py",
+    "source_file": "tests/conformance/test_comment_replies.py",
+    "source_function": "test_every_threaded_comment_declares_when_it_was_created",
+    "source_line": 126,
+    "classes_used": [
+      "Comment",
+      "Point",
+      "PointF",
+      "Presentation"
+    ],
+    "methods_used": [],
+    "formats_referenced": [
+      "ppt"
+    ],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "ed20a423fba9fdfc6d2b798cdcd8bf95c15d0ace8bd0d937396713aaf01cf53d",
+      "norm": "ed20a423fba9fdfc6d2b798cdcd8bf95c15d0ace8bd0d937396713aaf01cf53d"
+    }
+  },
+  {
+    "id": "snippet_010",
+    "file": "snippet_010.py",
+    "source_file": "tests/conformance/test_comment_replies.py",
+    "source_function": "test_a_commented_deck_leaves_the_package_consistent",
+    "source_line": 143,
+    "classes_used": [
+      "Comment",
+      "Point",
+      "PointF",
+      "Presentation"
+    ],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "548d365147c1818093e2c17e6a83afd9feb52bb5fb4417e290c918656998db71",
+      "norm": "548d365147c1818093e2c17e6a83afd9feb52bb5fb4417e290c918656998db71"
+    }
+  },
+  {
+    "id": "snippet_011",
+    "file": "snippet_011.py",
+    "source_file": "tests/conformance/test_effects.py",
+    "source_function": "test_enabling_an_effect_writes_an_element_powerpoint_can_open",
+    "source_line": 40,
+    "classes_used": [
+      "Point"
+    ],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "0847d9286082b77a8d75ef9137f6f78e2a798492271e737ecf5100da8bb596dd",
+      "norm": "0847d9286082b77a8d75ef9137f6f78e2a798492271e737ecf5100da8bb596dd"
+    }
+  },
+  {
+    "id": "snippet_012",
+    "file": "snippet_012.py",
+    "source_file": "tests/conformance/test_effects.py",
+    "source_function": "test_an_enabled_effect_does_not_disturb_the_effect_sequence",
+    "source_line": 69,
+    "classes_used": [],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "f2e4842d3beba6b3c2eb16a2e45b99768a2e2138bb008fd59eb4e80bfd5de74d",
+      "norm": "f2e4842d3beba6b3c2eb16a2e45b99768a2e2138bb008fd59eb4e80bfd5de74d"
+    }
+  },
+  {
+    "id": "snippet_013",
+    "file": "snippet_013.py",
+    "source_file": "tests/conformance/test_effects.py",
+    "source_function": "test_an_enabled_effect_leaves_the_package_consistent",
+    "source_line": 82,
+    "classes_used": [],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "92a19bf1b3b6b9430b0807df1dd0251109cf541aa94b928b362b2c2b33cc4f63",
+      "norm": "92a19bf1b3b6b9430b0807df1dd0251109cf541aa94b928b362b2c2b33cc4f63"
+    }
+  },
+  {
+    "id": "snippet_014",
+    "file": "snippet_014.py",
+    "source_file": "tests/conformance/test_graphic_frame.py",
+    "source_function": "test_a_table_uses_the_schema_name_for_its_frame_locks",
+    "source_line": 31,
+    "classes_used": [
+      "Point",
+      "Presentation"
+    ],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "438424b9568787e462ca59a13835bd924d6442f1f7a58cc3c15e16a2a9d8307a",
+      "norm": "438424b9568787e462ca59a13835bd924d6442f1f7a58cc3c15e16a2a9d8307a"
+    }
+  },
+  {
+    "id": "snippet_015",
+    "file": "snippet_015.py",
+    "source_file": "tests/conformance/test_graphic_frame.py",
+    "source_function": "test_a_chart_uses_the_schema_name_for_its_frame_locks",
+    "source_line": 48,
+    "classes_used": [
+      "Chart",
+      "ChartType",
+      "Point",
+      "Presentation"
+    ],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "2505ae296d7fc6517bf2f54baecbf9da605c001c28c3cd4912b8c22accbd9d98",
+      "norm": "2505ae296d7fc6517bf2f54baecbf9da605c001c28c3cd4912b8c22accbd9d98"
+    }
+  },
+  {
+    "id": "snippet_016",
+    "file": "snippet_016.py",
+    "source_file": "tests/conformance/test_graphic_frame.py",
+    "source_function": "test_a_table_leaves_the_package_consistent",
+    "source_line": 65,
+    "classes_used": [
+      "Presentation"
+    ],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "42528960cef15be61b8e4b9865a7bfb70eb172e5eb97b1e3f97e33f024b995e2",
+      "norm": "42528960cef15be61b8e4b9865a7bfb70eb172e5eb97b1e3f97e33f024b995e2"
+    }
+  },
+  {
+    "id": "snippet_017",
+    "file": "snippet_017.py",
+    "source_file": "tests/conformance/test_group_shape_properties.py",
+    "source_function": "test_group_properties_keep_their_schema_order_however_they_were_set",
+    "source_line": 48,
+    "classes_used": [
+      "GroupShape",
+      "Shape"
+    ],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "4280f4c3e95fff1937ab9944acdb83ef0b70dc53e47146964cc3bbbd1d24dc0e",
+      "norm": "4280f4c3e95fff1937ab9944acdb83ef0b70dc53e47146964cc3bbbd1d24dc0e"
+    }
+  },
+  {
+    "id": "snippet_018",
+    "file": "snippet_018.py",
+    "source_file": "tests/conformance/test_group_shape_properties.py",
+    "source_function": "test_a_fill_set_after_a_scene_still_precedes_it",
+    "source_line": 65,
+    "classes_used": [
+      "FillType"
+    ],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "3f8040392433d6f90f9e83f00bed8987c757075983d74c849f981f9241572193",
+      "norm": "3f8040392433d6f90f9e83f00bed8987c757075983d74c849f981f9241572193"
+    }
+  },
+  {
+    "id": "snippet_019",
+    "file": "snippet_019.py",
+    "source_file": "tests/conformance/test_group_shape_properties.py",
+    "source_function": "test_a_group_shape_has_no_outline_to_set",
+    "source_line": 83,
+    "classes_used": [
+      "GroupShape",
+      "Shape"
+    ],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "a312248be6f5aeadf0e52bc60b1a37727e3ccab3b218a20407a10159ff083165",
+      "norm": "a312248be6f5aeadf0e52bc60b1a37727e3ccab3b218a20407a10159ff083165"
+    }
+  },
+  {
+    "id": "snippet_020",
+    "file": "snippet_020.py",
+    "source_file": "tests/conformance/test_group_shape_properties.py",
+    "source_function": "test_a_group_shape_has_no_extrusion_to_set",
+    "source_line": 101,
+    "classes_used": [
+      "GroupShape",
+      "Shape"
+    ],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "b26d89cafb03ed13fd8eaf647b7f47d49056304001031d36ba5b2a8939835d38",
+      "norm": "b26d89cafb03ed13fd8eaf647b7f47d49056304001031d36ba5b2a8939835d38"
+    }
+  },
+  {
+    "id": "snippet_021",
+    "file": "snippet_021.py",
+    "source_file": "tests/conformance/test_group_shape_properties.py",
+    "source_function": "test_a_child_of_a_group_still_has_both",
+    "source_line": 118,
+    "classes_used": [
+      "Shape",
+      "ShapeType"
+    ],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "9c5b866d59e1d2710e35942ea7e02c930ce890dc953043eda22164e48ef4d4d8",
+      "norm": "9c5b866d59e1d2710e35942ea7e02c930ce890dc953043eda22164e48ef4d4d8"
+    }
+  },
+  {
+    "id": "snippet_022",
+    "file": "snippet_022.py",
+    "source_file": "tests/conformance/test_hyperlinks.py",
+    "source_function": "test_setting_a_hyperlink_is_not_silently_discarded",
+    "source_line": 24,
+    "classes_used": [],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "0ccd7718b45da2e63610d27a1bfb398c4a8fbeca8d7a7a47dcdc3ca51ddad9bc",
+      "norm": "0ccd7718b45da2e63610d27a1bfb398c4a8fbeca8d7a7a47dcdc3ca51ddad9bc"
+    }
+  },
+  {
+    "id": "snippet_023",
+    "file": "snippet_023.py",
+    "source_file": "tests/conformance/test_hyperlinks.py",
+    "source_function": "test_a_shape_level_hyperlink_reaches_the_package",
+    "source_line": 59,
+    "classes_used": [
+      "Point"
+    ],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "87fc290bf48c712de08d768cbe9d3110078c30dbab99c5a1181249b3cb9f97cb",
+      "norm": "87fc290bf48c712de08d768cbe9d3110078c30dbab99c5a1181249b3cb9f97cb"
+    }
+  },
+  {
+    "id": "snippet_024",
+    "file": "snippet_024.py",
+    "source_file": "tests/conformance/test_hyperlinks.py",
+    "source_function": "test_clearing_a_shape_hyperlink_removes_its_relationship",
+    "source_line": 94,
+    "classes_used": [],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "1c381b4e9c26660e52508bf0bfff2c8b7f2316b2a6fbd19db05502ceb389faf2",
+      "norm": "1c381b4e9c26660e52508bf0bfff2c8b7f2316b2a6fbd19db05502ceb389faf2"
+    }
+  },
+  {
+    "id": "snippet_025",
+    "file": "snippet_025.py",
+    "source_file": "tests/conformance/test_hyperlinks.py",
+    "source_function": "test_an_unknown_formatting_property_is_rejected",
+    "source_line": 115,
+    "classes_used": [],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "5b164e4aaedc63d50481b32b48e60744dcb16064e92de8007b08bc47b1c988d6",
+      "norm": "5b164e4aaedc63d50481b32b48e60744dcb16064e92de8007b08bc47b1c988d6"
+    }
+  },
+  {
+    "id": "snippet_026",
+    "file": "snippet_026.py",
+    "source_file": "tests/conformance/test_package_baseline.py",
+    "source_function": "test_a_plain_deck_satisfies_every_package_rule",
+    "source_line": 20,
+    "classes_used": [
+      "Presentation"
+    ],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "a48037751b1cf03db8fff330160ee3bfbe013e29b5fe2d537b69812fbadf3035",
+      "norm": "a48037751b1cf03db8fff330160ee3bfbe013e29b5fe2d537b69812fbadf3035"
+    }
+  },
+  {
+    "id": "snippet_027",
+    "file": "snippet_027.py",
+    "source_file": "tests/conformance/test_package_baseline.py",
+    "source_function": "test_added_and_removed_slides_stay_registered",
+    "source_line": 27,
+    "classes_used": [
+      "Presentation"
+    ],
+    "methods_used": [],
+    "formats_referenced": [
+      "ppt"
+    ],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "e065ce29ba0ab4ed743c4ec7a47563e69ab359b8de41350a1de1dd325d6441be",
+      "norm": "e065ce29ba0ab4ed743c4ec7a47563e69ab359b8de41350a1de1dd325d6441be"
+    }
+  },
+  {
+    "id": "snippet_028",
+    "file": "snippet_028.py",
+    "source_file": "tests/conformance/test_package_baseline.py",
+    "source_function": "test_an_embedded_image_resolves_from_the_slide",
+    "source_line": 53,
+    "classes_used": [
+      "Presentation",
+      "Shape",
+      "ShapeType"
+    ],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "e277102d2ebbfe3be0c73202ee4ede598c359f25db27196fe8aa18e8c5b3d7ce",
+      "norm": "e277102d2ebbfe3be0c73202ee4ede598c359f25db27196fe8aa18e8c5b3d7ce"
+    }
+  },
+  {
+    "id": "snippet_029",
+    "file": "snippet_029.py",
+    "source_file": "tests/conformance/test_package_baseline.py",
+    "source_function": "test_a_produced_file_opens_in_an_independent_reader",
+    "source_line": 70,
+    "classes_used": [],
+    "methods_used": [],
+    "formats_referenced": [
+      "ppt",
+      "pptx"
+    ],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "b6661e494050a18ab9f26432d81e48c059a49132a321c91a7372a2d3a6fc569a",
+      "norm": "b6661e494050a18ab9f26432d81e48c059a49132a321c91a7372a2d3a6fc569a"
+    }
+  },
+  {
+    "id": "snippet_030",
+    "file": "snippet_030.py",
+    "source_file": "tests/conformance/test_provenance.py",
+    "source_function": "test_the_bundled_template_carries_no_foreign_editing_language",
+    "source_line": 46,
+    "classes_used": [],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "a3158d51bd883ac25422a1f2c1a7c76bd15f2d8124b09929d888f423887ebc7a",
+      "norm": "a3158d51bd883ac25422a1f2c1a7c76bd15f2d8124b09929d888f423887ebc7a"
+    }
+  },
+  {
+    "id": "snippet_031",
+    "file": "snippet_031.py",
+    "source_file": "tests/conformance/test_provenance.py",
+    "source_function": "test_a_produced_file_carries_no_foreign_editing_language",
+    "source_line": 57,
+    "classes_used": [
+      "Presentation"
+    ],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "9cf1f277d3ec21e6c6dbb587a35d62e0887a72579f388c40694344e1d4382365",
+      "norm": "9cf1f277d3ec21e6c6dbb587a35d62e0887a72579f388c40694344e1d4382365"
+    }
+  },
+  {
+    "id": "snippet_032",
+    "file": "snippet_032.py",
+    "source_file": "tests/conformance/test_provenance.py",
+    "source_function": "test_the_document_summary_reports_the_real_slide_count",
+    "source_line": 71,
+    "classes_used": [
+      "Presentation",
+      "Slide"
+    ],
+    "methods_used": [],
+    "formats_referenced": [
+      "ppt"
+    ],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "b3130b737ff954dbca079af75a2235c15c263b43592585e57ff5c1e69a8dacdb",
+      "norm": "b3130b737ff954dbca079af75a2235c15c263b43592585e57ff5c1e69a8dacdb"
+    }
+  },
+  {
+    "id": "snippet_033",
+    "file": "snippet_033.py",
+    "source_file": "tests/conformance/test_provenance.py",
+    "source_function": "test_the_document_summary_follows_a_removal",
+    "source_line": 91,
+    "classes_used": [
+      "Presentation",
+      "Slide"
+    ],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "097e7ceca648fc2726b1d2bb349a91758a81c7bc9a513dbda99300ad69d32ece",
+      "norm": "097e7ceca648fc2726b1d2bb349a91758a81c7bc9a513dbda99300ad69d32ece"
+    }
+  },
+  {
+    "id": "snippet_034",
+    "file": "snippet_034.py",
+    "source_file": "tests/conformance/test_provenance.py",
+    "source_function": "test_a_saved_file_reports_when_it_was_saved",
+    "source_line": 107,
+    "classes_used": [
+      "Presentation"
+    ],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "e2c3b69b2ae3946cf69aed2abc180dddb097edd09a8d275192d13fdc5be9b74a",
+      "norm": "e2c3b69b2ae3946cf69aed2abc180dddb097edd09a8d275192d13fdc5be9b74a"
+    }
+  },
+  {
+    "id": "snippet_035",
+    "file": "snippet_035.py",
+    "source_file": "tests/conformance/test_provenance.py",
+    "source_function": "test_a_produced_file_carries_no_placeholder_thumbnail",
+    "source_line": 134,
+    "classes_used": [
+      "Presentation"
+    ],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "8a7c691f55aa94f8c1d1d307163bbdb219ac45bfff45596466cdb42f7d599962",
+      "norm": "8a7c691f55aa94f8c1d1d307163bbdb219ac45bfff45596466cdb42f7d599962"
+    }
+  },
+  {
+    "id": "snippet_036",
+    "file": "snippet_036.py",
+    "source_file": "tests/conformance/test_save_format.py",
+    "source_function": "test_the_saved_file_declares_the_format_that_was_asked_for",
+    "source_line": 46,
+    "classes_used": [
+      "Presentation"
+    ],
+    "methods_used": [],
+    "formats_referenced": [
+      "ppt"
+    ],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "7bfaf06661d38bfe0d9ac0ad0dcb9eaf06a22a73c3977df35ac83969ca02ebfe",
+      "norm": "7bfaf06661d38bfe0d9ac0ad0dcb9eaf06a22a73c3977df35ac83969ca02ebfe"
+    }
+  },
+  {
+    "id": "snippet_037",
+    "file": "snippet_037.py",
+    "source_file": "tests/conformance/test_save_format.py",
+    "source_function": "test_the_six_office_formats_do_not_all_produce_the_same_file",
+    "source_line": 55,
+    "classes_used": [
+      "Presentation"
+    ],
+    "methods_used": [],
+    "formats_referenced": [
+      "ppt"
+    ],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "d139b205fb0a51eee8fe59b18bc47df7f2cfd45fd9c773799a105eea4f29fbfa",
+      "norm": "d139b205fb0a51eee8fe59b18bc47df7f2cfd45fd9c773799a105eea4f29fbfa"
+    }
+  },
+  {
+    "id": "snippet_038",
+    "file": "snippet_038.py",
+    "source_file": "tests/conformance/test_save_format.py",
+    "source_function": "test_an_unimplemented_format_refuses_rather_than_writing_a_pptx",
+    "source_line": 77,
+    "classes_used": [
+      "Presentation"
+    ],
+    "methods_used": [
+      "Presentation.dispose",
+      "Presentation.save"
+    ],
+    "formats_referenced": [
+      "pdf",
+      "ppt",
+      "pptx"
+    ],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "62a66816fee797da2ccd1c73b01c5b912edabf066be9240377951da054adc641",
+      "norm": "62a66816fee797da2ccd1c73b01c5b912edabf066be9240377951da054adc641"
+    }
+  },
+  {
+    "id": "snippet_039",
+    "file": "snippet_039.py",
+    "source_file": "tests/conformance/test_slide_element_order.py",
+    "source_function": "test_a_transition_is_written_after_the_colour_map_override",
+    "source_line": 38,
+    "classes_used": [
+      "Presentation"
+    ],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "5fe039d334dd36da38e4fc622ff382940bf96937356b4f8f4d97962624b1c5a1",
+      "norm": "5fe039d334dd36da38e4fc622ff382940bf96937356b4f8f4d97962624b1c5a1"
+    }
+  },
+  {
+    "id": "snippet_040",
+    "file": "snippet_040.py",
+    "source_file": "tests/conformance/test_slide_element_order.py",
+    "source_function": "test_a_transition_leaves_the_package_consistent",
+    "source_line": 51,
+    "classes_used": [
+      "Presentation",
+      "TransitionType"
+    ],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "23b57ce04aef1af5e823ff307f8e0ce1290ea5beffd0fd8fb1ef9dca8d1e06e6",
+      "norm": "23b57ce04aef1af5e823ff307f8e0ce1290ea5beffd0fd8fb1ef9dca8d1e06e6"
+    }
+  },
+  {
+    "id": "snippet_041",
+    "file": "snippet_041.py",
+    "source_file": "tests/conformance/test_three_d.py",
+    "source_function": "test_a_shape_with_depth_gets_the_scene_that_makes_it_render",
+    "source_line": 24,
+    "classes_used": [
+      "Point"
+    ],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "180bd1d6d613a8c7a57beecbae4850991faa78b252333f8c6f1d27c01a049411",
+      "norm": "180bd1d6d613a8c7a57beecbae4850991faa78b252333f8c6f1d27c01a049411"
+    }
+  },
+  {
+    "id": "snippet_042",
+    "file": "snippet_042.py",
+    "source_file": "tests/conformance/test_three_d.py",
+    "source_function": "test_a_scene_is_never_written_half_populated",
+    "source_line": 54,
+    "classes_used": [
+      "Camera",
+      "CameraPresetType"
+    ],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "75d7de4c4f800e98ff052fa93b57b40c92a5a7256b113be92d57ce48b7659c53",
+      "norm": "75d7de4c4f800e98ff052fa93b57b40c92a5a7256b113be92d57ce48b7659c53"
+    }
+  },
+  {
+    "id": "snippet_043",
+    "file": "snippet_043.py",
+    "source_file": "tests/conformance/test_three_d.py",
+    "source_function": "test_a_light_rig_carries_its_required_direction",
+    "source_line": 68,
+    "classes_used": [
+      "LightRig",
+      "LightRigPresetType"
+    ],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "f87cc260e44756be9fc42b659f67654eed645d1b019d114144ecfd48059115d0",
+      "norm": "f87cc260e44756be9fc42b659f67654eed645d1b019d114144ecfd48059115d0"
+    }
+  },
+  {
+    "id": "snippet_044",
+    "file": "snippet_044.py",
+    "source_file": "tests/conftest.py",
+    "source_function": "test_data_dir",
+    "source_line": 73,
+    "classes_used": [],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "6f3d73a341fe24d804d4413e5aba2d8271b65c7e08790d951cb321a00452fb99",
+      "norm": "6f3d73a341fe24d804d4413e5aba2d8271b65c7e08790d951cb321a00452fb99"
+    }
+  },
+  {
+    "id": "snippet_045",
+    "file": "snippet_045.py",
     "source_file": "tests/test_animation.py",
     "source_function": "test_timeline_not_none",
     "source_line": 17,
@@ -21,11 +821,15 @@
     ],
     "methods_used": [],
     "formats_referenced": [],
-    "provenance": "scout"
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "45d5049d981b9de73a55b94b063b3c8469724367a76e1fbd916779895d492507",
+      "norm": "45d5049d981b9de73a55b94b063b3c8469724367a76e1fbd916779895d492507"
+    }
   },
   {
-    "id": "snippet_003",
-    "file": "snippet_003.py",
+    "id": "snippet_046",
+    "file": "snippet_046.py",
     "source_file": "tests/test_animation.py",
     "source_function": "test_main_sequence_not_none",
     "source_line": 22,
@@ -34,11 +838,15 @@
     ],
     "methods_used": [],
     "formats_referenced": [],
-    "provenance": "scout"
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "db67eadbfcb8f51e101e2152e027eb952fbfb1bb795fd2bbe30ce81ca3198820",
+      "norm": "db67eadbfcb8f51e101e2152e027eb952fbfb1bb795fd2bbe30ce81ca3198820"
+    }
   },
   {
-    "id": "snippet_004",
-    "file": "snippet_004.py",
+    "id": "snippet_047",
+    "file": "snippet_047.py",
     "source_file": "tests/test_animation.py",
     "source_function": "test_main_sequence_initially_empty",
     "source_line": 27,
@@ -47,11 +855,15 @@
     ],
     "methods_used": [],
     "formats_referenced": [],
-    "provenance": "scout"
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "9bd85815268c0a135a0f0f2e3198cf28cbe418ac820664645128f7b7434663fa",
+      "norm": "9bd85815268c0a135a0f0f2e3198cf28cbe418ac820664645128f7b7434663fa"
+    }
   },
   {
-    "id": "snippet_005",
-    "file": "snippet_005.py",
+    "id": "snippet_048",
+    "file": "snippet_048.py",
     "source_file": "tests/test_animation.py",
     "source_function": "test_interactive_sequences_initially_empty",
     "source_line": 31,
@@ -60,11 +872,15 @@
     ],
     "methods_used": [],
     "formats_referenced": [],
-    "provenance": "scout"
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "9d5eb1f45e9c1cae9f0ebf12d6325d446bac33279edcbc0eaa3dbc4b5f310f97",
+      "norm": "9d5eb1f45e9c1cae9f0ebf12d6325d446bac33279edcbc0eaa3dbc4b5f310f97"
+    }
   },
   {
-    "id": "snippet_006",
-    "file": "snippet_006.py",
+    "id": "snippet_049",
+    "file": "snippet_049.py",
     "source_file": "tests/test_animation.py",
     "source_function": "test_add_fade_effect",
     "source_line": 43,
@@ -80,11 +896,15 @@
     ],
     "methods_used": [],
     "formats_referenced": [],
-    "provenance": "scout"
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "6a77171c260c95a193ed7b4b8145fce3fdbf493265965e03065f6570f80c1228",
+      "norm": "6a77171c260c95a193ed7b4b8145fce3fdbf493265965e03065f6570f80c1228"
+    }
   },
   {
-    "id": "snippet_007",
-    "file": "snippet_007.py",
+    "id": "snippet_050",
+    "file": "snippet_050.py",
     "source_file": "tests/test_animation.py",
     "source_function": "test_add_fly_effect_with_subtype",
     "source_line": 61,
@@ -99,11 +919,15 @@
     ],
     "methods_used": [],
     "formats_referenced": [],
-    "provenance": "scout"
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "13c7b0a3a875128d519a4a8b3b49bc24d8060c176f825ea43e0ddc5ee4a930c5",
+      "norm": "13c7b0a3a875128d519a4a8b3b49bc24d8060c176f825ea43e0ddc5ee4a930c5"
+    }
   },
   {
-    "id": "snippet_008",
-    "file": "snippet_008.py",
+    "id": "snippet_051",
+    "file": "snippet_051.py",
     "source_file": "tests/test_animation.py",
     "source_function": "test_add_multiple_effects",
     "source_line": 76,
@@ -118,11 +942,15 @@
     ],
     "methods_used": [],
     "formats_referenced": [],
-    "provenance": "scout"
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "c95cd7d19e4dd9b6989e7f35277c58bfc198b26cf179165da81de7bd6d960b77",
+      "norm": "c95cd7d19e4dd9b6989e7f35277c58bfc198b26cf179165da81de7bd6d960b77"
+    }
   },
   {
-    "id": "snippet_009",
-    "file": "snippet_009.py",
+    "id": "snippet_052",
+    "file": "snippet_052.py",
     "source_file": "tests/test_animation.py",
     "source_function": "test_add_effect_target_shape",
     "source_line": 90,
@@ -137,11 +965,15 @@
     ],
     "methods_used": [],
     "formats_referenced": [],
-    "provenance": "scout"
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "e1d55416402ea44d939cf2f2565baa8dac2b1bef217a083b91d70f58a13582ce",
+      "norm": "e1d55416402ea44d939cf2f2565baa8dac2b1bef217a083b91d70f58a13582ce"
+    }
   },
   {
-    "id": "snippet_010",
-    "file": "snippet_010.py",
+    "id": "snippet_053",
+    "file": "snippet_053.py",
     "source_file": "tests/test_animation.py",
     "source_function": "test_add_path_effect",
     "source_line": 102,
@@ -157,11 +989,15 @@
     ],
     "methods_used": [],
     "formats_referenced": [],
-    "provenance": "scout"
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "601e24e7ab745b65eb00e74788b7091f20f9f031172fc6c67e2e29886957342a",
+      "norm": "601e24e7ab745b65eb00e74788b7091f20f9f031172fc6c67e2e29886957342a"
+    }
   },
   {
-    "id": "snippet_011",
-    "file": "snippet_011.py",
+    "id": "snippet_054",
+    "file": "snippet_054.py",
     "source_file": "tests/test_animation.py",
     "source_function": "test_fade_persists",
     "source_line": 123,
@@ -182,11 +1018,15 @@
       "ppt",
       "pptx"
     ],
-    "provenance": "scout"
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "8b4b731030c70cdd859201125043c3da8732c8fdcf4551f90aad4f5993df4ed9",
+      "norm": "8b4b731030c70cdd859201125043c3da8732c8fdcf4551f90aad4f5993df4ed9"
+    }
   },
   {
-    "id": "snippet_012",
-    "file": "snippet_012.py",
+    "id": "snippet_055",
+    "file": "snippet_055.py",
     "source_file": "tests/test_animation.py",
     "source_function": "test_multiple_effects_persist",
     "source_line": 141,
@@ -206,11 +1046,15 @@
       "ppt",
       "pptx"
     ],
-    "provenance": "scout"
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "62edec62d52ebeb55e6c1fc36294f87a1ca6fde0e25869ddbcd1f377bf112c55",
+      "norm": "62edec62d52ebeb55e6c1fc36294f87a1ca6fde0e25869ddbcd1f377bf112c55"
+    }
   },
   {
-    "id": "snippet_013",
-    "file": "snippet_013.py",
+    "id": "snippet_056",
+    "file": "snippet_056.py",
     "source_file": "tests/test_animation.py",
     "source_function": "test_no_animation_slide_has_zero_effects",
     "source_line": 159,
@@ -226,11 +1070,15 @@
       "ppt",
       "pptx"
     ],
-    "provenance": "scout"
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "05bda5eb099839598aff69c3f541a35fb023173a2c12ef985ecc6b125d9fb172",
+      "norm": "05bda5eb099839598aff69c3f541a35fb023173a2c12ef985ecc6b125d9fb172"
+    }
   },
   {
-    "id": "snippet_014",
-    "file": "snippet_014.py",
+    "id": "snippet_057",
+    "file": "snippet_057.py",
     "source_file": "tests/test_animation.py",
     "source_function": "test_default_trigger_type",
     "source_line": 176,
@@ -245,11 +1093,15 @@
     ],
     "methods_used": [],
     "formats_referenced": [],
-    "provenance": "scout"
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "9e96663d0cd068829d71357fb57eb515a33709b3f562e16685dd110df49613ae",
+      "norm": "9e96663d0cd068829d71357fb57eb515a33709b3f562e16685dd110df49613ae"
+    }
   },
   {
-    "id": "snippet_015",
-    "file": "snippet_015.py",
+    "id": "snippet_058",
+    "file": "snippet_058.py",
     "source_file": "tests/test_animation.py",
     "source_function": "test_set_duration",
     "source_line": 187,
@@ -264,11 +1116,15 @@
     ],
     "methods_used": [],
     "formats_referenced": [],
-    "provenance": "scout"
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "654dd98eddee8495619ab1963e51f38a1aa571a8953e1de11ccf073511a46e2c",
+      "norm": "654dd98eddee8495619ab1963e51f38a1aa571a8953e1de11ccf073511a46e2c"
+    }
   },
   {
-    "id": "snippet_016",
-    "file": "snippet_016.py",
+    "id": "snippet_059",
+    "file": "snippet_059.py",
     "source_file": "tests/test_animation.py",
     "source_function": "test_set_trigger_delay",
     "source_line": 199,
@@ -283,11 +1139,15 @@
     ],
     "methods_used": [],
     "formats_referenced": [],
-    "provenance": "scout"
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "970ed36b9a0594ecebd006b53a035246c8912f51a083e6a32cb7b6c5f3901ca1",
+      "norm": "970ed36b9a0594ecebd006b53a035246c8912f51a083e6a32cb7b6c5f3901ca1"
+    }
   },
   {
-    "id": "snippet_017",
-    "file": "snippet_017.py",
+    "id": "snippet_060",
+    "file": "snippet_060.py",
     "source_file": "tests/test_animation.py",
     "source_function": "test_timing_persists",
     "source_line": 211,
@@ -307,11 +1167,15 @@
       "ppt",
       "pptx"
     ],
-    "provenance": "scout"
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "4a7ddca2297ff732ad4cf743e745ebe751b63f48f467e379d988ff78ce7b22e5",
+      "norm": "4a7ddca2297ff732ad4cf743e745ebe751b63f48f467e379d988ff78ce7b22e5"
+    }
   },
   {
-    "id": "snippet_018",
-    "file": "snippet_018.py",
+    "id": "snippet_061",
+    "file": "snippet_061.py",
     "source_file": "tests/test_animation.py",
     "source_function": "test_set_trigger_type",
     "source_line": 229,
@@ -326,11 +1190,15 @@
     ],
     "methods_used": [],
     "formats_referenced": [],
-    "provenance": "scout"
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "c8b9b831b721a42e765dd578381c061631097f1e210585e42e2698314fb29e78",
+      "norm": "c8b9b831b721a42e765dd578381c061631097f1e210585e42e2698314fb29e78"
+    }
   },
   {
-    "id": "snippet_019",
-    "file": "snippet_019.py",
+    "id": "snippet_062",
+    "file": "snippet_062.py",
     "source_file": "tests/test_animation.py",
     "source_function": "test_entrance_effect_has_set_behavior",
     "source_line": 249,
@@ -346,11 +1214,15 @@
     ],
     "methods_used": [],
     "formats_referenced": [],
-    "provenance": "scout"
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "c2a0c46588a065bf81baeb67052c855a29ed94012f8e670f730bd476f916c9ff",
+      "norm": "c2a0c46588a065bf81baeb67052c855a29ed94012f8e670f730bd476f916c9ff"
+    }
   },
   {
-    "id": "snippet_020",
-    "file": "snippet_020.py",
+    "id": "snippet_063",
+    "file": "snippet_063.py",
     "source_file": "tests/test_animation.py",
     "source_function": "test_path_effect_has_motion_behavior",
     "source_line": 262,
@@ -366,11 +1238,15 @@
     ],
     "methods_used": [],
     "formats_referenced": [],
-    "provenance": "scout"
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "c527abcfdc3b6df3e00ebe67bafdb1151f9875a0787fb815d95782f65f42817e",
+      "norm": "c527abcfdc3b6df3e00ebe67bafdb1151f9875a0787fb815d95782f65f42817e"
+    }
   },
   {
-    "id": "snippet_021",
-    "file": "snippet_021.py",
+    "id": "snippet_064",
+    "file": "snippet_064.py",
     "source_file": "tests/test_animation.py",
     "source_function": "test_behaviors_iterable",
     "source_line": 275,
@@ -385,11 +1261,15 @@
     ],
     "methods_used": [],
     "formats_referenced": [],
-    "provenance": "scout"
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "8867cefd1a7a99bdadeaee56acc303da5b6262db948f7c50257ce5ecce3abd91",
+      "norm": "8867cefd1a7a99bdadeaee56acc303da5b6262db948f7c50257ce5ecce3abd91"
+    }
   },
   {
-    "id": "snippet_022",
-    "file": "snippet_022.py",
+    "id": "snippet_065",
+    "file": "snippet_065.py",
     "source_file": "tests/test_animation.py",
     "source_function": "test_add_interactive_sequence",
     "source_line": 295,
@@ -400,11 +1280,15 @@
     ],
     "methods_used": [],
     "formats_referenced": [],
-    "provenance": "scout"
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "1edfebee6fde7375e1b7d3e3e3ec9ac4b567550f2202d6b71d1320f967906147",
+      "norm": "1edfebee6fde7375e1b7d3e3e3ec9ac4b567550f2202d6b71d1320f967906147"
+    }
   },
   {
-    "id": "snippet_023",
-    "file": "snippet_023.py",
+    "id": "snippet_066",
+    "file": "snippet_066.py",
     "source_file": "tests/test_animation.py",
     "source_function": "test_interactive_sequence_add_effect",
     "source_line": 305,
@@ -419,11 +1303,15 @@
     ],
     "methods_used": [],
     "formats_referenced": [],
-    "provenance": "scout"
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "4b38d50ab8a1f436ab768c727ea2f7897539b681902c02d5abdaa468dc64ae25",
+      "norm": "4b38d50ab8a1f436ab768c727ea2f7897539b681902c02d5abdaa468dc64ae25"
+    }
   },
   {
-    "id": "snippet_024",
-    "file": "snippet_024.py",
+    "id": "snippet_067",
+    "file": "snippet_067.py",
     "source_file": "tests/test_animation.py",
     "source_function": "test_interactive_sequence_persists",
     "source_line": 320,
@@ -443,11 +1331,15 @@
       "ppt",
       "pptx"
     ],
-    "provenance": "scout"
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "b1f33ad917020c10fc8bd77356a8db3d82498a200920c23c3cae557bd5b28278",
+      "norm": "b1f33ad917020c10fc8bd77356a8db3d82498a200920c23c3cae557bd5b28278"
+    }
   },
   {
-    "id": "snippet_025",
-    "file": "snippet_025.py",
+    "id": "snippet_068",
+    "file": "snippet_068.py",
     "source_file": "tests/test_animation.py",
     "source_function": "test_user_path_commands",
     "source_line": 346,
@@ -470,11 +1362,15 @@
       "MotionPath.add"
     ],
     "formats_referenced": [],
-    "provenance": "scout"
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "b057e1438e64cfdb1fc10a500ab3572b59bffc0f1eb05b53405ef96b0fafa21f",
+      "norm": "b057e1438e64cfdb1fc10a500ab3572b59bffc0f1eb05b53405ef96b0fafa21f"
+    }
   },
   {
-    "id": "snippet_026",
-    "file": "snippet_026.py",
+    "id": "snippet_069",
+    "file": "snippet_069.py",
     "source_file": "tests/test_animation.py",
     "source_function": "test_motion_path_clear",
     "source_line": 376,
@@ -496,11 +1392,15 @@
       "MotionPath.clear"
     ],
     "formats_referenced": [],
-    "provenance": "scout"
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "c79662fd223975481426e2fac1f1c237bb04b0762c438a538b3f489be6c606e8",
+      "norm": "c79662fd223975481426e2fac1f1c237bb04b0762c438a538b3f489be6c606e8"
+    }
   },
   {
-    "id": "snippet_027",
-    "file": "snippet_027.py",
+    "id": "snippet_070",
+    "file": "snippet_070.py",
     "source_file": "tests/test_animation.py",
     "source_function": "test_get_effects_by_shape",
     "source_line": 401,
@@ -515,11 +1415,15 @@
     ],
     "methods_used": [],
     "formats_referenced": [],
-    "provenance": "scout"
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "28f9f554d501fb776b7c4cd518d7c6370476bec974f7c410d20fc0f122229992",
+      "norm": "28f9f554d501fb776b7c4cd518d7c6370476bec974f7c410d20fc0f122229992"
+    }
   },
   {
-    "id": "snippet_028",
-    "file": "snippet_028.py",
+    "id": "snippet_071",
+    "file": "snippet_071.py",
     "source_file": "tests/test_animation.py",
     "source_function": "test_get_count_by_shape",
     "source_line": 419,
@@ -534,11 +1438,15 @@
     ],
     "methods_used": [],
     "formats_referenced": [],
-    "provenance": "scout"
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "68c4addad474fbe25926880ef4937e915eb5c07ac6355b2aae4cdec9250d9dc3",
+      "norm": "68c4addad474fbe25926880ef4937e915eb5c07ac6355b2aae4cdec9250d9dc3"
+    }
   },
   {
-    "id": "snippet_029",
-    "file": "snippet_029.py",
+    "id": "snippet_072",
+    "file": "snippet_072.py",
     "source_file": "tests/test_animation.py",
     "source_function": "test_remove_effect",
     "source_line": 431,
@@ -553,11 +1461,15 @@
     ],
     "methods_used": [],
     "formats_referenced": [],
-    "provenance": "scout"
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "dabe9652a59f6becff7e9f8f0e700b381bcadeea5e09ddad0b9d45a636fbfd0f",
+      "norm": "dabe9652a59f6becff7e9f8f0e700b381bcadeea5e09ddad0b9d45a636fbfd0f"
+    }
   },
   {
-    "id": "snippet_030",
-    "file": "snippet_030.py",
+    "id": "snippet_073",
+    "file": "snippet_073.py",
     "source_file": "tests/test_animation.py",
     "source_function": "test_remove_at",
     "source_line": 442,
@@ -572,11 +1484,15 @@
     ],
     "methods_used": [],
     "formats_referenced": [],
-    "provenance": "scout"
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "f539f27bc60921c0518dd47b39d8f1ce9a01a53e39f587653c3a48b39cf5748a",
+      "norm": "f539f27bc60921c0518dd47b39d8f1ce9a01a53e39f587653c3a48b39cf5748a"
+    }
   },
   {
-    "id": "snippet_031",
-    "file": "snippet_031.py",
+    "id": "snippet_074",
+    "file": "snippet_074.py",
     "source_file": "tests/test_animation.py",
     "source_function": "test_remove_by_shape",
     "source_line": 455,
@@ -591,11 +1507,15 @@
     ],
     "methods_used": [],
     "formats_referenced": [],
-    "provenance": "scout"
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "e4fa01785e4b02234dbde4db3fb47c744735e5825cf46a8983b150a7b2c9cd9f",
+      "norm": "e4fa01785e4b02234dbde4db3fb47c744735e5825cf46a8983b150a7b2c9cd9f"
+    }
   },
   {
-    "id": "snippet_032",
-    "file": "snippet_032.py",
+    "id": "snippet_075",
+    "file": "snippet_075.py",
     "source_file": "tests/test_animation.py",
     "source_function": "test_clear_sequence",
     "source_line": 472,
@@ -610,11 +1530,15 @@
     ],
     "methods_used": [],
     "formats_referenced": [],
-    "provenance": "scout"
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "c3404970e3e61452d72070d33a41d105c1f58091530cff06263d66abeb67af3b",
+      "norm": "c3404970e3e61452d72070d33a41d105c1f58091530cff06263d66abeb67af3b"
+    }
   },
   {
-    "id": "snippet_033",
-    "file": "snippet_033.py",
+    "id": "snippet_076",
+    "file": "snippet_076.py",
     "source_file": "tests/test_animation.py",
     "source_function": "test_getitem",
     "source_line": 492,
@@ -629,11 +1553,15 @@
     ],
     "methods_used": [],
     "formats_referenced": [],
-    "provenance": "scout"
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "68bed25a473ad9e1a0ef0c38c8916fa97c157fc03b8521bdaefd0a498c1a1e04",
+      "norm": "68bed25a473ad9e1a0ef0c38c8916fa97c157fc03b8521bdaefd0a498c1a1e04"
+    }
   },
   {
-    "id": "snippet_034",
-    "file": "snippet_034.py",
+    "id": "snippet_077",
+    "file": "snippet_077.py",
     "source_file": "tests/test_animation.py",
     "source_function": "test_iteration",
     "source_line": 501,
@@ -648,11 +1576,15 @@
     ],
     "methods_used": [],
     "formats_referenced": [],
-    "provenance": "scout"
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "5dd3efcc4d90382a951b8222047a78bb27ffce25163e8a2757d57e5cb8274648",
+      "norm": "5dd3efcc4d90382a951b8222047a78bb27ffce25163e8a2757d57e5cb8274648"
+    }
   },
   {
-    "id": "snippet_035",
-    "file": "snippet_035.py",
+    "id": "snippet_078",
+    "file": "snippet_078.py",
     "source_file": "tests/test_animation.py",
     "source_function": "test_len",
     "source_line": 513,
@@ -667,11 +1599,15 @@
     ],
     "methods_used": [],
     "formats_referenced": [],
-    "provenance": "scout"
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "a4cc8f24c27e9bab36695a1be527106c9637f047a7b5581d99d2f4c049bec08f",
+      "norm": "a4cc8f24c27e9bab36695a1be527106c9637f047a7b5581d99d2f4c049bec08f"
+    }
   },
   {
-    "id": "snippet_036",
-    "file": "snippet_036.py",
+    "id": "snippet_079",
+    "file": "snippet_079.py",
     "source_file": "tests/test_animation.py",
     "source_function": "test_default_build_type",
     "source_line": 530,
@@ -687,11 +1623,15 @@
     ],
     "methods_used": [],
     "formats_referenced": [],
-    "provenance": "scout"
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "73eefb9859c0a55745b90b8f57bf450d4d87d8b0d9e214cd260c9047eaa4d1f1",
+      "norm": "73eefb9859c0a55745b90b8f57bf450d4d87d8b0d9e214cd260c9047eaa4d1f1"
+    }
   },
   {
-    "id": "snippet_037",
-    "file": "snippet_037.py",
+    "id": "snippet_080",
+    "file": "snippet_080.py",
     "source_file": "tests/test_animation.py",
     "source_function": "test_set_build_type",
     "source_line": 541,
@@ -707,11 +1647,15 @@
     ],
     "methods_used": [],
     "formats_referenced": [],
-    "provenance": "scout"
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "3bca2343abc34fe04dc72bf3a12ea65d40fc271dee8b66f03a228443e1e70c31",
+      "norm": "3bca2343abc34fe04dc72bf3a12ea65d40fc271dee8b66f03a228443e1e70c31"
+    }
   },
   {
-    "id": "snippet_038",
-    "file": "snippet_038.py",
+    "id": "snippet_081",
+    "file": "snippet_081.py",
     "source_file": "tests/test_animation.py",
     "source_function": "test_predefined_value",
     "source_line": 561,
@@ -723,11 +1667,15 @@
     "formats_referenced": [
       "ppt"
     ],
-    "provenance": "scout"
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "9e474c4d450ea6bc6ce3bdef373988674e13172d64b73f71fb57268caafdb3a2",
+      "norm": "9e474c4d450ea6bc6ce3bdef373988674e13172d64b73f71fb57268caafdb3a2"
+    }
   },
   {
-    "id": "snippet_039",
-    "file": "snippet_039.py",
+    "id": "snippet_082",
+    "file": "snippet_082.py",
     "source_file": "tests/test_animation.py",
     "source_function": "test_style_visibility",
     "source_line": 566,
@@ -737,11 +1685,15 @@
     ],
     "methods_used": [],
     "formats_referenced": [],
-    "provenance": "scout"
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "e19eace5b3fc4097a54fb37afbe23121cd79b853a7bdd6fed358b2094d999686",
+      "norm": "e19eace5b3fc4097a54fb37afbe23121cd79b853a7bdd6fed358b2094d999686"
+    }
   },
   {
-    "id": "snippet_040",
-    "file": "snippet_040.py",
+    "id": "snippet_083",
+    "file": "snippet_083.py",
     "source_file": "tests/test_animation.py",
     "source_function": "test_all_extrusion_properties_exist",
     "source_line": 570,
@@ -751,11 +1703,15 @@
     ],
     "methods_used": [],
     "formats_referenced": [],
-    "provenance": "scout"
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "aafe2a5ac08c5de38b6714365297199cf1c69ad51109b3732eacfd17d04fb63b",
+      "norm": "aafe2a5ac08c5de38b6714365297199cf1c69ad51109b3732eacfd17d04fb63b"
+    }
   },
   {
-    "id": "snippet_041",
-    "file": "snippet_041.py",
+    "id": "snippet_084",
+    "file": "snippet_084.py",
     "source_file": "tests/test_animation.py",
     "source_function": "test_get_or_create_by_value_predefined",
     "source_line": 575,
@@ -769,11 +1725,15 @@
     "formats_referenced": [
       "ppt"
     ],
-    "provenance": "scout"
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "457fc1c1c2828913e50d331f1935b6b7ee9d562d8fa053dea5ff495c6760f853",
+      "norm": "457fc1c1c2828913e50d331f1935b6b7ee9d562d8fa053dea5ff495c6760f853"
+    }
   },
   {
-    "id": "snippet_042",
-    "file": "snippet_042.py",
+    "id": "snippet_085",
+    "file": "snippet_085.py",
     "source_file": "tests/test_animation.py",
     "source_function": "test_get_or_create_by_value_custom",
     "source_line": 580,
@@ -785,11 +1745,15 @@
       "BehaviorProperty.get_or_create_by_value"
     ],
     "formats_referenced": [],
-    "provenance": "scout"
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "f7b388a5f8414ae6f61150b7e595a437626e07478c7d7dea116d27dd2147ad68",
+      "norm": "f7b388a5f8414ae6f61150b7e595a437626e07478c7d7dea116d27dd2147ad68"
+    }
   },
   {
-    "id": "snippet_043",
-    "file": "snippet_043.py",
+    "id": "snippet_086",
+    "file": "snippet_086.py",
     "source_file": "tests/test_animation.py",
     "source_function": "test_default_is_custom",
     "source_line": 586,
@@ -799,11 +1763,15 @@
     ],
     "methods_used": [],
     "formats_referenced": [],
-    "provenance": "scout"
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "6c280c90c1c52970ad376a88cf5433b77a03e3ea0e3c60afdca4e5ac65160004",
+      "norm": "6c280c90c1c52970ad376a88cf5433b77a03e3ea0e3c60afdca4e5ac65160004"
+    }
   },
   {
-    "id": "snippet_044",
-    "file": "snippet_044.py",
+    "id": "snippet_087",
+    "file": "snippet_087.py",
     "source_file": "tests/test_animation.py",
     "source_function": "test_effect_type_values",
     "source_line": 599,
@@ -813,11 +1781,15 @@
     ],
     "methods_used": [],
     "formats_referenced": [],
-    "provenance": "scout"
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "f13d888d78cf3a685e90e9d03a14da9564c612f76eccb615b1be5abe66fd9b7f",
+      "norm": "f13d888d78cf3a685e90e9d03a14da9564c612f76eccb615b1be5abe66fd9b7f"
+    }
   },
   {
-    "id": "snippet_045",
-    "file": "snippet_045.py",
+    "id": "snippet_088",
+    "file": "snippet_088.py",
     "source_file": "tests/test_animation.py",
     "source_function": "test_effect_subtype_values",
     "source_line": 605,
@@ -827,11 +1799,15 @@
     ],
     "methods_used": [],
     "formats_referenced": [],
-    "provenance": "scout"
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "2a188956c5f949891e54dc708d6e77f8f3c84c9b127597d80b01950a6d96b5c6",
+      "norm": "2a188956c5f949891e54dc708d6e77f8f3c84c9b127597d80b01950a6d96b5c6"
+    }
   },
   {
-    "id": "snippet_046",
-    "file": "snippet_046.py",
+    "id": "snippet_089",
+    "file": "snippet_089.py",
     "source_file": "tests/test_animation.py",
     "source_function": "test_effect_trigger_type_values",
     "source_line": 610,
@@ -841,11 +1817,15 @@
     ],
     "methods_used": [],
     "formats_referenced": [],
-    "provenance": "scout"
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "2236aabfd7bb5dee4f811a093efbc85334dbd9685562d7aef6d6c8609a09eb9b",
+      "norm": "2236aabfd7bb5dee4f811a093efbc85334dbd9685562d7aef6d6c8609a09eb9b"
+    }
   },
   {
-    "id": "snippet_047",
-    "file": "snippet_047.py",
+    "id": "snippet_090",
+    "file": "snippet_090.py",
     "source_file": "tests/test_animation.py",
     "source_function": "test_effect_preset_class_type_values",
     "source_line": 615,
@@ -855,11 +1835,15 @@
     ],
     "methods_used": [],
     "formats_referenced": [],
-    "provenance": "scout"
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "6728c6ad07825255cab433f3aed59666516364639cb07c42884af1501a86fe64",
+      "norm": "6728c6ad07825255cab433f3aed59666516364639cb07c42884af1501a86fe64"
+    }
   },
   {
-    "id": "snippet_048",
-    "file": "snippet_048.py",
+    "id": "snippet_091",
+    "file": "snippet_091.py",
     "source_file": "tests/test_animation.py",
     "source_function": "test_build_type_values",
     "source_line": 621,
@@ -869,11 +1853,15 @@
     ],
     "methods_used": [],
     "formats_referenced": [],
-    "provenance": "scout"
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "62938d6d187d9de5b1c563ded3555947d213b28243a02481f667d9b191ac6dd2",
+      "norm": "62938d6d187d9de5b1c563ded3555947d213b28243a02481f667d9b191ac6dd2"
+    }
   },
   {
-    "id": "snippet_049",
-    "file": "snippet_049.py",
+    "id": "snippet_092",
+    "file": "snippet_092.py",
     "source_file": "tests/test_animation.py",
     "source_function": "test_motion_command_path_type_values",
     "source_line": 625,
@@ -882,11 +1870,15 @@
     ],
     "methods_used": [],
     "formats_referenced": [],
-    "provenance": "scout"
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "d3a81303060c96c063440b8bfa6e2ac41a8273617d7254b98e1e1c00bb7fc78f",
+      "norm": "d3a81303060c96c063440b8bfa6e2ac41a8273617d7254b98e1e1c00bb7fc78f"
+    }
   },
   {
-    "id": "snippet_050",
-    "file": "snippet_050.py",
+    "id": "snippet_093",
+    "file": "snippet_093.py",
     "source_file": "tests/test_animation.py",
     "source_function": "test_add_effect_paragraph_returns_effect",
     "source_line": 652,
@@ -899,11 +1891,15 @@
     ],
     "methods_used": [],
     "formats_referenced": [],
-    "provenance": "scout"
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "636d91a52409ceb2bec3d2c5a92771bd0e8e7a57d63c0269f53f1533a46cd206",
+      "norm": "636d91a52409ceb2bec3d2c5a92771bd0e8e7a57d63c0269f53f1533a46cd206"
+    }
   },
   {
-    "id": "snippet_051",
-    "file": "snippet_051.py",
+    "id": "snippet_094",
+    "file": "snippet_094.py",
     "source_file": "tests/test_animation.py",
     "source_function": "test_add_effect_paragraph_targets_correct_paragraph",
     "source_line": 666,
@@ -916,11 +1912,15 @@
     ],
     "methods_used": [],
     "formats_referenced": [],
-    "provenance": "scout"
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "c50ef073a86415ad0fb6966832bbe1ab16c7f2709e721a25d59447bf197cdaf3",
+      "norm": "c50ef073a86415ad0fb6966832bbe1ab16c7f2709e721a25d59447bf197cdaf3"
+    }
   },
   {
-    "id": "snippet_052",
-    "file": "snippet_052.py",
+    "id": "snippet_095",
+    "file": "snippet_095.py",
     "source_file": "tests/test_animation.py",
     "source_function": "test_add_effect_multiple_paragraphs",
     "source_line": 685,
@@ -933,11 +1933,15 @@
     ],
     "methods_used": [],
     "formats_referenced": [],
-    "provenance": "scout"
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "e6045e10a415873849618ada76a1d16cae74e424a493e67957e90d18a8e47e63",
+      "norm": "e6045e10a415873849618ada76a1d16cae74e424a493e67957e90d18a8e47e63"
+    }
   },
   {
-    "id": "snippet_053",
-    "file": "snippet_053.py",
+    "id": "snippet_096",
+    "file": "snippet_096.py",
     "source_file": "tests/test_animation.py",
     "source_function": "test_paragraph_animation_round_trip",
     "source_line": 704,
@@ -958,11 +1962,15 @@
       "ppt",
       "pptx"
     ],
-    "provenance": "scout"
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "6e1d49e779717f7f62805e848067e00fe6666f516af644236bfa3fdd36d28a50",
+      "norm": "6e1d49e779717f7f62805e848067e00fe6666f516af644236bfa3fdd36d28a50"
+    }
   },
   {
-    "id": "snippet_054",
-    "file": "snippet_054.py",
+    "id": "snippet_097",
+    "file": "snippet_097.py",
     "source_file": "tests/test_animation.py",
     "source_function": "test_get_effects_by_paragraph_no_match",
     "source_line": 740,
@@ -977,11 +1985,15 @@
     ],
     "methods_used": [],
     "formats_referenced": [],
-    "provenance": "scout"
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "c574472cc97049729ce60669f04eef658be775c2a7564845d0db9ae0d34ccd20",
+      "norm": "c574472cc97049729ce60669f04eef658be775c2a7564845d0db9ae0d34ccd20"
+    }
   },
   {
-    "id": "snippet_055",
-    "file": "snippet_055.py",
+    "id": "snippet_098",
+    "file": "snippet_098.py",
     "source_file": "tests/test_axis_formatting.py",
     "source_function": "test_major_gridlines_line_color",
     "source_line": 21,
@@ -998,11 +2010,15 @@
       "Color.from_argb"
     ],
     "formats_referenced": [],
-    "provenance": "scout"
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "a7211faded2029fa0e88db8842435927ffdb6d0acb1c41db3221243552f4ad48",
+      "norm": "a7211faded2029fa0e88db8842435927ffdb6d0acb1c41db3221243552f4ad48"
+    }
   },
   {
-    "id": "snippet_056",
-    "file": "snippet_056.py",
+    "id": "snippet_099",
+    "file": "snippet_099.py",
     "source_file": "tests/test_axis_formatting.py",
     "source_function": "test_minor_gridlines_line_color",
     "source_line": 37,
@@ -1017,11 +2033,15 @@
       "Color.from_argb"
     ],
     "formats_referenced": [],
-    "provenance": "scout"
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "049692437e06eb4b8498dd9cff6999bd9a42b5b40fe98628d7551d42ce24dc56",
+      "norm": "049692437e06eb4b8498dd9cff6999bd9a42b5b40fe98628d7551d42ce24dc56"
+    }
   },
   {
-    "id": "snippet_057",
-    "file": "snippet_057.py",
+    "id": "snippet_100",
+    "file": "snippet_100.py",
     "source_file": "tests/test_axis_formatting.py",
     "source_function": "test_category_axis_gridlines",
     "source_line": 52,
@@ -1036,831 +2056,10 @@
       "Color.from_argb"
     ],
     "formats_referenced": [],
-    "provenance": "scout"
-  },
-  {
-    "id": "snippet_058",
-    "file": "snippet_058.py",
-    "source_file": "tests/test_axis_formatting.py",
-    "source_function": "test_gridlines_dash_style",
-    "source_line": 65,
-    "classes_used": [
-      "Chart",
-      "ChartType",
-      "Color",
-      "FillType",
-      "LineDashStyle",
-      "Presentation"
-    ],
-    "methods_used": [
-      "Color.from_argb"
-    ],
-    "formats_referenced": [],
-    "provenance": "scout"
-  },
-  {
-    "id": "snippet_059",
-    "file": "snippet_059.py",
-    "source_file": "tests/test_axis_formatting.py",
-    "source_function": "test_value_axis_text_bold_italic",
-    "source_line": 80,
-    "classes_used": [
-      "Chart",
-      "ChartPortionFormat",
-      "ChartTextFormat",
-      "ChartType",
-      "Format",
-      "NullableBool",
-      "Portion",
-      "PortionFormat",
-      "Presentation"
-    ],
-    "methods_used": [],
-    "formats_referenced": [],
-    "provenance": "scout"
-  },
-  {
-    "id": "snippet_060",
-    "file": "snippet_060.py",
-    "source_file": "tests/test_axis_formatting.py",
-    "source_function": "test_text_format_color",
-    "source_line": 98,
-    "classes_used": [
-      "Chart",
-      "ChartType",
-      "Color",
-      "FillType",
-      "Presentation"
-    ],
-    "methods_used": [
-      "Color.from_argb"
-    ],
-    "formats_referenced": [],
-    "provenance": "scout"
-  },
-  {
-    "id": "snippet_061",
-    "file": "snippet_061.py",
-    "source_file": "tests/test_axis_formatting.py",
-    "source_function": "test_text_format_latin_font",
-    "source_line": 111,
-    "classes_used": [
-      "Chart",
-      "ChartType",
-      "FontData",
-      "Presentation"
-    ],
-    "methods_used": [],
-    "formats_referenced": [],
-    "provenance": "scout"
-  },
-  {
-    "id": "snippet_062",
-    "file": "snippet_062.py",
-    "source_file": "tests/test_axis_formatting.py",
-    "source_function": "test_axis_line_format",
-    "source_line": 124,
-    "classes_used": [
-      "Chart",
-      "ChartType",
-      "Color",
-      "FillType",
-      "Format",
-      "Presentation"
-    ],
-    "methods_used": [
-      "Color.from_argb"
-    ],
-    "formats_referenced": [],
-    "provenance": "scout"
-  },
-  {
-    "id": "snippet_063",
-    "file": "snippet_063.py",
-    "source_file": "tests/test_axis_formatting.py",
-    "source_function": "test_axis_fill_format",
-    "source_line": 140,
-    "classes_used": [
-      "Chart",
-      "ChartType",
-      "Color",
-      "FillType",
-      "Presentation"
-    ],
-    "methods_used": [
-      "Color.from_argb"
-    ],
-    "formats_referenced": [],
-    "provenance": "scout"
-  },
-  {
-    "id": "snippet_064",
-    "file": "snippet_064.py",
-    "source_file": "tests/test_background.py",
-    "source_function": "test_solid_background_on_slide",
-    "source_line": 15,
-    "classes_used": [
-      "Background",
-      "BackgroundType",
-      "Color",
-      "FillType",
-      "Presentation"
-    ],
-    "methods_used": [
-      "Presentation.dispose"
-    ],
-    "formats_referenced": [
-      "ppt",
-      "pptx"
-    ],
-    "provenance": "scout"
-  },
-  {
-    "id": "snippet_065",
-    "file": "snippet_065.py",
-    "source_file": "tests/test_background.py",
-    "source_function": "test_solid_background_on_master",
-    "source_line": 32,
-    "classes_used": [
-      "Background",
-      "BackgroundType",
-      "Color",
-      "FillType",
-      "Presentation"
-    ],
-    "methods_used": [
-      "Presentation.dispose"
-    ],
-    "formats_referenced": [
-      "ppt",
-      "pptx"
-    ],
-    "provenance": "scout"
-  },
-  {
-    "id": "snippet_066",
-    "file": "snippet_066.py",
-    "source_file": "tests/test_background.py",
-    "source_function": "test_solid_background_on_layout",
-    "source_line": 49,
-    "classes_used": [
-      "Background",
-      "BackgroundType",
-      "Color",
-      "FillType",
-      "Presentation"
-    ],
-    "methods_used": [
-      "Presentation.dispose"
-    ],
-    "formats_referenced": [
-      "ppt",
-      "pptx"
-    ],
-    "provenance": "scout"
-  },
-  {
-    "id": "snippet_067",
-    "file": "snippet_067.py",
-    "source_file": "tests/test_background.py",
-    "source_function": "test_gradient_background",
-    "source_line": 70,
-    "classes_used": [
-      "Background",
-      "BackgroundType",
-      "FillType",
-      "Presentation",
-      "TileFlip"
-    ],
-    "methods_used": [
-      "Presentation.dispose"
-    ],
-    "formats_referenced": [
-      "ppt",
-      "pptx"
-    ],
-    "provenance": "scout"
-  },
-  {
-    "id": "snippet_068",
-    "file": "snippet_068.py",
-    "source_file": "tests/test_background.py",
-    "source_function": "test_gradient_background_with_stops",
-    "source_line": 86,
-    "classes_used": [
-      "Background",
-      "BackgroundType",
-      "Color",
-      "FillType",
-      "GradientShape",
-      "Presentation",
-      "Shape"
-    ],
-    "methods_used": [
-      "Presentation.dispose"
-    ],
-    "formats_referenced": [
-      "ppt",
-      "pptx"
-    ],
-    "provenance": "scout"
-  },
-  {
-    "id": "snippet_069",
-    "file": "snippet_069.py",
-    "source_file": "tests/test_background.py",
-    "source_function": "test_pattern_background",
-    "source_line": 110,
-    "classes_used": [
-      "Background",
-      "BackgroundType",
-      "Color",
-      "FillType",
-      "PatternStyle",
-      "Presentation"
-    ],
-    "methods_used": [
-      "Presentation.dispose"
-    ],
-    "formats_referenced": [
-      "ppt",
-      "pptx"
-    ],
-    "provenance": "scout"
-  },
-  {
-    "id": "snippet_070",
-    "file": "snippet_070.py",
-    "source_file": "tests/test_background.py",
-    "source_function": "test_picture_background_stretch",
-    "source_line": 133,
-    "classes_used": [
-      "Background",
-      "BackgroundType",
-      "FillType",
-      "Picture",
-      "PictureFillMode",
-      "Presentation"
-    ],
-    "methods_used": [
-      "Presentation.dispose"
-    ],
-    "formats_referenced": [
-      "ppt",
-      "pptx"
-    ],
-    "provenance": "scout"
-  },
-  {
-    "id": "snippet_071",
-    "file": "snippet_071.py",
-    "source_file": "tests/test_background.py",
-    "source_function": "test_picture_background_tile",
-    "source_line": 154,
-    "classes_used": [
-      "Background",
-      "BackgroundType",
-      "FillType",
-      "Picture",
-      "PictureFillMode",
-      "Presentation"
-    ],
-    "methods_used": [
-      "Presentation.dispose"
-    ],
-    "formats_referenced": [
-      "ppt",
-      "pptx"
-    ],
-    "provenance": "scout"
-  },
-  {
-    "id": "snippet_072",
-    "file": "snippet_072.py",
-    "source_file": "tests/test_background.py",
-    "source_function": "test_themed_background",
-    "source_line": 179,
-    "classes_used": [
-      "Background",
-      "BackgroundType",
-      "Presentation",
-      "Theme"
-    ],
-    "methods_used": [
-      "Presentation.dispose"
-    ],
-    "formats_referenced": [
-      "ppt",
-      "pptx"
-    ],
-    "provenance": "scout"
-  },
-  {
-    "id": "snippet_073",
-    "file": "snippet_073.py",
-    "source_file": "tests/test_background.py",
-    "source_function": "test_change_background_type",
-    "source_line": 197,
-    "classes_used": [
-      "Background",
-      "BackgroundType",
-      "Color",
-      "FillType",
-      "Presentation"
-    ],
-    "methods_used": [
-      "Presentation.dispose"
-    ],
-    "formats_referenced": [
-      "ppt",
-      "pptx"
-    ],
-    "provenance": "scout"
-  },
-  {
-    "id": "snippet_074",
-    "file": "snippet_074.py",
-    "source_file": "tests/test_background.py",
-    "source_function": "test_clear_background",
-    "source_line": 220,
-    "classes_used": [
-      "Background",
-      "BackgroundType",
-      "Color",
-      "FillType",
-      "Presentation"
-    ],
-    "methods_used": [
-      "Presentation.dispose"
-    ],
-    "formats_referenced": [
-      "ppt",
-      "pptx"
-    ],
-    "provenance": "scout"
-  },
-  {
-    "id": "snippet_075",
-    "file": "snippet_075.py",
-    "source_file": "tests/test_background.py",
-    "source_function": "test_effective_own_background",
-    "source_line": 240,
-    "classes_used": [
-      "Background",
-      "BackgroundType",
-      "Color",
-      "FillType",
-      "Presentation"
-    ],
-    "methods_used": [
-      "Background.get_effective",
-      "Presentation.dispose"
-    ],
-    "formats_referenced": [],
-    "provenance": "scout"
-  },
-  {
-    "id": "snippet_076",
-    "file": "snippet_076.py",
-    "source_file": "tests/test_background.py",
-    "source_function": "test_effective_inherits_from_master",
-    "source_line": 255,
-    "classes_used": [
-      "Background",
-      "BackgroundType",
-      "Color",
-      "FillType",
-      "Presentation",
-      "Slide"
-    ],
-    "methods_used": [
-      "Background.get_effective",
-      "Presentation.dispose"
-    ],
-    "formats_referenced": [],
-    "provenance": "scout"
-  },
-  {
-    "id": "snippet_077",
-    "file": "snippet_077.py",
-    "source_file": "tests/test_background.py",
-    "source_function": "test_effective_inherits_from_layout",
-    "source_line": 273,
-    "classes_used": [
-      "Background",
-      "BackgroundType",
-      "Color",
-      "FillType",
-      "Presentation",
-      "Slide"
-    ],
-    "methods_used": [
-      "Background.get_effective",
-      "Presentation.dispose"
-    ],
-    "formats_referenced": [],
-    "provenance": "scout"
-  },
-  {
-    "id": "snippet_078",
-    "file": "snippet_078.py",
-    "source_file": "tests/test_background.py",
-    "source_function": "test_different_backgrounds_per_slide",
-    "source_line": 300,
-    "classes_used": [
-      "Background",
-      "BackgroundType",
-      "Color",
-      "FillType",
-      "Presentation"
-    ],
-    "methods_used": [
-      "Presentation.dispose"
-    ],
-    "formats_referenced": [
-      "ppt",
-      "pptx"
-    ],
-    "provenance": "scout"
-  },
-  {
-    "id": "snippet_079",
-    "file": "snippet_079.py",
-    "source_file": "tests/test_bubble_scatter.py",
-    "source_function": "test_add_scatter_data_points",
-    "source_line": 26,
-    "classes_used": [
-      "Chart",
-      "ChartType",
-      "Presentation"
-    ],
-    "methods_used": [],
-    "formats_referenced": [],
-    "provenance": "scout"
-  },
-  {
-    "id": "snippet_080",
-    "file": "snippet_080.py",
-    "source_file": "tests/test_bubble_scatter.py",
-    "source_function": "test_scatter_round_trip_xy_values",
-    "source_line": 40,
-    "classes_used": [
-      "Chart",
-      "ChartType",
-      "Presentation"
-    ],
-    "methods_used": [],
-    "formats_referenced": [
-      "ppt",
-      "pptx"
-    ],
-    "provenance": "scout"
-  },
-  {
-    "id": "snippet_081",
-    "file": "snippet_081.py",
-    "source_file": "tests/test_bubble_scatter.py",
-    "source_function": "test_scatter_multi_series_round_trip",
-    "source_line": 58,
-    "classes_used": [
-      "Chart",
-      "ChartType",
-      "Presentation"
-    ],
-    "methods_used": [],
-    "formats_referenced": [
-      "ppt",
-      "pptx"
-    ],
-    "provenance": "scout"
-  },
-  {
-    "id": "snippet_082",
-    "file": "snippet_082.py",
-    "source_file": "tests/test_bubble_scatter.py",
-    "source_function": "test_all_scatter_subtypes_round_trip",
-    "source_line": 88,
-    "classes_used": [
-      "Presentation"
-    ],
-    "methods_used": [],
-    "formats_referenced": [
-      "ppt",
-      "pptx"
-    ],
-    "provenance": "scout"
-  },
-  {
-    "id": "snippet_083",
-    "file": "snippet_083.py",
-    "source_file": "tests/test_bubble_scatter.py",
-    "source_function": "test_scatter_marker_round_trip",
-    "source_line": 103,
-    "classes_used": [
-      "Chart",
-      "ChartType",
-      "Marker",
-      "MarkerStyleType",
-      "Presentation",
-      "StyleType"
-    ],
-    "methods_used": [],
-    "formats_referenced": [
-      "ppt",
-      "pptx"
-    ],
-    "provenance": "scout"
-  },
-  {
-    "id": "snippet_084",
-    "file": "snippet_084.py",
-    "source_file": "tests/test_bubble_scatter.py",
-    "source_function": "test_scatter_has_no_categories_path",
-    "source_line": 118,
-    "classes_used": [
-      "Chart",
-      "ChartType",
-      "Format",
-      "Presentation",
-      "SaveFormat"
-    ],
-    "methods_used": [
-      "Presentation.save"
-    ],
-    "formats_referenced": [
-      "ppt",
-      "pptx"
-    ],
-    "provenance": "scout"
-  },
-  {
-    "id": "snippet_085",
-    "file": "snippet_085.py",
-    "source_file": "tests/test_bubble_scatter.py",
-    "source_function": "test_add_bubble_data_points",
-    "source_line": 150,
-    "classes_used": [
-      "Chart",
-      "ChartType",
-      "Presentation",
-      "Size"
-    ],
-    "methods_used": [],
-    "formats_referenced": [],
-    "provenance": "scout"
-  },
-  {
-    "id": "snippet_086",
-    "file": "snippet_086.py",
-    "source_file": "tests/test_bubble_scatter.py",
-    "source_function": "test_bubble_round_trip_xys",
-    "source_line": 164,
-    "classes_used": [
-      "Chart",
-      "ChartType",
-      "Presentation"
-    ],
-    "methods_used": [],
-    "formats_referenced": [
-      "ppt",
-      "pptx"
-    ],
-    "provenance": "scout"
-  },
-  {
-    "id": "snippet_087",
-    "file": "snippet_087.py",
-    "source_file": "tests/test_bubble_scatter.py",
-    "source_function": "test_bubble_size_scale_round_trip",
-    "source_line": 181,
-    "classes_used": [
-      "Chart",
-      "ChartType",
-      "Presentation"
-    ],
-    "methods_used": [],
-    "formats_referenced": [
-      "ppt",
-      "pptx"
-    ],
-    "provenance": "scout"
-  },
-  {
-    "id": "snippet_088",
-    "file": "snippet_088.py",
-    "source_file": "tests/test_bubble_scatter.py",
-    "source_function": "test_bubble_size_representation_round_trip",
-    "source_line": 198,
-    "classes_used": [
-      "Chart",
-      "ChartType",
-      "Presentation"
-    ],
-    "methods_used": [],
-    "formats_referenced": [
-      "ppt",
-      "pptx"
-    ],
-    "provenance": "scout"
-  },
-  {
-    "id": "snippet_089",
-    "file": "snippet_089.py",
-    "source_file": "tests/test_bubble_scatter.py",
-    "source_function": "test_bubble_3d_round_trip",
-    "source_line": 211,
-    "classes_used": [
-      "Chart",
-      "ChartType",
-      "Presentation"
-    ],
-    "methods_used": [],
-    "formats_referenced": [
-      "ppt",
-      "pptx"
-    ],
-    "provenance": "scout"
-  },
-  {
-    "id": "snippet_090",
-    "file": "snippet_090.py",
-    "source_file": "tests/test_bubble_scatter.py",
-    "source_function": "test_bubble_multi_series_round_trip",
-    "source_line": 224,
-    "classes_used": [
-      "Chart",
-      "ChartType",
-      "Presentation"
-    ],
-    "methods_used": [],
-    "formats_referenced": [
-      "ppt",
-      "pptx"
-    ],
-    "provenance": "scout"
-  },
-  {
-    "id": "snippet_091",
-    "file": "snippet_091.py",
-    "source_file": "tests/test_bubble_scatter.py",
-    "source_function": "test_scatter_emits_xVal_and_yVal",
-    "source_line": 263,
-    "classes_used": [
-      "Chart",
-      "ChartType",
-      "Presentation"
-    ],
-    "methods_used": [],
-    "formats_referenced": [],
-    "provenance": "scout"
-  },
-  {
-    "id": "snippet_092",
-    "file": "snippet_092.py",
-    "source_file": "tests/test_bubble_scatter.py",
-    "source_function": "test_bubble_emits_xVal_yVal_bubbleSize",
-    "source_line": 275,
-    "classes_used": [
-      "Chart",
-      "ChartType",
-      "Presentation",
-      "Size"
-    ],
-    "methods_used": [],
-    "formats_referenced": [],
-    "provenance": "scout"
-  },
-  {
-    "id": "snippet_093",
-    "file": "snippet_093.py",
-    "source_file": "tests/test_bubble_scatter.py",
-    "source_function": "test_scatter_yVal_values_are_non_zero",
-    "source_line": 287,
-    "classes_used": [
-      "Chart",
-      "ChartType",
-      "Presentation"
-    ],
-    "methods_used": [],
-    "formats_referenced": [],
-    "provenance": "scout"
-  },
-  {
-    "id": "snippet_094",
-    "file": "snippet_094.py",
-    "source_file": "tests/test_bubble_scatter.py",
-    "source_function": "test_3d_bubble_emits_bubble3D_in_ser",
-    "source_line": 301,
-    "classes_used": [
-      "Chart",
-      "ChartType",
-      "Point",
-      "Presentation",
-      "Size"
-    ],
-    "methods_used": [],
-    "formats_referenced": [],
-    "provenance": "scout"
-  },
-  {
-    "id": "snippet_095",
-    "file": "snippet_095.py",
-    "source_file": "tests/test_bubble_scatter.py",
-    "source_function": "test_plain_bubble_emits_bubble3D_val_0",
-    "source_line": 320,
-    "classes_used": [
-      "Chart",
-      "ChartType",
-      "Presentation"
-    ],
-    "methods_used": [],
-    "formats_referenced": [],
-    "provenance": "scout"
-  },
-  {
-    "id": "snippet_096",
-    "file": "snippet_096.py",
-    "source_file": "tests/test_bubble_scatter.py",
-    "source_function": "test_straight_line_scatter_emits_smooth_val_0",
-    "source_line": 331,
-    "classes_used": [
-      "Chart",
-      "ChartType",
-      "Point",
-      "Presentation"
-    ],
-    "methods_used": [],
-    "formats_referenced": [],
-    "provenance": "scout"
-  },
-  {
-    "id": "snippet_097",
-    "file": "snippet_097.py",
-    "source_file": "tests/test_bubble_scatter.py",
-    "source_function": "test_smooth_line_scatter_emits_smooth_val_1",
-    "source_line": 345,
-    "classes_used": [
-      "Chart",
-      "ChartType",
-      "Presentation"
-    ],
-    "methods_used": [],
-    "formats_referenced": [],
-    "provenance": "scout"
-  },
-  {
-    "id": "snippet_098",
-    "file": "snippet_098.py",
-    "source_file": "tests/test_bubble_scatter.py",
-    "source_function": "test_scatter_via_workbook_cells",
-    "source_line": 364,
-    "classes_used": [
-      "Chart",
-      "ChartType",
-      "Presentation"
-    ],
-    "methods_used": [],
-    "formats_referenced": [
-      "ppt",
-      "pptx"
-    ],
-    "provenance": "scout"
-  },
-  {
-    "id": "snippet_099",
-    "file": "snippet_099.py",
-    "source_file": "tests/test_bubble_scatter.py",
-    "source_function": "test_3d_bubble_chart_type_is_preserved",
-    "source_line": 383,
-    "classes_used": [
-      "Chart",
-      "ChartType",
-      "Presentation"
-    ],
-    "methods_used": [],
-    "formats_referenced": [],
-    "provenance": "scout"
-  },
-  {
-    "id": "snippet_100",
-    "file": "snippet_100.py",
-    "source_file": "tests/test_bubble_scatter.py",
-    "source_function": "test_3d_bubble_adds_bubble3D_val_1_via_chart_type",
-    "source_line": 394,
-    "classes_used": [
-      "Chart",
-      "ChartType",
-      "Format",
-      "Presentation",
-      "SaveFormat"
-    ],
-    "methods_used": [
-      "Presentation.save"
-    ],
-    "formats_referenced": [
-      "ppt",
-      "pptx"
-    ],
-    "provenance": "scout"
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "a01945ec244970c5fa683cf811e68db6991d40c633d845c6ef2007cd19124a0a",
+      "norm": "a01945ec244970c5fa683cf811e68db6991d40c633d845c6ef2007cd19124a0a"
+    }
   }
 ]

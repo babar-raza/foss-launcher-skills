@@ -1,9 +1,9 @@
-def test_polyline_endings_orient_to_end_edges():
-    gen = build_appearance(
-        "PolyLine",
-        _RECT,
-        {"Vertices": [10, 10, 60, 60, 110, 10], "LE": [N("OpenArrow"), N("OpenArrow")]},
+def test_line_diamond_and_circle_endings():
+    diamond = build_appearance(
+        "Line", _RECT, {"L": [10, 40, 100, 40], "LE": [N("Diamond"), N("None")]}
     )
-    assert gen is not None
-    # Shaft stroke plus one stroke per open-arrow head.
-    assert gen.content.count(b"\nS\n") == 3
+    assert b"\nb\n" in diamond.content
+    circle = build_appearance(
+        "Line", _RECT, {"L": [10, 40, 100, 40], "LE": [N("None"), N("Circle")]}
+    )
+    assert circle.content.count(b" c") == 4  # four Bézier arcs

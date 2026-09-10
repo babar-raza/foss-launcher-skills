@@ -1,13 +1,11 @@
-def test_effective_own_background():
-    """get_effective returns fill data for OWN_BACKGROUND slide."""
-    pres = Presentation()
-    slide = pres.slides[0]
-    slide.background.type = BackgroundType.OWN_BACKGROUND
-    slide.background.fill_format.fill_type = FillType.SOLID
-    slide.background.fill_format.solid_fill_color.color = Color.coral
-
-    eff = slide.background.get_effective()
-    assert eff.fill_format.fill_type == FillType.SOLID
-    c = eff.fill_format.solid_fill_color
-    assert c.r == 255 and c.g == 127 and c.b == 80
-    pres.dispose()
+def test_clear_sequence(self):
+        with Presentation() as pres:
+            slide = pres.slides[0]
+            shape = slide.shapes.add_auto_shape(ShapeType.RECTANGLE, 10, 10, 100, 50)
+            seq = slide.timeline.main_sequence
+            seq.add_effect(shape, anim.EffectType.FADE, anim.EffectSubtype.NONE,
+                           anim.EffectTriggerType.ON_CLICK)
+            seq.add_effect(shape, anim.EffectType.APPEAR, anim.EffectSubtype.NONE,
+                           anim.EffectTriggerType.AFTER_PREVIOUS)
+            seq.clear()
+            assert seq.count == 0

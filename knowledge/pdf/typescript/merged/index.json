@@ -9,13 +9,18 @@
   "api_confidence": "medium",
   "repo_sha": "04e7b50a3dc37427e5e7d72147dd0baf62ccbb9f",
   "last_merged": "",
-  "vectors_available": false,
+  "vectors_available": true,
   "stats": {
     "scout_claims": 8776,
     "enriched_claims": 46,
     "supplemental_claims": 0,
     "total_claims": 8341,
     "class_count": 1002,
+    "classes": {
+      "total_declared": 1055,
+      "public_documented": 1002,
+      "raw_entries_including_non_class": 3604
+    },
     "forbidden_count": 0,
     "snippet_count": 100
   },

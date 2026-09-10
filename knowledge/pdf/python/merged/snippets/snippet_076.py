@@ -1,9 +1,7 @@
-def test_build_underline_and_strikeout_draw_lines():
-    quad = {"QuadPoints": [0, 20, 100, 20, 0, 0, 100, 0]}
-    under = build_appearance("Underline", (0, 0, 100, 20), quad)
-    strike = build_appearance("StrikeOut", (0, 0, 100, 20), quad)
-    assert under is not None and strike is not None
-    assert b"\nS\n" in under.content
-    assert b"\nS\n" in strike.content
-    # Strike-out sits higher than the underline.
-    assert under.content != strike.content
+def test_build_ink_draws_each_path():
+    gen = build_appearance(
+        "Ink", (0, 0, 100, 100), {"InkList": [[0, 0, 50, 50], [10, 10, 60, 10, 60, 60]]}
+    )
+    assert gen is not None
+    assert gen.content.count(b" m\n") == 2  # one moveto per path
+    assert gen.content.count(b"\nS\n") == 2

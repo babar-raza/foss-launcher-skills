@@ -1,20 +1,12 @@
-def test_3d_bubble_adds_bubble3D_val_1_via_chart_type(self, tmp_path):
-        """End-to-end: when a chart is created as BUBBLE_WITH_3D and a series
-        is added with chart.type, the series emits <c:bubble3D val="1"/>.
-        """
-        import zipfile
-        from aspose.slides_foss.export import SaveFormat
+def test_category_axis_gridlines(self):
+        prs = Presentation()
+        chart = prs.slides[0].shapes.add_chart(ChartType.CLUSTERED_COLUMN, 0, 0, 400, 300)
+        gl = chart.axes.horizontal_axis.major_grid_lines_format
+        gl.line.fill_format.fill_type = FillType.SOLID
+        gl.line.fill_format.solid_fill_color.color = Color.from_argb(255, 0, 128, 0)
 
-        pres = Presentation()
-        chart = pres.slides[0].shapes.add_chart(
-            ChartType.BUBBLE_WITH_3D, 50, 50, 500, 400, False)
-        chart.chart_data.series.clear()
-        s = chart.chart_data.series.add("S", chart.type)
-        s.data_points.add_data_point_for_bubble_series(1.0, 2.0, 10)
-
-        path = str(tmp_path / "x.pptx")
-        pres.save(path, SaveFormat.PPTX)
-        with zipfile.ZipFile(path) as z:
-            xml = z.read('ppt/charts/chart1.xml').decode()
-        assert '<c:bubble3D val="1"/>' in xml
-        assert '<c:bubble3D val="0"/>' not in xml
+        prs2 = _save_and_reload(prs)
+        chart2 = prs2.slides[0].shapes[0]
+        gl2 = chart2.axes.horizontal_axis.major_grid_lines_format
+        assert gl2.line.fill_format.fill_type == FillType.SOLID
+        assert gl2.line.fill_format.solid_fill_color.color.g == 128

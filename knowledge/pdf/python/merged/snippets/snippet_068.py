@@ -1,11 +1,8 @@
-def test_build_square_with_stroke_and_fill():
+def test_polygon_cloud_border():
     gen = build_appearance(
-        "Square", (0, 0, 100, 100), {"C": [1, 0, 0], "IC": [0, 1, 0], "BS": {"W": 2}}
+        "Polygon",
+        _RECT,
+        {"Vertices": [10, 10, 110, 10, 60, 70], "C": [0, 0, 0], "BE": {"S": N("C"), "I": 1}},
     )
     assert gen is not None
-    assert b"1 0 0 RG" in gen.content  # red stroke
-    assert b"0 1 0 rg" in gen.content  # green fill
-    assert b"2 w" in gen.content
-    assert b" re" in gen.content
-    assert b"\nB\n" in gen.content  # fill + stroke
-    assert gen.ext_gstates == {}
+    assert b" c\n" in gen.content

@@ -1,17 +1,15 @@
-def test_timing_persists(self, tmp_pptx):
-        pres = Presentation()
-        slide = pres.slides[0]
-        shape = slide.shapes.add_auto_shape(ShapeType.RECTANGLE, 10, 10, 100, 50)
-        effect = slide.timeline.main_sequence.add_effect(
-            shape, anim.EffectType.FADE,
-            anim.EffectSubtype.NONE,
-            anim.EffectTriggerType.ON_CLICK,
-        )
-        effect.timing.duration = 2.5
-        effect.timing.trigger_delay_time = 0.5
+def test_group_properties_keep_their_schema_order_however_they_were_set(
+    produced, blank_presentation, order
+):
+    """`<p:grpSpPr>` children follow `CT_GroupShapeProperties` for every permutation."""
+    pres = blank_presentation
+    group = pres.slides[0].shapes.add_group_shape()
+    for operation in order:
+        _apply(group, operation)
+    pkg = produced(pres)
 
-        pres2 = tmp_pptx(pres)
-        eff2 = pres2.slides[0].timeline.main_sequence[0]
-        assert eff2.timing.duration == 2.5
-        assert eff2.timing.trigger_delay_time == 0.5
-        pres2.dispose()
+    grp_sp_pr = pkg.find_one(SLIDE, GRP_SP_PR)
+    assert set(child_names(grp_sp_pr)) >= {"a:solidFill", "a:effectLst"}, (
+        "the formatting children were not all written: %r" % child_names(grp_sp_pr)
+    )
+    pkg.assert_element(SLIDE, GRP_SP_PR, child_order=True)

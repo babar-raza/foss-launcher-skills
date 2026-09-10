@@ -1,2 +1,2 @@
-# Install aspose_slides_foss
+# Install AsposeSlidesFoss
 

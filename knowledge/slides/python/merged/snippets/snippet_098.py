@@ -1,18 +1,15 @@
-def test_scatter_via_workbook_cells(self, tmp_pptx):
-        pres = Presentation()
-        chart = _add_clean_chart(pres, ChartType.SCATTER_WITH_MARKERS)
-        wb = chart.chart_data.chart_data_workbook
-        name_cell = wb.get_cell(0, "B1", "Data")
-        s = chart.chart_data.series.add(name_cell, ChartType.SCATTER_WITH_MARKERS)
-        expected = [(1.0, 2.5), (2.5, 4.1), (4.2, 3.3)]
-        for i, (x, y) in enumerate(expected):
-            row = i + 2
-            x_cell = wb.get_cell(0, f"A{row}", x)
-            y_cell = wb.get_cell(0, f"B{row}", y)
-            s.data_points.add_data_point_for_scatter_series(x_cell, y_cell)
+def test_major_gridlines_line_color(self):
+        prs = Presentation()
+        chart = prs.slides[0].shapes.add_chart(ChartType.CLUSTERED_COLUMN, 0, 0, 400, 300)
+        gl = chart.axes.vertical_axis.major_grid_lines_format
+        assert isinstance(gl, ChartLinesFormat)
+        gl.line.fill_format.fill_type = FillType.SOLID
+        gl.line.fill_format.solid_fill_color.color = Color.from_argb(255, 0, 0, 255)
+        gl.line.width = 5
 
-        pres2 = tmp_pptx(pres)
-        s2 = _first_chart(pres2).chart_data.series[0]
-        for dp, (x, y) in zip(s2.data_points, expected):
-            assert dp.x_value.as_literal_double == pytest.approx(x)
-            assert dp.y_value.as_literal_double == pytest.approx(y)
+        prs2 = _save_and_reload(prs)
+        chart2 = prs2.slides[0].shapes[0]
+        gl2 = chart2.axes.vertical_axis.major_grid_lines_format
+        assert gl2.line.fill_format.fill_type == FillType.SOLID
+        assert gl2.line.fill_format.solid_fill_color.color.b == 255
+        assert abs(gl2.line.width - 5) < 0.5

@@ -1,33 +1,37 @@
-bundle_generated_at: '2026-08-24T06:32:35.029633+00:00'
-bundle_id: 4b27b18e-8921-4d4e-9e36-47e2a745f480
-config_sha: 5676a5ada3d9dda2
-enrichment_status: scout-only
-extractor_hash: 28da6c8722502343
 family: cells
-generator_fingerprint: c2cc3c24c6bc5e66e0b6513ee648c9c1ae48a0a954349bd653beed452276da89
-generator_semver: 2.0.0
-has_conflicts: false
-input_hashes:
-  enriched_claims_sha: 87fcbc16c4a42d94d047ed52d9ae3d6b0eb355065d9b9ab88e4263a9003637a4
-  extractor_config_sha: 5676a5ada3d9dda2
-  products_json_entry_sha: 9a5c7fc4eb2853500f3fde7727bae534873a3c8a84de3cf49d20bb7eede3f689
-  scout_api_surface_sha: 800bc9c394fa43b086ad701f2f65462a7cbe615ddaf2b570eb850dd44156f95c
-  scout_claims_sha: 1110aeda8efc6e56c81598e8d79551d35c5a34cb512845222a12eee16c34b240
-license: ''
 platform: net
 product_name: Aspose.Cells.FOSS
-promoted_at: '2026-08-24T06:32:35.074049+00:00'
-repo_sha: 6ee32c08a6090a778fab03e66afac731859f93a9
+version: 26.9.0.0
+license: ''
 repo_url: https://github.com/aspose-cells-foss/Aspose.Cells-FOSS-for-.NET.git
-schema_version: 2
-source: scout_only
+repo_sha: 941814fd138dc28cf47123d48194f329f283498d
+config_sha: 5676a5ada3d9dda2
 stale_since: null
+promoted_at: '2026-09-10T12:40:28.963999+00:00'
+source: scout_and_enriched
+enrichment_status: full
+has_conflicts: false
+schema_version: 2
+generator_fingerprint: 39b55c0381d862030a39cf289a74386dba0d96ba7bead7439ed295a74ed8206e
+generator_semver: 2.0.0
+bundle_id: 91fa9423-57ae-4e3b-9c7a-7f925c4d7a8d
+bundle_generated_at: '2026-09-10T12:40:28.911016+00:00'
+module_assignment_version: 1
+input_hashes:
+  extractor_config_sha: 5676a5ada3d9dda2
+  scout_claims_sha: 9c9105e0bb4c2cc4da7de26a1a59334434f285aa53fd23b0114ec8c3214a930f
+  scout_api_surface_sha: 6114f87372f3a7b6cc92e508844033091204f12a1b2f1eeda384076c7d136e6f
+  enriched_claims_sha: a922acbf8533dde84978728f9bd5933ca795c3af7c76117f7e168c4c0a0699ec
+  products_json_entry_sha: 9a5c7fc4eb2853500f3fde7727bae534873a3c8a84de3cf49d20bb7eede3f689
 stats:
-  class_count: 96
-  enriched_claims: 0
-  forbidden_count: 0
-  scout_claims: 671
-  snippet_count: 7
+  scout_claims: 695
+  enriched_claims: 642
   supplemental_claims: 0
-  total_claims: 666
-version: 26.7.0.0
+  total_claims: 1332
+  class_count: 98
+  classes:
+    total_declared: 98
+    public_documented: 98
+    raw_entries_including_non_class: 98
+  forbidden_count: 0
+  snippet_count: 9

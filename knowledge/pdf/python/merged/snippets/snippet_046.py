@@ -1,8 +1,6 @@
-def test_compute_hash_v5_different_salt(self):
-        """Different salts produce different hashes."""
-        password = b"password"
-        salt1 = b"salt1___"
-        salt2 = b"salt2___"
-        result1 = EncryptionUtils.compute_hash_v5(password, salt1)
-        result2 = EncryptionUtils.compute_hash_v5(password, salt2)
-        assert result1 != result2, "Different salts must produce different hashes"
+def test_compute_hash_v5_returns_32_bytes(self):
+        """Algorithm 2.B must always return exactly 32 bytes."""
+        password = b"test"
+        salt = os.urandom(8)
+        result = EncryptionUtils.compute_hash_v5(password, salt)
+        assert len(result) == 32, "compute_hash_v5 must return 32 bytes"

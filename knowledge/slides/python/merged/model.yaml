@@ -4,30 +4,34 @@ product_name: aspose-slides-foss
 version: 26.8.0
 license: MIT
 repo_url: https://github.com/aspose-slides-foss/Aspose.Slides-FOSS-for-Python.git
-repo_sha: 90e523b90b91eab58e70e725fa88aa551f115731
+repo_sha: becd199a776682785768c60c778558d975b0c2f9
 config_sha: 58e5766a6f6833a4
 stale_since: null
-promoted_at: '2026-08-31T19:32:42.098792+00:00'
-source: scout_only
-enrichment_status: scout-only
+promoted_at: '2026-09-10T12:40:33.841873+00:00'
+source: scout_and_enriched
+enrichment_status: full
 has_conflicts: false
 schema_version: 2
-generator_fingerprint: d16059d0478241427e3bddc37f58e32a33b1580c1a8c2f532391e7171b0ffcbc
+generator_fingerprint: 39b55c0381d862030a39cf289a74386dba0d96ba7bead7439ed295a74ed8206e
 generator_semver: 2.0.0
-bundle_id: 8844a180-bfef-44f4-abea-7cf547229d51
-bundle_generated_at: '2026-08-31T19:32:41.912078+00:00'
+bundle_id: 53d8ba0e-829a-4840-8843-a4d8b6ab7b59
+bundle_generated_at: '2026-09-10T12:40:33.593586+00:00'
 module_assignment_version: 1
 input_hashes:
   extractor_config_sha: 58e5766a6f6833a4
-  scout_claims_sha: 0542b4c953590de0aa18ff1ccc1452fae1ddb660907a837f1d8234a2f0dc2fb4
-  scout_api_surface_sha: 2c911e5634ff7f68393ea5f2cd4c42a4c91d176dd3bc945baf41b3c7b74fb1be
-  enriched_claims_sha: 6ddb3b3686b5a91f2e078006e2d2e92a8f5de46ea903e0618e40f07d7149e276
+  scout_claims_sha: d5f9facec6741b030fce9dda2051785cc820f57635b92a9659cb4a65af11e88b
+  scout_api_surface_sha: 88922fe1d9d2b6be3e3ee71a004145e22063d809cee3cbaf8a4d238c7bbf6b7a
+  enriched_claims_sha: 955fc9529f00c4235bc5ee75a15190dda183b19c94eaf8024e02985cd514f478
   products_json_entry_sha: 303bd42f40f7cc383fdaeb4232b6ceaa787720857446892f969819fbd32d5362
 stats:
-  scout_claims: 3733
-  enriched_claims: 0
+  scout_claims: 3758
+  enriched_claims: 2801
   supplemental_claims: 0
-  total_claims: 3700
-  class_count: 558
+  total_claims: 6526
+  class_count: 560
+  classes:
+    total_declared: 560
+    public_documented: 517
+    raw_entries_including_non_class: 604
   forbidden_count: 1
   snippet_count: 100

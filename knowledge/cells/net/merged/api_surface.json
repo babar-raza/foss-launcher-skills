@@ -79,7 +79,9 @@
     "deprecated_reason": "",
     "is_sealed": true,
     "canonical_namespace": "Aspose.Cells_FOSS",
-    "class_import": "Aspose.Cells_FOSS.ConditionalFormattingCollection"
+    "class_import": "Aspose.Cells_FOSS.ConditionalFormattingCollection",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "FormatCondition",
@@ -325,7 +327,9 @@
     "deprecated_reason": "",
     "is_sealed": true,
     "canonical_namespace": "Aspose.Cells_FOSS",
-    "class_import": "Aspose.Cells_FOSS.FormatCondition"
+    "class_import": "Aspose.Cells_FOSS.FormatCondition",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "FormatConditionCollection",
@@ -528,7 +532,9 @@
     "deprecated_reason": "",
     "is_sealed": true,
     "canonical_namespace": "Aspose.Cells_FOSS",
-    "class_import": "Aspose.Cells_FOSS.FormatConditionCollection"
+    "class_import": "Aspose.Cells_FOSS.FormatConditionCollection",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "FormatConditionType",
@@ -610,7 +616,9 @@
       }
     ],
     "canonical_namespace": "Aspose.Cells_FOSS",
-    "class_import": "Aspose.Cells_FOSS.FormatConditionType"
+    "class_import": "Aspose.Cells_FOSS.FormatConditionType",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "InvalidFileFormatException",
@@ -701,7 +709,9 @@
     "deprecated": false,
     "deprecated_reason": "",
     "canonical_namespace": "Aspose.Cells_FOSS",
-    "class_import": "Aspose.Cells_FOSS.InvalidFileFormatException"
+    "class_import": "Aspose.Cells_FOSS.InvalidFileFormatException",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "LoadFormat",
@@ -727,7 +737,9 @@
       }
     ],
     "canonical_namespace": "Aspose.Cells_FOSS",
-    "class_import": "Aspose.Cells_FOSS.LoadFormat"
+    "class_import": "Aspose.Cells_FOSS.LoadFormat",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "NumberFormat",
@@ -793,7 +805,9 @@
     "deprecated_reason": "",
     "is_static": true,
     "canonical_namespace": "Aspose.Cells_FOSS",
-    "class_import": "Aspose.Cells_FOSS.NumberFormat"
+    "class_import": "Aspose.Cells_FOSS.NumberFormat",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "SaveFormat",
@@ -812,10 +826,16 @@
       {
         "name": "Xlsx",
         "value": ""
+      },
+      {
+        "name": "Pdf",
+        "value": ""
       }
     ],
     "canonical_namespace": "Aspose.Cells_FOSS",
-    "class_import": "Aspose.Cells_FOSS.SaveFormat"
+    "class_import": "Aspose.Cells_FOSS.SaveFormat",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "AutoFilter",
@@ -869,7 +889,9 @@
     "deprecated_reason": "",
     "is_sealed": true,
     "canonical_namespace": "Aspose.Cells_FOSS",
-    "class_import": "Aspose.Cells_FOSS.AutoFilter"
+    "class_import": "Aspose.Cells_FOSS.AutoFilter",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "AutoFilterColorFilter",
@@ -923,7 +945,9 @@
     "deprecated_reason": "",
     "is_sealed": true,
     "canonical_namespace": "Aspose.Cells_FOSS",
-    "class_import": "Aspose.Cells_FOSS.AutoFilterColorFilter"
+    "class_import": "Aspose.Cells_FOSS.AutoFilterColorFilter",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "FilterOperatorType",
@@ -965,7 +989,9 @@
       }
     ],
     "canonical_namespace": "Aspose.Cells_FOSS",
-    "class_import": "Aspose.Cells_FOSS.FilterOperatorType"
+    "class_import": "Aspose.Cells_FOSS.FilterOperatorType",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "AutoFilterCustomFilter",
@@ -999,7 +1025,9 @@
     "deprecated_reason": "",
     "is_sealed": true,
     "canonical_namespace": "Aspose.Cells_FOSS",
-    "class_import": "Aspose.Cells_FOSS.AutoFilterCustomFilter"
+    "class_import": "Aspose.Cells_FOSS.AutoFilterCustomFilter",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "AutoFilterCustomFilterCollection",
@@ -1094,7 +1122,9 @@
     "deprecated_reason": "",
     "is_sealed": true,
     "canonical_namespace": "Aspose.Cells_FOSS",
-    "class_import": "Aspose.Cells_FOSS.AutoFilterCustomFilterCollection"
+    "class_import": "Aspose.Cells_FOSS.AutoFilterCustomFilterCollection",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "AutoFilterDynamicFilter",
@@ -1156,7 +1186,9 @@
     "deprecated_reason": "",
     "is_sealed": true,
     "canonical_namespace": "Aspose.Cells_FOSS",
-    "class_import": "Aspose.Cells_FOSS.AutoFilterDynamicFilter"
+    "class_import": "Aspose.Cells_FOSS.AutoFilterDynamicFilter",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "AutoFilterSortCondition",
@@ -1230,7 +1262,9 @@
     "deprecated_reason": "",
     "is_sealed": true,
     "canonical_namespace": "Aspose.Cells_FOSS",
-    "class_import": "Aspose.Cells_FOSS.AutoFilterSortCondition"
+    "class_import": "Aspose.Cells_FOSS.AutoFilterSortCondition",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "AutoFilterSortConditionCollection",
@@ -1313,7 +1347,9 @@
     "deprecated_reason": "",
     "is_sealed": true,
     "canonical_namespace": "Aspose.Cells_FOSS",
-    "class_import": "Aspose.Cells_FOSS.AutoFilterSortConditionCollection"
+    "class_import": "Aspose.Cells_FOSS.AutoFilterSortConditionCollection",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "AutoFilterSortState",
@@ -1383,7 +1419,9 @@
     "deprecated_reason": "",
     "is_sealed": true,
     "canonical_namespace": "Aspose.Cells_FOSS",
-    "class_import": "Aspose.Cells_FOSS.AutoFilterSortState"
+    "class_import": "Aspose.Cells_FOSS.AutoFilterSortState",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "AutoFilterTop10",
@@ -1453,7 +1491,9 @@
     "deprecated_reason": "",
     "is_sealed": true,
     "canonical_namespace": "Aspose.Cells_FOSS",
-    "class_import": "Aspose.Cells_FOSS.AutoFilterTop10"
+    "class_import": "Aspose.Cells_FOSS.AutoFilterTop10",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "AutoShapeType",
@@ -1627,7 +1667,9 @@
       }
     ],
     "canonical_namespace": "Aspose.Cells_FOSS",
-    "class_import": "Aspose.Cells_FOSS.AutoShapeType"
+    "class_import": "Aspose.Cells_FOSS.AutoShapeType",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "Border",
@@ -1660,7 +1702,9 @@
     "deprecated": false,
     "deprecated_reason": "",
     "canonical_namespace": "Aspose.Cells_FOSS",
-    "class_import": "Aspose.Cells_FOSS.Border"
+    "class_import": "Aspose.Cells_FOSS.Border",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "BorderStyleType",
@@ -1734,7 +1778,9 @@
       }
     ],
     "canonical_namespace": "Aspose.Cells_FOSS",
-    "class_import": "Aspose.Cells_FOSS.BorderStyleType"
+    "class_import": "Aspose.Cells_FOSS.BorderStyleType",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "Borders",
@@ -1807,7 +1853,9 @@
     "deprecated": false,
     "deprecated_reason": "",
     "canonical_namespace": "Aspose.Cells_FOSS",
-    "class_import": "Aspose.Cells_FOSS.Borders"
+    "class_import": "Aspose.Cells_FOSS.Borders",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "CalculationProperties",
@@ -1921,7 +1969,9 @@
     "deprecated_reason": "",
     "is_sealed": true,
     "canonical_namespace": "Aspose.Cells_FOSS",
-    "class_import": "Aspose.Cells_FOSS.CalculationProperties"
+    "class_import": "Aspose.Cells_FOSS.CalculationProperties",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "Cell",
@@ -1932,6 +1982,64 @@
     "bases": [],
     "methods": [
       {
+        "name": "Characters",
+        "params": [
+          {
+            "name": "startIndex",
+            "type": "int"
+          },
+          {
+            "name": "length",
+            "type": "int"
+          }
+        ],
+        "return_type": "",
+        "doc": "Returns a rich-text character range within the cell text.",
+        "line": 161,
+        "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
+        "file": "src/Aspose.Cells_FOSS/Cell.cs"
+      },
+      {
+        "name": "GetCharacters",
+        "params": [],
+        "return_type": "",
+        "doc": "Returns all rich-text character ranges in the cell text.",
+        "line": 185,
+        "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
+        "file": "src/Aspose.Cells_FOSS/Cell.cs"
+      },
+      {
+        "name": "IsRichText",
+        "params": [],
+        "return_type": "",
+        "doc": "Indicates whether the cell string contains rich-text formatting runs.",
+        "line": 205,
+        "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
+        "file": "src/Aspose.Cells_FOSS/Cell.cs"
+      },
+      {
+        "name": "SetCharacters",
+        "params": [
+          {
+            "name": "characters",
+            "type": "FontSetting[]"
+          }
+        ],
+        "return_type": "",
+        "doc": "Sets rich-text formatting runs for the current cell text.",
+        "line": 214,
+        "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
+        "file": "src/Aspose.Cells_FOSS/Cell.cs"
+      },
+      {
         "name": "PutValue",
         "params": [
           {
@@ -1941,7 +2049,7 @@
         ],
         "return_type": "",
         "doc": "Sets the cell value to a string.",
-        "line": 161,
+        "line": 240,
         "is_constructor": false,
         "deprecated": false,
         "deprecated_reason": "",
@@ -1957,7 +2065,7 @@
         ],
         "return_type": "",
         "doc": "Sets the cell value to an integer.",
-        "line": 170,
+        "line": 249,
         "is_constructor": false,
         "deprecated": false,
         "deprecated_reason": "",
@@ -1973,7 +2081,7 @@
         ],
         "return_type": "",
         "doc": "Sets the cell value to a floating-point number.",
-        "line": 178,
+        "line": 257,
         "is_constructor": false,
         "deprecated": false,
         "deprecated_reason": "",
@@ -1989,7 +2097,7 @@
         ],
         "return_type": "",
         "doc": "Sets the cell value to a decimal number.",
-        "line": 186,
+        "line": 265,
         "is_constructor": false,
         "deprecated": false,
         "deprecated_reason": "",
@@ -2005,7 +2113,7 @@
         ],
         "return_type": "",
         "doc": "Sets the cell value to a boolean.",
-        "line": 194,
+        "line": 273,
         "is_constructor": false,
         "deprecated": false,
         "deprecated_reason": "",
@@ -2021,7 +2129,7 @@
         ],
         "return_type": "",
         "doc": "Sets the cell value to a DateTime.",
-        "line": 205,
+        "line": 284,
         "is_constructor": false,
         "deprecated": false,
         "deprecated_reason": "",
@@ -2041,7 +2149,7 @@
         ],
         "return_type": "",
         "doc": "Puts a string value into the cell and converts the value when appropriate.",
-        "line": 213,
+        "line": 292,
         "is_constructor": false,
         "deprecated": false,
         "deprecated_reason": "",
@@ -2065,7 +2173,7 @@
         ],
         "return_type": "",
         "doc": "Puts a string value into the cell and converts the value when appropriate.",
-        "line": 221,
+        "line": 300,
         "is_constructor": false,
         "deprecated": false,
         "deprecated_reason": "",
@@ -2081,7 +2189,7 @@
         ],
         "return_type": "",
         "doc": "Puts an object value into the cell.",
-        "line": 270,
+        "line": 349,
         "is_constructor": false,
         "deprecated": false,
         "deprecated_reason": "",
@@ -2092,7 +2200,7 @@
         "params": [],
         "return_type": "",
         "doc": "Gets a detached copy of the cell style.",
-        "line": 278,
+        "line": 357,
         "is_constructor": false,
         "deprecated": false,
         "deprecated_reason": "",
@@ -2108,7 +2216,7 @@
         ],
         "return_type": "",
         "doc": "Gets a detached copy of the cell style.",
-        "line": 289,
+        "line": 368,
         "is_constructor": false,
         "deprecated": false,
         "deprecated_reason": "",
@@ -2124,7 +2232,7 @@
         ],
         "return_type": "",
         "doc": "Replaces the cell style with the supplied style object.",
-        "line": 303,
+        "line": 382,
         "is_constructor": false,
         "deprecated": false,
         "deprecated_reason": "",
@@ -2144,7 +2252,7 @@
         ],
         "return_type": "",
         "doc": "Applies the cell style with Aspose-compatible overload shape.",
-        "line": 314,
+        "line": 393,
         "is_constructor": false,
         "deprecated": false,
         "deprecated_reason": "",
@@ -2164,7 +2272,7 @@
         ],
         "return_type": "",
         "doc": "Applies the cell style based on style flags.",
-        "line": 330,
+        "line": 409,
         "is_constructor": false,
         "deprecated": false,
         "deprecated_reason": "",
@@ -2218,7 +2326,9 @@
     "deprecated": false,
     "deprecated_reason": "",
     "canonical_namespace": "Aspose.Cells_FOSS",
-    "class_import": "Aspose.Cells_FOSS.Cell"
+    "class_import": "Aspose.Cells_FOSS.Cell",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "CellArea",
@@ -2345,7 +2455,9 @@
     "deprecated": false,
     "deprecated_reason": "",
     "canonical_namespace": "Aspose.Cells_FOSS",
-    "class_import": "Aspose.Cells_FOSS.CellArea"
+    "class_import": "Aspose.Cells_FOSS.CellArea",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "CellValueType",
@@ -2391,7 +2503,9 @@
       }
     ],
     "canonical_namespace": "Aspose.Cells_FOSS",
-    "class_import": "Aspose.Cells_FOSS.CellValueType"
+    "class_import": "Aspose.Cells_FOSS.CellValueType",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "Cells",
@@ -2469,7 +2583,9 @@
     "deprecated": false,
     "deprecated_reason": "",
     "canonical_namespace": "Aspose.Cells_FOSS",
-    "class_import": "Aspose.Cells_FOSS.Cells"
+    "class_import": "Aspose.Cells_FOSS.Cells",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "CellsException",
@@ -2524,7 +2640,9 @@
     "deprecated": false,
     "deprecated_reason": "",
     "canonical_namespace": "Aspose.Cells_FOSS",
-    "class_import": "Aspose.Cells_FOSS.CellsException"
+    "class_import": "Aspose.Cells_FOSS.CellsException",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "Chart",
@@ -2606,7 +2724,9 @@
     "deprecated_reason": "",
     "is_sealed": true,
     "canonical_namespace": "Aspose.Cells_FOSS",
-    "class_import": "Aspose.Cells_FOSS.Chart"
+    "class_import": "Aspose.Cells_FOSS.Chart",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "ChartCollection",
@@ -2669,7 +2789,9 @@
     "deprecated_reason": "",
     "is_sealed": true,
     "canonical_namespace": "Aspose.Cells_FOSS",
-    "class_import": "Aspose.Cells_FOSS.ChartCollection"
+    "class_import": "Aspose.Cells_FOSS.ChartCollection",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "ChartType",
@@ -2791,7 +2913,9 @@
       }
     ],
     "canonical_namespace": "Aspose.Cells_FOSS",
-    "class_import": "Aspose.Cells_FOSS.ChartType"
+    "class_import": "Aspose.Cells_FOSS.ChartType",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "Color",
@@ -2950,7 +3074,9 @@
     "deprecated": false,
     "deprecated_reason": "",
     "canonical_namespace": "Aspose.Cells_FOSS",
-    "class_import": "Aspose.Cells_FOSS.Color"
+    "class_import": "Aspose.Cells_FOSS.Color",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "Column",
@@ -2984,7 +3110,9 @@
     "deprecated_reason": "",
     "is_sealed": true,
     "canonical_namespace": "Aspose.Cells_FOSS",
-    "class_import": "Aspose.Cells_FOSS.Column"
+    "class_import": "Aspose.Cells_FOSS.Column",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "ColumnCollection",
@@ -3001,7 +3129,9 @@
     "deprecated_reason": "",
     "is_sealed": true,
     "canonical_namespace": "Aspose.Cells_FOSS",
-    "class_import": "Aspose.Cells_FOSS.ColumnCollection"
+    "class_import": "Aspose.Cells_FOSS.ColumnCollection",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "Comment",
@@ -3075,7 +3205,9 @@
     "deprecated_reason": "",
     "is_sealed": true,
     "canonical_namespace": "Aspose.Cells_FOSS",
-    "class_import": "Aspose.Cells_FOSS.Comment"
+    "class_import": "Aspose.Cells_FOSS.Comment",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "CommentCollection",
@@ -3170,7 +3302,9 @@
     "deprecated_reason": "",
     "is_sealed": true,
     "canonical_namespace": "Aspose.Cells_FOSS",
-    "class_import": "Aspose.Cells_FOSS.CommentCollection"
+    "class_import": "Aspose.Cells_FOSS.CommentCollection",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "CoreDocumentProperties",
@@ -3276,7 +3410,9 @@
     "deprecated_reason": "",
     "is_sealed": true,
     "canonical_namespace": "Aspose.Cells_FOSS",
-    "class_import": "Aspose.Cells_FOSS.CoreDocumentProperties"
+    "class_import": "Aspose.Cells_FOSS.CoreDocumentProperties",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "DefinedName",
@@ -3334,7 +3470,9 @@
     "deprecated_reason": "",
     "is_sealed": true,
     "canonical_namespace": "Aspose.Cells_FOSS",
-    "class_import": "Aspose.Cells_FOSS.DefinedName"
+    "class_import": "Aspose.Cells_FOSS.DefinedName",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "DefinedNameCollection",
@@ -3434,7 +3572,9 @@
     "deprecated_reason": "",
     "is_sealed": true,
     "canonical_namespace": "Aspose.Cells_FOSS",
-    "class_import": "Aspose.Cells_FOSS.DefinedNameCollection"
+    "class_import": "Aspose.Cells_FOSS.DefinedNameCollection",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "DiagnosticSeverity",
@@ -3468,7 +3608,9 @@
       }
     ],
     "canonical_namespace": "Aspose.Cells_FOSS",
-    "class_import": "Aspose.Cells_FOSS.DiagnosticSeverity"
+    "class_import": "Aspose.Cells_FOSS.DiagnosticSeverity",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "DocumentProperties",
@@ -3566,7 +3708,9 @@
     "deprecated_reason": "",
     "is_sealed": true,
     "canonical_namespace": "Aspose.Cells_FOSS",
-    "class_import": "Aspose.Cells_FOSS.DocumentProperties"
+    "class_import": "Aspose.Cells_FOSS.DocumentProperties",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "ExtendedDocumentProperties",
@@ -3656,7 +3800,9 @@
     "deprecated_reason": "",
     "is_sealed": true,
     "canonical_namespace": "Aspose.Cells_FOSS",
-    "class_import": "Aspose.Cells_FOSS.ExtendedDocumentProperties"
+    "class_import": "Aspose.Cells_FOSS.ExtendedDocumentProperties",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "FillPattern",
@@ -3686,6 +3832,10 @@
       },
       {
         "name": "DarkGray",
+        "value": ""
+      },
+      {
+        "name": "LightGray",
         "value": ""
       },
       {
@@ -3746,7 +3896,9 @@
       }
     ],
     "canonical_namespace": "Aspose.Cells_FOSS",
-    "class_import": "Aspose.Cells_FOSS.FillPattern"
+    "class_import": "Aspose.Cells_FOSS.FillPattern",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "FilterColumn",
@@ -3832,7 +3984,9 @@
     "deprecated_reason": "",
     "is_sealed": true,
     "canonical_namespace": "Aspose.Cells_FOSS",
-    "class_import": "Aspose.Cells_FOSS.FilterColumn"
+    "class_import": "Aspose.Cells_FOSS.FilterColumn",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "FilterColumnCollection",
@@ -3915,7 +4069,9 @@
     "deprecated_reason": "",
     "is_sealed": true,
     "canonical_namespace": "Aspose.Cells_FOSS",
-    "class_import": "Aspose.Cells_FOSS.FilterColumnCollection"
+    "class_import": "Aspose.Cells_FOSS.FilterColumnCollection",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "FilterValueCollection",
@@ -3998,7 +4154,9 @@
     "deprecated_reason": "",
     "is_sealed": true,
     "canonical_namespace": "Aspose.Cells_FOSS",
-    "class_import": "Aspose.Cells_FOSS.FilterValueCollection"
+    "class_import": "Aspose.Cells_FOSS.FilterValueCollection",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "Font",
@@ -4142,7 +4300,73 @@
     "deprecated": false,
     "deprecated_reason": "",
     "canonical_namespace": "Aspose.Cells_FOSS",
-    "class_import": "Aspose.Cells_FOSS.Font"
+    "class_import": "Aspose.Cells_FOSS.Font",
+    "module_key": "core",
+    "module_label": "Core API"
+  },
+  {
+    "name": "FontSetting",
+    "kind": "class_declaration",
+    "doc": "Represents a range of characters within a cell's rich text.",
+    "file": "src/Aspose.Cells_FOSS/FontSetting.cs",
+    "line": 9,
+    "bases": [],
+    "methods": [
+      {
+        "name": "FontSetting",
+        "params": [
+          {
+            "name": "startIndex",
+            "type": "int"
+          },
+          {
+            "name": "length",
+            "type": "int"
+          }
+        ],
+        "return_type": "",
+        "doc": "Initializes a new instance of the FontSetting class.",
+        "line": 14,
+        "is_constructor": true,
+        "deprecated": false,
+        "deprecated_reason": "",
+        "file": "src/Aspose.Cells_FOSS/FontSetting.cs"
+      }
+    ],
+    "properties": [
+      {
+        "name": "StartIndex",
+        "type": "int",
+        "doc": "Gets the zero-based start index of the run.",
+        "line": 34,
+        "writable": false,
+        "file": "src/Aspose.Cells_FOSS/FontSetting.cs"
+      },
+      {
+        "name": "Length",
+        "type": "int",
+        "doc": "Gets the run length.",
+        "line": 39,
+        "writable": false,
+        "file": "src/Aspose.Cells_FOSS/FontSetting.cs"
+      },
+      {
+        "name": "Font",
+        "type": "Font",
+        "doc": "Gets the font of the run.",
+        "line": 44,
+        "writable": false,
+        "file": "src/Aspose.Cells_FOSS/FontSetting.cs"
+      }
+    ],
+    "visibility": "public",
+    "reachable": true,
+    "deprecated": false,
+    "deprecated_reason": "",
+    "canonical_namespace": "Aspose.Cells_FOSS",
+    "class_import": "Aspose.Cells_FOSS.FontSetting",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "FontUnderlineType",
@@ -4240,7 +4464,9 @@
       }
     ],
     "canonical_namespace": "Aspose.Cells_FOSS",
-    "class_import": "Aspose.Cells_FOSS.FontUnderlineType"
+    "class_import": "Aspose.Cells_FOSS.FontUnderlineType",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "FormulaException",
@@ -4311,7 +4537,9 @@
     "deprecated": false,
     "deprecated_reason": "",
     "canonical_namespace": "Aspose.Cells_FOSS",
-    "class_import": "Aspose.Cells_FOSS.FormulaException"
+    "class_import": "Aspose.Cells_FOSS.FormulaException",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "HorizontalAlignmentType",
@@ -4361,7 +4589,9 @@
       }
     ],
     "canonical_namespace": "Aspose.Cells_FOSS",
-    "class_import": "Aspose.Cells_FOSS.HorizontalAlignmentType"
+    "class_import": "Aspose.Cells_FOSS.HorizontalAlignmentType",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "Hyperlink",
@@ -4430,7 +4660,9 @@
     "deprecated": false,
     "deprecated_reason": "",
     "canonical_namespace": "Aspose.Cells_FOSS",
-    "class_import": "Aspose.Cells_FOSS.Hyperlink"
+    "class_import": "Aspose.Cells_FOSS.Hyperlink",
+    "module_key": "navigation",
+    "module_label": "Navigation"
   },
   {
     "name": "HyperlinkCollection",
@@ -4583,7 +4815,9 @@
     "deprecated": false,
     "deprecated_reason": "",
     "canonical_namespace": "Aspose.Cells_FOSS",
-    "class_import": "Aspose.Cells_FOSS.HyperlinkCollection"
+    "class_import": "Aspose.Cells_FOSS.HyperlinkCollection",
+    "module_key": "navigation",
+    "module_label": "Navigation"
   },
   {
     "name": "IWarningCallback",
@@ -4616,7 +4850,9 @@
     "deprecated": false,
     "deprecated_reason": "",
     "canonical_namespace": "Aspose.Cells_FOSS",
-    "class_import": "Aspose.Cells_FOSS.IWarningCallback"
+    "class_import": "Aspose.Cells_FOSS.IWarningCallback",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "ImageType",
@@ -4654,7 +4890,9 @@
       }
     ],
     "canonical_namespace": "Aspose.Cells_FOSS",
-    "class_import": "Aspose.Cells_FOSS.ImageType"
+    "class_import": "Aspose.Cells_FOSS.ImageType",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "ListColumn",
@@ -4704,7 +4942,9 @@
     "deprecated_reason": "",
     "is_sealed": true,
     "canonical_namespace": "Aspose.Cells_FOSS",
-    "class_import": "Aspose.Cells_FOSS.ListColumn"
+    "class_import": "Aspose.Cells_FOSS.ListColumn",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "ListColumnCollection",
@@ -4730,7 +4970,9 @@
     "deprecated_reason": "",
     "is_sealed": true,
     "canonical_namespace": "Aspose.Cells_FOSS",
-    "class_import": "Aspose.Cells_FOSS.ListColumnCollection"
+    "class_import": "Aspose.Cells_FOSS.ListColumnCollection",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "ListObject",
@@ -4934,7 +5176,9 @@
     "deprecated_reason": "",
     "is_sealed": true,
     "canonical_namespace": "Aspose.Cells_FOSS",
-    "class_import": "Aspose.Cells_FOSS.ListObject"
+    "class_import": "Aspose.Cells_FOSS.ListObject",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "ListObjectCollection",
@@ -5035,7 +5279,9 @@
     "deprecated_reason": "",
     "is_sealed": true,
     "canonical_namespace": "Aspose.Cells_FOSS",
-    "class_import": "Aspose.Cells_FOSS.ListObjectCollection"
+    "class_import": "Aspose.Cells_FOSS.ListObjectCollection",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "LoadDiagnostics",
@@ -5077,7 +5323,9 @@
     "deprecated_reason": "",
     "is_sealed": true,
     "canonical_namespace": "Aspose.Cells_FOSS",
-    "class_import": "Aspose.Cells_FOSS.LoadDiagnostics"
+    "class_import": "Aspose.Cells_FOSS.LoadDiagnostics",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "LoadIssue",
@@ -5167,7 +5415,9 @@
     "deprecated_reason": "",
     "is_sealed": true,
     "canonical_namespace": "Aspose.Cells_FOSS",
-    "class_import": "Aspose.Cells_FOSS.LoadIssue"
+    "class_import": "Aspose.Cells_FOSS.LoadIssue",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "LoadOptions",
@@ -5233,7 +5483,9 @@
     "deprecated_reason": "",
     "is_sealed": true,
     "canonical_namespace": "Aspose.Cells_FOSS",
-    "class_import": "Aspose.Cells_FOSS.LoadOptions"
+    "class_import": "Aspose.Cells_FOSS.LoadOptions",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "OperatorType",
@@ -5287,7 +5539,9 @@
       }
     ],
     "canonical_namespace": "Aspose.Cells_FOSS",
-    "class_import": "Aspose.Cells_FOSS.OperatorType"
+    "class_import": "Aspose.Cells_FOSS.OperatorType",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "PageOrientationType",
@@ -5317,7 +5571,9 @@
       }
     ],
     "canonical_namespace": "Aspose.Cells_FOSS",
-    "class_import": "Aspose.Cells_FOSS.PageOrientationType"
+    "class_import": "Aspose.Cells_FOSS.PageOrientationType",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "PageSetup",
@@ -5654,7 +5910,9 @@
     "deprecated_reason": "",
     "is_sealed": true,
     "canonical_namespace": "Aspose.Cells_FOSS",
-    "class_import": "Aspose.Cells_FOSS.PageSetup"
+    "class_import": "Aspose.Cells_FOSS.PageSetup",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "PaperSizeType",
@@ -5716,7 +5974,107 @@
       }
     ],
     "canonical_namespace": "Aspose.Cells_FOSS",
-    "class_import": "Aspose.Cells_FOSS.PaperSizeType"
+    "class_import": "Aspose.Cells_FOSS.PaperSizeType",
+    "module_key": "core",
+    "module_label": "Core API"
+  },
+  {
+    "name": "PdfSaveOptions",
+    "kind": "class_declaration",
+    "doc": "Options controlling XLSX-to-PDF rendering.",
+    "file": "src/Aspose.Cells_FOSS/PdfSaveOptions.cs",
+    "line": 20,
+    "bases": [
+      "SaveOptions"
+    ],
+    "methods": [
+      {
+        "name": "PdfSaveOptions",
+        "params": [],
+        "return_type": "",
+        "doc": "Initializes a new instance of the PdfSaveOptions class with SaveFormat set to Pdf.",
+        "line": 26,
+        "is_constructor": true,
+        "deprecated": false,
+        "deprecated_reason": "",
+        "file": "src/Aspose.Cells_FOSS/PdfSaveOptions.cs"
+      }
+    ],
+    "properties": [
+      {
+        "name": "OnePagePerSheet",
+        "type": "bool",
+        "doc": "Gets or sets whether all content of each worksheet is rendered onto a single PDF page.",
+        "line": 38,
+        "writable": true,
+        "file": "src/Aspose.Cells_FOSS/PdfSaveOptions.cs"
+      },
+      {
+        "name": "AllColumnsInOnePagePerSheet",
+        "type": "bool",
+        "doc": "Gets or sets whether all columns of each worksheet are rendered on a single page width.",
+        "line": 46,
+        "writable": true,
+        "file": "src/Aspose.Cells_FOSS/PdfSaveOptions.cs"
+      },
+      {
+        "name": "DefaultFont",
+        "type": "string",
+        "doc": "Gets or sets the fallback font family used when a cell's configured font cannot be resolved on the host system.",
+        "line": 53,
+        "writable": true,
+        "file": "src/Aspose.Cells_FOSS/PdfSaveOptions.cs"
+      },
+      {
+        "name": "SaveFormat",
+        "type": "SaveFormat",
+        "doc": "Gets or sets the output file format.",
+        "line": 24,
+        "writable": true,
+        "file": "src/Aspose.Cells_FOSS/SaveOptions.cs"
+      },
+      {
+        "name": "UseSharedStrings",
+        "type": "bool",
+        "doc": "Gets or sets whether shared strings should be used for string cells.",
+        "line": 29,
+        "writable": true,
+        "file": "src/Aspose.Cells_FOSS/SaveOptions.cs"
+      },
+      {
+        "name": "ValidateBeforeSave",
+        "type": "bool",
+        "doc": "Gets or sets whether the workbook should be validated before save.",
+        "line": 34,
+        "writable": true,
+        "file": "src/Aspose.Cells_FOSS/SaveOptions.cs"
+      },
+      {
+        "name": "CompactStyles",
+        "type": "bool",
+        "doc": "Gets or sets whether equivalent styles should be compacted during save.",
+        "line": 39,
+        "writable": true,
+        "file": "src/Aspose.Cells_FOSS/SaveOptions.cs"
+      },
+      {
+        "name": "PreserveRecoveryMetadata",
+        "type": "bool",
+        "doc": "Gets or sets whether recovery metadata should be preserved in the saved workbook.",
+        "line": 44,
+        "writable": true,
+        "file": "src/Aspose.Cells_FOSS/SaveOptions.cs"
+      }
+    ],
+    "visibility": "public",
+    "reachable": true,
+    "deprecated": false,
+    "deprecated_reason": "",
+    "is_sealed": true,
+    "canonical_namespace": "Aspose.Cells_FOSS",
+    "class_import": "Aspose.Cells_FOSS.PdfSaveOptions",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "Picture",
@@ -5790,7 +6148,9 @@
     "deprecated_reason": "",
     "is_sealed": true,
     "canonical_namespace": "Aspose.Cells_FOSS",
-    "class_import": "Aspose.Cells_FOSS.Picture"
+    "class_import": "Aspose.Cells_FOSS.Picture",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "PictureCollection",
@@ -5929,7 +6289,9 @@
     "deprecated_reason": "",
     "is_sealed": true,
     "canonical_namespace": "Aspose.Cells_FOSS",
-    "class_import": "Aspose.Cells_FOSS.PictureCollection"
+    "class_import": "Aspose.Cells_FOSS.PictureCollection",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "Row",
@@ -5963,7 +6325,9 @@
     "deprecated_reason": "",
     "is_sealed": true,
     "canonical_namespace": "Aspose.Cells_FOSS",
-    "class_import": "Aspose.Cells_FOSS.Row"
+    "class_import": "Aspose.Cells_FOSS.Row",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "RowCollection",
@@ -5980,7 +6344,9 @@
     "deprecated_reason": "",
     "is_sealed": true,
     "canonical_namespace": "Aspose.Cells_FOSS",
-    "class_import": "Aspose.Cells_FOSS.RowCollection"
+    "class_import": "Aspose.Cells_FOSS.RowCollection",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "SaveOptions",
@@ -6036,9 +6402,10 @@
     "reachable": true,
     "deprecated": false,
     "deprecated_reason": "",
-    "is_sealed": true,
     "canonical_namespace": "Aspose.Cells_FOSS",
-    "class_import": "Aspose.Cells_FOSS.SaveOptions"
+    "class_import": "Aspose.Cells_FOSS.SaveOptions",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "Shape",
@@ -6112,7 +6479,9 @@
     "deprecated_reason": "",
     "is_sealed": true,
     "canonical_namespace": "Aspose.Cells_FOSS",
-    "class_import": "Aspose.Cells_FOSS.Shape"
+    "class_import": "Aspose.Cells_FOSS.Shape",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "ShapeCollection",
@@ -6187,7 +6556,9 @@
     "deprecated_reason": "",
     "is_sealed": true,
     "canonical_namespace": "Aspose.Cells_FOSS",
-    "class_import": "Aspose.Cells_FOSS.ShapeCollection"
+    "class_import": "Aspose.Cells_FOSS.ShapeCollection",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "Style",
@@ -6411,7 +6782,9 @@
     "deprecated": false,
     "deprecated_reason": "",
     "canonical_namespace": "Aspose.Cells_FOSS",
-    "class_import": "Aspose.Cells_FOSS.Style"
+    "class_import": "Aspose.Cells_FOSS.Style",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "StyleException",
@@ -6482,7 +6855,9 @@
     "deprecated": false,
     "deprecated_reason": "",
     "canonical_namespace": "Aspose.Cells_FOSS",
-    "class_import": "Aspose.Cells_FOSS.StyleException"
+    "class_import": "Aspose.Cells_FOSS.StyleException",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "StyleFlag",
@@ -6760,7 +7135,9 @@
     "deprecated": false,
     "deprecated_reason": "",
     "canonical_namespace": "Aspose.Cells_FOSS",
-    "class_import": "Aspose.Cells_FOSS.StyleFlag"
+    "class_import": "Aspose.Cells_FOSS.StyleFlag",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "TableStyleType",
@@ -7026,7 +7403,9 @@
       }
     ],
     "canonical_namespace": "Aspose.Cells_FOSS",
-    "class_import": "Aspose.Cells_FOSS.TableStyleType"
+    "class_import": "Aspose.Cells_FOSS.TableStyleType",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "TargetModeType",
@@ -7060,7 +7439,9 @@
       }
     ],
     "canonical_namespace": "Aspose.Cells_FOSS",
-    "class_import": "Aspose.Cells_FOSS.TargetModeType"
+    "class_import": "Aspose.Cells_FOSS.TargetModeType",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "TotalsCalculation",
@@ -7118,7 +7499,9 @@
       }
     ],
     "canonical_namespace": "Aspose.Cells_FOSS",
-    "class_import": "Aspose.Cells_FOSS.TotalsCalculation"
+    "class_import": "Aspose.Cells_FOSS.TotalsCalculation",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "UnsupportedFeatureException",
@@ -7189,7 +7572,9 @@
     "deprecated": false,
     "deprecated_reason": "",
     "canonical_namespace": "Aspose.Cells_FOSS",
-    "class_import": "Aspose.Cells_FOSS.UnsupportedFeatureException"
+    "class_import": "Aspose.Cells_FOSS.UnsupportedFeatureException",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "Validation",
@@ -7352,7 +7737,9 @@
     "deprecated_reason": "",
     "is_sealed": true,
     "canonical_namespace": "Aspose.Cells_FOSS",
-    "class_import": "Aspose.Cells_FOSS.Validation"
+    "class_import": "Aspose.Cells_FOSS.Validation",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "ValidationAlertType",
@@ -7382,7 +7769,9 @@
       }
     ],
     "canonical_namespace": "Aspose.Cells_FOSS",
-    "class_import": "Aspose.Cells_FOSS.ValidationAlertType"
+    "class_import": "Aspose.Cells_FOSS.ValidationAlertType",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "ValidationCollection",
@@ -7481,7 +7870,9 @@
     "deprecated_reason": "",
     "is_sealed": true,
     "canonical_namespace": "Aspose.Cells_FOSS",
-    "class_import": "Aspose.Cells_FOSS.ValidationCollection"
+    "class_import": "Aspose.Cells_FOSS.ValidationCollection",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "ValidationType",
@@ -7531,7 +7922,9 @@
       }
     ],
     "canonical_namespace": "Aspose.Cells_FOSS",
-    "class_import": "Aspose.Cells_FOSS.ValidationType"
+    "class_import": "Aspose.Cells_FOSS.ValidationType",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "VerticalAlignmentType",
@@ -7569,7 +7962,9 @@
       }
     ],
     "canonical_namespace": "Aspose.Cells_FOSS",
-    "class_import": "Aspose.Cells_FOSS.VerticalAlignmentType"
+    "class_import": "Aspose.Cells_FOSS.VerticalAlignmentType",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "VisibilityType",
@@ -7599,7 +7994,9 @@
       }
     ],
     "canonical_namespace": "Aspose.Cells_FOSS",
-    "class_import": "Aspose.Cells_FOSS.VisibilityType"
+    "class_import": "Aspose.Cells_FOSS.VisibilityType",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "WarningInfo",
@@ -7681,7 +8078,9 @@
     "deprecated_reason": "",
     "is_sealed": true,
     "canonical_namespace": "Aspose.Cells_FOSS",
-    "class_import": "Aspose.Cells_FOSS.WarningInfo"
+    "class_import": "Aspose.Cells_FOSS.WarningInfo",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "Workbook",
@@ -7806,7 +8205,7 @@
         ],
         "return_type": "",
         "doc": "Saves the workbook to a file using the specified save format.",
-        "line": 215,
+        "line": 223,
         "is_constructor": false,
         "deprecated": false,
         "deprecated_reason": "",
@@ -7826,7 +8225,7 @@
         ],
         "return_type": "",
         "doc": "Saves the workbook to a file using explicit save options.",
-        "line": 223,
+        "line": 231,
         "is_constructor": false,
         "deprecated": false,
         "deprecated_reason": "",
@@ -7846,7 +8245,7 @@
         ],
         "return_type": "",
         "doc": "Saves the workbook to a stream using the specified save format.",
-        "line": 237,
+        "line": 245,
         "is_constructor": false,
         "deprecated": false,
         "deprecated_reason": "",
@@ -7866,7 +8265,7 @@
         ],
         "return_type": "",
         "doc": "Saves the workbook to a stream using explicit save options.",
-        "line": 245,
+        "line": 253,
         "is_constructor": false,
         "deprecated": false,
         "deprecated_reason": "",
@@ -7877,7 +8276,7 @@
         "params": [],
         "return_type": "",
         "doc": "Releases resources associated with the workbook instance.",
-        "line": 267,
+        "line": 283,
         "is_constructor": false,
         "deprecated": false,
         "deprecated_reason": "",
@@ -7939,7 +8338,9 @@
     "deprecated": false,
     "deprecated_reason": "",
     "canonical_namespace": "Aspose.Cells_FOSS",
-    "class_import": "Aspose.Cells_FOSS.Workbook"
+    "class_import": "Aspose.Cells_FOSS.Workbook",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "WorkbookLoadException",
@@ -8030,7 +8431,9 @@
     "deprecated": false,
     "deprecated_reason": "",
     "canonical_namespace": "Aspose.Cells_FOSS",
-    "class_import": "Aspose.Cells_FOSS.WorkbookLoadException"
+    "class_import": "Aspose.Cells_FOSS.WorkbookLoadException",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "WorkbookProperties",
@@ -8152,7 +8555,9 @@
     "deprecated_reason": "",
     "is_sealed": true,
     "canonical_namespace": "Aspose.Cells_FOSS",
-    "class_import": "Aspose.Cells_FOSS.WorkbookProperties"
+    "class_import": "Aspose.Cells_FOSS.WorkbookProperties",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "WorkbookProtection",
@@ -8218,7 +8623,9 @@
     "deprecated_reason": "",
     "is_sealed": true,
     "canonical_namespace": "Aspose.Cells_FOSS",
-    "class_import": "Aspose.Cells_FOSS.WorkbookProtection"
+    "class_import": "Aspose.Cells_FOSS.WorkbookProtection",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "WorkbookSaveException",
@@ -8309,7 +8716,9 @@
     "deprecated": false,
     "deprecated_reason": "",
     "canonical_namespace": "Aspose.Cells_FOSS",
-    "class_import": "Aspose.Cells_FOSS.WorkbookSaveException"
+    "class_import": "Aspose.Cells_FOSS.WorkbookSaveException",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "WorkbookSettings",
@@ -8343,7 +8752,9 @@
     "deprecated_reason": "",
     "is_sealed": true,
     "canonical_namespace": "Aspose.Cells_FOSS",
-    "class_import": "Aspose.Cells_FOSS.WorkbookSettings"
+    "class_import": "Aspose.Cells_FOSS.WorkbookSettings",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "WorkbookView",
@@ -8465,7 +8876,9 @@
     "deprecated_reason": "",
     "is_sealed": true,
     "canonical_namespace": "Aspose.Cells_FOSS",
-    "class_import": "Aspose.Cells_FOSS.WorkbookView"
+    "class_import": "Aspose.Cells_FOSS.WorkbookView",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "Worksheet",
@@ -8665,7 +9078,9 @@
     "deprecated": false,
     "deprecated_reason": "",
     "canonical_namespace": "Aspose.Cells_FOSS",
-    "class_import": "Aspose.Cells_FOSS.Worksheet"
+    "class_import": "Aspose.Cells_FOSS.Worksheet",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "WorksheetCollection",
@@ -8779,7 +9194,9 @@
     "deprecated": false,
     "deprecated_reason": "",
     "canonical_namespace": "Aspose.Cells_FOSS",
-    "class_import": "Aspose.Cells_FOSS.WorksheetCollection"
+    "class_import": "Aspose.Cells_FOSS.WorksheetCollection",
+    "module_key": "core",
+    "module_label": "Core API"
   },
   {
     "name": "WorksheetProtection",
@@ -8925,6 +9342,8 @@
     "deprecated_reason": "",
     "is_sealed": true,
     "canonical_namespace": "Aspose.Cells_FOSS",
-    "class_import": "Aspose.Cells_FOSS.WorksheetProtection"
+    "class_import": "Aspose.Cells_FOSS.WorksheetProtection",
+    "module_key": "core",
+    "module_label": "Core API"
   }
 ]

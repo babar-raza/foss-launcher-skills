@@ -1,10 +1,8 @@
-def test_compute_hash_v5_with_user_key(self):
-        """User key affects the hash result."""
+def test_compute_hash_v5_different_salt(self):
+        """Different salts produce different hashes."""
         password = b"password"
-        salt = b"12345678"
-        user_key = os.urandom(48)
-
-        result_without = EncryptionUtils.compute_hash_v5(password, salt, b"")
-        result_with = EncryptionUtils.compute_hash_v5(password, salt, user_key)
-
-        assert result_without != result_with, "User key must affect hash"
+        salt1 = b"salt1___"
+        salt2 = b"salt2___"
+        result1 = EncryptionUtils.compute_hash_v5(password, salt1)
+        result2 = EncryptionUtils.compute_hash_v5(password, salt2)
+        assert result1 != result2, "Different salts must produce different hashes"

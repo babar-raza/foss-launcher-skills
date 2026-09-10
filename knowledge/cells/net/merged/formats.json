@@ -16,5 +16,22 @@
     "line": 9,
     "direction": "export",
     "functional": true
+  },
+  {
+    "format": "Pdf",
+    "enum": "SaveFormat",
+    "value": "",
+    "file": "src/Aspose.Cells_FOSS/SaveFormat.cs",
+    "line": 9,
+    "direction": "export",
+    "functional": true
+  },
+  {
+    "format": "Pdf",
+    "enum": "",
+    "value": "",
+    "file": "src/Aspose.Cells_FOSS/PdfSaveOptions.cs",
+    "line": 20,
+    "direction": "export"
   }
 ]

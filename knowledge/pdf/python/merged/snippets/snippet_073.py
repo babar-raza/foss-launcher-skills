@@ -1,7 +1,7 @@
-def test_build_polyline_is_open_and_stroke_only():
-    gen = build_appearance(
-        "PolyLine", (0, 0, 100, 100), {"Vertices": [0, 0, 50, 50, 100, 0]}
-    )
+def test_build_line_converts_to_local_coordinates():
+    # Rect origin (100,100); L is absolute -> local subtracts the origin.
+    gen = build_appearance("Line", (100, 100, 300, 300), {"L": [120, 120, 220, 180]})
     assert gen is not None
-    assert b"\nh\n" not in gen.content
+    assert b"20 20 m" in gen.content
+    assert b"120 80 l" in gen.content
     assert b"\nS\n" in gen.content

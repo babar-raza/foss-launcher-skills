@@ -1,17 +1,24 @@
-def test_get_effects_by_shape(self):
-        with Presentation() as pres:
-            slide = pres.slides[0]
-            s1 = slide.shapes.add_auto_shape(ShapeType.RECTANGLE, 10, 10, 100, 50)
-            s2 = slide.shapes.add_auto_shape(ShapeType.ELLIPSE, 200, 10, 100, 50)
-            seq = slide.timeline.main_sequence
-            seq.add_effect(s1, anim.EffectType.FADE, anim.EffectSubtype.NONE,
-                           anim.EffectTriggerType.ON_CLICK)
-            seq.add_effect(s2, anim.EffectType.APPEAR, anim.EffectSubtype.NONE,
-                           anim.EffectTriggerType.ON_CLICK)
-            seq.add_effect(s1, anim.EffectType.FLY, anim.EffectSubtype.LEFT,
-                           anim.EffectTriggerType.AFTER_PREVIOUS)
+def test_added_and_removed_slides_stay_registered(produced):
+    """A slide is a slide in all four places, and removal cleans up all four."""
+    pres = Presentation()
+    pres.slides.add_empty_slide(pres.layout_slides[0])
+    pres.slides.add_empty_slide(pres.layout_slides[0])
+    pres.slides.remove_at(1)
+    pkg = produced(pres)
 
-            effs = seq.get_effects_by_shape(s1)
-            assert len(effs) == 2
-            effs2 = seq.get_effects_by_shape(s2)
-            assert len(effs2) == 1
+    parts = pkg.parts_matching(r"^ppt/slides/slide\d+\.xml$")
+    sld_ids = pkg.findall("ppt/presentation.xml", "//p:sldIdLst/p:sldId")
+    slide_rels = [
+        r for r in pkg.relationships("ppt/presentation.xml").values()
+        if r["type"] == REL_TYPE["slide"]
+    ]
+    overrides = [
+        n for n in pkg.content_types()[1]
+        if n.startswith("/ppt/slides/slide")
+    ]
+
+    assert len(parts) == 2, parts
+    assert len(sld_ids) == 2
+    assert len(slide_rels) == 2
+    assert len(overrides) == 2
+    pkg.assert_package_is_consistent()

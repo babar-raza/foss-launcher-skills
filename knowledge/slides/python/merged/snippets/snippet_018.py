@@ -1,11 +1,16 @@
-def test_set_trigger_type(self):
-        with Presentation() as pres:
-            slide = pres.slides[0]
-            shape = slide.shapes.add_auto_shape(ShapeType.RECTANGLE, 10, 10, 100, 50)
-            effect = slide.timeline.main_sequence.add_effect(
-                shape, anim.EffectType.FADE,
-                anim.EffectSubtype.NONE,
-                anim.EffectTriggerType.ON_CLICK,
-            )
-            effect.timing.trigger_type = anim.EffectTriggerType.WITH_PREVIOUS
-            assert effect.timing.trigger_type == anim.EffectTriggerType.WITH_PREVIOUS
+def test_a_fill_set_after_a_scene_still_precedes_it(produced, blank_presentation):
+    """A fill added to a group that already has a scene must go in before it.
+
+    A loaded deck can arrive with `<a:scene3d>` already in place; appending the
+    fill after it is the inversion the sequence forbids.
+    """
+    import lxml.etree as ET
+
+    pres = blank_presentation
+    group = pres.slides[0].shapes.add_group_shape()
+    grp_sp_pr = group._get_sp_pr()
+    ET.SubElement(grp_sp_pr, "{http://schemas.openxmlformats.org/drawingml/2006/main}scene3d")
+    group.fill_format.fill_type = FillType.SOLID
+    pkg = produced(pres)
+
+    pkg.assert_element(SLIDE, GRP_SP_PR, child_order=True)

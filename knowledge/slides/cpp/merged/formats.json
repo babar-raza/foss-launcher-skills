@@ -8,14 +8,6 @@
     "direction": "export"
   },
   {
-    "format": "Pptx",
-    "enum": "",
-    "value": "",
-    "file": "include/Aspose/Slides/Foss/_internal/export/pptx_exporter.h",
-    "line": 81,
-    "direction": "export"
-  },
-  {
     "format": "PPT",
     "enum": "SaveFormat",
     "value": "",

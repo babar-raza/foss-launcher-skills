@@ -1,17 +1,16 @@
-def test_pattern_background(tmp_pptx):
-    """Pattern background round-trips."""
-    pres = Presentation()
-    slide = pres.slides[0]
-    slide.background.type = BackgroundType.OWN_BACKGROUND
-    slide.background.fill_format.fill_type = FillType.PATTERN
-    pf = slide.background.fill_format.pattern_format
-    pf.pattern_style = PatternStyle.PERCENT50
-    pf.fore_color.color = Color.dark_blue
-    pf.back_color.color = Color.white
-
-    pres2 = tmp_pptx(pres)
-    bg = pres2.slides[0].background
-    assert bg.type == BackgroundType.OWN_BACKGROUND
-    assert bg.fill_format.fill_type == FillType.PATTERN
-    assert bg.fill_format.pattern_format.pattern_style == PatternStyle.PERCENT50
-    pres2.dispose()
+def test_motion_path_clear(self):
+        with Presentation() as pres:
+            slide = pres.slides[0]
+            shape = slide.shapes.add_auto_shape(ShapeType.RECTANGLE, 10, 10, 100, 50)
+            seq = slide.timeline.interactive_sequences.add(
+                slide.shapes.add_auto_shape(ShapeType.BEVEL, 10, 10, 20, 20)
+            )
+            fx = seq.add_effect(shape, anim.EffectType.PATH_USER,
+                                anim.EffectSubtype.NONE,
+                                anim.EffectTriggerType.ON_CLICK)
+            motion = fx.behaviors[0]
+            motion.path.add(anim.MotionCommandPathType.LINE_TO, [],
+                            anim.MotionPathPointsType.AUTO, True)
+            assert motion.path.count == 1
+            motion.path.clear()
+            assert motion.path.count == 0

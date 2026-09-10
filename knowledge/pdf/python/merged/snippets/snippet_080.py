@@ -1,15 +1,7 @@
-def test_build_freetext_wraps_by_glyph_metrics():
-    # Same word count, same box: wide 'W' words need more lines than narrow
-    # 'i' words under real Helvetica metrics (a flat estimate would tie).
-    wide = build_appearance(
-        "FreeText",
-        (0, 0, 60, 200),
-        {"Contents": "WW WW WW WW WW", "DA": "/Helv 12 Tf 0 g"},
+def test_build_freetext_fills_background_from_c():
+    gen = build_appearance(
+        "FreeText", (0, 0, 100, 40), {"Contents": "hi", "C": [1, 1, 0]}
     )
-    narrow = build_appearance(
-        "FreeText",
-        (0, 0, 60, 200),
-        {"Contents": "ii ii ii ii ii", "DA": "/Helv 12 Tf 0 g"},
-    )
-    assert narrow is not None and wide is not None
-    assert narrow.content.count(b" Tj") < wide.content.count(b" Tj")
+    assert gen is not None
+    assert b"1 1 0 rg" in gen.content  # yellow background fill
+    assert b"\nf\n" in gen.content

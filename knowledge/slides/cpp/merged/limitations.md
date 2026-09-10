@@ -4,8 +4,10 @@
 |------|------|-------|--------|------|
 | include/Aspose/Slides/Foss/_internal/base_collection.h | 25 |  | BaseCollectionIterator | `BaseCollectionIterator has an empty body (unimplemented stub)` |
 | include/Aspose/Slides/Foss/_internal/pptx/comment_authors_part.h | 40 |  | AuthorData | `AuthorData has an empty body (unimplemented stub)` |
-| include/Aspose/Slides/Foss/_internal/pptx/comments_part.h | 56 |  | CommentData | `CommentData has an empty body (unimplemented stub)` |
+| include/Aspose/Slides/Foss/_internal/pptx/comments_part.h | 84 |  | CommentData | `CommentData has an empty body (unimplemented stub)` |
 | include/Aspose/Slides/Foss/base_portion_format.h | 158 |  | on_property_changed | `on_property_changed has an empty body (unimplemented stub)` |
+| include/Aspose/Slides/Foss/simple_color_format.h | 22 |  | SimpleColorFormat | `SimpleColorFormat has an empty body (unimplemented stub)` |
+| include/Aspose/Slides/Foss/simple_color_format.h | 39 |  | SimpleColorFormat | `SimpleColorFormat has an empty body (unimplemented stub)` |
 | include/Aspose/Slides/Foss/adjust_value.h | 20 |  | AdjustValue | `AdjustValue has an empty body (unimplemented stub)` |
 | include/Aspose/Slides/Foss/auto_shape.h | 21 |  | AutoShape | `AutoShape has an empty body (unimplemented stub)` |
 | include/Aspose/Slides/Foss/base_slide.h | 57 |  | BaseSlide | `BaseSlide has an empty body (unimplemented stub)` |
@@ -21,7 +23,7 @@
 | include/Aspose/Slides/Foss/drawing/rectangle_f.h | 18 |  | RectangleF | `RectangleF has an empty body (unimplemented stub)` |
 | include/Aspose/Slides/Foss/drawing/size.h | 17 |  | Size | `Size has an empty body (unimplemented stub)` |
 | include/Aspose/Slides/Foss/drawing/size_f.h | 17 |  | SizeF | `SizeF has an empty body (unimplemented stub)` |
-| include/Aspose/Slides/Foss/effects/fill_overlay.h | 68 |  | as_i_presentation_component | `as_i_presentation_component returns return nullptr; unconditionally (likely unim` |
+| include/Aspose/Slides/Foss/effects/fill_overlay.h | 73 |  | as_i_presentation_component | `as_i_presentation_component returns return nullptr; unconditionally (likely unim` |
 | include/Aspose/Slides/Foss/font_data.h | 18 |  | FontData | `FontData has an empty body (unimplemented stub)` |
 | include/Aspose/Slides/Foss/geometry_shape.h | 18 |  | shape_style | `shape_style returns return nullptr; unconditionally (likely unimplemented stub)` |
 | include/Aspose/Slides/Foss/geometry_shape.h | 19 |  | shape_style | `shape_style returns return nullptr; unconditionally (likely unimplemented stub)` |
@@ -55,6 +57,6 @@
 | include/Aspose/Slides/Foss/shape.h | 133 |  | presentation | `presentation returns return nullptr; unconditionally (likely unimplemented stub)` |
 | include/Aspose/Slides/Foss/shape.h | 138 |  | as_i_presentation_component | `as_i_presentation_component returns return nullptr; unconditionally (likely unim` |
 | include/Aspose/Slides/Foss/shape.h | 139 |  | as_i_presentation_component | `as_i_presentation_component returns return nullptr; unconditionally (likely unim` |
-| include/Aspose/Slides/Foss/shape.h | 207 |  | Shape | `Shape has an empty body (unimplemented stub)` |
+| include/Aspose/Slides/Foss/shape.h | 222 |  | Shape | `Shape has an empty body (unimplemented stub)` |
 | include/Aspose/Slides/Foss/shape_frame.h | 17 |  | ShapeFrame | `ShapeFrame has an empty body (unimplemented stub)` |
 | include/Aspose/Slides/Foss/table.h | 102 |  | graphical_object_lock | `graphical_object_lock returns return nullptr; unconditionally (likely unimplemen` |

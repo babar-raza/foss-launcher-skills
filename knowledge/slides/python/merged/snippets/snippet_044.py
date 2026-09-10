@@ -1,5 +1,3 @@
-def test_effect_type_values(self):
-        assert anim.EffectType.APPEAR.value == 'Appear'
-        assert anim.EffectType.FADE.value == 'Fade'
-        assert anim.EffectType.FLY.value == 'Fly'
-        assert anim.EffectType.PATH_USER.value == 'PathUser'
+def test_data_dir():
+    """Return the path to the tests/test_data/ directory."""
+    return os.path.join(os.path.dirname(os.path.abspath(__file__)), "test_data")

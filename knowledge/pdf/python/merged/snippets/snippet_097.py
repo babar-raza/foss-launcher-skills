@@ -1,11 +1,13 @@
-def test_document_generate_appearances_across_pages():
-    doc = Document()
-    doc.pages.add()
-    doc.pages.add()
-    doc.pages[0].annotations.add("Square", (0, 0, 50, 50), "")
-    doc.pages[1].annotations.add(
-        "Line", (0, 0, 50, 50), "", properties={"L": [0, 0, 50, 50]}
+def test_generate_appearance_keeps_existing_unless_forced():
+    doc = _new_page_doc()
+    ann = doc.pages[0].annotations.add(
+        "Square", (0, 0, 50, 50), "x", appearance_normal=b"0 0 50 50 re f\n"
     )
-    assert doc.generate_appearances() == 2
-    # Second call is a no-op (appearances already present).
-    assert doc.generate_appearances() == 0
+    assert ann.has_appearance
+    original = ann.appearance_normal
+    # Idempotent: an existing appearance is preserved.
+    assert ann.generate_appearance() is True
+    assert ann.appearance_normal == original
+    # force=True regenerates from the annotation geometry.
+    assert ann.generate_appearance(force=True) is True
+    assert ann.appearance_normal != original

@@ -7,15 +7,15 @@ repo_url: https://github.com/aspose-pdf-foss/Aspose.PDF-FOSS-for-TypeScript.git
 repo_sha: 04e7b50a3dc37427e5e7d72147dd0baf62ccbb9f
 config_sha: ba558925e966ce6d
 stale_since: null
-promoted_at: '2026-08-29T14:54:25.870206+00:00'
+promoted_at: '2026-09-10T12:40:31.735055+00:00'
 source: scout_and_enriched
 enrichment_status: full
 has_conflicts: false
 schema_version: 2
-generator_fingerprint: 1589f6af218c9f4b25b31690d44d0dc4e485d12ac9d61e27185dfe1209c21c5e
+generator_fingerprint: 39b55c0381d862030a39cf289a74386dba0d96ba7bead7439ed295a74ed8206e
 generator_semver: 2.0.0
-bundle_id: 0f408f7f-716a-462b-a899-cf6be8250752
-bundle_generated_at: '2026-08-29T14:54:25.493059+00:00'
+bundle_id: dfc16bdf-b78f-4a48-9237-1ecbc1e6bd91
+bundle_generated_at: '2026-09-10T12:40:31.233551+00:00'
 module_assignment_version: 1
 input_hashes:
   extractor_config_sha: ba558925e966ce6d
@@ -29,5 +29,9 @@ stats:
   supplemental_claims: 0
   total_claims: 8341
   class_count: 1055
+  classes:
+    total_declared: 1055
+    public_documented: 1002
+    raw_entries_including_non_class: 3604
   forbidden_count: 0
   snippet_count: 100

@@ -1,11 +1,11 @@
-def test_flatten_generates_and_inlines_missing_appearance():
-    doc = _new_page_doc()
-    doc.pages[0].annotations.add(
-        "Square", (100, 100, 200, 200), "", properties={"C": [0, 0, 0]}
+def test_document_generate_appearances_across_pages():
+    doc = Document()
+    doc.pages.add()
+    doc.pages.add()
+    doc.pages[0].annotations.add("Square", (0, 0, 50, 50), "")
+    doc.pages[1].annotations.add(
+        "Line", (0, 0, 50, 50), "", properties={"L": [0, 0, 50, 50]}
     )
-    before = doc._engine_pdf.page_contents[0]
-    doc.flatten()
-    after = doc._engine_pdf.page_contents[0]
-    assert len(after) > len(before)
-    assert b"Do" in after
-    assert len(doc._engine_pdf.get_annotations(0)) == 0
+    assert doc.generate_appearances() == 2
+    # Second call is a no-op (appearances already present).
+    assert doc.generate_appearances() == 0

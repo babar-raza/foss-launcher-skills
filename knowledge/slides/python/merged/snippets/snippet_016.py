@@ -1,11 +1,7 @@
-def test_set_trigger_delay(self):
-        with Presentation() as pres:
-            slide = pres.slides[0]
-            shape = slide.shapes.add_auto_shape(ShapeType.RECTANGLE, 10, 10, 100, 50)
-            effect = slide.timeline.main_sequence.add_effect(
-                shape, anim.EffectType.FADE,
-                anim.EffectSubtype.NONE,
-                anim.EffectTriggerType.ON_CLICK,
-            )
-            effect.timing.trigger_delay_time = 0.5
-            assert effect.timing.trigger_delay_time == 0.5
+def test_a_table_leaves_the_package_consistent(produced):
+    """Relationships and content types stay resolvable when a table is added."""
+    pres = Presentation()
+    pres.slides[0].shapes.add_table(50.0, 50.0, [100.0, 100.0], [40.0, 40.0])
+    pkg = produced(pres)
+
+    pkg.assert_package_is_consistent()

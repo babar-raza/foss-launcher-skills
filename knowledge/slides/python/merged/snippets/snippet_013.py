@@ -1,8 +1,8 @@
-def test_no_animation_slide_has_zero_effects(self, tmp_pptx):
-        """A slide without animations should have an empty sequence on reload."""
-        pres = Presentation()
-        pres.slides[0].shapes.add_auto_shape(ShapeType.RECTANGLE, 10, 10, 50, 50)
+def test_an_enabled_effect_leaves_the_package_consistent(produced, shape_on_blank_slide):
+    """Enabling every effect must not break relationships or content types."""
+    pres, shape = shape_on_blank_slide()
+    for effect in sorted(REQUIRED):
+        getattr(shape.effect_format, "enable_%s_effect" % effect)()
+    pkg = produced(pres)
 
-        pres2 = tmp_pptx(pres)
-        assert pres2.slides[0].timeline.main_sequence.count == 0
-        pres2.dispose()
+    pkg.assert_package_is_consistent()

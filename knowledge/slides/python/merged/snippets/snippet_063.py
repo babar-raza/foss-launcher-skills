@@ -1,12 +1,12 @@
-def test_axis_fill_format(self):
-        prs = Presentation()
-        chart = prs.slides[0].shapes.add_chart(ChartType.CLUSTERED_COLUMN, 0, 0, 400, 300)
-        fmt = chart.axes.vertical_axis.format
-        fmt.fill.fill_type = FillType.SOLID
-        fmt.fill.solid_fill_color.color = Color.from_argb(255, 200, 200, 200)
-
-        prs2 = _save_and_reload(prs)
-        chart2 = prs2.slides[0].shapes[0]
-        fmt2 = chart2.axes.vertical_axis.format
-        assert fmt2.fill.fill_type == FillType.SOLID
-        assert fmt2.fill.solid_fill_color.color.r == 200
+def test_path_effect_has_motion_behavior(self):
+        """Path effects get a default <p:animMotion> behavior."""
+        with Presentation() as pres:
+            slide = pres.slides[0]
+            shape = slide.shapes.add_auto_shape(ShapeType.RECTANGLE, 10, 10, 100, 50)
+            effect = slide.timeline.main_sequence.add_effect(
+                shape, anim.EffectType.PATH_FOOTBALL,
+                anim.EffectSubtype.NONE,
+                anim.EffectTriggerType.ON_CLICK,
+            )
+            assert effect.behaviors.count >= 1
+            assert isinstance(effect.behaviors[0], anim.MotionEffect)

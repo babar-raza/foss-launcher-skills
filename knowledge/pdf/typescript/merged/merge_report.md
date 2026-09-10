@@ -1,5 +1,5 @@
 # Promote Report: pdf/typescript
-Date: 2026-08-29T14:54:25.889304+00:00
+Date: 2026-09-10T12:40:31.809637+00:00
 Scout SHA: 04e7b50a3dc37427e5e7d72147dd0baf62ccbb9f
 Source: scout-only (standalone pipeline, no FL dependency)
 
@@ -10,7 +10,8 @@ Source: scout-only (standalone pipeline, no FL dependency)
 | Enriched claims (S-37) | 46 |
 | Supplemental claims (bridge) | 0 |
 | Total claims | 8341 |
-| Classes | 3604 |
+| Classes | 1055 |
+| API surface entries (incl. functions) | 3604 |
 | Forbidden claims | 0 |
 | Snippets | 100 |
 

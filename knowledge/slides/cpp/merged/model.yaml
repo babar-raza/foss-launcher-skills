@@ -1,21 +1,37 @@
 family: slides
 platform: cpp
-product_name: aspose_slides_foss
-version: ''
+product_name: AsposeSlidesFoss
+version: 0.1.0
 license: ''
 repo_url: https://github.com/aspose-slides-foss/Aspose.Slides-FOSS-for-Cpp.git
-repo_sha: 25adb25c8796f06d9b89cd5f8093e490091195ef
+repo_sha: 733de4bf72fa33d16ee153779e8ee924ea1faebe
 config_sha: 58e5766a6f6833a4
 stale_since: null
-promoted_at: '2026-07-12T14:38:35.883515+00:00'
-source: scout_only
-enrichment_status: scout-only
+promoted_at: '2026-09-10T12:40:33.012935+00:00'
+source: scout_and_enriched
+enrichment_status: full
 has_conflicts: false
+schema_version: 2
+generator_fingerprint: 39b55c0381d862030a39cf289a74386dba0d96ba7bead7439ed295a74ed8206e
+generator_semver: 2.0.0
+bundle_id: 210c92f5-6309-4f7c-bfe8-a8b1daa09eec
+bundle_generated_at: '2026-09-10T12:40:32.733752+00:00'
+module_assignment_version: 1
+input_hashes:
+  extractor_config_sha: 58e5766a6f6833a4
+  scout_claims_sha: d5f5585440db971125e0ce0b05a8526d09bf31ac37c9efa289c32bf5ee4186f9
+  scout_api_surface_sha: 461ab7b7fb2e5da6ce1ef6672ab7ea42d8027f02b6dc25130aca29a9e157de93
+  enriched_claims_sha: a2d9fa846187e8cd9d722c642380249371928d6d392262605a2b869b98323425
+  products_json_entry_sha: 87b82294edb901491fc8c0b4027d0771dae6c53e4135163597d1c9d98fe2e127
 stats:
-  scout_claims: 4041
-  enriched_claims: 0
+  scout_claims: 4045
+  enriched_claims: 1604
   supplemental_claims: 0
-  total_claims: 3646
+  total_claims: 5471
   class_count: 263
-  forbidden_count: 56
+  classes:
+    total_declared: 263
+    public_documented: 234
+    raw_entries_including_non_class: 263
+  forbidden_count: 58
   snippet_count: 100

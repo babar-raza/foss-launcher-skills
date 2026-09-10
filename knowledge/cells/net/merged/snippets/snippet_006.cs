@@ -1,11 +1,15 @@
 var workbook = new Workbook();
 var sheet = workbook.Worksheets[0];
 
-sheet.Cells["A1"].PutValue("Docs");
-var link = sheet.Hyperlinks[sheet.Hyperlinks.Add("A1", 1, 1, "https://example.com/docs")];
-link.TextToDisplay = "Docs";
+for (var index = 0; index < 10; index++)
+{
+    sheet.Cells[index, 0].PutValue(index + 1);
+}
 
-var name = workbook.DefinedNames[workbook.DefinedNames.Add("GlobalRange", "='Sheet1'!$A$1:$D$5")];
-name.Comment = "Primary sample range";
+var rules = sheet.ConditionalFormattings[sheet.ConditionalFormattings.Add()];
+rules.AddArea(CellArea.CreateCellArea("A1", "A10"));
+var rule = rules[rules.AddCondition(FormatConditionType.CellValue, OperatorType.Between, "3", "7")];
+rule.Style.Pattern = FillPattern.Solid;
+rule.Style.ForegroundColor = Color.FromArgb(255, 255, 199, 206);
 
-workbook.Save("hyperlinks-and-names-sample.xlsx");
+workbook.Save("conditional-formatting-sample.xlsx");

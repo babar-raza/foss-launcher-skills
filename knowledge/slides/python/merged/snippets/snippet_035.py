@@ -1,8 +1,11 @@
-def test_len(self):
-        with Presentation() as pres:
-            slide = pres.slides[0]
-            shape = slide.shapes.add_auto_shape(ShapeType.RECTANGLE, 10, 10, 100, 50)
-            seq = slide.timeline.main_sequence
-            seq.add_effect(shape, anim.EffectType.FADE, anim.EffectSubtype.NONE,
-                           anim.EffectTriggerType.ON_CLICK)
-            assert len(seq) == 1
+def test_a_produced_file_carries_no_placeholder_thumbnail(produced):
+    """Shipping the template's preview as the document's own is a false claim."""
+    pres = Presentation()
+    pres.slides[0].shapes  # touch the deck so it is not a bare copy
+    pkg = produced(pres)
+
+    thumbnails = [n for n in pkg.namelist if n.startswith("docProps/thumbnail")]
+    assert not thumbnails, (
+        "the template's placeholder thumbnail is shipped in the output: %r"
+        % thumbnails
+    )

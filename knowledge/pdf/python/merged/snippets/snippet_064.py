@@ -1,7 +1,5 @@
-def test_square_cloud_border_replaces_rectangle():
+def test_line_none_ending_draws_only_the_shaft():
     gen = build_appearance(
-        "Square", _RECT, {"C": [0, 0, 1], "BE": {"S": N("C"), "I": 2}, "BS": {"W": 1}}
+        "Line", _RECT, {"L": [10, 40, 100, 40], "LE": [N("None"), N("None")]}
     )
-    assert gen is not None
-    assert b" c\n" in gen.content  # scalloped Bézier edges
-    assert b" re" not in gen.content  # not a plain rectangle
+    assert gen.content.count(b"\nS\n") == 1  # shaft only

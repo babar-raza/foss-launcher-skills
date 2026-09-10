@@ -1,19 +1,11 @@
-def test_picture_background_tile(tmp_pptx):
-    """Picture background in tile mode round-trips."""
-    pres = Presentation()
-    slide = pres.slides[0]
+def test_get_count_by_shape(self):
+        with Presentation() as pres:
+            slide = pres.slides[0]
+            shape = slide.shapes.add_auto_shape(ShapeType.RECTANGLE, 10, 10, 100, 50)
+            seq = slide.timeline.main_sequence
+            seq.add_effect(shape, anim.EffectType.FADE, anim.EffectSubtype.NONE,
+                           anim.EffectTriggerType.ON_CLICK)
+            seq.add_effect(shape, anim.EffectType.APPEAR, anim.EffectSubtype.NONE,
+                           anim.EffectTriggerType.AFTER_PREVIOUS)
 
-    slide.background.type = BackgroundType.OWN_BACKGROUND
-    slide.background.fill_format.fill_type = FillType.PICTURE
-
-    png_bytes = create_test_png(255, 0, 0)
-    pp_image = pres.images.add_image(png_bytes)
-    pff = slide.background.fill_format.picture_fill_format
-    pff.picture.image = pp_image
-    pff.picture_fill_mode = PictureFillMode.TILE
-
-    pres2 = tmp_pptx(pres)
-    bg = pres2.slides[0].background
-    assert bg.fill_format.fill_type == FillType.PICTURE
-    assert bg.fill_format.picture_fill_format.picture_fill_mode == PictureFillMode.TILE
-    pres2.dispose()
+            assert seq.get_count(shape) == 2

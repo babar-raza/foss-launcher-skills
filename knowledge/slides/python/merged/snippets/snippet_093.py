@@ -1,13 +1,13 @@
-def test_scatter_yVal_values_are_non_zero(self, tmp_path):
-        """Regression: yVal used to emit zeros when y_value was set via the
-        scatter API."""
-        pres = Presentation()
-        chart = _add_clean_chart(pres, ChartType.SCATTER_WITH_MARKERS)
-        s = chart.chart_data.series.add("S", ChartType.SCATTER_WITH_MARKERS)
-        s.data_points.add_data_point_for_scatter_series(1.0, 7.5)
-        s.data_points.add_data_point_for_scatter_series(2.0, 8.5)
+def test_add_effect_paragraph_returns_effect(self):
+        with Presentation() as pres:
+            slide = pres.slides[0]
+            shape, paras = self._make_shape_with_paragraphs(slide)
+            seq = slide.timeline.main_sequence
 
-        xml = self._save_and_read_chart_xml(pres, tmp_path)
-        yval_block = xml.split('<c:yVal>')[1].split('</c:yVal>')[0]
-        assert '<c:v>7.5</c:v>' in yval_block
-        assert '<c:v>8.5</c:v>' in yval_block
+            effect = seq.add_effect(
+                paras[0], anim.EffectType.FLY,
+                anim.EffectSubtype.LEFT,
+                anim.EffectTriggerType.ON_CLICK,
+            )
+            assert effect is not None
+            assert effect.type == anim.EffectType.FLY

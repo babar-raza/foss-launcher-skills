@@ -1,12 +1,10 @@
-def test_themed_background(tmp_pptx):
-    """Themed background type and style_index round-trip."""
-    pres = Presentation()
-    slide = pres.slides[0]
-    slide.background.type = BackgroundType.THEMED
-    slide.background.style_index = 3
-
-    pres2 = tmp_pptx(pres)
-    bg = pres2.slides[0].background
-    assert bg.type == BackgroundType.THEMED
-    assert bg.style_index == 3
-    pres2.dispose()
+def test_remove_effect(self):
+        with Presentation() as pres:
+            slide = pres.slides[0]
+            shape = slide.shapes.add_auto_shape(ShapeType.RECTANGLE, 10, 10, 100, 50)
+            seq = slide.timeline.main_sequence
+            eff = seq.add_effect(shape, anim.EffectType.FADE, anim.EffectSubtype.NONE,
+                                 anim.EffectTriggerType.ON_CLICK)
+            assert seq.count == 1
+            seq.remove(eff)
+            assert seq.count == 0

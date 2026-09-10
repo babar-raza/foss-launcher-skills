@@ -1,10 +1,10 @@
-def test_stamp_generate_appearance_end_to_end():
+def test_highlight_generate_appearance_has_extgstate_resource():
     doc = _new_page_doc()
     ann = doc.pages[0].annotations.add(
-        "Stamp",
-        (100, 100, 260, 150),
+        "Highlight",
+        (100, 100, 300, 140),
         "",
-        properties={"Name": AnnotationName("Approved")},
+        properties={"QuadPoints": [100, 140, 300, 140, 100, 100, 300, 100]},
     )
     assert ann.generate_appearance() is True
-    assert b"(APPROVED) Tj" in ann.appearance_normal
+    assert b"/GsMul gs" in ann.appearance_normal

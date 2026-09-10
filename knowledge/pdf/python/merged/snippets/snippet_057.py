@@ -1,5 +1,5 @@
-def test_dash_from_legacy_border_array():
+def test_dash_style_d_without_array_defaults():
     gen = build_appearance(
-        "Circle", _RECT, {"C": [0, 0, 0], "Border": [0, 0, 1, [2, 2]]}
+        "Square", _RECT, {"C": [0, 0, 0], "BS": {"S": N("D"), "W": 1}}
     )
-    assert b"[2 2] 0 d" in gen.content
+    assert b"[3] 0 d" in gen.content

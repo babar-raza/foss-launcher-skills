@@ -1,14 +1,16 @@
-def test_clear_background(tmp_pptx):
-    """Setting NOT_DEFINED removes the background element."""
-    pres = Presentation()
-    slide = pres.slides[0]
-    slide.background.type = BackgroundType.OWN_BACKGROUND
-    slide.background.fill_format.fill_type = FillType.SOLID
-    slide.background.fill_format.solid_fill_color.color = Color.red
+def test_remove_by_shape(self):
+        with Presentation() as pres:
+            slide = pres.slides[0]
+            s1 = slide.shapes.add_auto_shape(ShapeType.RECTANGLE, 10, 10, 100, 50)
+            s2 = slide.shapes.add_auto_shape(ShapeType.ELLIPSE, 200, 10, 100, 50)
+            seq = slide.timeline.main_sequence
+            seq.add_effect(s1, anim.EffectType.FADE, anim.EffectSubtype.NONE,
+                           anim.EffectTriggerType.ON_CLICK)
+            seq.add_effect(s2, anim.EffectType.APPEAR, anim.EffectSubtype.NONE,
+                           anim.EffectTriggerType.ON_CLICK)
+            seq.add_effect(s1, anim.EffectType.FLY, anim.EffectSubtype.LEFT,
+                           anim.EffectTriggerType.AFTER_PREVIOUS)
 
-    # Now clear it
-    slide.background.type = BackgroundType.NOT_DEFINED
-
-    pres2 = tmp_pptx(pres)
-    assert pres2.slides[0].background.type == BackgroundType.NOT_DEFINED
-    pres2.dispose()
+            seq.remove_by_shape(s1)
+            assert seq.count == 1
+            assert seq[0].type == anim.EffectType.APPEAR

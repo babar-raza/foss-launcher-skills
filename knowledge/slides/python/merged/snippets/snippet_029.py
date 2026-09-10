@@ -1,10 +1,18 @@
-def test_remove_effect(self):
-        with Presentation() as pres:
-            slide = pres.slides[0]
-            shape = slide.shapes.add_auto_shape(ShapeType.RECTANGLE, 10, 10, 100, 50)
-            seq = slide.timeline.main_sequence
-            eff = seq.add_effect(shape, anim.EffectType.FADE, anim.EffectSubtype.NONE,
-                                 anim.EffectTriggerType.ON_CLICK)
-            assert seq.count == 1
-            seq.remove(eff)
-            assert seq.count == 0
+def test_a_produced_file_opens_in_an_independent_reader(
+    produced, shape_on_blank_slide, python_pptx
+):
+    """A third-party reader must see the shape and its text.
+
+    python-pptx is deliberately not the library under test: when it and the
+    library disagree about what is in the file, the file decides.
+    """
+    pres, shape = shape_on_blank_slide(with_text="Independent read-back")
+    pkg = produced(pres)
+
+    deck = pkg.open_with_python_pptx()
+    texts = [
+        s.text_frame.text
+        for s in deck.slides[0].shapes
+        if s.has_text_frame and s.text_frame.text
+    ]
+    assert "Independent read-back" in texts, texts
