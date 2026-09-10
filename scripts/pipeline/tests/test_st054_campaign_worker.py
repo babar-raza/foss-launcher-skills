@@ -267,6 +267,62 @@ class TestProcessOneStepOverRealTaskcardCli:
         assert not any(r["step"] == "commit" for r in results)
 
 
+class TestPreviewNextStep:
+    """Regression coverage for the exact bug the TC-20 pilot itself caught
+    live: a preview must never claim or advance the taskcard, regardless of
+    what it finds."""
+
+    def test_preview_does_not_mutate_taskcard_state(self, tmp_path):
+        _write_registry(tmp_path, _NUGET_REGISTRY)
+        _write(
+            tmp_path, "content/docs.aspose.org/en/words/net/getting-started/installation.md",
+            "```bash\ndotnet add package Aspose.Words.FOSS\n```\n",
+        )
+        seeder.seed_products([("words", "net")], recorded_by="test")
+
+        preview = sut.preview_next_step("words", "net", session_id="s1")
+        assert preview is not None
+        assert preview["step"] == "block_migrate"
+        assert "files_migrated=1" in preview["detail"]
+
+        store = TaskcardStore(seeder.DEFAULT_MISSION_ID, repo_root=tmp_path)
+        assert store.read_latest()["TC-words-net-block_migrate"]["status"] == "TODO"
+        # And the file itself must be untouched -- preview is dry-run underneath.
+        page = tmp_path / "content/docs.aspose.org/en/words/net/getting-started/installation.md"
+        assert "dotnet add package" in page.read_text(encoding="utf-8")
+
+    def test_preview_returns_none_when_nothing_ready(self, tmp_path):
+        _write_registry(tmp_path, _NUGET_REGISTRY)
+        assert sut.preview_next_step("words", "net", session_id="s1") is None
+
+    def test_preview_has_no_form_for_verify_or_commit(self, tmp_path):
+        _write_registry(tmp_path, _NUGET_REGISTRY)
+        seeder.seed_products([("words", "net")], recorded_by="test")
+        # Manually advance block_migrate + inline_migrate to CLOSED so verify is next.
+        store = TaskcardStore(seeder.DEFAULT_MISSION_ID, repo_root=tmp_path)
+        for step in ("block_migrate", "inline_migrate"):
+            store.update_taskcard_status(
+                f"TC-words-net-{step}", expected_status="TODO", new_status="CLOSED",
+                recorded_by="s1", evidence_refs=["no-op"],
+            )
+        preview = sut.preview_next_step("words", "net", session_id="s1")
+        assert preview["step"] == "verify"
+        assert "no dry-run preview form" in preview["detail"]
+
+    def test_main_preview_flag_prints_and_does_not_mutate(self, tmp_path, capsys):
+        _write_registry(tmp_path, _NUGET_REGISTRY)
+        _write(
+            tmp_path, "content/docs.aspose.org/en/words/net/getting-started/installation.md",
+            "```bash\ndotnet add package Aspose.Words.FOSS\n```\n",
+        )
+        seeder.seed_products([("words", "net")], recorded_by="test")
+        exit_code = sut.main(["--product", "words/net", "--run-id", "r1", "--preview"])
+        assert exit_code == 0
+        assert "PREVIEW ONLY, taskcard untouched" in capsys.readouterr().out
+        store = TaskcardStore(seeder.DEFAULT_MISSION_ID, repo_root=tmp_path)
+        assert store.read_latest()["TC-words-net-block_migrate"]["status"] == "TODO"
+
+
 def test_collect_modified_files_reads_prior_step_evidence(tmp_path):
     store = TaskcardStore(seeder.DEFAULT_MISSION_ID, repo_root=tmp_path)
     store.append({

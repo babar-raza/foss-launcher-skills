@@ -321,15 +321,45 @@ def _collect_modified_files(mission: str, family: str, platform: str) -> list[st
     return out
 
 
+def preview_next_step(
+    family: str, platform: str, *, mission: str = DEFAULT_MISSION_ID, session_id: str,
+) -> "dict[str, Any] | None":
+    """Read-only: shows what the next ready step WOULD do, in dry-run mode,
+    WITHOUT claiming or advancing the taskcard. Deliberately a separate
+    function from process_one_step rather than a `dry_run` flag threaded
+    through it -- an earlier version passed dry_run through to the step
+    functions but still claimed+advanced the taskcard to CLOSED regardless,
+    which would have recorded "0 modified" as if the step were genuinely
+    done with nothing to do, even when a real (non-dry-run) run might find
+    real matches it simply wasn't allowed to write. Caught during the TC-20
+    pilot itself, before it touched real content, precisely because the
+    pilot was run supervised. Returns None if nothing is ready to preview."""
+    eligible = _ready_tasks(mission, session_id)
+    my_prefix = task_id(family, platform, "")
+    candidates = [c for c in eligible if c["task_id"].startswith(my_prefix)]
+    if not candidates:
+        return None
+    candidate = candidates[0]
+    tid = candidate["task_id"]
+    step = tid[len(my_prefix):]
+
+    if step in ("verify", "commit"):
+        return {"task_id": tid, "step": step, "detail": f"{step} has no dry-run preview form (verify is already read-only; commit needs real modified-file evidence)"}
+
+    outcome = _STEP_FUNCS[step](family, platform, dry_run=True)
+    return {"task_id": tid, "step": step, "detail": outcome["detail"]}
+
+
 def process_one_step(
     family: str, platform: str, *, mission: str = DEFAULT_MISSION_ID,
-    run_id: str, session_id: str, dry_run_migrations: bool = False,
+    run_id: str, session_id: str,
     confirm_manual_review: bool = False, skills: "list[str] | None" = None,
 ) -> "dict[str, Any] | None":
-    """Claim and execute exactly one ready step for this product. Returns
-    None if nothing is currently ready (done, blocked, or contended by
-    another session) -- never raises for a normal "nothing to do right now"
-    outcome, only for a genuine internal error."""
+    """Claim and execute exactly one ready step for this product, for real
+    (never dry-run -- see preview_next_step() for a non-mutating preview).
+    Returns None if nothing is currently ready (done, blocked, or contended
+    by another session) -- never raises for a normal "nothing to do right
+    now" outcome, only for a genuine internal error."""
     skills = skills or ["S-118"]
     plan = "plans/from_backlog/2026-08-16-st-054-inline-install-command-remediation.md"
 
@@ -364,7 +394,7 @@ def process_one_step(
         elif step == "verify":
             outcome = _step_verify(family, platform)
         else:
-            outcome = _STEP_FUNCS[step](family, platform, dry_run=dry_run_migrations)
+            outcome = _STEP_FUNCS[step](family, platform, dry_run=False)
     except Exception as exc:  # noqa: BLE001 - must still advance the taskcard to BLOCKED_LOCAL
         outcome = {"ok": False, "detail": f"unhandled exception: {exc!r}"}
 
@@ -389,7 +419,7 @@ def process_one_step(
 def process_product(
     family: str, platform: str, *, mission: str = DEFAULT_MISSION_ID,
     run_id: str, session_id: str, once: bool = False,
-    dry_run_migrations: bool = False, confirm_manual_review: bool = False,
+    confirm_manual_review: bool = False,
     max_steps: int = 10,
 ) -> list[dict[str, Any]]:
     """Loops process_one_step until nothing is ready for this product, it's
@@ -400,7 +430,7 @@ def process_product(
     for _ in range(max_steps):
         result = process_one_step(
             family, platform, mission=mission, run_id=run_id, session_id=session_id,
-            dry_run_migrations=dry_run_migrations, confirm_manual_review=confirm_manual_review,
+            confirm_manual_review=confirm_manual_review,
         )
         if result is None:
             break
@@ -422,7 +452,12 @@ def main(argv: "list[str] | None" = None) -> int:
     parser.add_argument("--run-id", required=True)
     parser.add_argument("--session-id", default=None)
     parser.add_argument("--once", action="store_true")
-    parser.add_argument("--dry-run-migrations", action="store_true")
+    parser.add_argument(
+        "--preview", action="store_true",
+        help="Show what the next ready step would do (dry-run) WITHOUT claiming or "
+             "advancing the taskcard -- never mutates state. Mutually exclusive with "
+             "actually running a step.",
+    )
     parser.add_argument("--confirm-manual-review", action="store_true")
     args = parser.parse_args(argv)
 
@@ -431,10 +466,17 @@ def main(argv: "list[str] | None" = None) -> int:
     family, platform = args.product.split("/", 1)
     session_id = args.session_id or _resolve_session_identity()
 
+    if args.preview:
+        preview = preview_next_step(family, platform, mission=args.mission, session_id=session_id)
+        if preview is None:
+            print(f"{family}/{platform}: nothing ready to preview")
+            return 0
+        print(f"{preview['task_id']} ({preview['step']}, PREVIEW ONLY, taskcard untouched): {preview['detail']}")
+        return 0
+
     results = process_product(
         family, platform, mission=args.mission, run_id=args.run_id, session_id=session_id,
-        once=args.once, dry_run_migrations=args.dry_run_migrations,
-        confirm_manual_review=args.confirm_manual_review,
+        once=args.once, confirm_manual_review=args.confirm_manual_review,
     )
     if not results:
         print(f"{family}/{platform}: nothing ready (done, or blocked upstream)")
