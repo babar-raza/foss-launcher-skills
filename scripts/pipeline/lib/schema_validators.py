@@ -918,3 +918,53 @@ def validate_taskcard_record(data: dict) -> list[str]:
                 f"failure mode schema 5f exists to prevent)"
             )
     return errors
+
+
+# ---------------------------------------------------------------------------
+# reconciliation_store.py (PKGINSTALL-RECONCILIATION-STORE) row schema
+# ---------------------------------------------------------------------------
+
+_RECONCILIATION_REPRESENTATIONS = {
+    "literal", "shortcode_block", "shortcode_inline", "shortcode_maven", "mixed", "none",
+}
+_RECONCILIATION_COLLISION_CLASSIFICATIONS = {
+    "SAFE_FOR_MECHANICAL_MIGRATION", "COLLISION_RISK_STRUCTURAL",
+    "COLLISION_RISK_PENDING_VERIFICATION", "NOT_APPLICABLE", None,
+}
+
+
+def validate_reconciliation_record(data: dict) -> list[str]:
+    """Validate one reports/package-reconciliation/inventory.jsonl row.
+
+    One row per file per sweep run -- the durable, per-page state-tracking
+    artifact governing plan section R.3.1 introduces to replace "every
+    session re-derives scope from scratch." Deliberately lives under
+    reports/, never data/package_registry.json (see that section's own
+    reasoning: per-page granularity cannot fit the registry's
+    per-(family,platform) shape, and observation-only fields in data/ risk
+    daily spurious full-portfolio rebuilds once the deploy-trigger fix
+    ships)."""
+    errors = []
+    errors.extend(_check_required(
+        data,
+        ["path", "family", "platform", "site", "locale", "representation",
+         "sweep_run_id", "recorded_at"],
+        "reconciliation_record",
+    ))
+    representation = data.get("representation")
+    if representation is not None and representation not in _RECONCILIATION_REPRESENTATIONS:
+        errors.append(
+            f"reconciliation_record: invalid representation {representation!r} "
+            f"(must be one of {sorted(_RECONCILIATION_REPRESENTATIONS)})"
+        )
+    classification = data.get("collision_classification")
+    if classification not in _RECONCILIATION_COLLISION_CLASSIFICATIONS:
+        errors.append(
+            f"reconciliation_record: invalid collision_classification {classification!r} "
+            f"(must be one of {sorted(c for c in _RECONCILIATION_COLLISION_CLASSIFICATIONS if c)} or null)"
+        )
+    for count_field in ("finding_count_literal", "finding_count_install_recipe_fail"):
+        value = data.get(count_field)
+        if value is not None and (not isinstance(value, int) or value < 0):
+            errors.append(f"reconciliation_record: {count_field} must be a non-negative int, got {value!r}")
+    return errors
