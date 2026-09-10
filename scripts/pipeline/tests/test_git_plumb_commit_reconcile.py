@@ -309,6 +309,73 @@ def test_reconcile_never_leaks_a_credentialed_remote_into_the_merge_commit_messa
     assert "<redacted>" in merge_message
 
 
+def test_reconcile_refuses_when_old_parent_sha_is_not_an_ancestor_of_remote_tip(tmp_path):
+    """Real incident, found live 2026-09-10 (see
+    reports/skill-gaps/2026-09-10-reconcile-divergence-fix.md and the plan's
+    "Post-loop incident" section): reconcile()'s overlay strategy (remote
+    tip's tree + only this commit's own --files) is correct ONLY when
+    old_parent_sha is an ancestor of the fetched remote tip -- i.e. remote_tip
+    is old_parent_sha plus a few new, unrelated commits (the "race window"
+    the whole function's docstring describes). It was never guarded against
+    the case where remote_tip diverged from a point further back than
+    old_parent_sha's own history: two --no-push commits (locally advancing
+    refs/heads/main but never reaching the real remote) were silently
+    discarded when a later session built its own commit on top of them,
+    tried to push for real, and reconcile() fetched a remote tip that had
+    never seen those two commits at all.
+
+    This reproduces the exact shape: `work` builds a LOCAL-ONLY commit
+    (never pushed -- simulating --no-push), then a SECOND local commit on
+    top of that (simulating a different session building on the same local
+    repo's ref). Meanwhile `other`, a genuinely independent clone unaware of
+    either local commit, pushes directly to `bare` first. When `work` then
+    tries to reconcile its second commit against old_parent_sha = the first
+    (never-pushed) commit, the fetched remote tip is NOT a descendant of
+    old_parent_sha at all -- reconcile() must refuse rather than silently
+    building a merge that drops the first commit's files.
+    """
+    work, bare = _init_repo_with_remote(tmp_path)
+    other = _clone(bare, tmp_path / "other")
+
+    # `work` builds a local-only commit and does NOT push it (--no-push).
+    (work / "local_only.txt").write_text("never pushed", encoding="utf-8")
+    _git(work, "add", "local_only.txt")
+    _git(work, "commit", "-q", "-m", "local-only commit, never pushed")
+    local_only_sha = _git(work, "rev-parse", "HEAD").stdout.strip()
+
+    # `work` builds a SECOND commit on top of the first, locally (simulating
+    # a different session building on the same shared local repo's ref).
+    (work / "mine.txt").write_text("mine", encoding="utf-8")
+    _git(work, "add", "mine.txt")
+    _git(work, "commit", "-q", "-m", "second local commit, built on the first")
+    my_commit_sha = _git(work, "rev-parse", "HEAD").stdout.strip()
+
+    # Meanwhile, `other` -- a genuinely independent clone that only ever saw
+    # "seed" -- pushes directly to `bare`, unaware either local commit exists.
+    (other / "other_file.txt").write_text("from the other session", encoding="utf-8")
+    _git(other, "add", "other_file.txt")
+    _git(other, "commit", "-q", "-m", "other session's commit, unaware of work's local history")
+    assert _git(other, "push", "origin", "main").returncode == 0
+
+    with pytest.raises(gpc.PlumbCommitReconcileDivergence) as exc_info:
+        gpc.reconcile(
+            my_commit_sha, ["mine.txt"], repo_root=work, branch="main",
+            remote=str(bare), old_parent_sha=local_only_sha,
+        )
+    assert exc_info.value.old_parent_sha == local_only_sha
+
+    # Nothing pushed -- the remote's own content must be untouched, and the
+    # local-only commit's file must not have been silently discarded anywhere.
+    remote_tip = _git(bare, "rev-parse", "main").stdout.strip()
+    other_tip = _git(other, "rev-parse", "HEAD").stdout.strip()
+    assert remote_tip == other_tip
+    remote_tree = _git(bare, "ls-tree", "-r", "--name-only", remote_tip).stdout
+    assert "local_only.txt" not in remote_tree  # never claimed to be pushed
+    assert "mine.txt" not in remote_tree  # never claimed to be pushed
+    # But it must still exist, untouched, in work's own local history.
+    assert _git(work, "cat-file", "-e", f"{local_only_sha}:local_only.txt").returncode == 0
+
+
 def test_reconcile_retried_with_a_stale_parent_after_it_already_landed_fails_safe(tmp_path):
     """Recovery/idempotency boundary: if a caller retries reconcile() for
     the SAME (commit_sha, old_parent_sha) pair after the first call already

@@ -371,6 +371,52 @@ class PlumbCommitReconcileConflict(PlumbCommitError):
         )
 
 
+class PlumbCommitReconcileDivergence(PlumbCommitError):
+    """Raised by `reconcile()` when `old_parent_sha` is NOT an ancestor of the
+    fetched remote tip -- meaning the branches diverged further back than a
+    simple "a few commits landed while I was mid-flight" race window, and
+    reconcile()'s files-only overlay strategy cannot safely be used.
+
+    reconcile() builds its merge tree by starting from remote_tip's tree and
+    overlaying only the files this ONE commit touches (see reconcile()'s own
+    docstring) -- correct only when remote_tip is a genuine fast-forward
+    descendant of old_parent_sha, since that guarantees every file
+    old_parent_sha's own history ever touched is already present in
+    remote_tip. When old_parent_sha is not an ancestor of remote_tip,
+    remote_tip's branch may be missing an unbounded number of file changes
+    accumulated in old_parent_sha's own ancestry, entirely outside `files` --
+    a blind overlay would silently discard them.
+
+    Real incident, found live 2026-09-10 (reports/skill-gaps/
+    2026-09-10-reconcile-divergence-fix.md): two `--no-push` commits (which
+    still advance the LOCAL refs/heads/main, per plumb_commit()'s own
+    documented "the local branch always moves" semantics) were silently
+    dropped when a different concurrent session, reading that same local
+    ref, built its own commit on top and pushed for real. The real remote
+    tip it fetched had never seen either local-only commit -- their merge-
+    base predated both -- so the previous overlay-only-my-files strategy
+    silently erased two full commits' worth of unrelated files. Discovered
+    only via a manual, blob-hash-by-blob-hash post-hoc audit; no automated
+    check caught it at the time.
+    """
+
+    def __init__(self, old_parent_sha: str, remote_tip: str):
+        self.old_parent_sha = old_parent_sha
+        self.remote_tip = remote_tip
+        super().__init__(
+            f"Refusing to auto-reconcile -- old_parent_sha {old_parent_sha[:12]} is "
+            f"not an ancestor of the fetched remote tip {remote_tip[:12]}. The "
+            f"branches have diverged further back than a simple race window "
+            f"(remote_tip's own history does not include everything already "
+            f"committed up to old_parent_sha), so a files-only overlay could "
+            f"silently discard unrelated committed work -- possibly several "
+            f"whole commits' worth, not just this one. Re-fetch, inspect the "
+            f"actual divergence (git log/diff between the two tips), and "
+            f"reconcile by hand -- this is not something reconcile() can "
+            f"resolve automatically."
+        )
+
+
 _CREDENTIAL_URL_RE = re.compile(r"://[^/\s:@]+:[^/\s@]+@")
 
 # TC-SG-19 (2026-08-31): stderr shapes of TRANSIENT temp-index write failures
@@ -1076,6 +1122,28 @@ def reconcile(
             "reconciled_against": remote_tip,
             "fast_forward": True,
         }
+
+    # Divergence check: is old_parent_sha actually an ancestor of the fetched
+    # remote tip? The whole overlay strategy below (remote tip's tree + only
+    # `files` from commit_sha) is safe ONLY when remote_tip is old_parent_sha
+    # plus some further, unrelated commits -- the "race window" this
+    # function's docstring describes. When old_parent_sha is NOT an ancestor,
+    # remote_tip's own history may be missing anything old_parent_sha's
+    # ancestry ever touched outside `files`, and a blind overlay would
+    # silently discard it. Real incident, found live 2026-09-10 (see
+    # PlumbCommitReconcileDivergence's own docstring for the full mechanism):
+    # two --no-push commits were silently dropped this way. `check=False`
+    # because exit code 1 ("not an ancestor") is an expected, meaningful
+    # outcome here, not a git failure -- only a genuinely unexpected git
+    # error (any code other than 0 or 1) should be treated identically to
+    # "not confirmed an ancestor," matching this function's existing
+    # "refuse rather than guess" posture on every other ambiguous case.
+    ancestor_check = _git(
+        ["merge-base", "--is-ancestor", old_parent_sha, remote_tip],
+        repo_root=root, check=False,
+    )
+    if ancestor_check.returncode != 0:
+        raise PlumbCommitReconcileDivergence(old_parent_sha, remote_tip)
 
     # Conflict check: did the remote tip ALSO touch any of `files` since
     # old_parent_sha? If so, a naive overlay would silently discard those
