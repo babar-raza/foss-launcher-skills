@@ -209,6 +209,18 @@ def save_config(config: dict, config_path: Path | None = None) -> None:
 
 def chunk_content_pages(family: str, platform: str) -> dict[str, str]:
     """Read content pages and split into chunks keyed by file:index."""
+    # Sibling-import guard, matching the established pattern used by every
+    # other content_discovery consumer in this codebase (e.g.
+    # commands/content/content_audit.py) — without this, a direct CLI
+    # invocation (python embed.py {family} {platform}, not via pytest, whose
+    # conftest.py adds lib/ separately) hits ModuleNotFoundError, since
+    # PYTHONPATH=scripts/pipeline alone does not put scripts/pipeline/lib/ on
+    # sys.path. Standard mode has never been run successfully in this repo's
+    # history (RC1), so this second, independent defect in the same code
+    # path was never previously exercised either.
+    _lib_dir = str(Path(__file__).resolve().parents[2] / "lib")
+    if _lib_dir not in sys.path:
+        sys.path.insert(0, _lib_dir)
     from content_discovery import SITE_PATHS  # noqa: PLC0415
     chunks: dict[str, str] = {}
     content_dirs = [
@@ -360,8 +372,16 @@ def embed_knowledge(
         # Preserve the historical call-site label while the router owns transport.
         cs_id = "CS-004" if tier.get("provider") == "professionalize" else None
         tier_run_id = str(uuid.uuid4())
+        # "endpoint" is accepted for backward-compatible call shape only —
+        # EmbeddingClient.__init__ discards it (self.endpoint is always
+        # "router-managed"; the LLMRouter owns real endpoint resolution).
+        # DEFAULT_CONFIG's tier dicts never define this key, so a raw
+        # tier["endpoint"] subscript here was an unconditional KeyError
+        # (RC1, TC-VEC-01-B) — .get() with a placeholder is correct, not a
+        # workaround, since no caller (including this one) depends on the
+        # value.
         client = EmbeddingClient(
-            tier["endpoint"],
+            tier.get("endpoint", "router-managed"),
             tier["model"],
             api_key,
             call_site_id=cs_id,
@@ -468,7 +488,10 @@ def _pick_client(config: dict) -> tuple[EmbeddingClient | None, dict | None]:
         api_key = ""
         if tier.get("api_key_env"):
             api_key = os.environ.get(tier["api_key_env"], "")
-        client = EmbeddingClient(tier["endpoint"], tier["model"], api_key)
+        # See the matching comment in embed_knowledge()'s tier loop above:
+        # "endpoint" is unused by EmbeddingClient.__init__ and DEFAULT_CONFIG
+        # never defines it — .get() fixes the unconditional KeyError (RC1).
+        client = EmbeddingClient(tier.get("endpoint", "router-managed"), tier["model"], api_key)
         if client.is_available():
             log.info(
                 "Using tier '%s' (%s, model=%s)", tier["id"], tier["provider"], tier["model"]

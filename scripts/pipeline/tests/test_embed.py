@@ -211,6 +211,50 @@ class TestPickClientReturnsTier:
         assert client is None
         assert tier is None
 
+    def test_real_default_config_does_not_raise_keyerror(self, monkeypatch):
+        """Regression guard (RC1, TC-VEC-01-B): DEFAULT_CONFIG's tier dicts
+        (id/provider/model/dimensions/last_embedded) never define an
+        "endpoint" key, but _pick_client did a raw tier["endpoint"] subscript
+        (embed.py:471) — an unconditional KeyError on any fresh checkout,
+        since no knowledge/_vectors/config.json exists to patch it in. The
+        prior test above uses a synthetic {"tiers": []}, which sidesteps the
+        defect entirely (the loop body never runs). This test exercises the
+        real production DEFAULT_CONFIG so the defect cannot hide again."""
+        for var in ("LLM_API_KEY", "GPT_OSS_API_KEY", "LITELLM_KEY", "PROFESSIONALIZE_API_KEY"):
+            monkeypatch.delenv(var, raising=False)
+        client, tier = embed._pick_client(embed.DEFAULT_CONFIG)
+        # No credentials configured -> no tier reports available. The point of
+        # this test is that reaching this assertion at all (no KeyError raised
+        # by the tier-dict subscript) proves the defect is fixed.
+        assert client is None
+        assert tier is None
+
+
+class TestEmbedKnowledgeTierDispatch:
+    """Regression guard (RC1, TC-VEC-01-B): embed_knowledge()'s standard-mode
+    tier loop must not crash with the same tier["endpoint"] KeyError."""
+
+    def test_real_default_config_tier_loop_does_not_raise_keyerror(self, tmp_path, monkeypatch):
+        for var in ("LLM_API_KEY", "GPT_OSS_API_KEY", "LITELLM_KEY", "PROFESSIONALIZE_API_KEY"):
+            monkeypatch.delenv(var, raising=False)
+        merged = tmp_path / "widgets" / "python" / "merged"
+        merged.mkdir(parents=True)
+        (merged / "claims.json").write_text(
+            json.dumps([{"claim_id": "CLM-1", "kind": "feature", "text": "does a thing"}]),
+            encoding="utf-8",
+        )
+        # config_path points at a file that does not exist, so
+        # load_or_create_config() falls back to a deep copy of the real
+        # DEFAULT_CONFIG — deterministic regardless of ambient repo state.
+        config_path = tmp_path / "config.json"
+        # Must not raise KeyError. With no credentials configured, both tiers
+        # report unavailable and the function returns having embedded
+        # nothing — reaching that point at all is the proof the defect is
+        # fixed at this call site too.
+        embed.embed_knowledge(
+            "widgets", "python", config_path=config_path, knowledge_root=tmp_path
+        )
+
 
 # ---------------------------------------------------------------------------
 # chunk_content_pages — all 5 site roots covered (RC-2 regression guard)
