@@ -1863,22 +1863,23 @@ _pc_step_end "PASS"
 
 _pc_step_start "knowledge-stats consistency (advisory)"
 # ---------------------------------------------------------------------------
-# Step 42 (MT067-2026-09-10, TC-06): cross-artifact class-count reconciliation.
-# See docs/reference/knowledge-stats.md — four independently-reimplemented
-# "class_count" formulas across the knowledge pipeline produced barcode/python's
-# 26-vs-79-vs-146 split, and the same mechanism on 14 other products. Scoped to
-# ONLY fire when a knowledge/{family}/{platform}/merged/ file is staged, same
-# design as Steps 33/41. WARN-only (--advisory) for this rollout — the fleet has
-# not yet been backfilled (TC-14/TC-15), so most products currently have no
-# stats.classes block at all; that is expected, not a failure, until the
-# backfill lands. Promote to a hard gate (drop --advisory) only after TC-16.
+# Step 42 (MT067-2026-09-10, TC-06/TC-16): cross-artifact class-count
+# reconciliation. See docs/reference/knowledge-artifacts.md's "Class-Count
+# Statistics" section — four independently-reimplemented "class_count"
+# formulas across the knowledge pipeline produced barcode/python's
+# 26-vs-79-vs-146 split, and the same mechanism on 14 other products. Scoped
+# to ONLY fire when a knowledge/{family}/{platform}/merged/ file is staged,
+# same design as Steps 33/41. Promoted from WARN-only to a hard gate
+# (TC-16, 2026-09-10) now that the full 32-product portfolio backfill (TC-14/
+# TC-15) is complete and `check_knowledge_stats_consistency.py --all` reports
+# every launched product consistent.
 # ---------------------------------------------------------------------------
 staged_kstats_files=$(git diff --cached --name-only --diff-filter=ACMR 2>/dev/null | grep -E \
     '^knowledge/[^/]+/[^/]+/merged/' || true)
 if [ -n "$staged_kstats_files" ]; then
     if [ -n "$_HOOK_PYTHON" ] && [ -f "scripts/ci/checks/check_knowledge_stats_consistency.py" ]; then
         _kstats_out=$(PYTHONPATH=scripts/pipeline "$_HOOK_PYTHON" \
-            scripts/ci/checks/check_knowledge_stats_consistency.py --staged --advisory 2>&1)
+            scripts/ci/checks/check_knowledge_stats_consistency.py --staged 2>&1)
         _kstats_exit=$?
         echo "$_kstats_out" | sed 's/^/[Step 42] /'
         if [ $_kstats_exit -ne 0 ]; then
