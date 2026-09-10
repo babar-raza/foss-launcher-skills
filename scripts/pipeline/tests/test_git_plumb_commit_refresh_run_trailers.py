@@ -193,6 +193,7 @@ def test_cli_refresh_run_flag_stamps_trailers_on_the_real_commit(tmp_path, monke
         "--skills", "S-99", "--plan", "refresh-run trailer cli test",
         "--branch", "main", "--remote", str(bare),
         "--skip-stale-check", "--no-push",
+        "--co-author", "Claude Sonnet 5 <noreply@anthropic.com>",
         "--refresh-run", "pdf", "net", "RUN-2",
     ])
 
@@ -225,6 +226,7 @@ def test_cli_refresh_run_flag_errors_cleanly_on_unverified_run(tmp_path, monkeyp
         "--skills", "S-99", "--plan", "refresh-run trailer cli test",
         "--branch", "main", "--remote", str(bare),
         "--skip-stale-check", "--no-push",
+        "--co-author", "Claude Sonnet 5 <noreply@anthropic.com>",
         "--refresh-run", "pdf", "net", "RUN-3",
     ])
 

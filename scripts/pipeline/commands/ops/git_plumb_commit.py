@@ -1891,19 +1891,28 @@ def main(argv: "list[str] | None" = None) -> int:
         print("ERROR: --message or --message-file is required", file=sys.stderr)
         return 2
 
+    try:
+        message = _ensure_commit_provenance_trailers(message, args.skills, args.co_author)
+    except CommitProvenanceError as exc:
+        print(f"ERROR: {exc}", file=sys.stderr)
+        return 2
+
     if args.refresh_run:
+        # Must run AFTER _ensure_commit_provenance_trailers, not before: both
+        # functions append a "Key: value" trailer paragraph, and
+        # refresh_run._commit_trailer_values() (bind_commit()'s own check)
+        # only recognizes the message's FINAL such paragraph. Stamping the
+        # refresh-run trailers last keeps them the final paragraph even when
+        # --co-author/Skills-invoked also had to be appended (found live
+        # 2026-09-10: with the opposite order, a mandatory --co-author
+        # buried the Refresh-Run/Refresh-Base/Refresh-Source-SHA block under
+        # its own paragraph, and bind_commit() could no longer see it).
         rr_family, rr_platform, rr_run_id = args.refresh_run
         try:
             message = _stamp_refresh_run_trailers(message, rr_family, rr_platform, rr_run_id)
         except (RefreshRunTrailerError, _refresh_run.RefreshRunError) as exc:
             print(f"ERROR: --refresh-run trailer stamping failed: {exc}", file=sys.stderr)
             return 2
-
-    try:
-        message = _ensure_commit_provenance_trailers(message, args.skills, args.co_author)
-    except CommitProvenanceError as exc:
-        print(f"ERROR: {exc}", file=sys.stderr)
-        return 2
 
     try:
         result = plumb_commit(
