@@ -363,6 +363,106 @@ def test_resolve_manifest_version_cpp_no_cmakelists_anywhere(tmp_path):
     assert "no CMakeLists.txt" in result["reason"]
 
 
+def test_resolve_cpp_target_alias_form(tmp_path):
+    # Real, confirmed-live shape (slides/cpp, email/cpp): a namespaced ALIAS is the
+    # real, public consumer-facing target.
+    clone = tmp_path / "clone"
+    clone.mkdir()
+    (clone / "CMakeLists.txt").write_text(
+        "project(AsposeSlidesFoss LANGUAGES CXX)\n"
+        "add_library(AsposeSlidesFoss STATIC ${SOURCES})\n"
+        "add_library(AsposeSlidesFoss::AsposeSlidesFoss ALIAS AsposeSlidesFoss)\n",
+        encoding="utf-8",
+    )
+    result = im.resolve_cpp_target(clone)
+    assert result["cmake_project"] == "AsposeSlidesFoss"
+    assert result["cmake_target"] == "AsposeSlidesFoss::AsposeSlidesFoss"
+    assert result["source_field"] == "add_library(...ALIAS...)"
+
+
+def test_resolve_cpp_target_bare_no_alias(tmp_path):
+    # Real, confirmed-live shape (pdf/cpp): no ALIAS declared at all -- the bare
+    # add_library name IS the real, working target a consumer links against.
+    clone = tmp_path / "clone"
+    clone.mkdir()
+    (clone / "CMakeLists.txt").write_text(
+        "project(Aspose_PDF_FOSS VERSION 1.0.0 LANGUAGES CXX)\n"
+        "add_library(aspose_pdf_foss STATIC ${SOURCES})\n",
+        encoding="utf-8",
+    )
+    result = im.resolve_cpp_target(clone)
+    assert result["cmake_project"] == "Aspose_PDF_FOSS"
+    assert result["cmake_target"] == "aspose_pdf_foss"
+    assert result["source_field"] == "add_library(...)"
+
+
+def test_resolve_cpp_target_multiline_add_library_call(tmp_path):
+    # Real, confirmed-live shape (email/cpp): add_library's source-file list spans
+    # multiple lines before the ALIAS line appears later in the file.
+    clone = tmp_path / "clone"
+    clone.mkdir()
+    (clone / "CMakeLists.txt").write_text(
+        "project(AsposeEmailFoss VERSION 0.1.0 LANGUAGES CXX)\n"
+        "add_library(AsposeEmailFoss\n"
+        "    src/library.cpp\n"
+        "    src/cfb/cfb_document.cpp\n"
+        ")\n"
+        "add_library(AsposeEmailFoss::AsposeEmailFoss ALIAS AsposeEmailFoss)\n",
+        encoding="utf-8",
+    )
+    result = im.resolve_cpp_target(clone)
+    assert result["cmake_target"] == "AsposeEmailFoss::AsposeEmailFoss"
+
+
+def test_resolve_cpp_target_ambiguous_multiple_aliases_resolves_to_none(tmp_path):
+    # No real product does this today, but the extraction must degrade honestly,
+    # never guess, if it ever does.
+    clone = tmp_path / "clone"
+    clone.mkdir()
+    (clone / "CMakeLists.txt").write_text(
+        "project(Multi LANGUAGES CXX)\n"
+        "add_library(FooImpl STATIC ${A})\n"
+        "add_library(Foo::Foo ALIAS FooImpl)\n"
+        "add_library(BarImpl STATIC ${B})\n"
+        "add_library(Bar::Bar ALIAS BarImpl)\n",
+        encoding="utf-8",
+    )
+    result = im.resolve_cpp_target(clone)
+    assert result["cmake_target"] is None
+    assert "ambiguous" in result["reason"]
+
+
+def test_resolve_cpp_target_ambiguous_multiple_bare_targets_no_alias(tmp_path):
+    clone = tmp_path / "clone"
+    clone.mkdir()
+    (clone / "CMakeLists.txt").write_text(
+        "project(Multi LANGUAGES CXX)\n"
+        "add_library(FooImpl STATIC ${A})\n"
+        "add_library(BarImpl STATIC ${B})\n",
+        encoding="utf-8",
+    )
+    result = im.resolve_cpp_target(clone)
+    assert result["cmake_target"] is None
+    assert "disambiguate" in result["reason"]
+
+
+def test_resolve_cpp_target_no_cmakelists_anywhere(tmp_path):
+    clone = tmp_path / "clone"
+    clone.mkdir()
+    result = im.resolve_cpp_target(clone)
+    assert result["cmake_target"] is None
+    assert "no CMakeLists.txt" in result["reason"]
+
+
+def test_resolve_cpp_target_no_add_library_call(tmp_path):
+    clone = tmp_path / "clone"
+    clone.mkdir()
+    (clone / "CMakeLists.txt").write_text("project(Empty LANGUAGES CXX)\n", encoding="utf-8")
+    result = im.resolve_cpp_target(clone)
+    assert result["cmake_target"] is None
+    assert "no add_library" in result["reason"]
+
+
 def test_resolve_manifest_version_go_declared_out_of_scope(tmp_path):
     # go.mod has no version field in this ecosystem; the git-tag alternative was investigated
     # live and found unreliable (pdf/go's real tag is unreachable from HEAD) -- declared out of

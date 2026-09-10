@@ -385,6 +385,72 @@ def _resolve_cpp_version(clone_cache: Path) -> dict:
     return {"version": None, "reason": f"{rel} found but its project() call declares no VERSION field"}
 
 
+_CPP_ADD_LIBRARY_ALIAS_RE = re.compile(r"add_library\s*\(\s*(\S+::\S+)\s+ALIAS\s+\S+\s*\)", re.IGNORECASE)
+_CPP_ADD_LIBRARY_RE = re.compile(r"add_library\s*\(\s*(\S+)", re.IGNORECASE)
+
+
+def resolve_cpp_target(clone_cache: Path) -> dict:
+    """ST-054 TC-12 (GitHub-fallback rendering fix, governing-plan §Q.3a): the real,
+    consumer-facing CMake target/alias name a reader must pass to
+    target_link_libraries(...) -- confirmed genuinely repo-specific, no naming
+    convention ties it to family/platform (3 real shapes found live:
+    `AsposeSlidesFoss::AsposeSlidesFoss`, bare `aspose_pdf_foss` with no alias,
+    `AsposeEmailFoss::AsposeEmailFoss`). Reuses _find_cpp_manifest() (this module's
+    own, already-proven "root first, else shallowest non-test CMakeLists.txt" search)
+    rather than re-implementing manifest discovery.
+
+    On success: `{"cmake_project": "...", "cmake_target": "...", "source_path": "...",
+    "source_field": "..."}`. On a legitimate miss or genuine ambiguity (no
+    add_library() call recognized, or more than one distinct candidate with nothing
+    to disambiguate them): `{"cmake_project": ..., "cmake_target": None, "reason":
+    "..."}`  -- never a guess between multiple candidates, matching this module's own
+    "no CMakeLists.txt found" reason-string in _resolve_cpp_version and the repo-wide
+    D-02 precedent (missing/ambiguous data is disclosed, not silently guessed).
+
+    Preference order once a manifest is found: (1) an `add_library(NS::NAME ALIAS
+    real)` call, if exactly one exists -- this is the deliberate, real, public
+    consumer target CMake convention when a project defines one; (2) a bare
+    `add_library(NAME ...)` call, if exactly one *distinct* name is declared with no
+    ALIAS anywhere -- the target itself is what a consumer links against directly in
+    that case (confirmed live: aspose_pdf_cpp's own CMakeLists.txt declares only
+    `add_library(aspose_pdf_foss STATIC ...)`, no alias, and that bare name is the
+    real, correct, working target)."""
+    target = _find_cpp_manifest(clone_cache)
+    if target is None:
+        return {"cmake_project": None, "cmake_target": None,
+                "reason": "no CMakeLists.txt found at clone cache root or in a shallow "
+                          "non-test/sample/example subdirectory"}
+    rel = target.relative_to(clone_cache).as_posix()
+    try:
+        text = target.read_text(encoding="utf-8", errors="replace")
+    except OSError as exc:
+        return {"cmake_project": None, "cmake_target": None, "reason": f"{rel} could not be read: {exc}"}
+
+    project_match = _CPP_PROJECT_RE.search(text)
+    cmake_project = project_match.group(1) if project_match else None
+
+    alias_matches = _CPP_ADD_LIBRARY_ALIAS_RE.findall(text)
+    if len(alias_matches) == 1:
+        return {"cmake_project": cmake_project, "cmake_target": alias_matches[0],
+                "source_path": rel, "source_field": "add_library(...ALIAS...)"}
+    if len(alias_matches) > 1:
+        return {"cmake_project": cmake_project, "cmake_target": None,
+                "reason": f"{rel} declares {len(alias_matches)} ALIAS add_library() calls -- "
+                          "ambiguous which is the real public target, not guessing"}
+
+    lib_matches = _CPP_ADD_LIBRARY_RE.findall(text)
+    distinct = sorted(set(lib_matches))
+    if len(distinct) == 1:
+        return {"cmake_project": cmake_project, "cmake_target": distinct[0],
+                "source_path": rel, "source_field": "add_library(...)"}
+    if not distinct:
+        return {"cmake_project": cmake_project, "cmake_target": None,
+                "reason": f"{rel} found but has no add_library(...) call this pass recognizes"}
+    return {"cmake_project": cmake_project, "cmake_target": None,
+            "reason": f"{rel} declares {len(distinct)} distinct add_library() targets and no "
+                      "ALIAS to disambiguate which is the real public one -- not guessing"}
+
+
 def _resolve_go_version(clone_cache: Path) -> dict:
     # go.mod carries no version field in this ecosystem -- Go modules version via git tags, not
     # a manifest field. A git-tag resolver was investigated live and found unreliable in this
