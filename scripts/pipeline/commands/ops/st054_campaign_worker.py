@@ -301,16 +301,68 @@ _STEP_FUNCS = {
 }
 
 
+_EVIDENCE_INLINE_MAX = 20
+_EVIDENCE_FILE_PREFIX = "evidence_file="
+
+
+def _evidence_dir(mission: str) -> Path:
+    return _REPO_ROOT / "reports" / "plan_state" / mission / "evidence"
+
+
+def _build_evidence_refs(mission: str, tid: str, files: list[str]) -> list[str]:
+    """taskcard_cli.py advance passes evidence as individual --evidence CLI
+    args -- fine for a handful of files, but a real product's modified-file
+    list can run into the hundreds (note/python's inline_migrate step: 425),
+    and Windows' command-line length limit turns that into a hard crash
+    (WinError 206, confirmed live during the TC-20 pilot itself, mid-step,
+    after the real file writes had already succeeded -- the taskcard was
+    left stuck IN_PROGRESS with the work done but unrecorded). Above
+    _EVIDENCE_INLINE_MAX, write the full list to a small JSON file instead
+    and reference just that one path -- keeps argv short regardless of how
+    many files a step touches."""
+    if len(files) <= _EVIDENCE_INLINE_MAX:
+        return list(files) if files else []
+    evidence_dir = _evidence_dir(mission)
+    evidence_dir.mkdir(parents=True, exist_ok=True)
+    evidence_path = evidence_dir / f"{tid}.json"
+    evidence_path.write_text(json.dumps({"modified_files": files}, indent=2), encoding="utf-8")
+    rel = evidence_path.relative_to(_REPO_ROOT).as_posix()
+    return [f"{_EVIDENCE_FILE_PREFIX}{rel}", f"count={len(files)}"]
+
+
+def _resolve_evidence_files(refs: list[str]) -> list[str]:
+    """Inverse of _build_evidence_refs -- expands an evidence_file= pointer
+    back into the real file list; passes through literal path refs
+    unchanged (the small-batch case, and any other step's own evidence
+    shape, e.g. verify's `findings=N` marker, which is deliberately dropped
+    here since it is not a file path)."""
+    out: list[str] = []
+    for ref in refs:
+        if ref.startswith(_EVIDENCE_FILE_PREFIX):
+            path = _REPO_ROOT / ref[len(_EVIDENCE_FILE_PREFIX):]
+            try:
+                data = json.loads(path.read_text(encoding="utf-8"))
+            except (OSError, json.JSONDecodeError):
+                continue
+            out.extend(data.get("modified_files") or [])
+        elif ref.startswith("count=") or ref.startswith("findings="):
+            continue
+        else:
+            out.append(ref)
+    return out
+
+
 def _collect_modified_files(mission: str, family: str, platform: str) -> list[str]:
     """Reads block_migrate + inline_migrate's own recorded evidence (their
-    modified-file lists, stored as evidence_refs) rather than re-deriving
-    them -- avoids re-running either migrator a second time just to learn
-    what it touched."""
+    modified-file lists, stored as evidence_refs -- possibly indirected
+    through an evidence_file= pointer for large batches, see
+    _build_evidence_refs) rather than re-deriving them -- avoids re-running
+    either migrator a second time just to learn what it touched."""
     files: list[str] = []
     for step in ("block_migrate", "inline_migrate"):
         row = _latest(mission, task_id(family, platform, step))
         if row:
-            files.extend(row.get("evidence_refs") or [])
+            files.extend(_resolve_evidence_files(row.get("evidence_refs") or []))
     # de-dupe, preserve order
     seen = set()
     out = []
@@ -404,6 +456,8 @@ def process_one_step(
             evidence = [outcome["commit_sha"]]
         elif step == "verify":
             evidence = [f"findings={outcome.get('findings')}"] + [s["path"] for s in outcome.get("samples", [])[:3]]
+        else:
+            evidence = _build_evidence_refs(mission, tid, evidence)
         if not evidence:
             evidence = [outcome["detail"]]
         _advance(mission, tid, "IN_PROGRESS", "CLOSED", session_id, evidence=evidence, fields={"detail": outcome["detail"]})

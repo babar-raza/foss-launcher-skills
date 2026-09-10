@@ -323,6 +323,68 @@ class TestPreviewNextStep:
         assert store.read_latest()["TC-words-net-block_migrate"]["status"] == "TODO"
 
 
+class TestLargeBatchEvidence:
+    """Regression coverage for a real crash caught live during the TC-20
+    pilot: taskcard_cli.py advance passes evidence as individual --evidence
+    CLI args, and note/python's inline_migrate step modified 425 files --
+    well past Windows' command-line length limit (WinError 206). The real
+    file writes had already succeeded; only the taskcard advance crashed,
+    leaving it stuck IN_PROGRESS with the work done but unrecorded."""
+
+    def test_build_evidence_refs_inlines_small_lists(self, tmp_path):
+        refs = sut._build_evidence_refs("ST-054-REMEDIATION", "TC-x", ["a.md", "b.md"])
+        assert refs == ["a.md", "b.md"]
+        assert not (tmp_path / "reports" / "plan_state").exists()
+
+    def test_build_evidence_refs_writes_a_file_for_large_lists(self, tmp_path):
+        files = [f"content/f{i}.md" for i in range(425)]
+        refs = sut._build_evidence_refs("ST-054-REMEDIATION", "TC-note-python-inline_migrate", files)
+        assert len(refs) == 2  # short regardless of how many real files
+        assert refs[0].startswith(sut._EVIDENCE_FILE_PREFIX)
+        assert refs[1] == "count=425"
+        evidence_path = tmp_path / "reports" / "plan_state" / "ST-054-REMEDIATION" / "evidence" / "TC-note-python-inline_migrate.json"
+        assert evidence_path.is_file()
+        assert json.loads(evidence_path.read_text(encoding="utf-8"))["modified_files"] == files
+
+    def test_resolve_evidence_files_round_trips_large_batches(self, tmp_path):
+        files = [f"content/f{i}.md" for i in range(425)]
+        refs = sut._build_evidence_refs("ST-054-REMEDIATION", "TC-x", files)
+        assert sut._resolve_evidence_files(refs) == files
+
+    def test_resolve_evidence_files_passes_through_literal_paths(self, tmp_path):
+        assert sut._resolve_evidence_files(["content/a.md", "content/b.md"]) == ["content/a.md", "content/b.md"]
+
+    def test_resolve_evidence_files_drops_non_path_markers(self, tmp_path):
+        assert sut._resolve_evidence_files(["findings=0", "count=5"]) == []
+
+    def test_full_pipeline_survives_a_large_modified_file_set(self, tmp_path, monkeypatch):
+        """End-to-end: seed a product, monkeypatch the block_migrate step to
+        report a large (421-file) modified set without actually writing 421
+        real files to disk, and confirm the taskcard advances to CLOSED
+        instead of crashing -- the exact failure mode this fix closes."""
+        _write_registry(tmp_path, _NUGET_REGISTRY)
+        seeder.seed_products([("words", "net")], recorded_by="test")
+
+        many_files = [f"content/docs.aspose.org/{loc}/words/net/page.md" for loc in range(421)]
+
+        def fake_block_migrate(family, platform, *, dry_run):
+            return {"ok": True, "modified_files": many_files, "detail": "files_migrated=421 (synthetic)"}
+
+        monkeypatch.setitem(sut._STEP_FUNCS, "block_migrate", fake_block_migrate)
+
+        result = sut.process_one_step("words", "net", run_id="r1", session_id="s1")
+        assert result["outcome"] == "CLOSED"
+
+        store = TaskcardStore(seeder.DEFAULT_MISSION_ID, repo_root=tmp_path)
+        row = store.read_latest()["TC-words-net-block_migrate"]
+        assert any(ref.startswith(sut._EVIDENCE_FILE_PREFIX) for ref in row["evidence_refs"])
+
+        # And _collect_modified_files must still see the full 421 files for
+        # the eventual commit step, not just the short pointer.
+        collected = sut._collect_modified_files(seeder.DEFAULT_MISSION_ID, "words", "net")
+        assert len(collected) == 421
+
+
 def test_collect_modified_files_reads_prior_step_evidence(tmp_path):
     store = TaskcardStore(seeder.DEFAULT_MISSION_ID, repo_root=tmp_path)
     store.append({
