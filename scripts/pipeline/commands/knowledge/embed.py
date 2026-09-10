@@ -36,6 +36,19 @@ _PROF_CLIENT_AVAILABLE = True  # compatibility alias for existing test selection
 logging.basicConfig(level=logging.INFO, format="%(levelname)s: %(message)s")
 log = logging.getLogger(__name__)
 
+# Testing seam (AGENTS.md §16 / docs/development/testing-seams.md): explicit
+# dependency injection for embed_api_index()'s router construction, in place of
+# monkeypatching commands.ops.llm_router.LLMRouter directly (a T2 internal
+# patch under this repo's tiered monkeypatch policy). configure() with no
+# arguments resets to the real class.
+_llm_router_cls: type = LLMRouter
+
+
+def configure(*, llm_router_cls: type | None = None) -> None:
+    """Override external boundaries for tests; call without arguments to reset."""
+    global _llm_router_cls
+    _llm_router_cls = llm_router_cls or LLMRouter
+
 # ---------------------------------------------------------------------------
 # Stopwords for TF-IDF fallback
 # ---------------------------------------------------------------------------
@@ -578,12 +591,11 @@ def embed_api_index(
         from commands.ops.llm_router import (  # noqa: PLC0415
             EndpointStatus,
             LLMCallContext,
-            LLMRouter,
         )
         from core.fs import atomic_write  # noqa: PLC0415
 
         run_id = str(uuid.uuid4())
-        router = LLMRouter()
+        router = _llm_router_cls()
         result = router.call_embeddings(
             [texts[key] for key in sorted(texts)],
             context=LLMCallContext(
@@ -625,9 +637,12 @@ def embed_api_index(
             raise ValueError("Profile build validation failed before activation")
 
         source_hash = hashlib.sha256(api_path.read_bytes()).hexdigest()
+        # Content-addressed (RC5 fix, TC-VEC-02-A): source_hash[:8] is included so a
+        # rerun against changed knowledge lands in a new profile directory instead of
+        # overwriting the prior generation in place — see plan RC5/TC-VEC-02.
         profile_id = (
             f"{profile.provider}-{profile.model}-{profile.dimensions}-"
-            f"{profile.config_digest[:12]}"
+            f"{profile.config_digest[:12]}-{source_hash[:8]}"
         )
         root = ((_kr / "_vectors") if knowledge_root else VECTORS_DIR) / family / platform
         profile_dir = root / "profiles" / profile_id
@@ -651,16 +666,46 @@ def embed_api_index(
             "vector_file": "api.vectors.json",
             "vector_file_hash": vector_hash,
         }
-        profile_dir.mkdir(parents=True, exist_ok=True)
         vector_path = profile_dir / "api.vectors.json"
-        atomic_write(vector_path, vector_bytes.decode("utf-8"))
-        atomic_write(profile_dir / "manifest.json", json.dumps(manifest, indent=2))
-        # Activation is the final atomic write. Any earlier failure leaves the
-        # existing pointer and legacy api.vectors.json untouched.
-        atomic_write(
-            root / "active.json",
-            json.dumps({"version": "2.0.0", "profile_id": profile_id}, indent=2),
-        )
+
+        def _write_profile_files() -> None:
+            profile_dir.mkdir(parents=True, exist_ok=True)
+            atomic_write(vector_path, vector_bytes.decode("utf-8"))
+            atomic_write(profile_dir / "manifest.json", json.dumps(manifest, indent=2))
+            # Activation is the final atomic write. Any earlier failure leaves the
+            # existing pointer and legacy api.vectors.json untouched.
+            atomic_write(
+                root / "active.json",
+                json.dumps({"version": "2.0.0", "profile_id": profile_id}, indent=2),
+            )
+
+        # Advisory write-phase lock (RC5 fix, TC-VEC-02-B): scoped only to the local
+        # file-write sequence above, never the network call already completed by this
+        # point in the function — holding a lock across a slow, retryable API call
+        # would risk blocking this repo's many concurrent short-lived agent sessions
+        # (plan RC5/TC-VEC-02, "Rejected alternative"). Reuses the existing, tested
+        # advisory_lock.FileLock primitive rather than a new lock implementation
+        # (RC4 concern: do not reinvent shared infrastructure). A short stale_seconds
+        # means a crashed holder is stolen rather than blocking forever; a short
+        # timeout means even a live, slow holder cannot become a permanent outage —
+        # this repo's non-blocking design philosophy for this subsystem.
+        _lib_dir = str(Path(__file__).resolve().parents[2] / "lib")
+        if _lib_dir not in sys.path:
+            sys.path.insert(0, _lib_dir)
+        from advisory_lock import FileLock, LockTimeout  # noqa: PLC0415
+
+        try:
+            with FileLock(root / "write.lock", stale_seconds=120.0, timeout=10.0):
+                _write_profile_files()
+        except LockTimeout as exc:
+            log.warning(
+                "embed_api_index write-phase lock unavailable for %s/%s (%s) — "
+                "proceeding unlocked (advisory only; content-addressed profile_id "
+                "already prevents corruption between writers)",
+                family, platform, exc,
+            )
+            _write_profile_files()
+
         return vector_path
 
     config = load_or_create_config(config_path)

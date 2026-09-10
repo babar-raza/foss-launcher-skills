@@ -331,3 +331,247 @@ class TestChunkContentPagesAllSites:
             f"The following sites produced no chunks: {missing}. "
             "chunk_content_pages is not using SITE_PATHS for all sites."
         )
+
+
+# ---------------------------------------------------------------------------
+# embed_api_index — content-addressed profile IDs + advisory lock (RC5, TC-VEC-02)
+#
+# embed_api_index()'s canonical/official path (the ONLY path that has ever
+# produced working output in this repo's history) only executes when BOTH
+# config_path AND knowledge_root are None (embed.py's own "official path"
+# gate) — passing a custom knowledge_root for test isolation silently falls
+# through to the unrelated legacy tier-dispatch branch instead. embed_api_index
+# had ZERO existing tests before this class (confirmed: no prior references in
+# this file). These tests use monkeypatch.chdir(tmp_path) + a patched
+# LLMRouter instead of the knowledge_root parameter, so the REAL official path
+# runs against an isolated filesystem root rather than the live repo.
+# ---------------------------------------------------------------------------
+
+import os
+import threading
+import time
+
+
+class _FakeEmbeddingProfile:
+    def __init__(
+        self,
+        provider="professionalize",
+        model="qwen3-embedding-8b",
+        dimensions=512,
+        config_digest="abc123def456",
+    ):
+        self.provider = provider
+        self.model = model
+        self.dimensions = dimensions
+        self.config_digest = config_digest
+
+
+class _FakeCallResult:
+    def __init__(self, data, profile):
+        from commands.ops.llm_router import EndpointStatus
+
+        self.status = EndpointStatus.OK
+        self.data = data
+        self.embedding_profile = profile
+        self.metrics_events = []
+        self.error = ""
+
+
+class _FakeRouter:
+    """Stand-in for LLMRouter — no network calls, deterministic vectors."""
+
+    def __init__(self, *a, **kw):
+        pass
+
+    def call_embeddings(self, texts, context, operation):
+        vectors = [[0.1] * 512 for _ in texts]
+        return _FakeCallResult(vectors, _FakeEmbeddingProfile())
+
+
+def _write_api_surface(root: Path, family: str, platform: str, class_names: list) -> Path:
+    merged = root / "knowledge" / family / platform / "merged"
+    merged.mkdir(parents=True, exist_ok=True)
+    api_path = merged / "api_surface.json"
+    api_path.write_text(
+        json.dumps(
+            [
+                {"name": n, "method_details": [], "property_details": [], "docstring": ""}
+                for n in class_names
+            ]
+        ),
+        encoding="utf-8",
+    )
+    return api_path
+
+
+def _read_active_profile_id(tmp_path: Path, family: str, platform: str) -> str:
+    active = tmp_path / "knowledge" / "_vectors" / family / platform / "active.json"
+    return json.loads(active.read_text(encoding="utf-8"))["profile_id"]
+
+
+@pytest.fixture(autouse=True)
+def _fake_llm_router_seam():
+    """Testing seam (AGENTS.md §16): DI via embed.configure(), not a monkeypatch
+    on commands.ops.llm_router.LLMRouter directly (a T2 internal-patch violation)."""
+    embed.configure(llm_router_cls=_FakeRouter)
+    yield
+    embed.configure()
+
+
+class TestEmbedApiIndexProfileAddressing:
+    """TC-VEC-02-A: profile_id must be content-addressed, not just config-addressed."""
+
+    def test_same_source_same_config_same_profile_id(self, tmp_path, monkeypatch):
+        monkeypatch.chdir(tmp_path)
+        _write_api_surface(tmp_path, "widgets", "python", ["Foo", "Bar"])
+
+        assert embed.embed_api_index("widgets", "python") is not None
+        profile_id_1 = _read_active_profile_id(tmp_path, "widgets", "python")
+
+        assert embed.embed_api_index("widgets", "python") is not None
+        profile_id_2 = _read_active_profile_id(tmp_path, "widgets", "python")
+
+        assert profile_id_1 == profile_id_2
+
+    def test_changed_source_produces_new_profile_without_destroying_old(self, tmp_path, monkeypatch):
+        monkeypatch.chdir(tmp_path)
+        _write_api_surface(tmp_path, "widgets", "python", ["Foo", "Bar"])
+
+        assert embed.embed_api_index("widgets", "python") is not None
+        profile_id_1 = _read_active_profile_id(tmp_path, "widgets", "python")
+
+        # Mutate source content — must NOT collide with the prior profile_id.
+        _write_api_surface(tmp_path, "widgets", "python", ["Foo", "Bar", "Baz"])
+        assert embed.embed_api_index("widgets", "python") is not None
+        profile_id_2 = _read_active_profile_id(tmp_path, "widgets", "python")
+
+        assert profile_id_1 != profile_id_2, (
+            "profile_id did not change when source content changed — RC5 not fixed "
+            "(profile storage is still config-addressed only, not content-addressed)."
+        )
+
+        # The prior generation must remain on disk (non-destructive supersession —
+        # this is what makes 'profile-versioned' actually true).
+        old_dir = tmp_path / "knowledge" / "_vectors" / "widgets" / "python" / "profiles" / profile_id_1
+        assert old_dir.exists(), "changed-content rerun destroyed the prior profile directory"
+        assert (old_dir / "manifest.json").exists()
+        assert (old_dir / "api.vectors.json").exists()
+
+    def test_profile_id_includes_source_hash_prefix(self, tmp_path, monkeypatch):
+        """Pins the exact format so a future refactor can't silently drop the fix."""
+        import hashlib
+
+        monkeypatch.chdir(tmp_path)
+        api_path = _write_api_surface(tmp_path, "widgets", "python", ["Foo"])
+
+        embed.embed_api_index("widgets", "python")
+        profile_id = _read_active_profile_id(tmp_path, "widgets", "python")
+
+        source_hash = hashlib.sha256(api_path.read_bytes()).hexdigest()
+        assert profile_id.endswith(source_hash[:8]), (
+            f"profile_id {profile_id!r} does not end with the source content hash "
+            f"prefix {source_hash[:8]!r}"
+        )
+
+
+class TestEmbedApiIndexWriteLock:
+    """TC-VEC-02-B: advisory write-phase lock — happy path and stale-bypass."""
+
+    def test_happy_path_lock_created_and_released(self, tmp_path, monkeypatch):
+        monkeypatch.chdir(tmp_path)
+        _write_api_surface(tmp_path, "widgets", "python", ["Foo"])
+
+        assert embed.embed_api_index("widgets", "python") is not None
+
+        lock_path = tmp_path / "knowledge" / "_vectors" / "widgets" / "python" / "write.lock"
+        assert not lock_path.exists(), "write lock was not released after a successful run"
+
+    def test_stale_lock_does_not_block_a_new_run(self, tmp_path, monkeypatch):
+        """A lock left behind by a crashed/dead holder must be bypassed, not block forever."""
+        monkeypatch.chdir(tmp_path)
+        _write_api_surface(tmp_path, "widgets", "python", ["Foo"])
+
+        lock_dir = tmp_path / "knowledge" / "_vectors" / "widgets" / "python"
+        lock_dir.mkdir(parents=True, exist_ok=True)
+        lock_path = lock_dir / "write.lock"
+        # Simulate a lock left by a definitely-dead pid (0 is never a real process
+        # here), written far enough in the past to be past FileLock's default
+        # stale_seconds (120s) if pid-liveness alone didn't already resolve it.
+        lock_path.write_text("999999999:0", encoding="utf-8")
+        old_time = time.time() - 3600
+        os.utime(lock_path, (old_time, old_time))
+
+        result = embed.embed_api_index("widgets", "python")
+        assert result is not None, "a stale lock from a dead/expired holder blocked the run"
+        assert not lock_path.exists(), "stale lock was not cleaned up after being stolen"
+
+
+class TestEmbedApiIndexConcurrency:
+    """TC-VEC-02-C: two overlapping writers for the same product must never corrupt
+    each other's output — the test that directly targets RC5."""
+
+    def test_interleaved_writers_different_source_never_corrupt_active_profile(
+        self, tmp_path, monkeypatch
+    ):
+        monkeypatch.chdir(tmp_path)
+
+        _write_api_surface(tmp_path, "widgets", "python", ["Foo", "Bar"])
+
+        # embed_api_index reads api_surface.json twice: once as text (to build the
+        # class-entry texts — irrelevant to this test, the FakeRouter ignores
+        # content) and once as bytes, right before computing profile_id, to derive
+        # source_hash. Patching only read_bytes — and forcing both threads to
+        # rendezvous inside it via a barrier — makes two concurrent calls resolve
+        # to two DIFFERENT source snapshots ("snapshot-a" vs "snapshot-b") with
+        # their write phases genuinely overlapping, without racing a single shared
+        # file on disk (which would let whichever write lands last silently decide
+        # both threads' content — not the scenario RC5 is about).
+        results = {}
+        barrier = threading.Barrier(2)
+        fake_contents = {"a": b"fake-source-snapshot-a", "b": b"fake-source-snapshot-b"}
+        real_read_bytes = Path.read_bytes
+
+        def fake_read_bytes(self_path):
+            name = threading.current_thread().name
+            if self_path.name == "api_surface.json" and name in fake_contents:
+                barrier.wait(timeout=5)
+                return fake_contents[name]
+            return real_read_bytes(self_path)
+
+        monkeypatch.setattr(Path, "read_bytes", fake_read_bytes)
+
+        def _run(key):
+            results[key] = embed.embed_api_index("widgets", "python")
+
+        t1 = threading.Thread(target=_run, args=("a",), name="a")
+        t2 = threading.Thread(target=_run, args=("b",), name="b")
+        t1.start()
+        t2.start()
+        t1.join(timeout=10)
+        t2.join(timeout=10)
+
+        assert results.get("a") is not None
+        assert results.get("b") is not None
+
+        # Whichever run's write finished last, active.json must point at a
+        # self-consistent profile: its manifest's declared count/source_hash must
+        # match the vectors file actually present at that exact path.
+        root = tmp_path / "knowledge" / "_vectors" / "widgets" / "python"
+        active_profile_id = json.loads((root / "active.json").read_text(encoding="utf-8"))["profile_id"]
+        profile_dir = root / "profiles" / active_profile_id
+        manifest = json.loads((profile_dir / "manifest.json").read_text(encoding="utf-8"))
+        vectors_payload = json.loads((profile_dir / "api.vectors.json").read_text(encoding="utf-8"))
+
+        assert manifest["count"] == len(vectors_payload["vectors"]), (
+            "active profile's manifest count does not match its own vectors file — "
+            "a chimeric half-old-half-new profile was produced (RC5 not fixed)"
+        )
+        assert manifest["profile_id"] == vectors_payload["profile_id"] == active_profile_id
+
+        # Both writers' profile directories must exist independently — no shared
+        # file writes / in-place overwrite between two different source contents.
+        existing_profile_dirs = list((root / "profiles").iterdir())
+        assert len(existing_profile_dirs) == 2, (
+            f"expected 2 distinct profile directories (one per distinct source "
+            f"content), found {len(existing_profile_dirs)}: {existing_profile_dirs}"
+        )
