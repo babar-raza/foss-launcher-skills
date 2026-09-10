@@ -64,7 +64,7 @@ from commands.content import package_install_migrator as block_migrator  # noqa:
 from commands.content import package_install_inline_migrator as inline_migrator  # noqa: E402
 from audit.package_install_literal import verify_package_install_literals  # noqa: E402
 from lib.package_registry_data import load_registry  # noqa: E402
-from st054_seed_taskcards import DEFAULT_MISSION_ID, STEPS, task_id  # noqa: E402
+from commands.ops.st054_seed_taskcards import DEFAULT_MISSION_ID, STEPS, task_id  # noqa: E402
 
 _DEFAULT_REPO_ROOT = Path(__file__).resolve().parents[4]
 _REPO_ROOT = _DEFAULT_REPO_ROOT

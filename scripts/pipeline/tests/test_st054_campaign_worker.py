@@ -299,3 +299,23 @@ def test_main_reports_success_exit_code(tmp_path, capsys):
 def test_main_requires_slash_in_product():
     with pytest.raises(SystemExit):
         sut.main(["--product", "wordsnet", "--run-id", "x"])
+
+
+def test_module_is_importable_via_real_subprocess_m_invocation():
+    """Regression pin: an earlier version imported
+    `from st054_seed_taskcards import ...` (bare top-level name) instead of
+    `from commands.ops.st054_seed_taskcards import ...` -- this passed every
+    in-process `import commands.ops.st054_campaign_worker as sut` test in
+    this file (pytest's own sys.path setup happened to make the bare name
+    resolvable) but crashed immediately on the real
+    `-m commands.ops.st054_campaign_worker` CLI invocation operators
+    actually use, with no test catching it. This test exercises the exact
+    real invocation path instead of the in-process import."""
+    env = dict(__import__("os").environ, PYTHONPATH=str(_PIPELINE_ROOT))
+    result = subprocess.run(
+        [sys.executable, "-m", "commands.ops.st054_campaign_worker", "--help"],
+        cwd=str(_PIPELINE_ROOT), capture_output=True, text=True,
+        encoding="utf-8", errors="replace", env=env, timeout=30,
+    )
+    assert result.returncode == 0, f"stderr: {result.stderr}"
+    assert "--product" in result.stdout
