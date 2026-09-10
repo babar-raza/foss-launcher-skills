@@ -1,4 +1,35 @@
+<!-- CONTRACT: scripts/pipeline/commands/content/locale_patch.py
+     purpose: propagate a targeted text fix from a fixed English source file to its locale copies
+     preconditions: English source already fixed; a reconciliation_store.py record exists for it
+     postcondition: matching locale files patched (byte-identical old_text match only), report written
+     idempotent: yes -- re-running with the same patches is a no-op once applied (old_text is gone)
+     verified: 2026-09-10
+-->
 # S-75: locale-patch — Propagate targeted text fixes to locale files
+
+**PKGINSTALL-LOCALE-PATCH-MODULE (2026-09-10):** this skill is now backed by a
+real, tested, committed module,
+`scripts/pipeline/commands/content/locale_patch.py` — replacing the ad hoc,
+write-once-delete-after-use script ST-054 TC-07 used to apply this same
+algorithm at scale (250 real locale files across 3 products). The steps
+below still describe the algorithm precisely (useful context for anyone
+reading or extending the module), but invoke the module directly rather
+than re-deriving the logic by hand:
+
+```bash
+PYTHONPATH=scripts/pipeline .venv/Scripts/python scripts/pipeline/commands/content/locale_patch.py \
+  {family} {platform} {site} {source_file} --patches-json {patches.json} --dry-run
+```
+
+The module adds one capability this skill's own steps below never had: it
+refuses to run at all (`readiness_blocked: true`) unless
+`reconciliation_store.py` shows the English source is no longer
+`representation=literal` and carries no unresolved
+`COLLISION_RISK_STRUCTURAL` classification — giving the "Pre-condition:
+English source file already fixed" note below (previously just a
+disclaimer) a real, enforced check. It also runs every proposed batch
+through `install_change_budget.py`'s blast-radius check before writing
+(mechanism `locale_propagation`) — see governing plan section R.3.5/R.3.6.
 
 Propagate targeted text fixes from a fixed English source content file to all locale translation copies of that file, without re-translating the entire page.
 
