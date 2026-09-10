@@ -284,3 +284,76 @@ class TestCollisionGate:
         summary = sut.run_migration("slides", "net", dry_run=True, registry=_NUGET_REGISTRY)
         assert summary["collision_gate_blocked"] is False
         assert summary["collision_classification"] == "SAFE_FOR_MECHANICAL_MIGRATION"
+
+
+class TestChangeBudgetGate:
+    """PKGINSTALL-CHANGE-BUDGET: run_migration() must refuse a run whose
+    real, probed proposed volume (files that would actually be migrated,
+    not the raw candidate count) exceeds the static cap, and must record
+    the ACTUAL applied count after a real execute run.
+
+    Uses install_change_budget.configure(config_path=...) -- a real DI seam
+    -- to point at a fixture budgets file, never monkeypatch.setattr on an
+    internal function (this repo's own T1/T2-banned monkeypatch-lint
+    policy)."""
+
+    def _zero_budget_config(self, tmp_path) -> Path:
+        cfg = tmp_path / "zero_budgets.yaml"
+        cfg.write_text(
+            "max_files_per_run: 0\n"
+            "max_files_per_locale_per_run: 0\n"
+            "anomaly_multiplier: 3.0\n"
+            "warmup_runs: 3\n",
+            encoding="utf-8",
+        )
+        return cfg
+
+    def test_probe_pass_never_writes_before_budget_check(self, tmp_path):
+        """Even in --execute mode, the probe pass must be dry-run -- content
+        must be unchanged until the budget check has already passed."""
+        import lib.install_change_budget as icb
+        icb.configure(repo_root=tmp_path, config_path=self._zero_budget_config(tmp_path))
+        path = _write(tmp_path, "content/docs.aspose.org/en/slides/net/getting-started/installation.md", (
+            "```bash\ndotnet add package Aspose.Slides.Foss\n```\n"
+        ))
+        summary = sut.run_migration("slides", "net", dry_run=False, registry=_NUGET_REGISTRY)
+        assert summary["budget_blocked"] is True
+        assert "dotnet add package" in path.read_text(encoding="utf-8")  # unchanged
+        icb.configure()
+
+    def test_real_execute_records_actual_applied_count(self, tmp_path):
+        import lib.install_change_budget as icb
+        icb.configure(repo_root=tmp_path)
+        _write(tmp_path, "content/docs.aspose.org/en/slides/net/getting-started/installation.md", (
+            "```bash\ndotnet add package Aspose.Slides.Foss\n```\n"
+        ))
+        summary = sut.run_migration("slides", "net", dry_run=False, registry=_NUGET_REGISTRY)
+        assert summary["budget_blocked"] is False
+        assert summary["files_migrated"] == 1
+        history = icb.load_history()
+        assert history["slides/mechanical_migration"] == [1]
+        icb.configure()
+
+    def test_force_bypasses_the_budget_gate_too(self, tmp_path):
+        import lib.install_change_budget as icb
+        icb.configure(repo_root=tmp_path, config_path=self._zero_budget_config(tmp_path))
+        _write(tmp_path, "content/docs.aspose.org/en/slides/net/getting-started/installation.md", (
+            "```bash\ndotnet add package Aspose.Slides.Foss\n```\n"
+        ))
+        summary = sut.run_migration("slides", "net", dry_run=False, registry=_NUGET_REGISTRY, force=True)
+        assert summary["budget_blocked"] is False
+        assert summary["files_migrated"] == 1
+        icb.configure()
+
+    def test_respect_change_budget_false_bypasses_too(self, tmp_path):
+        import lib.install_change_budget as icb
+        icb.configure(repo_root=tmp_path, config_path=self._zero_budget_config(tmp_path))
+        _write(tmp_path, "content/docs.aspose.org/en/slides/net/getting-started/installation.md", (
+            "```bash\ndotnet add package Aspose.Slides.Foss\n```\n"
+        ))
+        summary = sut.run_migration(
+            "slides", "net", dry_run=False, registry=_NUGET_REGISTRY, respect_change_budget=False,
+        )
+        assert summary["budget_blocked"] is False
+        assert summary["files_migrated"] == 1
+        icb.configure()

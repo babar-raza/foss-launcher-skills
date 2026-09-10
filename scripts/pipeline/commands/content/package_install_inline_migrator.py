@@ -71,6 +71,10 @@ from audit.package_install_literal import _is_noise_line  # noqa: E402
 from lib.install_collision_classifier import (  # noqa: E402
     classify_collision_risk, CollisionClassification,
 )
+from lib.install_change_budget import (  # noqa: E402
+    ProposedInstallChangeVolume, check_budget, record_run,
+)
+from commands.content.package_install_migrator import _locale_from_path  # noqa: E402
 
 _DEFAULT_REPO_ROOT = Path(__file__).resolve().parents[4]
 _REPO_ROOT = _DEFAULT_REPO_ROOT
@@ -224,9 +228,29 @@ def discover_files_english_only(family: str, platform: str) -> list[Path]:
     return sorted(set(files))
 
 
+def _run_pass(files: list[Path], family: str, platform: str, *, dry_run: bool, registry: dict) -> dict[str, Any]:
+    summary: dict[str, Any] = {
+        "files_checked": len(files), "files_migrated": 0,
+        "inline_replacements": 0, "skipped_protected": 0,
+        "no_registry_entry": 0, "results": [],
+    }
+    for fp in files:
+        res = migrate_file(fp, family, platform, dry_run=dry_run, registry=registry)
+        summary["results"].append(res)
+        summary["inline_replacements"] += res["inline_replacements"]
+        if res["result"] in (R_MIGRATED, R_DRY_RUN):
+            summary["files_migrated"] += 1
+        elif res["result"] == R_SKIPPED_PROTECTED:
+            summary["skipped_protected"] += 1
+        elif res["result"] == R_NO_REGISTRY_ENTRY:
+            summary["no_registry_entry"] += 1
+    return summary
+
+
 def run_migration(
     family: str, platform: str, *, dry_run: bool = True, limit: "int | None" = None,
     registry: dict | None = None, respect_collision_gate: bool = True, force: bool = False,
+    respect_change_budget: bool = True,
 ) -> dict[str, Any]:
     reg = registry if registry is not None else load_registry()
 
@@ -245,32 +269,60 @@ def run_migration(
                 "collision_gate_blocked": True,
                 "collision_classification": collision_result.classification.value,
                 "collision_reason": collision_result.reason,
+                "budget_blocked": False,
             }
 
     files = discover_files_english_only(family, platform)
     if limit is not None:
         files = files[:limit]
 
-    summary: dict[str, Any] = {
+    # Probe pass (always dry-run) so the change-budget check sees the REAL
+    # proposed volume, not the raw candidate count -- mirrors
+    # package_install_migrator.py's own identical wiring exactly.
+    probe = _run_pass(files, family, platform, dry_run=True, registry=reg)
+
+    budget_verdict = None
+    if respect_change_budget and not force:
+        migrated_files = [
+            fp for fp, res in zip(files, probe["results"])
+            if res["result"] in (R_MIGRATED, R_DRY_RUN)
+        ]
+        files_by_locale: dict[str, int] = {}
+        for fp in migrated_files:
+            loc = _locale_from_path(fp, family)
+            files_by_locale[loc] = files_by_locale.get(loc, 0) + 1
+        volume = ProposedInstallChangeVolume(
+            total_files=len(migrated_files), files_by_locale=files_by_locale,
+        )
+        budget_verdict = check_budget(family, "mechanical_migration", volume)
+        if not budget_verdict.allowed:
+            return {
+                "family": family, "platform": platform, "dry_run": dry_run,
+                "files_checked": len(files), "files_migrated": 0,
+                "inline_replacements": 0, "skipped_protected": 0,
+                "no_registry_entry": 0, "results": [],
+                "collision_gate_blocked": False,
+                "collision_classification": collision_result.classification.value if collision_result else None,
+                "budget_blocked": True,
+                "budget_reason": budget_verdict.reason,
+                "budget_static_cap_violations": budget_verdict.static_cap_violations,
+                "budget_anomaly_status": budget_verdict.anomaly_status,
+            }
+
+    if dry_run:
+        summary = probe
+    else:
+        summary = _run_pass(files, family, platform, dry_run=False, registry=reg)
+        if respect_change_budget and not force:
+            record_run(family, "mechanical_migration", summary["files_migrated"])
+
+    summary.update({
         "family": family, "platform": platform, "dry_run": dry_run,
-        "files_checked": len(files), "files_migrated": 0,
-        "inline_replacements": 0, "skipped_protected": 0,
-        "no_registry_entry": 0, "results": [],
         "collision_gate_blocked": False,
         "collision_classification": collision_result.classification.value if collision_result else None,
-    }
-
-    for fp in files:
-        res = migrate_file(fp, family, platform, dry_run=dry_run, registry=reg)
-        summary["results"].append(res)
-        summary["inline_replacements"] += res["inline_replacements"]
-        if res["result"] in (R_MIGRATED, R_DRY_RUN):
-            summary["files_migrated"] += 1
-        elif res["result"] == R_SKIPPED_PROTECTED:
-            summary["skipped_protected"] += 1
-        elif res["result"] == R_NO_REGISTRY_ENTRY:
-            summary["no_registry_entry"] += 1
-
+        "budget_blocked": False,
+        "budget_anomaly_status": budget_verdict.anomaly_status if budget_verdict else None,
+    })
     return summary
 
 

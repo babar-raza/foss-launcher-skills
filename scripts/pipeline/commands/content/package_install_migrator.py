@@ -45,6 +45,9 @@ from lib.package_registry_data import load_registry  # noqa: E402
 from lib.install_collision_classifier import (  # noqa: E402
     classify_collision_risk, CollisionClassification,
 )
+from lib.install_change_budget import (  # noqa: E402
+    ProposedInstallChangeVolume, check_budget, record_run,
+)
 
 _DEFAULT_REPO_ROOT = Path(__file__).resolve().parents[4]
 _REPO_ROOT = _DEFAULT_REPO_ROOT
@@ -197,9 +200,57 @@ def discover_files(family: str, platform: str) -> list[Path]:
     return sorted(set(files))
 
 
+def _locale_from_path(filepath: Path, family: str) -> str:
+    """Best-effort locale extraction for install_change_budget's per-locale
+    cap -- a coarse blast-radius signal, not a precision analytics tool.
+    Two real conventions in this repo: docs/kb/products.aspose.org carry the
+    locale as a DIRECTORY segment (content/{site}/{locale}/{family}/{platform}/...,
+    "en" included); blog.aspose.org carries it as a FILENAME suffix
+    (content/blog.aspose.org/{family}/{platform}/{slug}/index.md for English,
+    index.{locale}.md for a translation -- confirmed by discover_files()'s
+    own blog branch, which globs directly under {family}/{platform} with no
+    locale-prefixed directory tier at all)."""
+    parts = filepath.parts
+    try:
+        content_idx = parts.index("content")
+    except ValueError:
+        return "en"
+    if len(parts) <= content_idx + 2:
+        return "en"
+    site = parts[content_idx + 1]
+    if site == "blog.aspose.org":
+        name_parts = filepath.name.split(".")
+        if len(name_parts) >= 3:  # e.g. "index.fr.md" -> ["index", "fr", "md"]
+            return name_parts[-2]
+        return "en"
+    segment = parts[content_idx + 2]
+    return "en" if segment == family else segment
+
+
+def _run_pass(files: list[Path], family: str, platform: str, *, dry_run: bool, registry: dict) -> dict[str, Any]:
+    summary: dict[str, Any] = {
+        "files_checked": len(files), "files_migrated": 0,
+        "block_replacements": 0, "inline_mentions_found": 0,
+        "skipped_protected": 0, "no_registry_entry": 0, "results": [],
+    }
+    for fp in files:
+        res = migrate_file(fp, family, platform, dry_run=dry_run, registry=registry)
+        summary["results"].append(res)
+        summary["block_replacements"] += res["block_replacements"]
+        summary["inline_mentions_found"] += res["inline_mentions_found"]
+        if res["result"] in (R_MIGRATED, R_DRY_RUN):
+            summary["files_migrated"] += 1
+        elif res["result"] == R_SKIPPED_PROTECTED:
+            summary["skipped_protected"] += 1
+        elif res["result"] == R_NO_REGISTRY_ENTRY:
+            summary["no_registry_entry"] += 1
+    return summary
+
+
 def run_migration(
     family: str, platform: str, *, dry_run: bool = True, limit: "int | None" = None,
     registry: dict | None = None, respect_collision_gate: bool = True, force: bool = False,
+    respect_change_budget: bool = True,
 ) -> dict[str, Any]:
     reg = registry if registry is not None else load_registry()
 
@@ -218,33 +269,62 @@ def run_migration(
                 "collision_gate_blocked": True,
                 "collision_classification": collision_result.classification.value,
                 "collision_reason": collision_result.reason,
+                "budget_blocked": False,
             }
 
     files = discover_files(family, platform)
     if limit is not None:
         files = files[:limit]
 
-    summary: dict[str, Any] = {
+    # Probe pass (always dry-run, regardless of the caller's real dry_run
+    # intent) so the change-budget check sees the REAL proposed volume --
+    # files that would actually be migrated, not the raw candidate count
+    # discover_files() returns (most of which are typically R_NOOP/
+    # R_NO_REGISTRY_ENTRY and never touched at all).
+    probe = _run_pass(files, family, platform, dry_run=True, registry=reg)
+
+    budget_verdict = None
+    if respect_change_budget and not force:
+        migrated_files = [
+            fp for fp, res in zip(files, probe["results"])
+            if res["result"] in (R_MIGRATED, R_DRY_RUN)
+        ]
+        files_by_locale: dict[str, int] = {}
+        for fp in migrated_files:
+            loc = _locale_from_path(fp, family)
+            files_by_locale[loc] = files_by_locale.get(loc, 0) + 1
+        volume = ProposedInstallChangeVolume(
+            total_files=len(migrated_files), files_by_locale=files_by_locale,
+        )
+        budget_verdict = check_budget(family, "mechanical_migration", volume)
+        if not budget_verdict.allowed:
+            return {
+                "family": family, "platform": platform, "dry_run": dry_run,
+                "files_checked": len(files), "files_migrated": 0,
+                "block_replacements": 0, "inline_mentions_found": 0,
+                "skipped_protected": 0, "no_registry_entry": 0, "results": [],
+                "collision_gate_blocked": False,
+                "collision_classification": collision_result.classification.value if collision_result else None,
+                "budget_blocked": True,
+                "budget_reason": budget_verdict.reason,
+                "budget_static_cap_violations": budget_verdict.static_cap_violations,
+                "budget_anomaly_status": budget_verdict.anomaly_status,
+            }
+
+    if dry_run:
+        summary = probe
+    else:
+        summary = _run_pass(files, family, platform, dry_run=False, registry=reg)
+        if respect_change_budget and not force:
+            record_run(family, "mechanical_migration", summary["files_migrated"])
+
+    summary.update({
         "family": family, "platform": platform, "dry_run": dry_run,
-        "files_checked": len(files), "files_migrated": 0,
-        "block_replacements": 0, "inline_mentions_found": 0,
-        "skipped_protected": 0, "no_registry_entry": 0, "results": [],
         "collision_gate_blocked": False,
         "collision_classification": collision_result.classification.value if collision_result else None,
-    }
-
-    for fp in files:
-        res = migrate_file(fp, family, platform, dry_run=dry_run, registry=reg)
-        summary["results"].append(res)
-        summary["block_replacements"] += res["block_replacements"]
-        summary["inline_mentions_found"] += res["inline_mentions_found"]
-        if res["result"] in (R_MIGRATED, R_DRY_RUN):
-            summary["files_migrated"] += 1
-        elif res["result"] == R_SKIPPED_PROTECTED:
-            summary["skipped_protected"] += 1
-        elif res["result"] == R_NO_REGISTRY_ENTRY:
-            summary["no_registry_entry"] += 1
-
+        "budget_blocked": False,
+        "budget_anomaly_status": budget_verdict.anomaly_status if budget_verdict else None,
+    })
     return summary
 
 
