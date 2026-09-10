@@ -128,14 +128,66 @@ def resolve_keep_names(policy: dict, repo_root: Path) -> "list[str]":
     return sorted(names)
 
 
+def render_merged_tree(root_keep: "dict[tuple[str, ...], list[str]]") -> "list[str]":
+    """Render the ancestor-chain negation for MULTIPLE roots at once,
+    merging any shared path-segment prefixes into ONE blanket `{prefix}/*`
+    exclusion instead of one per root.
+
+    PKGINSTALL-DEFECT-SWEEP-REDESIGN (2026-09-10): found live while adding a
+    second reports/-rooted policy (reports/audit, alongside the pre-existing
+    reports/repo-presenter-regen-full) -- build_full_block() used to call
+    render_block() independently per policy, each emitting its OWN
+    `reports/*` blanket-exclusion line. Git's negation semantics are
+    last-match-wins across the WHOLE file: the SECOND policy's `reports/*`
+    re-excludes everything the FIRST policy had already un-ignored,
+    silently breaking that policy's tracking. Confirmed via real
+    `git check-ignore -v` before this fix, not assumed -- see
+    TestRealGitCheckIgnore's new two-sibling-policy case.
+
+    Any two (or more) roots sharing a common ancestor prefix, at ANY depth,
+    are handled the same way -- not just the "both start with reports/"
+    case this bug was found through.
+    """
+    children_of: "dict[tuple[str, ...], set[str]]" = {}
+    for segments in root_keep:
+        for depth in range(len(segments)):
+            parent = segments[:depth]
+            children_of.setdefault(parent, set()).add(segments[depth])
+
+    lines: "list[str]" = []
+
+    def walk(prefix: "tuple[str, ...]") -> None:
+        prefix_str = "/".join(prefix)
+        lines.append(f"{prefix_str}/*")
+        children = sorted(children_of.get(prefix, set()))
+        for child in children:
+            lines.append(f"!{prefix_str}/{child}/")
+        for child in children:
+            child_path = prefix + (child,)
+            if child_path in root_keep:
+                keep_names = root_keep[child_path]
+                child_str = "/".join(child_path)
+                lines.append(f"# {child_str} -- {len(keep_names)} tracked name(s)")
+                lines.append(f"{child_str}/*")
+                lines.extend(f"!{child_str}/{name}/" for name in sorted(keep_names))
+            elif child_path in children_of:
+                walk(child_path)
+
+    for top_segment in sorted({segments[0] for segments in root_keep}):
+        walk((top_segment,))
+    return lines
+
+
 def build_full_block(policies: "list[dict]", repo_root: Path) -> "list[str]":
-    """Render the complete managed .gitignore block for every policy entry."""
+    """Render the complete managed .gitignore block for every policy entry,
+    with shared root prefixes merged into one collision-safe negation chain
+    (see render_merged_tree())."""
+    root_keep = {
+        tuple(policy["root"].split("/")): resolve_keep_names(policy, repo_root)
+        for policy in policies
+    }
     lines = list(_HEADER_LINES)
-    for policy in policies:
-        root = policy["root"]
-        keep_names = resolve_keep_names(policy, repo_root)
-        lines.append(f"# {root} -- {len(keep_names)} tracked name(s)")
-        lines.extend(render_block(root, keep_names))
+    lines.extend(render_merged_tree(root_keep))
     lines.extend(_FOOTER_LINES)
     return lines
 
