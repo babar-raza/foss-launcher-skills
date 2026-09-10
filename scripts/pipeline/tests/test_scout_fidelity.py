@@ -487,26 +487,21 @@ class TestP5SnippetProvenance:
 
 # ---------------------------------------------------------------------------
 # Real-repo regression proof: knowledge/3d/typescript's TRACKED (committed)
-# api_surface.json is the actual pre-TC-MT040-10/12 output — verify the
-# facts this whole gate exists to catch are still visible in the tracked
-# tree today (no clone cache needed for this half — it reads api_surface.json
-# directly).
+# api_surface.json was the actual pre-TC-MT040-10/12 output. Two of the three
+# tests originally here — test_zero_abstract_class_declarations_in_tracked_api_surface
+# and test_p5_flags_real_tracked_snippet_distribution — were retired 2026-09-10
+# (ST-193): 3d/typescript was re-scouted/re-promoted 2026-08-31 (commit 1ace625a02)
+# and its tracked artifacts now correctly show 8 abstract_class_declaration entries
+# (verified against real upstream source) and a 9/91 README/tests snippet split, so
+# the pre-fix defect shape they pinned no longer reproduces — exactly as their own
+# assertion messages anticipated. Durable regression coverage for both defect
+# classes lives in the synthetic-fixture tests instead (TestP1DeclarationCensus::
+# test_negative_control_flags_hidden_abstract_class above, and the P5
+# synthetic-fixture tests above), which don't depend on 3d/typescript's own data
+# drifting over time the way these two did.
 # ---------------------------------------------------------------------------
 
 class TestRealTrackedThreeDTypescriptEvidence:
-    def test_zero_abstract_class_declarations_in_tracked_api_surface(self):
-        real_root = scout_fidelity._DEFAULT_REPO_ROOT
-        path = real_root / "knowledge" / "3d" / "typescript" / "merged" / "api_surface.json"
-        if not path.is_file():
-            pytest.skip("knowledge/3d/typescript/merged/api_surface.json not present in this checkout")
-        entries = json.loads(path.read_text(encoding="utf-8"))
-        kinds = {e.get("kind") for e in entries}
-        assert "abstract_class_declaration" not in kinds, (
-            "3d/typescript's tracked api_surface.json now HAS abstract_class_declaration "
-            "entries -- the pre-fix defect this test pins no longer reproduces from the "
-            "tracked tree; see the report for the synthetic-fixture proof instead"
-        )
-
     def test_zero_docs_captured_in_tracked_api_surface(self):
         real_root = scout_fidelity._DEFAULT_REPO_ROOT
         path = real_root / "knowledge" / "3d" / "typescript" / "merged" / "api_surface.json"
@@ -518,24 +513,6 @@ class TestRealTrackedThreeDTypescriptEvidence:
             "3d/typescript's tracked api_surface.json now HAS captured doc comments -- "
             "the pre-fix defect this test pins no longer reproduces from the tracked tree"
         )
-
-    def test_p5_flags_real_tracked_snippet_distribution(self, tmp_path, monkeypatch):
-        """Runs P5 in index-only mode (no clone cache) against the REAL
-        tracked snippets_index.json for 3d/typescript, copied into a tmp
-        knowledge tree (never mutating the real one)."""
-        real_root = scout_fidelity._DEFAULT_REPO_ROOT
-        real_snip = real_root / "knowledge" / "3d" / "typescript" / "merged" / "snippets" / "snippets_index.json"
-        if not real_snip.is_file():
-            pytest.skip("real 3d/typescript snippets_index.json not present in this checkout")
-        scout_fidelity.configure(repo_root=tmp_path)
-        dest = tmp_path / "knowledge" / "3d" / "typescript" / "merged" / "snippets"
-        dest.mkdir(parents=True)
-        (dest / "snippets_index.json").write_text(real_snip.read_text(encoding="utf-8"), encoding="utf-8")
-        monkeypatch.setenv("ASPOSE_CLONE_CACHE", str(tmp_path / "clone_cache"))  # empty -> no clone
-        result = scout_fidelity.probe_p5_snippet_provenance("3d", "typescript")
-        assert result["details"]["confidence"] == "index_only"
-        assert result["details"]["tier_distribution"].get("tier2_tests", 0) == result["details"]["total_snippets"]
-        assert result["status"] == "WARN"
 
 
 # ---------------------------------------------------------------------------
