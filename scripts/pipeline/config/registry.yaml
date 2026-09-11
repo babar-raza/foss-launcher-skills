@@ -2453,14 +2453,20 @@ scripts:
       ledger (scripts/pipeline/config/mission-ids.jsonl) replacing 'grep several
       directories, pick highest-seen MT0NN + 1 by eye' with an atomic claim.
       Confirmed live defect this closes: MT018 was independently issued to two
-      unrelated missions (plans/master-plan.md:29,31), and a second, wholly
-      uncoordinated MT0NN track run by /readme-refresh reached MT056 with zero
-      visibility into the main track's counter. Modeled directly on
-      baseline_ledger.py's ledger shape, reusing advisory_lock.FileLock rather
-      than a new lock primitive. Scoped to the numeric MT0NN track only --
-      free-text slug mission ids (e.g. backlink-governance-redesign) are a
-      disclosed, separate, out-of-scope risk. Consumed by
-      mission_authority.py's new `allocate` verb."
+      unrelated missions (both rows still present in plans/master-plan.md,
+      cited by mission_id rather than a line number since that file's row
+      count grows over time), and a second, wholly uncoordinated MT0NN track
+      run by /readme-refresh reached MT056 with zero visibility into the main
+      track's counter. Modeled directly on baseline_ledger.py's ledger shape,
+      reusing advisory_lock.FileLock rather than a new lock primitive. Scoped
+      to the numeric MT0NN track only -- free-text slug mission ids (e.g.
+      backlink-governance-redesign) are a disclosed, separate, out-of-scope
+      risk. Consumed by mission_authority.py's new `allocate` verb. ST-194
+      (2026-09-11) found and fixed a second-order gap in this same fix: the
+      seed-ledger Track-B loop was itself silently swallowing (not
+      disclosing) a main-vs-Track-B collision whenever a number was already
+      claimed by any track -- see mission_authority.py's
+      _KNOWN_OFF_THE_BOOKS_MISSIONS and the fixed Track-B seed loop."
 
   - path: scripts/pipeline/commands/ops/git_plumb_commit.py
     kind: entrypoint

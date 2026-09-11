@@ -592,17 +592,77 @@ def _track_b_numbers(root: Path) -> List[int]:
     The caller synthesizes a placeholder id per number -- the goal here is
     reserving the NUMBER against future re-allocation, not reconstructing
     Track B's full historical mission narrative (out of scope; see
-    mission_id_ledger.py's module docstring)."""
+    mission_id_ledger.py's module docstring).
+
+    Extracts every "MT\\d+" token from the row's first cell, not just a bare
+    "MT034" -- found live 2026-09-11 (ST-194 independent verification) that a
+    prior version of this function's regex required the number to be
+    IMMEDIATELY followed by the closing pipe, silently dropping any row whose
+    first cell carries trailing text (e.g. "MT034 (+ Phase 2)", "MT015
+    (dependency)") or names more than one number in one cell (e.g.
+    "MT043/MT044") -- the exact same false-green failure shape as the
+    bare-vs-dated-slug bug this docstring already describes, just a second,
+    independently-discovered instance of it in the same function. Scoped to
+    the first cell only (not the whole line) so a Notes-column mention of an
+    unrelated number elsewhere in the row (e.g. "restored by MT056" in a
+    DIFFERENT row's notes) is never picked up."""
     doc_path = root / "docs" / "readme-refresh" / "plan-system-forensic-reconciliation.md"
     if not doc_path.is_file():
         return []
-    row_re = re.compile(r"^\|\s*MT(\d+)\s*\|")
+    cell_re = re.compile(r"^\|\s*([^|]+?)\s*\|")
+    number_re = re.compile(r"MT(\d+)")
     numbers: List[int] = []
     for line in doc_path.read_text(encoding="utf-8").splitlines():
-        m = row_re.match(line)
-        if m:
-            numbers.append(int(m.group(1)))
+        m = cell_re.match(line)
+        if not m:
+            continue
+        first_cell = m.group(1)
+        if not first_cell.upper().startswith("MT"):
+            continue
+        numbers.extend(int(n) for n in number_re.findall(first_cell))
     return numbers
+
+
+# Historical off-the-books mission numbers with NO full dated-slug id anywhere
+# in the repo (no plans/missions/*.md file, no reports/plan_state/ dir, no
+# MISSION_AUTHORITY.yaml entry) -- invisible to every source above AND to the
+# Track B table. Found live 2026-09-11 while investigating the MT041-067
+# duplicate-numbered-mission finding: MT021's second, real instance
+# ("Discovery health gate enforcement", commit a30d6a0ae9) exists only as a
+# bare "MT021" mention in that commit message and in
+# reports/skill-gaps/2026-08-05-discovery-health-gate-enforcement.md's own
+# title line -- there is no real dated-slug id to record, so (like Track B) a
+# labeled placeholder is seeded instead of one.
+#
+# Deliberately a hard-coded list, not a generic content scanner: a scan of
+# reports/skill-gaps/*.md for any "MT\d+" mention was tried and rejected
+# while building this fix -- most hits there are narrative references to
+# missions that already have a real id recorded elsewhere (MT013, MT015,
+# MT018, MT020, MT022, MT029, MT033, MT037, MT064, ...), and seeding a
+# placeholder for every mention would fabricate false "collisions" against
+# those already-correctly-recorded missions. Extend this list by hand, citing
+# the source, if another genuinely off-the-books case like this is found.
+#
+# Each entry's citation file is checked to exist under `root` before it is
+# seeded (mirroring every other source function's root-relative disk read) --
+# this keeps the list from unconditionally polluting an unrelated tmp_path
+# test fixture that never created that evidence file.
+_KNOWN_OFF_THE_BOOKS_MISSIONS: List[Tuple[int, str, str]] = [
+    # (number, placeholder_id, citation_path_relative_to_root)
+    (21, "MT021-2026-08-05-DISCOVERY-HEALTH-GATE-ENFORCEMENT-OFF-THE-BOOKS-PLACEHOLDER",
+     "reports/skill-gaps/2026-08-05-discovery-health-gate-enforcement.md"),
+]
+
+
+def _known_off_the_books_missions(root: Path) -> List[Tuple[int, str]]:
+    """Filter _KNOWN_OFF_THE_BOOKS_MISSIONS to entries whose citation file
+    actually exists under `root` -- so this list only ever seeds something
+    into a repo that genuinely has the cited evidence on disk."""
+    return [
+        (number, placeholder_id)
+        for number, placeholder_id, citation in _KNOWN_OFF_THE_BOOKS_MISSIONS
+        if (root / citation).is_file()
+    ]
 
 
 def cmd_seed_ledger(args: argparse.Namespace) -> int:
@@ -640,15 +700,33 @@ def cmd_seed_ledger(args: argparse.Namespace) -> int:
     # reserve the NUMBER via a clearly-labeled placeholder id, so a future
     # allocate() can never re-mint it, without fabricating a fake historical
     # mission narrative this repo has no real record of.
+    #
+    # Seed unconditionally: ledger.seed() is already idempotent per exact
+    # mission_id (has_id() check), which is sufficient to avoid double-
+    # reserving this number. A prior version of this loop additionally
+    # skipped seeding whenever ANY entry (from any track) already claimed the
+    # number -- that avoided a redundant reservation, but it also meant a
+    # genuine main-vs-Track-B collision (a real main-track mission and a real
+    # Track-B mission independently claiming the same number) was silently
+    # swallowed instead of disclosed -- the opposite of what this ledger
+    # exists to guarantee. Confirmed live 2026-09-11: MT038/MT039 each have a
+    # real Track-B mission that this skip condition alone was hiding; MT034's
+    # own Track-B collision needed BOTH this fix and the _track_b_numbers()
+    # regex fix above (its row is "MT034 (+ Phase 2)", which the old regex
+    # never even captured as a candidate number in the first place).
     for number in _track_b_numbers(root):
         placeholder_id = f"MT{number:03d}-README-REFRESH-TRACK-B-PLACEHOLDER"
-        # A real, already-recorded id for this number (from any source above)
-        # takes precedence -- only reserve the placeholder if genuinely nothing
-        # else already claims this number.
-        if any(e.get("number") == number for e in ledger.history()):
-            already_present += 1
-            continue
         result = ledger.seed(number=number, mission_id=placeholder_id, track="readme-refresh", source="track-b-table-scan")
+        if result is None:
+            already_present += 1
+        else:
+            seeded += 1
+
+    # Known off-the-books collisions (Mechanism 3) -- see
+    # _KNOWN_OFF_THE_BOOKS_MISSIONS's own docstring for why this is a small,
+    # explicit, cited list rather than a generic content scanner.
+    for number, placeholder_id in _known_off_the_books_missions(root):
+        result = ledger.seed(number=number, mission_id=placeholder_id, track="main", source="off-the-books-backfill")
         if result is None:
             already_present += 1
         else:

@@ -511,6 +511,91 @@ class TestSeedLedgerAndAllocate:
         assert placeholder["track"] == "readme-refresh"
         assert "PLACEHOLDER" in placeholder["mission_id"]
 
+    def test_track_b_numbers_handles_trailing_text_and_combined_cells(self, tmp_path):
+        """Regression test for a second ST-194 (2026-09-11) find, caught by
+        independent verification: the prior regex required the number to sit
+        immediately before the closing pipe, silently dropping any row whose
+        first cell carries trailing text (e.g. real table rows "MT034 (+
+        Phase 2)", "MT015 (dependency)") or names more than one number in one
+        cell (e.g. real row "MT043/MT044") -- the exact same false-green
+        failure shape as the bare-vs-dated-slug bug this function's docstring
+        already describes, a second independent instance of it. Also proves
+        a Notes-column mention of an unrelated number in a DIFFERENT row
+        (e.g. "restored by MT056") is never picked up -- extraction is
+        scoped to the first cell only."""
+        doc_dir = tmp_path / "docs" / "readme-refresh"
+        doc_dir.mkdir(parents=True)
+        (doc_dir / "plan-system-forensic-reconciliation.md").write_text(
+            "| MT034 (+ Phase 2) | 2026-08-12 | some incident |\n"
+            "| MT015 (dependency) | 2026-07-30 | some incident |\n"
+            "| MT043/MT044 | 2026-08-14 | some incident |\n"
+            "| MT040 | 2026-08-14 | unrelated note mentioning MT056 elsewhere |\n",
+            encoding="utf-8",
+        )
+        numbers = mission_authority._track_b_numbers(tmp_path)
+        assert sorted(numbers) == [15, 34, 40, 43, 44]
+
+    def test_seed_ledger_discloses_track_b_collision_even_when_number_already_claimed(self, tmp_path):
+        """Regression test for the ST-194 (2026-09-11) disclosure gap: a prior
+        version of the Track B seed loop skipped reserving a number whenever
+        ANY entry already claimed it, which correctly avoided a redundant
+        reservation but ALSO silently swallowed a genuine main-vs-Track-B
+        collision (the exact defect class ST-157 exists to make visible).
+        Real-world instance this fix uncovered: MT038/MT039/MT040 among
+        others. Here: a main-track mission and a Track B row both claim
+        number 38 -- both must survive in the ledger."""
+        (tmp_path / "reports" / "plan_state" / "MT038-2026-08-27-CI-HARDENING").mkdir(parents=True)
+        doc_dir = tmp_path / "docs" / "readme-refresh"
+        doc_dir.mkdir(parents=True)
+        (doc_dir / "plan-system-forensic-reconciliation.md").write_text(
+            "| MT038 | 2026-08-14 | some readme-refresh incident |\n",
+            encoding="utf-8",
+        )
+
+        mission_authority.main(["--root", str(tmp_path), "seed-ledger"])
+        from mission_id_ledger import MissionIdLedger
+        ledger = MissionIdLedger(repo_root=tmp_path)
+        assert ledger.has_id("MT038-2026-08-27-CI-HARDENING")
+        assert ledger.has_id("MT038-README-REFRESH-TRACK-B-PLACEHOLDER")
+        numbers = [e["number"] for e in ledger.history()]
+        assert numbers.count(38) == 2
+
+    def test_seed_ledger_backfills_known_off_the_books_missions(self, tmp_path):
+        """Regression test for the ST-194 Mechanism-3 backfill: MT021's second,
+        real instance ('Discovery health gate enforcement', commit
+        a30d6a0ae9) has no dated-slug id anywhere in the repo -- no
+        plans/missions/*.md file, no reports/plan_state/ dir -- so it is
+        invisible to every other source scan. The explicit, cited
+        _KNOWN_OFF_THE_BOOKS_MISSIONS list must still record it (when its
+        citation evidence exists under root), and must be idempotent like
+        every other seed source."""
+        gaps_dir = tmp_path / "reports" / "skill-gaps"
+        gaps_dir.mkdir(parents=True)
+        (gaps_dir / "2026-08-05-discovery-health-gate-enforcement.md").write_text(
+            "# SKILL GAP ESCALATION -- Discovery health gate enforcement (MT021, successor to MT020)\n",
+            encoding="utf-8",
+        )
+
+        mission_authority.main(["--root", str(tmp_path), "seed-ledger"])
+        from mission_id_ledger import MissionIdLedger
+        ledger = MissionIdLedger(repo_root=tmp_path)
+        assert ledger.has_id("MT021-2026-08-05-DISCOVERY-HEALTH-GATE-ENFORCEMENT-OFF-THE-BOOKS-PLACEHOLDER")
+        count_after_first = len(ledger.history())
+
+        mission_authority.main(["--root", str(tmp_path), "seed-ledger"])
+        assert len(ledger.history()) == count_after_first
+
+    def test_seed_ledger_skips_off_the_books_entry_without_its_citation_evidence(self, tmp_path):
+        """The filter in _known_off_the_books_missions() must key off real
+        on-disk evidence, not fire unconditionally -- otherwise every
+        unrelated tmp_path test fixture in this suite would silently gain a
+        phantom MT021 entry it never asked for (caught live while building
+        this fix: it broke 3 unrelated seed-ledger/allocate tests)."""
+        mission_authority.main(["--root", str(tmp_path), "seed-ledger"])
+        from mission_id_ledger import MissionIdLedger
+        ledger = MissionIdLedger(repo_root=tmp_path)
+        assert not ledger.has_id("MT021-2026-08-05-DISCOVERY-HEALTH-GATE-ENFORCEMENT-OFF-THE-BOOKS-PLACEHOLDER")
+
     def test_allocate_cli_mints_next_free_id_and_prints_it(self, tmp_path, capsys):
         (tmp_path / "reports" / "plan_state" / "MT005-EXISTING").mkdir(parents=True)
         mission_authority.main(["--root", str(tmp_path), "seed-ledger"])

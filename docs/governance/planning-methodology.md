@@ -146,11 +146,23 @@ the place this registration is prompted from in practice; this rule does not req
 enforcement mechanism, only that the check include "does a mission contract exist yet."
 
 **Collision note**: minting the new mission ID must check *both* mission-number sequences
-in this repo (see the `.supervisor/` PSL note below) — this repo already has one proven
-collision (`MT018` issued twice) and two more near-misses (`MT041`/`MT042` both already
-claimed by `/readme-refresh`'s own private sequence when MT058 was minted). Until GOV-01
-(a shared allocator or a distinct-prefix rule) lands, mint defensively: grep both
-sequences for the candidate number before using it.
+in this repo (see the `.supervisor/` PSL note below). This is not a hypothetical risk: a
+2026-09-11 audit (ST-194), triggered by `check_master_plan_index_completeness.py` surfacing
+6 suspicious numbers, found **20 confirmed historical duplicate mission numbers** once
+`mission_authority.py`'s own seed-ledger logic was fixed to stop silently swallowing
+main-vs-Track-B collisions (it had been skipping disclosure whenever a number was already
+claimed by any track, which hid the collision instead of recording it). The full, current,
+disclosed list lives in `scripts/pipeline/config/mission-ids.jsonl` (every number with more
+than one distinct `mission_id`) and is baselined in
+`scripts/pipeline/config/mission-id-known-duplicates.json`, enforced going forward by
+`scripts/ci/checks/check_mission_id_no_new_duplicates.py` — treat those two files, not this
+prose paragraph, as the living record: hand-enumerating instances here already went stale
+once (the original count was 1 proven + 2 near-misses; ST-194 found 20, after an
+independent-verification pass caught and fixed a second undercounting bug mid-fix). Per the
+disclose-not-rename decision (matching the original `MT018` precedent), none of these are
+renamed. Until GOV-01 (a shared allocator or a distinct-prefix rule) lands, mint defensively:
+run `mission_authority.py allocate`/`seed-ledger` (never hand-pick a number) and let the new
+check catch anything that still slips through.
 
 ## The `.supervisor/` PSL system (clarified, GOV-02)
 

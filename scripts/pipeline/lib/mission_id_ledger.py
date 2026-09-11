@@ -5,8 +5,11 @@ CONTRACT: scripts/pipeline/lib/mission_id_ledger.py
            and docs/readme-refresh/plan-system-forensic-reconciliation.md's own table,
            then pick highest-seen-number + 1 by eye" (the process backlog/inbox.md's
            ST-157 documents as having already produced a confirmed duplicate --
-           MT018 issued to two unrelated missions, plans/master-plan.md:29,31 -- and
-           a second, entirely uncoordinated MT0NN track run by /readme-refresh,
+           MT018 issued to two unrelated missions (both rows still present in
+           plans/master-plan.md, cited by mission_id rather than a line number
+           since that file's row count grows over time -- ST-194 has 6 more
+           historical instances of this same class) -- and a second, entirely
+           uncoordinated MT0NN track run by /readme-refresh,
            independently reaching MT056) with a single, shared, lock-protected
            counter. Modeled directly on baseline_ledger.py's proven append-only-
            ledger shape; reuses advisory_lock.FileLock rather than reimplementing it.
