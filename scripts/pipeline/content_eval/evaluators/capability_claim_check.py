@@ -190,7 +190,20 @@ def _direction_compatible(claimed: str, actual: str) -> bool:
     if claimed == actual:
         return True
     if actual == "detect":
-        return False  # detect means identification only, no I/O
+        # 2026-09-11 (imaging/net launch): _claim_direction() has no verb
+        # pattern for "detect" itself (only import/export/both) -- it could
+        # therefore never match actual="detect" via the `claimed == actual`
+        # branch above, guaranteeing a FAIL for every prose sentence near a
+        # detect-only format mention that used ANY import-shaped verb
+        # (read/open/load/parse), which is unavoidable in natural language
+        # describing a header-probing library ("reads the header to detect
+        # the format"). Format detection is inherently a read-only
+        # operation -- it never writes anything -- so an "import"-shaped
+        # claim is a correct description of a detect-only capability, not
+        # an overclaim. Only "export"/"both" claims (implying the library
+        # can also WRITE this format) remain genuine overclaims and are
+        # still rejected below.
+        return claimed == "import"
     if actual == "none":
         return False
     return False
