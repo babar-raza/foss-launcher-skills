@@ -6517,3 +6517,227 @@ scripts:
     requires_test: true
     deprecated_since: null
     notes: "MT067-2026-09-10 TC-01: single source of truth for class-counting stats (total_declared/public_documented/raw_entries_including_non_class), replacing 4+ independently-reimplemented formulas across outputs.py/scout.py/promote.py/index.py/site_planner.py that produced barcode/python's 26-vs-79-vs-146 class_count split (see docs/reference/knowledge-stats.md)."
+
+  - path: scripts/pipeline/commands/content/locale_patch.py
+    kind: entrypoint
+    lifecycle: active
+    canonical_impl_path: null
+    public_entrypoint: true
+    cli_contract: stable
+    owner_domain: content
+    backing:
+      kind: skill
+      ref: locale-patch
+    test_targets:
+      - scripts/pipeline/tests/test_locale_patch.py
+    requires_test: false
+    deprecated_since: null
+    notes: "S-75 locale-patch: real, tested, committed byte-identical old_text-match locale-file fixer, replacing the ad hoc ST-054 TC-07 throwaway script."
+
+  - path: scripts/pipeline/commands/knowledge/vector_coverage_report.py
+    kind: entrypoint
+    lifecycle: active
+    canonical_impl_path: null
+    public_entrypoint: true
+    cli_contract: stable
+    owner_domain: knowledge
+    backing:
+      kind: internal
+      ref: null
+    test_targets:
+      - scripts/pipeline/tests/test_vector_coverage_report.py
+    requires_test: false
+    deprecated_since: null
+    notes: "TC-VEC-06/RC3: live vector-coverage report cross-referencing knowledge/_index.json against knowledge/_vectors, replacing a hand-maintained doc table that went stale."
+
+  - path: scripts/pipeline/commands/ops/enrich_products_cmake_targets.py
+    kind: entrypoint
+    lifecycle: active
+    canonical_impl_path: null
+    public_entrypoint: true
+    cli_contract: stable
+    owner_domain: cpp-platform
+    backing:
+      kind: internal
+      ref: null
+    test_targets:
+      - scripts/pipeline/tests/test_enrich_products_cmake_targets.py
+    requires_test: false
+    deprecated_since: null
+    notes: "ST-054 TC-12: one-time (re-run as needed) enrichment of cmake_project/cmake_target fields for unpublished C++ platforms, via lib.input_manifest.resolve_cpp_target()."
+
+  - path: scripts/pipeline/commands/ops/install_defect_sweep.py
+    kind: entrypoint
+    lifecycle: active
+    canonical_impl_path: null
+    public_entrypoint: true
+    cli_contract: stable
+    owner_domain: ops
+    backing:
+      kind: workflow
+      ref: install-literal-sweep.yml
+    test_targets:
+      - scripts/pipeline/tests/test_install_defect_sweep.py
+    requires_test: false
+    deprecated_since: null
+    notes: "PKGINSTALL-DEFECT-SWEEP-REDESIGN (MT066 R.3.4): install_literal_sweep.py's successor; extends the recurring portfolio-wide sweep to install_recipe's two safety checks."
+
+  - path: scripts/pipeline/commands/ops/reconcile_content_healing_status.py
+    kind: entrypoint
+    lifecycle: active
+    canonical_impl_path: null
+    public_entrypoint: true
+    cli_contract: stable
+    owner_domain: ops
+    backing:
+      kind: internal
+      ref: null
+    test_targets:
+      - scripts/pipeline/tests/test_reconcile_content_healing_status.py
+    requires_test: false
+    deprecated_since: null
+    notes: "PKGINSTALL-CONTENT-HEALING-STATUS-WRITEBACK: computes the missing 'pending -> healed' half of content_healing_status's lifecycle in data/package_registry.json."
+
+  - path: scripts/pipeline/commands/ops/sync_tracked_issues.py
+    kind: entrypoint
+    lifecycle: active
+    canonical_impl_path: null
+    public_entrypoint: true
+    cli_contract: stable
+    owner_domain: ops
+    backing:
+      kind: workflow
+      ref: install-literal-sweep.yml
+    test_targets:
+      - scripts/pipeline/tests/test_sync_tracked_issues.py
+    requires_test: false
+    deprecated_since: null
+    notes: "PKGINSTALL-DEFECT-SWEEP-REDESIGN (MT066 R.3.4): dedups install-literal-sweep.yml's weekly GitHub issue filing via a (family, platform, defect_class) key and hidden HTML-comment marker."
+
+  - path: scripts/pipeline/lib/input_manifest.py
+    kind: library
+    lifecycle: active
+    canonical_impl_path: null
+    public_entrypoint: false
+    cli_contract: none
+    owner_domain: content
+    backing:
+      kind: internal
+      ref: null
+    test_targets:
+      - scripts/pipeline/tests/test_input_manifest.py
+    requires_test: false
+    deprecated_since: null
+    notes: "TC-13 (readme-refresh-trackb-and-followon-2026-09-01), RC-2: resolves/hashes/diffs generation inputs so a candidate's facts carry a recorded as-of identity."
+
+  - path: scripts/pipeline/lib/install_change_budget.py
+    kind: library
+    lifecycle: active
+    canonical_impl_path: null
+    public_entrypoint: false
+    cli_contract: none
+    owner_domain: ops
+    backing:
+      kind: internal
+      ref: null
+    test_targets:
+      - scripts/pipeline/tests/test_install_change_budget.py
+    requires_test: false
+    deprecated_since: null
+    notes: "PKGINSTALL-CHANGE-BUDGET: content-level blast-radius circuit breaker for install-instruction changes, modeled on scripts/seo/pipeline/change_budget.py's static-cap + rolling-baseline pattern."
+
+  - path: scripts/pipeline/lib/install_collision_classifier.py
+    kind: library
+    lifecycle: active
+    canonical_impl_path: null
+    public_entrypoint: false
+    cli_contract: none
+    owner_domain: ops
+    backing:
+      kind: internal
+      ref: null
+    test_targets:
+      - scripts/pipeline/tests/test_install_collision_classifier.py
+    requires_test: false
+    deprecated_since: null
+    notes: "PKGINSTALL-COLLISION-CLASSIFIER: codifies ST-054 TC-05's manual identifier-collision classification method into a real, tested function."
+
+  - path: scripts/pipeline/lib/installation_state.py
+    kind: library
+    lifecycle: active
+    canonical_impl_path: null
+    public_entrypoint: false
+    cli_contract: none
+    owner_domain: ops
+    backing:
+      kind: internal
+      ref: null
+    test_targets:
+      - scripts/pipeline/tests/test_installation_state.py
+    requires_test: false
+    deprecated_since: null
+    notes: "Mission MT066 Phase 2 (plan section F): pure, side-effect-free installation-state state machine (classify_entry/desired_source) derived from data/package_registry.json entry fields."
+
+  - path: scripts/pipeline/lib/publication_reconciler.py
+    kind: library
+    lifecycle: active
+    canonical_impl_path: null
+    public_entrypoint: false
+    cli_contract: none
+    owner_domain: content
+    backing:
+      kind: internal
+      ref: null
+    test_targets:
+      - scripts/pipeline/tests/test_publication_reconciler.py
+    requires_test: false
+    deprecated_since: null
+    notes: "TC-15 (readme-refresh-trackb-and-followon-2026-09-01), SW-B: asks GitHub, read-only, what actually landed, closing the blind spot where a publication merged outside this repo's own push() path was invisible to every registry consumer."
+
+  - path: scripts/pipeline/lib/reconciliation_store.py
+    kind: library
+    lifecycle: active
+    canonical_impl_path: null
+    public_entrypoint: false
+    cli_contract: none
+    owner_domain: ops
+    backing:
+      kind: internal
+      ref: null
+    test_targets:
+      - scripts/pipeline/tests/test_reconciliation_store.py
+    requires_test: false
+    deprecated_since: null
+    notes: "PKGINSTALL-RECONCILIATION-STORE: FileLock-guarded, append-only durable state store bridging install-defect detection and remediation across sessions."
+
+  - path: scripts/pipeline/lib/registry_observation_ledger.py
+    kind: library
+    lifecycle: active
+    canonical_impl_path: null
+    public_entrypoint: false
+    cli_contract: none
+    owner_domain: ops
+    backing:
+      kind: internal
+      ref: null
+    test_targets:
+      - scripts/pipeline/tests/test_registry_observation_ledger.py
+    requires_test: false
+    deprecated_since: null
+    notes: "Mission MT066 Phase 1: per-run observation ledger for the package-install reconciliation system; distinct from the pre-existing, unrelated reconciliation ledger used by refresh_harness.py."
+
+  - path: scripts/pipeline/lib/vector_store.py
+    kind: library
+    lifecycle: active
+    canonical_impl_path: null
+    public_entrypoint: false
+    cli_contract: none
+    owner_domain: knowledge
+    backing:
+      kind: internal
+      ref: null
+    test_targets:
+      - scripts/pipeline/tests/test_vector_store.py
+    requires_test: false
+    deprecated_since: null
+    notes: "TC-VEC-03/RC2: compares an active vector profile's recorded source_hash against a fresh api_surface.json hash so staleness (not just existence) is detectable; source_hash was previously write-only."
