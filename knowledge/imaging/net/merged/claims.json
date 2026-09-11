@@ -1,0 +1,509 @@
+[
+  {
+    "claim_id": "CLM-imaging-290588",
+    "kind": "api_class",
+    "text": "Class ImageFormat defined in src/Aspose.Imaging.Foss/ImageFormat.cs",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/Aspose.Imaging.Foss/ImageFormat.cs",
+        "line": 3
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-imaging-faa7ee28",
+    "kind": "api_method",
+    "text": "ImageInfo.Format property of type ImageFormat",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/Aspose.Imaging.Foss/ImageInfo.cs",
+        "line": 5
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-imaging-68aa9f74",
+    "kind": "api_method",
+    "text": "ImageInfo.Width property of type int?",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/Aspose.Imaging.Foss/ImageInfo.cs",
+        "line": 6
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-imaging-0d8f8230",
+    "kind": "api_method",
+    "text": "ImageInfo.Height property of type int?",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/Aspose.Imaging.Foss/ImageInfo.cs",
+        "line": 7
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-imaging-82c3240d",
+    "kind": "api_method",
+    "text": "ImageInfo.BitDepth property of type int?",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/Aspose.Imaging.Foss/ImageInfo.cs",
+        "line": 8
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-imaging-86155d65",
+    "kind": "api_method",
+    "text": "ImageInfo.FrameCount property of type int?",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/Aspose.Imaging.Foss/ImageInfo.cs",
+        "line": 9
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-imaging-cd8b6c86",
+    "kind": "api_method",
+    "text": "ImageInfo.ImageInfo(format, width, height, bitDepth, frameCount) -> ",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/Aspose.Imaging.Foss/ImageInfo.cs",
+        "line": 11
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-imaging-130224",
+    "kind": "api_class",
+    "text": "Class ImageInfo defined in src/Aspose.Imaging.Foss/ImageInfo.cs",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/Aspose.Imaging.Foss/ImageInfo.cs",
+        "line": 3
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-imaging-282b5d",
+    "kind": "api_method",
+    "text": "ImageProbe.DetectFormat(stream) -> ",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/Aspose.Imaging.Foss/ImageProbe.cs",
+        "line": 27
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-imaging-b8ec8aac",
+    "kind": "api_method",
+    "text": "ImageProbe.DetectFormat(data) -> ",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/Aspose.Imaging.Foss/ImageProbe.cs",
+        "line": 30
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-imaging-61186e",
+    "kind": "api_method",
+    "text": "ImageProbe.Probe(stream) -> ",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/Aspose.Imaging.Foss/ImageProbe.cs",
+        "line": 36
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-imaging-62c975ed",
+    "kind": "api_method",
+    "text": "ImageProbe.Probe(data) -> ",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/Aspose.Imaging.Foss/ImageProbe.cs",
+        "line": 62
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-imaging-a405176b",
+    "kind": "api_method",
+    "text": "ImageProbe.ProbeFile(path) -> ",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/Aspose.Imaging.Foss/ImageProbe.cs",
+        "line": 68
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-imaging-509a12",
+    "kind": "api_class",
+    "text": "Class ImageProbe defined in src/Aspose.Imaging.Foss/ImageProbe.cs",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/Aspose.Imaging.Foss/ImageProbe.cs",
+        "line": 8
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-imaging-973e63",
+    "kind": "format_support",
+    "text": "Detects format Unknown via ImageFormat",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/Aspose.Imaging.Foss/ImageFormat.cs",
+        "line": 3
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-imaging-6d6191",
+    "kind": "format_support",
+    "text": "Detects format Png via ImageFormat",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/Aspose.Imaging.Foss/ImageFormat.cs",
+        "line": 3
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-imaging-b4b19f",
+    "kind": "format_support",
+    "text": "Detects format Jpeg via ImageFormat",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/Aspose.Imaging.Foss/ImageFormat.cs",
+        "line": 3
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-imaging-070f1e",
+    "kind": "format_support",
+    "text": "Detects format Gif via ImageFormat",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/Aspose.Imaging.Foss/ImageFormat.cs",
+        "line": 3
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-imaging-d7372b",
+    "kind": "format_support",
+    "text": "Detects format Bmp via ImageFormat",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/Aspose.Imaging.Foss/ImageFormat.cs",
+        "line": 3
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-imaging-8280ef",
+    "kind": "format_support",
+    "text": "Detects format WebP via ImageFormat",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/Aspose.Imaging.Foss/ImageFormat.cs",
+        "line": 3
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-imaging-35d982",
+    "kind": "format_support",
+    "text": "Detects format Ico via ImageFormat",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/Aspose.Imaging.Foss/ImageFormat.cs",
+        "line": 3
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-imaging-32d047",
+    "kind": "format_support",
+    "text": "Detects format Tiff via ImageFormat",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/Aspose.Imaging.Foss/ImageFormat.cs",
+        "line": 3
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-imaging-bff681",
+    "kind": "format_support",
+    "text": "Detects format Psd via ImageFormat",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/Aspose.Imaging.Foss/ImageFormat.cs",
+        "line": 3
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-imaging-fa9b68",
+    "kind": "format_support",
+    "text": "Detects format Emf via ImageFormat",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/Aspose.Imaging.Foss/ImageFormat.cs",
+        "line": 3
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-imaging-d42318",
+    "kind": "format_support",
+    "text": "Detects format Wmf via ImageFormat",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/Aspose.Imaging.Foss/ImageFormat.cs",
+        "line": 3
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-imaging-52ccee",
+    "kind": "format_support",
+    "text": "Detects format Dicom via ImageFormat",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "src/Aspose.Imaging.Foss/ImageFormat.cs",
+        "line": 3
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "ERC-imaging-net-58bcea04",
+    "text": "Use `ImageProbe.ProbeFile(string path)` to obtain an `ImageInfo` object that contains the detected image format and, when available, width, height, bit depth, and frame count.",
+    "kind": "api",
+    "page_role": "docs",
+    "confidence": 0.96,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "README.md",
+        "snippet": "var info = ImageProbe.ProbeFile(\"photo.jpg\");"
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-imaging-net-fb335268",
+    "text": "`ImageProbe.DetectFormat(byte[] data)` returns an `ImageFormat` enum value that identifies the image type without reading any pixel data.",
+    "kind": "api",
+    "page_role": "docs",
+    "confidence": 0.95,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "README.md",
+        "snippet": "var format = ImageProbe.DetectFormat(bytes);"
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-imaging-net-4d031011",
+    "text": "The library can detect and probe PNG, JPEG, GIF, BMP, WebP, ICO, TIFF, PSD, EMF, WMF, and DICOM image files.",
+    "kind": "format",
+    "page_role": "product",
+    "confidence": 0.93,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "README.md",
+        "snippet": "| Format | Detect | Width / Height | Bit depth | Frame count |\n|--------|:------:|:---------------:|:---------:|:-----------:|\n| PNG    | ✅ | ✅ | ✅ | ✅ |\n| JPEG   | ✅ | ✅ | ✅ | — |\n| GIF    | ✅ | ✅ | — | ✅ |\n| BMP    | ✅ | ✅ | ✅ | — |\n| WebP (lossy / lossless / extended) | ✅ | ✅ | — | — |\n| ICO    | ✅ | ✅ | ✅ | ✅ |\n| TIFF   | ✅ | ✅ | ✅ | ✅ |\n| PSD    | ✅ | ✅ | ✅ | — |\n| EMF    | ✅ | ✅ (from bounds) | — | — |\n| WMF (placeable) | ✅ | ✅ (assumes 96 DPI) | — | — |\n| DICOM  | ✅ | ✅ (Rows/Columns) | ✅ (BitsAllocated) | — |"
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-imaging-net-f85fe27e",
+    "text": "`ImageProbe.Probe` never throws on malformed or truncated input; it returns an `ImageInfo` containing only the `Format` when the header cannot be fully parsed.",
+    "kind": "troubleshoot",
+    "page_role": "kb",
+    "confidence": 0.96,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "README.md",
+        "snippet": "`Probe` never throws on malformed or truncated input — if a file matches a format's signature but its header can't be fully parsed, you get back an `ImageInfo` with just the `Format` set rather than an exception."
+      },
+      {
+        "source_file": "tests/Aspose.Imaging.Foss.Tests/ImageProbeTests.cs",
+        "snippet": "var info = ImageProbe.Probe(SampleImages.TruncatedJpeg());\nAssert.Equal(ImageFormat.Jpeg, info.Format);\nAssert.Null(info.Width);\nAssert.Null(info.Height);"
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-imaging-net-fa3ebbfa",
+    "text": "`ImageInfo` exposes nullable `Width`, `Height`, `BitDepth`, and `FrameCount` properties that are populated only when the format supports those values.",
+    "kind": "api",
+    "page_role": "reference",
+    "confidence": 0.94,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "Class: ImageInfo",
+        "snippet": "Properties: Format, Width, Height, BitDepth, FrameCount"
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-imaging-net-6fc8edc4",
+    "text": "For GIF images, `ImageInfo.FrameCount` reflects the number of frames when the file contains multiple frames; it is omitted if the frame count cannot be determined.",
+    "kind": "feature",
+    "page_role": "product",
+    "confidence": 0.93,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "tests/Aspose.Imaging.Foss.Tests/ImageProbeTests.cs",
+        "snippet": "var info = ImageProbe.Probe(SampleImages.GifWithFrames(64, 48, frameCount: 5));\nAssert.Equal(5, info.FrameCount);"
+      },
+      {
+        "source_file": "tests/Aspose.Imaging.Foss.Tests/ImageProbeTests.cs",
+        "snippet": "var info = ImageProbe.Probe(SampleImages.GifWithoutFrames(64, 48));\nAssert.Null(info.FrameCount);"
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-imaging-net-54eab75c",
+    "text": "When a BMP header specifies a negative height, `ImageInfo.Height` returns the absolute magnitude, normalizing the value to a positive number.",
+    "kind": "feature",
+    "page_role": "product",
+    "confidence": 0.92,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "tests/Aspose.Imaging.Foss.Tests/ImageProbeTests.cs",
+        "snippet": "var info = ImageProbe.Probe(SampleImages.Bmp(200, -100, 24));\nAssert.Equal(100, info.Height);"
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-imaging-net-539ba912",
+    "text": "`ImageProbe.DetectFormat(Stream stream)` can read from any seekable or non‑seekable stream to identify the image format.",
+    "kind": "api",
+    "page_role": "docs",
+    "confidence": 0.94,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "Class: ImageProbe",
+        "snippet": "Methods: DetectFormat(stream); DetectFormat(data); Probe(stream); Probe(data); ProbeFile(path)"
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-imaging-net-a86f34f7",
+    "text": "The library can parse DICOM headers, handling Implicit VR Little Endian and Explicit VR (Little/Big Endian) transfer syntaxes to extract rows, columns, and bits allocated.",
+    "kind": "feature",
+    "page_role": "product",
+    "confidence": 0.9,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "README.md",
+        "snippet": "DICOM parsing covers Implicit VR Little Endian and Explicit VR Little/Big Endian transfer syntaxes (including the common compressed ones, whose non-pixel elements are Explicit VR Little Endian); it stops rather than guesses if it hits a sequence or encapsulated pixel data with an undefined length before finding Rows/Columns/BitsAllocated."
+      }
+    ],
+    "provenance": "enriched"
+  }
+]

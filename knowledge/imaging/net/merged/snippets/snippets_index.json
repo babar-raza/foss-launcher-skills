@@ -1,0 +1,977 @@
+[
+  {
+    "id": "snippet_001",
+    "file": "snippet_001.cs",
+    "source_file": "tests/Aspose.Imaging.Foss.Tests/ImageProbeTests.cs",
+    "source_function": "Png_ReportsFormatAndDimensions",
+    "source_line": 7,
+    "classes_used": [
+      "ImageFormat",
+      "ImageProbe"
+    ],
+    "methods_used": [
+      "ImageProbe.Probe"
+    ],
+    "formats_referenced": [
+      "png"
+    ],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "c5e5bab389c6ca1db886f4c3f34d51c4567c0dbd0cd8b051366b769c8b996d2f",
+      "norm": "c5e5bab389c6ca1db886f4c3f34d51c4567c0dbd0cd8b051366b769c8b996d2f"
+    }
+  },
+  {
+    "id": "snippet_002",
+    "file": "snippet_002.cs",
+    "source_file": "tests/Aspose.Imaging.Foss.Tests/ImageProbeTests.cs",
+    "source_function": "Jpeg_ReportsFormatAndDimensions",
+    "source_line": 19,
+    "classes_used": [
+      "ImageFormat",
+      "ImageProbe"
+    ],
+    "methods_used": [
+      "ImageProbe.Probe"
+    ],
+    "formats_referenced": [
+      "jpeg"
+    ],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "afcc75e579c6210d6e8bd1046b3817a539f9553d789630b0d025c76d3a2783f1",
+      "norm": "afcc75e579c6210d6e8bd1046b3817a539f9553d789630b0d025c76d3a2783f1"
+    }
+  },
+  {
+    "id": "snippet_003",
+    "file": "snippet_003.cs",
+    "source_file": "tests/Aspose.Imaging.Foss.Tests/ImageProbeTests.cs",
+    "source_function": "Jpeg_TruncatedStream_DegradesToFormatOnlyInsteadOfThrowing",
+    "source_line": 30,
+    "classes_used": [
+      "ImageFormat",
+      "ImageProbe"
+    ],
+    "methods_used": [
+      "ImageProbe.Probe"
+    ],
+    "formats_referenced": [
+      "jpeg"
+    ],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "23f4784eae682bf89f2ffc4458b0b2161de15401620385127285796dff42d869",
+      "norm": "23f4784eae682bf89f2ffc4458b0b2161de15401620385127285796dff42d869"
+    }
+  },
+  {
+    "id": "snippet_004",
+    "file": "snippet_004.cs",
+    "source_file": "tests/Aspose.Imaging.Foss.Tests/ImageProbeTests.cs",
+    "source_function": "Gif_ReportsFormatAndDimensions",
+    "source_line": 40,
+    "classes_used": [
+      "ImageFormat",
+      "ImageProbe"
+    ],
+    "methods_used": [
+      "ImageProbe.Probe"
+    ],
+    "formats_referenced": [
+      "gif"
+    ],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "f72a9bea166cf1675eb7d4f21d4586350cb40adb0bf04a822efa78b05aac55ae",
+      "norm": "f72a9bea166cf1675eb7d4f21d4586350cb40adb0bf04a822efa78b05aac55ae"
+    }
+  },
+  {
+    "id": "snippet_005",
+    "file": "snippet_005.cs",
+    "source_file": "tests/Aspose.Imaging.Foss.Tests/ImageProbeTests.cs",
+    "source_function": "Gif_MultiFrame_ReportsFrameCount",
+    "source_line": 51,
+    "classes_used": [
+      "ImageFormat",
+      "ImageProbe"
+    ],
+    "methods_used": [
+      "ImageProbe.Probe"
+    ],
+    "formats_referenced": [
+      "gif"
+    ],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "0451bd51d8556be623260225d937cee16a3869bf50c641c4d1751b796d5b12bb",
+      "norm": "0451bd51d8556be623260225d937cee16a3869bf50c641c4d1751b796d5b12bb"
+    }
+  },
+  {
+    "id": "snippet_006",
+    "file": "snippet_006.cs",
+    "source_file": "tests/Aspose.Imaging.Foss.Tests/ImageProbeTests.cs",
+    "source_function": "Gif_TruncatedAfterScreenDescriptor_ReportsDimensionsButNoFrameCount",
+    "source_line": 62,
+    "classes_used": [
+      "ImageFormat",
+      "ImageProbe"
+    ],
+    "methods_used": [
+      "ImageProbe.Probe"
+    ],
+    "formats_referenced": [
+      "gif"
+    ],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "0c54a035bc7c694083d6f37d0530a12f47b42d1d4a37d7af4c10c81d9aa23dc9",
+      "norm": "0c54a035bc7c694083d6f37d0530a12f47b42d1d4a37d7af4c10c81d9aa23dc9"
+    }
+  },
+  {
+    "id": "snippet_007",
+    "file": "snippet_007.cs",
+    "source_file": "tests/Aspose.Imaging.Foss.Tests/ImageProbeTests.cs",
+    "source_function": "Bmp_ReportsFormatAndDimensions",
+    "source_line": 73,
+    "classes_used": [
+      "ImageFormat",
+      "ImageProbe"
+    ],
+    "methods_used": [
+      "ImageProbe.Probe"
+    ],
+    "formats_referenced": [
+      "bmp"
+    ],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "8169d6317dea5fab1a255e90d35bcdc3c3fd1f7cf82e498e220d5be99fcd60a6",
+      "norm": "8169d6317dea5fab1a255e90d35bcdc3c3fd1f7cf82e498e220d5be99fcd60a6"
+    }
+  },
+  {
+    "id": "snippet_008",
+    "file": "snippet_008.cs",
+    "source_file": "tests/Aspose.Imaging.Foss.Tests/ImageProbeTests.cs",
+    "source_function": "Bmp_NegativeHeight_ReportsPositiveMagnitude",
+    "source_line": 84,
+    "classes_used": [
+      "ImageProbe"
+    ],
+    "methods_used": [
+      "ImageProbe.Probe"
+    ],
+    "formats_referenced": [
+      "bmp"
+    ],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "fdf4ef48979e87fe4411ec2d8b283be8168ad89bb8749712d3b016bfb52f5ac8",
+      "norm": "fdf4ef48979e87fe4411ec2d8b283be8168ad89bb8749712d3b016bfb52f5ac8"
+    }
+  },
+  {
+    "id": "snippet_009",
+    "file": "snippet_009.cs",
+    "source_file": "tests/Aspose.Imaging.Foss.Tests/ImageProbeTests.cs",
+    "source_function": "WebP_ReportsFormatAndDimensions",
+    "source_line": 92,
+    "classes_used": [
+      "ImageFormat",
+      "ImageProbe"
+    ],
+    "methods_used": [
+      "ImageProbe.Probe"
+    ],
+    "formats_referenced": [
+      "webp"
+    ],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "a413c6e28018162a6bec04056dca62ebf2e0ced6774a2755bfb0e71b3a44173c",
+      "norm": "a413c6e28018162a6bec04056dca62ebf2e0ced6774a2755bfb0e71b3a44173c"
+    }
+  },
+  {
+    "id": "snippet_010",
+    "file": "snippet_010.cs",
+    "source_file": "tests/Aspose.Imaging.Foss.Tests/ImageProbeTests.cs",
+    "source_function": "Ico_ReportsFormatDimensionsAndFrameCount",
+    "source_line": 112,
+    "classes_used": [
+      "ImageFormat",
+      "ImageProbe"
+    ],
+    "methods_used": [
+      "ImageProbe.Probe"
+    ],
+    "formats_referenced": [
+      "ico"
+    ],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "f6a69028c759221e62ae80a0a1828cb760b70e10cb5314b5570c703bdce5df3f",
+      "norm": "f6a69028c759221e62ae80a0a1828cb760b70e10cb5314b5570c703bdce5df3f"
+    }
+  },
+  {
+    "id": "snippet_011",
+    "file": "snippet_011.cs",
+    "source_file": "tests/Aspose.Imaging.Foss.Tests/ImageProbeTests.cs",
+    "source_function": "Ico_ZeroDimensionByte_MeansTwoFiftySixPixels",
+    "source_line": 123,
+    "classes_used": [
+      "ImageProbe"
+    ],
+    "methods_used": [
+      "ImageProbe.Probe"
+    ],
+    "formats_referenced": [
+      "ico"
+    ],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "583ac4e97a3193520a765ab5290c79fc03164368b0bd7b95e3e46a1b73b72037",
+      "norm": "583ac4e97a3193520a765ab5290c79fc03164368b0bd7b95e3e46a1b73b72037"
+    }
+  },
+  {
+    "id": "snippet_012",
+    "file": "snippet_012.cs",
+    "source_file": "tests/Aspose.Imaging.Foss.Tests/ImageProbeTests.cs",
+    "source_function": "Tiff_LittleEndian_ReportsFormatAndDimensions",
+    "source_line": 132,
+    "classes_used": [
+      "ImageFormat",
+      "ImageProbe"
+    ],
+    "methods_used": [
+      "ImageProbe.Probe"
+    ],
+    "formats_referenced": [
+      "tiff"
+    ],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "c465ac13a1bf67c0f560e8197defd37f4d3bd68636e4d4071c246cf7dadf8c53",
+      "norm": "c465ac13a1bf67c0f560e8197defd37f4d3bd68636e4d4071c246cf7dadf8c53"
+    }
+  },
+  {
+    "id": "snippet_013",
+    "file": "snippet_013.cs",
+    "source_file": "tests/Aspose.Imaging.Foss.Tests/ImageProbeTests.cs",
+    "source_function": "Tiff_MultiPage_ReportsFrameCountFromIfdChain",
+    "source_line": 144,
+    "classes_used": [
+      "ImageFormat",
+      "ImageProbe"
+    ],
+    "methods_used": [
+      "ImageProbe.Probe"
+    ],
+    "formats_referenced": [
+      "tiff"
+    ],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "248d4f44fcee9d2273397fb083dc002a21c6b3cffdf6e5dab81e13576d122ab4",
+      "norm": "248d4f44fcee9d2273397fb083dc002a21c6b3cffdf6e5dab81e13576d122ab4"
+    }
+  },
+  {
+    "id": "snippet_014",
+    "file": "snippet_014.cs",
+    "source_file": "tests/Aspose.Imaging.Foss.Tests/ImageProbeTests.cs",
+    "source_function": "Tiff_SelfReferencingIfd_DoesNotLoopForever",
+    "source_line": 155,
+    "classes_used": [
+      "ImageFormat",
+      "ImageProbe"
+    ],
+    "methods_used": [
+      "ImageProbe.Probe"
+    ],
+    "formats_referenced": [
+      "gif",
+      "tiff"
+    ],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "24b22d7c4bf8f1a014567e7fd2f6068b7474544c6b2d298383fa311526f0259a",
+      "norm": "24b22d7c4bf8f1a014567e7fd2f6068b7474544c6b2d298383fa311526f0259a"
+    }
+  },
+  {
+    "id": "snippet_015",
+    "file": "snippet_015.cs",
+    "source_file": "tests/Aspose.Imaging.Foss.Tests/ImageProbeTests.cs",
+    "source_function": "Psd_ReportsFormatAndDimensions",
+    "source_line": 164,
+    "classes_used": [
+      "ImageFormat",
+      "ImageProbe"
+    ],
+    "methods_used": [
+      "ImageProbe.Probe"
+    ],
+    "formats_referenced": [
+      "psd"
+    ],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "af7fab5e6a454e4daee71c3b042db9f5e858393e7314d8a754c7f05374f88083",
+      "norm": "af7fab5e6a454e4daee71c3b042db9f5e858393e7314d8a754c7f05374f88083"
+    }
+  },
+  {
+    "id": "snippet_016",
+    "file": "snippet_016.cs",
+    "source_file": "tests/Aspose.Imaging.Foss.Tests/ImageProbeTests.cs",
+    "source_function": "Emf_DerivesDimensionsFromBounds",
+    "source_line": 175,
+    "classes_used": [
+      "ImageFormat",
+      "ImageProbe"
+    ],
+    "methods_used": [
+      "ImageProbe.Probe"
+    ],
+    "formats_referenced": [
+      "emf"
+    ],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "4455e8a5148e0968ecfcd20423198a7de0cc26219932eb70246cd92057f6f4e4",
+      "norm": "4455e8a5148e0968ecfcd20423198a7de0cc26219932eb70246cd92057f6f4e4"
+    }
+  },
+  {
+    "id": "snippet_017",
+    "file": "snippet_017.cs",
+    "source_file": "tests/Aspose.Imaging.Foss.Tests/ImageProbeTests.cs",
+    "source_function": "Wmf_Placeable_ReportsDimensionsAt96Dpi",
+    "source_line": 185,
+    "classes_used": [
+      "ImageFormat",
+      "ImageProbe"
+    ],
+    "methods_used": [
+      "ImageProbe.Probe"
+    ],
+    "formats_referenced": [
+      "wmf"
+    ],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "1cb479d26e8136d3e2285e9f71c41c7d38e3411b0a242ddc0185fa9e51c000b9",
+      "norm": "1cb479d26e8136d3e2285e9f71c41c7d38e3411b0a242ddc0185fa9e51c000b9"
+    }
+  },
+  {
+    "id": "snippet_018",
+    "file": "snippet_018.cs",
+    "source_file": "tests/Aspose.Imaging.Foss.Tests/ImageProbeTests.cs",
+    "source_function": "Dicom_WithoutDataSet_ReportsFormatOnly",
+    "source_line": 195,
+    "classes_used": [
+      "ImageFormat",
+      "ImageProbe"
+    ],
+    "methods_used": [
+      "ImageProbe.Probe"
+    ],
+    "formats_referenced": [
+      "dicom",
+      "ico"
+    ],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "e05135b35034258f9b5f4c63b9fd2eb23af1b8277e49fdc895c0b2db77adf46d",
+      "norm": "e05135b35034258f9b5f4c63b9fd2eb23af1b8277e49fdc895c0b2db77adf46d"
+    }
+  },
+  {
+    "id": "snippet_019",
+    "file": "snippet_019.cs",
+    "source_file": "tests/Aspose.Imaging.Foss.Tests/ImageProbeTests.cs",
+    "source_function": "Dicom_ReportsPixelDimensionsForCommonTransferSyntaxes",
+    "source_line": 205,
+    "classes_used": [
+      "ImageFormat",
+      "ImageProbe"
+    ],
+    "methods_used": [
+      "ImageProbe.Probe"
+    ],
+    "formats_referenced": [
+      "dicom",
+      "ico"
+    ],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "0115aeb7f607ad2c0f8f33d51a284c21e8fab9caaf494350da7cb03c66e5c6c3",
+      "norm": "0115aeb7f607ad2c0f8f33d51a284c21e8fab9caaf494350da7cb03c66e5c6c3"
+    }
+  },
+  {
+    "id": "snippet_020",
+    "file": "snippet_020.cs",
+    "source_file": "tests/Aspose.Imaging.Foss.Tests/ImageProbeTests.cs",
+    "source_function": "Dicom_TruncatedDataSet_DegradesGracefullyInsteadOfThrowing",
+    "source_line": 219,
+    "classes_used": [
+      "ImageFormat",
+      "ImageProbe"
+    ],
+    "methods_used": [
+      "ImageProbe.Probe"
+    ],
+    "formats_referenced": [
+      "dicom",
+      "ico"
+    ],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "7fe720c39ac4b92cd9f6f5653e99f085347cd6c86d8393cfa9979df48a2ae5b3",
+      "norm": "7fe720c39ac4b92cd9f6f5653e99f085347cd6c86d8393cfa9979df48a2ae5b3"
+    }
+  },
+  {
+    "id": "snippet_021",
+    "file": "snippet_021.cs",
+    "source_file": "tests/Aspose.Imaging.Foss.Tests/ImageProbeTests.cs",
+    "source_function": "Gif_TruncatedMidFrameData_DegradesGracefullyInsteadOfThrowing",
+    "source_line": 230,
+    "classes_used": [
+      "ImageFormat",
+      "ImageProbe"
+    ],
+    "methods_used": [
+      "ImageProbe.Probe"
+    ],
+    "formats_referenced": [
+      "gif"
+    ],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "cd3a64410e39e217d93a52401f1ad4769c2c84932e0db46a18dc7c84c7fe3d5d",
+      "norm": "cd3a64410e39e217d93a52401f1ad4769c2c84932e0db46a18dc7c84c7fe3d5d"
+    }
+  },
+  {
+    "id": "snippet_022",
+    "file": "snippet_022.cs",
+    "source_file": "tests/Aspose.Imaging.Foss.Tests/ImageProbeTests.cs",
+    "source_function": "UnknownData_ReportsUnknownFormat",
+    "source_line": 243,
+    "classes_used": [
+      "ImageFormat",
+      "ImageProbe"
+    ],
+    "methods_used": [
+      "ImageProbe.Probe"
+    ],
+    "formats_referenced": [
+      "unknown"
+    ],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "9676d8fbff326661a3c2938a3f24b37d94e99e40a49254bef00367f899c7dba5",
+      "norm": "9676d8fbff326661a3c2938a3f24b37d94e99e40a49254bef00367f899c7dba5"
+    }
+  },
+  {
+    "id": "snippet_023",
+    "file": "snippet_023.cs",
+    "source_file": "tests/Aspose.Imaging.Foss.Tests/ImageProbeTests.cs",
+    "source_function": "DetectFormat_MatchesProbeFormat",
+    "source_line": 253,
+    "classes_used": [
+      "ImageFormat",
+      "ImageProbe"
+    ],
+    "methods_used": [
+      "ImageProbe.DetectFormat"
+    ],
+    "formats_referenced": [
+      "png"
+    ],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "f12edc3b204dc09cdc371f28436f5d61b76f2e61f556782542e03dbdb9d9d186",
+      "norm": "f12edc3b204dc09cdc371f28436f5d61b76f2e61f556782542e03dbdb9d9d186"
+    }
+  },
+  {
+    "id": "snippet_024",
+    "file": "snippet_024.cs",
+    "source_file": "tests/Aspose.Imaging.Foss.Tests/ImageProbeTests.cs",
+    "source_function": "ProbeFile_ReadsFromDisk",
+    "source_line": 261,
+    "classes_used": [
+      "ImageFormat",
+      "ImageProbe"
+    ],
+    "methods_used": [
+      "ImageProbe.Probe",
+      "ImageProbe.ProbeFile"
+    ],
+    "formats_referenced": [
+      "png"
+    ],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "1d4ba0f5a88199ab8624166d36404bdd348fc2b6e9cc7f59ca22bf52d7698c25",
+      "norm": "1d4ba0f5a88199ab8624166d36404bdd348fc2b6e9cc7f59ca22bf52d7698c25"
+    }
+  },
+  {
+    "id": "snippet_025",
+    "file": "snippet_025.cs",
+    "source_file": "tests/Aspose.Imaging.Foss.Tests/ImageProbeTests.cs",
+    "source_function": "Probe_NonSeekableStream_StillWorks",
+    "source_line": 280,
+    "classes_used": [
+      "ImageFormat",
+      "ImageProbe"
+    ],
+    "methods_used": [
+      "ImageProbe.Probe"
+    ],
+    "formats_referenced": [
+      "png"
+    ],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "4e21ec211ef9637688b7bae1492a2fa8536162b33e5f57f739f4a220c7a1e61f",
+      "norm": "4e21ec211ef9637688b7bae1492a2fa8536162b33e5f57f739f4a220c7a1e61f"
+    }
+  },
+  {
+    "id": "snippet_026",
+    "file": "snippet_026.cs",
+    "source_file": "tests/Aspose.Imaging.Foss.Tests/SampleImages.cs",
+    "source_function": "Png",
+    "source_line": 5,
+    "classes_used": [],
+    "methods_used": [],
+    "formats_referenced": [
+      "png"
+    ],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "8401d2b234f152ae5d1cfdbca3af8df09d2e79c63dcd8c5265f5c4099dd35d01",
+      "norm": "8401d2b234f152ae5d1cfdbca3af8df09d2e79c63dcd8c5265f5c4099dd35d01"
+    }
+  },
+  {
+    "id": "snippet_027",
+    "file": "snippet_027.cs",
+    "source_file": "tests/Aspose.Imaging.Foss.Tests/SampleImages.cs",
+    "source_function": "Jpeg",
+    "source_line": 16,
+    "classes_used": [],
+    "methods_used": [],
+    "formats_referenced": [
+      "jpeg"
+    ],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "9865302ca544c28f47bf17a830db42ce02a8c62225e173f136bb93fdeb70df46",
+      "norm": "9865302ca544c28f47bf17a830db42ce02a8c62225e173f136bb93fdeb70df46"
+    }
+  },
+  {
+    "id": "snippet_028",
+    "file": "snippet_028.cs",
+    "source_file": "tests/Aspose.Imaging.Foss.Tests/SampleImages.cs",
+    "source_function": "TruncatedJpeg",
+    "source_line": 25,
+    "classes_used": [],
+    "methods_used": [],
+    "formats_referenced": [
+      "jpeg"
+    ],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "79740f554ac7e947af560ddb79eaa17b0d0c11d3ec73df3dd80ffa6931e8b1a1",
+      "norm": "79740f554ac7e947af560ddb79eaa17b0d0c11d3ec73df3dd80ffa6931e8b1a1"
+    }
+  },
+  {
+    "id": "snippet_029",
+    "file": "snippet_029.cs",
+    "source_file": "tests/Aspose.Imaging.Foss.Tests/SampleImages.cs",
+    "source_function": "Gif",
+    "source_line": 27,
+    "classes_used": [],
+    "methods_used": [],
+    "formats_referenced": [
+      "gif"
+    ],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "29f0057ebdbbe6162254d0ea65bd4a740ab76a919f3a95b1ef8ccc81bafdd353",
+      "norm": "29f0057ebdbbe6162254d0ea65bd4a740ab76a919f3a95b1ef8ccc81bafdd353"
+    }
+  },
+  {
+    "id": "snippet_030",
+    "file": "snippet_030.cs",
+    "source_file": "tests/Aspose.Imaging.Foss.Tests/SampleImages.cs",
+    "source_function": "GifWithFrames",
+    "source_line": 29,
+    "classes_used": [],
+    "methods_used": [],
+    "formats_referenced": [
+      "gif"
+    ],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "ec67aa1dde255671a66b7d3c293ae218db1ff113e1369838b91e8d77782211a5",
+      "norm": "ec67aa1dde255671a66b7d3c293ae218db1ff113e1369838b91e8d77782211a5"
+    }
+  },
+  {
+    "id": "snippet_031",
+    "file": "snippet_031.cs",
+    "source_file": "tests/Aspose.Imaging.Foss.Tests/SampleImages.cs",
+    "source_function": "GifWithoutFrames",
+    "source_line": 52,
+    "classes_used": [],
+    "methods_used": [],
+    "formats_referenced": [
+      "gif"
+    ],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "47bb6758cd54c79c002edd483e359758dc5ca287b998d0feaebdad8a2c8a7665",
+      "norm": "47bb6758cd54c79c002edd483e359758dc5ca287b998d0feaebdad8a2c8a7665"
+    }
+  },
+  {
+    "id": "snippet_032",
+    "file": "snippet_032.cs",
+    "source_file": "tests/Aspose.Imaging.Foss.Tests/SampleImages.cs",
+    "source_function": "Bmp",
+    "source_line": 63,
+    "classes_used": [],
+    "methods_used": [],
+    "formats_referenced": [
+      "bmp"
+    ],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "f1edaa21aebe2ae135246054fecabac7caa882e2202a58928c28cd14d1531f1f",
+      "norm": "f1edaa21aebe2ae135246054fecabac7caa882e2202a58928c28cd14d1531f1f"
+    }
+  },
+  {
+    "id": "snippet_033",
+    "file": "snippet_033.cs",
+    "source_file": "tests/Aspose.Imaging.Foss.Tests/SampleImages.cs",
+    "source_function": "WebPLossy",
+    "source_line": 76,
+    "classes_used": [],
+    "methods_used": [],
+    "formats_referenced": [
+      "webp"
+    ],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "124cbae679c765bb86a39f01865e7650266935cb11222f67a4ad4822d8c19556",
+      "norm": "124cbae679c765bb86a39f01865e7650266935cb11222f67a4ad4822d8c19556"
+    }
+  },
+  {
+    "id": "snippet_034",
+    "file": "snippet_034.cs",
+    "source_file": "tests/Aspose.Imaging.Foss.Tests/SampleImages.cs",
+    "source_function": "WebPLossless",
+    "source_line": 89,
+    "classes_used": [],
+    "methods_used": [],
+    "formats_referenced": [
+      "webp"
+    ],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "67a06264613cadca12cbb0515c481adda3aa64e21929bc093b516fae04e52106",
+      "norm": "67a06264613cadca12cbb0515c481adda3aa64e21929bc093b516fae04e52106"
+    }
+  },
+  {
+    "id": "snippet_035",
+    "file": "snippet_035.cs",
+    "source_file": "tests/Aspose.Imaging.Foss.Tests/SampleImages.cs",
+    "source_function": "WebPExtended",
+    "source_line": 103,
+    "classes_used": [],
+    "methods_used": [],
+    "formats_referenced": [
+      "webp"
+    ],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "15eb2dda6c6fdd934aad5ffe8eb150f748c6bf99963fa0f5c922abd820c400bf",
+      "norm": "15eb2dda6c6fdd934aad5ffe8eb150f748c6bf99963fa0f5c922abd820c400bf"
+    }
+  },
+  {
+    "id": "snippet_036",
+    "file": "snippet_036.cs",
+    "source_file": "tests/Aspose.Imaging.Foss.Tests/SampleImages.cs",
+    "source_function": "Ico",
+    "source_line": 116,
+    "classes_used": [],
+    "methods_used": [],
+    "formats_referenced": [
+      "ico"
+    ],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "7a5b8cf31716a99480130104a9e774b9b11117c925441a252d701462bf10c875",
+      "norm": "7a5b8cf31716a99480130104a9e774b9b11117c925441a252d701462bf10c875"
+    }
+  },
+  {
+    "id": "snippet_037",
+    "file": "snippet_037.cs",
+    "source_file": "tests/Aspose.Imaging.Foss.Tests/SampleImages.cs",
+    "source_function": "Tiff",
+    "source_line": 127,
+    "classes_used": [],
+    "methods_used": [],
+    "formats_referenced": [
+      "tiff"
+    ],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "544acd9cf7d2f1890842de69d5f6083007bd159e5aca89b15f2b103c9cd1579d",
+      "norm": "544acd9cf7d2f1890842de69d5f6083007bd159e5aca89b15f2b103c9cd1579d"
+    }
+  },
+  {
+    "id": "snippet_038",
+    "file": "snippet_038.cs",
+    "source_file": "tests/Aspose.Imaging.Foss.Tests/SampleImages.cs",
+    "source_function": "TiffWithPages",
+    "source_line": 130,
+    "classes_used": [],
+    "methods_used": [],
+    "formats_referenced": [
+      "tiff"
+    ],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "a61c87d0dd748ec354f6cd8a30d7c04a6dc0c17ff4eba99f9712a04d14b8363d",
+      "norm": "a61c87d0dd748ec354f6cd8a30d7c04a6dc0c17ff4eba99f9712a04d14b8363d"
+    }
+  },
+  {
+    "id": "snippet_039",
+    "file": "snippet_039.cs",
+    "source_file": "tests/Aspose.Imaging.Foss.Tests/SampleImages.cs",
+    "source_function": "TiffWithSelfReferencingIfd",
+    "source_line": 156,
+    "classes_used": [],
+    "methods_used": [],
+    "formats_referenced": [
+      "gif",
+      "tiff"
+    ],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "38e9690b260ea2e8f1a1907c00690a02bcc3b0e9934cad50191d627ffb5768d9",
+      "norm": "38e9690b260ea2e8f1a1907c00690a02bcc3b0e9934cad50191d627ffb5768d9"
+    }
+  },
+  {
+    "id": "snippet_040",
+    "file": "snippet_040.cs",
+    "source_file": "tests/Aspose.Imaging.Foss.Tests/SampleImages.cs",
+    "source_function": "AddShortEntry",
+    "source_line": 176,
+    "classes_used": [],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "7dbd7b34982fe4dd745c152ad5fe1f3f2f3361f04068902654df082b5f201348",
+      "norm": "7dbd7b34982fe4dd745c152ad5fe1f3f2f3361f04068902654df082b5f201348"
+    }
+  },
+  {
+    "id": "snippet_041",
+    "file": "snippet_041.cs",
+    "source_file": "tests/Aspose.Imaging.Foss.Tests/SampleImages.cs",
+    "source_function": "Psd",
+    "source_line": 185,
+    "classes_used": [],
+    "methods_used": [],
+    "formats_referenced": [
+      "psd"
+    ],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "17393061a7e65c0e7d584b45bbe6edaad6111980de6cf00468a85909dc7cf694",
+      "norm": "17393061a7e65c0e7d584b45bbe6edaad6111980de6cf00468a85909dc7cf694"
+    }
+  },
+  {
+    "id": "snippet_042",
+    "file": "snippet_042.cs",
+    "source_file": "tests/Aspose.Imaging.Foss.Tests/SampleImages.cs",
+    "source_function": "Emf",
+    "source_line": 197,
+    "classes_used": [],
+    "methods_used": [],
+    "formats_referenced": [
+      "emf"
+    ],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "d981161f83f4ef7562d66746c4a3dea76b62c8e67d1f59460c8556d2e4778323",
+      "norm": "d981161f83f4ef7562d66746c4a3dea76b62c8e67d1f59460c8556d2e4778323"
+    }
+  },
+  {
+    "id": "snippet_043",
+    "file": "snippet_043.cs",
+    "source_file": "tests/Aspose.Imaging.Foss.Tests/SampleImages.cs",
+    "source_function": "Wmf",
+    "source_line": 209,
+    "classes_used": [],
+    "methods_used": [],
+    "formats_referenced": [
+      "wmf"
+    ],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "e7582ec398bb4499aaa5688d32f29ba7b5c0604f4ea4be0316636be3fd98cc26",
+      "norm": "e7582ec398bb4499aaa5688d32f29ba7b5c0604f4ea4be0316636be3fd98cc26"
+    }
+  },
+  {
+    "id": "snippet_044",
+    "file": "snippet_044.cs",
+    "source_file": "tests/Aspose.Imaging.Foss.Tests/SampleImages.cs",
+    "source_function": "Dicom",
+    "source_line": 228,
+    "classes_used": [],
+    "methods_used": [],
+    "formats_referenced": [
+      "dicom",
+      "ico"
+    ],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "7b690ee1f220ee4fd838cbf02509e782a815114c9d5f049456b21d1c5689ad49",
+      "norm": "7b690ee1f220ee4fd838cbf02509e782a815114c9d5f049456b21d1c5689ad49"
+    }
+  },
+  {
+    "id": "snippet_045",
+    "file": "snippet_045.cs",
+    "source_file": "tests/Aspose.Imaging.Foss.Tests/SampleImages.cs",
+    "source_function": "DicomWithPixelInfo",
+    "source_line": 238,
+    "classes_used": [],
+    "methods_used": [],
+    "formats_referenced": [
+      "dicom",
+      "ico"
+    ],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "9da6d603b323002944d7a3eab73defaacf5088b6ea4b805c5e0c9b1a4142c50f",
+      "norm": "9da6d603b323002944d7a3eab73defaacf5088b6ea4b805c5e0c9b1a4142c50f"
+    }
+  },
+  {
+    "id": "snippet_046",
+    "file": "snippet_046.cs",
+    "source_file": "tests/Aspose.Imaging.Foss.Tests/SampleImages.cs",
+    "source_function": "AppendTransferSyntax",
+    "source_line": 269,
+    "classes_used": [],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "bb9a7524695ac4fe01993daeccdf0775ea36e97d94f82a0e3de3179bf4fd33b2",
+      "norm": "bb9a7524695ac4fe01993daeccdf0775ea36e97d94f82a0e3de3179bf4fd33b2"
+    }
+  },
+  {
+    "id": "snippet_047",
+    "file": "snippet_047.cs",
+    "source_file": "tests/Aspose.Imaging.Foss.Tests/SampleImages.cs",
+    "source_function": "AppendExplicitUShort",
+    "source_line": 275,
+    "classes_used": [],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "f4cc5bc1bbc433c03f7ccdf0735ac77c9baccb0b49019dfec2903203d52cf5b7",
+      "norm": "f4cc5bc1bbc433c03f7ccdf0735ac77c9baccb0b49019dfec2903203d52cf5b7"
+    }
+  },
+  {
+    "id": "snippet_048",
+    "file": "snippet_048.cs",
+    "source_file": "tests/Aspose.Imaging.Foss.Tests/SampleImages.cs",
+    "source_function": "AppendExplicitUShortBigEndian",
+    "source_line": 278,
+    "classes_used": [],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "2c28578f726ef72d96b22a389b6844d4dcb43c860d827c2b1ec424030c0a2c23",
+      "norm": "2c28578f726ef72d96b22a389b6844d4dcb43c860d827c2b1ec424030c0a2c23"
+    }
+  },
+  {
+    "id": "snippet_049",
+    "file": "snippet_049.cs",
+    "source_file": "tests/Aspose.Imaging.Foss.Tests/SampleImages.cs",
+    "source_function": "AppendImplicitUShort",
+    "source_line": 281,
+    "classes_used": [],
+    "methods_used": [],
+    "formats_referenced": [],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "feaae6fd8e5ba5936ece9ce7767afe708b48547488652b729df1b2d9baf36eef",
+      "norm": "feaae6fd8e5ba5936ece9ce7767afe708b48547488652b729df1b2d9baf36eef"
+    }
+  },
+  {
+    "id": "snippet_050",
+    "file": "snippet_050.cs",
+    "source_file": "README.md",
+    "source_function": "(readme_block)",
+    "source_line": 58,
+    "classes_used": [
+      "ImageProbe"
+    ],
+    "methods_used": [
+      "ImageProbe.DetectFormat",
+      "ImageProbe.Probe",
+      "ImageProbe.ProbeFile"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "c447ad29192a1abdadecd789ed020835f3b49879e26dfcc06639e513d6beb81d",
+      "norm": "d8ac4ef6346cb8aa3d8806ec9f1a3e9e08b2cdec0bb9014d71f43430a672886c"
+    }
+  }
+]

@@ -1,0 +1,268 @@
+[
+  {
+    "name": "ImageFormat",
+    "kind": "enum_declaration",
+    "doc": "",
+    "file": "src/Aspose.Imaging.Foss/ImageFormat.cs",
+    "line": 3,
+    "bases": [],
+    "methods": [],
+    "properties": [],
+    "visibility": "public",
+    "reachable": true,
+    "deprecated": false,
+    "deprecated_reason": "",
+    "enum_members": [
+      {
+        "name": "Unknown",
+        "value": "0"
+      },
+      {
+        "name": "Png",
+        "value": ""
+      },
+      {
+        "name": "Jpeg",
+        "value": ""
+      },
+      {
+        "name": "Gif",
+        "value": ""
+      },
+      {
+        "name": "Bmp",
+        "value": ""
+      },
+      {
+        "name": "WebP",
+        "value": ""
+      },
+      {
+        "name": "Ico",
+        "value": ""
+      },
+      {
+        "name": "Tiff",
+        "value": ""
+      },
+      {
+        "name": "Psd",
+        "value": ""
+      },
+      {
+        "name": "Emf",
+        "value": ""
+      },
+      {
+        "name": "Wmf",
+        "value": ""
+      },
+      {
+        "name": "Dicom",
+        "value": ""
+      }
+    ],
+    "canonical_namespace": "Aspose.Imaging.Foss",
+    "class_import": "Aspose.Imaging.Foss.ImageFormat",
+    "module_key": "core",
+    "module_label": "Core API"
+  },
+  {
+    "name": "ImageInfo",
+    "kind": "class_declaration",
+    "doc": "",
+    "file": "src/Aspose.Imaging.Foss/ImageInfo.cs",
+    "line": 3,
+    "bases": [],
+    "methods": [
+      {
+        "name": "ImageInfo",
+        "params": [
+          {
+            "name": "format",
+            "type": "ImageFormat"
+          },
+          {
+            "name": "width",
+            "type": "int?"
+          },
+          {
+            "name": "height",
+            "type": "int?"
+          },
+          {
+            "name": "bitDepth",
+            "type": "int?"
+          },
+          {
+            "name": "frameCount",
+            "type": "int?"
+          }
+        ],
+        "return_type": "",
+        "doc": "",
+        "line": 11,
+        "is_constructor": true,
+        "deprecated": false,
+        "deprecated_reason": "",
+        "file": "src/Aspose.Imaging.Foss/ImageInfo.cs"
+      }
+    ],
+    "properties": [
+      {
+        "name": "Format",
+        "type": "ImageFormat",
+        "doc": "Gets the format.",
+        "line": 5,
+        "writable": false,
+        "file": "src/Aspose.Imaging.Foss/ImageInfo.cs",
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "Width",
+        "type": "int?",
+        "doc": "Gets the width.",
+        "line": 6,
+        "writable": false,
+        "file": "src/Aspose.Imaging.Foss/ImageInfo.cs",
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "Height",
+        "type": "int?",
+        "doc": "Gets the height.",
+        "line": 7,
+        "writable": false,
+        "file": "src/Aspose.Imaging.Foss/ImageInfo.cs",
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "BitDepth",
+        "type": "int?",
+        "doc": "Gets the bit depth.",
+        "line": 8,
+        "writable": false,
+        "file": "src/Aspose.Imaging.Foss/ImageInfo.cs",
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "FrameCount",
+        "type": "int?",
+        "doc": "Gets the frame count.",
+        "line": 9,
+        "writable": false,
+        "file": "src/Aspose.Imaging.Foss/ImageInfo.cs",
+        "doc_source": "name_inference"
+      }
+    ],
+    "visibility": "public",
+    "reachable": true,
+    "deprecated": false,
+    "deprecated_reason": "",
+    "is_sealed": true,
+    "canonical_namespace": "Aspose.Imaging.Foss",
+    "class_import": "Aspose.Imaging.Foss.ImageInfo",
+    "module_key": "core",
+    "module_label": "Core API"
+  },
+  {
+    "name": "ImageProbe",
+    "kind": "class_declaration",
+    "doc": "",
+    "file": "src/Aspose.Imaging.Foss/ImageProbe.cs",
+    "line": 8,
+    "bases": [],
+    "methods": [
+      {
+        "name": "DetectFormat",
+        "params": [
+          {
+            "name": "stream",
+            "type": "Stream"
+          }
+        ],
+        "return_type": "",
+        "doc": "",
+        "line": 27,
+        "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
+        "file": "src/Aspose.Imaging.Foss/ImageProbe.cs"
+      },
+      {
+        "name": "DetectFormat",
+        "params": [
+          {
+            "name": "data",
+            "type": "byte[]"
+          }
+        ],
+        "return_type": "",
+        "doc": "",
+        "line": 30,
+        "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
+        "file": "src/Aspose.Imaging.Foss/ImageProbe.cs"
+      },
+      {
+        "name": "Probe",
+        "params": [
+          {
+            "name": "stream",
+            "type": "Stream"
+          }
+        ],
+        "return_type": "",
+        "doc": "",
+        "line": 36,
+        "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
+        "file": "src/Aspose.Imaging.Foss/ImageProbe.cs"
+      },
+      {
+        "name": "Probe",
+        "params": [
+          {
+            "name": "data",
+            "type": "byte[]"
+          }
+        ],
+        "return_type": "",
+        "doc": "",
+        "line": 62,
+        "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
+        "file": "src/Aspose.Imaging.Foss/ImageProbe.cs"
+      },
+      {
+        "name": "ProbeFile",
+        "params": [
+          {
+            "name": "path",
+            "type": "string"
+          }
+        ],
+        "return_type": "",
+        "doc": "",
+        "line": 68,
+        "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
+        "file": "src/Aspose.Imaging.Foss/ImageProbe.cs"
+      }
+    ],
+    "properties": [],
+    "visibility": "public",
+    "reachable": true,
+    "deprecated": false,
+    "deprecated_reason": "",
+    "is_static": true,
+    "canonical_namespace": "Aspose.Imaging.Foss",
+    "class_import": "Aspose.Imaging.Foss.ImageProbe",
+    "module_key": "core",
+    "module_label": "Core API"
+  }
+]

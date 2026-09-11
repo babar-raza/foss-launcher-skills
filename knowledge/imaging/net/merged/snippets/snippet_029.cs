@@ -1,0 +1,1 @@
+public static byte[] Gif(int width, int height) => GifWithFrames(width, height, frameCount: 1);

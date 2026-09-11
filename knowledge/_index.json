@@ -7,7 +7,10 @@
       "api_confidence": "high",
       "stale": false,
       "class_count": 266,
-      "claim_count": 4147
+      "claim_count": 4147,
+      "vectors_current": false,
+      "vectors_status": "stale",
+      "vectors_generated_at": "2026-07-25T17:37:57.568540Z"
     },
     {
       "family": "3d",
@@ -16,7 +19,10 @@
       "api_confidence": "high",
       "stale": false,
       "class_count": 292,
-      "claim_count": 3368
+      "claim_count": 3367,
+      "vectors_current": false,
+      "vectors_status": "stale",
+      "vectors_generated_at": "2026-07-25T17:51:06.875657Z"
     },
     {
       "family": "3d",
@@ -25,7 +31,10 @@
       "api_confidence": "high",
       "stale": false,
       "class_count": 329,
-      "claim_count": 3561
+      "claim_count": 3561,
+      "vectors_current": false,
+      "vectors_status": "stale",
+      "vectors_generated_at": "2026-07-25T17:38:24.161005Z"
     },
     {
       "family": "3d",
@@ -34,7 +43,10 @@
       "api_confidence": "high",
       "stale": false,
       "class_count": 148,
-      "claim_count": 2362
+      "claim_count": 2362,
+      "vectors_current": false,
+      "vectors_status": "stale",
+      "vectors_generated_at": "2026-07-25T17:38:36.866645Z"
     },
     {
       "family": "barcode",
@@ -43,7 +55,10 @@
       "api_confidence": "medium",
       "stale": false,
       "class_count": 26,
-      "claim_count": 313
+      "claim_count": 313,
+      "vectors_current": true,
+      "vectors_status": "current",
+      "vectors_generated_at": "2026-09-10T10:57:32.658162Z"
     },
     {
       "family": "cells",
@@ -52,7 +67,10 @@
       "api_confidence": "high",
       "stale": false,
       "class_count": 199,
-      "claim_count": 2611
+      "claim_count": 2611,
+      "vectors_current": false,
+      "vectors_status": "stale",
+      "vectors_generated_at": "2026-07-25T17:39:07.966531Z"
     },
     {
       "family": "cells",
@@ -61,7 +79,10 @@
       "api_confidence": "medium",
       "stale": false,
       "class_count": 14,
-      "claim_count": 113
+      "claim_count": 113,
+      "vectors_current": true,
+      "vectors_status": "current",
+      "vectors_generated_at": "2026-09-10T13:15:47.103566Z"
     },
     {
       "family": "cells",
@@ -70,7 +91,10 @@
       "api_confidence": "high",
       "stale": false,
       "class_count": 182,
-      "claim_count": 4876
+      "claim_count": 4876,
+      "vectors_current": false,
+      "vectors_status": "stale",
+      "vectors_generated_at": "2026-07-25T17:39:23.227662Z"
     },
     {
       "family": "cells",
@@ -78,8 +102,11 @@
       "display_name": "Aspose.Cells for Net",
       "api_confidence": "high",
       "stale": false,
-      "class_count": 96,
-      "claim_count": 666
+      "class_count": 98,
+      "claim_count": 1332,
+      "vectors_current": false,
+      "vectors_status": "stale",
+      "vectors_generated_at": "2026-07-25T17:39:32.322920Z"
     },
     {
       "family": "cells",
@@ -88,7 +115,10 @@
       "api_confidence": "high",
       "stale": false,
       "class_count": 129,
-      "claim_count": 1313
+      "claim_count": 1313,
+      "vectors_current": false,
+      "vectors_status": "stale",
+      "vectors_generated_at": "2026-07-25T17:39:47.505504Z"
     },
     {
       "family": "cells",
@@ -97,7 +127,10 @@
       "api_confidence": "high",
       "stale": false,
       "class_count": 213,
-      "claim_count": 1926
+      "claim_count": 2035,
+      "vectors_current": false,
+      "vectors_status": "stale",
+      "vectors_generated_at": "2026-07-25T17:40:06.899127Z"
     },
     {
       "family": "cells",
@@ -106,7 +139,10 @@
       "api_confidence": "high",
       "stale": false,
       "class_count": 101,
-      "claim_count": 774
+      "claim_count": 1177,
+      "vectors_current": false,
+      "vectors_status": "stale",
+      "vectors_generated_at": "2026-07-25T17:40:17.180777Z"
     },
     {
       "family": "email",
@@ -115,7 +151,10 @@
       "api_confidence": "high",
       "stale": false,
       "class_count": 26,
-      "claim_count": 237
+      "claim_count": 237,
+      "vectors_current": false,
+      "vectors_status": "stale",
+      "vectors_generated_at": "2026-07-25T17:51:18.761285Z"
     },
     {
       "family": "email",
@@ -124,7 +163,10 @@
       "api_confidence": "high",
       "stale": false,
       "class_count": 29,
-      "claim_count": 221
+      "claim_count": 221,
+      "vectors_current": false,
+      "vectors_status": "stale",
+      "vectors_generated_at": "2026-07-25T17:40:22.100335Z"
     },
     {
       "family": "email",
@@ -133,7 +175,10 @@
       "api_confidence": "high",
       "stale": false,
       "class_count": 30,
-      "claim_count": 605
+      "claim_count": 605,
+      "vectors_current": false,
+      "vectors_status": "stale",
+      "vectors_generated_at": "2026-07-25T17:40:24.713845Z"
     },
     {
       "family": "font",
@@ -142,7 +187,10 @@
       "api_confidence": "high",
       "stale": false,
       "class_count": 267,
-      "claim_count": 4826
+      "claim_count": 4826,
+      "vectors_current": false,
+      "vectors_status": "stale",
+      "vectors_generated_at": "2026-07-25T17:40:55.401782Z"
     },
     {
       "family": "html",
@@ -151,7 +199,22 @@
       "api_confidence": "high",
       "stale": false,
       "class_count": 244,
-      "claim_count": 2144
+      "claim_count": 2300,
+      "vectors_current": false,
+      "vectors_status": "stale",
+      "vectors_generated_at": "2026-07-25T17:41:22.703879Z"
+    },
+    {
+      "family": "imaging",
+      "platform": "net",
+      "display_name": "Aspose.Imaging for Net",
+      "api_confidence": "low",
+      "stale": false,
+      "class_count": 3,
+      "claim_count": 35,
+      "vectors_current": false,
+      "vectors_status": "missing",
+      "vectors_generated_at": null
     },
     {
       "family": "note",
@@ -160,7 +223,10 @@
       "api_confidence": "high",
       "stale": false,
       "class_count": 39,
-      "claim_count": 721
+      "claim_count": 721,
+      "vectors_current": false,
+      "vectors_status": "stale",
+      "vectors_generated_at": "2026-07-25T17:41:28.544820Z"
     },
     {
       "family": "page",
@@ -169,7 +235,10 @@
       "api_confidence": "high",
       "stale": false,
       "class_count": 139,
-      "claim_count": 1200
+      "claim_count": 1200,
+      "vectors_current": false,
+      "vectors_status": "stale",
+      "vectors_generated_at": "2026-07-25T17:41:50.642756Z"
     },
     {
       "family": "pdf",
@@ -178,7 +247,10 @@
       "api_confidence": "high",
       "stale": false,
       "class_count": 316,
-      "claim_count": 3049
+      "claim_count": 3049,
+      "vectors_current": true,
+      "vectors_status": "current",
+      "vectors_generated_at": "2026-09-10T13:16:26.103212Z"
     },
     {
       "family": "pdf",
@@ -187,7 +259,10 @@
       "api_confidence": "high",
       "stale": false,
       "class_count": 215,
-      "claim_count": 4356
+      "claim_count": 4457,
+      "vectors_current": false,
+      "vectors_status": "stale",
+      "vectors_generated_at": "2026-07-25T17:44:28.555817Z"
     },
     {
       "family": "pdf",
@@ -196,7 +271,10 @@
       "api_confidence": "high",
       "stale": false,
       "class_count": 1115,
-      "claim_count": 15728
+      "claim_count": 15728,
+      "vectors_current": true,
+      "vectors_status": "current",
+      "vectors_generated_at": "2026-09-10T13:23:54.805550Z"
     },
     {
       "family": "pdf",
@@ -205,7 +283,10 @@
       "api_confidence": "high",
       "stale": false,
       "class_count": 863,
-      "claim_count": 7717
+      "claim_count": 7717,
+      "vectors_current": true,
+      "vectors_status": "current",
+      "vectors_generated_at": "2026-09-10T13:25:14.654416Z"
     },
     {
       "family": "pdf",
@@ -213,8 +294,11 @@
       "display_name": "Aspose.Pdf for Python",
       "api_confidence": "high",
       "stale": false,
-      "class_count": 256,
-      "claim_count": 2838
+      "class_count": 260,
+      "claim_count": 3110,
+      "vectors_current": true,
+      "vectors_status": "current",
+      "vectors_generated_at": "2026-09-10T13:17:18.651803Z"
     },
     {
       "family": "pdf",
@@ -223,7 +307,10 @@
       "api_confidence": "medium",
       "stale": false,
       "class_count": 1002,
-      "claim_count": 8341
+      "claim_count": 8341,
+      "vectors_current": true,
+      "vectors_status": "current",
+      "vectors_generated_at": "2026-09-10T13:22:08.946081Z"
     },
     {
       "family": "slides",
@@ -232,7 +319,10 @@
       "api_confidence": "high",
       "stale": false,
       "class_count": 234,
-      "claim_count": 3646
+      "claim_count": 5471,
+      "vectors_current": false,
+      "vectors_status": "stale",
+      "vectors_generated_at": "2026-07-25T17:47:28.636528Z"
     },
     {
       "family": "slides",
@@ -241,7 +331,10 @@
       "api_confidence": "high",
       "stale": false,
       "class_count": 238,
-      "claim_count": 6304
+      "claim_count": 5995,
+      "vectors_current": false,
+      "vectors_status": "stale",
+      "vectors_generated_at": "2026-07-25T17:47:49.605297Z"
     },
     {
       "family": "slides",
@@ -250,7 +343,10 @@
       "api_confidence": "high",
       "stale": false,
       "class_count": 264,
-      "claim_count": 4176
+      "claim_count": 3873,
+      "vectors_current": false,
+      "vectors_status": "stale",
+      "vectors_generated_at": "2026-07-25T17:48:12.557714Z"
     },
     {
       "family": "slides",
@@ -258,8 +354,11 @@
       "display_name": "Aspose.Slides for Python",
       "api_confidence": "high",
       "stale": false,
-      "class_count": 515,
-      "claim_count": 7081
+      "class_count": 517,
+      "claim_count": 6526,
+      "vectors_current": false,
+      "vectors_status": "stale",
+      "vectors_generated_at": "2026-07-25T17:48:55.338319Z"
     },
     {
       "family": "tex",
@@ -268,7 +367,10 @@
       "api_confidence": "high",
       "stale": false,
       "class_count": 83,
-      "claim_count": 613
+      "claim_count": 613,
+      "vectors_current": false,
+      "vectors_status": "stale",
+      "vectors_generated_at": "2026-07-25T17:49:08.112106Z"
     },
     {
       "family": "words",
@@ -276,8 +378,11 @@
       "display_name": "Aspose.Words for Net",
       "api_confidence": "high",
       "stale": false,
-      "class_count": 617,
-      "claim_count": 5028
+      "class_count": 618,
+      "claim_count": 5294,
+      "vectors_current": false,
+      "vectors_status": "stale",
+      "vectors_generated_at": "2026-07-25T17:50:00.847580Z"
     },
     {
       "family": "words",
@@ -286,7 +391,10 @@
       "api_confidence": "high",
       "stale": false,
       "class_count": 189,
-      "claim_count": 2041
+      "claim_count": 2041,
+      "vectors_current": false,
+      "vectors_status": "stale",
+      "vectors_generated_at": "2026-07-25T17:50:23.817567Z"
     }
   ]
 }
