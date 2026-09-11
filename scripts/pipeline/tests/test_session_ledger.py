@@ -443,6 +443,31 @@ class TestAdoptFiles:
         candidates, _excluded_dirty_at_start, _excluded_not_in_ledger = session_ledger.get_candidates()
         assert ".agents/skills/refresh-product/SKILL.md" in candidates
 
+    @patch.object(session_ledger, "_git_dirty_files",
+                  return_value=["content/blog.aspose.org/x/index.de.md"])
+    def test_adopt_strips_a_trailing_carriage_return(self, mock_dirty, isolate_session_dir):
+        """Regression, same lineage as test_adopt_preserves_dotfile_leading_dot
+        (RPR-J-11): a caller building a newline-separated file list on
+        Windows/Git Bash and joining lines with `tr '\\n' ' '` leaves a
+        trailing '\\r' on every token, since `tr` only touches the '\\n' half
+        of each CRLF pair. adopt_files() previously normalized only
+        backslash/./ , so the '\\r'-suffixed key never matched the clean git-
+        dirty path -- adopt reported success (the count incremented) and the
+        file was genuinely written to touched_files, just under a key that
+        could never match anything, so it silently never became a commit
+        candidate. Found live 2026-09-11 committing a real translation batch.
+        """
+        session_ledger.init_session("adopt-crlf")
+        count = session_ledger.adopt_files(["content/blog.aspose.org/x/index.de.md\r"])
+        assert count == 1
+        touched = session_ledger.get_touched_files()
+        assert "content/blog.aspose.org/x/index.de.md" in touched
+        assert "content/blog.aspose.org/x/index.de.md\r" not in touched
+        dirty_after = session_ledger.get_dirty_at_start()
+        assert "content/blog.aspose.org/x/index.de.md" not in dirty_after
+        candidates, _excluded_dirty_at_start, _excluded_not_in_ledger = session_ledger.get_candidates()
+        assert "content/blog.aspose.org/x/index.de.md" in candidates
+
     def test_classify_file_strips_literal_dotslash_only(self):
         """classify_file's normalization must strip a literal leading './' (same group as
         the un-prefixed path), and must NOT strip the leading dot of a dotfile path."""

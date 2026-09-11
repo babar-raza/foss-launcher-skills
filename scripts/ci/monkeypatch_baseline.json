@@ -716,7 +716,7 @@
     },
     "scripts/pipeline/tests/test_session_ledger.py": {
       "T1": 0,
-      "T2": 37,
+      "T2": 38,
       "T3": 2,
       "T4": 0
     },

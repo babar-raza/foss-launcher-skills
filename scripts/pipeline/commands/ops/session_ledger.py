@@ -200,13 +200,30 @@ COMMIT_GROUPS: list[tuple[str, str]] = [
 ]
 
 
+def _normalize_path(path: str) -> str:
+    """Canonical repo-relative path form used for all ledger key comparisons.
+
+    Strips leading/trailing whitespace (including a stray '\\r' -- found live:
+    a caller building a newline-separated file list on Windows/Git Bash and
+    joining lines with `tr '\\n' ' '` leaves a trailing '\\r' on every token,
+    since `tr` only touches the '\\n' half of each CRLF pair) before the
+    existing backslash/./ normalization. Without this, `adopt_files()` silently
+    writes a '...md\\r'-suffixed key to `touched_files` and never matches the
+    clean path in `dirty_at_start` or git's own dirty-file list -- `adopt`
+    reports success (the file IS recorded, just under the wrong key) and the
+    file then never appears in `candidates`, with no error pointing at the
+    real cause. Reproduced and fixed 2026-09-11.
+    """
+    return path.strip().replace("\\", "/").removeprefix("./")
+
+
 def classify_file(path: str) -> str:
     """Classify a repo-relative path into a commit group name.
 
     Returns the group name (e.g. 'content(docs)') or 'chore(misc)' if no
     prefix matches.
     """
-    normalized = path.replace("\\", "/").removeprefix("./")
+    normalized = _normalize_path(path)
 
     # Special locale detection: content/ path that is NOT English
     if normalized.startswith("content/") and normalized.endswith(".md"):
@@ -682,7 +699,7 @@ def files_claimed_by_other_sessions(
     claimed: dict[str, str] = {}
     if not _SESSION_DIR.exists():
         return claimed
-    normalized = {p.replace("\\", "/").removeprefix("./") for p in paths}
+    normalized = {_normalize_path(p) for p in paths}
     for f in _SESSION_DIR.glob("*.json"):
         m = _load_manifest(f)
         if not m or m.get("status") != "active":
@@ -744,7 +761,7 @@ def record_file(
 
 def _apply_touch(touched: dict, file_path: str, action: str, skill: str | None) -> None:
     """Apply one file-touch entry to a touched_files dict (no I/O)."""
-    normalized = file_path.replace("\\", "/").removeprefix("./")
+    normalized = _normalize_path(file_path)
     if normalized in touched:
         # Update existing entry
         entry = touched[normalized]
@@ -936,7 +953,7 @@ def adopt_files(
             claimed_keys = set(claimed)
             eligible = [
                 p for p in paths
-                if p.replace("\\", "/").removeprefix("./") not in claimed_keys
+                if _normalize_path(p) not in claimed_keys
             ]
     if not eligible:
         return 0
@@ -947,7 +964,7 @@ def adopt_files(
         touched = manifest.setdefault("touched_files", {})
         dirty_at_start = manifest.get("dirty_at_start", [])
         for file_path in eligible:
-            normalized = file_path.replace("\\", "/").removeprefix("./")
+            normalized = _normalize_path(file_path)
             if normalized not in touched:
                 touched[normalized] = {
                     "action": action,
@@ -1352,7 +1369,7 @@ def check_staged(
     allowed = []
     blocked = []
     for p in staged_paths:
-        normalized = p.replace("\\", "/").removeprefix("./")
+        normalized = _normalize_path(p)
         if normalized in touched:
             allowed.append(normalized)
         else:
