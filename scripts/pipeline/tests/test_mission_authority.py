@@ -412,6 +412,124 @@ class TestArchiveMissionCollisionGuard:
 
 
 # ---------------------------------------------------------------------------
+# H1: cmd_activate — pre-flight consent gate for the root mission slot
+# (reports/skill-gaps/2026-09-11-imaging-net-pipeline-hardening-prerequisites.md)
+# ---------------------------------------------------------------------------
+
+class TestActivate:
+    def test_activate_over_locked_open_incumbent_without_force_refuses(self, tmp_path, capsys):
+        """Replays the real 2026-09-11 incident: an incumbent mission held
+        the root slot, mission_locked: true, _archive_status: open (still
+        active). A challenger must be refused without --force, and the root
+        file must be untouched (activate never writes it)."""
+        incumbent = dict(VALID_MISSION, mission_id="MT066-INCUMBENT", mission_locked=True)
+        _write_root(tmp_path, incumbent)
+        assert mission_authority.main(
+            ["--root", str(tmp_path), "open", "--mission-id", "MT066-INCUMBENT"]
+        ) == 0
+        root_before = (tmp_path / "MISSION_AUTHORITY.yaml").read_text(encoding="utf-8")
+
+        capsys.readouterr()
+        exit_code = mission_authority.main(
+            ["--root", str(tmp_path), "activate", "--mission-id", "MT068-CHALLENGER"]
+        )
+        assert exit_code == 1
+        out = capsys.readouterr().out
+        assert "MT066-INCUMBENT" in out
+        assert "Refusing" in out
+        assert (tmp_path / "MISSION_AUTHORITY.yaml").read_text(encoding="utf-8") == root_before
+
+    def test_activate_over_locked_open_incumbent_with_valid_force_succeeds(self, tmp_path, capsys):
+        incumbent = dict(VALID_MISSION, mission_id="MT066-INCUMBENT", mission_locked=True)
+        _write_root(tmp_path, incumbent)
+        mission_authority.main(["--root", str(tmp_path), "open", "--mission-id", "MT066-INCUMBENT"])
+
+        capsys.readouterr()
+        exit_code = mission_authority.main([
+            "--root", str(tmp_path), "activate", "--mission-id", "MT068-CHALLENGER",
+            "--force", "see reports/skill-gaps/2026-09-11-example.md for justification",
+        ])
+        assert exit_code == 0
+        assert "may take over" in capsys.readouterr().out
+
+        log_path = tmp_path / "reports" / "plan_state" / mission_authority.ACTIVATION_LOG_NAME
+        entries = [json.loads(line) for line in log_path.read_text(encoding="utf-8").splitlines()]
+        takeover = [e for e in entries if e["action"] == "takeover"][0]
+        assert takeover["previous_mission_id"] == "MT066-INCUMBENT"
+        assert takeover["incumbent_locked_open"] is True
+        assert takeover["force_reason"]
+
+    def test_activate_force_reason_too_short_is_rejected(self, tmp_path, capsys):
+        incumbent = dict(VALID_MISSION, mission_id="MT066-INCUMBENT", mission_locked=True)
+        _write_root(tmp_path, incumbent)
+        mission_authority.main(["--root", str(tmp_path), "open", "--mission-id", "MT066-INCUMBENT"])
+
+        capsys.readouterr()
+        exit_code = mission_authority.main([
+            "--root", str(tmp_path), "activate", "--mission-id", "MT068-CHALLENGER", "--force", "because",
+        ])
+        assert exit_code == 1
+        assert "too short" in capsys.readouterr().out
+
+    def test_activate_over_unlocked_or_closed_incumbent_needs_no_force(self, tmp_path, capsys):
+        incumbent = dict(VALID_MISSION, mission_id="MT-DONE", mission_locked=False)
+        _write_root(tmp_path, incumbent)
+        mission_authority.main(["--root", str(tmp_path), "open", "--mission-id", "MT-DONE"])
+
+        capsys.readouterr()
+        exit_code = mission_authority.main(
+            ["--root", str(tmp_path), "activate", "--mission-id", "MT-NEXT"]
+        )
+        assert exit_code == 0
+        assert "may take over" in capsys.readouterr().out
+
+    def test_activate_same_mission_id_resumption_never_checks_incumbent(self, tmp_path, capsys):
+        """The test that would catch a naive lock-shaped design wrongly
+        blocking legitimate same-mission-later-session resumption (this
+        mission's own 2026-09-11 situation): resuming the mission that
+        already holds the root slot must be an ungated fast path, even when
+        that mission's own archived snapshot is mission_locked: true and
+        _archive_status: open -- exactly the state that DOES refuse a
+        takeover from a DIFFERENT mission_id (see
+        test_activate_over_locked_open_incumbent_without_force_refuses
+        above). A black-box proof, not a mock of internal call counts (a
+        monkeypatch on module internals is a banned T2 pattern per
+        AGENTS.md §16): if the same-mission-id fast path were missing, this
+        exact locked+open state would fall through to the takeover-refusal
+        branch and return 1 with an ERROR, not 0 with 'Resuming'."""
+        mission = dict(VALID_MISSION, mission_id="MT068-SELF", mission_locked=True)
+        _write_root(tmp_path, mission)
+        mission_authority.main(["--root", str(tmp_path), "open", "--mission-id", "MT068-SELF"])
+
+        capsys.readouterr()
+        exit_code = mission_authority.main(
+            ["--root", str(tmp_path), "activate", "--mission-id", "MT068-SELF"]
+        )
+        assert exit_code == 0
+        assert "Resuming" in capsys.readouterr().out
+
+    def test_activate_no_incumbent_at_all_proceeds(self, tmp_path, capsys):
+        """First-ever mission: no root file exists yet."""
+        exit_code = mission_authority.main(
+            ["--root", str(tmp_path), "activate", "--mission-id", "MT-FIRST"]
+        )
+        assert exit_code == 0
+        assert "No incumbent" in capsys.readouterr().out
+
+    def test_activate_appends_durable_log_not_just_console_output(self, tmp_path):
+        incumbent = dict(VALID_MISSION, mission_id="MT-A", mission_locked=False)
+        _write_root(tmp_path, incumbent)
+        mission_authority.main(["--root", str(tmp_path), "open", "--mission-id", "MT-A"])
+        mission_authority.main(["--root", str(tmp_path), "activate", "--mission-id", "MT-B"])
+
+        log_path = tmp_path / "reports" / "plan_state" / mission_authority.ACTIVATION_LOG_NAME
+        assert log_path.is_file()
+        entries = [json.loads(line) for line in log_path.read_text(encoding="utf-8").splitlines()]
+        assert entries[-1]["mission_id"] == "MT-B"
+        assert entries[-1]["previous_mission_id"] == "MT-A"
+
+
+# ---------------------------------------------------------------------------
 # ST-157: mission-id ledger seed + allocate
 # ---------------------------------------------------------------------------
 

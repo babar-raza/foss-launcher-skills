@@ -36,6 +36,7 @@ if str(_LIB_DIR) not in sys.path:
 
 from taskcard_store import (  # noqa: E402
     TaskcardStore,
+    TaskcardAlreadyExistsError,
     TaskcardCASError,
     TaskcardLockTimeout,
     TaskcardNotFoundError,
@@ -161,7 +162,16 @@ def cmd_seed(args: argparse.Namespace) -> int:
         record.setdefault("recorded_at", _now_iso())
         record.setdefault("recorded_by", recorded_by)
         record.setdefault("evidence_refs", [])
-        store.append(record)
+        # H2 (2026-09-11): expect_absent=not force re-checks freshly under
+        # the lock rather than trusting the pre-loop `existing` snapshot
+        # above, closing a real TOCTOU race between two concurrent seed
+        # calls for the same brand-new task_id. --force intentionally keeps
+        # the old blind-append behavior (expect_absent=False).
+        try:
+            store.append(record, expect_absent=not args.force)
+        except TaskcardAlreadyExistsError:
+            skipped.append(task_id)
+            continue
         seeded.append(task_id)
 
     _print_json({"seeded": seeded, "skipped_existing": skipped})

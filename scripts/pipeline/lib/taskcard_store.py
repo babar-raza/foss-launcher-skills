@@ -95,6 +95,29 @@ class TaskcardNotFoundError(Exception):
     """Raised when update_taskcard_status targets a task_id with no existing row."""
 
 
+class TaskcardAlreadyExistsError(Exception):
+    """H2 (2026-09-11): raised by append(expect_absent=True) when a row for
+    task_id already exists, reloaded FRESH under the lock rather than from a
+    caller's possibly-stale pre-loop read_latest() snapshot. Closes a real
+    TOCTOU gap shared by taskcard_cli.py::cmd_seed and
+    st054_seed_taskcards.py: both call read_latest() ONCE outside any lock,
+    then loop appending rows whose task_id wasn't in that snapshot -- two
+    concurrent seed calls for the same brand-new task_id can both pass that
+    stale check and both append, producing two divergent first-rows with no
+    CAS to catch it (update_taskcard_status()'s CAS only ever protects a
+    task_id that already has a row)."""
+
+    def __init__(self, task_id: str, mission_id: str):
+        self.task_id = task_id
+        self.mission_id = mission_id
+        super().__init__(
+            f"task_id={task_id!r} already has a row in mission {mission_id!r} -- "
+            "refusing to append another first-row for it (use "
+            "update_taskcard_status() to transition an existing task, or pass "
+            "expect_absent=False / --force to intentionally append anyway)"
+        )
+
+
 class TaskcardCASError(Exception):
     """Raised when update_taskcard_status's expected_status does not match
     the task's actual current (latest-row) status -- another session already
@@ -205,7 +228,7 @@ class TaskcardStore:
 
     # ── Writes ───────────────────────────────────────────────────────────
 
-    def append(self, record: dict[str, Any]) -> dict[str, Any]:
+    def append(self, record: dict[str, Any], *, expect_absent: bool = False) -> dict[str, Any]:
         """Append one schema-validated row. Never rewrites existing lines --
         schema 5f is append-only; read_latest()'s last-occurrence-wins
         semantics are what makes a later status authoritative, not in-place
@@ -214,6 +237,18 @@ class TaskcardStore:
         mission_id is auto-filled from this store if absent from record; a
         record whose own mission_id disagrees with this store's is rejected
         (a taskcard row belongs to exactly one mission's file).
+
+        expect_absent (H2, 2026-09-11): when True, re-checks — FRESH, under
+        the lock, not from any caller-held snapshot — that record["task_id"]
+        has no existing row, and raises TaskcardAlreadyExistsError instead
+        of appending if it does. This is the CAS-against-row-absence
+        primitive: a seed-style caller that loops over many rows should
+        `read_latest()` once for its own skip-existing UI/reporting, but
+        pass expect_absent=True on each append() call so the real decision
+        is made against current state at write time, not a stale snapshot
+        from before the loop started. Default False preserves every prior
+        caller's exact behavior (blind append, e.g. run-scoped task_ids that
+        can never collide, or an explicit intentional --force re-append).
 
         Raises ValueError if the record fails schema validation,
         TaskcardLockTimeout if the mission's lock cannot be acquired within
@@ -232,6 +267,10 @@ class TaskcardStore:
 
         self._acquire_lock()
         try:
+            if expect_absent:
+                task_id = record.get("task_id")
+                if task_id and task_id in self.read_latest():
+                    raise TaskcardAlreadyExistsError(task_id, self.mission_id)
             self.path.parent.mkdir(parents=True, exist_ok=True)
             with open(self.path, "a", encoding="utf-8") as f:
                 f.write(json.dumps(record, ensure_ascii=False) + "\n")

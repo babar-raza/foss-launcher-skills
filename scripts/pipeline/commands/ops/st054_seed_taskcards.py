@@ -56,7 +56,7 @@ _LIB_DIR = str(_PIPELINE_ROOT / "lib")
 if _LIB_DIR not in sys.path:
     sys.path.insert(0, _LIB_DIR)
 
-from taskcard_store import TaskcardStore  # noqa: E402
+from taskcard_store import TaskcardStore, TaskcardAlreadyExistsError  # noqa: E402
 from session_identity import resolve_sanitized as _resolve_session_identity  # noqa: E402
 
 DEFAULT_MISSION_ID = "ST-054-REMEDIATION"
@@ -136,7 +136,16 @@ def seed_products(
                 continue
             row.setdefault("recorded_by", who)
             row.setdefault("recorded_at", datetime.now(timezone.utc).isoformat().replace("+00:00", "Z"))
-            store.append(row)
+            # H2 (2026-09-11): expect_absent=not force re-checks freshly
+            # under the lock rather than trusting the pre-loop `existing`
+            # snapshot above, closing the same TOCTOU race taskcard_cli.py's
+            # cmd_seed has (this function is a direct re-implementation of
+            # its skip/force semantics against TaskcardStore).
+            try:
+                store.append(row, expect_absent=not force)
+            except TaskcardAlreadyExistsError:
+                skipped.append(row["task_id"])
+                continue
             seeded.append(row["task_id"])
 
     return {"mission_id": mission_id, "seeded": seeded, "skipped_existing": skipped}

@@ -310,6 +310,91 @@ def test_concurrent_cas_updates_exactly_one_winner_no_corruption(tmp_path, monke
 
 
 # ---------------------------------------------------------------------------
+# H2 (2026-09-11): append(expect_absent=...) -- CAS-against-row-absence,
+# closing the real taskcard-creation TOCTOU race in taskcard_cli.py::cmd_seed
+# and st054_seed_taskcards.py (both call read_latest() ONCE outside any
+# lock, then loop appending rows not in that stale snapshot).
+# reports/skill-gaps/2026-09-11-imaging-net-pipeline-hardening-prerequisites.md
+# ---------------------------------------------------------------------------
+
+from lib.taskcard_store import TaskcardAlreadyExistsError  # noqa: E402
+
+
+def test_append_expect_absent_default_false_preserves_old_blind_append_behavior(tmp_path):
+    """Backward compatibility: every prior caller that never passed
+    expect_absent must keep working exactly as before -- a second append()
+    for the same task_id still succeeds (e.g. blind_spot_audit_run.py's
+    run-scoped task_ids, or an explicit --force re-append)."""
+    store = TaskcardStore(MISSION, repo_root=tmp_path)
+    store.append(_base_record("TC-DUP"))
+    written = store.append(_base_record("TC-DUP", status="TODO", recorded_by="sess-b"))
+    assert written["recorded_by"] == "sess-b"
+    history = store.read_history()
+    assert len([r for r in history if r["task_id"] == "TC-DUP"]) == 2
+
+
+def test_append_expect_absent_true_refuses_when_row_already_exists(tmp_path):
+    store = TaskcardStore(MISSION, repo_root=tmp_path)
+    store.append(_base_record("TC-NEW"))
+    with pytest.raises(TaskcardAlreadyExistsError):
+        store.append(_base_record("TC-NEW", recorded_by="sess-b"), expect_absent=True)
+    # refused, not appended -- still exactly one row
+    history = store.read_history()
+    assert len([r for r in history if r["task_id"] == "TC-NEW"]) == 1
+
+
+def test_append_expect_absent_true_succeeds_when_absent(tmp_path):
+    store = TaskcardStore(MISSION, repo_root=tmp_path)
+    written = store.append(_base_record("TC-FRESH"), expect_absent=True)
+    assert written["task_id"] == "TC-FRESH"
+    assert store.get("TC-FRESH")["status"] == "TODO"
+
+
+def test_concurrent_seed_same_new_task_id_expect_absent_exactly_one_winner(tmp_path):
+    """Direct sibling of test_concurrent_cas_updates_exactly_one_winner_no_corruption,
+    applied to append() instead of update_taskcard_status(): N threads race
+    to create the FIRST row for the SAME brand-new task_id (the exact
+    cmd_seed/st054_seed_taskcards.py shape -- each thread's own
+    read_latest()-based 'not yet seen' check happened before the race, just
+    like the real callers' pre-loop snapshot). expect_absent=True must
+    serialize them so exactly one wins and every other raises
+    TaskcardAlreadyExistsError -- never two divergent first-rows for one
+    task_id."""
+    n_threads = 3
+    store_factory = lambda: TaskcardStore(MISSION, repo_root=tmp_path)
+
+    results: list[str] = []
+    errors: list[Exception] = []
+    lock = threading.Lock()
+
+    def _worker(i: int) -> None:
+        try:
+            TaskcardStore(MISSION, repo_root=tmp_path).append(
+                _base_record("TC-SEED-RACE", recorded_by=f"sess-{i}"), expect_absent=True,
+            )
+            with lock:
+                results.append(f"sess-{i}")
+        except TaskcardAlreadyExistsError:
+            pass  # expected for every loser
+        except Exception as exc:  # noqa: BLE001
+            errors.append(exc)
+
+    threads = [threading.Thread(target=_worker, args=(i,)) for i in range(n_threads)]
+    for t in threads:
+        t.start()
+    for t in threads:
+        t.join(timeout=30)
+
+    assert not errors, f"unexpected exceptions under concurrent expect_absent append: {errors}"
+    assert len(results) == 1, f"expected exactly 1 winner, got {len(results)}: {results}"
+
+    history = store_factory().read_history()
+    race_rows = [r for r in history if r["task_id"] == "TC-SEED-RACE"]
+    assert len(race_rows) == 1  # never two divergent first-rows
+    assert race_rows[0]["recorded_by"] == results[0]
+
+
+# ---------------------------------------------------------------------------
 # pause_taskcard — eager, cheap intent-capture for a mid-session context switch
 # ---------------------------------------------------------------------------
 

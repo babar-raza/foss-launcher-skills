@@ -417,6 +417,156 @@ def cmd_status(args: argparse.Namespace) -> int:
     return 0
 
 
+ACTIVATION_LOG_NAME = "mission_activation_log.jsonl"
+_MIN_FORCE_REASON_LEN = 15
+
+
+def _activation_log_path(root: Optional[Path] = None) -> Path:
+    return (root or repo_root()) / "reports" / "plan_state" / ACTIVATION_LOG_NAME
+
+
+def _append_activation_log(entry: Dict[str, Any], root: Optional[Path] = None) -> None:
+    path = _activation_log_path(root)
+    path.parent.mkdir(parents=True, exist_ok=True)
+    entry = dict(entry)
+    entry.setdefault(
+        "logged_at", datetime.datetime.now(datetime.timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
+    )
+    with path.open("a", encoding="utf-8") as f:
+        f.write(json.dumps(entry, ensure_ascii=False) + "\n")
+
+
+def _incumbent_snapshot(mission_id: str, root: Optional[Path] = None) -> Optional[Dict[str, Any]]:
+    """Read a mission's archived snapshot, or None if it doesn't exist / is unreadable."""
+    path = plan_state_dir(mission_id, root) / "mission_authority.yaml"
+    if not path.is_file():
+        return None
+    try:
+        data = yaml.safe_load(path.read_text(encoding="utf-8"))
+        return data.get("mission_authority")
+    except Exception:  # noqa: BLE001
+        return None
+
+
+def cmd_activate(args: argparse.Namespace) -> int:
+    """H1: the one sanctioned pre-flight gate for taking over the root
+    MISSION_AUTHORITY.yaml slot (docs/workflows -- see
+    reports/skill-gaps/2026-09-11-imaging-net-pipeline-hardening-prerequisites.md).
+
+    Must run BEFORE hand-editing the root file to a new mission's narrative:
+    it reads the CURRENT (pre-edit) root content to identify the incumbent,
+    so it cannot recover the incumbent's identity after the edit already
+    happened. It never writes MISSION_AUTHORITY.yaml itself -- narrative
+    content stays human/agent-authored, per this module's existing design
+    (see module docstring); this command only decides whether proceeding to
+    edit it is currently sanctioned, and durably logs that decision.
+
+    Same-mission-id resumption (args.mission_id already matches the root
+    file's current mission_id) is an ungated fast path with zero liveness
+    checks by design -- this is what a same-session-later-day resume needs
+    (this mission's own 2026-09-11 situation), and what a naive lock-shaped
+    design would have wrongly blocked.
+
+    A genuine takeover of a DIFFERENT incumbent is refused if that
+    incumbent's own archived snapshot is both `_archive_status: open` and
+    `mission_locked: true`, unless --force is given with a real (non-empty,
+    minimum-length) reason -- an unvalidated free-text reason would just
+    reproduce the "schema-checked but never semantically enforced" defect
+    (`mission_locked` itself, per this module's own history) that this
+    command exists to close one layer up.
+    """
+    root = Path(args.root) if args.root else None
+    root_path = root_mission_authority_path(root)
+
+    current_id: Optional[str] = None
+    if root_path.is_file():
+        try:
+            current_ma = read_root_mission_authority(root)
+            current_id = current_ma.get("mission_id")
+        except (FileNotFoundError, ValueError) as exc:
+            print(
+                f"WARNING: could not read current root MISSION_AUTHORITY.yaml ({exc}); "
+                "treating as no incumbent."
+            )
+
+    if current_id is None:
+        _append_activation_log(
+            {
+                "mission_id": args.mission_id,
+                "previous_mission_id": None,
+                "action": "initial",
+                "session_id": args.session_id,
+            },
+            root,
+        )
+        print(
+            f"No incumbent found at the root slot -- {args.mission_id!r} may proceed "
+            "(edit MISSION_AUTHORITY.yaml, then run `open`)."
+        )
+        return 0
+
+    if current_id == args.mission_id:
+        _append_activation_log(
+            {
+                "mission_id": args.mission_id,
+                "previous_mission_id": current_id,
+                "action": "resume",
+                "session_id": args.session_id,
+            },
+            root,
+        )
+        print(
+            f"Resuming {args.mission_id!r} -- already the root slot's current mission; "
+            "no takeover check needed."
+        )
+        return 0
+
+    incumbent = _incumbent_snapshot(current_id, root)
+    incumbent_locked_open = bool(
+        incumbent is not None
+        and incumbent.get("_archive_status") == "open"
+        and incumbent.get("mission_locked") is True
+    )
+
+    if incumbent_locked_open and not args.force:
+        print(
+            f"ERROR: root slot is held by {current_id!r}, which is mission_locked: true and "
+            f"_archive_status: open (still active by every signal this repo tracks). Refusing "
+            f"to let {args.mission_id!r} take over without --force \"<reason>\". Root file "
+            "untouched. Run `mission_authority.py status` to see what else is live, or resolve "
+            f"{current_id!r} (close it) first."
+        )
+        return 1
+
+    if args.force:
+        reason = args.force.strip()
+        if len(reason) < _MIN_FORCE_REASON_LEN:
+            print(
+                f"ERROR: --force reason is too short ({len(reason)} chars, need >= "
+                f"{_MIN_FORCE_REASON_LEN}) to be a real justification, not narrative filler. "
+                "Cite a report/taskcard/plan path."
+            )
+            return 1
+
+    _append_activation_log(
+        {
+            "mission_id": args.mission_id,
+            "previous_mission_id": current_id,
+            "action": "takeover",
+            "incumbent_locked_open": incumbent_locked_open,
+            "force_reason": args.force.strip() if args.force else None,
+            "session_id": args.session_id,
+        },
+        root,
+    )
+    print(
+        f"{args.mission_id!r} may take over the root slot from {current_id!r} "
+        f"({'forced over a locked/open incumbent' if incumbent_locked_open else 'incumbent not locked/open'}). "
+        "Edit MISSION_AUTHORITY.yaml to the new mission's content, then run `open`."
+    )
+    return 0
+
+
 def dedupe_missions_by_id(commit_mission_pairs: List[Tuple[str, str]]) -> List[Tuple[str, str]]:
     """Collapse consecutive (sha, mission_id) pairs sharing the same mission_id,
     keeping only the LAST sha of each run — commit count is not mission count
@@ -799,6 +949,23 @@ def main(argv: Optional[List[str]] = None) -> int:
     p_allocate.add_argument("--slug", required=True, help="Descriptive UPPER-CASE slug, e.g. EXAMPLE-MISSION")
     p_allocate.add_argument("--date", default=None, help="YYYY-MM-DD, defaults to today (UTC)")
     p_allocate.set_defaults(func=cmd_allocate)
+
+    p_activate = sub.add_parser(
+        "activate",
+        help="H1: pre-flight consent gate for taking over the root MISSION_AUTHORITY.yaml slot. "
+             "Run BEFORE hand-editing the root file. Same-mission-id resumption is an ungated "
+             "fast path; a takeover of a locked+open incumbent requires --force with a real reason.",
+    )
+    p_activate.add_argument("--mission-id", required=True)
+    p_activate.add_argument(
+        "--force", default=None, metavar="REASON",
+        help="Required to take over a mission_locked:true, _archive_status:open incumbent.",
+    )
+    p_activate.add_argument(
+        "--session-id", default=os.environ.get("AGENT_SESSION_ID"),
+        help="Recorded in the activation log (default: $AGENT_SESSION_ID)",
+    )
+    p_activate.set_defaults(func=cmd_activate)
 
     args = parser.parse_args(argv)
     return args.func(args)
