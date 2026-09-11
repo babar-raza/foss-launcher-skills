@@ -1116,10 +1116,31 @@ def reconcile(
         # `old_parent_sha`, so that (not a fresh re-read of whatever the ref
         # currently holds) is the only value for which this comparison
         # actually protects chain integrity against a concurrent session.
-        _git(
-            ["update-ref", f"refs/heads/{branch}", commit_sha, old_parent_sha],
-            repo_root=root,
-        )
+        #
+        # 2026-09-11: unlike plumb_commit()'s own call (which always advances
+        # a freshly commit-tree'd object that, by construction, can never
+        # already be reflected in refs/heads/{branch}), this function's own
+        # docstring documents `commit_sha` as "already built by plumb_commit()
+        # (or any commit object)" -- e.g. a plain `git commit` in a checkout
+        # that already has {branch} checked out advances the local ref as
+        # part of the commit itself, before reconcile() ever runs. In that
+        # case the CAS's "old" precondition (still at old_parent_sha) is
+        # already false -- not because anything concurrent moved it, but
+        # because THIS caller's own commit already did, earlier in the same
+        # call chain. Checking for "already exactly at commit_sha" first and
+        # treating that as a no-op preserves the CAS's actual purpose (catch
+        # a DIFFERENT SHA landing there, from a concurrent session) without
+        # firing on this ordinary, single-caller case. Any third value still
+        # falls through to the CAS below and fails loudly, unchanged.
+        current_local_ref = _git(
+            ["rev-parse", "--verify", "--quiet", f"refs/heads/{branch}"],
+            repo_root=root, check=False,
+        ).stdout.strip()
+        if current_local_ref != commit_sha:
+            _git(
+                ["update-ref", f"refs/heads/{branch}", commit_sha, old_parent_sha],
+                repo_root=root,
+            )
         tree_sha = _git(["rev-parse", f"{commit_sha}^{{tree}}"], repo_root=root).stdout.strip()
         return {
             "head_sha": old_parent_sha,
