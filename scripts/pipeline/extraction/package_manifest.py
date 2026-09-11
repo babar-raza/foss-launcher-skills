@@ -104,8 +104,42 @@ def _parse_dotnet_manifest(repo: Path) -> dict[str, Any]:
     csproj_files = list(repo.rglob("*.csproj"))[:20]
     if not csproj_files:
         return info
-    csproj_files.sort(key=lambda p: len(p.parts))
-    text = csproj_files[0].read_text(encoding="utf-8", errors="replace")
+    # HARDEN-dotnet-test-csproj (2026-09-11): pathlib.Path.rglob()'s file
+    # order is filesystem-dependent, not deterministic -- confirmed live on
+    # imaging/net, where the real package's csproj
+    # (src/Aspose.Imaging.Foss/Aspose.Imaging.Foss.csproj, containing
+    # <PackageId>Aspose.Imaging.Foss</PackageId>) and its test project's
+    # csproj (tests/Aspose.Imaging.Foss.Tests/Aspose.Imaging.Foss.Tests.csproj,
+    # IsPackable=false, no PackageId) tie at the same path depth (6 parts
+    # each), and rglob() happened to return the test one first on this run.
+    # The old depth-only sort then silently extracted an empty name from the
+    # test project's csproj, even though the real PackageId was sitting
+    # right there in a sibling file -- with no error, just an empty result
+    # that made every downstream caller (registry_backfill.py) fall back to
+    # a naming-convention GUESS instead of the real, confirmed identity.
+    # Fix: prefer whichever candidate file actually contains a <PackageId>
+    # tag (the definitive "this is the publishable package" signal) before
+    # falling back to depth-sort; among files with no PackageId anywhere,
+    # also deprioritize test-named projects so the AssemblyName/
+    # TargetFrameworks fallback reads the real package's csproj too (a test
+    # project typically targets only the one framework it runs under, not
+    # the full multi-target matrix the real package ships).
+    def _is_test_project(p: Path) -> bool:
+        return "test" in p.stem.lower()
+
+    csproj_files.sort(key=lambda p: (_is_test_project(p), len(p.parts)))
+
+    package_id_file = None
+    for f in csproj_files:
+        try:
+            candidate_text = f.read_text(encoding="utf-8", errors="replace")
+        except OSError:
+            continue
+        if re.search(r"<PackageId>.*?</PackageId>", candidate_text):
+            package_id_file = f
+            break
+
+    text = (package_id_file or csproj_files[0]).read_text(encoding="utf-8", errors="replace")
     for tag, key in [("PackageId", "name"), ("AssemblyName", "name"),
                      ("Version", "version")]:
         if key in info and info[key]:
