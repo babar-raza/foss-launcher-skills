@@ -42,6 +42,7 @@ _LIB_DIR = str(Path(__file__).resolve().parents[2] / "lib")
 if _LIB_DIR not in sys.path:
     sys.path.insert(0, _LIB_DIR)
 from knowledge_core import Knowledge  # noqa: E402
+from freshness_guard import is_generation_allowed  # noqa: E402  (FRESH-001, H3 2026-09-11)
 REPO_ROOT = SCRIPT_DIR.parent.parent  # scripts/pipeline/ -> scripts/ -> repo root
 
 KNOWLEDGE_ROOT = REPO_ROOT / "knowledge"
@@ -2128,10 +2129,19 @@ def build_plan(
     """Build the full site plan dict."""
     kn = PlannerKnowledge(family, platform)
 
-    # Staleness gate
-    if kn.stale_since is not None:
+    # Staleness gate (FRESH-001, H3 2026-09-11: migrated from a raw
+    # kn.stale_since read onto the shared freshness_guard gate, matching
+    # launch_gate.py/readiness_gate.py -- this was the last unmigrated call
+    # site of five, missing 9 of the 10 states freshness_guard exists to
+    # catch. degraded mode (no live network call) preserves this gate's
+    # prior no-network behavior exactly; never allow_last_known_good, per
+    # is_generation_allowed's own "launch/readiness gates must never" rule
+    # -- site-plan is pre-generation, launch-adjacent.
+    allowed, fresh_result = is_generation_allowed(family, platform, mode="degraded")
+    if not allowed:
         print(
-            f"SITE-PLAN STOP: Knowledge is stale since {kn.stale_since}.",
+            f"SITE-PLAN STOP: Knowledge is not fresh (state={fresh_result.state}): "
+            f"{fresh_result.reason}",
             file=sys.stderr,
         )
         sys.exit(1)
@@ -2497,9 +2507,14 @@ def main() -> None:
     # If --detect-clusters: load knowledge, run detection, print JSON, exit
     if args.detect_clusters:
         kn = PlannerKnowledge(family, platform)
-        if kn.stale_since is not None:
+        # FRESH-001, H3 2026-09-11: see build_plan()'s matching gate above for
+        # why this is migrated onto freshness_guard instead of a raw
+        # kn.stale_since read.
+        allowed, fresh_result = is_generation_allowed(family, platform, mode="degraded")
+        if not allowed:
             print(
-                f"SITE-PLAN STOP: Knowledge is stale since {kn.stale_since}.",
+                f"SITE-PLAN STOP: Knowledge is not fresh (state={fresh_result.state}): "
+                f"{fresh_result.reason}",
                 file=sys.stderr,
             )
             sys.exit(1)

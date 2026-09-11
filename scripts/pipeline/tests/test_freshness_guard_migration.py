@@ -173,3 +173,51 @@ class TestReadinessGateCallSite:
             assert result.status == rg.STATUS_FAIL
         finally:
             rg.configure()
+
+
+def _write_upstream_baselines(tmp_path, entries: dict):
+    data_dir = tmp_path / "data"
+    data_dir.mkdir(parents=True, exist_ok=True)
+    (data_dir / "upstream_baselines.json").write_text(json.dumps(entries), encoding="utf-8")
+
+
+class TestSitePlannerCallSite:
+    """H3 (2026-09-11): site_planner.py's two `SITE-PLAN STOP` call sites
+    (build_plan() and main()'s --detect-clusters branch) were the one known
+    unmigrated FRESH-001 call site, confirmed live bootstrapping imaging/net
+    knowledge (reports/skill-gaps/2026-09-11-imaging-net-pipeline-hardening-
+    prerequisites.md). Both now call
+    freshness_guard.is_generation_allowed(mode="degraded") instead of a raw
+    `kn.stale_since is not None` read. site_planner.py has no configure()
+    seam of its own (unlike launch_gate.py/readiness_gate.py), so these
+    tests prove the migration at the shared-function level it now actually
+    calls -- the same behavioral-equivalence proof this file's other classes
+    use, plus the CORRUPT-state case that is the actual point of this
+    migration: the raw check could only ever express 2 states
+    (stale_since None/set); this proves the new gate catches a 3rd real
+    state the old code was structurally blind to."""
+
+    def test_current_allowed_matches_old_no_stale_flag_behavior(self, tmp_path):
+        _write_model(tmp_path, "imaging", "net", stale_since=None)
+        allowed, result = fg.is_generation_allowed("imaging", "net", mode="degraded")
+        assert allowed is True
+        assert result.state == "CURRENT"
+
+    def test_stale_blocked_matches_old_stale_flag_behavior(self, tmp_path):
+        _write_model(tmp_path, "imaging", "net", stale_since="2026-08-14")
+        allowed, result = fg.is_generation_allowed("imaging", "net", mode="degraded")
+        assert allowed is False
+        assert result.state == "STALE"
+
+    def test_corrupt_state_blocked_even_though_stale_since_is_null(self, tmp_path):
+        """The concrete proof this migration exists for: a knowledge bundle
+        whose durable sources DISAGREE (real content drift or a corrupted
+        baseline) but whose stale_since happens to still be null -- the OLD
+        raw `stale_since is not None` check would have said "proceed", a
+        silent false pass. The migrated gate correctly blocks it as
+        CORRUPT."""
+        _write_model(tmp_path, "imaging", "net", repo_sha="sha-model", stale_since=None)
+        _write_upstream_baselines(tmp_path, {"imaging/net": "sha-DIFFERENT-from-model"})
+        allowed, result = fg.is_generation_allowed("imaging", "net", mode="degraded")
+        assert allowed is False
+        assert result.state == "CORRUPT"
