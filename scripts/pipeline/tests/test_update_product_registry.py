@@ -50,6 +50,22 @@ class TestClassifyRepo:
     def test_new_convention_cpp(self):
         assert upr._classify_repo("Aspose.Imaging-FOSS-for-Cpp") == ("imaging", "cpp")
 
+    def test_new_convention_mixed_case_foss_matches_case_insensitively(self):
+        """Regression test for a real live defect found 2026-09-11 running
+        /update-registry --dry-run for the imaging/net launch: the real
+        upstream repo is named 'Aspose.Imaging-Foss-for-.NET' (mixed-case
+        'Foss', not all-caps 'FOSS' like every other sibling repo) --
+        _REPO_PATTERN_FOSS's literal '-FOSS-for-' segment was
+        case-sensitive and refused to match it; the lowercase fallback
+        pattern also refused (it requires all-hyphen separators throughout,
+        e.g. 'aspose-x-foss-for-y', which doesn't match the dotted
+        'Aspose.{Family}' prefix shape at all). Confirmed live: the 26/26-org
+        dry-run scan found 34 other repos but silently dropped this one with
+        no error. Nothing about repo-naming convention should be sensitive
+        to the literal case of the word 'FOSS' -- it's incidental upstream
+        formatting drift, not a different naming convention."""
+        assert upr._classify_repo("Aspose.Imaging-Foss-for-.NET") == ("imaging", "net")
+
 
 # ---------------------------------------------------------------------------
 # _is_recently_pushed — pure function tests

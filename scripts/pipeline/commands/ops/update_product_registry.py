@@ -118,8 +118,15 @@ _DEFAULT_ORGS = [
 # Pattern: Aspose.{Family}-FOSS-for-{Platform}  (e.g. Aspose.3D-FOSS-for-Python)
 # Also accepts legacy: aspose-{family}-{platform}
 # Also accepts lowercase foss-for: aspose-{family}-foss-for-{platform} (e.g. aspose-pdf-foss-for-go)
+# IGNORECASE (2026-09-11): the literal "FOSS" token is not itself part of the
+# naming CONVENTION being enforced -- it's incidental casing. Confirmed live
+# while registering imaging/net: the real upstream repo is
+# "Aspose.Imaging-Foss-for-.NET" (mixed-case "Foss"), which the previously
+# case-sensitive pattern silently failed to classify with no error, and the
+# lowercase fallback below doesn't cover either (it requires all-hyphen
+# separators, not the dotted "Aspose.{Family}" prefix shape).
 _REPO_PATTERN_FOSS = re.compile(
-    r"^Aspose\.([A-Za-z0-9]+)-FOSS-for-([A-Za-z0-9.]+)$"
+    r"^Aspose\.([A-Za-z0-9]+)-FOSS-for-([A-Za-z0-9.]+)$", re.IGNORECASE
 )
 _REPO_PATTERN_FOSS_LOWER = re.compile(
     r"^aspose-([a-z0-9]+)-foss-for-([a-z0-9]+)$"
