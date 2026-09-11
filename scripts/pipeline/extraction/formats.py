@@ -984,9 +984,28 @@ def detect_formats(
     # These contain implementation details (transpiled code, I/O helpers)
     # that produce false-positive format names.
     files = _filter_vendor_paths(files, pkg_root, language)
+    # \w+Format$ (2026-09-11): a plain enum named exactly "{Domain}Format"
+    # (e.g. Aspose.Imaging.Foss's ImageFormat) matched none of the specific
+    # suffixes above -- confirmed live bootstrapping imaging/net: the real
+    # 11-member format enum was silently never recognized as a format
+    # source at all, while an unrelated EndianReader.cs class matched
+    # importer_pattern's "Reader" suffix and produced a false-positive
+    # "Endian" entry instead. Safe to broaden here specifically: a
+    # non-enum match on this wider pattern is already a no-op (see the
+    # "Non-enum format-pattern classes... are NOT format identifiers"
+    # comment below) and only feeds the enum-member-extraction path, which
+    # already correctly infers direction="detect" for a plain, unqualified
+    # format enum (no Save/Export/Load/Import prefix) -- exactly right for
+    # a probe-only library that never decodes/edits/converts.
+    # MULTILINE (2026-09-11): format_pattern is searched both against a single-
+    # line class/enum NAME (where $ trivially means end-of-string) and against
+    # the WHOLE multi-line file TEXT at the file-level pre-filter above -- the
+    # \w+Format$ alternative's $ only matched end-of-STRING by default, so it
+    # silently never matched inside a real file (confirmed live: matched
+    # "ImageFormat" standalone but not within ImageFormat.cs's actual text).
     format_pattern = re.compile(
-        r"(FileFormat|FormatType|SupportedFormat|FileType|SaveFormat|ExportFormat|LoadFormat|ImportFormat|OutputFormat|InputFormat|SourceFormat|FontType)",
-        re.IGNORECASE)
+        r"(FileFormat|FormatType|SupportedFormat|FileType|SaveFormat|ExportFormat|LoadFormat|ImportFormat|OutputFormat|InputFormat|SourceFormat|FontType|\w+Format$)",
+        re.IGNORECASE | re.MULTILINE)
     # SaveFormat/ExportFormat enums indicate actual output capability
     save_format_pattern = re.compile(
         r"(SaveFormat|ExportFormat|OutputFormat)", re.IGNORECASE)
@@ -1027,6 +1046,14 @@ def detect_formats(
         # user-facing format); "entity" comes from EntityRenderer (rendering framework
         # abstract class in Render/ namespace, not a file-format handler).
         "basic", "entity",
+        # H-04f: imaging/net false positive found live 2026-09-11 bootstrapping
+        # imaging/net knowledge: "endian" comes from internal class EndianReader
+        # (Internal/EndianReader.cs, a byte-order helper for parsing binary
+        # headers, not a file-format handler). Belt-and-suspenders alongside the
+        # format_pattern \w+Format$ fix, which addresses the root cause (the
+        # real ImageFormat enum was never recognized) but doesn't by itself
+        # suppress this unrelated importer_pattern match on "...Reader".
+        "endian",
     })
     _allowed_fmt_overrides = _FAMILY_FORMAT_ALLOWLISTS.get(family, frozenset())
 
@@ -2015,6 +2042,21 @@ def _validate_formats(
     export function (e.g. ``renderPageToPng``), not a loose class-name-suffix
     or method-name substring match -- the false-positive list exists to catch
     exactly that looser kind of match, which this pass never makes.
+
+    2026-09-11 fix: enum-sourced entries (``f["enum"]`` set) now ALSO bypass
+    the false-positive-NAME-list rejection, not just the length/pattern
+    checks the paragraph above already exempted them from. Confirmed live
+    bootstrapping imaging/net: ``ImageFormat``'s real ``Png`` member was
+    silently dropped here even though it came straight from an authoritative
+    enum member (not a class-name-suffix guess) -- this function's own prior
+    docstring already claimed "enum-sourced entries... bypass ... checks
+    because enum members are authoritative format identifiers" without that
+    ever actually covering the name-list check itself, an unimplemented
+    part of its own stated design intent. ``_FALSE_POSITIVE_NAMES`` exists to
+    catch names GUESSED by stripping an Importer/Exporter/Reader/Writer/
+    LoadOptions/SaveOptions suffix off a class name (fuzzy, error-prone); an
+    enum member reached via format_pattern's narrow format-defining-enum-name
+    gate is never a guess.
     """
     # CamelCase detection: two or more uppercase letters with lowercase between
     # them indicates a compound word (e.g. ChartXml, AutoFilterXML, MinimalCFB).
@@ -2026,8 +2068,9 @@ def _validate_formats(
         if not name or len(name) < 2:
             continue
         is_ts_identifier = f.get("evidence_kind") == "ts_io_identifier"
+        is_enum_sourced = bool(f.get("enum"))
         if (name.lower() in false_positives and name.lower() not in allowlist
-                and not is_ts_identifier):
+                and not is_ts_identifier and not is_enum_sourced):
             continue
         # Enum-sourced entries are authoritative — keep them
         if not f.get("enum"):
