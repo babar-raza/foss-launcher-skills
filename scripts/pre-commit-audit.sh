@@ -1894,4 +1894,42 @@ else
 fi
 _pc_step_end "PASS"
 
+_pc_step_start "pipeline registry completeness"
+# ---------------------------------------------------------------------------
+# Step 43 (CI-hardening plan, TC-PREVENT-01): scripts/pipeline/config/registry.yaml
+# completeness for newly-staged pipeline files. check_pipeline_registration.py's
+# CHECK 1 (every scripts/pipeline/{lib,commands}/**.py file needs a registry
+# entry) previously had ZERO presence in this script -- it was CI-only, and
+# since this repo cannot get GitHub branch protection (private repo, plan-tier
+# limit), a CI-only check has no way to actually block anything landing on
+# main. 14 files accumulated unregistered over several missions before this
+# was caught and fixed (see registry.yaml's own history, commit 838ab332fc).
+# Scoped to ONLY the files actually being staged, same design as Steps 33/42 --
+# pre-existing unregistered debt elsewhere on disk must never block an
+# unrelated commit. Landing directly as a hard gate, not WARN-first: unlike
+# Step 42's promotion, there is no pre-existing debt to work through first --
+# `check_pipeline_registration.py` (unscoped, full sweep) reported 0 blocking
+# issues immediately before this step was written (2026-09-11T17:20:54Z),
+# verified fresh, not assumed from an earlier run.
+# ---------------------------------------------------------------------------
+staged_registry_files=$(git diff --cached --name-only --diff-filter=ACMR 2>/dev/null | grep -E \
+    '^scripts/pipeline/(lib|commands)/.*\.py$' || true)
+if [ -n "$staged_registry_files" ]; then
+    if [ -n "$_HOOK_PYTHON" ] && [ -f "scripts/ci/checks/check_pipeline_registration.py" ]; then
+        _preg_out=$(PYTHONPATH=scripts/pipeline "$_HOOK_PYTHON" \
+            scripts/ci/checks/check_pipeline_registration.py --staged-files $staged_registry_files 2>&1)
+        _preg_exit=$?
+        echo "$_preg_out" | sed 's/^/[Step 43] /'
+        if [ $_preg_exit -ne 0 ]; then
+            _pc_step_end "FAIL"
+            _pc_exit 1
+        fi
+    else
+        echo "[Step 43] SKIP: .venv not found or check_pipeline_registration.py missing." >&2
+    fi
+else
+    echo "[Step 43] No staged scripts/pipeline/{lib,commands}/*.py files — skipping."
+fi
+_pc_step_end "PASS"
+
 _pc_exit 0
