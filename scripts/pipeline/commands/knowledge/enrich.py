@@ -83,7 +83,15 @@ _DEFAULT_BATCH_SIZE = 20   # classes per LLM call
 _DEFAULT_MIN_COVERAGE = 0.0  # disable by default; use --min-coverage to enforce
 
 _CLAIM_KINDS = {"api", "feature", "format", "install", "troubleshoot", "config",
-                "license", "integration", "performance"}
+                "license", "integration", "performance",
+                # H7 (MT068-2026-09-11-IMAGING-NET-LAUNCH): deterministic scout-
+                # layer claims from extraction.capability_tables, one per README
+                # capability-matrix cell. Not an enrich.py-LLM-produced kind, but
+                # this set is also the only kind allowlist enrich.py's own claim
+                # validator consults — must be present here or a scout-emitted
+                # capability_matrix_cell claim would fail _validate_claim if it
+                # ever passed through this validator.
+                "capability_matrix_cell"}
 
 _VALID_PAGE_ROLES = frozenset({"product", "docs", "kb", "reference"})
 
@@ -798,6 +806,11 @@ def _tokenize(text: str) -> set[str]:
 # promote.py (_semantic_dedup_claims).
 _EXACT_ONLY_KINDS = frozenset({
     "api_method", "api_constructor", "api_property", "format_support",
+    # H7: mechanical claim text ("For {row}, {column} is {value}") is short
+    # and structurally similar across cells (e.g. "For PNG, Detect is
+    # supported" vs "For PNG, Bit depth is supported") -- without this,
+    # Jaccard dedup would collapse genuinely distinct per-cell facts.
+    "capability_matrix_cell",
 })
 
 
@@ -1320,6 +1333,26 @@ def enrich(family: str, platform: str, knowledge_root=None, *,
         log.info("Building source context from clone cache: %s", clone_dir)
         source_context = _build_source_context(clone_dir, low_docstring=low_docstring)
         log.info("Source context: %d chars", len(source_context))
+        # H7 (MT068-2026-09-11-IMAGING-NET-LAUNCH): strip any README capability-
+        # matrix table already atomized by extraction.capability_tables (run as
+        # part of scout.py) out of the LLM context. Without this, the LLM still
+        # sees the same table and still produces its own redundant whole-table
+        # summary claim alongside the new atomic ones -- supplementing the old
+        # defect instead of replacing it. Recomputed here (stateless, cheap,
+        # deterministic) rather than threaded across the scout->enrich process
+        # boundary.
+        try:
+            from extraction.capability_tables import detect_capability_tables, strip_covered_tables
+            formats_path = scout_dir / "formats.json"
+            known_formats = json.loads(formats_path.read_text(encoding="utf-8")) if formats_path.exists() else []
+            _, covered_tables = detect_capability_tables(clone_dir, family, known_formats)
+            if covered_tables:
+                before_len = len(source_context)
+                source_context = strip_covered_tables(source_context, covered_tables)
+                log.info("Stripped %d covered capability table(s) from LLM context (%d -> %d chars)",
+                         len(covered_tables), before_len, len(source_context))
+        except Exception:
+            log.exception("capability-table context stripping failed — proceeding with unstripped context")
     else:
         log.warning("Clone cache not found at %s — source context will be minimal", clone_dir)
         source_context = "(clone cache not available)"

@@ -32,6 +32,7 @@ from extraction.tree_helpers import (
 from extraction.package_root import detect_package_root
 from extraction.package_manifest import parse_manifest
 from extraction.formats import detect_formats
+from extraction.capability_tables import detect_capability_tables
 from extraction.claims import build_identity_claims
 from extraction.snippets import extract_snippets
 from extraction.api_surface import (
@@ -204,6 +205,7 @@ class Scout:
         self._extract_api_surface()
         self._enrich_docstrings()
         self._detect_formats()
+        self._detect_capability_tables()
         self._detect_limitations()
         self._extract_snippets()
         self._build_identity_claims()
@@ -327,6 +329,15 @@ class Scout:
         new_formats, new_claims = detect_formats(
             self.parser, self.language, self.pkg_root, self.repo, self.family)
         self.formats.extend(new_formats)
+        self.claims.extend(new_claims)
+
+    def _detect_capability_tables(self):
+        """Delegate to extraction.capability_tables.detect_capability_tables (H7,
+        MT068-2026-09-11-IMAGING-NET-LAUNCH). Runs after _detect_formats so
+        self.formats already holds the real, source-verified format names to
+        cross-check README capability-matrix row labels against."""
+        new_claims, _covered_tables = detect_capability_tables(
+            self.repo, self.family, self.formats)
         self.claims.extend(new_claims)
 
     # -- Limitation detection ----------------------------------------------

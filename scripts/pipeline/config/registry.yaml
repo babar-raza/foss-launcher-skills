@@ -1808,6 +1808,24 @@ scripts:
     deprecated_since: null
     notes: "helpers for S-73 manual-edit skill; section detection, scope validation"
 
+  - path: scripts/pipeline/lib/markdown_tables.py
+    kind: library
+    lifecycle: active
+    canonical_impl_path: null
+    public_entrypoint: false
+    cli_contract: none
+    owner_domain: knowledge-extraction
+    backing:
+      kind: internal
+      ref: null
+    requires_test: true
+    test_targets:
+      - scripts/pipeline/tests/lib/test_markdown_tables.py
+      - scripts/pipeline/tests/content_eval/test_description_completeness.py
+    deprecated_since: null
+    change_impact: null
+    notes: "H7 (MT068-2026-09-11-IMAGING-NET-LAUNCH): shared GFM pipe-table parser, extracted from description_completeness.py's own _parse_tables so extraction/capability_tables.py doesn't reimplement it"
+
   - path: scripts/pipeline/lib/org_scanner.py
     kind: library
     lifecycle: active

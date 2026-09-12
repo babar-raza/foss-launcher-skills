@@ -35,7 +35,7 @@ from token_ops import (  # noqa: E402
 )
 from audit.links import verify_internal_links  # noqa: E402
 from audit.snippets import verify_snippet_coverage  # noqa: E402
-from audit.formats import verify_format_direction  # noqa: E402
+from audit.formats import verify_format_direction, verify_capability_matrix_claims_current  # noqa: E402
 from audit.phantom_methods import verify_phantom_methods  # noqa: E402
 from audit.maven_coordinates import verify_maven_coordinates  # noqa: E402
 from audit.package_install_literal import verify_package_install_literals  # noqa: E402
@@ -135,6 +135,11 @@ def audit_product(
     _log(f"  {family}/{platform}: {len(files)} files, tier {knowledge.surface_tier}")
 
     findings = []
+    # H7 (MT068-2026-09-11-IMAGING-NET-LAUNCH) durable correctness guard: a
+    # product-level check (not per-file — claims.json vs formats.json drift
+    # has no single owning content file), so it runs once here rather than
+    # inside the per-file loop below.
+    findings.extend(verify_capability_matrix_claims_current(family, platform))
     for f in files:
         fm = parse_frontmatter(f)
         text = f.read_text(encoding="utf-8", errors="replace")

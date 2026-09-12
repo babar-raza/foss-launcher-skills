@@ -148,6 +148,103 @@ def _has_warning(row_text: str) -> bool:
 # Public API
 # ---------------------------------------------------------------------------
 
+_CAPABILITY_CLAIM_ROW_LABEL_RE = re.compile(r"^For\s+(.+?),\s+.+\s+is\s+.+\.$")
+_TRAILING_PAREN_RE = re.compile(r"\s*\([^()]*\)\s*$")
+
+
+@lru_cache(maxsize=None)
+def _load_known_format_names(family: str, platform: str) -> frozenset[str]:
+    """Return the lowercased set of format names currently in formats.json.
+
+    Same cache-per-process, empty-set-on-any-error contract as
+    ``_load_enum_only_formats`` — this check must never crash an audit run
+    over a missing or malformed formats.json, only report FEWER findings.
+    """
+    path = KNOWLEDGE_ROOT / family / platform / "merged" / "formats.json"
+    if not path.exists():
+        return frozenset()
+    try:
+        raw = json.loads(path.read_text(encoding="utf-8"))
+    except (json.JSONDecodeError, TypeError, OSError):
+        return frozenset()
+    if not isinstance(raw, list):
+        return frozenset()
+    return frozenset(
+        e["format"].lower() for e in raw
+        if isinstance(e, dict) and e.get("format")
+    )
+
+
+def verify_capability_matrix_claims_current(
+    family: str, platform: str
+) -> List[Finding]:
+    """H7 durable correctness guard (MT068-2026-09-11-IMAGING-NET-LAUNCH).
+
+    ``extraction.capability_tables`` emits a ``capability_matrix_cell`` claim
+    at full (1.0) confidence when its row label matches a format name that
+    was verified against source at EXTRACTION time. Unlike ``format_support``
+    claims, nothing previously re-verified that match on every subsequent
+    run — a claim recorded as full-confidence would sit there looking
+    authoritative even after the upstream repo's real format list changed
+    (a format renamed or removed), which is *more* dangerous than the
+    original compression defect this whole fix replaces: a wrong claim that
+    LOOKS verified is worse than one that's visibly missing.
+
+    Re-derives each claim's row label from its own mechanically-generated
+    text (see ``capability_tables.py``'s exact template) and re-checks it
+    against the CURRENT ``formats.json`` on every audit run — the same
+    "re-verify every time, don't trust extraction-time state forever"
+    guarantee ``format_support`` claims already get for free via
+    ``verify_format_direction`` above.
+
+    Returns a WARN (not FAIL) per drifted claim — this is knowledge-model
+    staleness, not a content defect on any specific page, so it does not
+    block a commit the way ``verify_format_direction``'s FAIL does; it
+    signals "re-run knowledge-bootstrap", not "fix this page's prose".
+    """
+    claims_path = KNOWLEDGE_ROOT / family / platform / "merged" / "claims.json"
+    if not claims_path.exists():
+        return []
+    try:
+        claims = json.loads(claims_path.read_text(encoding="utf-8"))
+    except (json.JSONDecodeError, TypeError, OSError):
+        return []
+    if not isinstance(claims, list):
+        return []
+
+    known_names = _load_known_format_names(family, platform)
+    findings: List[Finding] = []
+    for claim in claims:
+        if not isinstance(claim, dict) or claim.get("kind") != "capability_matrix_cell":
+            continue
+        if claim.get("confidence") != 1.0:
+            continue  # already-unverified-tier claims have nothing to drift from
+        text = claim.get("text", "")
+        m = _CAPABILITY_CLAIM_ROW_LABEL_RE.match(text)
+        if not m:
+            continue  # not this pass's own claim shape — don't guess
+        row_label = _TRAILING_PAREN_RE.sub("", m.group(1)).strip()
+        if row_label.lower() not in known_names:
+            findings.append(
+                Finding(
+                    level="WARN",
+                    filepath=str(claims_path),
+                    line_no=0,
+                    message=(
+                        f"capability_matrix_cell claim {claim.get('claim_id', '?')} "
+                        f"row label '{row_label}' no longer matches any format name "
+                        f"in current formats.json (was full-confidence at extraction "
+                        f"time — the upstream format list has likely changed)."
+                    ),
+                    suggestion=(
+                        f"Re-run /knowledge-bootstrap {family} {platform} to "
+                        f"regenerate claims.json against the current source."
+                    ),
+                )
+            )
+    return findings
+
+
 def verify_format_direction(
     file_path: str, family: str, platform: str
 ) -> List[Finding]:
