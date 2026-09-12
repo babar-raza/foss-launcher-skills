@@ -1059,6 +1059,49 @@ _STUB_CLAIM_RE = re.compile(
 _PROPERTY_NAME_RE = re.compile(r"\b([A-Z][A-Za-z0-9_]{2,}(?:\.[a-z_][a-z_0-9]+)?)\b")
 
 
+def _filter_redundant_format_summary_claims(
+    claims: list[dict], covered_format_names: set[str]
+) -> list[dict]:
+    """H7 (MT068-2026-09-11-IMAGING-NET-LAUNCH): drop an LLM-produced 'format'
+    claim that's redundant with the deterministic capability_matrix_cell
+    claims already extracted for the same table.
+
+    Found LIVE, not merely anticipated: stripping the covered table out of
+    the LLM's source context (see the caller, `enrich()`) did NOT stop the
+    LLM reconstructing the same broad summary sentence -- it still has the
+    same format names available from the README's own intro prose and from
+    the verified-facts block built from formats.json, neither of which this
+    pass strips (and should not: both are legitimate, independently-useful
+    context). A deterministic post-filter is what actually closes this,
+    rather than trying to scrub every possible source of the same fact from
+    the LLM's context.
+
+    Only fires when a 'format' claim names at least half of the already-
+    covered formats in one sentence -- a genuinely distinct claim (e.g.
+    about ONE specific format's behavior, or a format NOT in the covered
+    set) is never dropped, so this cannot silently eat real information.
+    """
+    if not covered_format_names:
+        return claims
+    kept: list[dict] = []
+    for c in claims:
+        if c.get("kind") == "format":
+            text_lower = c.get("text", "").lower()
+            mentioned = {
+                f for f in covered_format_names
+                if re.search(r"\b" + re.escape(f) + r"\b", text_lower)
+            }
+            if len(mentioned) >= max(3, len(covered_format_names) // 2):
+                log.info(
+                    "Dropping redundant format-summary claim (mentions %d/%d "
+                    "already-atomized formats): %s",
+                    len(mentioned), len(covered_format_names), c.get("text", "")[:80],
+                )
+                continue
+        kept.append(c)
+    return kept
+
+
 def _post_validate_stub_claims(claims: list, clone_dir: Path) -> list:
     """Demote claims that incorrectly assert a property is a stub.
 
@@ -1327,30 +1370,39 @@ def enrich(family: str, platform: str, knowledge_root=None, *,
     run_stats["preflight"] = preflight
     log.info("Preflight passed — healthy endpoint(s): %s", ", ".join(healthy))
 
+    # H7 (MT068-2026-09-11-IMAGING-NET-LAUNCH): row labels already atomized by
+    # extraction.capability_tables, for two uses below -- stripping the covered
+    # table(s) out of the LLM's raw source context, and (found live, not merely
+    # theorized: the table-strip alone did NOT stop the LLM reconstructing the
+    # same broad summary from the intro prose and from formats.json's own data,
+    # which it also sees) filtering any redundant "format" claim the LLM still
+    # produces despite the stripped context. Defined before the branch below so
+    # it's always a real value, never undefined, regardless of which path runs.
+    _covered_format_names: set[str] = set()
+
     # Build source context ONCE — same for all batches
     clone_dir = _clone_path(family, platform)
     if clone_exists(family, platform):
         log.info("Building source context from clone cache: %s", clone_dir)
         source_context = _build_source_context(clone_dir, low_docstring=low_docstring)
         log.info("Source context: %d chars", len(source_context))
-        # H7 (MT068-2026-09-11-IMAGING-NET-LAUNCH): strip any README capability-
-        # matrix table already atomized by extraction.capability_tables (run as
-        # part of scout.py) out of the LLM context. Without this, the LLM still
-        # sees the same table and still produces its own redundant whole-table
-        # summary claim alongside the new atomic ones -- supplementing the old
-        # defect instead of replacing it. Recomputed here (stateless, cheap,
-        # deterministic) rather than threaded across the scout->enrich process
-        # boundary.
         try:
             from extraction.capability_tables import detect_capability_tables, strip_covered_tables
             formats_path = scout_dir / "formats.json"
             known_formats = json.loads(formats_path.read_text(encoding="utf-8")) if formats_path.exists() else []
-            _, covered_tables = detect_capability_tables(clone_dir, family, known_formats)
+            cap_claims, covered_tables = detect_capability_tables(clone_dir, family, known_formats)
             if covered_tables:
                 before_len = len(source_context)
                 source_context = strip_covered_tables(source_context, covered_tables)
                 log.info("Stripped %d covered capability table(s) from LLM context (%d -> %d chars)",
                          len(covered_tables), before_len, len(source_context))
+            # Row labels from EVERY cell claim (matched or not) -- these formats
+            # already have deterministic, atomic coverage; a broad LLM summary
+            # naming most/all of them is redundant, not merely differently-worded.
+            for c in cap_claims:
+                m = re.match(r"^For\s+(.+?),\s+", c.get("text", ""))
+                if m:
+                    _covered_format_names.add(re.sub(r"\s*\([^()]*\)\s*$", "", m.group(1)).strip().lower())
         except Exception:
             log.exception("capability-table context stripping failed — proceeding with unstripped context")
     else:
@@ -1577,6 +1629,13 @@ def enrich(family: str, platform: str, knowledge_root=None, *,
     # code actually references that property in non-test files.
     final_claims = _post_validate_stub_claims(validated, clone_dir)
     run_stats["claims_stub_demoted"] = sum(1 for c in final_claims if c.get("stale_warning"))
+    # H7: drop any LLM-produced broad "format" claim redundant with the
+    # deterministic capability_matrix_cell claims (see the function's own
+    # docstring for why context-stripping alone did not prevent this).
+    before_filter = len(final_claims)
+    final_claims = _filter_redundant_format_summary_claims(final_claims, _covered_format_names)
+    if len(final_claims) != before_filter:
+        run_stats["redundant_format_claims_dropped"] = before_filter - len(final_claims)
 
     # Write protection: refuse to write empty claims when LLM likely failed
     new_claims_added = len(final_claims) - len(existing_enriched)
