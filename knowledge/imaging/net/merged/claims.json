@@ -364,8 +364,513 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "ERC-imaging-net-58bcea04",
-    "text": "Use `ImageProbe.ProbeFile(string path)` to obtain an `ImageInfo` object that contains the detected image format and, when available, width, height, bit depth, and frame count.",
+    "claim_id": "CLM-imaging-0dde12",
+    "kind": "capability_matrix_cell",
+    "text": "For PNG, Detect is supported (per README.md's Format table).",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "README.md",
+        "line": 29
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-imaging-92d0b9",
+    "kind": "capability_matrix_cell",
+    "text": "For PNG, Width / Height is supported (per README.md's Format table).",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "README.md",
+        "line": 29
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-imaging-60e9a6",
+    "kind": "capability_matrix_cell",
+    "text": "For PNG, Bit depth is supported (per README.md's Format table).",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "README.md",
+        "line": 29
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-imaging-59176b",
+    "kind": "capability_matrix_cell",
+    "text": "For PNG, Frame count is supported (per README.md's Format table).",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "README.md",
+        "line": 29
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-imaging-ece787",
+    "kind": "capability_matrix_cell",
+    "text": "For JPEG, Detect is supported (per README.md's Format table).",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "README.md",
+        "line": 29
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-imaging-86e667",
+    "kind": "capability_matrix_cell",
+    "text": "For JPEG, Width / Height is supported (per README.md's Format table).",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "README.md",
+        "line": 29
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-imaging-86a9f8",
+    "kind": "capability_matrix_cell",
+    "text": "For JPEG, Bit depth is supported (per README.md's Format table).",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "README.md",
+        "line": 29
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-imaging-f20599",
+    "kind": "capability_matrix_cell",
+    "text": "For GIF, Detect is supported (per README.md's Format table).",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "README.md",
+        "line": 29
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-imaging-e7954d",
+    "kind": "capability_matrix_cell",
+    "text": "For GIF, Width / Height is supported (per README.md's Format table).",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "README.md",
+        "line": 29
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-imaging-a21bf7",
+    "kind": "capability_matrix_cell",
+    "text": "For GIF, Frame count is supported (per README.md's Format table).",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "README.md",
+        "line": 29
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-imaging-8a0b06",
+    "kind": "capability_matrix_cell",
+    "text": "For BMP, Detect is supported (per README.md's Format table).",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "README.md",
+        "line": 29
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-imaging-19b281",
+    "kind": "capability_matrix_cell",
+    "text": "For BMP, Width / Height is supported (per README.md's Format table).",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "README.md",
+        "line": 29
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-imaging-c853cc",
+    "kind": "capability_matrix_cell",
+    "text": "For BMP, Bit depth is supported (per README.md's Format table).",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "README.md",
+        "line": 29
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-imaging-33933b",
+    "kind": "capability_matrix_cell",
+    "text": "For WebP (lossy / lossless / extended), Detect is supported (per README.md's Format table).",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "README.md",
+        "line": 29
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-imaging-24db94",
+    "kind": "capability_matrix_cell",
+    "text": "For WebP (lossy / lossless / extended), Width / Height is supported (per README.md's Format table).",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "README.md",
+        "line": 29
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-imaging-20bf2f",
+    "kind": "capability_matrix_cell",
+    "text": "For ICO, Detect is supported (per README.md's Format table).",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "README.md",
+        "line": 29
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-imaging-fb7346",
+    "kind": "capability_matrix_cell",
+    "text": "For ICO, Width / Height is supported (per README.md's Format table).",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "README.md",
+        "line": 29
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-imaging-542dff",
+    "kind": "capability_matrix_cell",
+    "text": "For ICO, Bit depth is supported (per README.md's Format table).",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "README.md",
+        "line": 29
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-imaging-e9e70d",
+    "kind": "capability_matrix_cell",
+    "text": "For ICO, Frame count is supported (per README.md's Format table).",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "README.md",
+        "line": 29
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-imaging-a32482",
+    "kind": "capability_matrix_cell",
+    "text": "For TIFF, Detect is supported (per README.md's Format table).",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "README.md",
+        "line": 29
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-imaging-b03fd6",
+    "kind": "capability_matrix_cell",
+    "text": "For TIFF, Width / Height is supported (per README.md's Format table).",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "README.md",
+        "line": 29
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-imaging-31c1ea",
+    "kind": "capability_matrix_cell",
+    "text": "For TIFF, Bit depth is supported (per README.md's Format table).",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "README.md",
+        "line": 29
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-imaging-050f03",
+    "kind": "capability_matrix_cell",
+    "text": "For TIFF, Frame count is supported (per README.md's Format table).",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "README.md",
+        "line": 29
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-imaging-ed61db",
+    "kind": "capability_matrix_cell",
+    "text": "For PSD, Detect is supported (per README.md's Format table).",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "README.md",
+        "line": 29
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-imaging-9fc8b0",
+    "kind": "capability_matrix_cell",
+    "text": "For PSD, Width / Height is supported (per README.md's Format table).",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "README.md",
+        "line": 29
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-imaging-da1512",
+    "kind": "capability_matrix_cell",
+    "text": "For PSD, Bit depth is supported (per README.md's Format table).",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "README.md",
+        "line": 29
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-imaging-09539b",
+    "kind": "capability_matrix_cell",
+    "text": "For EMF, Detect is supported (per README.md's Format table).",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "README.md",
+        "line": 29
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-imaging-d0f13d",
+    "kind": "capability_matrix_cell",
+    "text": "For EMF, Width / Height is supported (from bounds) (per README.md's Format table).",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "README.md",
+        "line": 29
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-imaging-780851",
+    "kind": "capability_matrix_cell",
+    "text": "For WMF (placeable), Detect is supported (per README.md's Format table).",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "README.md",
+        "line": 29
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-imaging-34c73c",
+    "kind": "capability_matrix_cell",
+    "text": "For WMF (placeable), Width / Height is supported (assumes 96 DPI) (per README.md's Format table).",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "README.md",
+        "line": 29
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-imaging-d6b9df",
+    "kind": "capability_matrix_cell",
+    "text": "For DICOM, Detect is supported (per README.md's Format table).",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "README.md",
+        "line": 29
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-imaging-029a0e",
+    "kind": "capability_matrix_cell",
+    "text": "For DICOM, Width / Height is supported (Rows/Columns) (per README.md's Format table).",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "README.md",
+        "line": 29
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-imaging-fc4bab",
+    "kind": "capability_matrix_cell",
+    "text": "For DICOM, Bit depth is supported (BitsAllocated) (per README.md's Format table).",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "README.md",
+        "line": 29
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-imaging-2c1a18",
+    "kind": "install",
+    "text": "Package name is Aspose.Imaging.Foss",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "ERC-imaging-net-682d1f59",
+    "text": "All detection APIs return an ImageInfo object that never throws on malformed or truncated files; they return at least the detected ImageFormat.",
+    "kind": "feature",
+    "page_role": "product",
+    "confidence": 0.95,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "README.md",
+        "snippet": "Probe never throws on malformed or truncated input — if a file matches a format's signature but its header can't be fully parsed, you get back an `ImageInfo` with just the `Format` set rather than an exception."
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-imaging-net-66b23186",
+    "text": "Use ImageProbe.ProbeFile(string path) to obtain an ImageInfo for a file on disk.",
+    "kind": "api",
+    "page_role": "docs",
+    "confidence": 0.97,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "README.md",
+        "snippet": "var info = ImageProbe.ProbeFile(\"photo.jpg\");"
+      },
+      {
+        "source_file": "VerifiedFacts.txt",
+        "snippet": "Methods: ProbeFile(path)"
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-imaging-net-f10964db",
+    "text": "ImageProbe.Probe(Stream) and ImageProbe.Probe(byte[]) read a stream or byte array and return an ImageInfo with format, width, height, bit depth and optional frame count.",
     "kind": "api",
     "page_role": "docs",
     "confidence": 0.96,
@@ -373,14 +878,22 @@
     "evidence": [
       {
         "source_file": "README.md",
-        "snippet": "var info = ImageProbe.ProbeFile(\"photo.jpg\");"
+        "snippet": "var info2 = ImageProbe.Probe(stream);"
+      },
+      {
+        "source_file": "VerifiedFacts.txt",
+        "snippet": "Methods: Probe(stream); Probe(data);"
+      },
+      {
+        "source_file": "tests/Aspose.Imaging.Foss.Tests/ImageProbeTests.cs",
+        "snippet": "var info = ImageProbe.Probe(SampleImages.Png(640, 480, 8));\nAssert.Equal(ImageFormat.Png, info.Format);\nAssert.Equal(640, info.Width);\nAssert.Equal(480, info.Height);\nAssert.Equal(8, info.BitDepth);\nAssert.Equal(1, info.FrameCount);"
       }
     ],
     "provenance": "enriched"
   },
   {
-    "claim_id": "ERC-imaging-net-fb335268",
-    "text": "`ImageProbe.DetectFormat(byte[] data)` returns an `ImageFormat` enum value that identifies the image type without reading any pixel data.",
+    "claim_id": "ERC-imaging-net-48c36d24",
+    "text": "ImageProbe.DetectFormat(Stream) and ImageProbe.DetectFormat(byte[]) return only the ImageFormat when you need format identification without other metadata.",
     "kind": "api",
     "page_role": "docs",
     "confidence": 0.95,
@@ -389,37 +902,41 @@
       {
         "source_file": "README.md",
         "snippet": "var format = ImageProbe.DetectFormat(bytes);"
-      }
-    ],
-    "provenance": "enriched"
-  },
-  {
-    "claim_id": "ERC-imaging-net-4d031011",
-    "text": "The library can detect and probe PNG, JPEG, GIF, BMP, WebP, ICO, TIFF, PSD, EMF, WMF, and DICOM image files.",
-    "kind": "format",
-    "page_role": "product",
-    "confidence": 0.93,
-    "claim_source": "llm_enriched",
-    "evidence": [
+      },
       {
-        "source_file": "README.md",
-        "snippet": "| Format | Detect | Width / Height | Bit depth | Frame count |\n|--------|:------:|:---------------:|:---------:|:-----------:|\n| PNG    | ✅ | ✅ | ✅ | ✅ |\n| JPEG   | ✅ | ✅ | ✅ | — |\n| GIF    | ✅ | ✅ | — | ✅ |\n| BMP    | ✅ | ✅ | ✅ | — |\n| WebP (lossy / lossless / extended) | ✅ | ✅ | — | — |\n| ICO    | ✅ | ✅ | ✅ | ✅ |\n| TIFF   | ✅ | ✅ | ✅ | ✅ |\n| PSD    | ✅ | ✅ | ✅ | — |\n| EMF    | ✅ | ✅ (from bounds) | — | — |\n| WMF (placeable) | ✅ | ✅ (assumes 96 DPI) | — | — |\n| DICOM  | ✅ | ✅ (Rows/Columns) | ✅ (BitsAllocated) | — |"
+        "source_file": "VerifiedFacts.txt",
+        "snippet": "Methods: DetectFormat(stream); DetectFormat(data);"
       }
     ],
     "provenance": "enriched"
   },
   {
-    "claim_id": "ERC-imaging-net-f85fe27e",
-    "text": "`ImageProbe.Probe` never throws on malformed or truncated input; it returns an `ImageInfo` containing only the `Format` when the header cannot be fully parsed.",
-    "kind": "troubleshoot",
-    "page_role": "kb",
+    "claim_id": "ERC-imaging-net-4a20754b",
+    "text": "The ImageInfo properties Format, Width, Height, BitDepth, and FrameCount expose the parsed header values; Width, Height, and BitDepth are nullable when the header is incomplete.",
+    "kind": "api",
+    "page_role": "docs",
     "confidence": 0.96,
     "claim_source": "llm_enriched",
     "evidence": [
       {
-        "source_file": "README.md",
-        "snippet": "`Probe` never throws on malformed or truncated input — if a file matches a format's signature but its header can't be fully parsed, you get back an `ImageInfo` with just the `Format` set rather than an exception."
+        "source_file": "VerifiedFacts.txt",
+        "snippet": "Properties: Format, Width, Height, BitDepth, FrameCount"
       },
+      {
+        "source_file": "tests/Aspose.Imaging.Foss.Tests/ImageProbeTests.cs",
+        "snippet": "Assert.Null(info.Width);\nAssert.Null(info.Height);"
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-imaging-net-7c5bf8f8",
+    "text": "When probing a truncated JPEG, ImageInfo.Width and Height are null while Format is correctly set to ImageFormat.Jpeg.",
+    "kind": "troubleshoot",
+    "page_role": "kb",
+    "confidence": 0.94,
+    "claim_source": "llm_enriched",
+    "evidence": [
       {
         "source_file": "tests/Aspose.Imaging.Foss.Tests/ImageProbeTests.cs",
         "snippet": "var info = ImageProbe.Probe(SampleImages.TruncatedJpeg());\nAssert.Equal(ImageFormat.Jpeg, info.Format);\nAssert.Null(info.Width);\nAssert.Null(info.Height);"
@@ -428,45 +945,11 @@
     "provenance": "enriched"
   },
   {
-    "claim_id": "ERC-imaging-net-fa3ebbfa",
-    "text": "`ImageInfo` exposes nullable `Width`, `Height`, `BitDepth`, and `FrameCount` properties that are populated only when the format supports those values.",
-    "kind": "api",
-    "page_role": "reference",
-    "confidence": 0.94,
-    "claim_source": "llm_enriched",
-    "evidence": [
-      {
-        "source_file": "Class: ImageInfo",
-        "snippet": "Properties: Format, Width, Height, BitDepth, FrameCount"
-      }
-    ],
-    "provenance": "enriched"
-  },
-  {
-    "claim_id": "ERC-imaging-net-6fc8edc4",
-    "text": "For GIF images, `ImageInfo.FrameCount` reflects the number of frames when the file contains multiple frames; it is omitted if the frame count cannot be determined.",
-    "kind": "feature",
-    "page_role": "product",
+    "claim_id": "ERC-imaging-net-202d2ed5",
+    "text": "For BMP files with a negative height value in the header, ImageInfo.Height returns the absolute magnitude, normalizing the sign.",
+    "kind": "troubleshoot",
+    "page_role": "kb",
     "confidence": 0.93,
-    "claim_source": "llm_enriched",
-    "evidence": [
-      {
-        "source_file": "tests/Aspose.Imaging.Foss.Tests/ImageProbeTests.cs",
-        "snippet": "var info = ImageProbe.Probe(SampleImages.GifWithFrames(64, 48, frameCount: 5));\nAssert.Equal(5, info.FrameCount);"
-      },
-      {
-        "source_file": "tests/Aspose.Imaging.Foss.Tests/ImageProbeTests.cs",
-        "snippet": "var info = ImageProbe.Probe(SampleImages.GifWithoutFrames(64, 48));\nAssert.Null(info.FrameCount);"
-      }
-    ],
-    "provenance": "enriched"
-  },
-  {
-    "claim_id": "ERC-imaging-net-54eab75c",
-    "text": "When a BMP header specifies a negative height, `ImageInfo.Height` returns the absolute magnitude, normalizing the value to a positive number.",
-    "kind": "feature",
-    "page_role": "product",
-    "confidence": 0.92,
     "claim_source": "llm_enriched",
     "evidence": [
       {
@@ -477,31 +960,16 @@
     "provenance": "enriched"
   },
   {
-    "claim_id": "ERC-imaging-net-539ba912",
-    "text": "`ImageProbe.DetectFormat(Stream stream)` can read from any seekable or non‑seekable stream to identify the image format.",
+    "claim_id": "ERC-imaging-net-c5bba129",
+    "text": "ImageProbe.DetectFormat has overloads that accept either a Stream or a byte[] and return an ImageFormat enum value.",
     "kind": "api",
-    "page_role": "docs",
-    "confidence": 0.94,
+    "page_role": "reference",
+    "confidence": 0.97,
     "claim_source": "llm_enriched",
     "evidence": [
       {
-        "source_file": "Class: ImageProbe",
-        "snippet": "Methods: DetectFormat(stream); DetectFormat(data); Probe(stream); Probe(data); ProbeFile(path)"
-      }
-    ],
-    "provenance": "enriched"
-  },
-  {
-    "claim_id": "ERC-imaging-net-a86f34f7",
-    "text": "The library can parse DICOM headers, handling Implicit VR Little Endian and Explicit VR (Little/Big Endian) transfer syntaxes to extract rows, columns, and bits allocated.",
-    "kind": "feature",
-    "page_role": "product",
-    "confidence": 0.9,
-    "claim_source": "llm_enriched",
-    "evidence": [
-      {
-        "source_file": "README.md",
-        "snippet": "DICOM parsing covers Implicit VR Little Endian and Explicit VR Little/Big Endian transfer syntaxes (including the common compressed ones, whose non-pixel elements are Explicit VR Little Endian); it stops rather than guesses if it hits a sequence or encapsulated pixel data with an undefined length before finding Rows/Columns/BitsAllocated."
+        "source_file": "VerifiedFacts.txt",
+        "snippet": "Methods: DetectFormat(stream); DetectFormat(data);"
       }
     ],
     "provenance": "enriched"

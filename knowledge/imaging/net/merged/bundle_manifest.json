@@ -1,23 +1,23 @@
 {
   "schema_version": 2,
-  "bundle_id": "7d4f2647-27b1-4049-a8d5-6337ce095483",
+  "bundle_id": "f070aa78-eb01-49a5-822a-06b4cc8263de",
   "family": "imaging",
   "platform": "net",
   "repo_sha": "f2cf68fd64545bfb704c45ee756af3125103fd74",
-  "generated_at": "2026-09-11T15:51:10.679760+00:00",
-  "generator_fingerprint": "c6acac312f4af5d1b87d3418572da4158303272e8fa5a3bae8c3f41f0b0b090d",
+  "generated_at": "2026-09-12T07:14:12.141649+00:00",
+  "generator_fingerprint": "d9e69393d37ca92e0fd4e67e6f79b40445e6ac4c1de1dad2bdc9699f8b7fb542",
   "generator_semver": "2.0.0",
   "members": {
     "model.yaml": {
-      "sha256": "f6fe9676d3d1244b3cdd8b82ed555532ba69df325c9c256029c81e0d7fb85912",
-      "bytes": 1352
+      "sha256": "81ac0bf8cdfec61a8e1a4404f8c447cbb190f07961a3a4e782f1d229c233f761",
+      "bytes": 1344
     },
     "api_surface.json": {
       "sha256": "d333a297b1bfe9b378f8f3b054b06f90879f37f7122f04a121e4481903881ebf",
       "bytes": 6333
     },
     "api_surface.md": {
-      "sha256": "c89daf59c93ff70766fe3b9a7467cfe736d63e2136501cedecab22e7856fd7eb",
+      "sha256": "e6005cf2a56c50401a9a247aafbe3542331de98dc028a2dd9e7759e597262983",
       "bytes": 785
     },
     "formats.json": {
@@ -25,23 +25,23 @@
       "bytes": 2137
     },
     "formats.md": {
-      "sha256": "041a2c9ed4ae86d03fef1d9d4bca6067285da56cc889dac4f5aa95ff731b61fa",
+      "sha256": "2beeac49ac0d0950cfaf46e4e5229890fc20275d4db7209149fc37f8f7d8b1b9",
       "bytes": 471
     },
     "claims.json": {
-      "sha256": "0c37dd336783806502c3428c56d49aa4978bc05d5e9dcf2fcafdb56052a6cea4",
-      "bytes": 15258
+      "sha256": "5a6d430b96994903be4f81ccd53583faf794c67118cf76488955fa28d168c48e",
+      "bytes": 25969
     },
     "limitations.md": {
       "sha256": "d1f1db82c7047f517a9b0de14177621990880f596d8c260c69a6f3236d969c9e",
       "bytes": 78
     },
     "install.md": {
-      "sha256": "6bd3fb92b15a860efd15f02e5c2fc9ecb10f8e3fdd3db58e5e9ed77b2a64ded6",
-      "bytes": 21
+      "sha256": "07ed9445df6fdec3a4e8569627f2c2ae7fbd99b9efe955ee3358a19119ec415f",
+      "bytes": 138
     },
     "merge_report.md": {
-      "sha256": "3d4720164ebe22a34159c7b6419b28347bf6a3a4655c102869b73afe6bbf2120",
+      "sha256": "6d8e7f9c737e584d996d2c3d28816c9dfc9a1b70398b1a89f182bd9546869b5b",
       "bytes": 553
     },
     "snippets/snippet_001.cs": {
@@ -249,6 +249,6 @@
       "bytes": 29175
     }
   },
-  "promote_run_id": "promote-20260911T155110Z",
+  "promote_run_id": "promote-20260912T071412Z",
   "status": "COMPLETE"
 }

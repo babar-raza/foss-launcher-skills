@@ -859,7 +859,15 @@ def _build_page(
     # LC-11 FIX: use correct display name for "pdf" family ("PDF" not "Pdf")
     _fam_disp = {"3d": "3D", "pdf": "PDF"}.get(family, family.capitalize())
     _plat_disp = _PLAT_DISPLAY.get(platform, platform.capitalize())
-    product_line = f"`{name}` is a {category.lower()} in Aspose.{_fam_disp} FOSS for {_plat_disp}."
+    # H7 follow-on (MT068-2026-09-11-IMAGING-NET-LAUNCH): "a enum" is a real,
+    # portfolio-wide grammar bug -- any product with an enum in its API surface
+    # hits this, not just imaging/net. A simple vowel-sound article check
+    # covers every category value this function actually receives (class,
+    # enum, interface, struct) correctly; it isn't a general English NLP
+    # solution, but it doesn't need to be for this closed, known set.
+    _category_lower = category.lower()
+    _article = "an" if _category_lower[:1] in "aeiou" else "a"
+    product_line = f"`{name}` is {_article} {_category_lower} in Aspose.{_fam_disp} FOSS for {_plat_disp}."
     lines.append(product_line)
     if bases:
         # FIX-05: filter out self-referential inheritance and enum bases
