@@ -289,11 +289,56 @@ def _extract_fail_count(grade_reasons: "list[str] | None") -> int:
 # Helpers — truth-audit / gap-analysis cross-check
 # ---------------------------------------------------------------------------
 
-def _find_latest_report(reports_dir: Path, family: str, platform: str) -> "Path | None":
+# ST-195 (found 2026-09-12 during imaging/net's H7 relaunch): reports/truth-audit/ is
+# shared by more than one producer under the same {family}-{platform}-*.json naming
+# convention (truth_audit_content.py's real Tier-3 semantic ledger is the intended
+# reader here, but nothing ever stopped a schema-thin/partial JSON from a different or
+# interrupted run landing in the same directory under the same glob). _find_latest_report
+# previously trusted whichever candidate had the newest mtime with zero shape check --
+# a one-off stub silently satisfied this cross-check and produced a false "16/16
+# PUBLISH" verdict for imaging/net's H7 relaunch (real CONDITIONAL findings existed
+# and were never surfaced). `_is_valid_truth_audit_report` + the `validate` param below
+# close this: the picker now walks candidates newest-first and returns the first one
+# that actually has the real ledger's shape, skipping (and loudly warning about) any
+# that don't, rather than trusting positional/mtime recency alone.
+_TRUTH_AUDIT_REQUIRED_KEYS = (
+    "schema_version", "family", "platform", "run_date", "clone_cache_sha",
+    "summary", "findings",
+)
+
+
+def _is_valid_truth_audit_report(data: dict) -> bool:
+    """True if *data* has the real truth_audit_content.py (S-85) ledger shape.
+
+    Deliberately checks structure, not an exact `schema_version` pin -- a future,
+    legitimately newer schema version must keep validating without this file needing
+    a matching edit every time SCHEMA_VERSION bumps. What must never validate is a
+    stub/partial JSON missing whole top-level sections (exactly the ST-195 shape).
+    """
+    if not isinstance(data, dict):
+        return False
+    if any(key not in data for key in _TRUTH_AUDIT_REQUIRED_KEYS):
+        return False
+    return isinstance(data.get("findings"), list) and isinstance(data.get("summary"), dict)
+
+
+def _find_latest_report(
+    reports_dir: Path,
+    family: str,
+    platform: str,
+    *,
+    validate: "Callable[[dict], bool] | None" = None,
+) -> "Path | None":
     """Find the newest report for a product: {family}-{platform}-*.json (date-stamped,
     truth-audit style) or the exact {family}-{platform}.json (gap-analysis style).
     Sorted by mtime, filename as tiebreaker (date-stamped names also sort correctly
     lexicographically).
+
+    When *validate* is given, candidates are walked newest-first and the first one
+    that both parses as JSON and passes *validate* wins -- a newer but invalid/stub
+    candidate is skipped (with a stderr warning) rather than silently trusted, and the
+    search falls through to the next-newest real report instead of returning None
+    outright when an older valid one still exists.
     """
     if not reports_dir.exists():
         return None
@@ -304,7 +349,22 @@ def _find_latest_report(reports_dir: Path, family: str, platform: str) -> "Path 
     if not candidates:
         return None
     candidates.sort(key=lambda p: (p.stat().st_mtime, p.name))
-    return candidates[-1]
+    if validate is None:
+        return candidates[-1]
+    for candidate in reversed(candidates):
+        try:
+            data = json.loads(candidate.read_text(encoding="utf-8"))
+        except (OSError, json.JSONDecodeError, UnicodeDecodeError) as exc:
+            print(f"WARNING: skipping unreadable report {candidate}: {exc}", file=sys.stderr)
+            continue
+        if validate(data):
+            return candidate
+        print(
+            f"WARNING: skipping {candidate} -- does not match the expected report "
+            "schema (stub/partial run?); falling back to the next candidate if any",
+            file=sys.stderr,
+        )
+    return None
 
 
 def _norm_repo_rel(raw_path: str, repo_root: Path) -> str:
@@ -491,7 +551,10 @@ def review_product(family: str, platform: str, *, dry_run: bool = True) -> Produ
     manifest_path = repo_root / "reports" / "grade_manifest.json"
     manifest = load_manifest(path=manifest_path)
 
-    truth_report_path = _find_latest_report(repo_root / "reports" / "truth-audit", family, platform)
+    truth_report_path = _find_latest_report(
+        repo_root / "reports" / "truth-audit", family, platform,
+        validate=_is_valid_truth_audit_report,
+    )
     gap_report_path = _find_latest_report(repo_root / "reports" / "gap-analysis", family, platform)
     truth_by_file = _load_findings_by_file(truth_report_path, repo_root)
     gap_by_file = _load_findings_by_file(gap_report_path, repo_root)

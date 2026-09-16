@@ -520,7 +520,7 @@ def main():
                 continue
             marker = ""
             if p["gap_pct"] < -40:
-                marker = "  ⚠ WARNING: >40% below peer median"
+                marker = "  [!] WARNING: >40% below peer median"
                 has_parity_warning = True
             print(f"  {site:25s} {p['target_count']:3d} pages  "
                   f"(peer median: {p['peer_median']:.0f}, gap: {p['gap_pct']:+.0f}%){marker}")

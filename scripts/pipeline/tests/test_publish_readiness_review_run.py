@@ -43,6 +43,24 @@ def _write_json(path, data) -> None:
     path.write_text(json.dumps(data, indent=2), encoding="utf-8")
 
 
+def _valid_truth_audit_ledger(findings: list, **overrides) -> dict:
+    """A minimally-complete real truth_audit_content.py (S-85) ledger shape --
+    everything `_is_valid_truth_audit_report` requires present. Use this (not a bare
+    `{"findings": [...]}` dict) for any truth-audit fixture: a bare `findings`-only
+    dict is exactly the ST-195 stub shape and will now be correctly skipped."""
+    ledger = {
+        "schema_version": 2,
+        "family": "testfam",
+        "platform": "testplat",
+        "run_date": "2026-08-09T00:00:00+00:00",
+        "clone_cache_sha": "deadbeef",
+        "summary": {"verified": 0, "unsupported": 0},
+        "findings": findings,
+    }
+    ledger.update(overrides)
+    return ledger
+
+
 # ---------------------------------------------------------------------------
 # Unit-level: staleness gate
 # ---------------------------------------------------------------------------
@@ -261,8 +279,9 @@ class TestReviewProductEndToEnd:
             "grade_reasons": ["No findings -> grade A"],
         }}
         _write_json(tmp_path / "reports" / "grade_manifest.json", manifest)
-        _write_json(tmp_path / "reports" / "truth-audit" / "testfam-testplat-20260809.json", {
-            "findings": [
+        _write_json(
+            tmp_path / "reports" / "truth-audit" / "testfam-testplat-20260809.json",
+            _valid_truth_audit_ledger([
                 {
                     "id": "F-1",
                     "file": rel,
@@ -271,8 +290,8 @@ class TestReviewProductEndToEnd:
                     "status": "open",
                     "description": "unsupported claim",
                 }
-            ]
-        })
+            ]),
+        )
 
         prr.configure(repo_root=tmp_path)
         report = prr.review_product("testfam", "testplat", dry_run=True)
@@ -305,11 +324,12 @@ class TestReviewProductEndToEnd:
             "grade_reasons": ["No findings -> grade A"],
         }}
         _write_json(tmp_path / "reports" / "grade_manifest.json", manifest)
-        _write_json(tmp_path / "reports" / "truth-audit" / "testfam-testplat-20260809.json", {
-            "findings": [
+        _write_json(
+            tmp_path / "reports" / "truth-audit" / "testfam-testplat-20260809.json",
+            _valid_truth_audit_ledger([
                 {"id": "F-1", "file": rel, "verdict": "FABRICATED", "severity": "S", "status": "open"}
-            ]
-        })
+            ]),
+        )
 
         prr.configure(repo_root=tmp_path)
         report = prr.review_product("testfam", "testplat", dry_run=True)
@@ -349,17 +369,128 @@ class TestReviewProductEndToEnd:
         }}
         _write_json(tmp_path / "reports" / "grade_manifest.json", manifest)
         # Older report has a disqualifying finding; newer (higher date) report is clean.
-        _write_json(tmp_path / "reports" / "truth-audit" / "testfam-testplat-20260101.json", {
-            "findings": [{"id": "F-old", "file": rel, "verdict": "FABRICATED", "severity": "S", "status": "open"}]
-        })
-        _write_json(tmp_path / "reports" / "truth-audit" / "testfam-testplat-20260809.json", {
-            "findings": []
-        })
+        _write_json(
+            tmp_path / "reports" / "truth-audit" / "testfam-testplat-20260101.json",
+            _valid_truth_audit_ledger(
+                [{"id": "F-old", "file": rel, "verdict": "FABRICATED", "severity": "S", "status": "open"}]
+            ),
+        )
+        _write_json(
+            tmp_path / "reports" / "truth-audit" / "testfam-testplat-20260809.json",
+            _valid_truth_audit_ledger([]),
+        )
 
         prr.configure(repo_root=tmp_path)
         report = prr.review_product("testfam", "testplat", dry_run=True)
         assert report.truth_audit_report.endswith("20260809.json")
         assert report.results[0].disposition == "PUBLISH"
+
+
+# ---------------------------------------------------------------------------
+# ST-195: truth-audit report-path collision / schema validation
+# ---------------------------------------------------------------------------
+
+class TestTruthAuditReportSchemaValidation:
+    """Regression for ST-195 (found 2026-09-12 during imaging/net's H7 relaunch):
+    reports/truth-audit/ can hold more than one {family}-{platform}-*.json candidate,
+    and _find_latest_report previously trusted whichever had the newest mtime with no
+    shape check at all -- a schema-thin stub silently satisfied the cross-check gate
+    and produced a false '16/16 PUBLISH' verdict, masking real open CONDITIONAL
+    findings."""
+
+    def test_stub_only_report_is_not_trusted(self, tmp_path):
+        # The exact ST-195 shape: a bare {"findings": [...]} dict, missing
+        # schema_version/family/platform/run_date/clone_cache_sha/summary.
+        _write_json(
+            tmp_path / "reports" / "truth-audit" / "testfam-testplat-20260912.json",
+            {"findings": []},
+        )
+        path = prr._find_latest_report(
+            tmp_path / "reports" / "truth-audit", "testfam", "testplat",
+            validate=prr._is_valid_truth_audit_report,
+        )
+        assert path is None
+
+    def test_valid_report_is_trusted(self, tmp_path):
+        _write_json(
+            tmp_path / "reports" / "truth-audit" / "testfam-testplat-20260912.json",
+            _valid_truth_audit_ledger([]),
+        )
+        path = prr._find_latest_report(
+            tmp_path / "reports" / "truth-audit", "testfam", "testplat",
+            validate=prr._is_valid_truth_audit_report,
+        )
+        assert path is not None and path.name == "testfam-testplat-20260912.json"
+
+    def test_newer_stub_falls_back_to_older_valid_report(self, tmp_path):
+        """Direct reproduction of the real incident mechanism: a stub landed in the
+        directory AFTER the real semantic run, so plain mtime-sort picked the stub.
+        The picker must fall through to the older, real, valid report instead of
+        returning None (there IS a real report available -- it just isn't newest)."""
+        _write_json(
+            tmp_path / "reports" / "truth-audit" / "testfam-testplat-20260911.json",
+            _valid_truth_audit_ledger(
+                [{"id": "F-1", "file": "some/page.md", "verdict": "CONTRADICTED",
+                  "severity": "S", "status": "open"}]
+            ),
+        )
+        stub_path = tmp_path / "reports" / "truth-audit" / "testfam-testplat-20260912.json"
+        _write_json(stub_path, {"findings": []})
+        # Force the stub to be newer by mtime regardless of filesystem write timing.
+        import os
+        import time
+        os.utime(stub_path, (time.time() + 1000, time.time() + 1000))
+
+        path = prr._find_latest_report(
+            tmp_path / "reports" / "truth-audit", "testfam", "testplat",
+            validate=prr._is_valid_truth_audit_report,
+        )
+        assert path is not None and path.name == "testfam-testplat-20260911.json"
+
+    def test_false_publish_prevented_end_to_end(self, tmp_path):
+        """Full review_product() reproduction of the actual imaging/net incident: a
+        page with a real open CONTRADICTED finding must be downgraded from PUBLISH
+        even though a newer schema-thin stub also exists in reports/truth-audit/."""
+        rel, h = _write_page(
+            tmp_path,
+            "content/reference.aspose.org/en/testfam/testplat/PageG.md",
+            [
+                "title: PageG",
+                "grade: A",
+                'grade_reasons:',
+                '  - "No findings -> grade A"',
+                "evidence:",
+                "  apis:",
+                "    - SomeClass",
+            ],
+        )
+        manifest = {rel: {
+            "logic_version": prr.CURRENT_LOGIC_VERSION,
+            "content_hash": h,
+            "grade": "A",
+            "grade_reasons": ["No findings -> grade A"],
+        }}
+        _write_json(tmp_path / "reports" / "grade_manifest.json", manifest)
+        _write_json(
+            tmp_path / "reports" / "truth-audit" / "testfam-testplat-20260911.json",
+            _valid_truth_audit_ledger(
+                [{"id": "F-1", "file": rel, "verdict": "CONTRADICTED", "severity": "S", "status": "open"}]
+            ),
+        )
+        stub_path = tmp_path / "reports" / "truth-audit" / "testfam-testplat-20260912.json"
+        _write_json(stub_path, {"findings": []})
+        import os
+        import time
+        os.utime(stub_path, (time.time() + 1000, time.time() + 1000))
+
+        prr.configure(repo_root=tmp_path)
+        report = prr.review_product("testfam", "testplat", dry_run=True)
+        result = report.results[0]
+        assert result.disposition != "PUBLISH", (
+            "false PUBLISH: the newer schema-thin stub shadowed the real, older "
+            "report with an open CONTRADICTED finding -- exactly the ST-195 defect"
+        )
+        assert len(result.cross_check_hits) == 1
 
 
 # ---------------------------------------------------------------------------

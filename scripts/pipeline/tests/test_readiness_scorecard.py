@@ -769,3 +769,30 @@ class TestHGateBindingsStaleness:
         text = report_path.read_text(encoding="utf-8")
         assert "bindings:" in text
         assert "written_sha" in text
+
+
+class TestParityWarningMarkerIsAsciiSafe:
+    """Regression for IMAGING-NET-SCORECARD-UNICODE-001 (found live 2026-09-11
+    during MT068's Stage 9 readiness-scorecard run): the >40%-below-peer-median
+    content-parity marker printed a literal U+26A0 warning-sign glyph with no
+    encoding declared, which crashes with UnicodeEncodeError on any Windows
+    console running the default cp1252 codepage -- not imaging/net-specific,
+    reproducible for ANY product where at least one subdomain falls >40% below
+    its peer median (a common, unremarkable state for a small/young/niche
+    product, exactly what this scorecard exists to evaluate honestly)."""
+
+    def test_source_has_no_raw_warning_glyph(self):
+        import inspect
+
+        source = inspect.getsource(readiness_scorecard)
+        assert "⚠" not in source, (
+            "raw U+26A0 warning-sign glyph reintroduced into readiness_scorecard.py "
+            "-- reverts the IMAGING-NET-SCORECARD-UNICODE-001 fix"
+        )
+
+    def test_parity_warning_marker_survives_cp1252_encoding(self):
+        # The actual crash mode is at print()-time on a cp1252 stdout, not a
+        # source-file issue -- assert the literal marker text the script now
+        # prints round-trips through the codepage that previously crashed it.
+        marker = "  [!] WARNING: >40% below peer median"
+        marker.encode("cp1252")  # must not raise UnicodeEncodeError
