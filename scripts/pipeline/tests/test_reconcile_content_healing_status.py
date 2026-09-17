@@ -11,8 +11,10 @@ sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "commands" / "op
 import reconcile_content_healing_status as rchs  # noqa: E402
 from reconcile_content_healing_status import (  # noqa: E402
     compute_transition, find_pending_transitions, run_reconciliation, DeployTriggerNotClosedError,
+    _read_literal_count,
 )
 import reconciliation_store as _reco  # noqa: E402
+from schema_validators import validate_reconciliation_record  # noqa: E402
 
 
 class _FakeTaskcardStore:
@@ -104,6 +106,142 @@ class TestComputeTransition:
         ])
         result = compute_transition("words", "python", store=store)
         assert result is None
+
+
+class TestReadLiteralCount:
+    """Unit tests for the TC-PKG-01-07-FIX helper directly."""
+
+    def test_valid_zero_is_trusted(self):
+        assert _read_literal_count({"finding_count_literal": 0}) == 0
+
+    def test_valid_positive_is_trusted(self):
+        assert _read_literal_count({"finding_count_literal": 5}) == 5
+
+    def test_missing_key_is_none(self):
+        assert _read_literal_count({}) is None
+
+    def test_explicit_none_is_none(self):
+        assert _read_literal_count({"finding_count_literal": None}) is None
+
+    def test_negative_is_none(self):
+        assert _read_literal_count({"finding_count_literal": -1}) is None
+
+    def test_bool_is_none(self):
+        """bool is a subclass of int in Python -- must not be accepted as a
+        real count even though isinstance(True, int) is True."""
+        assert _read_literal_count({"finding_count_literal": True}) is None
+
+    def test_wrong_type_is_none(self):
+        assert _read_literal_count({"finding_count_literal": "0"}) is None
+
+
+class TestComputeTransitionMissingFindingCountLiteral:
+    """TC-PKG-01-07-FIX (2026-09-17): independent review of
+    PKGINSTALL-CONTENT-HEALING-STATUS-WRITEBACK found that a
+    reconciliation-store row missing finding_count_literal entirely is
+    schema-valid (schema_validators.validate_reconciliation_record() does
+    not require it) but was silently read as "0 findings" by the pre-fix
+    `row.get("finding_count_literal") or 0` logic -- directly contradicting
+    this module's own "absence of data is never treated as zero findings"
+    invariant, just one level down (per-row field, not per-product row
+    count). These tests reproduce that exact gap and confirm the fix closes
+    it without breaking the legitimate zero-evidence case."""
+
+    def test_single_row_missing_finding_count_literal_returns_none(self, tmp_path):
+        store = _reco.ReconciliationStore(repo_root=tmp_path)
+        row = {
+            "path": "a.md", "family": "words", "platform": "python", "site": "docs.aspose.org",
+            "locale": "en", "representation": "shortcode_block", "collision_classification": None,
+            "sweep_run_id": "run-1", "recorded_at": "2026-09-10T00:00:00Z",
+            # finding_count_literal deliberately absent.
+        }
+        # Confirm the fixture really is schema-valid -- this is the exact
+        # condition the independent review reproduced: a row that passes
+        # validate_reconciliation_record() with zero errors despite omitting
+        # finding_count_literal entirely.
+        assert validate_reconciliation_record(row) == [], (
+            "fixture must be schema-valid (no required-field error) to reproduce the real gap"
+        )
+        store.append_batch([row])
+
+        result = compute_transition("words", "python", store=store)
+        assert result is None, "a row that cannot attest to zero findings must never be read as zero"
+
+    def test_realistic_refresh_knowledge_row_shape_among_zero_rows_returns_none(self, tmp_path):
+        """Reproduces refresh_knowledge.py::_maybe_run_block_updater_dry_run()'s
+        real row shape (site='knowledge', no finding_count_literal key, an
+        extra block_updater_dry_run_summary field) landing alongside a
+        genuine zero-finding literal-sweep row for the SAME product.
+        Confirmed live (2026-09-17) this is not a hypothetical future
+        writer: that call site is real, shipped code, and
+        read_latest_for_product() does not distinguish rows by `site` or
+        `path` -- both rows fold into the same product's evidence set."""
+        store = _reco.ReconciliationStore(repo_root=tmp_path)
+        store.append_batch([
+            {"path": "content/docs.aspose.org/en/words/python/getting-started/installation.md",
+             "family": "words", "platform": "python", "site": "docs.aspose.org", "locale": "en",
+             "representation": "shortcode_block", "collision_classification": None,
+             "finding_count_literal": 0, "sweep_run_id": "sweep-1", "recorded_at": "2026-09-10T00:00:00Z"},
+            {"path": "knowledge/words/python/merged/install.md",
+             "family": "words", "platform": "python", "site": "knowledge", "locale": "en",
+             "representation": "literal", "collision_classification": None,
+             "sweep_run_id": "refresh-knowledge-words-python-2026-09-11T00:00:00Z",
+             "recorded_at": "2026-09-11T00:00:00Z",
+             "block_updater_dry_run_summary": {
+                 "files_updated": 1, "files_noop": 0, "human_review_required": [],
+                 "generated_at": "2026-09-11T00:00:00Z",
+             },
+             # finding_count_literal deliberately absent, exactly like the real writer.
+             },
+        ])
+        result = compute_transition("words", "python", store=store)
+        assert result is None
+
+    def test_explicit_none_finding_count_literal_returns_none(self, tmp_path):
+        store = _reco.ReconciliationStore(repo_root=tmp_path)
+        store.append_batch([
+            {"path": "a.md", "family": "words", "platform": "python", "site": "docs.aspose.org",
+             "locale": "en", "representation": "shortcode_block", "collision_classification": None,
+             "finding_count_literal": None, "sweep_run_id": "run-1", "recorded_at": "2026-09-10T00:00:00Z"},
+        ])
+        result = compute_transition("words", "python", store=store)
+        assert result is None
+
+    def test_negative_finding_count_literal_returns_none(self, tmp_path):
+        """Malformed data should never pass append_batch's own schema
+        validation (it rejects negative counts), but compute_transition()
+        must not blindly trust whatever is already on disk either -- e.g. a
+        row written before a future schema tightening, or via any path that
+        bypasses ReconciliationStore.append_batch(). Simulate that by
+        corrupting the on-disk row directly."""
+        store = _reco.ReconciliationStore(repo_root=tmp_path)
+        store.append_batch([
+            {"path": "a.md", "family": "words", "platform": "python", "site": "docs.aspose.org",
+             "locale": "en", "representation": "shortcode_block", "collision_classification": None,
+             "finding_count_literal": 0, "sweep_run_id": "run-1", "recorded_at": "2026-09-10T00:00:00Z"},
+        ])
+        corrupted = json.loads(store.path.read_text(encoding="utf-8"))
+        corrupted["finding_count_literal"] = -1
+        store.path.write_text(json.dumps(corrupted) + "\n", encoding="utf-8")
+
+        result = compute_transition("words", "python", store=store)
+        assert result is None
+
+    def test_present_valid_zero_is_still_real_evidence(self, tmp_path):
+        """Sanity check: the fix must not make a legitimately-present 0
+        look like missing evidence -- only genuine absence/invalidity
+        should refuse the transition, or the existing
+        test_zero_literal_findings_across_all_rows_proposes_healed
+        contract would silently break."""
+        store = _reco.ReconciliationStore(repo_root=tmp_path)
+        store.append_batch([
+            {"path": "a.md", "family": "words", "platform": "python", "site": "docs.aspose.org",
+             "locale": "en", "representation": "shortcode_block", "collision_classification": None,
+             "finding_count_literal": 0, "sweep_run_id": "run-1", "recorded_at": "2026-09-10T00:00:00Z"},
+        ])
+        result = compute_transition("words", "python", store=store)
+        assert result is not None
+        assert result["to_status"] == "healed"
 
 
 class TestFindPendingTransitions:

@@ -16,7 +16,15 @@ STORE) as the evidence source: a product is proposed for pending->healed
 only when the store has at least one row for it (never treat "we have never
 swept this product" as "zero findings" -- that would be a false-positive
 healed status, worse than the stale-pending status this module exists to
-fix) AND every one of its latest-known rows shows finding_count_literal == 0.
+fix) AND every one of its latest-known rows shows a real, present
+finding_count_literal == 0.
+
+That "absence of data is never treated as zero findings" invariant holds at
+the per-product ROW-COUNT level (the check above) AND, since TC-PKG-01-07-FIX
+(2026-09-17), at the per-row FIELD level too: a row that exists but omits (or
+carries a null/invalid) finding_count_literal is likewise never coerced to 0
+-- see _read_literal_count()'s own docstring for why this was a real,
+reproduced gap rather than a hypothetical one.
 
 --dry-run (the default) only ever REPORTS a proposed transition; it never
 writes data/package_registry.json. A real (non-dry-run) write is refused
@@ -77,25 +85,74 @@ class DeployTriggerNotClosedError(Exception):
     PKGINSTALL-DEPLOY-TRIGGER-3LAYER-FIX has not reached CLOSED."""
 
 
+def _read_literal_count(row: "dict[str, Any]") -> "int | None":
+    """Return one row's finding_count_literal as a trustworthy non-negative
+    int, or None if it cannot be trusted as real zero-or-more evidence.
+
+    None (missing key, explicit null, wrong type, or negative) is a
+    DISTINCT signal from 0 -- a row that carries a real, validated
+    finding_count_literal of 0 is genuine evidence of zero findings for
+    that row; a row that merely lacks a trustworthy value must never be
+    read the same way. `row.get("finding_count_literal") or 0` (the
+    pre-fix logic) silently collapsed both cases to 0, which is exactly
+    the "absence of data treated as zero findings" bug this module's own
+    docstring says must never happen -- just one level down, at the
+    per-row field, rather than the per-product row-count this module
+    already guarded correctly.
+
+    TC-PKG-01-07-FIX (2026-09-17): confirmed this is not merely
+    hypothetical. `schema_validators.validate_reconciliation_record()`
+    does not require finding_count_literal (only path, family, platform,
+    site, locale, representation, sweep_run_id, recorded_at are
+    required), and `refresh_knowledge.py::_maybe_run_block_updater_dry_run()`
+    already appends real reconciliation-store rows for arbitrary
+    (family, platform) pairs with NO finding_count_literal key at all (it
+    records install_block_updater dry-run evidence, a different signal
+    entirely from a literal-mention sweep) -- schema-valid, and reachable
+    by `read_latest_for_product()` for the exact same product a literal
+    sweep also covers. A blanket "make the field required" schema change
+    was deliberately rejected for this same reason: it would silently stop
+    that call site's rows from ever being recorded (validate_reconciliation_record()
+    raising inside its own best-effort try/except), a real functional
+    regression to a legitimate, differently-scoped writer -- forcing that
+    writer to fabricate a fake finding_count_literal value instead would
+    just move the same false-signal risk from reader to writer. Enforcing
+    the invariant here, at the point where the evidence is actually
+    consumed, is correct regardless of which writer(s) exist today or are
+    added later, and also protects any row already sitting on disk from
+    before this fix shipped (a schema change only gates future writes).
+    """
+    value = row.get("finding_count_literal")
+    if not isinstance(value, int) or isinstance(value, bool) or value < 0:
+        return None
+    return value
+
+
 def compute_transition(
     family: str, platform: str, *, store: ReconciliationStore,
 ) -> "dict[str, Any] | None":
     """Return a proposed transition dict, or None if none is warranted.
 
-    None covers 3 distinct cases, deliberately not distinguished in the
+    None covers 4 distinct cases, deliberately not distinguished in the
     return value (the caller only needs "nothing to propose"): no
     reconciliation-store rows exist for this product at all (insufficient
-    data -- never inferred as zero findings), at least one row still shows
-    a nonzero literal-finding count, or the rows found belong to a stale
-    sweep that no longer reflects any real page (still counted as "not
-    ready" -- a future, more precise pass can refine this once
+    data -- never inferred as zero findings), at least one row exists but
+    cannot be trusted for its literal-finding count (missing/null/invalid
+    finding_count_literal -- see _read_literal_count(), same
+    never-infer-zero-from-absence principle applied at the per-row field
+    level, not just the per-product row-count level), at least one row
+    still shows a nonzero literal-finding count, or the rows found belong
+    to a stale sweep that no longer reflects any real page (still counted
+    as "not ready" -- a future, more precise pass can refine this once
     PKGINSTALL-DEFECT-SWEEP-REDESIGN's real sweep data exists at scale).
     """
     rows = store.read_latest_for_product(family, platform)
     if not rows:
         return None
-    total_literal = sum((row.get("finding_count_literal") or 0) for row in rows.values())
-    if total_literal > 0:
+    literal_counts = [_read_literal_count(row) for row in rows.values()]
+    if any(count is None for count in literal_counts):
+        return None
+    if sum(literal_counts) > 0:
         return None
     return {
         "family": family,
