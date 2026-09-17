@@ -831,8 +831,25 @@ def _subpkg_to_label(subpkg: str, family: str) -> str:
         return _FAMILY_SUBPKG_LABELS[family][key]
     if key in _SUBPKG_LABEL:
         return _SUBPKG_LABEL[key]
-    if key == "" or subpkg == "":
-        # Root-level classes → family-specific core capability
+    if key == "" or subpkg == "" or key == family:
+        # Root-level classes → family-specific core capability.
+        # BLOG-SLUGDUPE-001 (2026-09-17): some FOSS repo layouts (e.g. pdf/cpp's
+        # `include/aspose/pdf/<Class>.hpp`, pdf/java's
+        # `src/main/java/org/aspose/pdf/<Class>.java`) put root-level public
+        # classes one directory deeper than the layout this heuristic was
+        # designed around (`aspose/threed/Scene.py`, 3 segments → subpkg "").
+        # There, _class_to_subpackage() returns the family's own namespace
+        # directory name (here "pdf") as if it were a real sub-package, since
+        # it is literally parts[-2]. Left unguarded, that flows through to the
+        # generic CamelCase-split fallback below and returns the family name
+        # itself as a cluster label (e.g. "pdf") — a cluster indistinguishable
+        # from the family, which then collides with the duplicate-prefix guard
+        # in plan_blog()/plan_kb()/plan_docs() (which only catches labels that
+        # already start with "{family}-", not exact equality) and produces
+        # slugs like "pdf-pdf-cpp" / "pdf-pdf-java". Treat a subpkg that
+        # literally equals the family name as root-level too, so it resolves
+        # to the same real capability label (_ROOT_LABELS) as the true
+        # root-level classes instead of masquerading as its own cluster.
         return _ROOT_LABELS.get(family, "core-management")
     # TC-KBS-002: For unmapped PascalCase names (e.g. C# namespace dirs like
     # "JavaScriptExtensions"), split on CamelCase word boundaries before
