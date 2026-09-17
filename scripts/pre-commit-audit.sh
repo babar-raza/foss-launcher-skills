@@ -314,6 +314,43 @@ else
 fi
 
 # ---------------------------------------------------------------------------
+_pc_step_start "locale frontmatter contamination"
+# Step 5b: Locale frontmatter contamination check, ALL staged locales
+# ---------------------------------------------------------------------------
+# TC-ALIAS-005 / TC-URL-005 recurrence guard. Step 5 above deliberately
+# audits English-only files (MT008 TC-MT008-08) -- but that filter also
+# excluded verify_no_non_english_aliases / verify_no_explicit_url, whose
+# entire purpose is to inspect non-English files, letting the exact same
+# aliases:/url: contamination reappear undetected on 2026-09-15 and break
+# the blog.aspose.org deploy workflow. This step runs unconditionally
+# against every staged .md file (English included -- the checks are no-ops
+# there) since it needs no knowledge model or evidence context.
+# See reports/skill-gaps/2026-09-17-blog-deploy-alias-gate-fix.md.
+all_staged_md=()
+while IFS= read -r _line; do all_staged_md+=("$_line"); done < <(
+    git diff --cached --name-only --diff-filter=ACM | grep '^content/.*\.md$'
+)
+if [ ${#all_staged_md[@]} -eq 0 ]; then
+    _pc_step_end "SKIP"
+elif [ -n "$_HOOK_PYTHON" ]; then
+    _lfc_tmpfile=$(mktemp /tmp/locale-fm-files-XXXXXX.txt 2>/dev/null || mktemp)
+    printf '%s\n' "${all_staged_md[@]}" > "$_lfc_tmpfile"
+    "$_HOOK_PYTHON" scripts/ci/checks/check_locale_frontmatter_contamination.py --files-from "$_lfc_tmpfile"
+    status=$?
+    rm -f "$_lfc_tmpfile"
+    if [ $status -ne 0 ]; then
+        echo ""
+        echo "BLOCKED: Locale frontmatter contamination (see above)."
+        _pc_step_end "FAIL"
+        _pc_exit 1
+    fi
+    _pc_step_end "PASS"
+else
+    echo "[Step 5b] SKIP: .venv not found — locale frontmatter check skipped." >&2
+    _pc_step_end "SKIP"
+fi
+
+# ---------------------------------------------------------------------------
 _pc_step_start "plugin_platform"
 # Step 6: Check plugin_platform canonical values for products pages
 # ---------------------------------------------------------------------------
