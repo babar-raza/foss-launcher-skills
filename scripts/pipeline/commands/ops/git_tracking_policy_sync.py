@@ -37,6 +37,16 @@ CONTRACT: scripts/pipeline/commands/ops/git_tracking_policy_sync.py
     fail-closed: a policy root whose keep set resolves to zero names still renders a
         valid, effectively-empty-exception block (root stays fully ignored) -- never an
         error, never a silent "track everything" fallback.
+    policy types: `family_glob`/`literal` (under a `keep:` list) both assume a small,
+        stable, enumerable name set with one canonical source -- fine for e.g. Aspose
+        family names, wrong for a root whose children are unbounded and grow over time
+        (e.g. `reports/plan_state/{mission-id}/`, one new directory per mission; added
+        TC-GOV-01-01, 2026-09-17). For that shape, declare `type: whole_subtree` on the
+        policy instead of a `keep:` list -- it tracks the entire root wholesale
+        (`!{root}/`, no per-name enumeration), which is exactly git's own semantics for
+        un-ignoring a directory: everything beneath it is tracked unless a nested
+        pattern re-excludes something, and this module deliberately never emits one for
+        a whole_subtree root. See resolve_keep_names() and render_merged_tree().
     tests: scripts/pipeline/tests/test_git_tracking_policy_sync.py
 """
 
@@ -109,8 +119,31 @@ def render_block(root: str, keep_names: "list[str]") -> "list[str]":
     return lines
 
 
-def resolve_keep_names(policy: dict, repo_root: Path) -> "list[str]":
-    """Resolve a policy entry's `keep` list to a sorted, de-duplicated name list."""
+def resolve_keep_names(policy: dict, repo_root: Path) -> "list[str] | None":
+    """Resolve a policy entry's `keep` list to a sorted, de-duplicated name list.
+
+    A policy declared `type: whole_subtree` (TC-GOV-01-01, 2026-09-17) tracks its
+    entire root wholesale -- no per-name enumeration, no `keep:` list to resolve at
+    all. This is for roots whose children are unbounded and grow over time (e.g.
+    `reports/plan_state/{mission-id}/`, one new directory per mission), unlike
+    `family_glob`/`literal`, which both assume a small, stable, enumerable name set
+    with one canonical source. Returns None as the explicit "no enumerable name set"
+    sentinel for that case -- deliberately NOT an empty list, which already has a
+    different, incompatible meaning under this module's fail-closed contract (see
+    render_block()'s test_empty_keep_set_still_ignores_everything: an empty keep list
+    means "track nothing", the opposite of what whole_subtree means). Callers
+    (build_full_block()/render_merged_tree(), list_tracked_prefixes()) branch on
+    `is None` to skip the per-name model entirely for this policy type.
+    """
+    if policy.get("type") == "whole_subtree":
+        if "keep" in policy:
+            raise ValueError(
+                f"policy root {policy.get('root')!r}: type 'whole_subtree' tracks its "
+                f"entire root wholesale and does not take a 'keep' list -- remove "
+                f"'keep' (it would be silently ignored) or drop 'type: whole_subtree' "
+                f"if per-name enumeration was actually intended"
+            )
+        return None
     names: "set[str]" = set()
     for entry in policy.get("keep", []):
         entry_type = entry.get("type")
@@ -128,7 +161,7 @@ def resolve_keep_names(policy: dict, repo_root: Path) -> "list[str]":
     return sorted(names)
 
 
-def render_merged_tree(root_keep: "dict[tuple[str, ...], list[str]]") -> "list[str]":
+def render_merged_tree(root_keep: "dict[tuple[str, ...], list[str] | None]") -> "list[str]":
     """Render the ancestor-chain negation for MULTIPLE roots at once,
     merging any shared path-segment prefixes into ONE blanket `{prefix}/*`
     exclusion instead of one per root.
@@ -165,6 +198,24 @@ def render_merged_tree(root_keep: "dict[tuple[str, ...], list[str]]") -> "list[s
     are independent, not exclusive. Confirmed via real `git check-ignore -v`
     before this fix (not assumed) -- see
     TestRealGitCheckIgnoreNestedPolicyRoot.
+
+    TC-GOV-01-01 (2026-09-17): a policy root's value in `root_keep` may now be
+    None instead of a name list -- the `type: whole_subtree` sentinel from
+    resolve_keep_names() (see its docstring), for roots whose children are
+    unbounded and grow over time rather than being drawn from a small,
+    enumerable set. For such a root, render_node() deliberately does NOT emit
+    the `{path}/*` re-exclusion line at all: the parent level already un-ignores
+    the directory itself (`!{parent}/{name}/`), and per git's own last-match-
+    wins negation semantics, un-ignoring a directory tracks its full contents
+    UNLESS a later, more specific pattern re-excludes something -- emitting
+    `{path}/*` here would be exactly that re-exclusion, degrading whole_subtree
+    to the empty-keep-set fail-closed case (tracking nothing). This holds
+    regardless of where the whole_subtree root sits in the tree -- as a leaf,
+    as a sibling of keep-type roots sharing an ancestor prefix, or nested
+    directly under (or as the ancestor of) a keep-type root -- confirmed via
+    real `git check-ignore -v` for all three shapes, not assumed -- see
+    TestRealGitCheckIgnoreWholeSubtree and
+    TestRealGitCheckIgnoreWholeSubtreeNestedUnderKeepType.
     """
     children_of: "dict[tuple[str, ...], set[str]]" = {}
     for segments in root_keep:
@@ -175,17 +226,33 @@ def render_merged_tree(root_keep: "dict[tuple[str, ...], list[str]]") -> "list[s
     lines: "list[str]" = []
 
     def render_node(path: "tuple[str, ...]") -> None:
-        """Render `path`'s own `{path}/*` re-exclusion plus every negation
-        needed directly under it, then recurse into any further policy-root
-        descendants. `path` may be a plain ancestor segment (neither a
-        policy root nor holding keep names of its own), a policy-root leaf
-        (in root_keep, no deeper descendants), or -- the nested case this
-        fix addresses -- BOTH a policy root AND an ancestor of a deeper
-        policy root at the same time.
+        """Render `path`'s own re-exclusion (if it is a keep-type root; a
+        whole_subtree root emits none, see module docstring above) plus every
+        negation needed directly under it, then recurse into any further
+        policy-root descendants. `path` may be a plain ancestor segment
+        (neither a policy root nor holding keep names of its own), a
+        policy-root leaf (in root_keep, no deeper descendants), or -- the
+        nested case TC-PKG-01-08-FIX addresses -- BOTH a policy root AND an
+        ancestor of a deeper policy root at the same time.
         """
         path_str = "/".join(path)
-        lines.append(f"{path_str}/*")
+        is_whole_subtree = path in root_keep and root_keep[path] is None
         nested_children = sorted(children_of.get(path, set()))
+
+        if is_whole_subtree:
+            # No `{path}/*` blanket here by design (see docstring) -- the
+            # directory is already un-ignored by the caller and nothing here
+            # may re-exclude any part of it. Any further nested policy root
+            # declared underneath is still honored (opened explicitly and
+            # recursed into), though ordinarily redundant since everything
+            # here is already tracked.
+            for child in nested_children:
+                child_path = path + (child,)
+                lines.append(f"!{path_str}/{child}/")
+                render_node(child_path)
+            return
+
+        lines.append(f"{path_str}/*")
         own_names = sorted(root_keep[path]) if path in root_keep else []
         for name in sorted(set(nested_children) | set(own_names)):
             lines.append(f"!{path_str}/{name}/")
@@ -194,7 +261,10 @@ def render_merged_tree(root_keep: "dict[tuple[str, ...], list[str]]") -> "list[s
             if child_path in root_keep:
                 keep_names = root_keep[child_path]
                 child_str = "/".join(child_path)
-                lines.append(f"# {child_str} -- {len(keep_names)} tracked name(s)")
+                if keep_names is None:
+                    lines.append(f"# {child_str} -- whole subtree tracked")
+                else:
+                    lines.append(f"# {child_str} -- {len(keep_names)} tracked name(s)")
             render_node(child_path)
 
     for top_segment in sorted({segments[0] for segments in root_keep}):
@@ -310,16 +380,26 @@ def apply_to_gitignore(
 
 
 def list_tracked_prefixes(policies: "list[dict]", repo_root: Path) -> "list[str]":
-    """Return every `{root}/{name}/` prefix current policy permits to be tracked, e.g.
+    """Return every prefix current policy permits to be tracked, e.g.
     `reports/repo-presenter-regen-full/cells/`. Consumed by scripts/pre-commit-audit.sh's
     "reports/ boundary" gate (Step 1) so that gate's blanket "nothing under reports/ may
     ever be staged" rule can carve out exactly (and only) what this policy allows, instead
-    of either blocking every policy-tracked commit or being disabled wholesale."""
+    of either blocking every policy-tracked commit or being disabled wholesale.
+
+    A `type: whole_subtree` policy (TC-GOV-01-01) has no per-name set to resolve --
+    resolve_keep_names() returns None for it -- so the one prefix it permits is the
+    root itself (`{root}/`), covering everything beneath it, rather than a `{root}/{name}/`
+    line per enumerated name.
+    """
     prefixes: "list[str]" = []
     for policy in policies:
         root = policy["root"]
-        for name in resolve_keep_names(policy, repo_root):
-            prefixes.append(f"{root}/{name}/")
+        names = resolve_keep_names(policy, repo_root)
+        if names is None:
+            prefixes.append(f"{root}/")
+        else:
+            for name in names:
+                prefixes.append(f"{root}/{name}/")
     return prefixes
 
 

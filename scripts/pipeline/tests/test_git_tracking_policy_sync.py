@@ -94,6 +94,28 @@ class TestResolveKeepNames:
         with pytest.raises(ValueError):
             gtp.resolve_keep_names(policy, tmp_path)
 
+    def test_whole_subtree_returns_none_sentinel(self, tmp_path):
+        """A `type: whole_subtree` policy has no `keep:` list to resolve at all --
+        it tracks its entire root wholesale. None is the explicit "no enumerable
+        name set" sentinel here, distinct from an empty list (which means "keep
+        nothing" under the existing fail-closed contract -- see
+        test_empty_keep_set_still_ignores_everything in TestRenderBlock)."""
+        policy = {"root": "reports/plan_state", "type": "whole_subtree"}
+        assert gtp.resolve_keep_names(policy, tmp_path) is None
+
+    def test_whole_subtree_with_keep_list_raises(self, tmp_path):
+        """`type: whole_subtree` and `keep:` are mutually exclusive -- a policy
+        author who adds a `keep:` list to a whole_subtree root almost certainly
+        means the opposite of what will happen (the keep list would be silently
+        ignored otherwise), so this fails loudly instead."""
+        policy = {
+            "root": "reports/plan_state",
+            "type": "whole_subtree",
+            "keep": [{"type": "literal", "names": ["x"]}],
+        }
+        with pytest.raises(ValueError):
+            gtp.resolve_keep_names(policy, tmp_path)
+
 
 class TestListTrackedPrefixes:
     def test_returns_root_name_prefixes(self, fake_families_yaml):
@@ -114,6 +136,14 @@ class TestListTrackedPrefixes:
         out = capsys.readouterr().out.splitlines()
         assert "reports/repo-presenter-regen-full/cells/" in out
         assert "reports/repo-presenter-regen-full/pdf/" in out
+
+    def test_whole_subtree_returns_root_prefix_not_per_name(self, tmp_path):
+        """A whole_subtree policy has no enumerable name set -- the one prefix
+        it permits the reports/ boundary gate to carve out is the root itself,
+        not a per-name list."""
+        policies = [{"root": "reports/plan_state", "type": "whole_subtree"}]
+        prefixes = gtp.list_tracked_prefixes(policies, tmp_path)
+        assert prefixes == ["reports/plan_state/"]
 
 
 class TestBuildFullBlock:
@@ -438,6 +468,70 @@ class TestRenderMergedTree:
         assert i_audit_star < i_negate_nested_dir < i_nested_star
         assert i_nested_star < i_negate_z
 
+    def test_whole_subtree_root_emits_bare_negation_no_blanket_reexclusion(self):
+        """TC-GOV-01-01: a `type: whole_subtree` root (represented in root_keep
+        by the value None -- see resolve_keep_names()) tracks everything beneath
+        it. Unlike a keep-type root, it must NOT emit its own `{root}/*`
+        re-exclusion line at all -- per git's own semantics, un-ignoring a
+        directory (`!reports/plan_state/`) tracks its full contents unless a
+        LATER, more specific pattern re-excludes something; emitting
+        `reports/plan_state/*` would be exactly that re-exclusion, and would
+        silently defeat the entire point of this policy type (it would degrade
+        to the empty-keep-set fail-closed case, tracking nothing)."""
+        root_keep = {("reports", "plan_state"): None}
+        lines = gtp.render_merged_tree(root_keep)
+        # The explanatory "# ... -- whole subtree tracked" comment line mirrors the
+        # existing "# ... -- N tracked name(s)" comment keep-type children get (see
+        # test_nested_root_that_is_also_an_ancestor_of_another_root_is_not_dropped
+        # above) -- consistent readability, not a behavioral line.
+        assert lines == [
+            "reports/*",
+            "!reports/plan_state/",
+            "# reports/plan_state -- whole subtree tracked",
+        ]
+        assert "reports/plan_state/*" not in lines
+
+    def test_whole_subtree_coexists_with_keep_type_siblings(self):
+        """Mirrors TestRenderMergedTree's sibling-merge cases above, but with a
+        third sibling declared whole_subtree -- proves the new type doesn't
+        disturb the shared-blanket-exclusion merge for its family_glob/literal
+        neighbors, and vice versa."""
+        root_keep = {
+            ("reports", "audit"): ["install-defect-sweep-latest"],
+            ("reports", "repo-presenter-regen-full"): ["cells", "pdf"],
+            ("reports", "plan_state"): None,
+        }
+        lines = gtp.render_merged_tree(root_keep)
+        assert lines.count("reports/*") == 1
+        assert "!reports/plan_state/" in lines
+        assert "reports/plan_state/*" not in lines
+        assert "!reports/audit/install-defect-sweep-latest/" in lines
+        assert "reports/audit/*" in lines
+        assert "!reports/repo-presenter-regen-full/cells/" in lines
+        assert "!reports/repo-presenter-regen-full/pdf/" in lines
+        assert "reports/repo-presenter-regen-full/*" in lines
+
+    def test_whole_subtree_nested_under_keep_type_ancestor_is_not_reexcluded(self):
+        """A whole_subtree root can itself be nested one level below a
+        keep-type ancestor root -- e.g. reports/audit tracks one named child
+        by 'keep', AND wholesale-tracks a further, unbounded subdirectory
+        underneath it. The ancestor's own `reports/audit/*` re-exclusion (which
+        it still needs, for its OWN keep-name enumeration) must not re-swallow
+        the nested whole_subtree root -- the `!reports/audit/full-dump/`
+        negation must come after it with nothing following to undo it."""
+        root_keep = {
+            ("reports", "audit"): ["y"],
+            ("reports", "audit", "full-dump"): None,
+        }
+        lines = gtp.render_merged_tree(root_keep)
+        assert "reports/audit/*" in lines
+        assert "!reports/audit/y/" in lines
+        assert "!reports/audit/full-dump/" in lines
+        assert "reports/audit/full-dump/*" not in lines
+        i_audit_star = lines.index("reports/audit/*")
+        i_negate_full_dump = lines.index("!reports/audit/full-dump/")
+        assert i_audit_star < i_negate_full_dump
+
 
 class TestRealGitCheckIgnoreMultiPolicy:
     """The actual regression control for the collision this taskcard found
@@ -577,3 +671,148 @@ class TestRealGitCheckIgnoreNestedPolicyRoot:
         assert _git_check_ignore(
             self.repo, "reports/repo-presenter-regen-full/_scratch/x.md"
         ) is True
+
+
+# ---------------------------------------------------------------------------
+# whole_subtree -- TC-GOV-01-01 (2026-09-17): tracks an entire root wholesale,
+# with no per-name `keep:` enumeration, for roots whose children are unbounded
+# and grow over time (e.g. reports/plan_state/{mission-id}/, one new directory
+# per mission). Real regression control, mirroring TestRealGitCheckIgnore*
+# above: proves via actual `git check-ignore -v` that EVERY path under the
+# root is tracked, including nested subdirectories the policy never named --
+# not just the specific paths a hand-picked assertion might happen to cover.
+# ---------------------------------------------------------------------------
+
+class TestRealGitCheckIgnoreWholeSubtree:
+    """3 policies: the 2 pre-existing keep-type siblings from
+    TestRealGitCheckIgnoreMultiPolicy, PLUS a new whole_subtree sibling
+    (reports/plan_state) -- the exact shape of this taskcard's real
+    scripts/pipeline/config/git_tracking_policy.yaml change."""
+
+    @pytest.fixture(autouse=True)
+    def _init_repo(self, tmp_path):
+        subprocess.run(["git", "init", "-q"], cwd=str(tmp_path), check=True)
+        (tmp_path / "data").mkdir()
+        (tmp_path / "data" / "blog_family_routes.yaml").write_text(
+            "families:\n  cells:\n    taxonomy_slug: aspose.cells\n",
+            encoding="utf-8",
+        )
+        policy_path = tmp_path / "policy.yaml"
+        policy_path.write_text(
+            textwrap.dedent(
+                """\
+                schema_version: 1
+                policies:
+                  - root: reports/audit
+                    keep:
+                      - type: literal
+                        names: ["install-defect-sweep-latest"]
+                  - root: reports/repo-presenter-regen-full
+                    keep:
+                      - type: family_glob
+                        source: data/blog_family_routes.yaml
+                  - root: reports/plan_state
+                    type: whole_subtree
+                """
+            ),
+            encoding="utf-8",
+        )
+        gitignore_path = tmp_path / ".gitignore"
+        gitignore_path.write_text("node_modules\nreports/\n*.pyc\n", encoding="utf-8")
+        gtp.configure(repo_root=tmp_path, policy_path=policy_path, gitignore_path=gitignore_path)
+        assert gtp.main(["--fix"]) == 0
+        self.repo = tmp_path
+        yield
+        gtp.configure(
+            repo_root=gtp._DEFAULT_REPO_ROOT,
+            policy_path=gtp._DEFAULT_REPO_ROOT / "scripts/pipeline/config/git_tracking_policy.yaml",
+            gitignore_path=gtp._DEFAULT_REPO_ROOT / ".gitignore",
+        )
+
+    def test_top_level_file_directly_under_root_is_tracked(self):
+        assert _git_check_ignore(
+            self.repo, "reports/plan_state/MT071-2026-09-17-GOVERNANCE-DURABILITY-HARDENING/taskcards.jsonl"
+        ) is False
+
+    def test_arbitrarily_deep_nested_subdirectory_never_named_is_still_tracked(self):
+        """The whole point of whole_subtree: a mission directory nobody
+        enumerated in policy, several levels deep, must still be tracked --
+        this is what distinguishes it from family_glob/literal, which only
+        track directories whose NAMES are registered somewhere."""
+        assert _git_check_ignore(
+            self.repo,
+            "reports/plan_state/some-brand-new-mission-nobody-listed/evidence/sub/deeply/nested/file.md",
+        ) is False
+
+    def test_sibling_keep_type_policies_are_unaffected(self):
+        assert _git_check_ignore(self.repo, "reports/audit/install-defect-sweep-latest/report.json") is False
+        assert _git_check_ignore(self.repo, "reports/repo-presenter-regen-full/cells/readme.md") is False
+        assert _git_check_ignore(self.repo, "reports/audit/st054/sweep-report.json") is True
+        assert _git_check_ignore(self.repo, "reports/repo-presenter-regen-full/_scratch/x.md") is True
+
+    def test_unrelated_sibling_report_dir_stays_ignored(self):
+        """reports/plan_state_backup/ or reports/other-thing/ must not be
+        accidentally swept in by a loose prefix match on 'plan_state'."""
+        assert _git_check_ignore(self.repo, "reports/plan_state_backup/x.md") is True
+        assert _git_check_ignore(self.repo, "reports/some-other-report/x.md") is True
+
+
+class TestRealGitCheckIgnoreWholeSubtreeNestedUnderKeepType:
+    """The nested-position regression control the taskcard specifically asked
+    for: a whole_subtree root nested one level below a keep-type ancestor root
+    (reports/audit tracks named child 'y' via 'keep', AND wholesale-tracks the
+    further, unbounded 'reports/audit/full-dump' subtree beneath it). Mirrors
+    TestRealGitCheckIgnoreNestedPolicyRoot but with the deeper root's TYPE
+    swapped from literal to whole_subtree, proving render_merged_tree()
+    handles the two types correctly regardless of which is the ancestor and
+    which is the descendant."""
+
+    @pytest.fixture(autouse=True)
+    def _init_repo(self, tmp_path):
+        subprocess.run(["git", "init", "-q"], cwd=str(tmp_path), check=True)
+        policy_path = tmp_path / "policy.yaml"
+        policy_path.write_text(
+            textwrap.dedent(
+                """\
+                schema_version: 1
+                policies:
+                  - root: reports/audit
+                    keep:
+                      - type: literal
+                        names: ["y"]
+                  - root: reports/audit/full-dump
+                    type: whole_subtree
+                """
+            ),
+            encoding="utf-8",
+        )
+        gitignore_path = tmp_path / ".gitignore"
+        gitignore_path.write_text("node_modules\nreports/\n*.pyc\n", encoding="utf-8")
+        gtp.configure(repo_root=tmp_path, policy_path=policy_path, gitignore_path=gitignore_path)
+        assert gtp.main(["--fix"]) == 0
+        self.repo = tmp_path
+        yield
+        gtp.configure(
+            repo_root=gtp._DEFAULT_REPO_ROOT,
+            policy_path=gtp._DEFAULT_REPO_ROOT / "scripts/pipeline/config/git_tracking_policy.yaml",
+            gitignore_path=gtp._DEFAULT_REPO_ROOT / ".gitignore",
+        )
+
+    def test_ancestor_roots_own_keep_name_is_not_ignored(self):
+        assert _git_check_ignore(self.repo, "reports/audit/y/report.json") is False
+
+    def test_nested_whole_subtree_root_itself_is_tracked(self):
+        assert _git_check_ignore(self.repo, "reports/audit/full-dump/report.json") is False
+
+    def test_nested_whole_subtree_roots_unnamed_deep_subdirectory_is_tracked(self):
+        """The exact behavior that would break if the old (pre-TC-GOV-01-01)
+        engine's nested-root fix were merely reused as-is without a real
+        whole_subtree branch: a keep-type nested root only tracks its own
+        named children, but a whole_subtree nested root must track EVERYTHING
+        below it, including subdirectories with no name registered anywhere."""
+        assert _git_check_ignore(
+            self.repo, "reports/audit/full-dump/anything/goes/here/file.md"
+        ) is False
+
+    def test_untracked_sibling_under_ancestor_root_stays_ignored(self):
+        assert _git_check_ignore(self.repo, "reports/audit/st054/sweep-report.json") is True
