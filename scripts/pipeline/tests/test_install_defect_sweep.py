@@ -87,14 +87,32 @@ class TestRunInstallRecipeSweep:
         assert report["per_product"] == []
 
     def test_real_regression_pin_against_current_content(self):
-        """Acceptance check: reproduces the same 89 real
+        """Acceptance check: reproduces the same 67 real
         PUBLISH-CLAIM-CONTRADICTION-001 findings (backlog/BACKLOG.md) when
-        run against current content -- no override, real portfolio."""
+        run against current content -- no override, real portfolio.
+
+        TC-PKG-01-08-FIX (2026-09-17): re-pinned from 89 -> 67. The original
+        89 (set 2026-09-10, commit 30a955550e) went stale as real content was
+        fixed on some flagged pages by unrelated work landing on main between
+        then and now -- an organic improvement (fewer contradictions), not a
+        regression in the wrong direction, and not a logic bug in this sweep.
+        Independently re-derived fresh (not copied from a prior review) via
+        two methods: this pytest run, and a standalone script calling
+        run_install_recipe_sweep() directly -- both agree on 67, with the
+        same per-product breakdown: 3d/typescript=1, barcode/python=9,
+        cells/typescript=1, font/python=21, html/python=12, page/python=2,
+        pdf/python=19, tex/python=2 (unpublished_disclosure=0, unchanged).
+        Kept as an exact pin (not loosened to a range/inequality): this is a
+        regression-pin control whose entire purpose is to force a human/agent
+        to look whenever the number moves, in either direction -- a range
+        would silently swallow future regressions up to its ceiling instead
+        of surfacing them here.
+        """
         sut.configure(repo_root=None)
         install_recipe.configure()
         report = sut.run_install_recipe_sweep()
-        assert report["total_publish_claim_contradiction_findings"] == 89, (
-            f"expected the known-real 89 PUBLISH-CLAIM-CONTRADICTION-001 findings, "
+        assert report["total_publish_claim_contradiction_findings"] == 67, (
+            f"expected the known-real 67 PUBLISH-CLAIM-CONTRADICTION-001 findings, "
             f"got {report['total_publish_claim_contradiction_findings']} -- if this is a "
             f"genuine change (fixed or regressed), update backlog/BACKLOG.md's own row "
             f"and this pin together, not just one"

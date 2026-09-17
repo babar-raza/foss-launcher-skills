@@ -147,6 +147,24 @@ def render_merged_tree(root_keep: "dict[tuple[str, ...], list[str]]") -> "list[s
     Any two (or more) roots sharing a common ancestor prefix, at ANY depth,
     are handled the same way -- not just the "both start with reports/"
     case this bug was found through.
+
+    TC-PKG-01-08-FIX (2026-09-17): fixed a second, independently-found
+    defect in this same function -- a policy root that is ITSELF a
+    path-prefix ancestor of another policy root (e.g. a policy at
+    "reports/audit" alongside a separate, deeper policy at
+    "reports/audit/install-defect-sweep") used to have the deeper root
+    silently DROPPED from the output entirely, with zero error and zero
+    warning. Root cause: the old walk() treated "this node is a policy root
+    with its own keep names" and "this node has further policy-root
+    descendants" as mutually exclusive (`if child_path in root_keep: ...
+    elif child_path in children_of: walk(child_path)`) -- a node that is
+    legitimately BOTH (the nested case) took the `if` branch and never
+    recursed into its own children. render_node() below always renders a
+    node's own keep names (if it is a policy root) AND recurses into any
+    further policy-root descendants (if it is also an ancestor) -- the two
+    are independent, not exclusive. Confirmed via real `git check-ignore -v`
+    before this fix (not assumed) -- see
+    TestRealGitCheckIgnoreNestedPolicyRoot.
     """
     children_of: "dict[tuple[str, ...], set[str]]" = {}
     for segments in root_keep:
@@ -156,25 +174,31 @@ def render_merged_tree(root_keep: "dict[tuple[str, ...], list[str]]") -> "list[s
 
     lines: "list[str]" = []
 
-    def walk(prefix: "tuple[str, ...]") -> None:
-        prefix_str = "/".join(prefix)
-        lines.append(f"{prefix_str}/*")
-        children = sorted(children_of.get(prefix, set()))
-        for child in children:
-            lines.append(f"!{prefix_str}/{child}/")
-        for child in children:
-            child_path = prefix + (child,)
+    def render_node(path: "tuple[str, ...]") -> None:
+        """Render `path`'s own `{path}/*` re-exclusion plus every negation
+        needed directly under it, then recurse into any further policy-root
+        descendants. `path` may be a plain ancestor segment (neither a
+        policy root nor holding keep names of its own), a policy-root leaf
+        (in root_keep, no deeper descendants), or -- the nested case this
+        fix addresses -- BOTH a policy root AND an ancestor of a deeper
+        policy root at the same time.
+        """
+        path_str = "/".join(path)
+        lines.append(f"{path_str}/*")
+        nested_children = sorted(children_of.get(path, set()))
+        own_names = sorted(root_keep[path]) if path in root_keep else []
+        for name in sorted(set(nested_children) | set(own_names)):
+            lines.append(f"!{path_str}/{name}/")
+        for child in nested_children:
+            child_path = path + (child,)
             if child_path in root_keep:
                 keep_names = root_keep[child_path]
                 child_str = "/".join(child_path)
                 lines.append(f"# {child_str} -- {len(keep_names)} tracked name(s)")
-                lines.append(f"{child_str}/*")
-                lines.extend(f"!{child_str}/{name}/" for name in sorted(keep_names))
-            elif child_path in children_of:
-                walk(child_path)
+            render_node(child_path)
 
     for top_segment in sorted({segments[0] for segments in root_keep}):
-        walk((top_segment,))
+        render_node((top_segment,))
     return lines
 
 

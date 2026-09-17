@@ -376,6 +376,68 @@ class TestRenderMergedTree:
         merged = [l for l in gtp.render_merged_tree(root_keep) if not l.startswith("#")]
         assert merged == gtp.render_block("reports/repo-presenter-regen-full", ["cells", "pdf"])
 
+    def test_nested_root_that_is_also_an_ancestor_of_another_root_is_not_dropped(self):
+        """TC-PKG-01-08-FIX (2026-09-17): a real, previously-untested defect
+        found reviewing TC-PKG-01-08 -- when one policy root is ITSELF a
+        path-prefix ancestor of another policy root (e.g. 'reports/audit'
+        holding its own tracked names, with a SEPARATE deeper policy at
+        'reports/audit/install-defect-sweep'), the deeper root used to be
+        silently dropped from the output entirely: zero error, zero warning.
+
+        Root cause (in the pre-fix code): walk()'s
+        `if child_path in root_keep: ... elif child_path in children_of: ...`
+        treated "this node IS a policy root" and "this node has further
+        descendants to walk" as mutually exclusive, so a node that is
+        legitimately both never recursed into its own children.
+
+        3 policies total, matching the taskcard's own brief: the 2
+        pre-existing siblings already covered by TestRenderMergedTree above,
+        PLUS a new policy that is a path-prefix ancestor of another policy
+        ('reports/audit' <- ancestor of -> 'reports/audit/install-defect-sweep').
+        """
+        root_keep = {
+            ("reports", "audit"): ["y"],
+            ("reports", "audit", "install-defect-sweep"): ["z"],
+            ("reports", "repo-presenter-regen-full"): ["cells", "pdf"],
+        }
+        lines = gtp.render_merged_tree(root_keep)
+
+        # The ancestor root's OWN tracked name must still be negated.
+        assert "!reports/audit/y/" in lines, (
+            "ancestor policy root's own keep name must not be lost just "
+            "because it is also an ancestor of a deeper policy root"
+        )
+        # The nested (deeper) root must not be silently dropped.
+        assert "!reports/audit/install-defect-sweep/" in lines, (
+            "must un-ignore the nested root's own directory so descent is possible"
+        )
+        assert "reports/audit/install-defect-sweep/*" in lines, (
+            "must re-exclude everything under the nested root except its own keep names"
+        )
+        assert "!reports/audit/install-defect-sweep/z/" in lines, (
+            "the nested root's own tracked name was the exact thing silently "
+            "dropped by the pre-fix bug -- this is the regression control"
+        )
+        # The unrelated sibling policy must be completely unaffected.
+        assert "!reports/repo-presenter-regen-full/cells/" in lines
+        assert "!reports/repo-presenter-regen-full/pdf/" in lines
+        # The shared top-level blanket exclusion still appears exactly once.
+        assert lines.count("reports/*") == 1
+
+        # Ordering: every "!.../x/" negation must appear strictly before the
+        # "*" line it depends on being un-done for -- otherwise the negation
+        # is a no-op under real git last-match-wins semantics (the same
+        # ordering invariant TestRenderMergedTree already checks for siblings).
+        i_blanket = lines.index("reports/*")
+        i_negate_audit_dir = lines.index("!reports/audit/")
+        i_audit_star = lines.index("reports/audit/*")
+        i_negate_nested_dir = lines.index("!reports/audit/install-defect-sweep/")
+        i_nested_star = lines.index("reports/audit/install-defect-sweep/*")
+        i_negate_z = lines.index("!reports/audit/install-defect-sweep/z/")
+        assert i_blanket < i_negate_audit_dir < i_audit_star
+        assert i_audit_star < i_negate_nested_dir < i_nested_star
+        assert i_nested_star < i_negate_z
+
 
 class TestRealGitCheckIgnoreMultiPolicy:
     """The actual regression control for the collision this taskcard found
@@ -433,3 +495,85 @@ class TestRealGitCheckIgnoreMultiPolicy:
     def test_untracked_sibling_under_either_root_stays_ignored(self):
         assert _git_check_ignore(self.repo, "reports/audit/st054/sweep-report.json") is True
         assert _git_check_ignore(self.repo, "reports/repo-presenter-regen-full/_scratch/x.md") is True
+
+
+class TestRealGitCheckIgnoreNestedPolicyRoot:
+    """The real regression control for the nested-root defect found
+    reviewing TC-PKG-01-08: a policy root that is ITSELF a path-prefix
+    ancestor of another policy root used to have the deeper root's entire
+    keep block silently dropped from the generated .gitignore (confirmed
+    live via real `git check-ignore -v` before the fix -- not a
+    hypothetical). 3 policies: the 2 pre-existing siblings from
+    TestRealGitCheckIgnoreMultiPolicy, PLUS a new policy nested one level
+    below 'reports/audit'.
+    """
+
+    @pytest.fixture(autouse=True)
+    def _init_repo(self, tmp_path):
+        subprocess.run(["git", "init", "-q"], cwd=str(tmp_path), check=True)
+        (tmp_path / "data").mkdir()
+        (tmp_path / "data" / "blog_family_routes.yaml").write_text(
+            "families:\n  cells:\n    taxonomy_slug: aspose.cells\n",
+            encoding="utf-8",
+        )
+        policy_path = tmp_path / "policy.yaml"
+        policy_path.write_text(
+            textwrap.dedent(
+                """\
+                schema_version: 1
+                policies:
+                  - root: reports/audit
+                    keep:
+                      - type: literal
+                        names: ["y"]
+                  - root: reports/audit/install-defect-sweep
+                    keep:
+                      - type: literal
+                        names: ["z"]
+                  - root: reports/repo-presenter-regen-full
+                    keep:
+                      - type: family_glob
+                        source: data/blog_family_routes.yaml
+                """
+            ),
+            encoding="utf-8",
+        )
+        gitignore_path = tmp_path / ".gitignore"
+        gitignore_path.write_text("node_modules\nreports/\n*.pyc\n", encoding="utf-8")
+        gtp.configure(repo_root=tmp_path, policy_path=policy_path, gitignore_path=gitignore_path)
+        assert gtp.main(["--fix"]) == 0
+        self.repo = tmp_path
+        yield
+        gtp.configure(
+            repo_root=gtp._DEFAULT_REPO_ROOT,
+            policy_path=gtp._DEFAULT_REPO_ROOT / "scripts/pipeline/config/git_tracking_policy.yaml",
+            gitignore_path=gtp._DEFAULT_REPO_ROOT / ".gitignore",
+        )
+
+    def test_ancestor_roots_own_tracked_name_is_not_ignored(self):
+        assert _git_check_ignore(self.repo, "reports/audit/y/report.json") is False
+
+    def test_nested_roots_tracked_name_is_not_ignored(self):
+        """This is the exact path that was silently dropped before the fix:
+        the deeper policy's own keep name never appeared anywhere in the
+        generated .gitignore block, so it stayed ignored under the ancestor
+        root's blanket re-exclusion with no negation to rescue it."""
+        assert _git_check_ignore(
+            self.repo, "reports/audit/install-defect-sweep/z/report.json"
+        ) is False
+
+    def test_untracked_sibling_under_nested_root_stays_ignored(self):
+        assert _git_check_ignore(
+            self.repo, "reports/audit/install-defect-sweep/other-file.json"
+        ) is True
+
+    def test_untracked_sibling_under_ancestor_root_stays_ignored(self):
+        assert _git_check_ignore(self.repo, "reports/audit/st054/sweep-report.json") is True
+
+    def test_unrelated_sibling_policy_still_works(self):
+        assert _git_check_ignore(
+            self.repo, "reports/repo-presenter-regen-full/cells/readme.md"
+        ) is False
+        assert _git_check_ignore(
+            self.repo, "reports/repo-presenter-regen-full/_scratch/x.md"
+        ) is True
