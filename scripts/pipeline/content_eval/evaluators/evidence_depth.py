@@ -147,7 +147,12 @@ class EvidenceDepthEvaluator(BaseEvaluator):
         # Warn if API-language code blocks are present but no evidence APIs cited.
         # Only fire when evidence is NOT stale: if stale, the root cause is a missing
         # attach_evidence.py re-run (EG_STALE covers it) not a grounding gap.
-        if code_block_count >= 2 and len(apis) == 0 and not _evidence_stale:
+        # CE-03 (plans/healing/2026-09-17-content-eval-hardening-gaps.md, gap G-04):
+        # was `>= 2` — a single API-eligible code block with zero evidence APIs is
+        # exactly as suspicious as two; the >=2 gate let every one of the 4 pages
+        # retired in commit 820d2c7e8e (each had exactly 1 API-eligible block) pass
+        # silently. Measured via scripts/pipeline/tests/content_eval/fixtures/.
+        if code_block_count >= 1 and len(apis) == 0 and not _evidence_stale:
             findings.append(Finding(
                 level="WARN",
                 category="EG_GROUNDING",
@@ -159,7 +164,9 @@ class EvidenceDepthEvaluator(BaseEvaluator):
             ))
 
         # Warn if substantial content but no claims
-        if factual_lines > 5 and len(claims) == 0 and len(apis) == 0:
+        # CE-03 (gap G-04): was `> 5` — all 4 pages retired in commit 820d2c7e8e had
+        # 1-2 factual (backtick-bearing) lines and cleared this gate untouched.
+        if factual_lines > 0 and len(claims) == 0 and len(apis) == 0:
             findings.append(Finding(
                 level="INFO",
                 category="EG",
