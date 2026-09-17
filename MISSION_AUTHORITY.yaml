@@ -1,75 +1,139 @@
 mission_authority:
-  mission_id: MT068-2026-09-11-IMAGING-NET-LAUNCH
-  mission_summary: "Launch imaging/net (Aspose.Imaging.Foss, https://github.com/aspose-imaging-foss/Aspose.Imaging.Foss)
-    as a new FOSS-backed product platform. User asked this session to publish a newly
-    discovered product without naming one; a fresh S-93 /repo-patrol scan (26/26 orgs OK)
-    plus S-95 /discovery-triage routing found the first-ever repo in aspose-imaging-foss
-    (org previously watched at 0 repos, INV-017), live-verified LAUNCHABLE this session
-    (MIT license, real C# source across 17 classes -- ImageProbe/ImageInfo/ImageFormat
-    plus 11 Formats/*Handler classes plus 3 Internal/ helpers, 4 real test files, CI+release
-    GitHub Actions, 3 commits by 2 human authors over 4 days). Filed as backlog/inbox.md
-    INV-019 and backlog/BACKLOG.md IMAGING-NET-001. User confirmed: start the launch chain
-    now. Capability scope is narrower than the imaging family's existing commercial
-    messaging -- this repo is explicitly format-detection/header-probing only (dimensions,
-    bit depth, frame count from the file header for 11 formats), not a decode/edit/convert
-    library, and its own README explicitly disclaims the broader scope and links to the
-    commercial Aspose.Imaging product for it. All generated content must state that
-    narrower scope truthfully per AGENTS.md Section 11."
-  governing_plan_path: plans/from_backlog/2026-09-11-mt068-imaging-net-launch.md
+  mission_id: MT069-2026-09-16-GHA-MINUTES-REARCHITECTURE
+  mission_summary: "Audit, re-architect, migrate, and stabilize GitHub Actions automation
+    for the private Aspose/aspose.org repo to reduce GitHub-hosted Actions minute
+    consumption, which the user reports is using a substantial share of the Aspose org's
+    included allowance and affecting other private repos. Full read-only recon this
+    session found: 20 workflow files in .github/workflows/*.yml, all GitHub-hosted
+    (18 ubuntu-latest-only, 1 with a windows-latest job pair, 1 with a soft-launched
+    windows job), zero matrix strategies, zero composite actions, zero workflow_call
+    reusable workflows. Aspose/aspose.org-workflows is a real, PUBLIC sibling repo already
+    used for Option-B-style execution: it is the actual Hugo build+deploy engine for every
+    subdomain and already hosts 5 SEO-pipeline workflow templates that check out
+    Aspose/aspose.org via a scoped token, do work, and push results back via PR (never
+    auto-commit) -- a proven pattern this mission reuses rather than re-designing.
+    User confirmed (2026-09-16, this session) that all 20 workflows are CURRENTLY
+    disabled_manually as an intentional emergency cost stopgap they applied themselves --
+    meaning every push(main) gate (content-governance-checks.yml, skill-governance.yml,
+    etc.) is presently not enforcing anything; restoring correct gating without restoring
+    the cost is a co-equal deliverable. The existing S-115 workflow-harden skill already
+    owns static correctness/security/hygiene review of .github/workflows/** +
+    scripts/ci/** (including a CI-weight/caching probe) but explicitly disclaims cost/
+    billing measurement, self-hosted-runner migration, and public-repo migration -- this
+    mission covers exactly that capability gap (filed as a bounded-oneoff gap-escalation
+    report) while delegating the static-review slice to /workflow-harden rather than
+    duplicating it. Mission covers Phase A (investigation -> execution-ready plan with
+    per-workflow destination decisions and taskcards); Phase B (actual migration
+    execution) taskcards (MT069-PHB-01..08) were explicitly authorized for seeding by
+    the user on 2026-09-18, ahead of Phase A's own completion, conditioned on personal
+    supervision -- a stop gate after every PHB-* taskcard, no auto-chaining to the next
+    one without the user's explicit go-ahead."
+  governing_plan_path: plans/from_backlog/2026-09-16-gha-minutes-rearchitecture.md
   in_scope_outcomes:
-  - "imaging/net registered in data/products.json via /update-registry"
-  - "Knowledge bootstrap: knowledge/imaging/net/merged/{model.yaml,claims.json,api_surface.md,formats.json}
-    built via /repo-scout (S-34) against the real clone, finalized via truth-merge"
-  - "AGENTS.md Section 7d knowledge quality gate passes (class_count>=5, total_claims>=20,
-    snippet_count>=3, enrichment_status ok) before any content generation begins"
-  - "Full 5-subdomain English-language launch via /launch-product imaging net (S-49):
-    docs, kb, blog, products, reference"
-  - "S-90 /publish-readiness-review scoped to imaging/net (Tier 1/2 content) before the
-    mission is declared complete"
+  - "Complete inventory of all 20 current .github/workflows/*.yml plus git-history
+    deleted/renamed workflows, composite actions (none today), the 5 SEO templates
+    deployed to Aspose/aspose.org-workflows, and confirmation that zero workflow_call
+    reusable workflows exist"
+  - "Written, evidence-cited record of the disabled_manually mass-disable as an
+    intentional user action (2026-09-16), used as the baseline explanation before any
+    usage number is trusted"
+  - "Usage/billing dataset built from historical (pre-disable) run/job data via the
+    repo-scoped gh api proxy, reconciled against Billing-UI figures the user supplies
+    directly (this session's token lacks read:org/admin:org and the legacy Actions-
+    billing REST endpoint is deprecated/410)"
+  - "Per-workflow importance classification, 13-value destination decision, and a
+    public/private data-boundary threat assessment for every workflow proposed for
+    public or self-hosted execution, each in an evidence-backed dossier"
+  - "Self-hosted runner architecture design (WSL2 + per-job container) targeting this
+    session's own Windows 11 Pro dev machine, reserved only for push-gated native
+    workflows -- design only, no runner registered/brought online in this mission"
+  - "Execution-ready taskcards for every workflow, mapped to its destination decision"
+  - "check_plan_taskcard_completeness.py passes against this mission's governing plan
+    and reports/plan_state/MT069-2026-09-16-GHA-MINUTES-REARCHITECTURE/taskcards.jsonl
+    before Phase A is declared plan-ready"
   out_of_scope_items:
-  - "Locale translation fan-out (/ht-translate) -- follows this repo's normal cadence of
-    English-first launch, translation in a later session"
-  - "Any content implying decode/edit/convert image-processing capability -- the real repo
-    does not have this; format-detection/header-probing only"
-  - "NuGet publication-status tracking or disclosure -- package is not yet published;
-    follow the existing no-publication-disclosure precedent"
-  - "Building new platform-pipeline capability -- unlike the TypeScript pilot (MT040),
-    C#/.NET is an already-mature generation target (cells/net, pdf/net, words/net,
-    slides/net, 3d/net, font/net all launched); real gaps found get filed as G-xx findings
-    through the skill system, not patched inline outside it"
+  - "Any change to Aspose/aspose.org-workflows's package-registry-driven deploy-trigger/
+    change-detection logic (detect_changes.py and related) -- owned by MT066's
+    PKGINSTALL-DEPLOY-TRIGGER-3LAYER-FIX taskcard (status: READY, not yet started as of
+    2026-09-16) until that taskcard closes or is explicitly reconciled with this mission"
+  - "Phase B AUTOMATIC/UNSUPERVISED execution -- the user explicitly authorized seeding
+    Phase B taskcards (MT069-PHB-01..08) on 2026-09-18 ahead of Phase A's own completion,
+    but ONLY under personal supervision: a stop gate applies after every PHB-* taskcard
+    reaches a terminal/implemented state, and the next one does not start without the
+    user's explicit go-ahead in that session. Auto-chaining through multiple PHB
+    taskcards without that go-ahead remains out of scope regardless of dependency
+    readiness."
+  - "Merging any PR against Aspose/aspose.org-workflows, or authorizing any live
+    production deployment cycle there -- inherited repo-wide norm (also declared by
+    MT062 and MT066), not unique to this mission"
+  - "Registering or bringing online any self-hosted runner -- Phase A produces a design
+    only"
+  - "Rotating or regenerating any secret (GH_TOKEN, LITELLM_KEY, GOOGLE_API_KEY, etc.)
+    discovered during the public/private threat assessment -- recommendation only, per
+    S-115's own existing 'no secret rotation' hard limit, which this mission inherits"
+  - "Re-enabling any of the 20 currently-disabled workflows -- stays a Phase B decision
+    per workflow, made from evidence, not a side effect of this mission's investigation"
   mandatory_acceptance_criteria:
-  - "/update-registry --reconcile shows imaging/net with all expected knowledge/content
-    signals present, zero registered-but-never-launched gaps introduced"
-  - "Knowledge quality gate (Section 7d) passes with real, non-fabricated numbers from the
-    actual scout output -- not lowered thresholds, not an override"
-  - "Every generated page passes S-23 content-check"
-  - "S-90 publish-readiness review returns a clean verdict (or documented, closed
-    follow-ups) for Tier 1/2 content"
-  - "No content page overstates capability beyond format-detection/header-probing"
+  - "Every one of the 20 current workflows (plus every deleted/renamed one found in git
+    history) has a dossier with a cited destination decision -- none left at
+    INSUFFICIENT_EVIDENCE without a stated reason"
+  - "Usage/billing figures are reconciled against a real org-level source (the user's
+    Billing UI export), not the repo-scoped run/job-duration proxy alone"
+  - "Destination decisions recommending MOVE_EXECUTION_TO_PUBLIC_REPO or
+    CENTRALIZE_CODE_PUBLICLY_BUT_KEEP_PRIVATE_EXECUTION each cite a completed threat
+    assessment naming every secret/credential/data class exposed"
+  - "Independent review of dossiers + destination decisions + threat assessment
+    completed with no open CONFIRMED findings before Phase A is marked plan-ready"
+  - "No duplicated static-review effort: the inventory taskcard cites an existing or
+    freshly-run reports/sprint/workflow-harden-{date}/ bundle rather than re-deriving
+    S-115's own 8-dimension probe results"
   human_authority_boundaries:
-  - "Any decision to widen scope beyond format-detection/header-probing content claims"
-  - "Approving locale fan-out as part of this mission versus a separate session"
+  - "Merging any PR against Aspose/aspose.org-workflows (repo-wide norm; this mission
+    may propose/branch but never merge)"
+  - "Providing the org Billing UI usage figures (user opted to pull these directly
+    rather than granting broader token scope, 2026-09-16)"
+  - "Choosing/owning the self-hosted runner machine identity (user confirmed 2026-09-16:
+    this session's own Windows 11 Pro dev machine)"
+  - "Approving Phase B start -- RESOLVED 2026-09-18: user explicitly authorized seeding
+    MT069-PHB-01..08 ahead of Phase A completion, conditioned on personal supervision"
+  - "Giving the go-ahead after each individual Phase B taskcard before the next one
+    starts -- standing, per-taskcard requirement (2026-09-18), not a one-time approval"
+  - "Section-by-section approval model (2026-09-18) -- supersedes the 'single-go
+    continuous execution' assumption for Phase A's own remaining taskcards (TC-03..TC-13),
+    not just Phase B: the user approves a named section (one or more taskcards) before it
+    starts, the agent executes and verifies it, and work does not advance to the next
+    section until the user confirms satisfaction with the executed section's outcome"
+  - "Force-taking-over a locked+open root MISSION_AUTHORITY.yaml incumbent if the root
+    occupant changes before future work in this mission resumes -- escalate, do not
+    auto-force"
+  - "Confirming whether the four auto-commit watcher bots (upstream-monitor.yml,
+    maven-publish-watcher.yml, install-literal-sweep.yml, package-publish-watch.yml)
+    may convert to PR-gated-merge (required for a clean public-repo migration) or must
+    stay closed-loop in the private repo permanently"
   conflicts_found:
-  - "Checked live at mission open (2026-09-11, this session): mission_authority.py list
-    shows the root slot's most recent archived snapshot as
-    MT066-2026-09-09-PACKAGE-INSTALL-RECONCILIATION with mission_locked: true in the root
-    file and 87 taskcards (16 IN_PROGRESS, 22 TODO, only 5 CLOSED) -- genuinely active,
-    unlike prior 'safe to take over' precedents where the incumbent was unlocked or closed."
-  - "Proceeding anyway because: (a) mission_authority.py's own docstring describes the root
-    file as a single mutable *narrative pointer*, not a system-wide execution lock; (b)
-    mission_authority.py list already shows many missions simultaneously [open]
-    (MT028, MT037, MT058, MT059, MT062, MT064, MT066 itself, plus several readme-refresh
-    missions) with no apparent contention from that coexistence; (c) MT066's full state was
-    already durably archived to
-    reports/plan_state/MT066-2026-09-09-PACKAGE-INSTALL-RECONCILIATION/mission_authority.yaml
-    at ITS OWN open time, so overwriting the root pointer does not erase or interrupt
-    MT066's taskcard store, session ledger, or any other session's ability to continue
-    working it; (d) this mission's paths (data/products.json's imaging rows,
-    knowledge/imaging/net/, content/*/imaging/net/) are disjoint from MT066's
-    (data/package_registry.json, install-instruction content sweep, aspose.org-workflows
-    deploy-trigger fix) -- no file-overlap risk identified. Full reasoning recorded in the
-    governing plan file's 'Mission-authority root-slot note' section."
-  - "Mission-ID collision avoided using the sanctioned allocator (ST-157,
-    mission_authority.py allocate --track main --slug IMAGING-NET-LAUNCH) -- returned
-    MT068-2026-09-11-IMAGING-NET-LAUNCH."
-  mission_locked: false
+  - "Checked live at mission-open (2026-09-16, this session): MT066-2026-09-09-PACKAGE-
+    INSTALL-RECONCILIATION is open, mission_locked: true, with taskcard
+    PKGINSTALL-DEPLOY-TRIGGER-3LAYER-FIX at status READY (queued, targeting a PR against
+    Aspose/aspose.org-workflows's deploy-trigger logic). This mission's own targets in
+    that repo (the 5 SEO templates, plus any future canary workflows) are a different
+    subsystem of the SAME repo -- treated as a same-repo, cross-subsystem risk, mitigated
+    by declaring any Aspose/aspose.org-workflows PR merge a standing human-authority
+    boundary (matching MT062's identical prior carve-out) and by re-checking
+    PKGINSTALL-DEPLOY-TRIGGER-3LAYER-FIX's status before any Phase-B canary PR opens.
+    No file-path overlap identified in this repo's own .github/workflows/ or
+    scripts/ci/** -- MT066's paths there are data/package_registry.json and content
+    install-instruction remediation, disjoint from this mission's targets."
+  - "Root MISSION_AUTHORITY.yaml occupant at allocation time: MT068-2026-09-11-IMAGING-
+    NET-LAUNCH, mission_locked: false -- activate --mission-id MT069-... succeeded
+    without --force, confirmed via mission_authority.py activate output."
+  - "Mission-ID allocated via the sanctioned allocator (mission_authority.py allocate
+    --track main --slug GHA-MINUTES-REARCHITECTURE) -- returned
+    MT069-2026-09-16-GHA-MINUTES-REARCHITECTURE."
+  - "2026-09-18: user directly authorized seeding MT069-PHB-01..08 (Phase B) ahead of
+    Phase A's TC-03..TC-13 completing, after reviewing real org Actions-usage-metrics
+    data (top 3 workflows = 75.7% of 1,494 total minutes this billing period) via this
+    session's plan-mode review flow. Condition attached: personal supervision, stop gate
+    after every PHB-* taskcard. Seeded with real Phase A prerequisites as dependencies
+    (e.g. PHB-01 depends on TC-10) so none are actually startable until those close --
+    seeding records authorized intent, it does not bypass Phase A's own sequencing."
+  mission_locked: true
