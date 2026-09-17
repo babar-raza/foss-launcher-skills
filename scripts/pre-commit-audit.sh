@@ -335,7 +335,9 @@ if [ ${#all_staged_md[@]} -eq 0 ]; then
 elif [ -n "$_HOOK_PYTHON" ]; then
     _lfc_tmpfile=$(mktemp /tmp/locale-fm-files-XXXXXX.txt 2>/dev/null || mktemp)
     printf '%s\n' "${all_staged_md[@]}" > "$_lfc_tmpfile"
-    "$_HOOK_PYTHON" scripts/ci/checks/check_locale_frontmatter_contamination.py --files-from "$_lfc_tmpfile"
+    "$_HOOK_PYTHON" scripts/ci/checks/check_locale_frontmatter_contamination.py \
+        --append-log reports/audit/locale-frontmatter-contamination-log.jsonl \
+        --files-from "$_lfc_tmpfile"
     status=$?
     rm -f "$_lfc_tmpfile"
     if [ $status -ne 0 ]; then

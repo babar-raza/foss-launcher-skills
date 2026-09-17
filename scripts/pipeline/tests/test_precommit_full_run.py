@@ -35,8 +35,13 @@ def test_clean_run_passes_every_applicable_step(full_run_fixture):
     assert "FAIL" not in result.stdout, result.stdout
     summary_start = result.stdout.index("=== Pre-commit Summary ===")
     summary = result.stdout[summary_start:]
-    assert "Step 34 stale file regression" in summary
-    assert "Step 38 subprocess encoding parity" in summary
+    # Asserted by step NAME, not ordinal number -- the ordinal shifts by one
+    # every time a new step is inserted earlier in the script (found live,
+    # 2026-09-17 HOOK-01: adding Step 5b pushed every later step's printed
+    # number up by one and silently broke this exact assertion until this
+    # test was actually re-run against the real script).
+    assert "stale file regression" in summary
+    assert "subprocess encoding parity" in summary
     # A genuinely complete run reaches deep into the step list -- proves
     # the whole chain executed, not just the first few steps.
     assert summary.count("PASS") + summary.count("SKIP") >= 30
@@ -68,6 +73,66 @@ def test_real_violation_short_circuits_and_blocks(full_run_fixture):
     assert "Step 5" not in summary
     assert "Step 34" not in summary
     assert "Step 38" not in summary
+
+
+def test_gate5b_locale_alias_leak_blocks_the_real_commit(full_run_fixture):
+    """HOOK-01 (ASPOSE-BLOG-DEPLOY-ALIAS-RECURRENCE-001, 2026-09-17): Step 5b
+    (locale frontmatter contamination) must fire under a REAL run of the
+    real, unmodified script -- not just the standalone check_locale_
+    frontmatter_contamination.py script in isolation (already covered by
+    scripts/ci/tests/test_check_locale_frontmatter_contamination.py) and
+    not just a hand-simulated snippet. This is the one gap those two could
+    not close: proof against the actual hook mechanism a real `git commit`
+    would invoke, including Step 5's English-only filter correctly SKIPping
+    (this fixture is a non-English locale file) rather than masking Step 5b.
+    """
+    fixture = full_run_fixture
+    fixture.reset()
+    fixture.stage_file(
+        "content/kb.aspose.org/de/pdf/cpp/sample-page.md",
+        "---\ntitle: Test\naliases: [/old-slug/]\n---\n\nBody.\n",
+        force=True,
+    )
+
+    result = fixture.run_precommit()
+
+    assert result.returncode == 1, result.stdout + result.stderr
+    assert "BLOCKED: Locale frontmatter contamination" in result.stdout
+    assert "aliases" in result.stdout
+    summary_start = result.stdout.index("=== Pre-commit Summary ===")
+    summary = result.stdout[summary_start:]
+    assert "locale frontmatter contamination" in summary
+    assert "FAIL" in summary
+    # Confirms Step 5's own English-only filter correctly SKIPped (this
+    # fixture is a "de" file, not English) rather than accidentally
+    # catching -- and therefore masking -- this defect itself.
+    assert "API accuracy audit" in summary
+
+
+def test_gate5b_allows_commit_once_leaked_alias_is_removed(full_run_fixture):
+    """Companion to the block test above: the same fixture, fixed the same
+    way the real incident was fixed (strip the aliases: key from the
+    non-English copy), must pass Step 5b and reach the end of the script
+    cleanly -- proving this is a real, working gate, not a permanently
+    blocking one."""
+    fixture = full_run_fixture
+    fixture.reset()
+    fixture.stage_file(
+        "content/kb.aspose.org/de/pdf/cpp/sample-page.md",
+        "---\ntitle: Test\n---\n\nBody.\n",
+        force=True,
+    )
+
+    result = fixture.run_precommit()
+
+    assert result.returncode == 0, result.stdout + result.stderr
+    assert "BLOCKED: Locale frontmatter contamination" not in result.stdout
+    summary_start = result.stdout.index("=== Pre-commit Summary ===")
+    summary = result.stdout[summary_start:]
+    assert "locale frontmatter contamination" in summary
+    # Asserted by name, not ordinal number -- see the same note on
+    # test_clean_run_passes_every_applicable_step above.
+    assert "stale file regression" in summary
 
 
 def test_wrong_author_identity_blocks_at_the_identity_step(full_run_fixture):

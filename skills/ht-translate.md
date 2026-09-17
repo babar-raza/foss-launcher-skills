@@ -57,6 +57,27 @@ using the external `hugo-translator` tool's **governed zero-defect campaign path
 Do NOT fall back to any other translation mechanism. Do NOT pass `--force-accept`, `--validation-mode`,
 or any bypass environment variable.
 
+## Frontmatter Locale-Safety Rule (2026-09-17, ASPOSE-BLOG-DEPLOY-ALIAS-RECURRENCE-001)
+
+**Never copy `aliases:` or `url:` from the English source into a non-default-locale
+output file.** Both are `mode: ignore` in every `config/site_profiles/*.yaml`
+(hugo-translator repo) for exactly this reason: Hugo collapses same-value,
+unprefixed `aliases:`/`url:` values across every locale copy that carries them onto
+one output path ("Duplicate target paths"), breaking the site build. This exact
+defect broke blog.aspose.org's deploy workflow 3 days running (2026-09-15/16/17) —
+see `TC-ALIAS-005` (2026-07-27, the first cleanup of this pattern) and this
+incident's own fix (aspose.org commit `1effb57e65f4e1d012ab89144d0cefd708071572`;
+hugo-translator commit `6238cf0776869268285e776a9c594302fef56e39`).
+
+You do not need to remember to strip these fields by hand — `reconstruct_frontmatter()`
+already drops every `mode: ignore` field automatically, and this repo's own
+`self._zero_defect` write-gate policy (the only policy this skill's governed path
+uses) generically promotes **every** `warn`-tier gate — including Gate 45
+(`_gate_ignore_mode_field_leak`, added 2026-09-17) — to a hard block. A leaked
+`aliases:`/`url:` value is rejected at write time, not silently accepted. On the
+aspose.org side, `scripts/ci/checks/check_locale_frontmatter_contamination.py` is a
+second, independent line of defense (pre-commit + CI) for exactly this pattern.
+
 ## Execution Steps
 
 ### Step 1 — Validate arguments
