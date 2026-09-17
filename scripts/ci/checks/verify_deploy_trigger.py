@@ -55,7 +55,28 @@ CLASSIFICATION (see classify_sha()):
                                coverage of the SHA, and it is older than
                                --drop-threshold-days -- actionable.
   PENDING                  -- too recent to judge yet (within the grace period,
-                               or no scan has run since).
+                               or no scan has run since; also covers a SHA
+                               that predates ALL tracked scan history -- see
+                               ERROR HANDLING below for why that message was
+                               fixed, not the verdict).
+
+ERROR HANDLING (TC-PKG-04-L3-FIX, 2026-09-17 -- closes the gap found live by
+independent review, taskcard TC-PKG-04-L3-REVIEW): fetch_file_at_ref() and
+list_path_commits() distinguish a definitive "no data" response from every
+other `gh api` failure. "No data" is narrowly: a real HTTP 404 from the
+contents endpoint (the file/ref genuinely doesn't exist), or -- for the
+commits-listing endpoint -- simply running out of pages (GitHub returns 200
+with an empty list past the end, never a 404, so ANY non-zero exit there is a
+real failure, not "no data"). Every other outcome -- rate-limiting (HTTP 403),
+auth failure, network error, timeout, a 5xx, or the `gh` binary itself being
+missing (FileNotFoundError) -- raises DeployTriggerAPIError instead of
+silently returning "no data". verify_sha() lets that exception propagate;
+main() catches it and exits 3, a distinct code from both a clean verdict (0)
+and the pre-existing bad-SHA lookup error (2). Before this fix, every one of
+those failure modes was silently folded into the same signal as a genuine
+404, so a broken poll produced verdict=PENDING/exit 0 -- indistinguishable
+from CONFIRMED_DEPLOYED, defeating the tool's purpose in exactly the failure
+mode most correlated with a real incident.
 
 Data access: `gh api` against Aspose/aspose.org-workflows (read-only; this repo
 has confirmed `gh auth status` access with 'repo' scope). Ancestry checks
@@ -69,7 +90,10 @@ CLI:
 Exit codes:
     0  CONFIRMED_DEPLOYED, RECOVERED_VIA_LATER_CYCLE, or PENDING
     1  SILENTLY_DROPPED
-    2  configuration/lookup error (bad SHA, gh unavailable, etc.)
+    2  configuration/lookup error (bad SHA -- does not exist locally)
+    3  gh api poll failure -- rate-limit, auth, network, timeout, 5xx, or the
+       `gh` binary missing. NEVER the same as PENDING: the poll itself failed
+       and no verdict could be determined (see ERROR HANDLING above).
 """
 
 from __future__ import annotations
@@ -77,6 +101,7 @@ from __future__ import annotations
 import argparse
 import base64
 import json
+import re
 import subprocess
 import sys
 from dataclasses import dataclass, field
@@ -97,6 +122,41 @@ _DEFAULT_REPO_ROOT = Path(__file__).resolve().parents[3]
 REPO_ROOT = _DEFAULT_REPO_ROOT
 
 CommandRunner = Callable[..., "subprocess.CompletedProcess[str]"]
+
+# Exit codes (see module docstring "Exit codes" for the full table)
+EXIT_OK = 0
+EXIT_DROPPED = 1
+EXIT_LOOKUP_ERROR = 2         # bad SHA -- does not exist locally (pre-existing)
+EXIT_API_POLL_FAILURE = 3     # gh api poll failed non-404 (TC-PKG-04-L3-FIX)
+
+
+class DeployTriggerAPIError(Exception):
+    """A `gh api` call against the sibling repo failed in a way that is NOT a
+    definitive "no data for this revision" signal.
+
+    Raised by fetch_file_at_ref() / list_path_commits() for rate-limiting,
+    auth failure, network error, timeout, a 5xx, or the `gh` binary itself
+    being unavailable (FileNotFoundError). Deliberately distinct from
+    returning None ("no data" -- a real HTTP 404, or exhausted pagination):
+    collapsing both into the same signal let a poll failure masquerade as a
+    clean PENDING verdict (exit 0 -- indistinguishable from
+    CONFIRMED_DEPLOYED). See TC-PKG-04-L3-REVIEW for the original finding.
+    """
+
+
+_HTTP_STATUS_RE = re.compile(r"HTTP (\d{3})")
+
+
+def _gh_http_status(result: "subprocess.CompletedProcess[str]") -> "int | None":
+    """Best-effort extraction of the HTTP status `gh api` reported for a
+    failed call, from its stderr. Confirmed live (2026-09-17) that `gh api`
+    formats a failed call's stderr as ``gh: <message> (HTTP <status>)`` --
+    e.g. ``gh: Not Found (HTTP 404)`` -- regardless of which endpoint or
+    error type. Returns None when no HTTP status is present at all (e.g. `gh`
+    could not reach the network) -- that case must NEVER be treated as a 404.
+    """
+    match = _HTTP_STATUS_RE.search(result.stderr or "")
+    return int(match.group(1)) if match else None
 
 
 def configure(*, repo_root: "Path | str | None" = None) -> None:
@@ -165,19 +225,36 @@ def fetch_file_at_ref(
 ) -> "dict[str, Any] | None":
     """Fetch and JSON-parse a file from `repo` at `ref` via `gh api`.
 
-    Returns None if the file doesn't exist at that ref (404) or the response
-    isn't valid JSON -- callers treat that as "no data for this revision",
-    never as a crash.
+    Returns None ONLY for a definitive "no data" signal: the file/ref genuinely
+    doesn't exist (a real HTTP 404), or the response parsed successfully but
+    was empty/undecodable -- callers treat that as "no data for this
+    revision", never as a crash.
+
+    Raises DeployTriggerAPIError for every OTHER failure -- rate-limiting,
+    auth, network error, timeout, a 5xx, or `gh` itself missing
+    (FileNotFoundError). These must never be silently folded into "no data"
+    (TC-PKG-04-L3-FIX; see DeployTriggerAPIError).
     """
     try:
         result = _run_gh(
             ["api", f"repos/{repo}/contents/{path}?ref={ref}", "--jq", ".content"],
             runner=runner,
         )
-    except (subprocess.TimeoutExpired, FileNotFoundError):
-        return None
+    except subprocess.TimeoutExpired as exc:
+        raise DeployTriggerAPIError(
+            f"gh api timed out fetching {path}@{ref[:12]} from {repo}: {exc}"
+        ) from exc
+    except FileNotFoundError as exc:
+        raise DeployTriggerAPIError(
+            f"gh CLI not found while fetching {path}@{ref[:12]} from {repo}: {exc}"
+        ) from exc
     if result.returncode != 0:
-        return None
+        if _gh_http_status(result) == 404:
+            return None
+        raise DeployTriggerAPIError(
+            f"gh api failed fetching {path}@{ref[:12]} from {repo} "
+            f"(exit {result.returncode}): {(result.stderr or '').strip()}"
+        )
     raw = result.stdout.strip()
     if not raw:
         return None
@@ -193,7 +270,15 @@ def list_path_commits(
     runner: CommandRunner = subprocess.run,
 ) -> "list[dict[str, Any]]":
     """Return every commit that touched `path` in `repo`, NEWEST FIRST (matches
-    the GitHub commits API's own order), each as {"sha", "date", "message"}."""
+    the GitHub commits API's own order), each as {"sha", "date", "message"}.
+
+    Raises DeployTriggerAPIError on ANY `gh api` failure (rate-limit, auth,
+    network, timeout, 5xx, or `gh` missing). Unlike fetch_file_at_ref(), this
+    endpoint has no legitimate 404 case for a real path: GitHub returns 200
+    with an empty list once pagination is exhausted, never a 404 -- so a
+    non-zero exit here is always a genuine poll failure, never "no data"
+    (TC-PKG-04-L3-FIX; see DeployTriggerAPIError).
+    """
     commits: "list[dict[str, Any]]" = []
     page = 1
     while page <= max_pages:
@@ -202,14 +287,28 @@ def list_path_commits(
                 ["api", f"repos/{repo}/commits?path={path}&per_page={per_page}&page={page}"],
                 runner=runner,
             )
-        except (subprocess.TimeoutExpired, FileNotFoundError):
-            break
-        if result.returncode != 0 or not result.stdout.strip():
+        except subprocess.TimeoutExpired as exc:
+            raise DeployTriggerAPIError(
+                f"gh api timed out listing commits for {path} in {repo} (page {page}): {exc}"
+            ) from exc
+        except FileNotFoundError as exc:
+            raise DeployTriggerAPIError(
+                f"gh CLI not found while listing commits for {path} in {repo}: {exc}"
+            ) from exc
+        if result.returncode != 0:
+            raise DeployTriggerAPIError(
+                f"gh api failed listing commits for {path} in {repo} "
+                f"(page {page}, exit {result.returncode}): {(result.stderr or '').strip()}"
+            )
+        if not result.stdout.strip():
             break
         try:
             batch = json.loads(result.stdout)
-        except json.JSONDecodeError:
-            break
+        except json.JSONDecodeError as exc:
+            raise DeployTriggerAPIError(
+                f"gh api returned unparseable JSON listing commits for {path} in {repo} "
+                f"(page {page}): {exc}"
+            ) from exc
         if not batch:
             break
         for c in batch:
@@ -380,6 +479,23 @@ def classify_sha(
         )
 
     if native_cycle is None:
+        # Secondary finding (TC-PKG-04-L3-REVIEW): a SHA that predates the
+        # EARLIEST tracked cycle's own baseline also falls through to here --
+        # not because it's too recent, but because tracked history doesn't
+        # reach back far enough to cover it. Verdict/exit code are unchanged
+        # (still PENDING/0, the safe/non-blocking side) -- only the message
+        # is corrected so it doesn't claim the opposite of what's true.
+        if cycles:
+            earliest = cycles[0]
+            if earliest.previous_sha and ancestor_check(sha, earliest.previous_sha):
+                return VerificationResult(
+                    sha, VERDICT_PENDING, None, None,
+                    f"This SHA predates the sibling repo's EARLIEST tracked scan cycle "
+                    f"({earliest.scan_id}, baseline previous_sha="
+                    f"{earliest.previous_sha[:12]}...) -- tracked scan history does not "
+                    "reach back far enough to cover it. This is an out-of-range gap, not "
+                    "genuine recency.",
+                )
         return VerificationResult(
             sha, VERDICT_PENDING, None, None,
             "No scan cycle's diff range covers this SHA yet -- either too recent, or newer "
@@ -531,7 +647,12 @@ def file_issue(
 # CLI
 # ---------------------------------------------------------------------------
 
-def main(argv: "list[str] | None" = None) -> int:
+def main(argv: "list[str] | None" = None, *, runner: CommandRunner = subprocess.run) -> int:
+    """`runner` is a keyword-only testing seam (mirrors every other function in
+    this module) -- never exposed as a CLI flag. It lets tests exercise main()'s
+    full argument-parsing and exit-code wiring (including the
+    DeployTriggerAPIError branch below) with an injected fake instead of
+    monkeypatching module internals (AGENTS.md 16 forbids Tier-1/2 patches)."""
     parser = argparse.ArgumentParser(
         prog="verify_deploy_trigger",
         description="Confirm whether a data/package_registry.json auto-commit's SHA "
@@ -547,21 +668,34 @@ def main(argv: "list[str] | None" = None) -> int:
                          help="Repo to file the issue in (THIS repo, never the sibling)")
     args = parser.parse_args(argv)
 
-    if not sha_exists_locally(args.sha):
+    if not sha_exists_locally(args.sha, runner=runner):
         print(f"ERROR: {args.sha} does not exist in the local repo -- cannot verify.", file=sys.stderr)
-        return 2
+        return EXIT_LOOKUP_ERROR
 
-    result = verify_sha(
-        args.sha, workflows_repo=args.workflows_repo,
-        drop_threshold_days=args.drop_threshold_days,
-    )
+    try:
+        result = verify_sha(
+            args.sha, workflows_repo=args.workflows_repo,
+            drop_threshold_days=args.drop_threshold_days,
+            runner=runner,
+        )
+    except DeployTriggerAPIError as exc:
+        # TC-PKG-04-L3-FIX: a poll failure is NEVER the same signal as PENDING.
+        print(f"ERROR: gh api poll failed -- cannot classify {args.sha}: {exc}", file=sys.stderr)
+        print(
+            "This is NOT a PENDING verdict: the poll itself failed (rate-limit, auth, "
+            "network, timeout, 5xx, or gh missing) and no verdict could be determined. "
+            "Retry once the underlying gh api problem is resolved.",
+            file=sys.stderr,
+        )
+        return EXIT_API_POLL_FAILURE
+
     print(json.dumps(result.to_dict(), indent=2))
 
     if result.verdict == VERDICT_DROPPED and args.file_issue_if_dropped:
-        outcome = file_issue(result, repo=args.issue_repo)
+        outcome = file_issue(result, repo=args.issue_repo, runner=runner)
         print(f"Issue: {outcome['action']} (#{outcome['issue_number']})")
 
-    return 1 if result.verdict == VERDICT_DROPPED else 0
+    return EXIT_DROPPED if result.verdict == VERDICT_DROPPED else EXIT_OK
 
 
 if __name__ == "__main__":

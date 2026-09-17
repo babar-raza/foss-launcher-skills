@@ -380,7 +380,312 @@ class TestVerifySha:
                 if f"ref={sha}" in joined:
                     encoded = base64.b64encode(_json.dumps(blob).encode("utf-8")).decode("ascii")
                     return MagicMock(returncode=0, stdout=encoded)
-            return MagicMock(returncode=1, stdout="", stderr="404")
+            # Realistic gh CLI 404 stderr shape (confirmed live 2026-09-17:
+            # `gh: Not Found (HTTP 404)`) -- these intermediate commits (no
+            # fixture blob captured) must classify as genuine "no data", not
+            # a poll failure, so reconstruct_cycles() can skip them as
+            # documented above.
+            return MagicMock(returncode=1, stdout="", stderr="gh: Not Found (HTTP 404)")
 
         result = vdt.verify_sha(SHA_CONFIRMED, runner=fake_runner)
         assert result.verdict == vdt.VERDICT_CONFIRMED
+
+
+# ---------------------------------------------------------------------------
+# TC-PKG-04-L3-FIX (this taskcard): a non-404 `gh api` failure must NEVER be
+# folded into the same "no data" signal as a genuine 404. Fixture stderr text
+# below matches real `gh` CLI output confirmed live on 2026-09-17 (`gh: Not
+# Found (HTTP 404)`, `gh: API rate limit exceeded ... (HTTP 403)`, etc. --
+# `gh`'s own error format is always `gh: <message> (HTTP <status>)`).
+# ---------------------------------------------------------------------------
+
+class TestFetchFileAtRefErrorHandling:
+    def test_genuine_404_still_returns_none(self):
+        """Regression guard: a real 404 must keep returning None (this is the
+        ONE case that legitimately means 'no data for this revision')."""
+        from unittest.mock import MagicMock
+        runner = MagicMock(return_value=MagicMock(
+            returncode=1, stdout="", stderr="gh: Not Found (HTTP 404)",
+        ))
+        result = vdt.fetch_file_at_ref("Aspose/aspose.org-workflows", vdt.MANIFEST_PATH,
+                                        "deadbeef", runner=runner)
+        assert result is None
+
+    def test_rate_limit_403_raises_api_error_not_none(self):
+        """The core defect: a rate-limited poll must be LOUD, never silently
+        'no data'. Distinguishing this is the entire point of the fix."""
+        from unittest.mock import MagicMock
+        runner = MagicMock(return_value=MagicMock(
+            returncode=1, stdout="",
+            stderr="gh: API rate limit exceeded for installation ID 123. (HTTP 403)",
+        ))
+        with pytest.raises(vdt.DeployTriggerAPIError, match="403"):
+            vdt.fetch_file_at_ref("Aspose/aspose.org-workflows", vdt.MANIFEST_PATH,
+                                   "deadbeef", runner=runner)
+
+    def test_auth_failure_401_raises_api_error(self):
+        from unittest.mock import MagicMock
+        runner = MagicMock(return_value=MagicMock(
+            returncode=1, stdout="", stderr="gh: Bad credentials (HTTP 401)",
+        ))
+        with pytest.raises(vdt.DeployTriggerAPIError):
+            vdt.fetch_file_at_ref("Aspose/aspose.org-workflows", vdt.MANIFEST_PATH,
+                                   "deadbeef", runner=runner)
+
+    def test_server_5xx_raises_api_error(self):
+        from unittest.mock import MagicMock
+        runner = MagicMock(return_value=MagicMock(
+            returncode=1, stdout="", stderr="gh: Internal Server Error (HTTP 500)",
+        ))
+        with pytest.raises(vdt.DeployTriggerAPIError):
+            vdt.fetch_file_at_ref("Aspose/aspose.org-workflows", vdt.MANIFEST_PATH,
+                                   "deadbeef", runner=runner)
+
+    def test_network_failure_with_no_http_status_raises_api_error(self):
+        """No HTTP status at all (couldn't reach the network) must NOT be
+        misread as a 404 just because it's also a failure."""
+        from unittest.mock import MagicMock
+        runner = MagicMock(return_value=MagicMock(
+            returncode=1, stdout="",
+            stderr="gh: could not resolve host: api.github.com",
+        ))
+        with pytest.raises(vdt.DeployTriggerAPIError):
+            vdt.fetch_file_at_ref("Aspose/aspose.org-workflows", vdt.MANIFEST_PATH,
+                                   "deadbeef", runner=runner)
+
+    def test_gh_binary_missing_raises_api_error_not_silently_none(self):
+        """FileNotFoundError (gh not installed) was previously caught and
+        silently turned into None -- must now raise, loudly."""
+        def runner(*args, **kwargs):
+            raise FileNotFoundError("gh")
+        with pytest.raises(vdt.DeployTriggerAPIError):
+            vdt.fetch_file_at_ref("Aspose/aspose.org-workflows", vdt.MANIFEST_PATH,
+                                   "deadbeef", runner=runner)
+
+    def test_timeout_raises_api_error_not_silently_none(self):
+        import subprocess as _subprocess
+
+        def runner(*args, **kwargs):
+            raise _subprocess.TimeoutExpired(cmd="gh", timeout=60)
+        with pytest.raises(vdt.DeployTriggerAPIError):
+            vdt.fetch_file_at_ref("Aspose/aspose.org-workflows", vdt.MANIFEST_PATH,
+                                   "deadbeef", runner=runner)
+
+
+class TestListPathCommitsErrorHandling:
+    def test_rate_limit_raises_instead_of_silently_ending_pagination(self):
+        """Before the fix, ANY non-zero exit here (including a rate limit
+        mid-pagination) was treated identically to 'no more pages' -- silently
+        returning whatever had been collected so far. This endpoint has no
+        legitimate 404 case for a real path, so any failure must be loud."""
+        from unittest.mock import MagicMock
+        runner = MagicMock(return_value=MagicMock(
+            returncode=1, stdout="",
+            stderr="gh: API rate limit exceeded for installation ID 123. (HTTP 403)",
+        ))
+        with pytest.raises(vdt.DeployTriggerAPIError, match="403"):
+            vdt.list_path_commits("Aspose/aspose.org-workflows", vdt.MANIFEST_PATH, runner=runner)
+
+    def test_gh_binary_missing_raises_api_error(self):
+        def runner(*args, **kwargs):
+            raise FileNotFoundError("gh")
+        with pytest.raises(vdt.DeployTriggerAPIError):
+            vdt.list_path_commits("Aspose/aspose.org-workflows", vdt.MANIFEST_PATH, runner=runner)
+
+    def test_unparseable_json_on_success_raises_api_error(self):
+        """A 200 response with garbage JSON is not 'no more pages' either --
+        it's a corrupted/unexpected response, distinct from exhausted
+        pagination (which is a clean 200 with an empty array)."""
+        from unittest.mock import MagicMock
+        runner = MagicMock(return_value=MagicMock(returncode=0, stdout="not json{"))
+        with pytest.raises(vdt.DeployTriggerAPIError):
+            vdt.list_path_commits("Aspose/aspose.org-workflows", vdt.MANIFEST_PATH, runner=runner)
+
+    def test_exhausted_pagination_still_returns_cleanly(self):
+        """Regression guard: a genuinely empty page (200, empty array) is NOT
+        an error -- pagination ending cleanly must keep working."""
+        from unittest.mock import MagicMock
+        runner = MagicMock(return_value=MagicMock(returncode=0, stdout="[]"))
+        result = vdt.list_path_commits("Aspose/aspose.org-workflows", vdt.MANIFEST_PATH, runner=runner)
+        assert result == []
+
+
+class TestVerifyShaPropagatesAPIErrors:
+    def test_verify_sha_propagates_error_from_commit_listing(self):
+        """A failure fetching the commit list itself (the very first `gh api`
+        call verify_sha() makes) must propagate all the way out -- never get
+        swallowed into a PENDING VerificationResult."""
+        from unittest.mock import MagicMock
+
+        def fake_runner(args, **kwargs):
+            if args[0] == "git":
+                import subprocess as _subprocess
+                return _subprocess.run(args, **kwargs)
+            return MagicMock(
+                returncode=1, stdout="",
+                stderr="gh: API rate limit exceeded for installation ID 123. (HTTP 403)",
+            )
+
+        with pytest.raises(vdt.DeployTriggerAPIError):
+            vdt.verify_sha(SHA_CONFIRMED, runner=fake_runner)
+
+    def test_verify_sha_propagates_error_from_mid_poll_blob_fetch(self):
+        """The commit list succeeds, but a blob fetch mid-poll fails non-404 --
+        must still propagate, not silently degrade to PENDING."""
+        import base64
+        import json as _json
+        from unittest.mock import MagicMock
+
+        def fake_runner(args, **kwargs):
+            joined = " ".join(args)
+            if "commits?path=" in joined:
+                return MagicMock(returncode=0, stdout=_json.dumps([
+                    {"sha": c["sha"], "commit": {"author": {"date": c["date"]}, "message": c["message"]}}
+                    for c in REAL_MANIFEST_COMMITS
+                ]))
+            # Every blob fetch fails with a simulated 5xx, including the ones
+            # that have real fixture data -- proves the error isn't masked.
+            return MagicMock(returncode=1, stdout="", stderr="gh: Internal Server Error (HTTP 500)")
+
+        with pytest.raises(vdt.DeployTriggerAPIError, match="500"):
+            vdt.verify_sha(SHA_CONFIRMED, runner=fake_runner)
+
+
+# ---------------------------------------------------------------------------
+# main() CLI wiring -- injected `runner` (a keyword-only testing seam added by
+# TC-PKG-04-L3-FIX, mirroring every other function in this module) instead of
+# monkeypatching module internals (AGENTS.md 16 bans Tier-1/2 patches).
+# ---------------------------------------------------------------------------
+
+class TestMainExitCodes:
+    @staticmethod
+    def _git_passthrough_runner(gh_response):
+        """A runner that answers real `git` invocations for real (needed by
+        sha_exists_locally/commit_date/is_ancestor against THIS repo's actual
+        history) and returns `gh_response` for every `gh` invocation."""
+        import subprocess as _subprocess
+
+        def runner(args, **kwargs):
+            if args[0] == "git":
+                return _subprocess.run(args, **kwargs)
+            return gh_response
+        return runner
+
+    def test_main_exits_distinct_code_on_gh_api_poll_failure(self, capsys):
+        """The exact regression this taskcard exists to prevent: a rate-limited
+        (or otherwise broken) gh api poll must exit loudly and distinctly --
+        never exit 0 (indistinguishable from a clean verdict) and never reuse
+        exit 2 (the pre-existing bad-SHA lookup error)."""
+        from unittest.mock import MagicMock
+        gh_response = MagicMock(
+            returncode=1, stdout="",
+            stderr="gh: API rate limit exceeded for installation ID 123. (HTTP 403)",
+        )
+        runner = self._git_passthrough_runner(gh_response)
+
+        exit_code = vdt.main(["--sha", SHA_CONFIRMED], runner=runner)
+
+        assert exit_code == vdt.EXIT_API_POLL_FAILURE
+        assert exit_code == 3
+        assert exit_code not in (vdt.EXIT_OK, vdt.EXIT_LOOKUP_ERROR, vdt.EXIT_DROPPED)
+        captured = capsys.readouterr()
+        assert "poll failed" in captured.err.lower()
+        assert "PENDING" in captured.err  # explicitly disclaims being a PENDING verdict
+        # No JSON verdict must be printed to stdout for a failed poll -- a
+        # caller scripting against stdout must not see anything verdict-shaped.
+        assert captured.out.strip() == ""
+
+    def test_main_bad_sha_still_exits_2_unchanged(self, capsys):
+        """Regression guard: the pre-existing lookup-error path (bad SHA) must
+        keep its own exit code, distinct from the new API-failure code."""
+        exit_code = vdt.main(["--sha", "0" * 40])
+        assert exit_code == vdt.EXIT_LOOKUP_ERROR
+        assert exit_code == 2
+        assert exit_code != vdt.EXIT_API_POLL_FAILURE
+
+    def test_main_confirmed_case_still_exits_0_with_injected_runner(self):
+        """Regression guard: routing `runner` through main() must not disturb
+        the real, previously-verified CONFIRMED_DEPLOYED case."""
+        import base64
+        import json as _json
+        from unittest.mock import MagicMock
+        import subprocess as _subprocess
+
+        def fake_runner(args, **kwargs):
+            if args[0] == "git":
+                return _subprocess.run(args, **kwargs)
+            joined = " ".join(args)
+            if "commits?path=" in joined:
+                return MagicMock(returncode=0, stdout=_json.dumps([
+                    {"sha": c["sha"], "commit": {"author": {"date": c["date"]}, "message": c["message"]}}
+                    for c in REAL_MANIFEST_COMMITS
+                ]))
+            for sha, blob in REAL_MANIFEST_BLOBS.items():
+                if f"ref={sha}" in joined:
+                    encoded = base64.b64encode(_json.dumps(blob).encode("utf-8")).decode("ascii")
+                    return MagicMock(returncode=0, stdout=encoded)
+            return MagicMock(returncode=1, stdout="", stderr="gh: Not Found (HTTP 404)")
+
+        exit_code = vdt.main(["--sha", SHA_CONFIRMED], runner=fake_runner)
+        assert exit_code == vdt.EXIT_OK == 0
+
+
+# ---------------------------------------------------------------------------
+# Secondary finding (TC-PKG-04-L3-REVIEW): a SHA predating ALL tracked scan
+# history was mislabeled with a backwards "too recent" message. Verdict/exit
+# code are unchanged (still PENDING/0, the safe side) -- only the message.
+# ---------------------------------------------------------------------------
+
+class TestClassifyShaPredatesAllHistory:
+    def test_sha_older_than_earliest_cycle_gets_accurate_message(self):
+        earliest = vdt.DeployCycle(
+            scan_id="20260901-000000", content_sha="C1", previous_sha="P0",
+            detected_at="2026-09-01T00:00:00+00:00", final_state="completed",
+            completed_at="2026-09-01T01:00:00+00:00",
+        )
+
+        def fake_ancestor_check(a, b):
+            # OLDSHA predates the earliest cycle's own baseline (P0) --
+            # it's outside all tracked history, not "too recent".
+            return {("OLDSHA", "P0"): True, ("OLDSHA", "C1"): True}.get((a, b), False)
+
+        result = vdt.classify_sha(
+            "OLDSHA", [earliest],
+            ancestor_check=fake_ancestor_check,
+            date_lookup=lambda s: (_ for _ in ()).throw(
+                AssertionError("date_lookup should not be called on this path")
+            ),
+        )
+        assert result.verdict == vdt.VERDICT_PENDING  # unchanged, safe side
+        assert "predates" in result.detail.lower()
+        assert "too recent" not in result.detail.lower()
+        assert "20260901-000000" in result.detail
+
+    def test_genuinely_new_sha_keeps_original_too_recent_message(self):
+        """Regression guard: a SHA that's simply newer than anything scanned
+        yet must keep the original (correct, for THAT case) wording."""
+        earliest = vdt.DeployCycle(
+            scan_id="20260901-000000", content_sha="C1", previous_sha="P0",
+            detected_at="2026-09-01T00:00:00+00:00", final_state="completed",
+            completed_at="2026-09-01T01:00:00+00:00",
+        )
+
+        def fake_ancestor_check(a, b):
+            return False  # NEWSHA is not covered by, nor predates, anything
+
+        result = vdt.classify_sha(
+            "NEWSHA", [earliest],
+            ancestor_check=fake_ancestor_check,
+            date_lookup=lambda s: (_ for _ in ()).throw(
+                AssertionError("date_lookup should not be called on this path")
+            ),
+        )
+        assert result.verdict == vdt.VERDICT_PENDING
+        assert "too recent" in result.detail.lower()
+
+    def test_no_cycles_at_all_keeps_original_message(self):
+        """No tracked history exists yet at all (cycles == []) -- must not
+        crash on cycles[0], and must fall back to the generic message."""
+        result = vdt.classify_sha("ANYSHA", [], ancestor_check=lambda a, b: False)
+        assert result.verdict == vdt.VERDICT_PENDING
+        assert "too recent" in result.detail.lower()
