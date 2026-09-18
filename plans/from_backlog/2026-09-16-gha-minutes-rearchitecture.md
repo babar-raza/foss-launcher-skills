@@ -1508,14 +1508,14 @@ agent-executable now; **H** = needs a human decision/action; **T** = needs time 
 
 | Card | Open item | Type | Priority | Blocks |
 |---|---|---|---|---|
-| HC-01 | Ledger / plan / narrative reconciliation and seeding of HC cards | A | P1 | trustworthy status of every other card |
+| HC-01 | ~~Ledger / plan / narrative reconciliation and seeding of HC cards~~ **DONE 2026-09-18** | A | P1 | — |
 | HC-02 | First controlled re-enable and live proof of the self-hosted cutover (and of TC-14/TC-15/concurrency guards) | H | P0 | every claim that CI "works" after this mission |
 | HC-03 | Runner isolation model (design says container per job; reality is host-direct, Windows drives reachable) | H (decision) + A | P0 | HC-02 |
 | HC-04 | Runner-availability alerting (queue-forever hazard) | A (+H for the token scope) | P0 | HC-02 |
 | HC-05 | Finish `PHB-03`: deploy the collector as a scheduled public job, `--live`, tune caps, fix the by-design-failure false alarm | A | P1 | PHB-08's evidence, recurring regression control |
 | HC-06 | Toolchain/compat verification of the two jobs on the runner host without dispatching them | A | P1 | HC-02 |
 | HC-07 | Dead `GH_TOKEN` secret on the public repo (issue #43) | H | P1 | removes the only failing scheduled probe; restores fallback |
-| HC-08 | Approve the `upstream-monitor.yml` deployed baseline | A | P1 | drift checker going green |
+| HC-08 | ~~Approve the `upstream-monitor.yml` deployed baseline~~ **DONE 2026-09-18** (`c71d3db64b`) | A | P1 | — |
 | HC-09 | Make the drift checker a real gate; approve verb; transient-vs-real lookup; consolidate its test locations | A | P2 | AO-6 |
 | HC-10 | Stale-guard graduation (TC-SG-07/R-04): re-premise, durable criteria, post-fix live evidence | H + T | P1 | flipping the Windows leg / `--wide-findings` |
 | HC-11 | Prepare the first-live-run evidence-capture and rollback protocol (so a re-enable is observed, not just performed) | A | P0 | HC-02 |
@@ -1598,9 +1598,11 @@ Global rules referenced by every card: **GA-1** (allowed), **GF-1…GF-7** (forb
 
 #### H5.3 New hardening cards (19)
 
+Ledger `task_id`s are `MT069-HC-nn-<SLUG>` (seeded 2026-09-18 by HC-01): 01 `LEDGER-PLAN-NARRATIVE-RECONCILIATION`, 02 `FIRST-CONTROLLED-REENABLE-LIVE-PROOF`, 03 `RUNNER-ISOLATION-MODEL`, 04 `RUNNER-AVAILABILITY-ALERTING`, 05 `FINISH-PHB03-TELEMETRY`, 06 `SELFHOSTED-TOOLCHAIN-COMPAT-VERIFICATION`, 07 `DEAD-GH-TOKEN-SECRET`, 08 `UPSTREAM-MONITOR-BASELINE-APPROVAL`, 09 `DRIFT-CHECKER-REAL-GATE`, 10 `STALE-GUARD-GRADUATION-TC-SG-07`, 11 `FIRST-LIVE-RUN-EVIDENCE-PROTOCOL`, 12 `LLMS-STALE-CHECK-NON-VACUOUS`, 13 `LAUNCH-DASHBOARD-REDESIGN-OR-RETIRE`, 14 `FIRST-SCHEDULED-RUN-OBSERVATION`, 15 `STRUCTURAL-FIXES-GO-NO-GO`, 16 `FLEET-SNAPSHOT-DROPPED-FIELDS`, 17 `ROUTE-UPSTREAM-DRIFTED-PRODUCTS`, 18 `RUNNER-GUIDE-FRESH-MACHINE-DECOMMISSION`, 19 `DOSSIER-ROOT-CAUSE-REPRODUCTION-REVIEW`. The plan's short `HC-nn` names are used everywhere else.
+
 ##### MT069-HC-01 — Reconcile ledger, plan and mission narrative; seed the HC cards
 - **Source audit finding:** AF-15. **Why it matters:** status is only useful if the three records agree; today `PHB-03` reads `TODO` while its code is committed, and the mission narrative still says Phase A closeout is "in progress".
-- **Current status:** partially_done (the plan's Status journal was annotated in this hardening run; ledger, narrative and master-plan row were not touched). **Priority:** P1. **Lane owner:** L-GOV.
+- **Current status:** completed_verified — **DONE 2026-09-18 (loop iteration 2).** Evidence: 19 cards seeded (`taskcard_cli.py seed`, all `seeded`, none skipped); `PHB-03` advanced `TODO → IN_PROGRESS` citing `8aa41839da` (deliberately not `IMPLEMENTED`); mission narrative status block rewritten with the superseded text quoted, its two stale bullets annotated; `plans/master-plan.md` row ("IN PROGRESS") checked and correct; `check_plan_taskcard_completeness.py` exit 0. **Priority:** P1. **Lane owner:** L-GOV.
 - **Required work:** (1) seed HC-01…HC-19 into `taskcards.jsonl` via `taskcard_cli.py seed --from-json` with a batch file shaped like the existing `_taskcard_seed_batch*.json`; (2) advance `PHB-03` `TODO → IN_PROGRESS` citing `8aa41839da` (not `IMPLEMENTED` until HC-05 closes); (3) fix `plans/missions/MT069-…md` line 4 status and add a pointer to §H; (4) leave the `plans/master-plan.md` row unless its wording is wrong (it reads "IN PROGRESS", which is correct); (5) run `check_plan_taskcard_completeness.py`.
 - **Required verification:** `taskcard_cli.py latest` lists the 19 new IDs and `PHB-03 IN_PROGRESS`; completeness checker exit 0, or the exact reason documented; narrative diff limited to status/pointer lines.
 - **Required evidence:** CLI output (E-LOCAL), commit SHA(s) of the narrative change (E-COMMIT), updated `EVIDENCE_BUNDLE.md` index.
@@ -1677,7 +1679,7 @@ Global rules referenced by every card: **GA-1** (allowed), **GF-1…GF-7** (forb
 
 ##### MT069-HC-08 — Approve the `upstream-monitor.yml` deployed baseline
 - **Source audit finding:** AF-08. **Why it matters:** the drift checker reports `DEPLOYED_UNAPPROVED` because the deployed copy no longer matches the baseline seeded 2026-09-17T18:30Z (`87fd14f9…`) — the consequence of my documentation-only redeploy (`4ab9d5c3`). The checker cannot go green until someone approves the new hash, and it has no approve verb.
-- **Current status:** not_attempted. **Priority:** P1. **Lane owner:** L-CI.
+- **Current status:** completed_verified — **DONE 2026-09-18 (loop iteration 1), commit `c71d3db64b`.** Evidence: the prior baseline `87fd14f9…` equals the sha256 of the deployed file's parent blob (workflows-repo `6e6085f`), so the only delta is `4ab9d5c3` (`#` comments, a PR-body message string, one heredoc message line — no logic); baseline set to the checker's own full hash `ca31bef32dd8209e…`; `check_workflow_drift.py --no-seed` → "All 15 workflow(s) in sync". Ledger `IMPLEMENTED`. **Priority:** P1. **Lane owner:** L-CI.
 - **Required work:** confirm local == deployed (`ca31bef32dd8` both), and that the change since the baseline is exactly `4ab9d5c3` — comments plus two human-readable message strings (a PR-body note and an issue-body line), no logic; then set `approved_baseline_sha256` for `upstream-monitor.yml` in `data/workflow_deploy_baselines.json` to the deployed hash (full 64-hex from `check_workflow_drift()`; never the short form) via `git_plumb_commit.py`.
 - **Required verification:** diff review of `4ab9d5c3`; checker output shows `upstream-monitor.yml` `IN_SYNC`.
 - **Required evidence:** the diff, checker output, commit SHA.

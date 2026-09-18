@@ -1,10 +1,16 @@
 ## Mission: MT069-2026-09-16-GHA-MINUTES-REARCHITECTURE
 > Investigation/plan file: `C:/Users/prora/.claude/plans/mission-audit-re-architect-swift-dongarra.md`
 > Governing plan: `plans/from_backlog/2026-09-16-gha-minutes-rearchitecture.md`
-> Status (updated 2026-09-17): **OPEN, PHASE A COMPLETE (TC-12 closeout in progress)**.
-> `TC-01` through `TC-11`, `TC-13` through `TC-15` = `IMPLEMENTED`. Phase B (`PHB-01..08`)
-> seeded and authorized but not started — stop-gate per taskcard, per the user's standing
-> supervision requirement.
+> Status (updated 2026-09-18): **OPEN. PHASE A COMPLETE; PHASE B PARTIALLY EXECUTED.**
+> Authoritative current state = the governing plan's "Plan File Hardening" section
+> (H1-H14): graded statuses, the 19 hardening cards `HC-01..HC-19` (ledger ids
+> `MT069-HC-nn-<SLUG>`), gates, evidence contract, closeout criteria, true blockers, and
+> the execution loop. Ledger snapshot: `TC-01..TC-15` `IMPLEMENTED` (TC-12 closed
+> 2026-09-18); `PHB-01/02/04/06/07` `IMPLEMENTED`, `PHB-05` `IN_PROGRESS`, `PHB-03`
+> `IN_PROGRESS` (was `TODO`; code committed, not wired or proven), `PHB-08` `TODO`.
+> **Not yet claimable:** any cost saving, or that a self-hosted job has run — both need
+> `HC-02`. Superseded 2026-09-17 status (kept for the record): *"OPEN, PHASE A COMPLETE
+> (TC-12 closeout in progress); Phase B seeded and authorized but not started."*
 > Mission contract: root `MISSION_AUTHORITY.yaml` was bound to this mission 2026-09-16
 > (override token `20260916-162212-MISSION_AUTHORITY-yaml`, since consumed against commit
 > `68f45c4186`). **The root slot was later taken over by
@@ -117,6 +123,8 @@ with Phase B explicitly gated behind Phase A being complete and independently re
   correct, but as of this closeout are still **uncommitted working-tree edits** — not yet
   durable. Committing them was outside `TC-12`'s original file scope (governance/plan
   files only); this is flagged explicitly rather than silently left implicit.
+  **[RESOLVED 2026-09-18: committed in `d795f669e6`. Committed is not the same as
+  proven — none of these has executed in CI since; see `HC-02`.]**
 
 ### Deliberately out of scope, filed not fixed
 
@@ -125,6 +133,13 @@ with Phase B explicitly gated behind Phase A being complete and independently re
 - Registering or bringing online any self-hosted runner (design-only this mission).
 - Secret rotation of anything found during the threat assessment (recommendation only).
 - Re-enabling any of the 20 currently-disabled workflows (a Phase B decision per workflow).
+
+**[SUPERSEDED 2026-09-18 for the first, third and last bullets: Phase B was authorised and
+executed (9 public templates, two self-hosted runners registered — one wrongly scoped, then
+fixed). The standing rule that no private workflow is enabled without an explicit human
+go-ahead still applies; the user's 2026-09-18 instruction "do everything from HC-01 to
+HC-19" is recorded in the plan's H14 as the go-ahead for `HC-02` only, as that card is
+written.]**
 
 ### Rollout
 
