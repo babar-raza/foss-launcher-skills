@@ -369,6 +369,189 @@ class TestBuildLivenessReport:
 
 
 # ---------------------------------------------------------------------------
+# TC-GOV-02-01: _plan_state_report() — the 4th liveness store, cross-
+# referencing reports/plan_state/*/mission_authority.yaml's _archive_status
+# against its own taskcards.jsonl activity. REQ-GOV-02: an open mission with
+# zero taskcard activity for >=7 days must surface automatically.
+# ---------------------------------------------------------------------------
+
+def _write_mission_archive(
+    tmp_path: Path,
+    mission_id: str,
+    *,
+    archive_status: str = "open",
+    archived_at: "str | None" = None,
+) -> Path:
+    mission_dir = tmp_path / "reports" / "plan_state" / mission_id
+    mission_dir.mkdir(parents=True, exist_ok=True)
+    snapshot = dict(VALID_MISSION)
+    snapshot["mission_id"] = mission_id
+    snapshot["_archive_status"] = archive_status
+    if archived_at is not None:
+        snapshot["_archived_at"] = archived_at
+    archive_path = mission_dir / "mission_authority.yaml"
+    archive_path.write_text(
+        yaml.safe_dump({"mission_authority": snapshot}, sort_keys=False),
+        encoding="utf-8",
+    )
+    return mission_dir
+
+
+def _write_taskcard_row(tmp_path: Path, mission_id: str, task_id: str, recorded_at: str) -> None:
+    mission_dir = tmp_path / "reports" / "plan_state" / mission_id
+    mission_dir.mkdir(parents=True, exist_ok=True)
+    row = {
+        "task_id": task_id,
+        "mission_id": mission_id,
+        "status": "IN_PROGRESS",
+        "recorded_at": recorded_at,
+        "evidence_refs": [],
+        "recorded_by": "test-fixture",
+    }
+    path = mission_dir / "taskcards.jsonl"
+    with path.open("a", encoding="utf-8") as f:
+        f.write(json.dumps(row) + "\n")
+
+
+class TestPlanStateLivenessReport:
+    def test_empty_when_no_plan_state_dir(self, tmp_path):
+        assert mission_authority._plan_state_report(tmp_path) == []
+
+    def test_open_mission_with_recent_activity_not_stale(self, tmp_path):
+        _write_mission_archive(tmp_path, "MT-FRESH", archive_status="open")
+        _write_taskcard_row(tmp_path, "MT-FRESH", "TC-1", _iso(1))  # 1 hour ago
+
+        rows = mission_authority._plan_state_report(tmp_path)
+        assert len(rows) == 1
+        row = rows[0]
+        assert row["mission_id"] == "MT-FRESH"
+        assert row["archive_status"] == "open"
+        assert row["last_activity_source"] == "taskcards"
+        assert row["stale"] is False
+        assert row["age_days_since_last_activity"] < 1
+
+    def test_open_mission_with_old_activity_is_stale(self, tmp_path):
+        _write_mission_archive(tmp_path, "MT-STALE", archive_status="open")
+        _write_taskcard_row(tmp_path, "MT-STALE", "TC-1", _iso(24 * 10))  # 10 days ago
+
+        rows = mission_authority._plan_state_report(tmp_path)
+        row = rows[0]
+        assert row["stale"] is True
+        assert row["age_days_since_last_activity"] >= 7
+
+    def test_open_mission_uses_max_recorded_at_not_first(self, tmp_path):
+        _write_mission_archive(tmp_path, "MT-MULTI", archive_status="open")
+        _write_taskcard_row(tmp_path, "MT-MULTI", "TC-1", _iso(24 * 20))
+        _write_taskcard_row(tmp_path, "MT-MULTI", "TC-2", _iso(1))  # most recent
+
+        rows = mission_authority._plan_state_report(tmp_path)
+        row = rows[0]
+        assert row["stale"] is False  # driven by the most recent row, not the oldest
+
+    def test_closed_mission_never_flagged_stale_even_if_old(self, tmp_path):
+        _write_mission_archive(tmp_path, "MT-CLOSED", archive_status="closed")
+        _write_taskcard_row(tmp_path, "MT-CLOSED", "TC-1", _iso(24 * 400))
+
+        rows = mission_authority._plan_state_report(tmp_path)
+        row = rows[0]
+        assert row["archive_status"] == "closed"
+        assert row["stale"] is False
+
+    def test_open_mission_with_no_taskcards_falls_back_to_archived_at(self, tmp_path):
+        _write_mission_archive(
+            tmp_path, "MT-NEVER-TOUCHED", archive_status="open", archived_at=_iso(24 * 10),
+        )
+        # No taskcards.jsonl written at all for this mission.
+
+        rows = mission_authority._plan_state_report(tmp_path)
+        row = rows[0]
+        assert row["last_activity_source"] == "archived_at"
+        assert row["stale"] is True
+
+    def test_open_mission_with_recent_archived_at_and_no_taskcards_not_stale(self, tmp_path):
+        _write_mission_archive(
+            tmp_path, "MT-JUST-OPENED", archive_status="open", archived_at=_iso(1),
+        )
+
+        rows = mission_authority._plan_state_report(tmp_path)
+        row = rows[0]
+        assert row["last_activity_source"] == "archived_at"
+        assert row["stale"] is False
+
+    def test_open_mission_with_zero_signal_at_all_flagged_stale(self, tmp_path):
+        # No _archived_at, no taskcards.jsonl -- absence of any liveness
+        # signal for an open mission must fail toward "stale", not be
+        # silently skipped.
+        _write_mission_archive(tmp_path, "MT-NO-SIGNAL", archive_status="open")
+
+        rows = mission_authority._plan_state_report(tmp_path)
+        row = rows[0]
+        assert row["last_activity_source"] == "unknown"
+        assert row["last_activity_at"] is None
+        assert row["stale"] is True
+
+    def test_unreadable_archive_reported_not_raised(self, tmp_path):
+        mission_dir = tmp_path / "reports" / "plan_state" / "MT-BROKEN"
+        mission_dir.mkdir(parents=True)
+        (mission_dir / "mission_authority.yaml").write_text("{not: valid: yaml:", encoding="utf-8")
+
+        rows = mission_authority._plan_state_report(tmp_path)
+        assert len(rows) == 1
+        assert "error" in rows[0]
+
+    def test_non_mission_file_directly_under_plan_state_root_skipped(self, tmp_path):
+        plan_state_root = tmp_path / "reports" / "plan_state"
+        plan_state_root.mkdir(parents=True)
+        (plan_state_root / "mission_activation_log.jsonl").write_text("{}\n", encoding="utf-8")
+        _write_mission_archive(tmp_path, "MT-REAL", archive_status="open", archived_at=_iso(1))
+
+        rows = mission_authority._plan_state_report(tmp_path)
+        assert len(rows) == 1
+        assert rows[0]["mission_id"] == "MT-REAL"
+
+    def test_build_liveness_report_aggregates_plan_state_and_stale_open_missions(self, tmp_path):
+        _write_mission_archive(tmp_path, "MT-A-STALE", archive_status="open")
+        _write_taskcard_row(tmp_path, "MT-A-STALE", "TC-1", _iso(24 * 30))
+        _write_mission_archive(tmp_path, "MT-B-FRESH", archive_status="open")
+        _write_taskcard_row(tmp_path, "MT-B-FRESH", "TC-1", _iso(1))
+        _write_mission_archive(tmp_path, "MT-C-CLOSED", archive_status="closed")
+        _write_taskcard_row(tmp_path, "MT-C-CLOSED", "TC-1", _iso(24 * 30))
+
+        report = mission_authority.build_liveness_report(tmp_path)
+        assert len(report["plan_state"]) == 3
+        assert report["stale_open_missions"] == ["MT-A-STALE"]
+
+    def test_cmd_status_json_includes_stale_open_missions_key(self, tmp_path, capsys):
+        _write_mission_archive(tmp_path, "MT-STALE-CLI", archive_status="open")
+        _write_taskcard_row(tmp_path, "MT-STALE-CLI", "TC-1", _iso(24 * 30))
+
+        exit_code = mission_authority.main(["--root", str(tmp_path), "status", "--json"])
+        assert exit_code == 0
+        out = json.loads(capsys.readouterr().out)
+        assert out["stale_open_missions"] == ["MT-STALE-CLI"]
+
+    def test_cmd_status_human_readable_shows_stale_missions(self, tmp_path, capsys):
+        _write_mission_archive(tmp_path, "MT-STALE-HUMAN", archive_status="open")
+        _write_taskcard_row(tmp_path, "MT-STALE-HUMAN", "TC-1", _iso(24 * 30))
+
+        exit_code = mission_authority.main(["--root", str(tmp_path), "status"])
+        assert exit_code == 0
+        out = capsys.readouterr().out
+        assert "Stale open missions" in out
+        assert "MT-STALE-HUMAN" in out
+
+    def test_plan_state_report_never_mutates_taskcards_file(self, tmp_path):
+        _write_mission_archive(tmp_path, "MT-READONLY", archive_status="open")
+        _write_taskcard_row(tmp_path, "MT-READONLY", "TC-1", _iso(1))
+        taskcards_path = tmp_path / "reports" / "plan_state" / "MT-READONLY" / "taskcards.jsonl"
+        before = taskcards_path.read_text(encoding="utf-8")
+
+        mission_authority._plan_state_report(tmp_path)
+
+        assert taskcards_path.read_text(encoding="utf-8") == before
+
+
+# ---------------------------------------------------------------------------
 # ST-157: archive_mission() collision guard
 # ---------------------------------------------------------------------------
 

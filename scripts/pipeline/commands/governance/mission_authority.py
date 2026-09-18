@@ -56,6 +56,7 @@ if _LIB_DIR not in sys.path:
     sys.path.insert(0, _LIB_DIR)
 from advisory_lock import _pid_alive  # noqa: E402
 from mission_id_ledger import MissionIdLedger  # noqa: E402
+from taskcard_store import TaskcardStore  # noqa: E402
 
 # Matches the numeric MT0NN track only (ST-157 fix scope) -- e.g.
 # "MT018-2026-08-01-PACKAGE-IDENTITY-COVERAGE" -> number 18. Free-text slug
@@ -358,8 +359,116 @@ def _lock_report(root: Path) -> List[Dict[str, Any]]:
     return out
 
 
+_STALE_MISSION_THRESHOLD_DAYS = 7
+
+
+def _parse_iso_timestamp(value: Optional[str]) -> Optional[datetime.datetime]:
+    """Parse an ISO-8601 timestamp in this repo's `...Z` idiom -- the exact
+    format every `recorded_at`/`_archived_at` field in this codebase uses
+    (see taskcard_store.py's `_now_iso()` / taskcard_cli.py's `_parse_iso()`,
+    which this mirrors). Returns None for missing/unparseable input rather
+    than raising -- this is a read-only liveness report, never a hard gate
+    (RC1/RC2 convention already followed by the other 3 stores)."""
+    if not value:
+        return None
+    try:
+        dt = datetime.datetime.fromisoformat(value.replace("Z", "+00:00"))
+    except (ValueError, TypeError):
+        return None
+    if dt.tzinfo is None:
+        dt = dt.replace(tzinfo=datetime.timezone.utc)
+    return dt
+
+
+def _plan_state_report(root: Path) -> List[Dict[str, Any]]:
+    """Read-only summary of every reports/plan_state/{mission_id}/ mission,
+    cross-referencing its own taskcards.jsonl activity -- the store
+    build_liveness_report() was missing entirely before TC-GOV-02-01: it read
+    session-state/skill-context/locks but never plan_state itself, so an
+    open-but-abandoned mission (MT066 and >=9 others found live at plan-time,
+    per REQ-GOV-02) produced no liveness signal at all. Mirrors cmd_list()'s
+    own mission-directory walk rather than introducing a second one.
+
+    For each archived mission directory (any `_archive_status`, not just
+    "open" -- same as cmd_list()), reports:
+      - mission_id: from the archived snapshot, falling back to the
+        directory name (matches cmd_list()'s own fallback)
+      - archive_status: this mission's `_archive_status` field, or "unknown"
+        if absent (matches cmd_list()'s own default)
+      - last_activity_at: max(recorded_at) across every taskcards.jsonl row
+        for this mission (via TaskcardStore(...).read_history() -- read-only,
+        never touches the write path or CAS guards), or, if the mission has
+        never had a single taskcard row, this archive's own `_archived_at`
+        timestamp as a fallback anchor -- a mission opened and then never
+        touched at all must not silently produce "no signal" instead of
+        "stale".
+      - last_activity_source: "taskcards" | "archived_at" | "unknown"
+      - age_days_since_last_activity: float days between now and
+        last_activity_at, or None if neither signal is available.
+      - stale: True only for `_archive_status: open` missions whose
+        last_activity_at is more than _STALE_MISSION_THRESHOLD_DAYS days old
+        OR entirely absent -- absence of any liveness signal for an open
+        mission is treated as stale, not silently skipped, so this store
+        fails toward surfacing a possibly-abandoned mission rather than
+        missing it.
+    """
+    plan_state_root = root / "reports" / "plan_state"
+    out: List[Dict[str, Any]] = []
+    if not plan_state_root.is_dir():
+        return out
+    now = datetime.datetime.now(datetime.timezone.utc)
+    for mission_dir in sorted(plan_state_root.iterdir()):
+        archive_path = mission_dir / "mission_authority.yaml"
+        if not archive_path.is_file():
+            continue  # not a mission directory (e.g. mission_activation_log.jsonl)
+        try:
+            data = yaml.safe_load(archive_path.read_text(encoding="utf-8"))
+            ma = data["mission_authority"]
+        except Exception as exc:  # noqa: BLE001
+            out.append({"mission_id": mission_dir.name, "error": str(exc)})
+            continue
+
+        mission_id = ma.get("mission_id", mission_dir.name)
+        archive_status = ma.get("_archive_status", "unknown")
+
+        history = TaskcardStore(mission_id, plan_state_dir=mission_dir).read_history()
+        recorded_ats = [
+            dt for dt in (_parse_iso_timestamp(row.get("recorded_at")) for row in history)
+            if dt is not None
+        ]
+
+        if recorded_ats:
+            last_activity_at = max(recorded_ats)
+            last_activity_source = "taskcards"
+        else:
+            last_activity_at = _parse_iso_timestamp(ma.get("_archived_at"))
+            last_activity_source = "archived_at" if last_activity_at is not None else "unknown"
+
+        if last_activity_at is not None:
+            age_days: Optional[float] = (now - last_activity_at).total_seconds() / 86400.0
+        else:
+            age_days = None
+
+        stale = archive_status == "open" and (
+            age_days is None or age_days >= _STALE_MISSION_THRESHOLD_DAYS
+        )
+
+        out.append({
+            "mission_id": mission_id,
+            "archive_status": archive_status,
+            "last_activity_at": (
+                last_activity_at.isoformat().replace("+00:00", "Z")
+                if last_activity_at is not None else None
+            ),
+            "last_activity_source": last_activity_source,
+            "age_days_since_last_activity": round(age_days, 2) if age_days is not None else None,
+            "stale": stale,
+        })
+    return out
+
+
 def build_liveness_report(root: Optional[Path] = None) -> Dict[str, Any]:
-    """Aggregate all three liveness stores into one structured, read-only report.
+    """Aggregate all four liveness stores into one structured, read-only report.
 
     This is the automated replacement for the manual, undocumented
     cross-checking a mission handoff previously required (see the
@@ -367,12 +476,22 @@ def build_liveness_report(root: Optional[Path] = None) -> Dict[str, Any]:
     it does not decide anything, it only reports what each store currently
     shows, so an agent/human can make an informed handoff decision instead
     of hand-grepping reports/session-state/ and reports/skill-context/.
+
+    `plan_state` (TC-GOV-02-01) is the 4th store, added to close REQ-GOV-02:
+    every mission with `_archive_status: open` and zero taskcards.jsonl
+    activity for >=7 days now surfaces here as `stale_open_missions`,
+    without a human having to think to check.
     """
     root = root or repo_root()
+    plan_state_rows = _plan_state_report(root)
     return {
         "sessions": _session_ledger_report(root),
         "skill_context": _skill_context_report(root),
         "locks": _lock_report(root),
+        "plan_state": plan_state_rows,
+        "stale_open_missions": [
+            row["mission_id"] for row in plan_state_rows if row.get("stale")
+        ],
     }
 
 
@@ -413,6 +532,15 @@ def cmd_status(args: argparse.Namespace) -> int:
             print(f"  {lk['path']}: UNREADABLE ({lk['error']})")
         else:
             print(f"  {lk['path']}: liveness={lk['liveness']} age={lk['age_hours']}h")
+
+    stale_open_missions = report["stale_open_missions"]
+    print(f"Stale open missions (>= {_STALE_MISSION_THRESHOLD_DAYS}d no taskcard activity): "
+          f"{len(stale_open_missions)}")
+    for row in report["plan_state"]:
+        if row.get("stale"):
+            print(f"  {row['mission_id']}: last_activity={row.get('last_activity_at')} "
+                  f"({row.get('last_activity_source')}), "
+                  f"age={row.get('age_days_since_last_activity')}d")
 
     return 0
 
