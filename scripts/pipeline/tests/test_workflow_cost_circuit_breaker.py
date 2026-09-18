@@ -160,3 +160,78 @@ def test_record_period_is_atomic_write_not_partial(tmp_path):
         assert leftovers == []
     finally:
         breaker.configure(repo_root=None)
+
+
+# --- MT069 HC-05: period scaling, period-length guards, explicit history path ---
+
+def test_caps_scale_to_the_collection_window_the_real_2950_minutes_over_30_days_case():
+    # 2026-09-18: a 30-day collection (2,950 min total) was compared to WEEKLY caps
+    # (1,500 total / 500 per workflow) and "tripped" -- unlike quantities. Scaled
+    # x(30/7), the same numbers are unremarkable.
+    vol = ProposedWorkflowUsageVolume(
+        total_minutes=2950.0,
+        minutes_by_workflow={"content-governance-checks.yml": 1035.0, "skill-governance.yml": 772.0},
+    )
+    assert check_static_caps(vol, _BUDGETS)  # unscaled: the artifact reproduces (3 violations)
+    assert len(check_static_caps(vol, _BUDGETS)) == 3
+    assert check_static_caps(vol, _BUDGETS, period_days=30) == []  # scaled: cap = 6428.6 / 2142.9
+
+
+def test_scaled_violation_message_says_it_was_scaled():
+    vol = ProposedWorkflowUsageVolume(total_minutes=9000.0)
+    (msg,) = check_static_caps(vol, _BUDGETS, period_days=30)
+    assert "scaled x4.28571 for a 30-day window" in msg and "6428.57" in msg
+
+
+def test_a_seven_day_window_needs_no_scaling():
+    vol = ProposedWorkflowUsageVolume(total_minutes=1600.0)
+    assert check_static_caps(vol, _BUDGETS, period_days=7) == check_static_caps(vol, _BUDGETS)
+    assert "scaled" not in check_static_caps(vol, _BUDGETS, period_days=7)[0]
+
+
+def test_cap_period_days_is_configurable():
+    b = dict(_BUDGETS, cap_period_days=14)
+    assert breaker.period_scale(b, 14) == 1.0 and breaker.period_scale(b, 28) == 2.0
+    assert breaker.period_scale(b, None) == 1.0
+
+
+def test_anomaly_refuses_to_compare_periods_of_different_lengths():
+    history = {"total_minutes": [500.0, 520.0, 510.0], "period_days": 7}
+    vol = ProposedWorkflowUsageVolume(total_minutes=99999.0)
+    status, tripped = check_anomaly(vol, _BUDGETS, history=history, period_days=30)
+    assert not tripped and "history holds 7-day periods, this run is 30-day" in status
+    # same length: the anomaly check is live and trips
+    assert check_anomaly(vol, _BUDGETS, history=history, period_days=7)[1] is True
+
+
+def test_record_period_stores_the_period_length_and_starts_over_if_it_changes(tmp_path):
+    breaker.configure(repo_root=tmp_path)
+    try:
+        record_period(500.0, period_days=7)
+        record_period(520.0, period_days=7)
+        assert load_history() == {"total_minutes": [500.0, 520.0], "period_days": 7}
+        record_period(2000.0, period_days=30)   # never mix lengths in one series
+        h = load_history()
+        assert h["total_minutes"] == [2000.0] and h["period_days"] == 30
+        assert "7 -> 30" in h["reset_reason"]
+    finally:
+        breaker.configure(repo_root=None)
+
+
+def test_configure_history_path_points_the_series_at_an_explicit_file(tmp_path):
+    target = tmp_path / "restored" / "cost_budget_history.json"
+    breaker.configure(repo_root=tmp_path, history_path=target)
+    try:
+        assert breaker.HISTORY_PATH == target
+        record_period(100.0, period_days=7)
+        assert target.exists() and load_history()["total_minutes"] == [100.0]
+    finally:
+        breaker.configure(repo_root=None)
+    assert breaker.HISTORY_PATH != target   # reset restores the default
+
+
+def test_the_real_config_declares_the_new_keys_and_marks_the_caps_provisional():
+    real = breaker.load_budgets()
+    assert real["cap_period_days"] == 7 and real["ci_health_window_days"] == 14
+    assert "upstream-monitor.yml" in real["ci_health_by_design_failing_steps"]
+    assert "PROVISIONAL" in open(breaker.CONFIG_PATH, encoding="utf-8").read()

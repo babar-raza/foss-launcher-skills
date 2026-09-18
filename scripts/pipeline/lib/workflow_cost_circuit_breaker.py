@@ -42,15 +42,25 @@ CONFIG_PATH = _DEFAULT_CONFIG_PATH
 HISTORY_PATH = _REPO_ROOT / "reports" / "gha-cost-telemetry" / "cost_budget_history.json"
 
 
-def configure(*, repo_root: "Path | str | None" = None, config_path: "Path | str | None" = None) -> None:
+def configure(
+    *, repo_root: "Path | str | None" = None, config_path: "Path | str | None" = None,
+    history_path: "Path | str | None" = None,
+) -> None:
     """Override HISTORY_PATH for testing (via repo_root) and, separately,
     CONFIG_PATH (via config_path) -- an explicit DI seam, not monkeypatching
     (AGENTS.md 16). Omitting config_path resets it to the real checked-in
     repo-wide resource; CONFIG_PATH is never derived from repo_root (mirrors
-    install_change_budget.py's own comment exactly)."""
+    install_change_budget.py's own comment exactly).
+
+    `history_path` (MT069 HC-05) points the rolling-baseline history at an
+    explicit file -- needed because the default lives under gitignored
+    `reports/`, which a stateless CI runner loses between runs (so the
+    anomaly baseline could never warm up there); the scheduled workflow
+    restores and re-uploads this one file between runs."""
     global _REPO_ROOT, HISTORY_PATH, CONFIG_PATH
     _REPO_ROOT = Path(repo_root) if repo_root is not None else _DEFAULT_REPO_ROOT
-    HISTORY_PATH = _REPO_ROOT / "reports" / "gha-cost-telemetry" / "cost_budget_history.json"
+    HISTORY_PATH = (Path(history_path) if history_path is not None
+                    else _REPO_ROOT / "reports" / "gha-cost-telemetry" / "cost_budget_history.json")
     CONFIG_PATH = Path(config_path) if config_path is not None else _DEFAULT_CONFIG_PATH
 
 
@@ -109,22 +119,37 @@ def load_history() -> dict:
     return _load_json(HISTORY_PATH, {})
 
 
-def check_static_caps(volume: ProposedWorkflowUsageVolume, budgets: dict) -> list:
+def period_scale(budgets: dict, period_days: "int | None") -> float:
+    """Factor that converts the caps (defined for `cap_period_days`, default 7)
+    to a run whose collection window is `period_days` long. Without this a
+    30-day run compared against weekly caps -- unlike quantities -- and
+    "tripped" on perfectly normal usage (found live 2026-09-18: 2,950 minutes
+    over 30 days 'exceeded' a 1,500-minute WEEKLY cap)."""
+    if not period_days:
+        return 1.0
+    return period_days / budgets.get("cap_period_days", 7)
+
+
+def check_static_caps(volume: ProposedWorkflowUsageVolume, budgets: dict, *, period_days: "int | None" = None) -> list:
     violations = []
-    max_total = budgets["max_total_minutes_per_period"]
-    max_per_workflow = budgets["max_minutes_per_workflow_per_period"]
+    scale = period_scale(budgets, period_days)
+    max_total = budgets["max_total_minutes_per_period"] * scale
+    max_per_workflow = budgets["max_minutes_per_workflow_per_period"] * scale
 
     if volume.total_minutes > max_total:
-        violations.append(f"total_minutes {volume.total_minutes:.1f} > max_total_minutes_per_period {max_total}")
+        violations.append(f"total_minutes {volume.total_minutes:.1f} > max_total_minutes_per_period {max_total:g}"
+                          + (f" (scaled x{scale:g} for a {period_days}-day window)" if scale != 1 else ""))
     for name, minutes in sorted(volume.minutes_by_workflow.items()):
         if minutes > max_per_workflow:
-            violations.append(f"workflow {name!r}: {minutes:.1f} > max_minutes_per_workflow_per_period {max_per_workflow}")
+            violations.append(f"workflow {name!r}: {minutes:.1f} > max_minutes_per_workflow_per_period {max_per_workflow:g}"
+                              + (f" (scaled x{scale:g})" if scale != 1 else ""))
     return violations
 
 
 def check_anomaly(
     volume: ProposedWorkflowUsageVolume, budgets: dict,
     *, history: "dict | None" = None, warmup_runs: "int | None" = None,
+    period_days: "int | None" = None,
 ) -> "tuple[str, bool]":
     """Returns (anomaly_status_string, blocked). Never raises on missing/empty
     history -- an unseen repo is simply warm-up period 1. INACTIVE is always
@@ -133,6 +158,11 @@ def check_anomaly(
     warmup_runs = warmup_runs if warmup_runs is not None else budgets.get("warmup_periods", 3)
     periods = history.get("total_minutes", [])
     n = len(periods)
+
+    recorded = history.get("period_days")
+    if period_days and recorded and recorded != period_days:
+        # A 30-day total against a baseline of 7-day totals is not a comparison.
+        return f"INACTIVE (history holds {recorded}-day periods, this run is {period_days}-day)", False
 
     if n < warmup_runs:
         return f"INACTIVE (warm-up, N={n}/{warmup_runs})", False
@@ -158,20 +188,27 @@ def check_anomaly(
     ), False
 
 
-def record_period(total_minutes: float, *, history: "dict | None" = None) -> dict:
+def record_period(total_minutes: float, *, history: "dict | None" = None, period_days: "int | None" = None) -> dict:
     """Append this period's ACTUAL total_minutes to history. Call only after
     a collection completes -- never with a proposed/estimated figure, and
     never before check_cost_budget() has already evaluated the period, or
     the anomaly check would be trained on its own proposal."""
     history = history if history is not None else load_history()
     updated = dict(history)
-    updated["total_minutes"] = list(history.get("total_minutes", [])) + [total_minutes]
+    recorded = history.get("period_days")
+    if period_days and recorded and recorded != period_days:
+        updated["total_minutes"] = []     # never mix period lengths in one series: start over, loudly
+        updated["reset_reason"] = f"period length changed {recorded} -> {period_days} days"
+    updated["total_minutes"] = list(updated.get("total_minutes", history.get("total_minutes", []))) + [total_minutes]
+    if period_days:
+        updated["period_days"] = period_days
     _atomic_write_json(HISTORY_PATH, updated)
     return updated
 
 
 def check_cost_budget(
     volume: ProposedWorkflowUsageVolume, *, budgets: "dict | None" = None, history: "dict | None" = None,
+    period_days: "int | None" = None,
 ) -> BudgetVerdict:
     """The main pre-flight entry point. Static caps are checked (and fully
     reported) regardless of whether the anomaly check also fires, so a
@@ -180,8 +217,8 @@ def check_cost_budget(
     here means "no alert needed", never "block the run" -- this system
     alerts, it never blocks or disables anything (design doc's own rule)."""
     budgets = budgets if budgets is not None else load_budgets()
-    static_violations = check_static_caps(volume, budgets)
-    anomaly_status, anomaly_tripped = check_anomaly(volume, budgets, history=history)
+    static_violations = check_static_caps(volume, budgets, period_days=period_days)
+    anomaly_status, anomaly_tripped = check_anomaly(volume, budgets, history=history, period_days=period_days)
 
     if static_violations:
         return BudgetVerdict(
