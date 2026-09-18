@@ -2885,6 +2885,22 @@ scripts:
     deprecated_since: null
     notes: "normalize content_hash format in provenance blocks"
 
+  - path: scripts/pipeline/commands/diagnostics/check_site_plan_mandatory_roles.py
+    kind: entrypoint
+    lifecycle: active
+    canonical_impl_path: null
+    public_entrypoint: true
+    cli_contract: "python scripts/pipeline/commands/diagnostics/check_site_plan_mandatory_roles.py (--all | --products FAMILY/PLATFORM ...) [--apply]"
+    owner_domain: site-plan-integrity
+    backing:
+      kind: internal
+      ref: null
+    test_targets:
+      - scripts/pipeline/tests/test_check_site_plan_mandatory_roles.py
+    requires_test: true
+    deprecated_since: null
+    notes: "BLOG-SLUGDUPE-001 follow-up (SPBK-02/09): detects stale / alias-covered / missing / double-role mandatory blog_role records in reports/plans/*/*/site_plan.yaml; --apply repoints only unambiguous stale or alias-covered records (never guesses). Standalone diagnostic; not yet wired into any automatic gate."
+
   - path: scripts/pipeline/commands/migration/source_sha_backfill.py
     kind: one-shot
     lifecycle: maintenance
