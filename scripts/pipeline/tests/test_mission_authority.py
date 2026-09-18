@@ -631,6 +631,7 @@ class TestActivate:
         exit_code = mission_authority.main([
             "--root", str(tmp_path), "activate", "--mission-id", "MT068-CHALLENGER",
             "--force", "see reports/skill-gaps/2026-09-11-example.md for justification",
+            "--disposition", "will-close-after-current-task",
         ])
         assert exit_code == 0
         assert "may take over" in capsys.readouterr().out
@@ -641,6 +642,7 @@ class TestActivate:
         assert takeover["previous_mission_id"] == "MT066-INCUMBENT"
         assert takeover["incumbent_locked_open"] is True
         assert takeover["force_reason"]
+        assert takeover["disposition"] == "will-close-after-current-task"
 
     def test_activate_force_reason_too_short_is_rejected(self, tmp_path, capsys):
         incumbent = dict(VALID_MISSION, mission_id="MT066-INCUMBENT", mission_locked=True)
@@ -653,6 +655,80 @@ class TestActivate:
         ])
         assert exit_code == 1
         assert "too short" in capsys.readouterr().out
+
+    def test_activate_force_without_disposition_is_rejected(self, tmp_path, capsys):
+        """TC-GOV-03-01: the root cause this taskcard closes -- --force used to
+        validate only the reason string's length, never recording what happens
+        to the incumbent's remaining work. A real (long-enough) reason must no
+        longer be sufficient on its own; --disposition is now required too, and
+        the root file must stay untouched (activate never writes it)."""
+        incumbent = dict(VALID_MISSION, mission_id="MT066-INCUMBENT", mission_locked=True)
+        _write_root(tmp_path, incumbent)
+        mission_authority.main(["--root", str(tmp_path), "open", "--mission-id", "MT066-INCUMBENT"])
+        root_before = (tmp_path / "MISSION_AUTHORITY.yaml").read_text(encoding="utf-8")
+
+        capsys.readouterr()
+        exit_code = mission_authority.main([
+            "--root", str(tmp_path), "activate", "--mission-id", "MT068-CHALLENGER",
+            "--force", "see reports/skill-gaps/2026-09-11-example.md for justification",
+        ])
+        assert exit_code == 1
+        out = capsys.readouterr().out
+        assert "--disposition" in out
+        assert (tmp_path / "MISSION_AUTHORITY.yaml").read_text(encoding="utf-8") == root_before
+
+        log_path = tmp_path / "reports" / "plan_state" / mission_authority.ACTIVATION_LOG_NAME
+        assert not log_path.exists() or "MT068-CHALLENGER" not in log_path.read_text(encoding="utf-8")
+
+    def test_activate_force_with_malformed_disposition_is_rejected(self, tmp_path, capsys):
+        incumbent = dict(VALID_MISSION, mission_id="MT066-INCUMBENT", mission_locked=True)
+        _write_root(tmp_path, incumbent)
+        mission_authority.main(["--root", str(tmp_path), "open", "--mission-id", "MT066-INCUMBENT"])
+
+        capsys.readouterr()
+        exit_code = mission_authority.main([
+            "--root", str(tmp_path), "activate", "--mission-id", "MT068-CHALLENGER",
+            "--force", "see reports/skill-gaps/2026-09-11-example.md for justification",
+            "--disposition", "not-a-real-disposition-shape",
+        ])
+        assert exit_code == 1
+        assert "not a recognized" in capsys.readouterr().out
+
+    def test_activate_force_with_disposition_prefix_forms_succeed(self, tmp_path, capsys):
+        """parking-with-reason:<text> and handing-off-to:<mission-id> both
+        require real, non-empty text after the prefix -- a bare prefix is the
+        same "narrative filler" failure mode the reason-length check already
+        guards against, one layer up."""
+        incumbent = dict(VALID_MISSION, mission_id="MT066-INCUMBENT", mission_locked=True)
+        _write_root(tmp_path, incumbent)
+        mission_authority.main(["--root", str(tmp_path), "open", "--mission-id", "MT066-INCUMBENT"])
+
+        capsys.readouterr()
+        exit_code = mission_authority.main([
+            "--root", str(tmp_path), "activate", "--mission-id", "MT068-CHALLENGER",
+            "--force", "see reports/skill-gaps/2026-09-11-example.md for justification",
+            "--disposition", "handing-off-to:MT070-SOMEONE-ELSE",
+        ])
+        assert exit_code == 0
+
+        log_path = tmp_path / "reports" / "plan_state" / mission_authority.ACTIVATION_LOG_NAME
+        entries = [json.loads(line) for line in log_path.read_text(encoding="utf-8").splitlines()]
+        takeover = [e for e in entries if e["action"] == "takeover"][-1]
+        assert takeover["disposition"] == "handing-off-to:MT070-SOMEONE-ELSE"
+
+    def test_activate_force_with_bare_prefix_disposition_is_rejected(self, tmp_path, capsys):
+        incumbent = dict(VALID_MISSION, mission_id="MT066-INCUMBENT", mission_locked=True)
+        _write_root(tmp_path, incumbent)
+        mission_authority.main(["--root", str(tmp_path), "open", "--mission-id", "MT066-INCUMBENT"])
+
+        capsys.readouterr()
+        exit_code = mission_authority.main([
+            "--root", str(tmp_path), "activate", "--mission-id", "MT068-CHALLENGER",
+            "--force", "see reports/skill-gaps/2026-09-11-example.md for justification",
+            "--disposition", "parking-with-reason:   ",
+        ])
+        assert exit_code == 1
+        assert "missing required text" in capsys.readouterr().out
 
     def test_activate_over_unlocked_or_closed_incumbent_needs_no_force(self, tmp_path, capsys):
         incumbent = dict(VALID_MISSION, mission_id="MT-DONE", mission_locked=False)

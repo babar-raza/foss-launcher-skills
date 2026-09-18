@@ -548,6 +548,48 @@ def cmd_status(args: argparse.Namespace) -> int:
 ACTIVATION_LOG_NAME = "mission_activation_log.jsonl"
 _MIN_FORCE_REASON_LEN = 15
 
+# TC-GOV-03-01 (REQ-GOV-03): a --force takeover must record what happens to
+# the incumbent's remaining work, not just why the takeover is justified --
+# the reason string alone (validated only for length) never captured this,
+# which is the exact mechanism that left MT066 (and >=9 other missions, per
+# TC-GOV-02-01's live liveness run) dangling open with no disposition.
+_DISPOSITION_LITERAL_VALUES = {"will-close-after-current-task"}
+_DISPOSITION_PREFIXES = ("parking-with-reason:", "handing-off-to:")
+
+
+def _validate_disposition(disposition: Optional[str]) -> Optional[str]:
+    """Return an error message if `disposition` is missing or malformed for a
+    --force takeover, else None (valid). Accepted shapes:
+      - the literal 'will-close-after-current-task'
+      - 'parking-with-reason:<text>' with non-empty <text>
+      - 'handing-off-to:<mission-id>' with non-empty <mission-id>
+    A bare prefix with no real text after it is the same "narrative filler"
+    failure mode the reason-length check already guards against one layer up.
+    """
+    if disposition is None or not disposition.strip():
+        return (
+            "ERROR: --force requires --disposition (what happens to the incumbent's "
+            "remaining work) -- one of 'will-close-after-current-task', "
+            "'parking-with-reason:<text>', or 'handing-off-to:<mission-id>'. A reason "
+            "string alone no longer records this."
+        )
+    disposition = disposition.strip()
+    if disposition in _DISPOSITION_LITERAL_VALUES:
+        return None
+    for prefix in _DISPOSITION_PREFIXES:
+        if disposition.startswith(prefix):
+            if disposition[len(prefix):].strip():
+                return None
+            return (
+                f"ERROR: --disposition {disposition!r} is missing required text after "
+                f"'{prefix}'."
+            )
+    return (
+        f"ERROR: --disposition {disposition!r} is not a recognized shape. Use "
+        "'will-close-after-current-task', 'parking-with-reason:<text>', or "
+        "'handing-off-to:<mission-id>'."
+    )
+
 
 def _activation_log_path(root: Optional[Path] = None) -> Path:
     return (root or repo_root()) / "reports" / "plan_state" / ACTIVATION_LOG_NAME
@@ -602,6 +644,16 @@ def cmd_activate(args: argparse.Namespace) -> int:
     reproduce the "schema-checked but never semantically enforced" defect
     (`mission_locked` itself, per this module's own history) that this
     command exists to close one layer up.
+
+    TC-GOV-03-01 (REQ-GOV-03): --force also requires --disposition, recording
+    what happens to the incumbent's remaining work (see
+    _validate_disposition()) -- the reason string alone justified WHY a
+    takeover happened but never recorded what became of the incumbent's own
+    unfinished taskcards, which is the exact mechanism that left MT066 (and
+    >=9 other missions) dangling open with no disposition. Persisted as an
+    additive field on the existing _append_activation_log() entry. Does not
+    apply to the same-mission-id resumption fast path above, which never
+    reaches this validation at all.
     """
     root = Path(args.root) if args.root else None
     root_path = root_mission_authority_path(root)
@@ -666,6 +718,7 @@ def cmd_activate(args: argparse.Namespace) -> int:
         )
         return 1
 
+    disposition: Optional[str] = None
     if args.force:
         reason = args.force.strip()
         if len(reason) < _MIN_FORCE_REASON_LEN:
@@ -676,6 +729,12 @@ def cmd_activate(args: argparse.Namespace) -> int:
             )
             return 1
 
+        disposition_error = _validate_disposition(getattr(args, "disposition", None))
+        if disposition_error:
+            print(disposition_error)
+            return 1
+        disposition = args.disposition.strip()
+
     _append_activation_log(
         {
             "mission_id": args.mission_id,
@@ -683,6 +742,7 @@ def cmd_activate(args: argparse.Namespace) -> int:
             "action": "takeover",
             "incumbent_locked_open": incumbent_locked_open,
             "force_reason": args.force.strip() if args.force else None,
+            "disposition": disposition,
             "session_id": args.session_id,
         },
         root,
@@ -1088,6 +1148,12 @@ def main(argv: Optional[List[str]] = None) -> int:
     p_activate.add_argument(
         "--force", default=None, metavar="REASON",
         help="Required to take over a mission_locked:true, _archive_status:open incumbent.",
+    )
+    p_activate.add_argument(
+        "--disposition", default=None, metavar="DISPOSITION",
+        help="Required with --force: what happens to the incumbent's remaining work. One "
+             "of 'will-close-after-current-task', 'parking-with-reason:<text>', or "
+             "'handing-off-to:<mission-id>'.",
     )
     p_activate.add_argument(
         "--session-id", default=os.environ.get("AGENT_SESSION_ID"),
