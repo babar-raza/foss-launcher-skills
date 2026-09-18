@@ -63,9 +63,9 @@
     "deployed_repo": "Aspose/aspose.org-workflows"
   },
   "selfhosted-runner-smoke-test.yml": {
-    "approved_baseline_sha256": "a6ab33e96752007c06275dc867ff8bede2c552dd50f7fb34aef382ce8faae241",
-    "baseline_recorded_at": "2026-09-17T18:30:13.193679Z",
-    "baseline_source": "seeded_from_deployed",
+    "approved_baseline_sha256": "a7edd0bf9d071de8e29b5ee8cf9738454a67ec43ecb4feb1fd919284f6895d94",
+    "baseline_recorded_at": "2026-09-19T00:10:00.000000Z",
+    "baseline_source": "approved_after_review: workflows-repo commit a549958d (comment-only; every changed line is a '#' comment; prior baseline a6ab33e9 verified equal to its parent blob) -- MT069 HC-03/HC-06",
     "deployed_path": ".github/workflows/selfhosted-runner-smoke-test.yml",
     "deployed_repo": "Aspose/aspose.org-workflows"
   },

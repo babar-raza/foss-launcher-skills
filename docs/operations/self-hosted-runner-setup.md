@@ -40,6 +40,65 @@ plan or design document's claim about which repo a runner serves, verify it
 directly**: `cat <install-dir>/.runner | grep gitHubUrl`, or
 `gh api repos/<owner>/<repo>/actions/runners`.
 
+## Isolation model (MT069 card HC-03, decided 2026-09-18)
+
+**What a job can do today.** Measured, not assumed — the public host probe
+(`selfhosted-host-probe.yml`, runs `35380303439` and `35381064675`) runs **host-direct**, on the same
+machine, WSL distro and OS user as the private runner:
+
+| Fact | Result |
+|---|---|
+| Runs in a container | no (`in_container=no`) |
+| OS user | `prorata`, uid 1000 (not root) |
+| Windows drive readable from job code | **yes** — `/mnt/c`, `/mnt/c/Windows/win.ini`, `/mnt/c/Users` |
+| WSL interop (can launch Windows `.exe`) | **enabled** |
+| State persists between jobs | **yes** — a marker written to `$HOME` by run 1 was present in run 2 |
+| Windows directories on the service `PATH` | yes (Git for Windows, Python, JDKs); `npm` resolves to a Windows shim |
+| `docker` on the service `PATH` | **no** — so `container:` jobs fail at job setup (`docker: command not found`, run `35381073902`) |
+
+The original design (`TC-08`) assumed a fresh container per job. That does not hold: it was proven on
+2026-09-17 while the runner was started from an interactive shell (which had Docker on its `PATH`) and
+silently stopped working when the runner became a systemd service. Treat any "container-per-job works" claim
+older than the service conversion as void.
+
+**Options considered.**
+
+| | Isolation | Cost / risk |
+|---|---|---|
+| (a) `container:` per job | fresh filesystem, no Windows mounts | needs Docker on the service `PATH` and a service restart (`sudo`); container jobs run as root by default and leave root-owned files in `_work` that the runner user then cannot clean; handing job containers the Docker socket is host-root-equivalent; shares Docker Desktop's VM with the maintainer's other containers |
+| (b) dedicated WSL distro with automount and interop off | no Windows drive, no Windows binaries, clean `PATH`; no containers needed | one-time human setup (`sudo`, distro admin); both runners move there |
+| (c) host-direct + mitigations only (**current state**) | none of the above | none — but the Windows exposure above stays |
+
+**Decision (delegated to the agent by the user's 2026-09-18 "do everything from HC-01 to HC-19";
+reversible):** the target is **(b)**. It is the simplest at run time (no containers, no Docker
+dependency) and the only option that removes the Windows exposure rather than working around it.
+
+**Interim exception, time-boxed:** the single observed proof run in card HC-02 (see
+`first-live-run-protocol.md`) may run on (c). The code it executes is the maintainer's own committed check
+scripts, `actions/*`, `peaceiris/actions-hugo` and the packages in `requirements-ci.txt` — all things
+already run locally as the same user — and the repo's flow is direct push (no fork PRs). The workflow is
+enabled only for that run and **re-disabled afterwards**. This is *not* acceptance of (c) for leaving a
+workflow enabled.
+
+**Target state — steps for a human (not run by the agent: they change the machine and need `sudo`).**
+Untested as written; treat them as a draft to verify.
+
+1. Create a clean distro (WSL 2.6.1 is installed here): `wsl --install -d Ubuntu-22.04 --name gha-runner`. If your WSL rejects `--name`, import a clean Ubuntu 22.04 rootfs with `wsl --import gha-runner <dir> <rootfs.tar>` — **do not** export the existing distro; it carries the current runners' credentials.
+2. Inside it create a non-root user, then set `/etc/wsl.conf`:
+   ```ini
+   [boot]
+   systemd=true
+   [automount]
+   enabled=false
+   [interop]
+   enabled=false
+   appendWindowsPath=false
+   ```
+   then `wsl --shutdown` and reopen the distro.
+3. Install `git`, `curl`, `tar`; run `scripts/ci/setup-self-hosted-runner.sh` once per runner (see Setup below), then `sudo ./svc.sh install && sudo ./svc.sh start` for each.
+4. **Negative control (must pass before HC-03 is closed):** as the runner user, `ls /mnt/c` must fail or be empty and `cmd.exe` must not run; then dispatch `selfhosted-host-probe.yml` on that runner and expect `reachable /mnt/c=no` and `wsl_interop=disabled`.
+5. Decommission the two old runners (see Decommissioning) once the new ones are `online`.
+
 ## Prerequisites
 
 - A Linux environment (WSL2 on Windows, or a native Linux host) with `bash`,
@@ -161,6 +220,21 @@ Check, in order:
 3. Does the workflow's `runs-on:` list include every custom label you
    registered the runner with? GitHub requires an exact-set match on custom
    labels (the automatic `self-hosted`/OS/arch labels are implicit).
+
+### `docker: command not found` in "Set up job" of a `container:` job
+
+**A real regression** (2026-09-18, run `35381073902`): the container smoke test that passed on 2026-09-17
+now fails at job setup. A systemd-managed runner does not inherit your interactive shell's `PATH`; it uses
+the `PATH` captured in `<install-dir>/.path`, and that file has many Windows directories but not Docker's.
+Fixing it means adding Docker's directory to `.path` and restarting the service (`sudo`). This does not
+matter under the recommended isolation model (no containers) — see "Isolation model".
+
+### `error while loading shared libraries: libpython3.13.so.1.0` when reproducing a job by hand
+
+The Python that `actions/setup-python` installs under `_work/_tool` needs `LD_LIBRARY_PATH` to include its own
+`lib/` directory; the action sets it for real jobs. When simulating a job in a plain shell, export
+`LD_LIBRARY_PATH="<install-dir>/_work/_tool/Python/<ver>/x64/lib:$LD_LIBRARY_PATH"` first (this bit the
+HC-06 simulation).
 
 ### `gh: command not found` when running the setup script
 
