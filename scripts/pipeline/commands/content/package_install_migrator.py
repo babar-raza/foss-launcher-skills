@@ -137,10 +137,36 @@ def _command_pattern(prefixes: "str | tuple[str, ...]") -> re.Pattern:
     _REGISTRY_ALT_COMMAND_PREFIXES above)."""
     if isinstance(prefixes, str):
         prefixes = (prefixes,)
-    alternation = "|".join(re.escape(p) for p in prefixes)
-    return re.compile(
-        r"\b(?:" + alternation + r")\s+\S+(?:\s+--version\s+\S+)?", re.IGNORECASE,
+    # One alternative per prefix, each with its OWN version-flag tail (see
+    # _version_flag_tail): every prefix keeps the `--version X` tail
+    # unchanged; only Install-Package additionally accepts PowerShell's
+    # native single-dash `-Version X` (TC-PKG-02-01, 3d/net).
+    alternatives = "|".join(
+        re.escape(p) + r"\s+\S+" + _version_flag_tail(p) for p in prefixes
     )
+    return re.compile(r"\b(?:" + alternatives + r")", re.IGNORECASE)
+
+
+# TC-PKG-02-01 (mission MT066-2026-09-09-PACKAGE-INSTALL-RECONCILIATION):
+# casefolded prefixes whose real tool takes PowerShell-style SINGLE-dash
+# parameters. `Install-Package X -Version Y` is the native form of that
+# cmdlet (parameters are single-dash and case-insensitive); the dotnet CLI,
+# pip, npm and go do not accept a single-dash `-Version`, so they must NOT
+# gain it -- confirmed live against 3d/net: 35 locale copies of
+# getting-started/installation.md carry a fenced block whose entire body is
+# `Install-Package Aspose.3D -Version 26.1.0`, flagged by
+# package_install_literal.py but never migrated.
+_SINGLE_DASH_VERSION_PREFIXES = frozenset({"install-package"})
+
+
+def _version_flag_tail(prefix: str) -> str:
+    """Regex tail tolerating ONE trailing version flag for `prefix`:
+    `--version X` for every prefix, plus `-Version X` for the PowerShell
+    Install-Package cmdlet only. Optional and single -- never a blanket
+    'anything after the package name' loosening."""
+    if prefix.casefold() in _SINGLE_DASH_VERSION_PREFIXES:
+        return r"(?:\s+--?version\s+\S+)?"
+    return r"(?:\s+--version\s+\S+)?"
 
 
 def _block_is_sole_command(block_text: str, cmd_re: re.Pattern) -> bool:

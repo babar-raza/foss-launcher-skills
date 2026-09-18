@@ -88,6 +88,46 @@ def test_version_flag_tolerated(tmp_path):
     assert res["inline_replacements"] == 1
 
 
+def test_install_package_single_dash_version_span_is_replaced(tmp_path):
+    """TC-PKG-02-01 (3d/net): this migrator imports package_install_migrator's
+    _command_pattern(), so PowerShell's native single-dash `-Version` spelling
+    on Install-Package must be recognized inline too -- not only in a sole-
+    command fenced block."""
+    fp = _write(tmp_path, "content/kb.aspose.org/en/slides/net/faq.md", (
+        "In the Package Manager Console, run `Install-Package Aspose.Slides.Foss -Version 26.1.0`.\n"
+    ))
+    res = sut.migrate_file(fp, "slides", "net", dry_run=False, registry=_NUGET_REGISTRY)
+    assert res["result"] == sut.R_MIGRATED
+    assert res["inline_replacements"] == 1
+    text = fp.read_text(encoding="utf-8")
+    assert '{{< package-install-inline "slides" "net" >}}' in text
+    assert "Install-Package" not in text
+
+
+def test_dotnet_add_package_single_dash_version_span_not_replaced(tmp_path):
+    """Negative control (narrow scope): the single-dash spelling is
+    Install-Package-only -- `dotnet add package X -Version Y` is not valid
+    dotnet CLI syntax and must stay untouched inline as well."""
+    fp = _write(tmp_path, "content/kb.aspose.org/en/slides/net/faq.md", (
+        "Run `dotnet add package Aspose.Slides.Foss -Version 26.1.0` to install.\n"
+    ))
+    res = sut.migrate_file(fp, "slides", "net", dry_run=False, registry=_NUGET_REGISTRY)
+    assert res["result"] == sut.R_NOOP
+    assert res["inline_replacements"] == 0
+    assert "dotnet add package" in fp.read_text(encoding="utf-8")
+
+
+def test_install_package_single_dash_version_with_extra_flag_span_not_replaced(tmp_path):
+    """Negative control: an extra parameter after the version pin makes the
+    span a multi-part command, not a sole install command."""
+    fp = _write(tmp_path, "content/kb.aspose.org/en/slides/net/faq.md", (
+        "Run `Install-Package Aspose.Slides.Foss -Version 26.1.0 -Source nuget.org` to install.\n"
+    ))
+    res = sut.migrate_file(fp, "slides", "net", dry_run=False, registry=_NUGET_REGISTRY)
+    assert res["result"] == sut.R_NOOP
+    assert res["inline_replacements"] == 0
+
+
 def test_pypi_inline_replacement(tmp_path):
     fp = _write(tmp_path, "content/docs.aspose.org/en/cells/python/getting-started/faq.md", (
         "Install it via `pip install aspose-cells-foss` and you're done.\n"

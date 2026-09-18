@@ -306,6 +306,113 @@ class TestNugetAlternateForms:
         assert res["inline_mentions_found"] == 0
 
 
+class TestInstallPackageSingleDashVersion:
+    """TC-PKG-02-01 (3d/net, mission MT066-2026-09-09-PACKAGE-INSTALL-RECONCILIATION):
+    PowerShell's `Install-Package X -Version Y` uses a SINGLE-dash, case-
+    insensitive parameter (`-Version`), unlike dotnet CLI's `--version`. The
+    migrator only ever tolerated the double-dash spelling, so 35 real locale
+    copies of 3d/net's getting-started/installation.md -- each a fenced block
+    whose entire body is `Install-Package Aspose.3D -Version 26.1.0` -- were
+    flagged by package_install_literal.py but never migrated. Scoped to the
+    Install-Package prefix only: the other prefixes' tools do not accept a
+    single-dash `-Version`, so they must NOT gain it."""
+
+    @pytest.mark.parametrize("flag", ["-Version", "-version"])
+    def test_install_package_single_dash_version_sole_block_is_migrated(self, tmp_path, flag):
+        """Matches the real, live shape (content/docs.aspose.org/ar/3d/net/
+        getting-started/installation.md:72, confirmed against real content)."""
+        fp = _write(tmp_path, "content/docs.aspose.org/ar/slides/net/getting-started/installation.md", (
+            "```powershell\n"
+            f"Install-Package Aspose.Slides.Foss {flag} 26.1.0\n"
+            "```\n"
+        ))
+        res = sut.migrate_file(fp, "slides", "net", dry_run=False, registry=_NUGET_REGISTRY)
+        assert res["result"] == sut.R_MIGRATED
+        assert res["block_replacements"] == 1
+        text = fp.read_text(encoding="utf-8")
+        assert '{{< package-install "slides" "net" >}}' in text
+        assert "Install-Package" not in text
+        assert "26.1.0" not in text
+
+    def test_install_package_double_dash_version_still_migrated(self, tmp_path):
+        """Regression pin: the pre-existing --version tolerance is unchanged
+        for the Install-Package prefix too."""
+        fp = _write(tmp_path, "content/docs.aspose.org/en/slides/net/getting-started/installation.md", (
+            "```powershell\n"
+            "Install-Package Aspose.Slides.Foss --version 26.1.0\n"
+            "```\n"
+        ))
+        res = sut.migrate_file(fp, "slides", "net", dry_run=False, registry=_NUGET_REGISTRY)
+        assert res["result"] == sut.R_MIGRATED
+        assert res["block_replacements"] == 1
+
+    def test_install_package_single_dash_version_with_extra_flag_not_migrated(self, tmp_path):
+        """Negative control: the tolerance is one trailing version flag, not a
+        blanket 'anything after the package name' loosening -- an additional
+        `-Source ...` parameter makes it a multi-part command."""
+        fp = _write(tmp_path, "content/docs.aspose.org/en/slides/net/getting-started/installation.md", (
+            "```powershell\n"
+            "Install-Package Aspose.Slides.Foss -Version 26.1.0 -Source nuget.org\n"
+            "```\n"
+        ))
+        res = sut.migrate_file(fp, "slides", "net", dry_run=False, registry=_NUGET_REGISTRY)
+        assert res["result"] == sut.R_NOOP
+        assert res["block_replacements"] == 0
+        assert "-Source nuget.org" in fp.read_text(encoding="utf-8")  # untouched
+
+    def test_install_package_single_dash_version_missing_value_not_migrated(self, tmp_path):
+        """Negative control: a dangling `-Version` with no value is not a
+        complete, well-formed pin -- must not fullmatch."""
+        fp = _write(tmp_path, "content/docs.aspose.org/en/slides/net/getting-started/installation.md", (
+            "```powershell\n"
+            "Install-Package Aspose.Slides.Foss -Version\n"
+            "```\n"
+        ))
+        res = sut.migrate_file(fp, "slides", "net", dry_run=False, registry=_NUGET_REGISTRY)
+        assert res["result"] == sut.R_NOOP
+        assert res["block_replacements"] == 0
+
+    def test_install_package_single_dash_version_multi_line_block_not_migrated(self, tmp_path):
+        """Negative control: same multi-step-snippet safety bar as the other
+        sole-command paths -- a second command in the block disqualifies it."""
+        fp = _write(tmp_path, "content/docs.aspose.org/en/slides/net/getting-started/installation.md", (
+            "```powershell\n"
+            "cd MyProject\n"
+            "Install-Package Aspose.Slides.Foss -Version 26.1.0\n"
+            "```\n"
+        ))
+        res = sut.migrate_file(fp, "slides", "net", dry_run=False, registry=_NUGET_REGISTRY)
+        assert res["result"] == sut.R_NOOP
+        assert res["block_replacements"] == 0
+        assert "cd MyProject" in fp.read_text(encoding="utf-8")  # untouched
+
+    def test_dotnet_add_package_single_dash_version_not_migrated(self, tmp_path):
+        """Negative control (narrow scope): `dotnet add package` does not
+        accept a single-dash `-Version`, so the PowerShell spelling must NOT
+        leak onto the dotnet CLI prefix."""
+        fp = _write(tmp_path, "content/docs.aspose.org/en/slides/net/getting-started/installation.md", (
+            "```bash\n"
+            "dotnet add package Aspose.Slides.Foss -Version 26.1.0\n"
+            "```\n"
+        ))
+        res = sut.migrate_file(fp, "slides", "net", dry_run=False, registry=_NUGET_REGISTRY)
+        assert res["result"] == sut.R_NOOP
+        assert res["block_replacements"] == 0
+        assert "dotnet add package" in fp.read_text(encoding="utf-8")  # untouched
+
+    def test_pypi_single_dash_version_not_migrated(self, tmp_path):
+        """Negative control (narrow scope): the single-dash spelling is
+        Install-Package-only -- pip must never gain it."""
+        fp = _write(tmp_path, "content/docs.aspose.org/en/cells/python/getting-started/installation.md", (
+            "```bash\n"
+            "pip install aspose-cells-foss -Version 26.3.2\n"
+            "```\n"
+        ))
+        res = sut.migrate_file(fp, "cells", "python", dry_run=False, registry=_PYPI_REGISTRY)
+        assert res["result"] == sut.R_NOOP
+        assert res["block_replacements"] == 0
+
+
 def test_dry_run_does_not_write(tmp_path):
     fp = _write(tmp_path, "content/docs.aspose.org/en/slides/net/getting-started/installation.md", (
         "```bash\ndotnet add package Aspose.Slides.Foss\n```\n"
