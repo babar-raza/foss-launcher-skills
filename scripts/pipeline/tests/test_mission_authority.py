@@ -280,6 +280,71 @@ class TestSessionLedgerReport:
         assert len(report) == 1
         assert "error" in report[0]
 
+    # TC-GOV-02-02 stage 2: `status` is what the session-start stale-mission block
+    # points every agent at, and one session-state manifest that is valid JSON but
+    # not an object (a list, a string, a number, null) used to raise AttributeError
+    # out of this store and take the whole command down with it -- as did one that
+    # is not valid UTF-8 (UnicodeDecodeError is neither a JSONDecodeError nor an
+    # OSError, so the old `except` missed it).
+    @pytest.mark.parametrize("payload", ["[1, 2]", '"a string"', "42", "null", "true"])
+    def test_non_object_manifest_reported_not_raised(self, tmp_path, payload):
+        session_dir = tmp_path / "reports" / "session-state"
+        session_dir.mkdir(parents=True)
+        (session_dir / "odd.json").write_text(payload, encoding="utf-8")
+
+        report = mission_authority._session_ledger_report(tmp_path)
+
+        assert len(report) == 1
+        assert report[0]["session_id"] == "odd"
+        assert "error" in report[0] and "not a JSON object" in report[0]["error"]
+        assert report[0]["error"].isascii() and "\n" not in report[0]["error"]
+
+    def test_invalid_utf8_manifest_reported_not_raised(self, tmp_path):
+        session_dir = tmp_path / "reports" / "session-state"
+        session_dir.mkdir(parents=True)
+        (session_dir / "binary.json").write_bytes(b"\xff\xfe\x00{not utf-8")
+
+        report = mission_authority._session_ledger_report(tmp_path)
+
+        assert len(report) == 1
+        assert report[0]["session_id"] == "binary" and "error" in report[0]
+
+    def test_one_bad_manifest_does_not_hide_the_good_ones(self, tmp_path):
+        session_dir = tmp_path / "reports" / "session-state"
+        session_dir.mkdir(parents=True)
+        (session_dir / "a-good.json").write_text(
+            json.dumps({"session_id": "a-good", "status": "active"}), encoding="utf-8",
+        )
+        (session_dir / "b-poison.json").write_text("[1, 2]", encoding="utf-8")
+        (session_dir / "c-good.json").write_text(
+            json.dumps({"session_id": "c-good", "status": "closed"}), encoding="utf-8",
+        )
+
+        report = mission_authority._session_ledger_report(tmp_path)
+
+        by_id = {row["session_id"]: row for row in report}
+        assert set(by_id) == {"a-good", "b-poison", "c-good"}
+        assert by_id["a-good"]["status"] == "active" and by_id["c-good"]["status"] == "closed"
+        assert "error" in by_id["b-poison"]
+
+    def test_status_command_survives_a_non_object_manifest(self, tmp_path, capsys):
+        session_dir = tmp_path / "reports" / "session-state"
+        session_dir.mkdir(parents=True)
+        (session_dir / "poison.json").write_text("[1, 2]", encoding="utf-8")
+        _write_mission_archive(tmp_path, "MT-STALE-POISON", archive_status="open")
+        _write_taskcard_row(tmp_path, "MT-STALE-POISON", "TC-1", _iso(24 * 30))
+
+        exit_code = mission_authority.main(["--root", str(tmp_path), "status", "--json"])
+
+        assert exit_code == 0
+        out = json.loads(capsys.readouterr().out)
+        assert out["stale_open_missions"] == ["MT-STALE-POISON"]
+        assert "error" in out["sessions"][0]
+
+        exit_code = mission_authority.main(["--root", str(tmp_path), "status"])
+        assert exit_code == 0
+        assert "poison: UNREADABLE" in capsys.readouterr().out
+
 
 class TestLockReport:
     def test_empty_when_no_locks_dir(self, tmp_path):

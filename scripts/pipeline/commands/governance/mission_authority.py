@@ -285,8 +285,20 @@ def _session_ledger_report(root: Path) -> List[Dict[str, Any]]:
     for f in sorted(session_dir.glob("*.json")):
         try:
             data = json.loads(f.read_text(encoding="utf-8"))
-        except (json.JSONDecodeError, OSError) as exc:
-            out.append({"session_id": f.stem, "error": str(exc)})
+        # ValueError covers json.JSONDecodeError AND UnicodeDecodeError (invalid
+        # UTF-8 is neither a JSONDecodeError nor an OSError -- it used to escape
+        # and crash `status` for every session).
+        except (ValueError, OSError) as exc:
+            out.append({"session_id": f.stem, "error": _plan_state_error_text(exc)})
+            continue
+        if not isinstance(data, dict):
+            # Valid JSON that is not an object (list/str/number/null/bool): `.get`
+            # below used to raise AttributeError out of this whole store. Reported
+            # like any other unreadable manifest, so one bad file never hides the rest.
+            out.append({
+                "session_id": f.stem,
+                "error": f"manifest is not a JSON object (got {type(data).__name__})",
+            })
             continue
         try:
             age_hours = round((now - f.stat().st_mtime) / 3600.0, 2)
