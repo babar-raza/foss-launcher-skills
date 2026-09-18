@@ -48,6 +48,13 @@
     "deployed_path": ".github/workflows/package-publish-watch.yml",
     "deployed_repo": "Aspose/aspose.org-workflows"
   },
+  "selfhosted-host-probe.yml": {
+    "approved_baseline_sha256": "711599d7a4a4bb5b9968e01c96b3e6f4f2774247cd23d8df116cee877decff55",
+    "baseline_recorded_at": "2026-09-18T18:32:04.357454Z",
+    "baseline_source": "seeded_from_deployed",
+    "deployed_path": ".github/workflows/selfhosted-host-probe.yml",
+    "deployed_repo": "Aspose/aspose.org-workflows"
+  },
   "selfhosted-runner-smoke-test.yml": {
     "approved_baseline_sha256": "a6ab33e96752007c06275dc867ff8bede2c552dd50f7fb34aef382ce8faae241",
     "baseline_recorded_at": "2026-09-17T18:30:13.193679Z",
@@ -84,9 +91,9 @@
     "deployed_repo": "Aspose/aspose.org-workflows"
   },
   "seo-token-liveness.yml": {
-    "approved_baseline_sha256": "b5f335b3b26d03b7d3bf2ab46d765eb5a826fabd8cb6c92d4470816022396100",
-    "baseline_recorded_at": "2026-09-17T15:50:57.968722Z",
-    "baseline_source": "seeded_from_deployed",
+    "approved_baseline_sha256": "e5b8ade4b01f19ec009d0ce62cbba88d3debcc9793d3d3e06e9bf61d1dce9561",
+    "baseline_recorded_at": "2026-09-18T18:40:00.000000Z",
+    "baseline_source": "approved_after_review: workflows-repo commit 9a760a28 (one file, +22/-7: a dead fallback-only GH_TOKEN is now an advisory warning instead of exit 1; prior baseline b5f335b3 verified equal to its parent blob) -- MT069 HC-07",
     "deployed_path": ".github/workflows/seo-token-liveness.yml",
     "deployed_repo": "Aspose/aspose.org-workflows"
   },
