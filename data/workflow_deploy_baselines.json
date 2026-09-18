@@ -48,6 +48,13 @@
     "deployed_path": ".github/workflows/package-publish-watch.yml",
     "deployed_repo": "Aspose/aspose.org-workflows"
   },
+  "runner-availability-watch.yml": {
+    "approved_baseline_sha256": "b8374f0cdf73b1624ba17f53d884fb6029a12cf26a3aceb62cfd9f03ab65047a",
+    "baseline_recorded_at": "2026-09-18T18:56:18.785039Z",
+    "baseline_source": "seeded_from_deployed",
+    "deployed_path": ".github/workflows/runner-availability-watch.yml",
+    "deployed_repo": "Aspose/aspose.org-workflows"
+  },
   "selfhosted-host-probe.yml": {
     "approved_baseline_sha256": "711599d7a4a4bb5b9968e01c96b3e6f4f2774247cd23d8df116cee877decff55",
     "baseline_recorded_at": "2026-09-18T18:32:04.357454Z",
