@@ -87,11 +87,23 @@ class TestRunInstallRecipeSweep:
         assert report["per_product"] == []
 
     def test_real_regression_pin_against_current_content(self):
-        """Acceptance check: reproduces the same 67 real
+        """Acceptance check: the real portfolio carries ZERO
         PUBLISH-CLAIM-CONTRADICTION-001 findings (backlog/BACKLOG.md) when
         run against current content -- no override, real portfolio.
 
-        TC-PKG-01-08-FIX (2026-09-17): re-pinned from 89 -> 67. The original
+        TC-PKG-07-02 (2026-09-18): re-pinned from 67 -> 0. That taskcard
+        corrected all 45 flagged English-source pages (3d/typescript,
+        barcode/python, cells/typescript, font/python, html/python,
+        page/python, pdf/python, tex/python) to match data/package_registry.json
+        (verification.published=false) WITHOUT relaxing the check itself and
+        without any "not yet published"-style disclosure (2026-09-03/09-10
+        no-disclosure policy; IR_UNPUBLISHED_DISCLOSURE stays 0). The pin is
+        deliberately kept as an exact pin, now at 0: a zero-tolerance guard,
+        so any NEW IR_PUBLISH_CLAIM appearing in real content fails here
+        instead of silently accumulating. Locale copies are still
+        out of this sweep's English-source-only scope (see run_install_recipe_sweep).
+
+        History -- TC-PKG-01-08-FIX (2026-09-17): re-pinned from 89 -> 67. The original
         89 (set 2026-09-10, commit 30a955550e) went stale as real content was
         fixed on some flagged pages by unrelated work landing on main between
         then and now -- an organic improvement (fewer contradictions), not a
@@ -111,8 +123,9 @@ class TestRunInstallRecipeSweep:
         sut.configure(repo_root=None)
         install_recipe.configure()
         report = sut.run_install_recipe_sweep()
-        assert report["total_publish_claim_contradiction_findings"] == 67, (
-            f"expected the known-real 67 PUBLISH-CLAIM-CONTRADICTION-001 findings, "
+        assert report["total_publish_claim_contradiction_findings"] == 0, (
+            f"expected zero PUBLISH-CLAIM-CONTRADICTION-001 findings (fixed by "
+            f"TC-PKG-07-02, 2026-09-18), "
             f"got {report['total_publish_claim_contradiction_findings']} -- if this is a "
             f"genuine change (fixed or regressed), update backlog/BACKLOG.md's own row "
             f"and this pin together, not just one"
