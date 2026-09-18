@@ -1,0 +1,35 @@
+# Workflow cost + CI-health circuit breaker budgets
+# MT069-2026-09-16-GHA-MINUTES-REARCHITECTURE, PHB-03.
+# See scripts/pipeline/lib/workflow_cost_circuit_breaker.py for how these are used.
+
+# --- Cost circuit breaker (magnitude-cap, alert-only) ---
+
+# Static ceiling on total minutes across all workflows in one collection
+# period (weekly). Set well above the real 2026-09-01..18 baseline (1,494
+# min over ~18 days -> ~580 min/week) to avoid noisy false alarms while
+# still catching a genuine multi-x regression.
+max_total_minutes_per_period: 1500
+
+# Static ceiling on any single workflow's minutes in one period. The real
+# top driver (content-governance-checks.yml, 546 min/18 days -> ~212/week)
+# sets the scale; capped higher to leave headroom for legitimate growth.
+max_minutes_per_workflow_per_period: 500
+
+# Rolling-baseline anomaly check: how many periods of real history are
+# required before the anomaly check activates (vs. INACTIVE during warm-up).
+warmup_periods: 3
+
+# Anomaly ceiling = rolling mean * this multiplier. 2.0 catches a doubling,
+# matching the conservative-but-real-signal intent of the design doc.
+anomaly_multiplier: 2.0
+
+# --- CI-health extension (a required check failing continuously) ---
+
+# A workflow needs at least this many scored (success/failure) runs before
+# its failure rate is evaluated at all.
+ci_health_min_runs: 5
+
+# Failure rate at or above this over the last ci_health_min_runs+ runs trips
+# an alert. 0.9 matches the design doc's own example threshold and the real
+# TC-14 incident shape (100% failure, would have tripped immediately).
+ci_health_failure_rate_threshold: 0.9

@@ -6775,3 +6775,83 @@ scripts:
     requires_test: true
     deprecated_since: null
     notes: "TC-GOV-01-02 (MT071-2026-09-17-GOVERNANCE-DURABILITY-HARDENING): detects/redacts local-machine absolute home-directory paths (Windows C:/Users/<name>/..., Unix /home/<name>/..., macOS /Users/<name>/...) embedded in reports/plan_state/**/*.{yaml,jsonl} -- required before that directory can safely become git-tracked (TC-GOV-01-03). --check reports findings (exit 1 if any); --fix rewrites matched paths to <local-plan-cache>/{basename} placeholders via targeted regex substitution, never a parse-and-rewrite. Not yet run with --fix against real data -- that is TC-GOV-01-03's job."
+
+  - path: scripts/pipeline/lib/workflow_usage_schema.py
+    kind: library
+    lifecycle: active
+    canonical_impl_path: null
+    public_entrypoint: false
+    cli_contract: none
+    owner_domain: ci-governance
+    backing:
+      kind: internal
+      ref: null
+    test_targets:
+      - scripts/pipeline/tests/test_workflow_usage_schema.py
+    requires_test: true
+    deprecated_since: null
+    notes: "MT069-2026-09-16-GHA-MINUTES-REARCHITECTURE PHB-03: WorkflowUsageEvent/Row taxonomy for the recurring GH Actions cost/CI-health telemetry system. Mirrors metrics_event_ledger.py's mechanics, not its LLM-call-specific MetricsRow schema -- a new taxonomy, per the mission's own design section (recurring cost telemetry)."
+
+  - path: scripts/pipeline/commands/ops/workflow_usage_ledger.py
+    kind: library
+    lifecycle: active
+    canonical_impl_path: null
+    public_entrypoint: false
+    cli_contract: none
+    owner_domain: ci-governance
+    backing:
+      kind: internal
+      ref: null
+    test_targets:
+      - scripts/pipeline/tests/test_workflow_usage_ledger.py
+    requires_test: true
+    deprecated_since: null
+    notes: "MT069-2026-09-16-GHA-MINUTES-REARCHITECTURE PHB-03: validated WorkflowUsageEvent -> durable local JSONL ledger, mirroring metrics_event_ledger.py's per-run ledger mechanics for GH Actions usage/cost events instead of LLM calls."
+
+  - path: scripts/pipeline/lib/workflow_cost_circuit_breaker.py
+    kind: library
+    lifecycle: active
+    canonical_impl_path: null
+    public_entrypoint: false
+    cli_contract: none
+    owner_domain: ci-governance
+    backing:
+      kind: internal
+      ref: null
+    test_targets:
+      - scripts/pipeline/tests/test_workflow_cost_circuit_breaker.py
+    requires_test: true
+    deprecated_since: null
+    notes: "MT069-2026-09-16-GHA-MINUTES-REARCHITECTURE PHB-03: magnitude-cap + rolling-baseline anomaly circuit breaker for GH Actions cost, modeled on install_change_budget.py / publish_watcher.py --max-auto-apply (a static-cap + rolling-baseline pattern), not the deleted failure-count circuit_state.py precedent -- alerts, never auto-disables. Auto-disabling was the blunt instrument that caused this whole mission to exist (all 20 workflows manually disabled as an emergency cost stopgap)."
+
+  - path: scripts/pipeline/lib/workflow_usage_collector.py
+    kind: library
+    lifecycle: active
+    canonical_impl_path: null
+    public_entrypoint: false
+    cli_contract: none
+    owner_domain: ci-governance
+    backing:
+      kind: internal
+      ref: null
+    test_targets:
+      - scripts/pipeline/tests/test_workflow_usage_collector.py
+    requires_test: true
+    deprecated_since: null
+    notes: "MT069-2026-09-16-GHA-MINUTES-REARCHITECTURE PHB-03: proxy-reconstructs GH Actions minutes from `gh api .../actions/runs` + `.../jobs` durations (ceiled to the next billing minute, OS multiplier applied), matching TC-04's own tier-3 measurement method used to build this mission's real usage/billing baseline."
+
+  - path: scripts/pipeline/commands/ops/workflow_usage_collect_and_check.py
+    kind: entrypoint
+    lifecycle: active
+    canonical_impl_path: null
+    public_entrypoint: true
+    cli_contract: stable
+    owner_domain: ci-governance
+    backing:
+      kind: internal
+      ref: null
+    test_targets:
+      - scripts/pipeline/tests/test_workflow_usage_collect_and_check.py
+    requires_test: true
+    deprecated_since: null
+    notes: "MT069-2026-09-16-GHA-MINUTES-REARCHITECTURE PHB-03: read+report-only CLI wiring workflow_usage_collector.py -> workflow_usage_ledger.py -> workflow_cost_circuit_breaker.py, dry-run by default (--live to persist + open alert issues). Also extends coverage to CI-check *health* (a required check failing continuously across its last N runs), not just cost -- per the mission plan's CI-defect-remediation direction 5, this class of check would have caught this mission's own platform-capabilities-checker bug and upstream-monitor.yml PAT-gap misdiagnosis automatically instead of waiting for a cost investigation to stumble onto them. Live dry-run smoke test against the real private repo (2026-09-18, 30-day window) correctly surfaced both of those real, independently-confirmed defects."
