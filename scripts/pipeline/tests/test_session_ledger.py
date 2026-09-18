@@ -1712,3 +1712,68 @@ class TestInitSurfacesStaleMissions:
         assert ret == 0
         assert "already-active" in out
         assert "stale-mission check unavailable: ValueError" in out
+
+    def test_the_block_is_still_emitted_when_the_init_body_itself_raises(
+        self, tmp_path, capsys
+    ):
+        """A failure inside init (here a real one: the session dir path is a
+        regular file, so creating it raises) must not suppress the warning --
+        the stale-mission list has nothing to do with the session manifests --
+        and must not be masked either: the original error still propagates."""
+        _seed_mission(tmp_path, "MT-STALE", days_quiet=30)
+        blocked = tmp_path / "not-a-dir"
+        blocked.write_text("i am a file", encoding="utf-8")
+        session_ledger.configure(repo_root=tmp_path, session_dir=blocked)
+
+        with pytest.raises(OSError):
+            session_ledger.main(["init", "--session-id", "sm-raises"])
+
+        assert "MT-STALE" in capsys.readouterr().out
+
+
+# ---------------------------------------------------------------------------
+# TC-GOV-02-02 stage 3: a session-state manifest that is valid JSON but not an
+# object used to be a poison pill. _load_manifest() documents "None if missing
+# or corrupt" but returned the raw JSON value, so _sweep_stale() (the first thing
+# init does, over EVERY manifest) raised AttributeError on `.get` -- one stray
+# file made `session_ledger.py init` exit 1 for every session in that repo, i.e.
+# no manifest and, before the finally in cmd_init, no stale-mission block either.
+# ---------------------------------------------------------------------------
+
+class TestNonObjectManifestPoisonPill:
+    @pytest.mark.parametrize("payload", ["[1, 2]", '"a string"', "42", "null", "true"])
+    def test_load_manifest_returns_none_for_non_object_json(self, isolate_session_dir, payload):
+        isolate_session_dir.mkdir(parents=True, exist_ok=True)
+        path = isolate_session_dir / "odd.json"
+        path.write_text(payload, encoding="utf-8")
+
+        assert session_ledger._load_manifest(path) is None
+
+    def test_load_manifest_returns_none_for_invalid_utf8(self, isolate_session_dir):
+        isolate_session_dir.mkdir(parents=True, exist_ok=True)
+        path = isolate_session_dir / "binary.json"
+        path.write_bytes(b"\xff\xfe\x00{not utf-8")
+
+        assert session_ledger._load_manifest(path) is None
+
+    def test_load_manifest_still_returns_a_real_manifest(self, isolate_session_dir):
+        session_ledger.init_session("real-one")
+
+        manifest = session_ledger._load_manifest(isolate_session_dir / "real-one.json")
+
+        assert isinstance(manifest, dict) and manifest["status"] == "active"
+
+    @pytest.mark.parametrize("if_missing", [False, True])
+    def test_init_survives_a_non_object_manifest_in_the_session_dir(
+        self, isolate_session_dir, if_missing
+    ):
+        isolate_session_dir.mkdir(parents=True, exist_ok=True)
+        (isolate_session_dir / "poison.json").write_text("[1, 2]", encoding="utf-8")
+        argv = ["init", "--session-id", "after-poison"]
+        if if_missing:
+            argv.insert(1, "--if-missing")
+
+        ret = session_ledger.main(argv)
+
+        assert ret == 0
+        assert (isolate_session_dir / "after-poison.json").is_file()

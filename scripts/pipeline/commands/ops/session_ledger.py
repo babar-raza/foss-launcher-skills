@@ -391,14 +391,23 @@ def _read_active_pointer() -> str | None:
 
 
 def _load_manifest(path: Path) -> dict | None:
-    """Load session manifest, returning None if missing or corrupt."""
+    """Load session manifest, returning None if missing or corrupt.
+
+    "Corrupt" includes a file that is valid JSON but not an object (a list,
+    string, number...) and one that is not valid UTF-8 (UnicodeDecodeError is a
+    ValueError, not a JSONDecodeError). Every caller does `.get(...)` on the
+    result, and _sweep_stale() -- the first thing init does, over EVERY manifest
+    in the directory -- used to raise AttributeError on one such stray file,
+    making `init` exit 1 for every session in the repo (TC-GOV-02-02 stage 3).
+    """
     if not path.exists():
         return None
     try:
         with open(path, encoding="utf-8") as f:
-            return json.load(f)
-    except (json.JSONDecodeError, OSError):
+            data = json.load(f)
+    except (ValueError, OSError):  # ValueError covers JSONDecodeError + UnicodeDecodeError
         return None
+    return data if isinstance(data, dict) else None
 
 
 def _manifest_lock(path: Path) -> FileLock:
@@ -1207,10 +1216,15 @@ def cmd_init(args: argparse.Namespace) -> int:
     """Initialize (or idempotently resume) a session, then surface stale open
     missions. The surface is emitted here, around the whole body, so it runs on
     every path -- including the --if-missing fast paths that return before the
-    print block (see the comment block above)."""
-    rc = _cmd_init(args)
-    emit_stale_mission_block()
-    return rc
+    print block (see the comment block above). It is in a `finally` because the
+    list of abandoned missions has nothing to do with the session manifests: a
+    failure inside init (an unwritable session dir, a lock timeout) must not
+    also suppress it -- and the original error still propagates, unmasked
+    (emit_stale_mission_block() never raises an Exception)."""
+    try:
+        return _cmd_init(args)
+    finally:
+        emit_stale_mission_block()
 
 
 def _cmd_init(args: argparse.Namespace) -> int:
