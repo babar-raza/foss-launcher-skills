@@ -47,6 +47,7 @@ import sys
 import tempfile
 from datetime import datetime, timezone
 from pathlib import Path
+from typing import Callable
 
 _PIPELINE_DIR = Path(__file__).resolve().parents[2]  # commands/diagnostics/ -> commands/ -> pipeline/
 if str(_PIPELINE_DIR) not in sys.path:
@@ -739,12 +740,44 @@ def cmd_scan(
 # Sweep subcommand
 # ---------------------------------------------------------------------------
 
-def cmd_sweep() -> dict:
+def cmd_sweep(
+    *,
+    clone_exists_fn: "Callable[[str, str], bool] | None" = None,
+    ensure_clone_fn: "Callable[[str, str], Path] | None" = None,
+    update_clone_fn: "Callable[[str, str], str | None] | None" = None,
+    clone_head_sha_fn: "Callable[[str, str], str | None] | None" = None,
+) -> dict:
     """Batch SHA comparison across all active launched products.
 
-    Returns the sweep report dict.
+    MT069-2026-09-16-GHA-MINUTES-REARCHITECTURE (2026-09-18): the pre-existing
+    "no local clone exists" fetch_failure was misdiagnosed for months as a
+    GitHub-token/PAT permission problem (issue #94, ST-058) -- upstream-
+    monitor.yml's own comment claimed the ephemeral Actions token "403s
+    against the aspose-*-foss orgs". Direct code read + a live repro
+    (`clone_exists()` in a genuinely empty cache dir, matching a fresh CI
+    checkout, returns False unconditionally -- confirmed live) shows this
+    step never even reaches a network call: clone_exists() is a pure
+    filesystem check against runs/.clone_cache/, which is gitignored and
+    therefore never present on any fresh checkout, so every one of these 33
+    products failed with "no local clone exists" before any git/API call was
+    attempted, regardless of any token's validity. This now calls
+    ensure_clone() first (already existed for exactly this purpose --
+    auto-clones a PLAIN, UNAUTHENTICATED `git clone` from the public FOSS
+    mirror URL in data/products.json, confirmed live that these are public
+    repos, needing no token at all) so a cold/missing cache self-heals
+    instead of failing outright. No behavior change when a clone already
+    exists (ensure_clone() no-ops in that case) -- purely additive.
+
+    The four `*_fn` parameters are DI seams (AGENTS.md 16 -- prefer explicit
+    injection over monkeypatching core.clone_cache internals); each defaults
+    to the real core.clone_cache function when not overridden by a caller.
     """
-    from core.clone_cache import clone_exists, clone_head_sha, update_clone
+    from core.clone_cache import clone_exists, clone_head_sha, ensure_clone, update_clone
+
+    clone_exists_fn = clone_exists_fn or clone_exists
+    ensure_clone_fn = ensure_clone_fn or ensure_clone
+    update_clone_fn = update_clone_fn or update_clone
+    clone_head_sha_fn = clone_head_sha_fn or clone_head_sha
 
     registry = _load_registry()
     now = datetime.now(tz=timezone.utc).isoformat()
@@ -764,19 +797,22 @@ def cmd_sweep() -> dict:
         family = entry["family"]
         platform = entry["platform"]
 
-        if not clone_exists(family, platform):
-            fetch_failures.append({
-                "family": family,
-                "platform": platform,
-                "error": "no local clone exists",
-            })
-            continue
+        if not clone_exists_fn(family, platform):
+            try:
+                ensure_clone_fn(family, platform)
+            except RuntimeError as exc:
+                fetch_failures.append({
+                    "family": family,
+                    "platform": platform,
+                    "error": f"no local clone exists and auto-clone failed: {exc}",
+                })
+                continue
 
         stored_sha = _get_stored_sha(family, platform)
 
-        new_sha = update_clone(family, platform)
+        new_sha = update_clone_fn(family, platform)
         if new_sha is None:
-            new_sha = clone_head_sha(family, platform)
+            new_sha = clone_head_sha_fn(family, platform)
             if new_sha is None:
                 fetch_failures.append({
                     "family": family,

@@ -394,14 +394,57 @@ class TestCmdSweep:
         assert report["summary"]["changed"] == 1
         assert report["changed"][0]["impact"] == "HIGH"
 
-    def test_no_clone_is_fetch_failure(self, tmp_path):
+    def test_no_clone_but_auto_clone_fails_is_fetch_failure(self, tmp_path):
+        """MT069-2026-09-16-GHA-MINUTES-REARCHITECTURE (2026-09-18): a missing
+        clone now triggers ensure_clone() (auto-clone) before giving up -- this
+        pins the genuine-failure path (auto-clone itself fails, e.g. no
+        clone_url registered or network unavailable), not the old
+        "missing cache is always fatal" behavior this test previously
+        asserted (that was the actual root cause of the "PAT gap" this
+        workflow's failures were misattributed to for months -- see
+        cmd_sweep()'s own updated docstring)."""
         reg = [_registry_entry("3d", "python")]
         (tmp_path / "data" / "products.json").write_text(json.dumps(reg))
 
-        with patch("core.clone_cache.clone_exists", return_value=False):
-            report = repo_patrol.cmd_sweep()
+        def fake_ensure_clone(family, platform):
+            raise RuntimeError("no clone_url registered")
+
+        report = repo_patrol.cmd_sweep(
+            clone_exists_fn=lambda family, platform: False,
+            ensure_clone_fn=fake_ensure_clone,
+        )
 
         assert report["summary"]["fetch_failures"] == 1
+        assert "auto-clone failed" in report["fetch_failures"][0]["error"]
+
+    def test_no_clone_but_auto_clone_succeeds_proceeds_normally(self, tmp_path):
+        """The actual fix: a cold/missing clone cache (the real, always-true
+        state on a fresh CI checkout) self-heals via ensure_clone() instead of
+        failing outright -- confirmed via a live repro this session that
+        clone_exists() unconditionally returns False on any fresh checkout,
+        with zero token/network dependency in that specific check."""
+        reg = [_registry_entry("3d", "python")]
+        (tmp_path / "data" / "products.json").write_text(json.dumps(reg))
+
+        model_dir = tmp_path / "knowledge" / "3d" / "python" / "merged"
+        model_dir.mkdir(parents=True)
+        (model_dir / "model.yaml").write_text("repo_sha: abc123\n")
+
+        ensure_clone_calls = []
+
+        def fake_ensure_clone(family, platform):
+            ensure_clone_calls.append((family, platform))
+
+        report = repo_patrol.cmd_sweep(
+            clone_exists_fn=lambda family, platform: False,
+            ensure_clone_fn=fake_ensure_clone,
+            update_clone_fn=lambda family, platform: "abc123",
+            clone_head_sha_fn=lambda family, platform: "abc123",
+        )
+
+        assert ensure_clone_calls == [("3d", "python")]
+        assert report["summary"]["fetch_failures"] == 0
+        assert report["summary"]["unchanged"] == 1
 
     def test_only_launched_products_swept(self, tmp_path):
         reg = [
@@ -410,8 +453,13 @@ class TestCmdSweep:
         ]
         (tmp_path / "data" / "products.json").write_text(json.dumps(reg))
 
-        with patch("core.clone_cache.clone_exists", return_value=False):
-            report = repo_patrol.cmd_sweep()
+        def fake_ensure_clone(family, platform):
+            raise RuntimeError("no network in test")
+
+        report = repo_patrol.cmd_sweep(
+            clone_exists_fn=lambda family, platform: False,
+            ensure_clone_fn=fake_ensure_clone,
+        )
 
         # Only the launched product should be swept
         assert report["total_products"] == 1
