@@ -117,5 +117,12 @@
     "baseline_source": "approved_after_review: workflows-repo commit 4ab9d5c3 (comments + 2 message strings only, no logic; prior baseline 87fd14f9 verified equal to its parent blob) -- MT069 HC-08",
     "deployed_path": ".github/workflows/upstream-monitor.yml",
     "deployed_repo": "Aspose/aspose.org-workflows"
+  },
+  "workflow-drift-watch.yml": {
+    "approved_baseline_sha256": "0701c679288bcfd5d24e562a674d499dfbe1af92a44d0dc24337a9770d0e635e",
+    "baseline_recorded_at": "2026-09-18T19:25:14.037823Z",
+    "baseline_source": "seeded_from_deployed",
+    "deployed_path": ".github/workflows/workflow-drift-watch.yml",
+    "deployed_repo": "Aspose/aspose.org-workflows"
   }
 }
