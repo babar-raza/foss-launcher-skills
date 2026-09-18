@@ -6,7 +6,9 @@ real MISSION_AUTHORITY.yaml or reports/plan_state/ in this repo.
 from __future__ import annotations
 
 import json
+import os
 import subprocess
+import sys
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
 
@@ -14,6 +16,7 @@ import pytest
 import yaml
 
 import mission_authority
+from taskcard_store import TaskcardStore
 
 
 VALID_MISSION = {
@@ -549,6 +552,485 @@ class TestPlanStateLivenessReport:
         mission_authority._plan_state_report(tmp_path)
 
         assert taskcards_path.read_text(encoding="utf-8") == before
+
+
+# ---------------------------------------------------------------------------
+# TC-GOV-02-01-FIX: per-mission failure isolation for _plan_state_report().
+#
+# The independent review of TC-GOV-02-01 reproduced that ONE malformed mission
+# under reports/plan_state/ raised out of _plan_state_report() and therefore
+# out of `mission_authority.py status --json`, blinding the stale-open-mission
+# detector for every other mission (exit 0 before the 4th store existed, exit 1
+# with a traceback after it). Every fixture below is built in tmp_path -- never
+# the real ledger -- and rows that the schema permits are written through the
+# REAL TaskcardStore.append() (validate_taskcard_record checks that
+# `recorded_at` is present, not what type it is).
+# ---------------------------------------------------------------------------
+
+_HEALTHY = "MT-HEALTHY-STALE"
+_FIXED_NOW = datetime(2026, 9, 18, 12, 0, 0, tzinfo=timezone.utc)
+
+
+def _z(dt: datetime) -> str:
+    return dt.astimezone(timezone.utc).isoformat().replace("+00:00", "Z")
+
+
+def _write_raw_archive(tmp_path: Path, mission_id: str, text: str) -> Path:
+    mission_dir = tmp_path / "reports" / "plan_state" / mission_id
+    mission_dir.mkdir(parents=True, exist_ok=True)
+    (mission_dir / "mission_authority.yaml").write_bytes(text.encode("utf-8"))
+    return mission_dir
+
+
+def _append_via_store(tmp_path: Path, mission_id: str, task_id: str, recorded_at) -> None:
+    """Write one row through the sanctioned writer (schema-validated append)."""
+    TaskcardStore(mission_id, repo_root=tmp_path).append({
+        "task_id": task_id,
+        "mission_id": mission_id,
+        "status": "IN_PROGRESS",
+        "recorded_at": recorded_at,
+        "evidence_refs": [],
+        "recorded_by": "test-fixture",
+    })
+
+
+def _row_for(rows: list, mission_id: str) -> dict:
+    matches = [r for r in rows if r["mission_id"] == mission_id]
+    assert len(matches) == 1, f"expected exactly one row for {mission_id}, got {rows}"
+    return matches[0]
+
+
+def _seed_healthy_stale(tmp_path: Path) -> None:
+    _write_mission_archive(tmp_path, _HEALTHY, archive_status="open")
+    _write_taskcard_row(tmp_path, _HEALTHY, "TC-1", _iso(24 * 20))
+
+
+def _assert_error_row(row: dict, mission_id: str, error_classes: tuple) -> None:
+    assert row["mission_id"] == mission_id
+    assert row["error"].split(":", 1)[0] in error_classes, row["error"]
+    assert "\n" not in row["error"] and "Traceback" not in row["error"]
+    assert row["error"].isascii()
+    # An errored mission's staleness is unknowable -- it must not claim either way.
+    assert "stale" not in row
+
+
+def _snapshot_tree(root: Path) -> dict:
+    return {
+        str(p.relative_to(root)): p.read_bytes()
+        for p in sorted(root.rglob("*")) if p.is_file()
+    }
+
+
+def _seed_every_crash_class(tmp_path: Path) -> None:
+    """One healthy stale mission plus one mission per crash class."""
+    _seed_healthy_stale(tmp_path)
+    # (a) schema-valid row whose recorded_at is not a string, via the real writer
+    _write_mission_archive(tmp_path, "MT-BAD-A-TYPED", archive_status="open")
+    _append_via_store(tmp_path, "MT-BAD-A-TYPED", "TC-1", _iso(24 * 20))
+    _append_via_store(tmp_path, "MT-BAD-A-TYPED", "TC-2", 1757000000)
+    # (b) valid-JSON lines that are not objects
+    mission_dir = _write_mission_archive(tmp_path, "MT-BAD-B-NONDICT", archive_status="open")
+    (mission_dir / "taskcards.jsonl").write_text('[1, 2]\n"oops"\nnull\n42\n', encoding="utf-8")
+    # (c) invalid UTF-8 in the ledger
+    mission_dir = _write_mission_archive(tmp_path, "MT-BAD-C-UTF8", archive_status="open")
+    (mission_dir / "taskcards.jsonl").write_bytes(b'\xff\xfe{"task_id": "TC-1"}\n')
+    # (d) mission_authority: null
+    _write_raw_archive(tmp_path, "MT-BAD-D-NULL", "mission_authority:\n")
+    # (g) a YAML syntax error whose message quotes non-ASCII source text
+    _write_raw_archive(tmp_path, "MT-BAD-E-UNICODE", "mission_authority: {a: 日本語: [\n")
+
+
+class TestPlanStateLivenessIsolation:
+    # -- (a) non-string recorded_at ------------------------------------------
+
+    @pytest.mark.parametrize(
+        "value",
+        [None, "", 0, 1757000000, 1.5, True, False, {}, {"a": 1}, [], [1],
+         datetime(2026, 9, 17, tzinfo=timezone.utc), datetime(2026, 9, 17).date(),
+         "not-a-timestamp"],
+        ids=["none", "empty", "zero", "int", "float", "true", "false", "empty-dict",
+             "dict", "empty-list", "list", "datetime", "date", "garbage-str"],
+    )
+    def test_parse_iso_timestamp_returns_none_for_non_string_or_garbage(self, value):
+        assert mission_authority._parse_iso_timestamp(value) is None
+
+    @pytest.mark.parametrize(
+        "bad_value", [1757000000, {"a": 1}, [1], True], ids=["int", "dict", "list", "bool"],
+    )
+    def test_non_string_recorded_at_accepted_by_real_store_does_not_crash_report(
+        self, tmp_path, bad_value,
+    ):
+        _seed_healthy_stale(tmp_path)
+        _write_mission_archive(tmp_path, "MT-BAD-TS", archive_status="open")
+        _append_via_store(tmp_path, "MT-BAD-TS", "TC-1", _iso(24 * 20))
+        _append_via_store(tmp_path, "MT-BAD-TS", "TC-2", bad_value)
+        # Precondition, not an assumption: the real writer accepted the bad row.
+        assert len(TaskcardStore("MT-BAD-TS", repo_root=tmp_path).read_history()) == 2
+
+        rows = mission_authority._plan_state_report(tmp_path)
+
+        bad = _row_for(rows, "MT-BAD-TS")
+        assert "error" not in bad
+        assert bad["last_activity_source"] == "taskcards"  # the valid old row still counts
+        assert bad["stale"] is True
+        assert _row_for(rows, _HEALTHY)["stale"] is True
+
+    def test_bad_typed_row_does_not_poison_a_good_recent_row(self, tmp_path):
+        _write_mission_archive(tmp_path, "MT-MIXED", archive_status="open")
+        _append_via_store(tmp_path, "MT-MIXED", "TC-1", _iso(1))
+        _append_via_store(tmp_path, "MT-MIXED", "TC-2", {"a": 1})
+
+        row = mission_authority._plan_state_report(tmp_path)[0]
+
+        assert row["last_activity_source"] == "taskcards"
+        assert row["stale"] is False
+
+    def test_only_row_with_non_string_recorded_at_is_no_signal_so_mission_is_stale(
+        self, tmp_path,
+    ):
+        _write_mission_archive(tmp_path, "MT-ONLY-BAD", archive_status="open")
+        _append_via_store(tmp_path, "MT-ONLY-BAD", "TC-1", 1757000000)
+
+        row = mission_authority._plan_state_report(tmp_path)[0]
+
+        assert "error" not in row
+        assert row["last_activity_source"] == "unknown"
+        assert row["stale"] is True  # fails toward surfacing, same as zero-signal
+
+    # -- (b) valid-JSON non-dict lines ---------------------------------------
+
+    @pytest.mark.parametrize(
+        "line", ["[1, 2]", '"oops"', "null", "42"], ids=["list", "string", "null", "number"],
+    )
+    def test_non_dict_taskcard_lines_are_skipped_not_raised(self, tmp_path, line):
+        _seed_healthy_stale(tmp_path)
+        mission_dir = _write_mission_archive(tmp_path, "MT-BAD-LINES", archive_status="open")
+        good = json.dumps({
+            "task_id": "TC-1", "mission_id": "MT-BAD-LINES", "status": "IN_PROGRESS",
+            "recorded_at": _iso(1), "evidence_refs": [], "recorded_by": "test-fixture",
+        })
+        (mission_dir / "taskcards.jsonl").write_text(f"{line}\n{good}\n{line}\n", encoding="utf-8")
+
+        rows = mission_authority._plan_state_report(tmp_path)
+
+        bad = _row_for(rows, "MT-BAD-LINES")
+        assert "error" not in bad
+        assert bad["last_activity_source"] == "taskcards"
+        assert bad["stale"] is False
+        assert _row_for(rows, _HEALTHY)["stale"] is True
+
+    def test_only_non_dict_taskcard_lines_is_no_signal_so_mission_is_stale(self, tmp_path):
+        mission_dir = _write_mission_archive(tmp_path, "MT-ALL-JUNK", archive_status="open")
+        (mission_dir / "taskcards.jsonl").write_text("[1, 2]\nnull\n", encoding="utf-8")
+
+        row = mission_authority._plan_state_report(tmp_path)[0]
+
+        assert "error" not in row
+        assert row["last_activity_source"] == "unknown"
+        assert row["stale"] is True
+
+    # -- (c) undecodable / unreadable taskcards.jsonl ------------------------
+
+    def test_invalid_utf8_taskcards_becomes_error_row_for_that_mission_only(self, tmp_path):
+        _seed_healthy_stale(tmp_path)
+        mission_dir = _write_mission_archive(tmp_path, "MT-BAD-UTF8", archive_status="open")
+        (mission_dir / "taskcards.jsonl").write_bytes(b'\xff\xfe{"task_id": "TC-1"}\n')
+
+        rows = mission_authority._plan_state_report(tmp_path)
+
+        assert len(rows) == 2
+        _assert_error_row(_row_for(rows, "MT-BAD-UTF8"), "MT-BAD-UTF8", ("UnicodeDecodeError",))
+        assert _row_for(rows, _HEALTHY)["stale"] is True
+
+    def test_unreadable_taskcards_path_becomes_error_row_for_that_mission_only(self, tmp_path):
+        _seed_healthy_stale(tmp_path)
+        mission_dir = _write_mission_archive(tmp_path, "MT-BAD-IO", archive_status="open")
+        (mission_dir / "taskcards.jsonl").mkdir()  # exists, but cannot be read as a file
+
+        rows = mission_authority._plan_state_report(tmp_path)
+
+        _assert_error_row(
+            _row_for(rows, "MT-BAD-IO"), "MT-BAD-IO",
+            ("PermissionError", "IsADirectoryError", "OSError"),
+        )
+        assert _row_for(rows, _HEALTHY)["stale"] is True
+
+    # -- (d) mission_authority: key that is not a mapping --------------------
+
+    @pytest.mark.parametrize(
+        "body",
+        ["mission_authority:\n", "mission_authority:\n  - a\n  - b\n",
+         "mission_authority: just-a-string\n", "- a\n- b\n", ""],
+        ids=["null", "list", "string", "top-level-list", "empty-file"],
+    )
+    def test_mission_authority_key_not_a_mapping_becomes_error_row(self, tmp_path, body):
+        _seed_healthy_stale(tmp_path)
+        _write_raw_archive(tmp_path, "MT-BAD-MA", body)
+
+        rows = mission_authority._plan_state_report(tmp_path)
+
+        assert len(rows) == 2
+        _assert_error_row(
+            _row_for(rows, "MT-BAD-MA"), "MT-BAD-MA", ("ValueError", "TypeError", "KeyError"),
+        )
+        assert _row_for(rows, _HEALTHY)["stale"] is True
+
+    # -- other non-string archive fields (same defect class) -----------------
+
+    def test_date_typed_mission_id_falls_back_to_directory_name_and_json_serialises(
+        self, tmp_path, capsys,
+    ):
+        # An unquoted `mission_id: 2026-09-17` loads as datetime.date, which
+        # json.dumps cannot serialise -- it used to kill `status --json`.
+        _write_raw_archive(
+            tmp_path, "MT-BAD-DATE",
+            "mission_authority:\n  mission_id: 2026-09-17\n  _archive_status: open\n",
+        )
+
+        report = mission_authority.build_liveness_report(tmp_path)
+        json.dumps(report)  # must not raise
+
+        assert report["plan_state"][0]["mission_id"] == "MT-BAD-DATE"
+        assert mission_authority.main(["--root", str(tmp_path), "status", "--json"]) == 0
+        json.loads(capsys.readouterr().out)
+
+    def test_non_string_archive_status_is_unknown_and_never_stale(self, tmp_path):
+        _write_raw_archive(
+            tmp_path, "MT-BAD-STATUS",
+            "mission_authority:\n  mission_id: MT-BAD-STATUS\n  _archive_status: [open]\n",
+        )
+
+        row = mission_authority._plan_state_report(tmp_path)[0]
+
+        assert row["archive_status"] == "unknown"
+        assert row["stale"] is False
+        json.dumps(row)
+
+    def test_datetime_typed_archived_at_is_no_signal_by_explicit_decision(self, tmp_path):
+        # An UNQUOTED `_archived_at: 2026-09-17T00:00:00Z` loads as a datetime.
+        # Decision (TC-GOV-02-01-FIX): a non-string timestamp is "no signal",
+        # never silently accepted -- so the open mission fails toward stale.
+        _write_raw_archive(
+            tmp_path, "MT-DT-ARCHIVED",
+            "mission_authority:\n  mission_id: MT-DT-ARCHIVED\n  _archive_status: open\n"
+            "  _archived_at: 2026-09-17T00:00:00Z\n",
+        )
+
+        row = mission_authority._plan_state_report(tmp_path)[0]
+
+        assert row["last_activity_source"] == "unknown"
+        assert row["last_activity_at"] is None
+        assert row["stale"] is True
+
+    def test_error_text_is_single_line_ascii_and_bounded(self):
+        exc = ValueError("first line\nsecond line 日本語 " + "x" * 5000)
+
+        text = mission_authority._plan_state_error_text(exc)
+
+        assert text.startswith("ValueError: ")
+        assert "\n" not in text
+        assert text.isascii()
+        assert len(text) <= 260
+
+    def test_error_text_survives_a_yaml_error_quoting_non_ascii_source(self, tmp_path):
+        _write_raw_archive(tmp_path, "MT-BAD-UNICODE", "mission_authority: {a: 日本語: [\n")
+
+        row = mission_authority._plan_state_report(tmp_path)[0]
+
+        assert "error" in row
+        assert row["error"].isascii()
+
+    # -- isolation + surfacing ------------------------------------------------
+
+    def test_one_malformed_mission_does_not_blind_the_detector_for_the_others(self, tmp_path):
+        _write_mission_archive(tmp_path, "MT-A-HEALTHY-STALE", archive_status="open")
+        _write_taskcard_row(tmp_path, "MT-A-HEALTHY-STALE", "TC-1", _iso(24 * 20))
+        _write_raw_archive(tmp_path, "MT-B-MALFORMED", "mission_authority:\n")
+        _write_mission_archive(tmp_path, "MT-C-HEALTHY-FRESH", archive_status="open")
+        _write_taskcard_row(tmp_path, "MT-C-HEALTHY-FRESH", "TC-1", _iso(1))
+        _write_mission_archive(tmp_path, "MT-D-CLOSED-OLD", archive_status="closed")
+        _write_taskcard_row(tmp_path, "MT-D-CLOSED-OLD", "TC-1", _iso(24 * 400))
+
+        report = mission_authority.build_liveness_report(tmp_path)
+
+        rows = report["plan_state"]
+        assert [r["mission_id"] for r in rows] == [
+            "MT-A-HEALTHY-STALE", "MT-B-MALFORMED", "MT-C-HEALTHY-FRESH", "MT-D-CLOSED-OLD",
+        ]
+        assert "error" in _row_for(rows, "MT-B-MALFORMED")
+        assert _row_for(rows, "MT-A-HEALTHY-STALE")["stale"] is True
+        assert _row_for(rows, "MT-C-HEALTHY-FRESH")["stale"] is False
+        assert _row_for(rows, "MT-D-CLOSED-OLD")["stale"] is False
+        assert report["stale_open_missions"] == ["MT-A-HEALTHY-STALE"]
+
+    def test_plan_state_errors_key_lists_errored_missions_and_keeps_them_out_of_stale(
+        self, tmp_path,
+    ):
+        _seed_every_crash_class(tmp_path)
+
+        report = mission_authority.build_liveness_report(tmp_path)
+
+        assert sorted(report["plan_state_errors"]) == [
+            "MT-BAD-C-UTF8", "MT-BAD-D-NULL", "MT-BAD-E-UNICODE",
+        ]
+        assert set(report["stale_open_missions"]) == {
+            _HEALTHY, "MT-BAD-A-TYPED", "MT-BAD-B-NONDICT",
+        }
+
+    def test_malformed_ledger_is_never_mutated_by_the_report(self, tmp_path):
+        _seed_every_crash_class(tmp_path)
+        before = _snapshot_tree(tmp_path / "reports" / "plan_state")
+
+        mission_authority.build_liveness_report(tmp_path)
+
+        assert _snapshot_tree(tmp_path / "reports" / "plan_state") == before
+        assert not list((tmp_path / "reports" / "plan_state").rglob("*.lock"))
+
+    # -- CLI: status --json must never exit non-zero on plan_state contents --
+
+    def test_cmd_status_json_exits_0_with_every_crash_class_present(self, tmp_path, capsys):
+        _seed_every_crash_class(tmp_path)
+
+        exit_code = mission_authority.main(["--root", str(tmp_path), "status", "--json"])
+
+        assert exit_code == 0
+        out = json.loads(capsys.readouterr().out)
+        assert _HEALTHY in out["stale_open_missions"]
+        assert len(out["plan_state"]) == 6
+
+    def test_cmd_status_human_readable_surfaces_unreadable_missions(self, tmp_path, capsys):
+        _seed_healthy_stale(tmp_path)
+        mission_dir = _write_mission_archive(tmp_path, "MT-BAD-UTF8", archive_status="open")
+        (mission_dir / "taskcards.jsonl").write_bytes(b'\xff\xfe{"task_id": "TC-1"}\n')
+
+        exit_code = mission_authority.main(["--root", str(tmp_path), "status"])
+
+        assert exit_code == 0
+        out = capsys.readouterr().out
+        assert "Unreadable plan_state missions" in out
+        assert "MT-BAD-UTF8" in out
+        assert "UnicodeDecodeError" in out
+        assert _HEALTHY in out  # the healthy stale mission is still listed
+
+    def test_real_cli_process_exits_0_on_malformed_ledger_under_a_cp1252_console(
+        self, tmp_path,
+    ):
+        # Real process, real exit code, and a console encoding that cannot
+        # represent the CJK text quoted by the YAML error in the fixture.
+        _seed_every_crash_class(tmp_path)
+        env = dict(os.environ)
+        env["PYTHONIOENCODING"] = "cp1252"
+
+        proc = subprocess.run(
+            [sys.executable, mission_authority.__file__, "--root", str(tmp_path),
+             "status", "--json"],
+            capture_output=True, encoding="utf-8", errors="replace", timeout=120, env=env,
+        )
+
+        assert proc.returncode == 0, proc.stderr[-400:]
+        out = json.loads(proc.stdout)
+        assert _HEALTHY in out["stale_open_missions"]
+
+
+class TestPlanStateLivenessTimestampPolicy:
+    """Future-dated / boundary / naive-timestamp policy (TC-GOV-02-01-FIX).
+
+    DECISION: a `recorded_at` or `_archived_at` more than 1 day in the future is
+    "no signal", never activity. A future stamp used to make an abandoned
+    mission look permanently live (a row ~10 years ahead gave age_days=-3650
+    and stale=False). 1 day of slack covers clock skew and the worst real
+    source of a legitimately-future-looking stamp, a local time mislabelled
+    `Z` (max UTC offset +14h), while bounding any masking to under a day.
+    """
+
+    def test_far_future_recorded_at_cannot_mask_staleness(self, tmp_path):
+        _write_mission_archive(tmp_path, "MT-MASKED", archive_status="open")
+        old = _iso(24 * 20)
+        _append_via_store(tmp_path, "MT-MASKED", "TC-1", old)
+        _append_via_store(tmp_path, "MT-MASKED", "TC-2", _iso(-24 * 3650))  # ~10y ahead
+
+        row = mission_authority._plan_state_report(tmp_path)[0]
+
+        assert row["stale"] is True
+        assert row["last_activity_at"] == old
+        assert row["age_days_since_last_activity"] >= 19.9
+
+    def test_far_future_only_row_is_no_signal(self, tmp_path):
+        _write_mission_archive(tmp_path, "MT-FUTURE-ONLY", archive_status="open")
+        _append_via_store(tmp_path, "MT-FUTURE-ONLY", "TC-1", _iso(-24 * 30))
+
+        row = mission_authority._plan_state_report(tmp_path)[0]
+
+        assert row["last_activity_source"] == "unknown"
+        assert row["last_activity_at"] is None
+        assert row["stale"] is True
+
+    def test_far_future_archived_at_is_ignored_too(self, tmp_path):
+        _write_mission_archive(
+            tmp_path, "MT-FUTURE-ARCHIVED", archive_status="open", archived_at=_iso(-24 * 30),
+        )
+
+        row = mission_authority._plan_state_report(tmp_path)[0]
+
+        assert row["last_activity_source"] == "unknown"
+        assert row["stale"] is True
+
+    def test_slightly_future_within_tolerance_counts_and_age_is_clamped_to_zero(self, tmp_path):
+        _write_mission_archive(tmp_path, "MT-SKEW", archive_status="open")
+        _write_taskcard_row(tmp_path, "MT-SKEW", "TC-1", _z(_FIXED_NOW + timedelta(hours=2)))
+
+        row = mission_authority._plan_state_report(tmp_path, now=_FIXED_NOW)[0]
+
+        assert row["last_activity_source"] == "taskcards"
+        assert row["age_days_since_last_activity"] == 0.0
+        assert row["stale"] is False
+
+    def test_future_tolerance_boundary_is_one_day_inclusive(self, tmp_path):
+        _write_mission_archive(tmp_path, "MT-EDGE-IN", archive_status="open")
+        _write_taskcard_row(tmp_path, "MT-EDGE-IN", "TC-1", _z(_FIXED_NOW + timedelta(days=1)))
+        _write_mission_archive(tmp_path, "MT-EDGE-OUT", archive_status="open")
+        _write_taskcard_row(
+            tmp_path, "MT-EDGE-OUT", "TC-1", _z(_FIXED_NOW + timedelta(days=1, seconds=1)),
+        )
+
+        rows = mission_authority._plan_state_report(tmp_path, now=_FIXED_NOW)
+
+        assert _row_for(rows, "MT-EDGE-IN")["last_activity_source"] == "taskcards"
+        assert _row_for(rows, "MT-EDGE-OUT")["last_activity_source"] == "unknown"
+
+    def test_exactly_seven_days_is_stale_and_just_under_is_not(self, tmp_path):
+        _write_mission_archive(tmp_path, "MT-EXACT-7D", archive_status="open")
+        _write_taskcard_row(tmp_path, "MT-EXACT-7D", "TC-1", _z(_FIXED_NOW - timedelta(days=7)))
+        _write_mission_archive(tmp_path, "MT-JUST-UNDER", archive_status="open")
+        _write_taskcard_row(
+            tmp_path, "MT-JUST-UNDER", "TC-1",
+            _z(_FIXED_NOW - timedelta(days=6, hours=23, minutes=59, seconds=59)),
+        )
+
+        rows = mission_authority._plan_state_report(tmp_path, now=_FIXED_NOW)
+
+        assert _row_for(rows, "MT-EXACT-7D")["stale"] is True  # `>=`, matches the plan
+        assert _row_for(rows, "MT-JUST-UNDER")["stale"] is False
+
+    def test_naive_timestamp_is_treated_as_utc(self, tmp_path):
+        _write_mission_archive(tmp_path, "MT-NAIVE", archive_status="open")
+        naive = (_FIXED_NOW - timedelta(days=7)).replace(tzinfo=None).isoformat()
+        _write_taskcard_row(tmp_path, "MT-NAIVE", "TC-1", naive)
+
+        row = mission_authority._plan_state_report(tmp_path, now=_FIXED_NOW)[0]
+
+        assert row["last_activity_source"] == "taskcards"
+        assert row["age_days_since_last_activity"] == 7.0
+        assert row["stale"] is True
+
+    def test_absent_archive_status_is_unknown_and_never_stale(self, tmp_path):
+        _write_raw_archive(tmp_path, "MT-NO-STATUS", "mission_authority:\n  mission_id: MT-NO-STATUS\n")
+        _write_taskcard_row(tmp_path, "MT-NO-STATUS", "TC-1", _iso(24 * 400))
+
+        row = mission_authority._plan_state_report(tmp_path)[0]
+
+        assert row["archive_status"] == "unknown"
+        assert row["stale"] is False
 
 
 # ---------------------------------------------------------------------------

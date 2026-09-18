@@ -361,26 +361,131 @@ def _lock_report(root: Path) -> List[Dict[str, Any]]:
 
 _STALE_MISSION_THRESHOLD_DAYS = 7
 
+# TC-GOV-02-01-FIX: a `recorded_at` / `_archived_at` more than this far ahead
+# of "now" is "clearly future" and carries NO liveness signal. Accepting it
+# would let one stray row (a bad writer, a wrong clock, a typo'd year) make an
+# abandoned mission look permanently live -- a row ~10 years ahead used to give
+# age_days=-3650 and stale=False. The 1-day slack covers ordinary clock skew and
+# the worst real source of a legitimately future-looking stamp (a local time
+# mislabelled `Z`; the maximum UTC offset is +14h) while bounding any masking
+# of a genuinely stale mission to under a day.
+_FUTURE_TIMESTAMP_TOLERANCE = datetime.timedelta(days=1)
 
-def _parse_iso_timestamp(value: Optional[str]) -> Optional[datetime.datetime]:
+# Upper bound on the message part of a plan_state error row (it is printed to a
+# console and embedded in JSON -- keep it one short line, never a traceback).
+_ERROR_TEXT_MAX_CHARS = 200
+
+
+def _parse_iso_timestamp(value: Any) -> Optional[datetime.datetime]:
     """Parse an ISO-8601 timestamp in this repo's `...Z` idiom -- the exact
     format every `recorded_at`/`_archived_at` field in this codebase uses
     (see taskcard_store.py's `_now_iso()` / taskcard_cli.py's `_parse_iso()`,
     which this mirrors). Returns None for missing/unparseable input rather
     than raising -- this is a read-only liveness report, never a hard gate
-    (RC1/RC2 convention already followed by the other 3 stores)."""
-    if not value:
+    (RC1/RC2 convention already followed by the other 3 stores).
+
+    Anything that is not a `str` is "no signal" and returns None: the schema
+    (validate_taskcard_record) checks that `recorded_at` is present, not what
+    type it is, so a row with an int/dict/list/bool value is a legal row. That
+    includes `datetime` objects -- an UNQUOTED `_archived_at: 2026-09-17T...Z`
+    in the archive yaml loads as one -- which are ignored explicitly rather
+    than accepted (or, as before, discarded only by an accidental TypeError)."""
+    if not isinstance(value, str) or not value:
         return None
     try:
         dt = datetime.datetime.fromisoformat(value.replace("Z", "+00:00"))
-    except (ValueError, TypeError):
+    except (ValueError, TypeError, OverflowError):
         return None
     if dt.tzinfo is None:
         dt = dt.replace(tzinfo=datetime.timezone.utc)
     return dt
 
 
-def _plan_state_report(root: Path) -> List[Dict[str, Any]]:
+def _usable_activity_timestamp(
+    value: Any, now: datetime.datetime,
+) -> Optional[datetime.datetime]:
+    """`_parse_iso_timestamp()` plus the future-date rule: None unless `value`
+    is a parseable string that is not more than _FUTURE_TIMESTAMP_TOLERANCE
+    ahead of `now`. This is the only way a timestamp becomes a liveness signal."""
+    dt = _parse_iso_timestamp(value)
+    if dt is None or dt - now > _FUTURE_TIMESTAMP_TOLERANCE:
+        return None
+    return dt
+
+
+def _plan_state_error_text(exc: BaseException) -> str:
+    """`<ErrorClass>: <short message>` -- one line, ASCII-only, bounded. Never a
+    traceback. ASCII-escaping matters: a YAML error quotes source text, and a
+    non-ASCII character reaching a cp1252 console used to kill `status --json`
+    with UnicodeEncodeError."""
+    message = " ".join(str(exc).split()).encode("ascii", "backslashreplace").decode("ascii")
+    if len(message) > _ERROR_TEXT_MAX_CHARS:
+        message = message[: _ERROR_TEXT_MAX_CHARS - 3] + "..."
+    return f"{type(exc).__name__}: {message}" if message else type(exc).__name__
+
+
+def _plan_state_mission_row(
+    mission_dir: Path, archive_path: Path, now: datetime.datetime,
+) -> Dict[str, Any]:
+    """Evaluate ONE mission directory into its report row. Raises on anything
+    unreadable or malformed -- the caller (_plan_state_report) turns that into
+    an error row for this mission only; nothing in here may leak to the others."""
+    data = yaml.safe_load(archive_path.read_text(encoding="utf-8"))
+    ma = data.get("mission_authority") if isinstance(data, dict) else None
+    if not isinstance(ma, dict):
+        raise ValueError("archive must contain a top-level 'mission_authority' mapping")
+
+    # yaml can hand back any type (an unquoted 2026-09-17 is a datetime.date,
+    # which json.dumps cannot serialise) -- keep both fields strings.
+    mission_id = ma.get("mission_id")
+    if not isinstance(mission_id, str) or not mission_id:
+        mission_id = mission_dir.name
+    archive_status = ma.get("_archive_status")
+    if not isinstance(archive_status, str) or not archive_status:
+        archive_status = "unknown"
+
+    history = TaskcardStore(mission_id, plan_state_dir=mission_dir).read_history()
+    recorded_ats = [
+        dt for dt in (
+            _usable_activity_timestamp(row.get("recorded_at"), now)
+            for row in history if isinstance(row, dict)  # valid JSON != a taskcard row
+        )
+        if dt is not None
+    ]
+
+    if recorded_ats:
+        last_activity_at = max(recorded_ats)
+        last_activity_source = "taskcards"
+    else:
+        last_activity_at = _usable_activity_timestamp(ma.get("_archived_at"), now)
+        last_activity_source = "archived_at" if last_activity_at is not None else "unknown"
+
+    if last_activity_at is not None:
+        # Clamped: a stamp inside the future tolerance is activity "just now".
+        age_days: Optional[float] = max(0.0, (now - last_activity_at).total_seconds() / 86400.0)
+    else:
+        age_days = None
+
+    stale = archive_status == "open" and (
+        age_days is None or age_days >= _STALE_MISSION_THRESHOLD_DAYS
+    )
+
+    return {
+        "mission_id": mission_id,
+        "archive_status": archive_status,
+        "last_activity_at": (
+            last_activity_at.isoformat().replace("+00:00", "Z")
+            if last_activity_at is not None else None
+        ),
+        "last_activity_source": last_activity_source,
+        "age_days_since_last_activity": round(age_days, 2) if age_days is not None else None,
+        "stale": stale,
+    }
+
+
+def _plan_state_report(
+    root: Path, now: Optional[datetime.datetime] = None,
+) -> List[Dict[str, Any]]:
     """Read-only summary of every reports/plan_state/{mission_id}/ mission,
     cross-referencing its own taskcards.jsonl activity -- the store
     build_liveness_report() was missing entirely before TC-GOV-02-01: it read
@@ -392,78 +497,60 @@ def _plan_state_report(root: Path) -> List[Dict[str, Any]]:
     For each archived mission directory (any `_archive_status`, not just
     "open" -- same as cmd_list()), reports:
       - mission_id: from the archived snapshot, falling back to the
-        directory name (matches cmd_list()'s own fallback)
+        directory name (matches cmd_list()'s own fallback; also used when the
+        snapshot's mission_id is not a string)
       - archive_status: this mission's `_archive_status` field, or "unknown"
-        if absent (matches cmd_list()'s own default)
+        if absent or not a string (matches cmd_list()'s own default)
       - last_activity_at: max(recorded_at) across every taskcards.jsonl row
         for this mission (via TaskcardStore(...).read_history() -- read-only,
         never touches the write path or CAS guards), or, if the mission has
-        never had a single taskcard row, this archive's own `_archived_at`
-        timestamp as a fallback anchor -- a mission opened and then never
+        never had a single usable taskcard timestamp, this archive's own
+        `_archived_at` as a fallback anchor -- a mission opened and then never
         touched at all must not silently produce "no signal" instead of
         "stale".
       - last_activity_source: "taskcards" | "archived_at" | "unknown"
       - age_days_since_last_activity: float days between now and
-        last_activity_at, or None if neither signal is available.
+        last_activity_at (never negative), or None if neither signal is
+        available.
       - stale: True only for `_archive_status: open` missions whose
-        last_activity_at is more than _STALE_MISSION_THRESHOLD_DAYS days old
-        OR entirely absent -- absence of any liveness signal for an open
-        mission is treated as stale, not silently skipped, so this store
-        fails toward surfacing a possibly-abandoned mission rather than
-        missing it.
+        last_activity_at is at least _STALE_MISSION_THRESHOLD_DAYS days old
+        (`>=`: exactly 7 days is stale) OR entirely absent -- absence of any
+        liveness signal for an open mission is treated as stale, not silently
+        skipped, so this store fails toward surfacing a possibly-abandoned
+        mission rather than missing it.
+
+    What counts as a liveness signal (TC-GOV-02-01-FIX): only a `recorded_at`
+    (or `_archived_at`) that is a parseable string and not more than
+    _FUTURE_TIMESTAMP_TOLERANCE in the future. A non-string value, a
+    datetime-typed yaml scalar, garbage, or a clearly-future stamp is "no
+    signal" -- skipped individually, so the row's other timestamps still count.
+    Naive timestamps are read as UTC. Rows in taskcards.jsonl that are valid
+    JSON but not objects are skipped.
+
+    Failure isolation: each mission is evaluated inside its own try/except. A
+    mission whose archive or ledger is unreadable or malformed (bad yaml, a
+    `mission_authority:` that is not a mapping, invalid UTF-8, an OSError)
+    yields `{"mission_id": <dir name>, "error": "<ErrorClass>: <message>"}` --
+    no `stale` key, since its staleness is unknowable -- and every other
+    mission is still evaluated. One bad mission can never blind the detector
+    for the rest; build_liveness_report() lists those ids as `plan_state_errors`.
+
+    `now` is a test seam (tz-aware); production callers omit it.
     """
     plan_state_root = root / "reports" / "plan_state"
     out: List[Dict[str, Any]] = []
     if not plan_state_root.is_dir():
         return out
-    now = datetime.datetime.now(datetime.timezone.utc)
+    if now is None:
+        now = datetime.datetime.now(datetime.timezone.utc)
     for mission_dir in sorted(plan_state_root.iterdir()):
         archive_path = mission_dir / "mission_authority.yaml"
         if not archive_path.is_file():
             continue  # not a mission directory (e.g. mission_activation_log.jsonl)
         try:
-            data = yaml.safe_load(archive_path.read_text(encoding="utf-8"))
-            ma = data["mission_authority"]
-        except Exception as exc:  # noqa: BLE001
-            out.append({"mission_id": mission_dir.name, "error": str(exc)})
-            continue
-
-        mission_id = ma.get("mission_id", mission_dir.name)
-        archive_status = ma.get("_archive_status", "unknown")
-
-        history = TaskcardStore(mission_id, plan_state_dir=mission_dir).read_history()
-        recorded_ats = [
-            dt for dt in (_parse_iso_timestamp(row.get("recorded_at")) for row in history)
-            if dt is not None
-        ]
-
-        if recorded_ats:
-            last_activity_at = max(recorded_ats)
-            last_activity_source = "taskcards"
-        else:
-            last_activity_at = _parse_iso_timestamp(ma.get("_archived_at"))
-            last_activity_source = "archived_at" if last_activity_at is not None else "unknown"
-
-        if last_activity_at is not None:
-            age_days: Optional[float] = (now - last_activity_at).total_seconds() / 86400.0
-        else:
-            age_days = None
-
-        stale = archive_status == "open" and (
-            age_days is None or age_days >= _STALE_MISSION_THRESHOLD_DAYS
-        )
-
-        out.append({
-            "mission_id": mission_id,
-            "archive_status": archive_status,
-            "last_activity_at": (
-                last_activity_at.isoformat().replace("+00:00", "Z")
-                if last_activity_at is not None else None
-            ),
-            "last_activity_source": last_activity_source,
-            "age_days_since_last_activity": round(age_days, 2) if age_days is not None else None,
-            "stale": stale,
-        })
+            out.append(_plan_state_mission_row(mission_dir, archive_path, now))
+        except Exception as exc:  # noqa: BLE001 -- isolate: one mission must never blind the rest
+            out.append({"mission_id": mission_dir.name, "error": _plan_state_error_text(exc)})
     return out
 
 
@@ -481,6 +568,12 @@ def build_liveness_report(root: Optional[Path] = None) -> Dict[str, Any]:
     every mission with `_archive_status: open` and zero taskcards.jsonl
     activity for >=7 days now surfaces here as `stale_open_missions`,
     without a human having to think to check.
+
+    `plan_state_errors` (TC-GOV-02-01-FIX) lists the missions that could not be
+    evaluated at all (their `plan_state` row carries `error`, not `stale`). They
+    are deliberately NOT in `stale_open_missions` -- their staleness is unknown,
+    not established -- but they are never silently fine either: consumers must
+    surface this list next to the stale one.
     """
     root = root or repo_root()
     plan_state_rows = _plan_state_report(root)
@@ -491,6 +584,9 @@ def build_liveness_report(root: Optional[Path] = None) -> Dict[str, Any]:
         "plan_state": plan_state_rows,
         "stale_open_missions": [
             row["mission_id"] for row in plan_state_rows if row.get("stale")
+        ],
+        "plan_state_errors": [
+            row["mission_id"] for row in plan_state_rows if "error" in row
         ],
     }
 
@@ -541,6 +637,15 @@ def cmd_status(args: argparse.Namespace) -> int:
             print(f"  {row['mission_id']}: last_activity={row.get('last_activity_at')} "
                   f"({row.get('last_activity_source')}), "
                   f"age={row.get('age_days_since_last_activity')}d")
+
+    # An errored mission is never silently fine: its staleness is unknown, so it
+    # is not in the stale list above -- but it is counted and named here.
+    plan_state_errors = report["plan_state_errors"]
+    print(f"Unreadable plan_state missions (staleness UNKNOWN, not evaluated): "
+          f"{len(plan_state_errors)}")
+    for row in report["plan_state"]:
+        if "error" in row:
+            print(f"  {row['mission_id']}: {row['error']}")
 
     return 0
 
