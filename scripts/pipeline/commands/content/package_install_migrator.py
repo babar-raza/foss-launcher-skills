@@ -69,9 +69,45 @@ _REGISTRY_COMMAND_PREFIX = {
     "go_modules": "go get",
 }
 
+# TC-PKG-02-08-FIX (mission MT066-2026-09-09-PACKAGE-INSTALL-RECONCILIATION):
+# additional literal command-line forms that install the SAME package as the
+# primary CLI prefix above, for registries that have more than one common,
+# live install idiom. package_install_literal.py (ST-054 TC-02) already
+# flags nuget's PowerShell/NuGet Package Manager Console form
+# (`Install-Package X`) as a finding distinct from `dotnet add package X` --
+# this migrator had no matching remediation pattern for it until this fix.
+# Confirmed live against email/net: 111 real findings across 37 locales, all
+# in this form or the <PackageReference> XML form below; 0 files ever
+# migrated. Folded into _command_pattern()'s alternation so
+# _block_is_sole_command and the inline-mention counter cover it for free.
+_REGISTRY_ALT_COMMAND_PREFIXES: dict[str, tuple[str, ...]] = {
+    "nuget": ("Install-Package",),
+}
+
 # Same 4 registries package_install_literal.py (TC-MT015-05) audits -- Maven
 # and Cargo keep their own dedicated migrator/shortcode, not this one.
 _TRACKED_REGISTRY_TYPES = set(_REGISTRY_COMMAND_PREFIX)
+
+# TC-PKG-02-08-FIX: nuget's raw csproj XML form -- `<PackageReference
+# Include="X" ... />` (self-closing) or `<PackageReference Include="X" ...>
+# ...</PackageReference>` (with a body) -- is a real, live alternate to the
+# CLI install commands above; package_install_literal.py already flags it
+# (ST-054 TC-02), remediation did not until this fix. Structurally distinct
+# from a verb+token command line, so it gets its own element-level regex
+# rather than joining _command_pattern()'s alternation. Doesn't anchor on
+# the specific package identifier -- mirrors _command_pattern()'s own
+# "structural match, not value match" philosophy: package-install.html
+# renders the correct identity for the family/platform regardless of what
+# literal text it's replacing.
+_PACKAGE_REFERENCE_ELEMENT_RE = re.compile(
+    r'<PackageReference\s+Include="[^"]+"(?:\s+Version="[^"]+")?\s*(?:/>|>.*?</PackageReference\s*>)',
+    re.IGNORECASE | re.DOTALL,
+)
+
+# Loose "is there a PackageReference mention at all" match, for counting
+# remaining/inline occurrences post block-pass -- mirrors
+# package_install_literal.py's own second regex alternative.
+_PACKAGE_REFERENCE_ANY_RE = re.compile(r'<PackageReference\s+Include="[^"]+"', re.IGNORECASE)
 
 _IN_SCOPE_SUBSITES = ("docs.aspose.org", "blog.aspose.org", "kb.aspose.org", "products.aspose.org")
 
@@ -84,7 +120,7 @@ R_SKIPPED_PROTECTED = "SKIPPED_PROTECTED"
 R_NO_REGISTRY_ENTRY = "NO_REGISTRY_ENTRY"
 
 
-def _command_pattern(prefix: str) -> re.Pattern:
+def _command_pattern(prefixes: "str | tuple[str, ...]") -> re.Pattern:
     """Match an install command, tolerating a trailing `--version X` flag
     (dotnet's CLI syntax, space-separated -- unlike npm's `@X`/pip's `==X`,
     which are already covered since they glue onto the package-name token
@@ -93,9 +129,17 @@ def _command_pattern(prefix: str) -> re.Pattern:
     by _block_is_sole_command's fullmatch check and misclassified as an
     unfixable "inline mention" -- it's a perfectly safe, isolated code block,
     just with a version pin. ~1,950 occurrences repo-wide matched this exact
-    recoverable pattern."""
+    recoverable pattern.
+
+    `prefixes` may be a single string (the common case) or a tuple of
+    alternate command-line forms that all install the same package (e.g.
+    nuget's `dotnet add package` and `Install-Package` -- TC-PKG-02-08-FIX,
+    _REGISTRY_ALT_COMMAND_PREFIXES above)."""
+    if isinstance(prefixes, str):
+        prefixes = (prefixes,)
+    alternation = "|".join(re.escape(p) for p in prefixes)
     return re.compile(
-        r"\b" + re.escape(prefix) + r"\s+\S+(?:\s+--version\s+\S+)?", re.IGNORECASE,
+        r"\b(?:" + alternation + r")\s+\S+(?:\s+--version\s+\S+)?", re.IGNORECASE,
     )
 
 
@@ -111,6 +155,25 @@ def _block_is_sole_command(block_text: str, cmd_re: re.Pattern) -> bool:
     if not non_blank:
         return False
     return all(cmd_re.fullmatch(ln.strip()) for ln in non_blank)
+
+
+def _block_is_sole_package_reference(block_text: str) -> bool:
+    """True if the fenced block's body (excluding fence lines) is ONLY a
+    single `<PackageReference Include="..." .../>` XML element -- self-
+    closing or with a body -- not a larger project-file listing (an
+    ItemGroup wrapper, multiple references, or any other surrounding
+    content). TC-PKG-02-08-FIX: same "structural safety over aggressive
+    matching" bar as _block_is_sole_command, applied to the XML shape --
+    unlike that function, the element can legitimately span multiple lines
+    (a body-form PackageReference), so this matches the whole stripped body
+    as one string rather than requiring every line to fullmatch on its own."""
+    lines = block_text.splitlines()
+    if len(lines) < 3:
+        return False
+    body = "\n".join(lines[1:-1]).strip()
+    if not body:
+        return False
+    return _PACKAGE_REFERENCE_ELEMENT_RE.fullmatch(body) is not None
 
 
 def migrate_file(filepath: Path, family: str, platform: str, *, dry_run: bool = True, registry: dict | None = None) -> dict[str, Any]:
@@ -131,8 +194,13 @@ def migrate_file(filepath: Path, family: str, platform: str, *, dry_run: bool = 
         result["error"] = f"no data/package_registry.json entry for {family}/{platform} with a tracked registry_type"
         return result
 
-    prefix = _REGISTRY_COMMAND_PREFIX[entry["registry_type"]]
-    cmd_re = _command_pattern(prefix)
+    registry_type = entry["registry_type"]
+    prefixes = (_REGISTRY_COMMAND_PREFIX[registry_type],) + _REGISTRY_ALT_COMMAND_PREFIXES.get(registry_type, ())
+    cmd_re = _command_pattern(prefixes)
+    # TC-PKG-02-08-FIX: the raw csproj XML form only exists for nuget --
+    # gated here rather than added to _TRACKED_REGISTRY_TYPES/prefix map
+    # since it isn't a verb+token command line at all.
+    check_package_reference = registry_type == "nuget"
 
     if not filepath.is_file():
         result["error"] = "file not found"
@@ -147,13 +215,17 @@ def migrate_file(filepath: Path, family: str, platform: str, *, dry_run: bool = 
     for m in reversed(blocks):
         block_text = m.group(0)
         indent = m.group(1)
-        if _block_is_sole_command(block_text, cmd_re):
+        if _block_is_sole_command(block_text, cmd_re) or (
+            check_package_reference and _block_is_sole_package_reference(block_text)
+        ):
             text = text[: m.start()] + f"{indent}{shortcode}" + text[m.end():]
             block_count += 1
 
     # Count remaining inline mentions (post block-pass) for reporting --
     # never rewritten, per the module docstring.
     inline_count = len(cmd_re.findall(text))
+    if check_package_reference:
+        inline_count += len(_PACKAGE_REFERENCE_ANY_RE.findall(text))
 
     result["block_replacements"] = block_count
     result["inline_mentions_found"] = inline_count

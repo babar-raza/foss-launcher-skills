@@ -160,6 +160,152 @@ def test_inline_mention_counted_not_rewritten(tmp_path):
     assert "dotnet add package Aspose.Slides.Foss" in text  # untouched, not mangled
 
 
+class TestNugetAlternateForms:
+    """TC-PKG-02-08-FIX (mission MT066-2026-09-09-PACKAGE-INSTALL-RECONCILIATION):
+    package_install_literal.py (ST-054 TC-02) already flags `Install-Package X`
+    (PowerShell/NuGet Package Manager Console form) and
+    `<PackageReference Include="X" ... />` (raw csproj XML form) as findings,
+    but until this fix the migrator had no matching pattern for either --
+    confirmed live against email/net: 111 real findings across 37 locales, all
+    in one of these two forms, 0 files ever migrated."""
+
+    def test_install_package_powershell_sole_command_is_migrated(self, tmp_path):
+        """Matches the real, live shape (content/docs.aspose.org/en/email/net/
+        getting-started/installation.md:83, confirmed against real content
+        before writing this test)."""
+        fp = _write(tmp_path, "content/docs.aspose.org/en/slides/net/getting-started/installation.md", (
+            "### Install via Package Manager Console (Visual Studio)\n\n"
+            "```powershell\n"
+            "Install-Package Aspose.Slides.Foss\n"
+            "```\n"
+        ))
+        res = sut.migrate_file(fp, "slides", "net", dry_run=False, registry=_NUGET_REGISTRY)
+        assert res["result"] == sut.R_MIGRATED
+        assert res["block_replacements"] == 1
+        text = fp.read_text(encoding="utf-8")
+        assert '{{< package-install "slides" "net" >}}' in text
+        assert "Install-Package" not in text
+
+    def test_install_package_multi_line_block_not_migrated(self, tmp_path):
+        """Same structural safety bar as the dotnet-add-package path: a block
+        with Install-Package PLUS other content is not a sole-command block."""
+        fp = _write(tmp_path, "content/docs.aspose.org/en/slides/net/getting-started/installation.md", (
+            "```powershell\n"
+            "cd MyProject\n"
+            "Install-Package Aspose.Slides.Foss\n"
+            "```\n"
+        ))
+        res = sut.migrate_file(fp, "slides", "net", dry_run=False, registry=_NUGET_REGISTRY)
+        assert res["result"] == sut.R_NOOP
+        assert res["block_replacements"] == 0
+        text = fp.read_text(encoding="utf-8")
+        assert "Install-Package" in text  # untouched
+
+    def test_install_package_inline_mention_counted_not_migrated(self, tmp_path):
+        fp = _write(tmp_path, "content/kb.aspose.org/en/slides/net/faq.md", (
+            "Or run `Install-Package Aspose.Slides.Foss` from the Package Manager Console.\n"
+        ))
+        res = sut.migrate_file(fp, "slides", "net", dry_run=False, registry=_NUGET_REGISTRY)
+        assert res["result"] == sut.R_NOOP
+        assert res["block_replacements"] == 0
+        assert res["inline_mentions_found"] == 1
+
+    def test_package_reference_self_closing_no_version_is_migrated(self, tmp_path):
+        fp = _write(tmp_path, "content/docs.aspose.org/en/slides/net/getting-started/installation.md", (
+            "```xml\n"
+            '<PackageReference Include="Aspose.Slides.Foss" />\n'
+            "```\n"
+        ))
+        res = sut.migrate_file(fp, "slides", "net", dry_run=False, registry=_NUGET_REGISTRY)
+        assert res["result"] == sut.R_MIGRATED
+        assert res["block_replacements"] == 1
+        text = fp.read_text(encoding="utf-8")
+        assert '{{< package-install "slides" "net" >}}' in text
+        assert "PackageReference" not in text
+
+    def test_package_reference_self_closing_with_version_is_migrated(self, tmp_path):
+        """Matches the real, live shape (content/docs.aspose.org/en/email/net/
+        getting-started/installation.md:89, confirmed against real content
+        before writing this test): `<PackageReference Include="X" Version="*" />`."""
+        fp = _write(tmp_path, "content/docs.aspose.org/en/slides/net/getting-started/installation.md", (
+            "### Install via PackageReference (csproj)\n\n"
+            "```xml\n"
+            '<PackageReference Include="Aspose.Slides.Foss" Version="*" />\n'
+            "```\n"
+        ))
+        res = sut.migrate_file(fp, "slides", "net", dry_run=False, registry=_NUGET_REGISTRY)
+        assert res["result"] == sut.R_MIGRATED
+        assert res["block_replacements"] == 1
+        text = fp.read_text(encoding="utf-8")
+        assert '{{< package-install "slides" "net" >}}' in text
+        assert "<PackageReference" not in text  # the heading's own prose mention is fine
+
+    def test_package_reference_with_body_is_migrated(self, tmp_path):
+        """Body-form PackageReference (opening tag + child content + closing
+        tag) spanning multiple lines, as the sole content of the fenced
+        block, must migrate the same as the self-closing form."""
+        fp = _write(tmp_path, "content/docs.aspose.org/en/slides/net/getting-started/installation.md", (
+            "```xml\n"
+            '<PackageReference Include="Aspose.Slides.Foss" Version="1.0.0">\n'
+            "</PackageReference>\n"
+            "```\n"
+        ))
+        res = sut.migrate_file(fp, "slides", "net", dry_run=False, registry=_NUGET_REGISTRY)
+        assert res["result"] == sut.R_MIGRATED
+        assert res["block_replacements"] == 1
+        text = fp.read_text(encoding="utf-8")
+        assert '{{< package-install "slides" "net" >}}' in text
+        assert "PackageReference" not in text
+
+    def test_package_reference_inside_larger_project_listing_not_migrated(self, tmp_path):
+        """Negative control: a legitimate multi-line PackageReference inside a
+        larger project-file listing with unrelated content (an ItemGroup
+        wrapper, a second unrelated package) must NOT be treated as a sole-
+        command match -- same safety bar as
+        test_multi_line_block_not_migrated_as_sole_command for the CLI path."""
+        fp = _write(tmp_path, "content/docs.aspose.org/en/slides/net/getting-started/installation.md", (
+            "```xml\n"
+            "<ItemGroup>\n"
+            '  <PackageReference Include="Aspose.Slides.Foss" Version="*" />\n'
+            '  <PackageReference Include="Newtonsoft.Json" Version="13.0.1" />\n'
+            "</ItemGroup>\n"
+            "```\n"
+        ))
+        res = sut.migrate_file(fp, "slides", "net", dry_run=False, registry=_NUGET_REGISTRY)
+        assert res["result"] == sut.R_NOOP
+        assert res["block_replacements"] == 0
+        text = fp.read_text(encoding="utf-8")
+        assert "Newtonsoft.Json" in text  # untouched
+        assert "Aspose.Slides.Foss" in text  # untouched
+
+    def test_package_reference_inline_mention_counted_not_migrated(self, tmp_path):
+        """A <PackageReference> mention outside a fenced block (e.g. inline in
+        prose) is reported via inline_mentions_found, never rewritten -- same
+        treatment as an inline CLI-command mention."""
+        fp = _write(tmp_path, "content/kb.aspose.org/en/slides/net/faq.md", (
+            'Add `<PackageReference Include="Aspose.Slides.Foss" Version="*" />` to your .csproj.\n'
+        ))
+        res = sut.migrate_file(fp, "slides", "net", dry_run=False, registry=_NUGET_REGISTRY)
+        assert res["result"] == sut.R_NOOP
+        assert res["block_replacements"] == 0
+        assert res["inline_mentions_found"] == 1
+        text = fp.read_text(encoding="utf-8")
+        assert "PackageReference" in text  # untouched
+
+    def test_pypi_registry_type_unaffected_by_nuget_alt_forms(self, tmp_path):
+        """Regression pin: a pypi product must never gain Install-Package or
+        PackageReference sensitivity -- those are nuget-only additions."""
+        fp = _write(tmp_path, "content/docs.aspose.org/en/cells/python/getting-started/installation.md", (
+            "```xml\n"
+            '<PackageReference Include="aspose-cells-foss" Version="*" />\n'
+            "```\n"
+        ))
+        res = sut.migrate_file(fp, "cells", "python", dry_run=False, registry=_PYPI_REGISTRY)
+        assert res["result"] == sut.R_NOOP
+        assert res["block_replacements"] == 0
+        assert res["inline_mentions_found"] == 0
+
+
 def test_dry_run_does_not_write(tmp_path):
     fp = _write(tmp_path, "content/docs.aspose.org/en/slides/net/getting-started/installation.md", (
         "```bash\ndotnet add package Aspose.Slides.Foss\n```\n"
