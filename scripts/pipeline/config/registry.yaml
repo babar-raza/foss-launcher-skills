@@ -6759,3 +6759,19 @@ scripts:
     requires_test: false
     deprecated_since: null
     notes: "TC-VEC-03/RC2: compares an active vector profile's recorded source_hash against a fresh api_surface.json hash so staleness (not just existence) is detectable; source_hash was previously write-only."
+
+  - path: scripts/pipeline/commands/ops/redact_plan_state_paths.py
+    kind: entrypoint
+    lifecycle: active
+    canonical_impl_path: null
+    public_entrypoint: true
+    cli_contract: stable
+    owner_domain: governance
+    backing:
+      kind: internal
+      ref: null
+    test_targets:
+      - scripts/pipeline/tests/test_redact_plan_state_paths.py
+    requires_test: true
+    deprecated_since: null
+    notes: "TC-GOV-01-02 (MT071-2026-09-17-GOVERNANCE-DURABILITY-HARDENING): detects/redacts local-machine absolute home-directory paths (Windows C:/Users/<name>/..., Unix /home/<name>/..., macOS /Users/<name>/...) embedded in reports/plan_state/**/*.{yaml,jsonl} -- required before that directory can safely become git-tracked (TC-GOV-01-03). --check reports findings (exit 1 if any); --fix rewrites matched paths to <local-plan-cache>/{basename} placeholders via targeted regex substitution, never a parse-and-rewrite. Not yet run with --fix against real data -- that is TC-GOV-01-03's job."
