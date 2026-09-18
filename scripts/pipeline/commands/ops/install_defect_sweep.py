@@ -63,6 +63,7 @@ from content_eval.evaluators.install_recipe import InstallRecipeEvaluator  # noq
 from reconciliation_store import ReconciliationStore  # noqa: E402
 from audit.package_install_literal import verify_package_install_literals  # noqa: E402
 from commands.content.package_install_migrator import _locale_from_path  # noqa: E402
+from package_registry_data import load_registry  # noqa: E402
 
 _DEFAULT_REPO_ROOT = Path(__file__).resolve().parents[4]
 REPO_ROOT = _DEFAULT_REPO_ROOT
