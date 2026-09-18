@@ -6,6 +6,72 @@
 
 ## Status (as of 2026-09-18)
 
+- **Deep-dive, production-incident treatment (2026-09-18): `skill-governance.yml`'s
+  Windows-job "not yet decided" cost question is a cross-mission entanglement, not an
+  independent decision — MT069's own recommendation for it is withdrawn.** The user
+  pushed for a second, deeper pass on "why has this not been decided" rather than
+  accepting the earlier dossier's framing ("try trigger-demotion before self-hosting").
+  Investigation (reading the 2026-08-30 stale-guard-redesign plan file directly, real
+  `gh run list` history, and `git_plumb_commit.py`'s live `--wide-findings` default)
+  found the real answer, with hard evidence at every step:
+  - **Symptom**: `governance-tests-windows` has been `continue-on-error: true` for 19
+    days, 5 days past its own planned 2026-09-13 flip date (`R-04`/`TC-SG-07`/`ST-127`).
+    MT069 independently flagged its cost (223 min, 14.9% of total, more than the
+    required Linux job) as an open question needing a fresh decision.
+  - **Real root cause chain, not a single bug**: (1) `TC-SG-20` correctly certified both
+    governance workflows "green" on 2026-08-31 — true at the time. (2) A wholly
+    unrelated commit (`acd165e07e`, 2026-09-06) introduced the `check_platform_
+    capabilities.py` comparison bug this mission's own `TC-14` later fixed — silently
+    re-breaking `skill-governance.yml`'s required Linux job and dragging the
+    *workflow-level* conclusion back to `failure` for every run through the last one on
+    2026-09-11 (verified directly: 15/15 recent runs `conclusion: failure` via
+    `gh run list`). Nothing re-validated `TC-SG-20`'s "completed_verified" status
+    against this later regression. (3) `R-04`, the reminder meant to gate the flip
+    decision, was written referencing the (by-then 6-day-stale) "precondition met"
+    claim and was never revisited before its 2026-09-13 due date passed — it is a
+    "manual" reminder with no forcing function beyond a session choosing to reopen it.
+    (4) ~2026-09-14, an unrelated cost-emergency stopgap disabled all 20 workflows,
+    freezing the only mechanism (live runs) that could ever produce the soak evidence
+    `TC-SG-07` needs — before the `TC-14` fix even existed. (5) `TC-14` landed today
+    (commit `d795f669e6`) as a side effect of *this* mission's cost investigation, not
+    anyone working the stale-guard graduation checklist directly — and the workflow has
+    never run since, so **zero live evidence exists that a post-fix run is actually
+    green at the workflow level**. The flip is not neglected; it is currently
+    undecidable with real evidence.
+  - **Structural weakness (third instance of the same shape this mission has now
+    found)**: nothing in this repo re-validates a `completed_verified` taskcard's
+    continued truth when something later touches the same surface — the same "no
+    checks on the checks" gap already named for `check_platform_capabilities.py` and
+    `check_evaluator_version_bump.py` earlier in this plan's CI-defect-remediation
+    section. A second, independent structural gap: no mechanism surfaces "is this exact
+    config attribute already the subject of another active initiative's pending
+    decision" before a new mission forms its own recommendation about it — the
+    MT066/`aspose.org-workflows` PR-merge-conflict check this mission correctly
+    performed is the right pattern, but it was applied narrowly to one cross-repo case,
+    not generalized to every shared file a mission touches.
+  - **Corrected**: `dossiers/skill-governance.md` §§11-13/15-20 and
+    `analysis/destination_decision_matrix.json`'s row for this file (both
+    `reports/plan_state/`, local-only) — recommendation changed from
+    `SPLIT_BETWEEN_HOSTED_AND_SELF_HOSTED` (MEDIUM) to
+    `SELF_HOSTED_FOR_REQUIRED_JOB_NO_ACTION_ON_WINDOWS_JOB` (HIGH for the Linux job,
+    N/A for the Windows job — explicitly out of MT069's scope). `backlog/REMINDERS.md`'s
+    `R-04` corrected to state its own premise is stale and its due date reset from a
+    fixed calendar date to "after the next real re-enable of `skill-governance.yml`."
+  - **Trigger-demotion, MT069's own earlier cheapest-fix suggestion, is explicitly
+    withdrawn**, not just deprioritized: demoting this job's trigger would destroy the
+    soak-observation signal `TC-SG-07` needs to graduate it safely — a strictly worse
+    outcome than doing nothing, and exactly the "a soft launch that never flips"
+    failure mode that plan's own authors named as the thing they were designing against.
+  - **What this does NOT do**: re-enable the workflow to manufacture the missing
+    evidence (would violate the standing hard constraint for a soft, non-urgent
+    verification); independently re-verify the Step 34/plumb-WARN lookback-false-
+    positive precondition (no dated log was found this pass — flagged as an honest
+    evidence gap, not assumed clean); or build the two generalizable fixes this finding
+    points toward (a "held by another initiative" cross-reference checker for shared CI
+    files; extending the PHB-03 telemetry to watch soft-launched jobs past their own
+    stated soak-end date) — both are real, scoped follow-up engineering, proposed but
+    not built, and belong to a decision the user makes, not something to build ad hoc
+    while investigating one instance of the problem.
 - **Master task-list authorization executed end-to-end (2026-09-18)**: the user gave
   a comprehensive, itemized go-ahead covering every remaining category of open work.
   Summary of outcomes (each item's own detailed entry is elsewhere in this log):
