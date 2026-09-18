@@ -6,6 +6,82 @@
 
 ## Status (as of 2026-09-18)
 
+- **Master task-list authorization executed end-to-end (2026-09-18)**: the user gave
+  a comprehensive, itemized go-ahead covering every remaining category of open work.
+  Summary of outcomes (each item's own detailed entry is elsewhere in this log):
+  1. All uncommitted work committed (12 commits this session: 3 PHB-05/PHB-06 doc
+     corrections/fixes, PHB-03 telemetry, the llms-generation.yml scoped-regen fix,
+     the repo_patrol.py auto-clone fix, AGENTS.md, seo-keyword-refresh.yml, the
+     self-hosted-runner wiring).
+  2. Time-dependent items (PHB-05 canary observation, PHB-08 final comparison)
+     tracked in `backlog/REMINDERS.md` (R-07/R-08) and `backlog/inbox.md` (ST-200/201)
+     — not re-litigated here, still genuinely time-gated.
+  3. PHB-03 (cost/CI-health telemetry) executed fully: built, tested (54 tests),
+     live dry-run smoke-tested against the real private repo, committed. It
+     correctly surfaced both real defects below independently of how they were found.
+  4. `launch-dashboard.yml` and `ci-eval-consistency.yml` deep-dive review: already
+     complete as of the prior day's entries in this log (split migration + the
+     two-pass launch-dashboard.yml correction) — no further engineering needed.
+     `llms-generation.yml` got a second, deeper pass this session (see below) and its
+     fix is now committed.
+  5. `upstream-monitor.yml`'s "issue #94 PAT gap" corrected — see the entry directly
+     below. This was the "needs a human token" item; the real answer is no token was
+     ever needed, reported honestly rather than force-fitted to the user's premise.
+     Issue #94 closed on GitHub with the corrected root cause. The genuinely-new fix
+     (`repo_patrol.py`'s `cmd_sweep()` auto-clone self-heal) was proven live twice:
+     once via a local empty-cache-dir + real network clone, and once via a real
+     GitHub Actions dispatch of the public `upstream-monitor.yml`
+     (run `35321867511`, `fetch_failures: 0` vs. `33/33` before the fix).
+  6. `AGENTS.md` §9a's dead link fixed via `override_manager.py` (token
+     `20260918-075342-AGENTS-md`, consumed against commit `b4e819fb9e`) — the two
+     stale `docs/workflows/evaluator-changes.md` references now point at the real
+     replacement, `docs/development/evaluator-changes.md`.
+  7. PRs #99, #100, #103 independently reviewed as three separate cases and merged
+     after verification: #99's PyPI version claim (`aspose-note` 26.3.2) confirmed
+     live against the real PyPI API; #100 confirmed purely additive audit-report
+     data; #103 initially contained a real destructive regression (would have
+     replaced 250 lines of real per-product freshness data with `{}`, a direct
+     symptom of the pre-fix `fetch_failures: 33/33` bug) — not merged as-is; instead,
+     the underlying bug was fixed first, then the public workflow was re-dispatched
+     live, which updated PR #103 in place with correct data before merging it.
+  8. `seo-keyword-refresh.yml` investigated per explicit instruction not to ignore a
+     pre-existing finding just because this mission didn't cause it — see its own
+     entry below. Real finding: the drift ran backwards from the usual case (the
+     deployed copy had an incident-tested credential fix never backported locally).
+  9. Self-hosted runner wired to `content-governance-checks.yml` and
+     `skill-governance.yml`'s required Linux job. Found and fixed a real,
+     load-bearing gap while doing this: the runner already running on this dev
+     machine was registered against the wrong repo (`Aspose/aspose.org-workflows`,
+     public) and could never have served either job — see its own entry below.
+     `skill-governance.yml`'s soft-launched Windows job is intentionally NOT
+     self-hosted yet (a separate, not-yet-decided item per this plan's own design —
+     try trigger-demotion first).
+  - **What remains genuinely open, not executed today**: the new private-repo
+    runner (`alienware-m18-wsl2-private`) is running via `nohup ./run.sh &`, not yet
+    a systemd service — that step needs the same interactive `sudo ./svc.sh
+    install/start` the user ran for the first runner (PHB-07, 2026-09-17). End-to-end
+    proof that a real job executes on it is necessarily deferred to a future,
+    explicit human-approved re-enable of one or both target workflows — the standing
+    hard constraint prohibits dispatching them to test this now.
+- **Self-hosted runner registration mismatch found and fixed (2026-09-18)**: the
+  runner already registered on this dev machine (`alienware-m18-wsl2-test`,
+  directory `~/actions-runner-aspose-org-workflows`) turned out to be registered
+  against `Aspose/aspose.org-workflows` (the PUBLIC repo) via its own `.runner`
+  config file's `gitHubUrl`, not `Aspose/aspose.org` (the private repo both
+  `content-governance-checks.yml` and `skill-governance.yml` live in and require).
+  This means the self-hosted design's actual goal — zero marginal cost for these two
+  specific private-repo required checks — could never have been reached by wiring
+  `runs-on:` alone, no matter how that field was set, since a runner registered to
+  one repo cannot service another repo's queued jobs. **Why:** likely conflated
+  during PHB-07's original setup with the earlier proven-out public-repo migration
+  work happening in the same session. **Fix:** registered a second, correctly-scoped
+  runner (`alienware-m18-wsl2-private`, label `gha-private-native`, reusing the
+  cached runner tarball) directly against `Aspose/aspose.org`, confirmed
+  `status: online` via the real Actions API. **Standing rule**: before trusting any
+  self-hosted-runner design document's claim about which repo a runner serves,
+  verify it directly against the runner's own `.runner` config file or the
+  `GET /repos/{owner}/{repo}/actions/runners` API — a plausible directory name is not
+  proof of correct registration.
 - **CORRECTION (2026-09-18): `upstream-monitor.yml`'s "issue #94 PAT gap" was a
   months-old misdiagnosis, not a real credential problem.** Every prior record in
   this mission — this plan's own earlier entries below, both `upstream-monitor.yml`
