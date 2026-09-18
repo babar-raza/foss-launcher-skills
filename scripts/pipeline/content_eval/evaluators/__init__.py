@@ -89,4 +89,14 @@ def _ensure_loaded():
         private_api_usage,
         code_prose_alignment,
         generic_description_check,
+        topic_grounding,
     )
+    # EVALUATOR-VERSION-BUMP-EXEMPT: this __init__.py edit only adds
+    # topic_grounding to the registration import tuple (CE-02, G-03); no
+    # evaluator's own logic changed here. check_evaluator_version_bump.py's
+    # _EVALUATOR_FILE_RE (r"evaluators/([a-z0-9_]+)\.py$") matches
+    # `__init__.py` itself as if "__init__" were an evaluator name -- a
+    # pre-existing false-positive for this file specifically, filed as a
+    # separate backlog item rather than fixed here (out of this taskcard's
+    # scope). topic_grounding.py's own real EVALUATOR_VERSIONS["topic_grounding"]
+    # entry is present and not exempted.

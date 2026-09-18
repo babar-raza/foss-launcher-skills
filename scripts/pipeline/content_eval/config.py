@@ -43,6 +43,7 @@ ALL_EVALUATORS = [
     "duplicate_content",  # RC-W1-005 (MT026 blind-spot audit): whole-page duplicate/alias-collision detection
     "module_compilability",  # RC-tex-python-05 (MT037 blind-spot audit): verify cited API modules actually compile
     "example_execution",  # MT065-2026-09-06-EXAMPLE-VERIFICATION-CENTRALIZATION C8: inherit-first execution-proof + tier-1 syntax check
+    "topic_grounding",  # CE-02 (2026-09-17 healing plan, gap G-03): page-topic-to-knowledge-model grounding check
 ]
 
 # FREEZE-03: Canonical evaluators — contribute to the frontmatter grade letter.
@@ -100,6 +101,7 @@ EXPERIMENTAL_EVALUATORS = frozenset({
     "duplicate_content",  # RC-W1-005: EXPERIMENTAL — new evaluators MUST start here per GRADE_CONTRACT.md §6
     "module_compilability",  # RC-tex-python-05: EXPERIMENTAL — new evaluators MUST start here per GRADE_CONTRACT.md §6
     "example_execution",  # MT065-2026-09-06-EXAMPLE-VERIFICATION-CENTRALIZATION C8: EXPERIMENTAL — new evaluators MUST start here per GRADE_CONTRACT.md §6
+    "topic_grounding",  # CE-02 (2026-09-17 healing plan G-03): EXPERIMENTAL — new evaluators MUST start here per GRADE_CONTRACT.md §6
 })
 
 # PKGINSTALL-GRADE-SAFETY-OVERRIDE (2026-09-10, MT066 plan section R.3.3):
