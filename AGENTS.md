@@ -28,7 +28,7 @@
 | §7c | [Agent-Executed Governed Inspection](#7c-agent-executed-governed-inspection-canonical-interpretation-of-human-review) | Canonical meaning of "human-review" |
 | §8 | [Escalation Conditions](#8-escalation-conditions-invoke-s-90-first-escalate-to-real-human-only-for-these) | S-90 routing + real escalation conditions |
 | §9 | [Maintenance Workflow](#9-maintenance-workflow) | → [docs/workflows/maintenance.md](docs/workflows/maintenance.md) |
-| §9a | [Evaluator Change Checklist](#9a-evaluator-change-checklist) | → [docs/workflows/evaluator-changes.md](docs/workflows/evaluator-changes.md) |
+| §9a | [Evaluator Change Checklist](#9a-evaluator-change-checklist) | → [docs/development/evaluator-changes.md](docs/development/evaluator-changes.md) |
 | §9b | [Regeneration Triggers](#9b-regeneration-after-extraction-script-changes) | → [docs/workflows/change-trigger-matrix.md](docs/workflows/change-trigger-matrix.md) |
 | §9c | [Change-Trigger Matrix](#9c-change-trigger-matrix) | → [docs/workflows/change-trigger-matrix.md](docs/workflows/change-trigger-matrix.md) |
 | §10 | [Evidence Proof in Commits](#10-evidence-proof-in-commits) | → [docs/_archive/pre-refactor/governance/evidence-and-provenance.md](docs/_archive/pre-refactor/governance/evidence-and-provenance.md) |
@@ -400,7 +400,7 @@ exists. If the knowledge model fails these thresholds, S-90 has nothing to inspe
 
 ## 9a. Evaluator Change Checklist
 
-> Full detail: [docs/workflows/evaluator-changes.md](docs/workflows/evaluator-changes.md)
+> Full detail: [docs/development/evaluator-changes.md](docs/development/evaluator-changes.md)
 
 ## 9b. Regeneration After Extraction Script Changes
 
