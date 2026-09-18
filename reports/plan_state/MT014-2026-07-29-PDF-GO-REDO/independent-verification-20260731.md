@@ -29,7 +29,7 @@ Rather than trust taskcard/backlog status labels, cross-checked MT014's completi
 The original pass of this document listed "Hugo build not independently verified — `hugo` not installed" as a disclosed, accepted limitation. This was wrong: `hugo` **is** installed on this machine (WinGet, Hugo Extended v0.154.5), just not on the Git Bash `PATH`. Located it at:
 
 ```
-/c/Users/prora/AppData/Local/Microsoft/WinGet/Packages/Hugo.Hugo.Extended_Microsoft.Winget.Source_8wekyb3d8bbwe/hugo.exe
+<local-plan-cache>/hugo.exe
 ```
 
 Recorded permanently for future sessions in `docs/reference/hugo-rendering.md §16a` (an allowlisted `docs/` path, no override token needed).

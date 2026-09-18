@@ -417,7 +417,7 @@ next refresh cycle for any product.
   beyond Tier 2 item 1's bidirectional-coverage fix).
 - **RC-skill-template-bring-into-repo** — `AUD-P1-TEMPLATE-OUTSIDE-GIT`: the actual
   design-rationale source (~22,036 lines) lives outside git entirely
-  (`C:\Users\prora\.claude\plans\...`); bring a copy or durable summary into the repo.
+  (`<local-plan-cache>/...`); bring a copy or durable summary into the repo.
 - **RC-stale-push-docstring-fix** — `AUD-P1-STALE-PUSH-DOCSTRING`: the code's own docstring
   claims push mechanics are unproven against a real external org; they are proven (this
   audit independently confirmed real pushes/PR-merges across 17+ products) — fix the stale

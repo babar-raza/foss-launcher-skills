@@ -3,7 +3,7 @@
   "generated_at": "2026-08-06T12:26:00Z",
   "status": "CLOSED -- full 30-product capability-dependency survey complete",
   "scope": "Phase 0 (checks infrastructure) + Phase 1 (3-product pilot) + Phase 2 waves 1-3 (27 more products, one dedicated single-product research agent each). All 30 products in reports/repo-presenter/ now have a real, source-verified entry in data/diagram_capability_dependencies.json.",
-  "plan_path": "C:\\Users\\prora\\.claude\\plans\\d-users-prora-onedrive-documents-github-humble-tome.md",
+  "plan_path": "<local-plan-cache>/d-users-prora-onedrive-documents-github-humble-tome.md",
   "plan_section": "Hardened design (Readiness audit, 2026-08-06)",
   "commits": [
     {

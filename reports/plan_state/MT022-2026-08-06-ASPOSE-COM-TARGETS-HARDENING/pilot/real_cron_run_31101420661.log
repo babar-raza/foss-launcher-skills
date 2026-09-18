@@ -51,16 +51,16 @@ check-target-map-drift	UNKNOWN STEP	2026-08-06T12:26:50.4791548Z   allow-unsafe-
 check-target-map-drift	UNKNOWN STEP	2026-08-06T12:26:50.4792665Z ##[endgroup]
 check-target-map-drift	UNKNOWN STEP	2026-08-06T12:26:50.5951628Z Syncing repository: Aspose/aspose.org
 check-target-map-drift	UNKNOWN STEP	2026-08-06T12:26:50.5954848Z ##[group]Getting Git version info
-check-target-map-drift	UNKNOWN STEP	2026-08-06T12:26:50.5958473Z Working directory is '/home/runner/work/aspose.org/aspose.org'
+check-target-map-drift	UNKNOWN STEP	2026-08-06T12:26:50.5958473Z Working directory is '<local-plan-cache>/aspose.org'
 check-target-map-drift	UNKNOWN STEP	2026-08-06T12:26:50.5960647Z [command]/usr/bin/git version
 check-target-map-drift	UNKNOWN STEP	2026-08-06T12:26:50.6160710Z git version 2.54.0
 check-target-map-drift	UNKNOWN STEP	2026-08-06T12:26:50.6166151Z ##[endgroup]
-check-target-map-drift	UNKNOWN STEP	2026-08-06T12:26:50.6222733Z Temporarily overriding HOME='/home/runner/work/_temp/f6cbc203-4045-479f-a982-fa83a7e21ef7' before making global git config changes
+check-target-map-drift	UNKNOWN STEP	2026-08-06T12:26:50.6222733Z Temporarily overriding HOME='<local-plan-cache>/f6cbc203-4045-479f-a982-fa83a7e21ef7' before making global git config changes
 check-target-map-drift	UNKNOWN STEP	2026-08-06T12:26:50.6224639Z Adding repository directory to the temporary git global config as a safe directory
-check-target-map-drift	UNKNOWN STEP	2026-08-06T12:26:50.6226259Z [command]/usr/bin/git config --global --add safe.directory /home/runner/work/aspose.org/aspose.org
-check-target-map-drift	UNKNOWN STEP	2026-08-06T12:26:50.6283309Z Deleting the contents of '/home/runner/work/aspose.org/aspose.org'
+check-target-map-drift	UNKNOWN STEP	2026-08-06T12:26:50.6226259Z [command]/usr/bin/git config --global --add safe.directory <local-plan-cache>/aspose.org
+check-target-map-drift	UNKNOWN STEP	2026-08-06T12:26:50.6283309Z Deleting the contents of '<local-plan-cache>/aspose.org'
 check-target-map-drift	UNKNOWN STEP	2026-08-06T12:26:50.6322183Z ##[group]Initializing the repository
-check-target-map-drift	UNKNOWN STEP	2026-08-06T12:26:50.6323800Z [command]/usr/bin/git init /home/runner/work/aspose.org/aspose.org
+check-target-map-drift	UNKNOWN STEP	2026-08-06T12:26:50.6323800Z [command]/usr/bin/git init <local-plan-cache>/aspose.org
 check-target-map-drift	UNKNOWN STEP	2026-08-06T12:26:50.6492203Z hint: Using 'master' as the name for the initial branch. This default branch name
 check-target-map-drift	UNKNOWN STEP	2026-08-06T12:26:50.6504955Z hint: will change to "main" in Git 3.0. To configure the initial branch name
 check-target-map-drift	UNKNOWN STEP	2026-08-06T12:26:50.6506740Z hint: to use in all of your new repositories, which will suppress this warning,
@@ -74,7 +74,7 @@ check-target-map-drift	UNKNOWN STEP	2026-08-06T12:26:50.6671684Z hint:
 check-target-map-drift	UNKNOWN STEP	2026-08-06T12:26:50.6672793Z hint: 	git branch -m <name>
 check-target-map-drift	UNKNOWN STEP	2026-08-06T12:26:50.6675728Z hint:
 check-target-map-drift	UNKNOWN STEP	2026-08-06T12:26:50.6676769Z hint: Disable this message with "git config set advice.defaultBranchName false"
-check-target-map-drift	UNKNOWN STEP	2026-08-06T12:26:50.6678490Z Initialized empty Git repository in /home/runner/work/aspose.org/aspose.org/.git/
+check-target-map-drift	UNKNOWN STEP	2026-08-06T12:26:50.6678490Z Initialized empty Git repository in <local-plan-cache>/.git/
 check-target-map-drift	UNKNOWN STEP	2026-08-06T12:26:50.6681833Z [command]/usr/bin/git remote add origin https://github.com/Aspose/aspose.org
 check-target-map-drift	UNKNOWN STEP	2026-08-06T12:26:50.6684684Z ##[endgroup]
 check-target-map-drift	UNKNOWN STEP	2026-08-06T12:26:50.6685844Z ##[group]Disabling automatic garbage collection
@@ -270,9 +270,9 @@ check-target-map-drift	UNKNOWN STEP	2026-08-06T12:28:26.6178105Z Node 20 is bein
 check-target-map-drift	UNKNOWN STEP	2026-08-06T12:28:26.6180744Z Post job cleanup.
 check-target-map-drift	UNKNOWN STEP	2026-08-06T12:28:26.7300562Z [command]/usr/bin/git version
 check-target-map-drift	UNKNOWN STEP	2026-08-06T12:28:26.7374077Z git version 2.54.0
-check-target-map-drift	UNKNOWN STEP	2026-08-06T12:28:26.7470978Z Temporarily overriding HOME='/home/runner/work/_temp/e5711b95-363b-44a7-8e9c-e46a9780560d' before making global git config changes
+check-target-map-drift	UNKNOWN STEP	2026-08-06T12:28:26.7470978Z Temporarily overriding HOME='<local-plan-cache>/e5711b95-363b-44a7-8e9c-e46a9780560d' before making global git config changes
 check-target-map-drift	UNKNOWN STEP	2026-08-06T12:28:26.7491498Z Adding repository directory to the temporary git global config as a safe directory
-check-target-map-drift	UNKNOWN STEP	2026-08-06T12:28:26.7496525Z [command]/usr/bin/git config --global --add safe.directory /home/runner/work/aspose.org/aspose.org
+check-target-map-drift	UNKNOWN STEP	2026-08-06T12:28:26.7496525Z [command]/usr/bin/git config --global --add safe.directory <local-plan-cache>/aspose.org
 check-target-map-drift	UNKNOWN STEP	2026-08-06T12:28:26.7568693Z [command]/usr/bin/git config --local --name-only --get-regexp core\.sshCommand
 check-target-map-drift	UNKNOWN STEP	2026-08-06T12:28:26.7626893Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :"
 check-target-map-drift	UNKNOWN STEP	2026-08-06T12:28:26.8500787Z [command]/usr/bin/git config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader

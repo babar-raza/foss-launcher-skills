@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 import json, re, sys
 
-S = r"C:/Users/prora/AppData/Local/Temp/claude/d--onedrive-Documents-GitHub-aspose-org/9d8aa2aa-a458-4688-acc4-4048b8aa9955/scratchpad/pdfts"
+S = r"<local-plan-cache>/pdfts"
 D = "reports/repo-presenter-regen-full/pdf/typescript"
 
 live = open(f"{S}/live_README.md", encoding="utf-8").read()

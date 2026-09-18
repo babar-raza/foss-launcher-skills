@@ -1,7 +1,7 @@
 # readme-refresh retention-vs-redundancy hardening — findings and design (living spec)
 
 Mission `readme-refresh-retention-vs-redundancy-hardening-2026-09-04`. Full root-cause analysis
-and design lives in the approved plan file (`C:\Users\prora\.claude\plans\i-want-to-investigate-
+and design lives in the approved plan file (`<local-plan-cache>/i-want-to-investigate-
 refactored-petal.md`) — this document records real measurements gathered during implementation,
 per this session's own "plan as living spec" discipline.
 

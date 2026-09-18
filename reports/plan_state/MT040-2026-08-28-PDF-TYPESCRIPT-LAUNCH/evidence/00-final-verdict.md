@@ -3,7 +3,7 @@ MISSION_COMPLETE
 # MT040-2026-08-28-PDF-TYPESCRIPT-LAUNCH — Final Verdict
 
 **Date**: 2026-08-31
-**Plan**: `C:\Users\prora\.claude\plans\pdf-typescript-aspose-pdf-foss-aspose-pd-functional-papert.md`
+**Plan**: `<local-plan-cache>/pdf-typescript-aspose-pdf-foss-aspose-pd-functional-papert.md`
 **Mission contract**: `MISSION_AUTHORITY.yaml` (archived: `reports/plan_state/MT040-.../mission_authority.yaml`)
 **Taskcard store**: `reports/plan_state/MT040-2026-08-28-PDF-TYPESCRIPT-LAUNCH/taskcards.jsonl` (schema 5f)
 

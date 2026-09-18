@@ -101,6 +101,51 @@ def test_finds_macos_users_path(tmp_path):
     assert findings[0].placeholder == "<local-plan-cache>/bar.md"
 
 
+def test_finds_msys_drive_letter_windows_path(tmp_path):
+    """TC-GOV-01-04: a 5th real leak shape found live during full-tree recon
+    (reports/plan_state/MT014-.../independent-verification-20260731.md) --
+    Git-Bash/MSYS renders a Windows drive letter as a single-letter leading
+    path segment instead of '<letter>:', e.g. '/c/Users/prora/...' is the
+    exact same leak as 'C:\\Users\\prora\\...', just captured verbatim from a
+    shell command's own output."""
+    plan_state = tmp_path / "plan_state"
+    f = plan_state / "mission-msys" / "notes.md"
+    _write(f, "/c/Users/prora/AppData/Local/Microsoft/WinGet/Packages/hugo.exe\n")
+
+    findings = rpsp.scan_file(f)
+    assert len(findings) == 1
+    assert findings[0].matched_text == "/c/Users/prora/AppData/Local/Microsoft/WinGet/Packages/hugo.exe"
+    assert findings[0].placeholder == "<local-plan-cache>/hugo.exe"
+
+
+def test_finds_msys_drive_letter_home_path(tmp_path):
+    """Same MSYS convention, /home/ variant (a different drive letter)."""
+    plan_state = tmp_path / "plan_state"
+    f = plan_state / "mission-msys2" / "notes.md"
+    _write(f, "See /d/home/alice/.claude/plans/foo.md for details.\n")
+
+    findings = rpsp.scan_file(f)
+    assert len(findings) == 1
+    assert findings[0].matched_text == "/d/home/alice/.claude/plans/foo.md"
+    assert findings[0].placeholder == "<local-plan-cache>/foo.md"
+
+
+def test_does_not_match_home_as_a_family_name_with_msys_pattern_active(tmp_path):
+    """Regression guard: adding the MSYS drive-letter pattern must not
+    reopen the already-fixed 'cells/home/html' family-list false positive
+    (no single-letter segment precedes 'home' there, so `/[A-Za-z]/` cannot
+    match)."""
+    plan_state = tmp_path / "plan_state"
+    f = plan_state / "mission-msys-fp" / "taskcards.jsonl"
+    _write(
+        f,
+        '{"note": "counts (barcode/cad/cells/home/html/imaging/ocr/page/pdf/psd/tasks/tex/words/zip) identical"}\n',
+    )
+
+    findings = rpsp.scan_file(f)
+    assert findings == []
+
+
 def test_does_not_match_placeholder_style_prose(tmp_path):
     """A doc/narrative sentence that already uses angle-bracket placeholder
     syntax (e.g. MT071's own mission_authority.yaml, confirmed live) must
@@ -163,6 +208,51 @@ def test_does_not_match_home_as_a_family_name_in_a_slash_list(tmp_path):
     assert findings == []
 
 
+def test_json_escaped_newline_after_path_is_not_swallowed(tmp_path):
+    """TC-GOV-01-04: real bug found live in reports/plan_state/readme-
+    refresh-pdf-typescript-scale-hardening-2026-09-03/evidence/
+    verify-examples.final.result.json -- a captured Node.js stack trace
+    inside a JSON string ends the path with a JSON-escaped newline (`\\n`,
+    a SINGLE literal backslash) immediately followed by prose, right after
+    the path's own DOUBLE-backslash JSON separators. The single stray
+    backslash must not be treated as one more path separator that pulls
+    the following word into the match/placeholder."""
+    plan_state = tmp_path / "plan_state"
+    f = plan_state / "mission-jsonnewline" / "result.json"
+    _write(
+        f,
+        '{"detail": "at <anonymous> (C:\\\\Users\\\\prora\\\\project\\\\verify_block_6.mts:4\\nconst bytes = doc.Save({"}\n',
+    )
+
+    findings = rpsp.scan_file(f)
+    assert len(findings) == 1
+    assert findings[0].matched_text == "C:\\\\Users\\\\prora\\\\project\\\\verify_block_6.mts:4"
+    assert findings[0].placeholder == "<local-plan-cache>/verify_block_6.mts:4"
+    # The unrelated code prose must survive completely untouched.
+    text = _read_raw(f)
+    assert "\\nconst bytes = doc.Save({" in text
+    assert "nconst" not in text.replace("\\nconst", "")
+
+
+def test_windows_path_does_not_mix_separator_widths_within_one_match(tmp_path):
+    """A single-backslash path segment must not extend a match that started
+    with double-backslash separators (or vice versa) -- only a single,
+    consistent separator width per match, per the tool's own 3-form
+    contract (raw single-backslash, JSON double-backslash, forward-slash)."""
+    plan_state = tmp_path / "plan_state"
+    f = plan_state / "mission-mixedsep" / "notes.md"
+    # Double-backslash path immediately followed by a SINGLE backslash that
+    # is not a real path separator (mirrors the JSON `\n` case, but with an
+    # arbitrary letter instead of 'n' to isolate the separator-width bug
+    # from any escape-sequence-specific special-casing).
+    _write(f, "See C:\\\\Users\\\\prora\\\\plans\\\\one.md\\zextra for details.\n")
+
+    findings = rpsp.scan_file(f)
+    assert len(findings) == 1
+    assert findings[0].matched_text == "C:\\\\Users\\\\prora\\\\plans\\\\one.md"
+    assert findings[0].placeholder == "<local-plan-cache>/one.md"
+
+
 def test_multiple_occurrences_same_file_all_found(tmp_path):
     plan_state = tmp_path / "plan_state"
     f = plan_state / "mission-multi" / "mission_authority.yaml"
@@ -178,19 +268,118 @@ def test_multiple_occurrences_same_file_all_found(tmp_path):
     assert findings[1].line_no == 2
 
 
-def test_only_scans_yaml_and_jsonl_extensions(tmp_path):
-    """A stray .md/.txt file under plan_state (real examples exist live,
-    e.g. evidence/00-final-verdict.md) is out of the taskcard's declared
-    glob scope (*.yaml, *.jsonl) and must be left alone entirely."""
+@pytest.mark.parametrize(
+    "filename",
+    [
+        "notes.md",
+        "notes.txt",
+        "result.json",
+        "run.log",
+        "seed_taskcards.py",
+        "MISSION_AUTHORITY.yaml.draft",
+        "capture.stderr",
+        "change.orig",
+        "change.diff",
+        "report.html",
+        "Example.java",
+        "Example.cs",
+        "Example.csproj",
+        "artifact.sha256",
+        "artifact.run_id_self",
+    ],
+)
+def test_scans_every_widened_target_extension(tmp_path, filename):
+    """TC-GOV-01-04: every real non-binary extension confirmed present under
+    reports/plan_state/** (2026-09-18 live enumeration) must now be scanned,
+    not just *.yaml/*.jsonl -- real leaks were found live in .md/.json/.py/
+    .txt/.draft files the original TARGET_GLOBS silently skipped."""
     plan_state = tmp_path / "plan_state"
-    md_file = plan_state / "mission-md" / "notes.md"
-    _write(md_file, "See C:\\Users\\prora\\.claude\\plans\\notes.md for details.\n")
+    target = plan_state / "mission-widened" / filename
+    _write(target, "See C:\\Users\\prora\\.claude\\plans\\notes.md for details.\n")
 
     files = rpsp.iter_target_files(plan_state)
-    assert md_file not in files
+    assert target in files
 
     result = rpsp.check(plan_state)
-    assert result.clean
+    assert not result.clean
+    assert any(f.file == target for f in result.findings)
+
+
+def test_does_not_scan_binary_zip_or_whl_extensions(tmp_path):
+    """*.zip and *.whl are genuine binary archive formats (confirmed live:
+    an MT040 evidence zip, a 3d/python wheel) -- deliberately excluded from
+    TARGET_GLOBS so a text regex substitution never runs against (and
+    corrupts) a binary container."""
+    plan_state = tmp_path / "plan_state"
+    zip_file = plan_state / "mission-bin" / "evidence.zip"
+    whl_file = plan_state / "mission-bin" / "package.whl"
+    zip_file.parent.mkdir(parents=True, exist_ok=True)
+    zip_file.write_bytes(b"PK\x03\x04not a real zip but binary-shaped")
+    whl_file.write_bytes(b"PK\x03\x04not a real wheel but binary-shaped")
+
+    files = rpsp.iter_target_files(plan_state)
+    assert zip_file not in files
+    assert whl_file not in files
+
+
+def test_extensionless_file_is_out_of_scope(tmp_path):
+    """The one known real extensionless file under plan_state (BASE_SHA) is
+    a bare git SHA that cannot syntactically contain a path -- documented,
+    accepted out-of-scope gap, not an oversight."""
+    plan_state = tmp_path / "plan_state"
+    sha_file = plan_state / "mission-sha" / "BASE_SHA"
+    _write(sha_file, "934e700929997ac70a6a080201728c98f932c18c\n")
+
+    files = rpsp.iter_target_files(plan_state)
+    assert sha_file not in files
+
+
+# ---------------------------------------------------------------------------
+# Decode-failure hardening (TC-GOV-01-04) -- real non-UTF-8 files exist live
+# under the widened scope (cp1252 em-dash bytes in some *.log files); the
+# tool must skip them, not crash.
+# ---------------------------------------------------------------------------
+
+def test_scan_file_skips_non_utf8_file_without_raising(tmp_path):
+    plan_state = tmp_path / "plan_state"
+    bad = plan_state / "mission-badenc" / "run.log"
+    bad.parent.mkdir(parents=True, exist_ok=True)
+    # 0x97 is a cp1252 em-dash byte, not valid standalone UTF-8.
+    bad.write_bytes(b"Promote: 3d/java \x97 done\n")
+
+    findings = rpsp.scan_file(bad)
+    assert findings == []
+
+
+def test_check_and_fix_skip_non_utf8_file_without_raising(tmp_path):
+    plan_state = tmp_path / "plan_state"
+    bad = plan_state / "mission-badenc2" / "run.log"
+    bad.parent.mkdir(parents=True, exist_ok=True)
+    bad.write_bytes(b"Promote: 3d/java \x97 done\n")
+    good = plan_state / "mission-badenc2" / "mission_authority.yaml"
+    _write(good, "governing_plan_path: C:\\Users\\prora\\.claude\\plans\\ok.md\n")
+
+    result = rpsp.check(plan_state)
+    assert len(result.findings) == 1
+    assert result.findings[0].file == good
+
+    fix_result = rpsp.fix(plan_state)
+    assert good in fix_result.files_fixed
+    assert bad not in fix_result.files_fixed
+    # The undecodable file's bytes must survive completely untouched.
+    assert bad.read_bytes() == b"Promote: 3d/java \x97 done\n"
+
+    assert rpsp.check(plan_state).clean
+
+
+def test_undecodable_files_reports_the_skip(tmp_path):
+    plan_state = tmp_path / "plan_state"
+    bad = plan_state / "mission-badenc3" / "run.log"
+    bad.parent.mkdir(parents=True, exist_ok=True)
+    bad.write_bytes(b"no leak here \x97 just a bad byte\n")
+
+    skipped = rpsp.undecodable_files(plan_state)
+    assert bad in skipped
 
 
 # ---------------------------------------------------------------------------

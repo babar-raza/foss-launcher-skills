@@ -16,7 +16,7 @@ FFF..................................................................... [ 99%]
 ================================== FAILURES ===================================
 _ test_ingest_hard_blocks_a_not_yet_published_section_when_the_live_probe_says_published _
 
-tmp_path = WindowsPath('C:/Users/prora/AppData/Local/Temp/pytest-of-prora/pytest-3732/test_ingest_hard_blocks_a_not_0')
+tmp_path = WindowsPath('<local-plan-cache>/test_ingest_hard_blocks_a_not_0')
 monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x0000022B3A062660>
 
     def test_ingest_hard_blocks_a_not_yet_published_section_when_the_live_probe_says_published(tmp_path, monkeypatch):
@@ -97,7 +97,7 @@ E               readme_refresh_run.ReadmeRefreshRunError: ingest-candidate faile
 scripts\pipeline\commands\foss\readme_refresh_run.py:2302: ReadmeRefreshRunError
 _____ test_approve_treats_a_publication_change_since_plan_as_input_drift ______
 
-tmp_path = WindowsPath('C:/Users/prora/AppData/Local/Temp/pytest-of-prora/pytest-3732/test_approve_treats_a_publicat0')
+tmp_path = WindowsPath('<local-plan-cache>/test_approve_treats_a_publicat0')
 monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x0000022B3A818210>
 
     def test_approve_treats_a_publication_change_since_plan_as_input_drift(tmp_path, monkeypatch):
@@ -171,7 +171,7 @@ E               readme_refresh_run.ReadmeRefreshRunError: ingest-candidate faile
 scripts\pipeline\commands\foss\readme_refresh_run.py:2302: ReadmeRefreshRunError
 __________________ test_approve_ignores_an_ambiguous_reprobe __________________
 
-tmp_path = WindowsPath('C:/Users/prora/AppData/Local/Temp/pytest-of-prora/pytest-3732/test_approve_ignores_an_ambigu0')
+tmp_path = WindowsPath('<local-plan-cache>/test_approve_ignores_an_ambigu0')
 monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x0000022B3A818280>
 
     def test_approve_ignores_an_ambiguous_reprobe(tmp_path, monkeypatch):

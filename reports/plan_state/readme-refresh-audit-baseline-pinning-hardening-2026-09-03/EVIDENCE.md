@@ -4,7 +4,7 @@ Mission contract: `mission_authority.yaml` (this directory)
 Taskcards (schema 5f): `taskcards.jsonl` (this directory)
 Backlog: ST-181 (corrected in place), ST-182 (this mission's own item, status `in-progress`),
 ST-183 (deferred follow-on, filed) — all in `backlog/inbox.md`
-Governing plan (assessment + design): `C:\Users\prora\.claude\plans\perform-a-deep-first-principles-sparkling-scroll.md`
+Governing plan (assessment + design): `<local-plan-cache>/perform-a-deep-first-principles-sparkling-scroll.md`
 Repository: `d:\onedrive\Documents\GitHub\aspose.org`, branch `main`
 Baseline HEAD: `b46b08f583b13a9276d82d35bb5c21ea14b8869d` (unchanged throughout — nothing committed)
 

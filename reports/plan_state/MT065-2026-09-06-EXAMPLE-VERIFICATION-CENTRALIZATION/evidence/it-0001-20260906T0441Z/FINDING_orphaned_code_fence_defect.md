@@ -61,7 +61,7 @@ site/locale/family/platform) in this same evidence directory.
    320 times.
 2. Investigate whether `body_refresh._example_regeneration` — already
    flagged upstream as RC21 in the governing plan
-   (`C:\Users\prora\.claude\plans\do-another-round-of-indexed-graham.md`)
+   (`<local-plan-cache>/do-another-round-of-indexed-graham.md`)
    for writing a replacement code block with no compile/parse verification
    — or the translation pipeline is the actual defect-introduction
    mechanism. Both a template-generation pathway (reference pages) and a

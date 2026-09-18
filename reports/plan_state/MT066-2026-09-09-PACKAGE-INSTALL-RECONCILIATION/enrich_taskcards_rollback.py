@@ -18,7 +18,7 @@ latest = store.read_latest()
 ROLLBACK = {
     "PKGINSTALL-REPAIR-PLAN-DOCUMENT": (
         "Revert the plan-file edit directly (it lives outside git at "
-        "C:/Users/prora/.claude/plans/..., no repo state to roll back). No other "
+        "<local-plan-cache>/plans/..., no repo state to roll back). No other "
         "artifact is written by this card."
     ),
     "PKGINSTALL-SCHEMA-ADAPTER-VERSION-EXTENSION": (

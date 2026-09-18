@@ -1,6 +1,6 @@
 # Planning Evidence Bundle — MT038-2026-08-27-CI-HARDENING (planning pass only)
 
-Companion to `C:\Users\prora\.claude\plans\critical-github-and-gitlab-rippling-crown.md`.
+Companion to `<local-plan-cache>/critical-github-and-gitlab-rippling-crown.md`.
 Written after the plan file, capturing the raw research this planning pass relied on.
 This directory is gitignored (`reports/`) — local-only, not committed, per repo convention.
 

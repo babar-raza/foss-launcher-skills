@@ -34,7 +34,7 @@ CARDS = [
             "bug specifically would cause daily spurious full-portfolio rebuilds if built "
             "as originally drafted."
         ),
-        allowed_paths=["C:/Users/prora/.claude/plans/this-chat-is-about-polymorphic-brook.md"],
+        allowed_paths=["<local-plan-cache>/this-chat-is-about-polymorphic-brook.md"],
         forbidden_paths=["content/", "data/", "layouts/", ".github/workflows/"],
         dependencies=[],
         acceptance_checks=[

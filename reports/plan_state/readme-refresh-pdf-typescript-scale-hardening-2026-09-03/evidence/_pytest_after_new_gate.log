@@ -16,7 +16,7 @@
 ================================== FAILURES ===================================
 __ test_preservation_tracking_keys_tuple_matches_else_branch_both_directions __
 
-tmp_path = WindowsPath('C:/Users/prora/AppData/Local/Temp/pytest-of-prora/pytest-3968/test_preservation_tracking_key0')
+tmp_path = WindowsPath('<local-plan-cache>/test_preservation_tracking_key0')
 
     def test_preservation_tracking_keys_tuple_matches_else_branch_both_directions(tmp_path):
         """Every key the unpublished `else` branch produces from old_readme_text + a ledger is in

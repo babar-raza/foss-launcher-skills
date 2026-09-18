@@ -19,7 +19,7 @@ forward from the Phase-1 research pass, which read every file cited below direct
 | `docs/registries/skills.md:102` | One-line portfolio index row |
 | `docs/readme-refresh/current-operational-reference.md` | Independently-maintained "current truth" doc, dated snapshot 2026-08-20 — now known-stale on its headline claim (see Phase 1 baseline) |
 | `docs/readme-refresh/plan-system-forensic-reconciliation.md` | Forensic reconciliation of the out-of-repo plan file vs. code, dated 2026-08-18 |
-| `C:\Users\prora\.claude\plans\d-users-prora-onedrive-documents-github-humble-tome.md` | The actual design-rationale source (~22,036 lines) — **outside git**, no repo copy (AUD-P1-TEMPLATE-OUTSIDE-GIT) |
+| `<local-plan-cache>/d-users-prora-onedrive-documents-github-humble-tome.md` | The actual design-rationale source (~22,036 lines) — **outside git**, no repo copy (AUD-P1-TEMPLATE-OUTSIDE-GIT) |
 
 **There is no separate prompt-template file anywhere in the pipeline.** The "prompt" for
 candidate composition *is* the skill doc itself, read directly by the composing agent,

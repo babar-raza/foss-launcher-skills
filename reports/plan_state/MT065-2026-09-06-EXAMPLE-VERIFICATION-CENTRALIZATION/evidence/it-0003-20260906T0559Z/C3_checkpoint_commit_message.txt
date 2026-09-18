@@ -30,7 +30,7 @@ this machine's VS 2022 Community install (only VC\Auxiliary + VC\Redist
 exist -- the "Desktop development with C++" workload was never installed).
 This is a real environment-prerequisite gap, the same class as Rust's
 already-disclosed one, not an environment-init nuance. Corrected directly
-in the plan file (outside this git repo, C:\Users\prora\.claude\plans\
+in the plan file (outside this git repo, <local-plan-cache>/plans\
 do-another-round-of-indexed-graham.md -- not subject to this taskcard's
 allowed_paths, which only govern this repo's own dirty-path gate).
 

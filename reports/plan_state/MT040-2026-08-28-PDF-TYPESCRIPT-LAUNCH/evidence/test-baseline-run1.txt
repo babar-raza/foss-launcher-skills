@@ -151,7 +151,7 @@
 _____ TestGateL01KnowledgeFreshness.test_fail_when_model_yaml_unparseable _____
 
 self = <test_gate_l01_l07.TestGateL01KnowledgeFreshness object at 0x0000021B157F0180>
-tmp_path = WindowsPath('C:/Users/prora/AppData/Local/Temp/pytest-of-prora/pytest-2337/test_fail_when_model_yaml_unpa0')
+tmp_path = WindowsPath('<local-plan-cache>/test_fail_when_model_yaml_unpa0')
 
     def test_fail_when_model_yaml_unparseable(self, tmp_path):
         merged = _make_merged(tmp_path)
@@ -203,7 +203,7 @@ E        +  where 1 = CompletedProcess(args=['D:\\onedrive\\Documents\\GitHub\\a
 scripts\pipeline\tests\test_metrics_autonomous_capture.py:1001: AssertionError
 __ test_detect_enterprise_link_uses_canonical_override_over_stale_raw_cache ___
 
-tmp_path = WindowsPath('C:/Users/prora/AppData/Local/Temp/pytest-of-prora/pytest-2337/test_detect_enterprise_link_us0')
+tmp_path = WindowsPath('<local-plan-cache>/test_detect_enterprise_link_us0')
 
     def test_detect_enterprise_link_uses_canonical_override_over_stale_raw_cache(tmp_path):
         # Reproduces the real, confirmed cells/python fix: the override file's own dated policy says
@@ -240,7 +240,7 @@ E       AssertionError: assert None == 'https://products.aspose.com/cells/python
 scripts\pipeline\tests\test_readme_refresh_run.py:910: AssertionError
 ________ test_verify_run_writes_page_impact_matrix_and_records_digest _________
 
-tmp_path = WindowsPath('C:/Users/prora/AppData/Local/Temp/pytest-of-prora/pytest-2337/test_verify_run_writes_page_im0')
+tmp_path = WindowsPath('<local-plan-cache>/test_verify_run_writes_page_im0')
 
     def test_verify_run_writes_page_impact_matrix_and_records_digest(tmp_path: Path):
         """Task 2 (S9.1, closes G7): verify_run() must build and persist the
@@ -283,10 +283,10 @@ E        +    where is_file = WindowsPath('D:/onedrive/Documents/GitHub/aspose.o
 
 scripts\pipeline\tests\test_refresh_run.py:2513: AssertionError
 ---------------------------- Captured stdout call -----------------------------
-STOP: api_surface.json not found at C:\Users\prora\AppData\Local\Temp\pytest-of-prora\pytest-2337\test_verify_run_writes_page_im0\knowledge\pdf\net\merged\api_surface.json. Run /knowledge-bootstrap pdf net first.
+STOP: api_surface.json not found at <local-plan-cache>/api_surface.json. Run /knowledge-bootstrap pdf net first.
 _______________ test_verify_run_writes_locale_staleness_summary _______________
 
-tmp_path = WindowsPath('C:/Users/prora/AppData/Local/Temp/pytest-of-prora/pytest-2337/test_verify_run_writes_locale_0')
+tmp_path = WindowsPath('<local-plan-cache>/test_verify_run_writes_locale_0')
 
     def test_verify_run_writes_locale_staleness_summary(tmp_path: Path):
         """Task 11d (§9.8, closes G8/sizes F7): verify_run() must additionally size
@@ -344,7 +344,7 @@ Found 0 candidates: 0 to generate, 0 to skip (already exist or slug-duplicate).
 DRY-RUN: no files written.
 _______________ test_verify_run_writes_content_coverage_summary _______________
 
-tmp_path = WindowsPath('C:/Users/prora/AppData/Local/Temp/pytest-of-prora/pytest-2337/test_verify_run_writes_content0')
+tmp_path = WindowsPath('<local-plan-cache>/test_verify_run_writes_content0')
 
     def test_verify_run_writes_content_coverage_summary(tmp_path: Path):
         """Content-coverage audit (found live 2026-08-24, closes the "a real
