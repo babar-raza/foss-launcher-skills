@@ -98,9 +98,9 @@
     "deployed_repo": "Aspose/aspose.org-workflows"
   },
   "upstream-monitor.yml": {
-    "approved_baseline_sha256": "87fd14f921d210eab9acfd1c47ca2b1ce6e7d5def25b091b637f3f64a9a3b41b",
-    "baseline_recorded_at": "2026-09-17T18:30:15.385480Z",
-    "baseline_source": "seeded_from_deployed",
+    "approved_baseline_sha256": "ca31bef32dd8209ef080c67b073830c253b2e86cdd78599fa44bca23dc48bd32",
+    "baseline_recorded_at": "2026-09-18T13:00:00.000000Z",
+    "baseline_source": "approved_after_review: workflows-repo commit 4ab9d5c3 (comments + 2 message strings only, no logic; prior baseline 87fd14f9 verified equal to its parent blob) -- MT069 HC-08",
     "deployed_path": ".github/workflows/upstream-monitor.yml",
     "deployed_repo": "Aspose/aspose.org-workflows"
   }
