@@ -6,6 +6,14 @@
 
 ## Status (as of 2026-09-18)
 
+> **READ THIS FIRST (added by Plan File Hardening, 2026-09-18).** The bullets below are a
+> chronological, append-only journal: later entries supersede earlier ones, and several
+> earlier lines are now factually stale (each such line carries an inline
+> `[SUPERSEDED …]` annotation). **The authoritative current state of every task, gate,
+> blocker and verification is the "Plan File Hardening" section at the end of this file**
+> (Unresolved Work Register, Taskcard Register, Gate Contract, Remaining True Blockers).
+> When the journal and that section disagree, that section wins.
+
 - **Deep-dive, production-incident treatment (2026-09-18): `skill-governance.yml`'s
   Windows-job "not yet decided" cost question is a cross-mission entanglement, not an
   independent decision — MT069's own recommendation for it is withdrawn.** The user
@@ -121,7 +129,9 @@
      public) and could never have served either job — see its own entry below.
      `skill-governance.yml`'s soft-launched Windows job is intentionally NOT
      self-hosted yet (a separate, not-yet-decided item per this plan's own design —
-     try trigger-demotion first).
+     try trigger-demotion first). **[SUPERSEDED 2026-09-18: the "try trigger-demotion
+     first" recommendation was WITHDRAWN later the same day — it would destroy the
+     soak evidence TC-SG-07 needs; see the "Deep-dive" entry above and HC-10.]**
   - **What remains genuinely open, not executed today**: the new private-repo
     runner (`alienware-m18-wsl2-private`) is running via `nohup ./run.sh &`, not yet
     a systemd service — that step needs the same interactive `sudo ./svc.sh
@@ -129,6 +139,12 @@
     proof that a real job executes on it is necessarily deferred to a future,
     explicit human-approved re-enable of one or both target workflows — the standing
     hard constraint prohibits dispatching them to test this now.
+    **[SUPERSEDED 2026-09-18, first half only: the user ran `sudo ./svc.sh install` /
+    `start` (systemd unit `actions.runner.Aspose-aspose.org.alienware-m18-wsl2-private`,
+    `enabled`, symlink present under `multi-user.target.wants`); a stale duplicate
+    `nohup` listener was found and killed; verified single `Runner.Listener` under
+    `runsvc.sh` and API `status: online`. The SECOND half — no real job has ever run on
+    this runner — is STILL TRUE and is card HC-02 (blocked on a human re-enable).]**
 - **Self-hosted runner registration mismatch found and fixed (2026-09-18)**: the
   runner already registered on this dev machine (`alienware-m18-wsl2-test`,
   directory `~/actions-runner-aspose-org-workflows`) turned out to be registered
@@ -222,7 +238,10 @@
   converted from direct-commit to PR-gated (`peter-evans/create-pull-request@v6`,
   per explicit user decision), all proven live: 3 real PRs opened on the
   private repo (#99, #100, #103) plus 2 deduped issues (#101, #102), none
-  merged (human-authority boundary respected). `upstream-monitor.yml`'s
+  merged (human-authority boundary respected) **[SUPERSEDED 2026-09-18: all three were
+  independently reviewed and merged on 2026-09-18 under the user's explicit
+  authorization; #103 only after a destructive regression in it was caught and the
+  underlying bug fixed — see item 7 of the master-authorization entry]**. `upstream-monitor.yml`'s
   separate defect (issue #94, believed at the time to be a PAT gap — **CORRECTED
   2026-09-18, see entry above: it was a missing-clone-cache bug, not a credential
   problem, now fixed**) was confirmed to reproduce identically after migration
@@ -284,6 +303,13 @@
   `20260916-162212-MISSION_AUTHORITY-yaml`, still **pending** — consumed at the TC-12
   commit, not before). Narrative file: `plans/missions/MT069-2026-09-16-GHA-MINUTES-REARCHITECTURE.md`.
   Indexed in `plans/master-plan.md`.
+  **[SUPERSEDED 2026-09-18, verified against live state: the override token is CONSUMED
+  (`reports/overrides/archived/…`, `consumed_by_commit` `68f45c4186`, 2026-09-17); the
+  ledger shows `TC-12` `IMPLEMENTED` (2026-09-18T07:05Z), so Phase A is complete; the
+  root `MISSION_AUTHORITY.yaml` slot has since been re-bound by other missions (MT068,
+  MT071 — see `git log -- MISSION_AUTHORITY.yaml`) while MT069 remains `open` in
+  `mission_authority.py list`; the narrative file's own line-4 status ("TC-12 closeout in
+  progress") is stale — card HC-01.]**
 - **Taskcards**: 15 Phase A + 8 Phase B (`PHB-01..08`, authorized 2026-09-18, see below)
   in `reports/plan_state/MT069-2026-09-16-GHA-MINUTES-REARCHITECTURE/taskcards.jsonl`.
   `TC-01` through `TC-11`, `TC-13` through `TC-15` = `IMPLEMENTED` (all 20 per-workflow
@@ -349,6 +375,12 @@
 - **Execution model (2026-09-18)**: section-by-section approval — the user approves a
   named section, the agent executes and verifies it, and work does not advance until the
   user confirms satisfaction. Applies to all remaining Phase A and Phase B taskcards.
+  **[PARTIALLY SUPERSEDED 2026-09-18: the user later issued a comprehensive, itemized
+  go-ahead covering the enumerated categories of remaining work; those items were
+  executed without per-section stops. That authorization does NOT extend to new work:
+  the HC-* cards below are governed by the Gate Contract (GATE-HUMAN) — agent-executable
+  where marked, human-gated where they touch production state (enabling a private
+  workflow, credentials, runner registration/removal).]**
 - **Gap escalation**: filed 2026-09-16, `bounded-oneoff`
   (`reports/skill-gaps/2026-09-16-github-actions-minutes-rearchitecture-scope-gaps.md`),
   unblocking `TC-04`/`TC-07`/`TC-08`/`TC-09`. `TC-13` will file a **second**, separate
@@ -1109,9 +1141,16 @@ in any closing report on this mission.
 - **Auto-commit watcher bots** — whether converting the 4 bots to PR-gated merge is
   acceptable is an open question for `TC-07`'s destination decisions on those four
   specifically; their dossiers stay `INSUFFICIENT_EVIDENCE` until answered.
+  **[SUPERSEDED: RESOLVED 2026-09-17 — the user decided to convert them to PR-gated; all 4
+  were migrated (`PHB-06`).]**
 - **Root-slot takeover go/no-go** — if the root `MISSION_AUTHORITY.yaml` incumbent
   becomes locked+open by a different mission before this one's next session, stop and ask
   rather than force-taking-over.
+  **[UPDATE 2026-09-18: the root slot HAS since been re-bound by other missions (MT068,
+  MT071). MT069 was not force-reclaimed; its archived snapshot under
+  `reports/plan_state/MT069-…/mission_authority.yaml` is the durable record and taskcard
+  work is unaffected, exactly as this section anticipated. Re-binding remains a human call
+  and is not a blocker for any HC-* card.]**
 
 ### Failure handling & rollback
 
@@ -1184,7 +1223,8 @@ continuous session, stopping only at a genuine stop condition.
    plans/missions/MT069-2026-09-16-GHA-MINUTES-REARCHITECTURE.md
    plans/from_backlog/2026-09-16-gha-minutes-rearchitecture.md plans/master-plan.md ...`,
    then `override_manager.py consume --token-id 20260916-162212-MISSION_AUTHORITY-yaml
-   --commit-sha <sha>`.
+   --commit-sha <sha>`. **[DONE: consumed against `68f45c4186`, 2026-09-17 — verified in
+   `reports/overrides/archived/`.]**
 8. State the final planning verdict (`PLAN_READY_FOR_AUTONOMOUS_EXECUTION` /
    `PLAN_READY_EXCEPT_DOCUMENTED_EXTERNAL_AUTHORITY` / `PLAN_REQUIRES_FURTHER_INVESTIGATION`
    / `INSUFFICIENT_EVIDENCE`) and `EVIDENCE_BUNDLE.md`'s absolute path in the final
@@ -1345,3 +1385,722 @@ Real task IDs (mirroring Phase A's `MT069-TC-*` naming):
 intent and dependency graph; it does not make them ready to start. `PHB-01` in
 particular cannot actually begin until `TC-10` closes. The stop-gate protocol above
 applies regardless of when each one becomes ready.
+
+**[SUPERSEDED 2026-09-18 — the paragraph above describes the state at seeding time.
+Actual ledger state (`taskcard_cli.py latest`, read live during hardening):
+`PHB-01`, `PHB-02`, `PHB-04`, `PHB-06`, `PHB-07` = `IMPLEMENTED`; `PHB-05` = `IN_PROGRESS`;
+`PHB-03`, `PHB-08` = `TODO`. Ledger status is NOT the same as verified status — see the
+graded re-assessment in the Taskcard Register (e.g. `PHB-03` is `TODO` in the ledger but
+its code is committed and tested; `PHB-07` is `IMPLEMENTED` but no real private-repo job
+has ever run on the runner it provisioned).]**
+
+---
+
+## Plan File Hardening (2026-09-18) — authoritative current state
+
+Everything above this line is preserved as written (with inline `[SUPERSEDED …]`
+annotations where a line had become factually wrong). Everything below is the
+hardening layer: it converts the audit findings of the 2026-09-18 execution session and
+its follow-up reviews into taskcards, gates, evidence rules and closeout criteria.
+
+**Method (so a cold reader can judge how far to trust this section).** Every "current
+state" claim below was re-observed live during hardening, not copied from an earlier
+write-up: the taskcard ledger (`taskcard_cli.py latest`), the drift checker
+(`check_workflow_drift.py`), the Actions API for both repos (runs, runners, workflow
+state), `mission_authority.py list`, the override-token archive, `git log` for
+`MISSION_AUTHORITY.yaml`, the failing SEO liveness run's log, and the WSL2 host's
+installed tools. Where a fact could not be established this run, it is written as
+"not established" — never inferred.
+
+**Scope and limits.** This run edited this plan file only. No source code, workflow,
+secret, runner, ledger row or remote was changed, and nothing was committed, pushed or
+deployed (the plan file is now a tracked-but-uncommitted modification). New card IDs
+(`MT069-HC-nn`, "hardening card") are **plan-registered but not yet seeded into
+`taskcards.jsonl`** — seeding them is itself card HC-01. Existing IDs (`TC-*`, `PHB-*`)
+are kept unchanged.
+
+### H1. Plan File Hardening Change Log
+
+| # | Where | Change | Why |
+|---|---|---|---|
+| 1 | Status, first lines | Added a "READ THIS FIRST" pointer making this section authoritative over the journal | The journal contains superseded claims; a cold reader would otherwise act on them |
+| 2 | Status, item 9 of master-authorization entry | Annotated "try trigger-demotion first" as WITHDRAWN | Contradicts the later Deep-dive entry (would destroy TC-SG-07 soak evidence) |
+| 3 | Status, "What remains genuinely open" | Annotated: systemd install is DONE; "no real job has run" is STILL TRUE | The `nohup` claim was stale; the unproven-job claim was not |
+| 4 | Status, PHB-06 entry | Annotated "none merged" as superseded (#99/#100/#103 merged 2026-09-18) | Historical line read as current |
+| 5 | Status, "Mission" bullet | Annotated override token CONSUMED (`68f45c4186`), TC-12 `IMPLEMENTED`, root slot re-bound by other missions, narrative status line stale | Four independent stale facts in one bullet |
+| 6 | Status, "Execution model" | Annotated: master authorization covered only enumerated items; new HC cards fall under GATE-HUMAN | Prevents treating a past blanket go-ahead as covering new production actions |
+| 7 | Human decisions → "Still open" | Marked auto-commit-bot decision RESOLVED; recorded the root-slot re-binding | Listed as open after being resolved / after the anticipated event occurred |
+| 8 | Single-go closeout step 7 | Marked override-token consumption DONE with evidence | Instruction re-read as an outstanding step |
+| 9 | Phase B skeleton footer | Replaced the seeding-time dependency claim with the live ledger state and pointed to graded re-assessment | It claimed Phase A prerequisites "not yet done" |
+| 10 | End of file (this section) | Added H1–H13: change log, audit findings, preserved work, unresolved register, taskcard register (23 existing re-graded + 19 new), lanes, gate contract, evidence contract, verification matrix, repair loop, anti-overclaim rules, closeout criteria, true blockers | Required hardening content; the plan previously had no register of unresolved work, no graded statuses, and no gate that distinguishes "implemented" from "proven" |
+
+**Deliberately not changed:** the Phase A design sections, the destination triage, the
+usage tables, the state-machine design and all historical journal entries other than the
+9 annotated lines (rewriting history would destroy the record of what was believed and
+why — the correction trail is itself evidence, per this repo's living-spec convention).
+The mission narrative (`plans/missions/MT069-…md`) and the `plans/master-plan.md` row are
+separate files and were not edited; their staleness is card HC-01.
+
+### H2. Audit Findings Incorporated
+
+Sources: (a) the 2026-09-18 execution session's findings and reviews as recorded in this
+plan's Status journal; (b) live re-observation during this hardening run (commands named
+per row); (c) the two prior independent reviews already in the record (`TC-11`,
+`review/independent_review.md`; the 2026-09-18 skill-governance deep-dive). "Disposition"
+names the card that owns the unresolved part.
+
+| ID | Finding | How established (this run unless noted) | Disposition |
+|---|---|---|---|
+| AF-01 | The only self-hosted runner was registered against the PUBLIC repo and could never serve the private required checks | Runner `.runner` `gitHubUrl`; commits `c5a78f499f`/`e4ef71f833`; API lists `alienware-m18-wsl2-private` `online` on `Aspose/aspose.org` | **Resolved** (second runner); residual → HC-02, HC-03, HC-04 |
+| AF-02 | `upstream-monitor.yml` "PAT gap / issue #94" was a misdiagnosis; real cause = missing gitignored clone cache | Anonymous control test; live repro; commit `72821fbb4a`; public run `35321867511` `fetch_failures: 0` (was 33/33); issue #94 closed | **Resolved**; lesson → AO-2, AO-9 |
+| AF-03 | `skill-governance.yml`'s Windows job is the deliberate soft launch of TC-SG-07/R-04; its flip is undecidable without a post-fix live run | `gh run list`: 15/15 recent runs `failure`, last 2026-09-11; fix `d795f669e6` pushed 2026-09-18 12:05 +05:00; workflow `disabled_manually` | **Open** → HC-10 |
+| AF-04 | PR #103 would have replaced 250 lines of freshness data with `{}` | PR diff read before merge; re-dispatch produced correct data; merged as `ddb0b0e1a8` | **Resolved**; lesson → AO-12 |
+| AF-05 | `llms-generation.yml`'s "Stale check gate" is structurally vacuous (manifest rebuilt immediately before it is checked); scoped-regeneration cost fix is implemented but never run live | Source read of `detect_stale_llms.py`; 3 scratch-repo scenarios; commit `b6327ae052`; workflow disabled | **Open** → HC-12 |
+| AF-06 | `launch-dashboard.yml` reads gitignored, cumulative local state — unfixable by relocating; 3 of 5 private push paths structurally dead | Public dispatch produced `NO REPORT: 33/33` (workflow `Launch Dashboard (weekly)` last run `failure`) | **Open** → HC-13 |
+| AF-07 | Deployed `seo-keyword-refresh.yml` carried an incident-tested credential fix the local template lacked | Drift diff; commit `4d66250340`; checker `IN_SYNC` twice; once returned `deployed=unresolved` (transient lookup failure reported as `DIVERGED`) | **Resolved**; false-alarm mode → HC-09 |
+| AF-08 | The drift checker is advisory-only (no caller in any workflow, hook or gate); `upstream-monitor.yml` is `DEPLOYED_UNAPPROVED` after my documentation-only redeploy; the checker has no approve verb; its tests live in two directories | Checker run (exit 1, "2 of 15 not in sync"); `grep` for callers finds only its own tests; baseline `approved_baseline_sha256` `87fd14f9…` (seeded 2026-09-17T18:30Z) ≠ deployed `ca31bef32dd8…`; `git log` shows the 276-line suite (`scripts/ci/checks/tests/`) predates my 104-line suite (`scripts/ci/tests/`) | **Open** → HC-08, HC-09 |
+| AF-09 | The public repo's `GH_TOKEN` secret is dead (401 Bad credentials); the daily liveness probe has been failing since 2026-09-06 (issue #43, 13 comments) | Run `35334880814` log: probe checks `REPO_TOKEN` (passes), `GH_TOKEN` (401), `GOOGLE_API_KEY`; all 8 migrated templates and the SEO templates are REPO_TOKEN-primary (the one `GH_TOKEN \|\|` grep hit is a comment) | **Open** → HC-07 (blast radius is a lost fallback + alert fatigue, NOT current breakage) |
+| AF-10 | The design specified a fresh container per job; the two private jobs have no `container:` key and run directly on the WSL2 host, which mounts the Windows filesystem | `grep container:` on both workflows: none; `command -v npm` → `/mnt/c/Program Files/nodejs/npm`; design in `design/self_hosted_architecture.md` | **Open** → HC-03 |
+| AF-11 | The runner lifecycle's `DEGRADED` alerting is unbuilt; a push-gated check queues forever if the machine is off; decommissioning is manual | Design doc; no heartbeat code or workflow exists; guide states decommission "not yet automated" | **Open** → HC-04, HC-18 |
+| AF-12 | Toolchain compatibility of the two jobs on the runner host is only statically checked | Host lacks `go`, `jq`, `unzip`, `make`, `shellcheck`, `hugo` (Hugo is installed at runtime by `peaceiris/actions-hugo`); `npm` resolves to the Windows binary via interop; only 2 check scripts shell out to `go`/`hugo` and neither is called by the target workflows | **Open** → HC-06 |
+| AF-13 | No live evidence exists for any fix or cutover made since the workflows were disabled (TC-14, TC-15, concurrency guards, self-hosting, scoped llms regen) | `gh workflow list --all`: all 20 private workflows `disabled_manually` (only the synthetic Dependency Graph is `active`); `skill-governance.yml` last ran 2026-09-11 | **Open** → HC-02 |
+| AF-14 | `PHB-03` is only partially delivered: ledger says `TODO`; code committed; `--live` never run; not wired into any workflow; breaker in warm-up (`N=0/3`); caps unvalidated; CI-health check would permanently flag `upstream-monitor.yml`, whose job is *designed* to fail when drift exists | Ledger; commit `8aa41839da`; dry-run output; `grep` shows no workflow invokes the CLI | **Open** → HC-05 |
+| AF-15 | Plan, ledger and narrative disagree (PHB-03 `TODO`; PHB-07 `IMPLEMENTED` but unproven on its real target; narrative line 4 says TC-12 in progress; journal stale) | `taskcard_cli.py latest`; narrative `head`; this file | **Open** → HC-01 |
+| AF-16 | The independent review (TC-11) re-verified the *record*, so it missed three diagnoses that later proved wrong (`upstream-monitor`, `launch-dashboard`, the skill-governance Windows-job framing) | Compare `review/independent_review.md` with the three later corrections | **Structural** → AO-2, AO-5; TC-10/TC-11 re-graded; the 16 uncorrected dossiers are still record-consistent only → HC-19 |
+| AF-17 | Canary/observation evidence is far short of its own bar: `PHB-05` has 1 scheduled + 1 dispatch run (needs ≥5 scheduled cycles); four migrated workflows have never fired on schedule; the private `install-literal-sweep.yml` has **no runs ever** | `gh run list` per workflow; cron table (first Monday fires: 2026-09-21) | **Open** → PHB-05, HC-14 |
+| AF-18 | Structural gaps: nothing re-validates a `completed_verified` card when its surface later changes; nothing detects that another initiative already owns a decision on the same file; manual reminders have no forcing function | Skill-governance deep-dive (R-04 stale for 12 days, undetected) | **Open, needs go/no-go** → HC-15 |
+| AF-19 | Merged PR #103 dropped `checked_mode` and `freshness_guard_state` from `data/fleet_freshness_snapshot.json`; readers of those fields are not established | `grep` finds no reader in `scripts/`, `docs/`; writer's origin not established (history search not completed) | **Open, low** → HC-16 |
+| AF-20 | The first working sweep found 21 of 33 launched products changed upstream (0 HIGH, 9 MEDIUM, 12 LOW); nothing acts on it (regeneration selection is observability-only) | Run `35321867511`: `{'changed': 21, 'unchanged': 12, 'fetch_failures': 0, 'high_impact': 0, 'medium_impact': 9, 'low_impact': 12}` | **Out of MT069 scope** → HC-17 (route, don't absorb) |
+| AF-21 | The runner setup script/guide are only partly tested: parsing, guards and the pipeline up to an invalid token were exercised; a full registration + service install on a fresh machine was not | Test transcript of this session; guide states decommission is manual | **Open** → HC-18 |
+| AF-22 | R-04's first flip precondition (no unresolved lookback-class false positive since 2026-08-30) has no dated log to check; R-04 itself points to a plan file outside the repo (`C:\Users\prora\.claude\plans\…`) | Searched; none found; path is outside the repo tree | **Open** → HC-10 |
+| AF-23 | GitHub scheduled runs are delayed: the 10:30 UTC cron of `aspose-com-targets-watch.yml` ran at 14:33 UTC | Run list timestamps | **Note** → PHB-05 counting rule (count events by date, never by cron time) |
+
+### H3. Resolved / Preserved Work
+
+"Preserved" means: do not redo, weaken or silently revert. Each row names the evidence
+that would let a reviewer re-verify it. Grade is per H4-Taskcard-Register conventions.
+
+| Item | Evidence | Grade | Preserve note |
+|---|---|---|---|
+| Phase A investigation and per-workflow dossiers (20) | `reports/plan_state/MT069-…/{inventory,analysis,dossiers,design,review}/`; `TC-11` independent review | `completed_verified` for structure; 4 dossier conclusions later corrected (see TC-10/TC-11 grading) | Keep the correction trail in place; never overwrite a dossier without a dated `CORRECTION` block |
+| Real usage baseline (1,494 min, 561 jobs; top-3 = 75.7%) | User's Actions-usage export, 2026-09-18; `usage/usage_dataset.json` | `completed_verified` | This is the only baseline `PHB-08` may compare against |
+| Concurrency guards on the top-3 cost drivers | Committed in `d795f669e6`; purely additive 4-line diffs | `completed_but_weakly_verified` (never exercised live) | Keep; precondition for any self-hosted cutover |
+| `check_platform_capabilities.py` fix (`TC-14`) and evaluator-version-bump shift-left (`TC-15`) incl. the fail-open repair from `TC-11` | `d795f669e6`; 12/12 and 8/8 targeted tests; full `scripts/ci/tests/` suite recorded in the plan | `completed_but_weakly_verified` | Do not weaken either gate; live proof → HC-02 |
+| Public migrations, 9 templates deployed; canary and PR-gated conversions | Commits on `Aspose/aspose.org-workflows` (`a00a2265`, `4e4d883`, `9142da5`, `4ab9d5c3`, …); run IDs in `phase_b/migrations/*.json` | `completed_but_weakly_verified` (see PHB-05/06) | Private originals kept as `workflow_dispatch`-only for rollback; do not delete them |
+| `repo_patrol.py` auto-clone fix + DI seams | `72821fbb4a`; 78/78 tests; monkeypatch lint below baseline (39→37); public run `35321867511` | `completed_verified` (unit + live) | Do not re-introduce a PAT/secret for this step |
+| Misdiagnosis corrections (docs, both `upstream-monitor.yml` copies, issue #94) | `22214a0b03`; workflows-repo commit `4ab9d5c3`; issue #94 closed | `completed_verified` | Keep the annotated history; the deployed copy still needs its baseline approved → HC-08 |
+| `AGENTS.md` §9a dead link | `b4e819fb9e`; override `20260918-075342-AGENTS-md` consumed | `completed_verified` | — |
+| `seo-keyword-refresh.yml` backport | `4d66250340`; checker `IN_SYNC` (twice) | `completed_verified` | The deployed copy is the source of truth for this file |
+| PRs #99, #100, #103 | Merged as `60a049dd96`, `d31eef31c1`, `ddb0b0e1a8`; #99 claim checked live against PyPI; #103 regression caught | `completed_verified` | Only claim (a) of #99 was externally verified; its debounce counters were not |
+| Runner setup script + operator guide | `2928e45b50`; tests listed in AF-21 | `completed_but_weakly_verified` | Keep `--repo`/`--labels` required, never defaulted |
+| Private runner registered, systemd-managed, online | Runner API; service symlink; single listener | `completed_verified` for "registered+online"; **not** for "serves jobs" | Never run `run.sh` beside the service (real double-listener incident) |
+| Design rules carried forward | This plan, Phase B section | preserved | Soft launch → flip (never a soft launch that never flips); alert, never auto-disable; PR-gated bots never self-merge; REPO_TOKEN-primary; scoped commits through `git_plumb_commit.py`; the hard constraint below |
+
+**Standing invariant, preserved verbatim in force:** no workflow among the 20 in
+`Aspose/aspose.org` may be enabled or dispatched — by enable API, `gh workflow enable`,
+`gh workflow run`, or any equivalent — without an explicit human go-ahead. The only
+sanctioned lifting procedure is card HC-02.
+
+### H4. Unresolved Work Register
+
+One row per open item. "Blocks" says what is prevented until it closes. Type: **A** =
+agent-executable now; **H** = needs a human decision/action; **T** = needs time to pass.
+
+| Card | Open item | Type | Priority | Blocks |
+|---|---|---|---|---|
+| HC-01 | Ledger / plan / narrative reconciliation and seeding of HC cards | A | P1 | trustworthy status of every other card |
+| HC-02 | First controlled re-enable and live proof of the self-hosted cutover (and of TC-14/TC-15/concurrency guards) | H | P0 | every claim that CI "works" after this mission |
+| HC-03 | Runner isolation model (design says container per job; reality is host-direct, Windows drives reachable) | H (decision) + A | P0 | HC-02 |
+| HC-04 | Runner-availability alerting (queue-forever hazard) | A (+H for the token scope) | P0 | HC-02 |
+| HC-05 | Finish `PHB-03`: deploy the collector as a scheduled public job, `--live`, tune caps, fix the by-design-failure false alarm | A | P1 | PHB-08's evidence, recurring regression control |
+| HC-06 | Toolchain/compat verification of the two jobs on the runner host without dispatching them | A | P1 | HC-02 |
+| HC-07 | Dead `GH_TOKEN` secret on the public repo (issue #43) | H | P1 | removes the only failing scheduled probe; restores fallback |
+| HC-08 | Approve the `upstream-monitor.yml` deployed baseline | A | P1 | drift checker going green |
+| HC-09 | Make the drift checker a real gate; approve verb; transient-vs-real lookup; consolidate its test locations | A | P2 | AO-6 |
+| HC-10 | Stale-guard graduation (TC-SG-07/R-04): re-premise, durable criteria, post-fix live evidence | H + T | P1 | flipping the Windows leg / `--wide-findings` |
+| HC-11 | Prepare the first-live-run evidence-capture and rollback protocol (so a re-enable is observed, not just performed) | A | P0 | HC-02 |
+| HC-12 | `llms-generation.yml`: make the stale-check gate non-vacuous | A | P2 | genuine drift detection |
+| HC-13 | `launch-dashboard.yml`: redesign vs retire | H (product) | P3 | — |
+| HC-14 | Observe first scheduled runs of the migrated workflows not yet seen on schedule | T | P2 | PHB-05/06 grade upgrades |
+| HC-15 | Generalised fixes: cross-initiative conflict check; soft-launch deadline watch; re-validation of `completed_verified` | H (go/no-go) | P2 | recurrence prevention |
+| HC-16 | Fleet-snapshot dropped fields: confirm no reader | A | P3 | — |
+| HC-17 | 21 upstream-drifted products: route to the knowledge-pipeline owner | A (route only) | P3 | — |
+| HC-18 | Guide/script: fresh-machine end-to-end test; decommission tooling | A (+H for `sudo`) | P3 | — |
+| HC-19 | Reproduction-based re-review of the dossiers' root-cause claims (16 of 20 never reproduced) | A | P2 | trust in TC-10/TC-11 and in every destination that rests on an un-reproduced diagnosis |
+| PHB-05 | Canary observation: ≥5 scheduled cycles (1 seen) | T | P2 | `IMPLEMENTED` for PHB-05 |
+| PHB-08 | Final cost/reliability comparison (due 2026-10-08) | T | P2 | mission closeout |
+
+### H5. Taskcard Register
+
+**Status vocabulary (the only valid values):** `completed_verified` (proven by evidence
+that meets §H8 and is still current), `completed_but_weakly_verified` (done, but the proof
+is local/synthetic/record-based or predates a later change), `partially_done`,
+`not_attempted`, `claimed_unproven` (asserted done, no evidence found), `blocker`
+(cannot proceed without a named human action), `follow_up` (valid, deliberately deferred,
+needs a go/no-go). The ledger's own `IMPLEMENTED` is **not** a status in this vocabulary —
+it records that a session finished work, not that the work is proven (§H11, AO-4).
+
+Global rules referenced by every card: **GA-1** (allowed), **GF-1…GF-7** (forbidden),
+**GS-1…GS-4** (stop) — defined once in §H7. A card's own Allowed/Forbidden/Stop lines are
+*in addition to* those.
+
+#### H5.1 Existing cards — graded re-assessment (23)
+
+| Card | Ledger | Graded status | Basis (what was and was not established) | Follow-up |
+|---|---|---|---|---|
+| TC-01 | IMPLEMENTED | completed_verified | Inventory reviewed by TC-11 against live `gh api` | — |
+| TC-02 | IMPLEMENTED | completed_verified | Disablement confirmed by the user | — |
+| TC-03 | IMPLEMENTED | completed_but_weakly_verified | Local-only validation by design; two of its suspected diagnoses (HP-05 PAT gap, HP-11 missing pip) later proved wrong | AO-2 |
+| TC-04 | IMPLEMENTED | completed_verified | Reconciled against the user's real Actions export (1,494 min) | — |
+| TC-05 | IMPLEMENTED | completed_but_weakly_verified | Failure counts are real; the `upstream-monitor` and `launch-dashboard` root-cause classifications were wrong | AO-2 |
+| TC-06 | IMPLEMENTED | completed_verified | No contradicting evidence found; not re-audited in this run | — |
+| TC-07 | IMPLEMENTED | completed_but_weakly_verified | Destination matrix corrected three times after the fact (skill-governance, upstream-monitor, launch-dashboard) | AO-2, AO-5 |
+| TC-08 | IMPLEMENTED | completed_but_weakly_verified | Design ≠ implementation: no per-job container, label set differs, `DEGRADED` lifecycle unbuilt | HC-03, HC-04 |
+| TC-09 | IMPLEMENTED | completed_verified | Executed and proven live by PHB-04/05/06 | — |
+| TC-10 | IMPLEMENTED | completed_but_weakly_verified | 4 of 20 dossiers later needed material correction | AO-5 |
+| TC-11 | IMPLEMENTED | completed_but_weakly_verified | Found and fixed 7 real issues, but re-verified the record rather than reproducing behaviour (AF-16) | AO-2, AO-5 |
+| TC-12 | IMPLEMENTED | completed_but_weakly_verified | Verdict is a 2026-09-17 Phase A snapshot; `final_report.md` covers Phase A only; narrative status stale | HC-01, Closeout |
+| TC-13 | IMPLEMENTED | completed_verified | Proposal + `recurring-candidate` gap report filed | HC-05 (implementation) |
+| TC-14 | IMPLEMENTED | completed_but_weakly_verified | Unit-tested; never run in CI since the fix (workflow disabled) | HC-02 |
+| TC-15 | IMPLEMENTED | completed_but_weakly_verified | Same as TC-14 | HC-02 |
+| PHB-01 | IMPLEMENTED | completed_but_weakly_verified | Lightweight per-migration JSON record used across the migrations; behaviour under interruption/resume not evidenced | HC-01 |
+| PHB-02 | IMPLEMENTED | completed_but_weakly_verified | Reconciliation is per-migration and manual; the design's *recurring* regression control does not exist | HC-05 |
+| PHB-03 | **TODO** | partially_done | Code + 54 tests committed (`8aa41839da`), dry-run smoke run; not wired, never `--live`, breaker cold, false-alarm design | HC-05, HC-01 |
+| PHB-04 | IMPLEMENTED | completed_verified | Machinery canary executed live (run records under `phase_b/`) | — |
+| PHB-05 | IN_PROGRESS | partially_done | 1 of ≥5 scheduled cycles observed | PHB-05 card below |
+| PHB-06 | IMPLEMENTED | completed_but_weakly_verified | 4 bots + PRs proven live; the recorded `upstream-monitor` proof carried the wrong root cause; 3 of 4 have exactly 1 scheduled success; `install-literal-sweep` 0 | HC-14 |
+| PHB-07 | IMPLEMENTED | completed_but_weakly_verified | Public-repo runner proven with a real container job; private runner registered + systemd + online, **no job ever executed on it** | HC-02, HC-03, HC-04 |
+| PHB-08 | TODO | not_attempted | Time-gated; comparison is only valid under conditions in its card | PHB-08 card below |
+
+#### H5.2 Updated existing cards (full contract)
+
+##### MT069-PHB-05-CONTENT-CANARY-ASPOSE-COM-TARGETS-WATCH — canary observation
+- **Source audit finding:** AF-17, AF-23. **Why it matters:** the canary is the only proof that the public-migration mechanism keeps working unattended; one run is an anecdote.
+- **Current status:** partially_done (ledger `IN_PROGRESS`). **Priority:** P2. **Lane owner:** L-CI (observer: primary agent session). **Type:** T.
+- **Required work:** observe ≥5 scheduled cycles on 5 distinct UTC dates; confirm the private original stays silent; confirm attribution three ways (public runs land, private silent, billing trend once measurable). **Counting rule:** only `event == schedule` runs count, one per UTC calendar date of `createdAt`; a delayed run counts on its actual date (observed: the 10:30 UTC cron ran 14:33 UTC); `workflow_dispatch` runs never count; a failed scheduled run is observed but blocks closeout until classified.
+- **Required verification:** `gh run list --repo Aspose/aspose.org-workflows --workflow aspose-com-targets-watch.yml --event schedule`; `gh run list --repo Aspose/aspose.org --workflow aspose-com-targets-watch.yml --limit 1` (must show `createdAt` ≤ 2026-09-13T14:35:39Z, the last pre-disable private run).
+- **Required evidence:** ≥5 run IDs with UTC dates + conclusions (E-API); the private-silence query output; recorded in `phase_b/migrations/aspose-com-targets-watch.json` and reminder R-07 (due 2026-09-24).
+- **Acceptance criteria:** ≥5 scheduled successes on 5 distinct UTC dates, zero private runs after 2026-09-13, no unclassified failure. Earliest possible: 2026-09-22 UTC, after that day's scheduled run lands (cycles on 09-18…09-22; GitHub may delay a run by hours).
+- **Stop conditions:** the private original fires again (something re-enabled it) → stop and tell the human; two consecutive public failures → Repair Loop (§H10).
+- **Allowed actions:** GA-1 read-only observation; ledger advance on success. **Forbidden actions:** dispatching to "speed up" the count; GF-1.
+- **Dependencies:** time only. **Closeout rules:** advance ledger to `IMPLEMENTED` only after the acceptance criteria are met and evidence is recorded; then mark R-07 closed.
+
+##### MT069-PHB-08-POST-MIGRATION-STABILIZATION — final cost/reliability comparison
+- **Source audit finding:** AF-13, AF-14; usage baseline (H3). **Why it matters:** this is the mission's actual success metric — and the easiest one to fake by accident: all 20 private workflows are disabled, so *any* post-migration usage read today is ≈0 and would look like a 100% saving.
+- **Current status:** not_attempted (ledger `TODO`). **Priority:** P2. **Lane owner:** L-TEL. **Type:** T (due 2026-10-08, reminder R-08).
+- **Required work:** compare a fresh usage export against the 1,494-min baseline **only over a period in which every workflow in scope was enabled** (i.e. after HC-02, and after any workflow the human chose to keep disabled is excluded by name); report per-workflow minutes, expected zero-billed self-hosted jobs, the `llms-generation.yml` scoped-regeneration effect, the untouched Windows job, and before/after failure rates for the same workflows. If the window includes disabled workflows, the only valid output is `NOT_MEASURABLE` plus what is needed to measure.
+- **Required verification:** export and API cross-check (`workflow_usage_collector` proxy vs the export; self-hosted jobs must show zero billable time — e.g. run `timing.billable` empty); explicit measurement-validity statement listing which workflows were enabled for how many days.
+- **Required evidence:** export file path + hash, collector output, the validity statement, written into `final_report.md` (Phase B section).
+- **Acceptance criteria:** comparison published with its validity statement, or `NOT_MEASURABLE` recorded with reasons; no savings figure appears anywhere without it.
+- **Stop conditions:** window contains disabled workflows → do not publish a saving; baseline export not comparable (different scope/period definition) → stop and state the mismatch.
+- **Allowed actions:** GA-1; edit `final_report.md`. **Forbidden actions:** projecting savings from design intent; comparing against a partial month without saying so; GF-6.
+- **Dependencies:** HC-02, PHB-05, HC-05. **Closeout rules:** ledger `IMPLEMENTED` only with the validity statement present; close R-08.
+
+#### H5.3 New hardening cards (19)
+
+##### MT069-HC-01 — Reconcile ledger, plan and mission narrative; seed the HC cards
+- **Source audit finding:** AF-15. **Why it matters:** status is only useful if the three records agree; today `PHB-03` reads `TODO` while its code is committed, and the mission narrative still says Phase A closeout is "in progress".
+- **Current status:** partially_done (the plan's Status journal was annotated in this hardening run; ledger, narrative and master-plan row were not touched). **Priority:** P1. **Lane owner:** L-GOV.
+- **Required work:** (1) seed HC-01…HC-19 into `taskcards.jsonl` via `taskcard_cli.py seed --from-json` with a batch file shaped like the existing `_taskcard_seed_batch*.json`; (2) advance `PHB-03` `TODO → IN_PROGRESS` citing `8aa41839da` (not `IMPLEMENTED` until HC-05 closes); (3) fix `plans/missions/MT069-…md` line 4 status and add a pointer to §H; (4) leave the `plans/master-plan.md` row unless its wording is wrong (it reads "IN PROGRESS", which is correct); (5) run `check_plan_taskcard_completeness.py`.
+- **Required verification:** `taskcard_cli.py latest` lists the 19 new IDs and `PHB-03 IN_PROGRESS`; completeness checker exit 0, or the exact reason documented; narrative diff limited to status/pointer lines.
+- **Required evidence:** CLI output (E-LOCAL), commit SHA(s) of the narrative change (E-COMMIT), updated `EVIDENCE_BUNDLE.md` index.
+- **Acceptance criteria:** ledger ID-set equals the register's; no card is `IMPLEMENTED` unless its H5.1 grade is `completed_verified`, or `completed_but_weakly_verified` with a linked follow-up card.
+- **Stop conditions:** CAS error repeats after one fresh-read retry (GS-2); the CLI rejects a field — report, never hand-edit the JSONL.
+- **Allowed actions:** `taskcard_cli.py seed/advance/claim`; edit the narrative's status lines; `session_ledger.py adopt`; commits via GATE-COMMIT. **Forbidden actions:** hand-editing `taskcards.jsonl`; marking `PHB-03` `IMPLEMENTED`; editing `MISSION_AUTHORITY.yaml`; GF-*.
+- **Dependencies:** none. **Closeout rules:** ledger snapshot saved to the evidence bundle; register/ledger diff is empty.
+
+##### MT069-HC-02 — First controlled re-enable and live proof of the cutover
+- **Source audit finding:** AF-13, AF-01. **Why it matters:** since 2026-09-11 nothing has executed live — not the TC-14/TC-15 fixes, the concurrency guards, the scoped `llms` regeneration, nor the self-hosted runner (AO-1, AO-3). Every "fixed" in this mission is currently unproven at the level that matters.
+- **Current status:** blocker (the standing hard constraint requires an explicit human go-ahead). **Priority:** P0. **Lane owner:** L-RUN (human performs the enable/disable; agent observes and records).
+- **Required work:** after HC-03, HC-04, HC-06, HC-11 are done and the human states the go-ahead **naming the workflow**: enable exactly one workflow first — `content-governance-checks.yml` (largest cost driver, 36.5%, no soft-launched sibling; supports `workflow_dispatch`) — and trigger exactly one run as HC-11's protocol prescribes; observe, classify every failure as (a) genuine finding, (b) runner/toolchain defect, (c) workflow bug; decide with the human whether to keep it enabled. Repeat for `skill-governance.yml` (the Windows job stays GitHub-hosted). Later stage: `llms-generation.yml` (GitHub-hosted) to prove scoped regeneration.
+- **Required verification:** job metadata `runner_name == alienware-m18-wsl2-private` (a silent fallback to a GitHub-hosted runner must be impossible to miss); head SHA equals the intended commit; per-step conclusions; `timing.billable` empty for the self-hosted job; for `skill-governance.yml` the `check_platform_capabilities` step green (TC-14) and evaluator-version-bump behaving as designed (TC-15).
+- **Required evidence:** E-LIVE bundle per §H8 for each run; the human's go-ahead text pasted verbatim into the bundle.
+- **Acceptance criteria:** ≥1 complete run of each target workflow on the private runner with a recorded conclusion and every failing step root-caused under GATE-ROOTCAUSE; queue latency measured; the state the human chose afterwards recorded; TC-14/TC-15/PHB-07 grades upgraded *only* to what the evidence supports.
+- **Stop conditions:** runner offline or job queued past HC-11's threshold; any step touching paths outside the workspace (see HC-03); a secret visible in a log; failures exceed HC-11's abort count → human disables, agent reports.
+- **Allowed actions (agent):** read-only `gh run view/list`, `gh api …/timing`; evidence capture. **Forbidden actions:** the agent enabling or dispatching (GF-1); enabling more than one workflow at a time; leaving a workflow enabled while HC-04 alerting is inactive.
+- **Dependencies:** HC-03, HC-04, HC-06, HC-11 + human go-ahead. **Closeout rules:** evidence bundle entry per run; grades updated in H5.1 with run IDs; if the human re-disables, record why.
+
+##### MT069-HC-03 — Runner isolation model
+- **Source audit finding:** AF-10. **Why it matters:** the design promised a fresh container per job; the private jobs run repo code directly on the maintainer's daily-driver host, as their user, with the Windows drive reachable (`npm` already resolves to `/mnt/c/…`) and a persistent `_work` directory. Direct-push (no fork PRs) removes the classic untrusted-PR vector but not a compromised dependency or a bad commit.
+- **Current status:** not_attempted. **Priority:** P0. **Lane owner:** L-RUN. **Type:** H (decision) + A (implementation).
+- **Required work:** write the threat-model delta (design vs reality); evaluate at least: (a) `container:` per job (fresh filesystem, no host mounts; costs: image choice, JS-action node requirement, Docker Desktop dependency), (b) a dedicated WSL distro/user for the runner with `[interop] enabled=false` and `[automount] enabled=false` in `/etc/wsl.conf` (needs root and a distro restart — human), (c) host-direct with mitigations (low-privilege user, clean workspace per run, `--ephemeral`). Record a recommendation labelled as a leaning, not a finding; the human decides.
+- **Required verification:** negative control for the chosen model — as the runner's user, reading a canary path under `/mnt/c` must fail; and two consecutive runs on the **public test runner** (authorised) must show a marker file written in run 1 absent in run 2.
+- **Required evidence:** config diff, negative-control transcript, two run IDs (E-LOCAL, E-LIVE).
+- **Acceptance criteria:** decision recorded here and in `docs/operations/self-hosted-runner-setup.md`; both controls pass; `TC-08`/`PHB-07` re-graded.
+- **Stop conditions:** any option needs `sudo` → hand the exact commands to the human (GS-1); an option would disturb the pre-existing `gitlab-runner` / seo-intelligence containers on the same Docker Desktop → stop.
+- **Allowed actions:** read-only inspection, doc edits, public smoke-test template changes, drafting `wsl.conf` diffs. **Forbidden actions:** editing `/etc/wsl.conf` or Docker Desktop settings without the human; touching the existing containers; GF-*.
+- **Dependencies:** none (feeds HC-02). **Closeout rules:** design doc reconciled with reality.
+
+##### MT069-HC-04 — Runner-availability alerting
+- **Source audit finding:** AF-11. **Why it matters:** an offline self-hosted runner leaves push-triggered checks queued indefinitely — a hung commit status with no signal — and this runner lives on a machine that is not always on.
+- **Current status:** not_attempted. **Priority:** P0. **Lane owner:** L-TEL.
+- **Required work:** a scheduled, read-only public-repo workflow (GitHub-hosted, free minutes) calling `GET /repos/Aspose/aspose.org/actions/runners`, opening/updating **one deduped issue** when the `gha-private-native` runner is not `online` for N consecutive checks, and (once workflows are enabled) flagging queued runs older than a threshold. Thresholds are proposals to be recorded as such. Reuse the dedup pattern of `aspose-com-targets-watch.yml`. First establish whether `REPO_TOKEN` may read that endpoint (not established: it needs repo-admin scope).
+- **Required verification:** (1) endpoint reachable with `REPO_TOKEN` in a dispatched run; (2) control: point the check at a non-existent runner label → alert opens; (3) recovery path → issue closed or commented; (4) no alert while online.
+- **Required evidence:** run IDs for the pass / alert / recover paths; issue numbers.
+- **Acceptance criteria:** alert within 2× the check interval for an absent runner; single issue on repeats; documented in the guide.
+- **Stop conditions:** `REPO_TOKEN` lacks the scope → stop and report (credential decision → HC-07, GS-1); never escalate token scope.
+- **Allowed actions:** new template under `scripts/ci/deployed-workflows/`, public-repo deploy (pre-authorised for this mission), drift-checker registration, tests. **Forbidden actions:** enabling private workflows; storing runner tokens; auto-disabling anything on alert (alert-only invariant); GF-*.
+- **Dependencies:** none hard (HC-08 keeps the drift baseline honest). **Closeout rules:** template and deployed copy in sync (checker green).
+
+##### MT069-HC-05 — Finish PHB-03 (telemetry + circuit breaker)
+- **Source audit finding:** AF-14. **Why it matters:** the telemetry runs only when someone remembers to run it; its breaker has no history; and as built its CI-health check would alert forever on `upstream-monitor.yml`, whose job is *designed* to fail when drift exists.
+- **Current status:** partially_done. **Priority:** P1. **Lane owner:** L-TEL.
+- **Required work:** (1) a scheduled public workflow that runs `workflow_usage_collect_and_check.py` weekly (dry-run first); (2) then `--live` with the alert issue on the private repo; (3) breaker warm-up needs ≥3 recorded periods (`N=0/3` today) — time-gated, record the limitation; (4) mark the static caps `provisional` (1,500 total / 500 per workflow were set against the pre-migration baseline) and re-derive after PHB-08; (5) suppress the by-design failure: per-workflow `expected_failure_semantics` or step-level outcome, tested against the real `upstream-monitor` run outcomes; (6) measure API cost (`gh api rate_limit` before/after) and add a `since` window so weekly runs do not re-fetch history (the first dry run made ~300 per-run job calls); (7) advance the ledger only per the acceptance criteria.
+- **Required verification:** unit tests for (5); live dry-run run ID; live `--live` run ID + created/deduped issue number; rate-limit delta.
+- **Required evidence:** run IDs, issue number, test output, rate-limit numbers (E-LIVE, E-API, E-LOCAL).
+- **Acceptance criteria:** ≥1 scheduled fire green; no false alert for `upstream-monitor.yml` in a run where drift exists but the workflow behaved by design; caps recorded provisional; ledger `PHB-03 → IMPLEMENTED` only after (1), (2), (5) are proven live, with (3)/(4) tracked as time-gated follow-ups.
+- **Stop conditions:** `--live` would open an issue on the wrong repo or duplicate; rate-limit exhaustion.
+- **Allowed actions:** edit the telemetry modules within their S-115 scoped globs plus `registry.yaml`; public template deploy; commits via GATE-COMMIT (three gates bit during PHB-03's own commit: monkeypatch baseline, subprocess-encoding parity, `registry.yaml` registration). **Forbidden actions:** any auto-disable/dispatch from the breaker; lowering caps to silence an alert; GF-*.
+- **Dependencies:** none hard; PHB-08 for cap re-derivation. **Closeout rules:** ledger honest; remaining time-gated pieces have a reminder.
+
+##### MT069-HC-06 — Toolchain/compatibility verification without dispatching
+- **Source audit finding:** AF-12. **Why it matters:** the host lacks `go`, `jq`, `unzip`, `make`, `shellcheck`, `hugo`; `npm`/`docker` are Windows binaries via interop. The first live run should not be where that is discovered.
+- **Current status:** not_attempted. **Priority:** P1. **Lane owner:** L-RUN.
+- **Required work:** (1) enumerate every external binary reachable from both workflows' steps **and** every `scripts/ci/checks/*.py` they call, transitively (the hardening run did only a two-tool grep: `check_go_code_blocks.py` needs `go`, `repo_doctor.py` needs `go`/`hugo`, neither called by the target workflows); (2) reproduce the job step sequence in a **scratch clone** inside the runner's WSL distro as the runner user (using `scripts/ci/hooks/simulate_pr_checks.sh` or a step script) with a fresh `.venv` from `requirements-ci.txt`; (3) prove `actions/setup-python@v5` and `peaceiris/actions-hugo@v3` work on this host by dispatching a small workflow on the **public** test runner (authorised); (4) for each genuinely missing tool: prove irrelevant, or list the install step for a human.
+- **Required verification:** simulation transcript with exit codes; public-runner run ID; final tools-needed-vs-present table.
+- **Required evidence:** E-LOCAL transcript, E-LIVE run ID.
+- **Acceptance criteria:** no unexplained tool-missing failure in the simulation; every host gap proven irrelevant or owned by a human.
+- **Stop conditions:** the simulation would write to the real repo or use secrets; it needs `sudo`.
+- **Allowed actions:** scratch clone in a temp dir; read-only otherwise; a public test-workflow deploy. **Forbidden actions:** touching the real repo's `.venv`/`reports/`; `sudo`; GF-*.
+- **Dependencies:** none. **Closeout rules:** findings appended to the guide's Troubleshooting.
+
+##### MT069-HC-07 — Dead `GH_TOKEN` secret on the public repo
+- **Source audit finding:** AF-09. **Why it matters:** the fallback credential is dead and the daily probe has failed since 2026-09-06 (issue #43, 13 comments). Blast radius today is small — every template is REPO_TOKEN-primary — but a permanently-red alert hides the next real failure of the same probe (`REPO_TOKEN`, `GOOGLE_API_KEY`), and if `REPO_TOKEN` ever dies there is no working fallback.
+- **Current status:** blocker (a credential decision only the human can make). **Priority:** P1. **Lane owner:** L-CRED.
+- **Required work:** the human chooses: (a) rotate `GH_TOKEN` on `Aspose/aspose.org-workflows` with a fresh least-privilege token, or (b) drop the fallback — REPO_TOKEN-only in all templates and remove `GH_TOKEN` from the probe (agent-executable diff), which first needs a survey proving no other consumer of `GH_TOKEN` exists in that repo (not established). Placing a credential in a **public** repo's secrets is a security decision (write-access collaborators can exfiltrate secrets via a workflow edit). Not acceptable: silencing the probe.
+- **Required verification:** after the action, dispatch `seo-token-liveness.yml` (public, authorised) → green; confirm issue #43 closes (verify that the workflow's success path does this).
+- **Required evidence:** run ID, issue state, consumer-survey output.
+- **Acceptance criteria:** the liveness workflow green on a scheduled fire; issue #43 closed; the `GH_TOKEN` consumer list recorded.
+- **Stop conditions:** any consumer of `GH_TOKEN` beyond these templates is found → stop for the human.
+- **Allowed actions (agent):** read-only survey of the workflows repo via `gh api …/contents`; prepare option (b)'s diff; dispatch the liveness workflow after the human acts. **Forbidden actions:** creating, rotating or printing secrets and `gh secret set` (GF-2); reusing the local environment's token as a repo secret without fresh explicit approval — the earlier instruction to record a working token as a secret arose in the #94 context, which was a misdiagnosis and is now moot.
+- **Dependencies:** none. **Closeout rules:** issue closed; survey recorded.
+
+##### MT069-HC-08 — Approve the `upstream-monitor.yml` deployed baseline
+- **Source audit finding:** AF-08. **Why it matters:** the drift checker reports `DEPLOYED_UNAPPROVED` because the deployed copy no longer matches the baseline seeded 2026-09-17T18:30Z (`87fd14f9…`) — the consequence of my documentation-only redeploy (`4ab9d5c3`). The checker cannot go green until someone approves the new hash, and it has no approve verb.
+- **Current status:** not_attempted. **Priority:** P1. **Lane owner:** L-CI.
+- **Required work:** confirm local == deployed (`ca31bef32dd8` both), and that the change since the baseline is exactly `4ab9d5c3` — comments plus two human-readable message strings (a PR-body note and an issue-body line), no logic; then set `approved_baseline_sha256` for `upstream-monitor.yml` in `data/workflow_deploy_baselines.json` to the deployed hash (full 64-hex from `check_workflow_drift()`; never the short form) via `git_plumb_commit.py`.
+- **Required verification:** diff review of `4ab9d5c3`; checker output shows `upstream-monitor.yml` `IN_SYNC`.
+- **Required evidence:** the diff, checker output, commit SHA.
+- **Acceptance criteria:** the checker reports every workflow `IN_SYNC` and exits 0 (allowing for the transient-lookup issue, HC-09).
+- **Stop conditions:** deployed ≠ local (a new unapproved live change) → stop, diff, report — that is precisely what the baseline exists to catch; the diff contains anything but comments/message strings → do not approve.
+- **Allowed actions:** GA-1; one tracked-data edit. **Forbidden actions:** approving an unreviewed hash; editing other baselines; GF-*.
+- **Dependencies:** none. **Closeout rules:** commit SHA recorded.
+
+##### MT069-HC-09 — Make the drift checker a real gate
+- **Source audit finding:** AF-08, AF-07. **Why it matters:** `check_workflow_drift.py` is advisory-only — its only callers are its own tests — yet this plan and the migration records rely on it to keep 15 templates honest (AO-6). It also once reported a transient lookup failure as `DIVERGED`, and its tests live in two directories (276-line `scripts/ci/checks/tests/…` from `096db3c03c`; 104-line `scripts/ci/tests/…` from `d795f669e6`).
+- **Current status:** not_attempted. **Priority:** P2. **Lane owner:** L-CI.
+- **Required work:** (1) choose where it runs — weekly scheduled public workflow that opens a deduped issue on non-zero exit (recommended: it needs network lookups, which suits a scheduled job better than a pre-commit step) plus a manual on-touch run when templates change; record the tradeoff; (2) an explicit `--approve <workflow>` verb that refuses unless deployed == local and prints the change from the prior baseline; (3) distinguish a failed lookup from divergence (bounded retries, then `UNRESOLVED` with a distinct exit code); (4) decide the canonical test location, establish whether `scripts/ci/checks/tests/` is collected by any CI/pytest configuration (not established), and merge or wire accordingly.
+- **Required verification:** unit tests including a negative control built from the real `DEPLOYED_UNAPPROVED` state seen 2026-09-18; approve refuses on mismatch; `UNRESOLVED` path; a live scheduled run ID; a forced-red control against a scratch baseline path (via `configure()`, never the real baseline).
+- **Required evidence:** test output, run ID, issue number from the forced-red control.
+- **Acceptance criteria:** nothing that changes a template or its deployed copy can go unreported for longer than the schedule interval; approve is a verb, not a hand-edit; test locations unified.
+- **Stop conditions:** GATE-COMMIT failures twice (GS-3).
+- **Allowed actions:** edit the checker and tests within S-115 scope; add a template; deploy to the public repo. **Forbidden actions:** weakening classification (`DEPLOYED_UNAPPROVED` must stay a failure); GF-*.
+- **Dependencies:** HC-08. **Closeout rules:** checker registered in `registry.yaml` if new modules are added.
+
+##### MT069-HC-10 — Stale-guard graduation (TC-SG-07 / R-04)
+- **Source audit finding:** AF-03, AF-22. **Why it matters:** the Windows leg is the soft launch of a separate campaign; "a soft launch that never flips" is that campaign's own named failure mode, and it is 5 days past its date. R-04's premise ("precondition met 2026-08-31") went stale on 2026-09-06 and nothing re-checked it. The flip is currently **undecidable**, not neglected.
+- **Current status:** blocker (needs a live post-fix run = HC-02, then a soak). **Priority:** P1. **Lane owner:** L-GOV. **Type:** H + T.
+- **Required work:** (1) copy the graduation criteria into a tracked location — today they live in a file **outside the repo** (`C:\Users\prora\.claude\plans\plan-based-on-above-foamy-hartmanis.md`) and in gitignored `backlog/REMINDERS.md`: flip surfaces are (a) `--wide-findings` default `warn`→`block` in `check_stale_file_regression.py` and `git_plumb_commit.py` (still `warn`, `git_plumb_commit.py:1960`), (b) `continue-on-error: false` on `governance-tests-windows`, (c) drop the `content/` D-A(ii) suppression (TC-SG-08 decision), (d) `PYTHONUTF8=1` in `pre-commit-audit.sh` and `find_python.sh`, (e) T10 docs, then the TC-SG-21 closeout exercise; stop rule: ≥1 unresolved false positive → do not flip; (2) decide and build a durable record of lookback-class findings (none exists — precondition (1) cannot currently be checked); (3) after HC-02's first live `skill-governance.yml` run, judge workflow-level green, then run the soak the workflow's own comment requires (two weeks of triaged runs); (4) only then flip everything in **one** commit.
+- **Required verification:** a workflow-level green run dated after `d795f669e6`; the Windows job green across the soak; no unresolved false positive; TC-SG-21 transcript.
+- **Required evidence:** run IDs, soak notes, flip commit SHA (E-LIVE, E-COMMIT).
+- **Acceptance criteria:** criteria durable in-repo; either flipped with evidence or explicitly re-dated with the reason and a reminder that names the blocking condition (not a bare date).
+- **Stop conditions:** any unresolved false positive; workflow-level red for a reason unrelated to the Windows leg (fix first — the standing-red masking problem TC-SG-20 identified).
+- **Allowed actions:** GA-1; documentation; the flips **only** once acceptance evidence exists. **Forbidden actions:** demoting the Windows job's trigger for cost (withdrawn — it destroys the soak evidence); flipping any surface early; GF-*.
+- **Dependencies:** HC-02, time. **Closeout rules:** R-04 closed or re-dated with its blocking condition named.
+
+##### MT069-HC-11 — First-live-run evidence-capture and rollback protocol
+- **Source audit finding:** AF-13. **Why it matters:** a re-enable that is performed but not observed produces no evidence, and the hard constraint's only exit needs a procedure that makes the exit safe and reversible.
+- **Current status:** not_attempted. **Priority:** P0. **Lane owner:** L-GOV. **Type:** A.
+- **Required work:** a protocol document (in `docs/operations/`) with: pre-state snapshot (workflow enabled/disabled states, runner status, latest run IDs, `origin/main` SHA, usage snapshot); step order (enable ONE workflow → trigger → observe); an observation checklist (which runner took the job, queue time, `timing.billable`, per-step conclusions, log scan for out-of-workspace paths and unmasked secrets); failure classification (a/b/c as in HC-02); rollback (human disables; `gh run cancel` for queued/hung runs); abort thresholds proposed for the human to confirm (e.g. queued > 15 min with the runner online; any job on a non-`gha-private-native` runner); post-state snapshot; the E-LIVE bundle layout; a mandatory slot for the human's verbatim go-ahead.
+- **Required verification:** dry-run every observation command against a dispatched **public** workflow on the public test runner (authorised) to prove each yields the field it claims.
+- **Required evidence:** the document; dry-run run ID and captured outputs.
+- **Acceptance criteria:** someone who did not write it can execute it; the dry-run shows every command works; it states plainly that only a human may lift GF-1.
+- **Stop conditions:** a command needs a private-workflow enable to test → do not test it, mark it untested.
+- **Allowed actions:** doc + optional read-only snapshot script (new code follows GATE-COMMIT). **Forbidden actions:** GF-1 during the dry run; GF-*.
+- **Dependencies:** none. **Closeout rules:** referenced from HC-02.
+
+##### MT069-HC-12 — `llms-generation.yml`: make the stale-check gate non-vacuous
+- **Source audit finding:** AF-05. **Why it matters:** the "Stale check gate" compares a manifest to the state it was rebuilt from seconds earlier, so it cannot detect drift; the workflow's real remaining value is only "the generator did not crash". The scoped-regeneration cost fix is committed (`b6327ae052`) but has never run live.
+- **Current status:** not_attempted (gate); the scoped-regeneration fix is `completed_but_weakly_verified`. **Priority:** P2. **Lane owner:** L-CI.
+- **Required work:** persist the manifest across runs (evaluate `actions/cache` restored *before* regeneration, versus a tracked manifest, versus computing staleness from tracked inputs); this is `scripts/generator/**` engineering, outside the S-115 scope this mission used — open the correct skill/scope first; keep the scoped-regeneration logic.
+- **Required verification:** in a scratch repo, mutate content without regenerating → the gate **must fail** (impossible today — this is the acceptance test); regenerate → passes; scoped-regeneration scenarios re-run; live run after HC-02's later stage.
+- **Required evidence:** scratch-repo transcripts, later live run ID.
+- **Acceptance criteria:** the negative control fails as required; no false failure on an unchanged tree; documented.
+- **Stop conditions:** the redesign would increase minutes materially without a matching detection gain → stop and re-plan.
+- **Allowed actions:** scratch-repo experiments; scoped edits under the right skill context. **Forbidden actions:** removing the gate; GF-*.
+- **Dependencies:** none for design; a human enable for the live proof. **Closeout rules:** dossier `llms-generation.md` gets a dated correction block.
+
+##### MT069-HC-13 — `launch-dashboard.yml`: redesign or retire
+- **Source audit finding:** AF-06. **Why it matters:** its inputs are gitignored cumulative local state, so it is wrong in every fresh checkout; 3 of the private original's 5 push paths are structurally dead; the public schedule leg was reverted to dispatch-only.
+- **Current status:** follow_up. **Priority:** P3. **Lane owner:** L-CI. **Type:** H (product decision).
+- **Required work:** the human decides: (a) rebuild from git-tracked inputs, (b) retire it as a CI job and run on demand locally, (c) leave dispatch-only. Deleting a workflow file is a tracked action needing a deletion-governance record (`docs/DELETION_GOVERNANCE.md`).
+- **Required verification:** for (a), a fresh-checkout run must equal the local result within a stated tolerance — the exact check that exposed the earlier wrong conclusion; for (b), the deletion record.
+- **Required evidence:** decision text, run IDs or the deletion record.
+- **Acceptance criteria:** decision recorded; whichever option is chosen is verified on a fresh checkout, not on the maintainer's working directory (AO-8).
+- **Stop conditions:** none beyond GS-*. **Allowed actions:** analysis, prototype in a scratch clone. **Forbidden actions:** deleting the workflow without a deletion record; GF-*.
+- **Dependencies:** none. **Closeout rules:** dossier `launch-dashboard.md` updated.
+
+##### MT069-HC-14 — Observe first scheduled runs of the migrated workflows
+- **Source audit finding:** AF-17. **Why it matters:** four migrated workflows have never fired on schedule, and the private `install-literal-sweep.yml` has no runs ever — so its logic has no scheduled-run history anywhere.
+- **Current status:** not_attempted. **Priority:** P2. **Lane owner:** L-CI. **Type:** T.
+- **Required work:** after the Monday 2026-09-21 fires (UTC: `ci-onboarding-integrity-weekly` 06:15, `upstream-monitor` 08:00, `seo-weekly-analysis` 09:00, `install-literal-sweep` 11:00 — GitHub may delay), record each run's conclusion and classify it as success / failure-by-design (`upstream-monitor` when drift exists) / defect; each defect becomes a new card.
+- **Required verification:** `gh run list --repo Aspose/aspose.org-workflows --workflow <name> --event schedule`.
+- **Required evidence:** run IDs + classification.
+- **Acceptance criteria:** each of the four has ≥1 scheduled run with a classified conclusion.
+- **Stop conditions:** a scheduled run fails for a reason not seen before → Repair Loop.
+- **Allowed actions:** GA-1. **Forbidden actions:** dispatching to substitute for a scheduled run; GF-1.
+- **Dependencies:** time. **Closeout rules:** PHB-06's grade may move to `completed_verified` only when all four are classified.
+
+##### MT069-HC-15 — Generalised structural fixes (go/no-go)
+- **Source audit finding:** AF-18. **Why it matters:** the same shape has now recurred three times — a certified-green card silently stale, a decision owned by another initiative unseen, a manual reminder with no forcing function. Point fixes do not stop the fourth.
+- **Current status:** follow_up. **Priority:** P2. **Lane owner:** L-GOV. **Type:** H.
+- **Required work:** obtain a go/no-go per proposal, recording tradeoffs: (1) cross-initiative conflict check — a structured `subject-files:` tag on reminders/taskcards plus a WARN when a change touches a subject file with an open decision owned elsewhere (limit: cannot parse existing free-text reminders; prevents future collisions only); (2) soft-launch deadline watch — a sidecar mapping `continue-on-error` jobs to a soak-end date and owning card, watched by the HC-05 telemetry (limit: needs the sidecar kept current); (3) re-validation of `completed_verified` — cards may declare a read-only `revalidate:` check that telemetry re-runs (limit: only as good as the declared check). Nothing is built without the go.
+- **Required verification (when built):** each must fail-then-pass against its real incident: the deadline watch would have alerted by 2026-09-13; the conflict check would have flagged MT069's Windows-job recommendation against R-04; the re-validation would have caught TC-SG-20's certification going stale on 2026-09-06.
+- **Required evidence:** the decision record; later, negative-control transcripts.
+- **Acceptance criteria:** a recorded go or no-go for each, with reasons.
+- **Stop conditions:** building without a go. **Allowed actions:** write the decision record. **Forbidden actions:** building new governance tooling unasked; GF-*.
+- **Dependencies:** HC-05 (for 2 and 3). **Closeout rules:** each proposal `completed_verified` (built and proven) or closed `follow_up` with the no-go reason.
+
+##### MT069-HC-16 — Fleet-snapshot dropped fields
+- **Source audit finding:** AF-19. **Why it matters:** merged PR #103 removed `checked_mode` and `freshness_guard_state` from `data/fleet_freshness_snapshot.json`; I judged them unread and did not prove it.
+- **Current status:** follow_up. **Priority:** P3. **Lane owner:** L-CI.
+- **Required work:** search all readers by key name and by file (`bounded_auto_regen.py`, `check_upstream_drift.py`, tests, the documented schema in `docs/workflows/freshness-and-bounded-regen.md`); bound the history search for who wrote those fields; confirm `bounded_auto_regen.py select --json` still works on the current snapshot.
+- **Required verification:** grep transcript; `select --json` run.
+- **Required evidence:** transcripts (E-LOCAL).
+- **Acceptance criteria:** "no reader" proven, or the fields restored with a test.
+- **Stop conditions:** a reader is found that breaks → fix under the Repair Loop. **Allowed actions:** read-only + a tests-only change. **Forbidden actions:** GF-*.
+- **Dependencies:** none. **Closeout rules:** dated note on the PHB-06 record.
+
+##### MT069-HC-17 — Route the 21 upstream-drifted products
+- **Source audit finding:** AF-20. **Why it matters:** the first *working* sweep found 21 of 33 products changed upstream (0 HIGH, 9 MEDIUM, 12 LOW). Regeneration selection is observability-only, so nobody acts on it. This is real content-freshness debt — but **not MT069's to absorb**.
+- **Current status:** follow_up. **Priority:** P3. **Lane owner:** L-GOV.
+- **Required work:** record the list (derivable from the committed `data/fleet_freshness_snapshot.json`, merged as `ddb0b0e1a8`) as a tracking item for the knowledge-pipeline owner (backlog inbox entry or an issue); regenerate nothing.
+- **Required verification:** the record exists and matches the snapshot.
+- **Required evidence:** the record's location. **Acceptance criteria:** owner has the list. **Stop conditions:** none.
+- **Allowed actions:** create the tracking record. **Forbidden actions:** regenerating or editing content; GF-*.
+- **Dependencies:** none. **Closeout rules:** closed once handed off.
+
+##### MT069-HC-18 — Runner guide/script: fresh-machine test and decommission tooling
+- **Source audit finding:** AF-21. **Why it matters:** the script's parsing, guards and pipeline (up to an invalid token) were tested; a real registration + service install on a clean machine was not, and decommissioning is a manual, undocumented-by-test procedure.
+- **Current status:** follow_up. **Priority:** P3. **Lane owner:** L-RUN (+H for `sudo`).
+- **Required work:** register a temporary third runner against the **public** repo (authorised for testing) by following the guide literally; install its service (human, `sudo`); then decommission it using the manual steps; fix every guide gap found; add `scripts/ci/decommission-self-hosted-runner.sh`.
+- **Required verification:** the temporary runner appears `online`, then is absent from the API and the host after decommission.
+- **Required evidence:** API outputs before/after; the guide diff.
+- **Acceptance criteria:** the guide is accurate as written; the decommission script removes service, registration and directory.
+- **Stop conditions:** the test would touch either real runner. **Allowed actions:** a uniquely-named temporary runner. **Forbidden actions:** removing `alienware-m18-wsl2-private` or `-test`; GF-*.
+- **Dependencies:** none. **Closeout rules:** `docs/operations/self-hosted-runner-setup.md` "Decommissioning" section replaced by the tested procedure.
+
+##### MT069-HC-19 — Reproduction-based re-review of the dossiers' root-cause claims
+- **Source audit finding:** AF-16. **Why it matters:** TC-11 re-verified the *record*; four of the 20 dossiers (`upstream-monitor`, `launch-dashboard`, the `skill-governance` Windows-job framing, `llms-generation`) later proved materially wrong on root cause or scope. The other 16 dossiers and `analysis/failure_signatures.json` are record-consistent but were never reproduced, and several drive real decisions (destinations, what to self-host, what to fix, what to leave alone).
+- **Current status:** not_attempted. **Priority:** P2. **Lane owner:** L-GOV. **Type:** A.
+- **Required work:** (1) extract every root-cause / failure-mechanism claim from the 20 dossiers and `failure_signatures.json` into a table — claim, the decision it supports, and how it was established (`reproduced` / `code-read` / `recorded` / `inferred`); (2) for every claim that is not `reproduced` and that supports a destination, a `REQUIRES_REDESIGN`/`INSUFFICIENT_EVIDENCE` outcome, or a fix, attempt reproduction *with a control* (§H10 step 4) in a scratch clone or through read-only API — the four already-corrected dossiers are excluded; (3) record a verdict per claim; where one is contradicted, open a Repair Loop with a dated `CORRECTION` block and, if a destination changes, a new card; (4) revise the TC-10/TC-11 grades only from this card's evidence.
+- **Required verification:** reproduction transcripts with controls; the claims table complete, including the "how established" column.
+- **Required evidence:** E-LOCAL / E-API / E-NEG entries; the table saved under `reports/plan_state/MT069-…/review/` (local) with each verdict's key IDs copied into this plan (EV-6).
+- **Acceptance criteria:** every decision-driving root-cause claim is either `reproduced` or explicitly listed as hypothesis-only, and no destination rests on a hypothesis-only claim without its dossier saying so.
+- **Stop conditions:** reproducing a claim would require enabling or dispatching a private workflow → mark it "unreproducible without B-1" and stop (do not test it); evidence contradicts the card's premise (GS-4).
+- **Allowed actions:** read-only inspection, scratch clones, public-repo observation. **Forbidden actions:** GF-1; rewriting a dossier without a `CORRECTION` block (GF-7).
+- **Dependencies:** none (some claims may only become reproducible after HC-02). **Closeout rules:** TC-10/TC-11 re-graded with the evidence; unreproducible claims carried into the closeout exception list (C-14).
+
+### H6. Lane Ownership
+
+Lanes exist so two workers never write the same file. The repo is routinely worked by many
+concurrent sessions, so lane discipline is enforced by the write-sets below plus
+`git_plumb_commit.py --files <exact list>` (never `git add -A`).
+
+| Lane | Owner | Cards | Write-set (exhaustive for agent work) | Skill context to open first |
+|---|---|---|---|---|
+| **L-RUN** runner & host | Agent for docs/scripts; **human for host config, `sudo`, service units, enable/disable** | HC-02, HC-03, HC-06, HC-18 | `docs/operations/self-hosted-runner-setup.md`, `scripts/ci/setup-self-hosted-runner.sh`, `scripts/ci/decommission-self-hosted-runner.sh`, public smoke-test template | S-115, scope `scripts/ci/**,docs/operations/**` |
+| **L-CI** workflows & drift | Agent | HC-08, HC-09, HC-12, HC-13, HC-14, HC-16, PHB-05 | `scripts/ci/deployed-workflows/**`, `scripts/ci/checks/check_workflow_drift.py` + its tests, `data/workflow_deploy_baselines.json`, `.github/workflows/**`; `scripts/generator/**` only for HC-12 under its own skill/scope | S-115 (HC-12: the skill that governs `scripts/generator/`) |
+| **L-TEL** telemetry & alerting | Agent | HC-04, HC-05, PHB-08 | `scripts/pipeline/lib/workflow_*`, `scripts/pipeline/commands/ops/workflow_*`, `scripts/pipeline/config/workflow_*`, `scripts/pipeline/tests/test_workflow_*`, `scripts/pipeline/config/registry.yaml`, telemetry/alert public templates | S-115 with the globs above **plus** `registry.yaml` (omitting it blocked PHB-03's own commit) |
+| **L-GOV** plan, ledger, protocols | Agent | HC-01, HC-10, HC-11, HC-15, HC-17, HC-19 | this plan file, `plans/missions/MT069-…md`, `taskcards.jsonl` (**via `taskcard_cli.py` only**), `backlog/REMINDERS.md`, protocol docs under `docs/operations/` | none for `plans/`; S-115 for `docs/operations/**` |
+| **L-CRED** credentials | **Human only** | HC-07 | repo secrets (never touched by the agent) | — |
+
+**Serialisation rules (a violation is a stop, GS-2):**
+1. `data/workflow_deploy_baselines.json` is single-writer — the checker also *seeds* baselines for new templates, so HC-04, HC-05, HC-08, HC-09 must not touch it concurrently.
+2. `taskcards.jsonl` is single-writer through the CLI's CAS; HC-01 owns seeding.
+3. `docs/operations/self-hosted-runner-setup.md` receives edits from HC-03, HC-06, HC-18 — serialise, each in its own section.
+4. HC-08 → HC-09 (same checker/baseline surface).
+5. HC-02 cannot start until HC-03, HC-04, HC-06, HC-11 are `completed_verified` **and** the human has spoken.
+
+**Parallel-safe:** HC-03 ‖ HC-04 ‖ HC-06 ‖ HC-11 ‖ HC-05 (steps 1, 2, 5, 6) ‖ HC-16 ‖ HC-17. **Time-gated (no lane work):** PHB-05, HC-14, PHB-08, the soak inside HC-10.
+
+**Critical path:** `{HC-03, HC-04, HC-06, HC-11} → human go-ahead → HC-02 → {HC-10 soak, PHB-08 window} → closeout`. HC-07, HC-13 and HC-15 are human decisions off the critical path (HC-07 gates only the noise, not the cutover).
+
+**After every commit by any lane:** `checkout_sync.py report` (a plumbing commit left real-index residue that would have silently reverted `AGENTS.md` on the next porcelain commit) and `git diff --stat <sha>^ <sha>` to confirm the commit is non-empty.
+
+### H7. Gate Contract
+
+**Enforcement honesty first** — a gate that exists only as prose is recorded as such, so it is not mistaken for protection:
+
+| Gate | Enforced by today | Status | Hardening card |
+|---|---|---|---|
+| GATE-HARD (no private-workflow enable/dispatch) | **Instruction only** — no hook, permission or token restriction prevents it | prose | HC-11 (procedure for the only legitimate exit) |
+| GATE-HUMAN | Instruction only | prose | — |
+| GATE-COMMIT | Technical — `git_plumb_commit.py` runs the Tier-1 steps against an isolated index | **real** | — |
+| GATE-LEDGER | `check_plan_taskcard_completeness.py` exists but is run only at closeout | partial | HC-01 |
+| GATE-DRIFT | `check_workflow_drift.py` has **no caller** — advisory | advisory | HC-08, HC-09 |
+| GATE-LIVE | Instruction only | prose | HC-11 |
+| GATE-ROOTCAUSE | Instruction only | prose | — |
+| GATE-ISOLATION | Nothing | absent | HC-03 |
+| GATE-ALERTING | Nothing | absent | HC-04 |
+
+**GATE-HARD — the standing invariant.** No workflow among the 20 in `Aspose/aspose.org`
+is enabled or dispatched by any means without an explicit human go-ahead that is pasted
+verbatim into the evidence bundle. The only legitimate lifting procedure is HC-02 using
+HC-11's protocol. Public-repo workflows (`Aspose/aspose.org-workflows`) and self-hosted
+runners for *testing* remain authorised, as the user stated on 2026-09-17.
+
+**GATE-HUMAN — actions that always need the human, even inside an authorised card:**
+enabling/disabling/dispatching a private workflow; creating, rotating, deleting or printing
+any secret; registering, removing or reconfiguring a runner or its host (`sudo`,
+`/etc/wsl.conf`, Docker Desktop settings); deleting a workflow file; merging an automated
+PR whose diff was not read; re-binding `MISSION_AUTHORITY.yaml`. A past blanket go-ahead
+never covers a new instance of these (AO-15).
+
+**GATE-COMMIT — the sanctioned path and its known traps.** `git_plumb_commit.py --files
+<exact list> --skills S-xx --plan "…" --co-author "…"`, after `session_ledger.py adopt` for
+files it does not yet own, inside a `skill_context.py begin … end` that **covers every file
+in the commit**. Real failures this mission hit, each now a checklist item:
+(1) `not_in_ledger` refusal → verify the diff is yours, then `adopt`;
+(2) monkeypatch ratchet (`check_monkeypatch_lint.py --strict --tier 1,2 --compare-baseline
+scripts/ci/monkeypatch_baseline.json`) compares **raw per-file counts** — every new
+`patch(...)` call site counts even against an already-baselined target → use DI seams;
+(3) subprocess text-mode calls without `encoding=` fail the parity ratchet;
+(4) every new file under `scripts/pipeline/{lib,commands}/` needs a `registry.yaml` entry;
+(5) `--ack-gitignored` takes explicit paths, not a bare flag;
+(6) plumbing commits can leave real-index residue → `checkout_sync.py report`.
+Never `--skip-tier1-checks`, `--skip-ledger-check`, `--skip-stale-check` or
+`SKIP_SKILL_CONTEXT_CHECK`.
+
+**GATE-LEDGER.** A card's ledger status is advanced in the session that lands its
+evidence, and never to `IMPLEMENTED` unless its §H5 grade is `completed_verified` or
+`completed_but_weakly_verified` with a linked follow-up. Register and ledger must agree at
+closeout (`check_plan_taskcard_completeness.py` exit 0).
+
+**GATE-DRIFT.** Any card that changes a template or its deployed copy re-runs
+`check_workflow_drift.py` and records the result; until HC-09 lands this is a manual step
+that must not be skipped precisely because nothing else enforces it. A transient
+`deployed=unresolved` is retried, not accepted as `DIVERGED`, and not ignored.
+
+**GATE-LIVE.** A claim about CI behaviour is verified only by a live run that (a) post-dates
+the change, (b) ran the intended commit, (c) is cited by run ID. Local, synthetic, dry-run
+and record-based evidence can support `completed_but_weakly_verified` at most.
+
+**GATE-ROOTCAUSE.** A root-cause statement in a dossier, taskcard or issue must cite a saved
+reproduction plus a control that would answer differently if the claim were false. Absent
+that it is written as a hypothesis and cannot justify closing an issue or withholding a fix.
+
+**GATE-ISOLATION / GATE-ALERTING (preconditions for HC-02).** Isolation: the HC-03 decision
+recorded and its negative control passed. Alerting: HC-04's alert workflow demonstrated
+firing and recovering. HC-02 may not start without both.
+
+**Global rule sets referenced by every card**
+
+- **GA-1 (allowed):** read-only `gh api`/`gh run view|list`/`git`/`taskcard_cli.py latest`; local test runs; edits inside the card's lane write-set; commits through GATE-COMMIT; public-repo template deploys (authorised for this mission) using the safe cross-repo pattern — `git fetch` first, build the commit on the *fetched* tip, push the SHA, never rewrite local refs; observation of public-repo runs.
+- **GF-1:** enabling, dispatching, or otherwise activating any private-repo workflow (except the human performing HC-02). **GF-2:** creating, rotating, reading-out, logging or committing secrets or tokens. **GF-3:** `git commit` porcelain; any `--skip-*`/bypass flag; editing hooks to pass. **GF-4:** force-push, history rewrite, deleting workflow files, branches or runners. **GF-5:** writing outside the card's write-set. **GF-6:** advancing a status without evidence meeting §H8. **GF-7:** overwriting a dossier or journal entry instead of adding a dated `CORRECTION` block.
+- **GS-1:** stop when the next command would violate a GF or needs `sudo`/human authority — hand over the exact command. **GS-2:** stop on an unexpected concurrent change to a file in the write-set, or a repeated CAS error after one fresh-read retry. **GS-3:** stop after two failed repair iterations on one card in one session (§H10). **GS-4:** stop when evidence contradicts the card's premise — re-plan, do not force-fit.
+
+### H8. Evidence Contract
+
+Every "verified" claim must cite evidence a third party can **re-observe** — a run ID, a
+commit SHA, an issue/PR number, a command whose output can be regenerated. A path under
+gitignored storage is a convenience copy, not the evidence.
+
+| Type | Proves | Required fields |
+|---|---|---|
+| **E-LIVE** | a CI run behaved a certain way | run URL/ID; workflow file + head SHA it executed; event; conclusion; per-step conclusions for any step the claim rests on; `runner_name` for self-hosted claims; created/completed timestamps; for cost claims the `timing.billable` value |
+| **E-API** | current external state (runners, workflow state, issues, secrets *names*) | exact `gh api` call; jq filter; UTC timestamp; raw output excerpt |
+| **E-LOCAL** | behaviour of code on a machine | command; exit code; output excerpt; commit SHA of the tree tested; whether the tree was a scratch clone or a working tree |
+| **E-COMMIT** | a change landed | SHA; `git show --stat` proving it is non-empty; gate summary from `git_plumb_commit.py` |
+| **E-NEG** | a check can actually fail | the mutation applied; the observed failure; the restoration; run in a scratch location |
+| **E-HUMAN** | a human decision or go-ahead | the person's words verbatim, with date and the scope they covered |
+
+**Rules.**
+- **EV-1 (no proof by absence):** a missing command, a skipped check, an empty grep, or `shutil.which(...)` returning `None` is not a pass; record it as *not exercised*.
+- **EV-2 (freshness):** evidence is void once the evidenced file/config changes (compare hashes/SHAs), or, for live claims, when it pre-dates the fix it is cited for. Re-collect; do not carry forward.
+- **EV-3 (synthetic ceiling):** E-LOCAL, dry-run and fixture evidence can never upgrade a CI-behaviour claim past `completed_but_weakly_verified`.
+- **EV-4 (control):** an authentication, permission or availability claim needs an E-NEG-style control that would give the *same* answer if the claim were false.
+- **EV-5 (regenerated/deployed artifacts):** a change to a generator, template or deployed copy is *applied* only when the regenerated/deployed artifact is refreshed **and** GATE-DRIFT is green; the source change alone is not the change.
+- **EV-6 (durability):** run IDs, SHAs and issue numbers are copied into this tracked plan; `EVIDENCE_BUNDLE.md` and `phase_b/*` (gitignored, single-machine) index them but are not the sole copy.
+- **EV-7 (redaction):** evidence never contains token values; log excerpts are checked for unmasked secrets before being recorded.
+
+### H9. Verification Matrix
+
+"Does not count" is as important as "counts": it names the shortcut that would otherwise
+be mistaken for proof.
+
+| Claim | Real proof | Does **not** count | State today |
+|---|---|---|---|
+| Private jobs run on the self-hosted runner | E-LIVE with `runner_name == alienware-m18-wsl2-private` | Runner `online`; `runs-on:` edited; systemd `active` | **Unproven** (HC-02) |
+| TC-14 removed the false failures | E-LIVE workflow-level green of `skill-governance.yml` after `d795f669e6` | 12/12 unit tests; local run | **Unproven** (HC-02) |
+| TC-15 gate works in CI | E-LIVE run on an evaluator-touching push + the existing local E-NEG | Local pre-commit tests alone | Local only |
+| Concurrency guards cancel superseded runs | Two pushes in quick succession, the first run `cancelled` | The `concurrency:` block existing | **Unproven** |
+| `upstream-monitor` sweep fix | E-LIVE run `35321867511` (`fetch_failures: 0`) + tests + local repro | — | **Verified** |
+| Public migrations stable | ≥5 scheduled cycles on distinct UTC dates; private original silent | Dispatch runs; the first green run | 1 of 5 (PHB-05); 4 workflows unseen on schedule (HC-14) |
+| Telemetry alerts correctly | E-LIVE dry-run + `--live` runs, false-alarm suppression tested on real outcomes | The 54 unit tests; the dry-run smoke | Partial (HC-05) |
+| Runner-offline alert works | E-LIVE pass/alert/recover runs (control label for the alert path) | The workflow existing | **Unbuilt** (HC-04) |
+| Drift checker is a gate | A scheduled run + a forced-red control against a scratch baseline | The script passing when run by hand | Advisory (HC-09) |
+| Isolation model holds | E-NEG: `/mnt/c` unreadable to the runner user; marker file absent in run 2 (public test runner) | A design document | **Unproven** (HC-03) |
+| Toolchain suffices | Scratch-clone simulation + public-runner run of `setup-python`/`actions-hugo` | Static grep of tool names | Static only (HC-06) |
+| Stale-check gate can fail | E-NEG in a scratch repo: content changed, not regenerated → gate fails | The step going green | **Cannot fail today** (HC-12) |
+| `GH_TOKEN` problem resolved | Liveness workflow green on a scheduled fire; issue #43 closed | Silencing or deleting the probe | Failing (HC-07) |
+| Cost reduced | PHB-08 comparison with an enabled-window validity statement | Zero usage while workflows are disabled; projections | **Not measurable now** |
+| Ledger consistent with plan | `taskcard_cli.py latest` + completeness checker exit 0 | This document's own table | Inconsistent (HC-01) |
+| An automated PR is safe to merge | The diff read for destructive deltas + one externally checked fact | A green check; a plausible title | Practised on #99/#100/#103 |
+
+### H10. Repair Loop
+
+Applies to any failed gate, red run, contradicted premise or defect found while executing
+a card. Two attempts per card per session (GS-3).
+
+1. **Detect and record** the failing observation verbatim (command + output or run ID).
+2. **Classify in three layers** — *symptom* (what is visibly wrong), *root cause* (the mechanism, with its evidence), *structural weakness* (why nothing caught it earlier). A fix that addresses only the symptom is a workaround and is labelled as one.
+3. **Reproduce** with a saved command (GATE-ROOTCAUSE). If it cannot be reproduced, the diagnosis is a labelled hypothesis; act on it only if the action is reversible and independently justified.
+4. **Run a control** for any permission/credential/availability claim (anonymous request, fresh checkout, non-existent label). The 2026-09-18 "PAT gap" survived several reviews because none did this; the control took one request.
+5. **Fix at the source, smallest change.** Never weaken a gate to get green: no new `continue-on-error`, no baseline edited to match a regression, no `--skip-*`.
+6. **Verify at the level the claim was made** — a CI claim needs a CI run (GATE-LIVE). Local success on the maintainer's working tree proves nothing about a fresh checkout (`launch-dashboard.yml` was declared healthy on exactly that basis, then failed 33/33 on a fresh checkout).
+7. **Sweep siblings:** search for the same class elsewhere — every document repeating a corrected diagnosis, every runner's registration, every consumer of a bad credential, every template sharing the defective pattern.
+8. **Record** with a dated `CORRECTION` block (GF-7) and update the register and, via the CLI, the ledger. Annotate, never erase: the trail of what was believed is evidence.
+9. **Post-commit hygiene:** `checkout_sync.py report`; `git diff --stat <sha>^ <sha>`; for anything deployed, GATE-DRIFT.
+10. **Escalate at the limit:** after two failed iterations, stop and hand the human what was tried, what was observed and the exact next command (GS-3). Do not try a third variation.
+
+### H11. Anti-Overclaim Rules
+
+Each rule is written from a real slip or near-slip in this mission's record.
+
+- **AO-1** A disabled workflow produces no evidence. No CI-behaviour claim is "verified" without a live run dated after the change. *(TC-14/15, guards, self-hosting: all unproven since 2026-09-11.)*
+- **AO-2** A root-cause claim needs a saved reproduction. A code comment, docstring, issue body or earlier report is a hypothesis. *(The "PAT gap" was repeated by a comment, a docstring, an issue, two dossiers and an independent review.)*
+- **AO-3** "Runner online" ≠ "runner serves that repo" ≠ "jobs execute there". Verify the binding (`.runner`/API) **and** a real job's `runner_name`. *(Wrong-repo registration.)*
+- **AO-4** Ledger `IMPLEMENTED` is not "verified". Use the §H5 vocabulary. *(PHB-03 `TODO` with committed code; PHB-07 `IMPLEMENTED` with no job ever run.)*
+- **AO-5** Review of records is not review of behaviour. An independent review that endorses a root cause must have reproduced it; otherwise its grade is "record-consistent only". *(TC-11.)*
+- **AO-6** An advisory script is not a gate; a check with no caller enforces nothing. *(`check_workflow_drift.py`.)*
+- **AO-7** A dry run or smoke test is not production proof. *(PHB-03's live dry-run against the real repo.)*
+- **AO-8** Local success proves nothing about a fresh checkout. *(`launch-dashboard.yml`.)*
+- **AO-9** Authentication/permission claims need a control that would answer the same if the claim were false. *(Anonymous request to a public org.)*
+- **AO-10** A manual reminder's premise is re-verified when acted on and when it falls due; a due date without a named blocking condition is not a plan. *(R-04.)*
+- **AO-11** Time-gated evidence counts only after the time has passed — scheduled events only, distinct UTC dates, never dispatches or projections. *(PHB-05; the 10:30 cron that ran at 14:33.)*
+- **AO-12** An automated PR is merged only after its diff is read for destructive deltas. *(#103 would have replaced 250 lines with `{}`.)*
+- **AO-13** Zero usage while workflows are disabled is not a saving. *(PHB-08's trap.)*
+- **AO-14** A fix is not done until every place that repeated the wrong belief is corrected. *(Nine artifacts repeated the PAT narrative.)*
+- **AO-15** A past blanket authorisation never covers a new production action; re-confirm scope. *(HC-07's secret; HC-02.)*
+- **AO-16** A source change is not applied until its generated/deployed artifact is refreshed and drift is green; an artifact merely existing is not correctness. *(EV-5.)*
+- **AO-17** A skipped check, a missing tool or a command that ran nothing is "not exercised", never "passed". *(EV-1; `shutil.which("go")` → `None`.)*
+
+### H12. Closeout Criteria
+
+The mission may be reported complete only when **all** of the following hold, each backed
+by evidence meeting §H8:
+
+- **C-1** Ledger and register agree (HC-01 acceptance); every card is terminal, or is `follow_up`/`blocker` with the named human action recorded.
+- **C-2** The P0 cards HC-02, HC-03, HC-04, HC-11 are `completed_verified`.
+- **C-3** Live proof (E-LIVE) exists for: both target workflows on the private runner; TC-14's workflow-level green; TC-15's behaviour; guard cancellation — **or** the human has recorded (E-HUMAN) that a named item is accepted as unproven.
+- **C-4** PHB-05's acceptance is met and HC-14 is classified.
+- **C-5** HC-05's acceptance is met (telemetry live; the alert-only invariant intact) with its time-gated remainder ticketed.
+- **C-6** The drift checker is green and wired (HC-08, HC-09), or the human recorded a decision to leave it advisory.
+- **C-7** HC-07 resolved (issue #43 closed) or the human recorded that the failing probe is accepted.
+- **C-8** PHB-08 done with a valid measurement statement, or `NOT_MEASURABLE` recorded with reasons. No saving figure appears anywhere without one.
+- **C-9** HC-10 resolved: flipped with evidence, or re-dated with the *blocking condition named*.
+- **C-10** `final_report.md` has a Phase B section; the mission narrative and `plans/master-plan.md` row are current; `EVIDENCE_BUNDLE.md` indexes every E-* item with re-observable IDs.
+- **C-11** This plan file is committed through GATE-COMMIT and `check_plan_taskcard_completeness.py` exits 0.
+- **C-12** The status of GATE-HARD is stated explicitly: still in force, or lifted per HC-02 with the human's words.
+- **C-13** A final sweep finds no journal line that contradicts current state without a `[SUPERSEDED]` annotation.
+- **C-14** HC-19 is done, or every root-cause claim it could not reproduce is listed **by name** among the closeout exceptions.
+
+**Allowed final verdicts (one only):** `MISSION_COMPLETE_VERIFIED` (all C-* met);
+`MISSION_COMPLETE_WITH_DOCUMENTED_EXCEPTIONS` (each un-proven claim listed by name);
+`MISSION_BLOCKED_ON_HUMAN` (each blocker in §H13 listed). Any verdict claiming a cost saving
+must quote C-8's validity statement.
+
+**What may honestly be claimed today (2026-09-18):** Phase A is complete; Phase B is
+partially executed (9 templates deployed; canary in observation; runner registered); the
+`upstream-monitor` sweep defect is fixed and live-proven; **no cost saving has been
+measured or proven, and no self-hosted job has ever run.**
+
+### H13. Remaining True Blockers
+
+A blocker is something the agent cannot resolve by working harder. Everything else in the
+register is executable.
+
+| # | Blocker | Blocks | Who / what unblocks it |
+|---|---|---|---|
+| **B-1** | The standing hard constraint: no private workflow may be enabled or dispatched without an explicit human go-ahead | HC-02 → live proof of TC-14, TC-15, guards, self-hosting; HC-10; PHB-08 | The human names the workflow and gives the go-ahead once HC-03, HC-04, HC-06, HC-11 are done |
+| **B-2** | Isolation-model decision, and any `sudo`/`/etc/wsl.conf`/Docker Desktop change it needs | HC-02 | The human picks (a)/(b)/(c) from HC-03 and runs the privileged commands the agent hands over |
+| **B-3** | Which credential resolves the dead public-repo `GH_TOKEN` — or the decision to drop the fallback | HC-07 (noise, lost fallback); not the cutover | The human, per HC-07 |
+| **B-4** | Calendar time: 2026-09-21 first Monday scheduled fires (HC-14); ≥5 scheduled canary cycles, earliest evening 2026-09-22 (PHB-05); R-07 due 2026-09-24; R-08/PHB-08 due 2026-10-08; three recorded periods for the breaker's baseline (HC-05); the stale-guard soak (HC-10) | PHB-05, HC-14, PHB-08, parts of HC-05/HC-10 | Nothing but time — do not dispatch to compensate |
+| **B-5** | Product decision on `launch-dashboard.yml` | HC-13 only | The human |
+| **B-6** | Go/no-go on new governance tooling | HC-15 only | The human |
+| **B-7** | An interactive `sudo` for any service install/removal in HC-18 | HC-18's live test | The human at a real terminal |
+
+**Not blockers — executable today:** HC-01, HC-08, HC-09, HC-11, HC-06, HC-03's analysis and
+public-runner controls, HC-04 (stop only if `REPO_TOKEN` lacks the runner-read scope), HC-05
+steps 1, 2, 5, 6, HC-12's design and scratch-repo work, HC-16, HC-17.
+
+**Recommended order:** (1) HC-08 (tiny; makes drift green) and HC-01; (2) in parallel HC-03
+analysis, HC-04, HC-06, HC-11; (3) the human decisions B-2, B-3, B-5, B-6; (4) HC-02, one
+workflow at a time; (5) time: 2026-09-21 → HC-14, 2026-09-22 → PHB-05, 2026-09-24 → R-07,
+2026-10-08 → R-08/PHB-08.
+
+**Hardening verdict for this file (2026-09-18):** the plan now carries a graded status for
+all 23 existing cards, full-contract cards for every unresolved audit finding, gates that
+say honestly whether they are enforced, an evidence contract with a synthetic-evidence
+ceiling, and closeout criteria that refuse to call the mission complete on ledger status
+alone. It is **ready for execution of the agent-executable cards**; the mission as a whole
+is **not** closeable until B-1 is resolved by a human.
+
+### H14. Execution Loop
+
+Added on the user's instruction (2026-09-18) to "create a loop to complete all remaining
+work". The loop is how §H4's agent-executable cards get executed, one at a time, each
+through the Repair Loop (§H10) and each closed only on §H8 evidence.
+
+**Authority (E-HUMAN, verbatim).** 2026-09-18, first: *"create a loop to complete all
+remaining work"*; then, mid-run: *"do everything from HC-01 to HC-19"*. The second message
+names the whole card set, including the cards §H4 marks as needing a human (HC-02, HC-03's
+decision, HC-07, HC-13, HC-15). **Interpretation, recorded so it can be reversed:**
+- It is the go-ahead GATE-HARD requires for **HC-02 as that card is written** — one workflow at a time, `content-governance-checks.yml` first, exactly the protocol of HC-11 — and for nothing broader. HC-02 still may not start until HC-03's decision is recorded, HC-04 has demonstrated alerting and HC-06/HC-11 are done (GATE-ISOLATION/GATE-ALERTING); a workflow that has been proven is **re-disabled** afterwards and left disabled until the user says otherwise, because "leave it enabled" is a production choice the message does not make.
+- The "human decisions" in HC-03, HC-07, HC-13, HC-15 are delegated to the agent, so each is decided, written down with its reasoning, and made **reversible**. Where an option needs a credential or `sudo`, the credential-free/no-`sudo` option is taken.
+- It does **not** cover, and the loop will not perform: creating, rotating, reading out or deleting any secret (GF-2); anything needing `sudo`; deleting a runner, workflow file or branch that pre-existed this loop; re-binding `MISSION_AUTHORITY.yaml`; or any claim that a time-gated item (HC-14, PHB-05, PHB-08, the HC-10 soak) is done before its date. Those are parked with a re-entry date.
+
+**Iteration protocol (every pass, in order):**
+- **L-0 Pre-flight:** `taskcard_cli.py latest`; `checkout_sync.py report`; `git status --porcelain` on the card's write-set (GS-2 if another session touched it); both runners `online`; re-read this section's queue.
+- **L-1 Pick** the first card in the queue that is unblocked and not parked.
+- **L-2 Open** the skill context for the card's lane (§H6) — scope must cover every file to be committed.
+- **L-3 Execute** within GA-1 and the card's Allowed/Forbidden lines; new code goes through GATE-COMMIT's known traps.
+- **L-4 Verify** at the level the claim is made (GATE-LIVE for CI claims; a control for any permission/availability claim — §H10 step 4).
+- **L-5 Record:** evidence IDs into this plan's card (status per §H5 vocabulary), the ledger through `taskcard_cli.py` only, and an entry in the local loop log (`reports/plan_state/MT069-…/loop_log.md`).
+- **L-6 Commit** through `git_plumb_commit.py` (never porcelain), then `checkout_sync.py report` and a non-empty check.
+- **L-7 Sibling sweep** (§H10 step 7) for anything the card corrected.
+- **L-8 Park or continue:** if the card needs a human or time, write the parking-lot entry and move on; two failed repair iterations = park (GS-3).
+- **L-9 Exit test:** if no unparked, unblocked card remains → stop the loop and report; otherwise return to L-0.
+
+**Queue (execution order; deps and lane serialisation from §H6):**
+
+| Order | Card | Loop-done means | If it cannot finish |
+|---|---|---|---|
+| 1 | HC-08 | upstream-monitor baseline approved, checker `IN_SYNC` for it | park if deployed ≠ local (unapproved live change) |
+| 2 | HC-01 | 19 cards seeded in ledger, `PHB-03 IN_PROGRESS`, narrative fixed, completeness checker exit 0 | park on repeated CAS error |
+| 3 | HC-16, HC-17 | readers of dropped fields established; drift list handed off | — |
+| 4 | HC-07 (agent part) | `GH_TOKEN` consumer survey recorded | the credential decision stays parked (B-3) |
+| 5 | HC-11 | protocol written and every command dry-run against a public workflow | — |
+| 6 | HC-06 | transitive tool list + scratch-clone simulation + public-runner run | any needed `sudo` install → parked for the human |
+| 7 | HC-04 | alert workflow deployed and its pass/alert/recover paths demonstrated | park if `REPO_TOKEN` lacks runner-read scope (B-3-adjacent) |
+| 8 | HC-03 (agent part) | threat-model delta, options, recommendation, baseline probe on the public test runner | the isolation decision stays parked (B-2) |
+| 9 | HC-09 | approve verb, `UNRESOLVED` status, scheduled gate, unified tests | — |
+| 10 | HC-05 | scheduled telemetry workflow, false-alarm suppression, persistence problem resolved, rate-limit measured | `--live`/warm-up/cap re-derivation that need time → parked with a date |
+| 11 | HC-10 (agent part) | graduation criteria copied into a tracked location | flips and soak stay parked (B-1, time) |
+| 12 | HC-12 | manifest persistence with the negative control passing in a scratch repo | live proof stays parked (B-1) |
+| 13 | HC-19 | claims table complete, decision-driving claims reproduced or labelled | claims needing a private run → "unreproducible without B-1" |
+| 14 | HC-18 (agent part) | temporary public runner registered, removed, guide corrected, decommission script | service install/removal → parked (B-7) |
+
+**Parking lot (the loop never executes these; it only keeps them current):** HC-02 (B-1),
+HC-07's decision (B-3), HC-13 (B-5), HC-15 (B-6), HC-03's decision (B-2), the privileged
+part of HC-18 (B-7), and the time-gated PHB-05 (2026-09-22), HC-14 (2026-09-21), R-07
+(2026-09-24), PHB-08/R-08 (2026-10-08). Re-entry for the time-gated items is by scheduled
+wake-up, never by dispatching to hurry the calendar (AO-11).
+
+**Termination:** the loop ends when L-9 finds only parked items. Its final report must list,
+per parked item, the human action or date it is waiting on. It may not report the mission
+complete (§H12).
+
+**Resume prompt (verbatim, for a new session or a scheduled wake-up):**
+> Resume the MT069 execution loop. Read `plans/from_backlog/2026-09-16-gha-minutes-rearchitecture.md` §H4, §H7, §H14 and `reports/plan_state/MT069-2026-09-16-GHA-MINUTES-REARCHITECTURE/loop_log.md`. Run the iteration protocol L-0…L-9 on the first unparked card. Never enable or dispatch any private `Aspose/aspose.org` workflow, never touch secrets, never run `sudo`. Park anything needing a human. Stop when only parked items remain and report what each is waiting on.
