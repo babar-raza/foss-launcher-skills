@@ -168,6 +168,126 @@ class TestRunCombinedSweep:
         result = sut.run_combined_sweep(registry=registry, products={}, store=store, sweep_run_id="fixed-run-id")
         assert result["sweep_run_id"] == "fixed-run-id"
 
+    def test_writes_both_aggregate_and_english_source_per_file_rows(self, tmp_path):
+        """TC-PKG-02-READINESS-GATE-FIX: run_combined_sweep must write BOTH
+        the pre-existing product-level aggregate row (synthetic
+        reports/audit/install-defect-sweep/{family}-{platform} path) AND a
+        real per-file row keyed at the actual content/ path -- the exact
+        shape is_english_source_ready() looks up. Before this fix, 0 of the
+        sweep's own rows ever had a content/-prefixed path (confirmed live
+        by 3 independent taskcards: TC-PKG-02-05/07/18)."""
+        _write_page(
+            tmp_path, "words", "net", "installation.md",
+            "dotnet add package Aspose.Words.FOSS\n",
+        )
+        registry = {
+            "words": {"net": {"registry_type": "nuget", "candidate": {"name": "Aspose.Words.FOSS"},
+                                "verification": {"published": True}}},
+        }
+        store = _reco.ReconciliationStore(repo_root=tmp_path)
+        result = sut.run_combined_sweep(registry=registry, products={}, store=store)
+
+        assert result["english_source_file_rows_written"] == 1
+        history = store.read_history()
+        paths = {row["path"] for row in history}
+        assert "content/docs.aspose.org/en/words/net/installation.md" in paths
+        assert any(p.startswith("reports/audit/install-defect-sweep/") for p in paths)
+        content_row = next(r for r in history if r["path"] == "content/docs.aspose.org/en/words/net/installation.md")
+        assert content_row["family"] == "words"
+        assert content_row["platform"] == "net"
+        assert content_row["site"] == "docs.aspose.org"
+        assert content_row["locale"] == "en"
+        assert content_row["representation"] == "literal"
+        assert content_row["finding_count_literal"] == 1
+        assert content_row["sweep_run_id"] == result["sweep_run_id"]
+
+
+class TestEnglishSourceFileRows:
+    """PKGINSTALL-DEFECT-SWEEP-REDESIGN's writer only ever emitted one
+    synthetic-path row per (family, platform) -- never a real per-file row
+    keyed the way locale_patch.is_english_source_ready()'s
+    _reconciliation_key() looks up. These tests pin the new per-file writer
+    directly, independent of run_combined_sweep's aggregate path."""
+
+    def test_emits_one_row_per_english_source_file_with_real_content_path(self, tmp_path):
+        _write_page(
+            tmp_path, "words", "net", "installation.md",
+            "dotnet add package Aspose.Words.FOSS\n",
+        )
+        registry = {
+            "words": {"net": {"registry_type": "nuget", "candidate": {"name": "Aspose.Words.FOSS"},
+                                "verification": {"published": True}}},
+        }
+        rows = sut._english_source_file_rows(registry=registry, sweep_run_id="run-y", recorded_at="2026-09-18T00:00:00Z")
+        assert len(rows) == 1
+        row = rows[0]
+        assert row["path"] == "content/docs.aspose.org/en/words/net/installation.md"
+        assert row["family"] == "words"
+        assert row["platform"] == "net"
+        assert row["site"] == "docs.aspose.org"
+        assert row["locale"] == "en"
+        assert row["representation"] == "literal"
+        assert row["finding_count_literal"] == 1
+        assert row["collision_classification"] is None
+        assert row["sweep_run_id"] == "run-y"
+        assert row["recorded_at"] == "2026-09-18T00:00:00Z"
+
+    def test_clean_file_gets_zero_finding_count_and_non_literal_representation(self, tmp_path):
+        _write_page(
+            tmp_path, "words", "net", "installation.md",
+            '{{< package-install "words" "net" >}}\n',
+        )
+        registry = {
+            "words": {"net": {"registry_type": "nuget", "candidate": {"name": "Aspose.Words.FOSS"},
+                                "verification": {"published": True}}},
+        }
+        rows = sut._english_source_file_rows(registry=registry, sweep_run_id="r", recorded_at="t")
+        assert len(rows) == 1
+        assert rows[0]["representation"] != "literal"
+        assert rows[0]["finding_count_literal"] == 0
+
+    def test_non_english_locale_copy_is_excluded(self, tmp_path):
+        p = tmp_path / "content" / "docs.aspose.org" / "fr" / "words" / "net" / "installation.md"
+        p.parent.mkdir(parents=True, exist_ok=True)
+        p.write_text("dotnet add package Aspose.Words.FOSS\n", encoding="utf-8")
+        registry = {
+            "words": {"net": {"registry_type": "nuget", "candidate": {"name": "Aspose.Words.FOSS"},
+                                "verification": {"published": True}}},
+        }
+        rows = sut._english_source_file_rows(registry=registry, sweep_run_id="r", recorded_at="t")
+        assert rows == []
+
+    def test_blog_site_english_index_included_locale_suffix_excluded(self, tmp_path):
+        en = tmp_path / "content" / "blog.aspose.org" / "words" / "net" / "some-post" / "index.md"
+        en.parent.mkdir(parents=True, exist_ok=True)
+        en.write_text("dotnet add package Aspose.Words.FOSS\n", encoding="utf-8")
+        fr = en.with_name("index.fr.md")
+        fr.write_text("dotnet add package Aspose.Words.FOSS\n", encoding="utf-8")
+        registry = {
+            "words": {"net": {"registry_type": "nuget", "candidate": {"name": "Aspose.Words.FOSS"},
+                                "verification": {"published": True}}},
+        }
+        rows = sut._english_source_file_rows(registry=registry, sweep_run_id="r", recorded_at="t")
+        assert len(rows) == 1
+        assert rows[0]["path"] == "content/blog.aspose.org/words/net/some-post/index.md"
+
+    def test_rows_are_schema_valid_against_the_real_reconciliation_store(self, tmp_path):
+        """Not just shape-plausible -- actually accepted by
+        reconciliation_store.append_batch()'s real
+        validate_reconciliation_record() gate."""
+        _write_page(
+            tmp_path, "words", "net", "installation.md",
+            "dotnet add package Aspose.Words.FOSS\n",
+        )
+        registry = {
+            "words": {"net": {"registry_type": "nuget", "candidate": {"name": "Aspose.Words.FOSS"},
+                                "verification": {"published": True}}},
+        }
+        rows = sut._english_source_file_rows(registry=registry, sweep_run_id="r", recorded_at="2026-09-18T00:00:00Z")
+        store = _reco.ReconciliationStore(repo_root=tmp_path)
+        written = store.append_batch(rows)
+        assert written == len(rows) == 1
+
 
 class TestDefectClassFindings:
     def test_flattens_all_three_defect_classes(self):

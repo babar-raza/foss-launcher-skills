@@ -17,6 +17,26 @@ under one shared sweep_run_id -- the durable link this mission's own root-
 cause analysis found missing everywhere (governing plan section R.1 point 1:
 "no state persists between detection and remediation").
 
+TC-PKG-02-READINESS-GATE-FIX (2026-09-18): the rows built above are ALL
+product-level aggregates at a synthetic path
+(reports/audit/install-defect-sweep/{family}-{platform}), never a real
+content/ path. Three independent taskcards in this same mission
+(TC-PKG-02-05, TC-PKG-02-07, TC-PKG-02-18) confirmed live that
+locale_patch.py's is_english_source_ready() -- which keys its readiness
+lookup by the real repo-relative content file path -- can therefore NEVER
+be satisfied by this writer for any real file; it had only ever been
+satisfied by a hand-supplied workaround row. _english_source_file_rows()
+closes that gap by additionally emitting one real per-file row for every
+ENGLISH-SOURCE content file the literal sweep scans (locale == "en" --
+the only path shape is_english_source_ready() ever looks up, since a
+locale-propagation caller only ever asks about the source it is about to
+propagate FROM, never an arbitrary locale copy). Scoped to English-source
+files only, not the full ~21,000-file corpus: confirmed live 2026-09-18 that
+only 918 of those files are English-source (versus 20,956 total), so this
+keeps the reconciliation store's per-sweep growth two orders of magnitude
+smaller than a full-corpus emission would, while still covering every path
+is_english_source_ready() can ever be asked about.
+
 CLI:
     PYTHONPATH=scripts/pipeline .venv/Scripts/python -m commands.ops.install_defect_sweep
     PYTHONPATH=scripts/pipeline .venv/Scripts/python -m commands.ops.install_defect_sweep --issues-out /tmp/issues.json
@@ -41,6 +61,8 @@ from commands.ops import install_literal_sweep  # noqa: E402
 from content_eval.loader import load_all_products  # noqa: E402
 from content_eval.evaluators.install_recipe import InstallRecipeEvaluator  # noqa: E402
 from reconciliation_store import ReconciliationStore  # noqa: E402
+from audit.package_install_literal import verify_package_install_literals  # noqa: E402
+from commands.content.package_install_migrator import _locale_from_path  # noqa: E402
 
 _DEFAULT_REPO_ROOT = Path(__file__).resolve().parents[4]
 REPO_ROOT = _DEFAULT_REPO_ROOT
@@ -168,6 +190,70 @@ def _reconciliation_rows(
     return list(rows.values())
 
 
+def _english_source_file_rows(
+    *, registry: "dict[str, Any] | None" = None, sweep_run_id: str, recorded_at: str,
+) -> list[dict[str, Any]]:
+    """One real per-file reconciliation row for every ENGLISH-SOURCE content
+    file the literal sweep scans -- the exact row shape (a real content/
+    path, keyed exactly like locale_patch._reconciliation_key()'s own
+    normalization) that is_english_source_ready() looks up, and that
+    _reconciliation_rows()'s product-level aggregate above never provides.
+
+    Scoped to locale == "en" only, deliberately not the full corpus a
+    literal sweep otherwise checks (all locales): is_english_source_ready()
+    is only ever consulted for the English source a locale-propagation
+    caller is about to fix and propagate FROM (see locale_patch.py's own
+    module docstring), never for an arbitrary locale copy -- so a locale
+    copy's row would be real but never actually read by any legitimate
+    caller. Confirmed live 2026-09-18: 918 English-source files vs 20,956
+    total files across the full tracked-registry corpus -- restricting to
+    this real, load-bearing subset keeps this writer's per-sweep row growth
+    about 23x smaller than a full-corpus emission, with no loss of coverage
+    for the one lookup shape that matters.
+
+    representation mirrors _reconciliation_rows()'s own existing convention
+    for this same store ("literal" if any literal finding, else
+    "shortcode_block") so the aggregate and per-file views stay consistent
+    from one sweep run rather than diverging on two different rules.
+    collision_classification is left None, same as the aggregate rows --
+    this sweep does not run collision classification; only a dedicated
+    classifier pass (install_collision_classifier.py) can set that field.
+    """
+    data = registry if registry is not None else load_registry(install_literal_sweep._DATA_PATH)
+    repo_root = install_literal_sweep._REPO_ROOT
+
+    rows: list[dict[str, Any]] = []
+    for family, platforms in sorted(data.items()):
+        if not isinstance(platforms, dict):
+            continue
+        for platform, entry in sorted(platforms.items()):
+            if not isinstance(entry, dict):
+                continue
+            if entry.get("registry_type") not in install_literal_sweep._TRACKED_REGISTRY_TYPES:
+                continue
+            for fp in install_literal_sweep._files_for(family, platform):
+                locale = _locale_from_path(fp, family)
+                if locale != "en":
+                    continue
+                try:
+                    rel = fp.relative_to(repo_root)
+                except ValueError:
+                    rel = fp
+                rel_parts = rel.parts
+                site = rel_parts[1] if len(rel_parts) > 1 and rel_parts[0] == "content" else "unknown"
+                findings = verify_package_install_literals(fp, family, platform, registry=data)
+                rows.append({
+                    "path": str(rel).replace("\\", "/"),
+                    "family": family, "platform": platform,
+                    "site": site, "locale": "en",
+                    "representation": "literal" if findings else "shortcode_block",
+                    "collision_classification": None,
+                    "finding_count_literal": len(findings),
+                    "sweep_run_id": sweep_run_id, "recorded_at": recorded_at,
+                })
+    return rows
+
+
 def run_combined_sweep(
     *, registry: "dict[str, Any] | None" = None, products: "dict[tuple[str, str], list] | None" = None,
     store: "ReconciliationStore | None" = None, sweep_run_id: "str | None" = None,
@@ -181,7 +267,11 @@ def run_combined_sweep(
     literal_report = run_literal_sweep(registry=registry)
     recipe_report = run_install_recipe_sweep(products=products)
 
-    rows = _reconciliation_rows(literal_report, recipe_report, sweep_run_id=sweep_run_id, recorded_at=recorded_at)
+    aggregate_rows = _reconciliation_rows(
+        literal_report, recipe_report, sweep_run_id=sweep_run_id, recorded_at=recorded_at,
+    )
+    file_rows = _english_source_file_rows(registry=registry, sweep_run_id=sweep_run_id, recorded_at=recorded_at)
+    rows = aggregate_rows + file_rows
     store = store or ReconciliationStore(repo_root=REPO_ROOT)
     rows_written = store.append_batch(rows) if rows else 0
 
@@ -191,6 +281,7 @@ def run_combined_sweep(
         "literal_report": literal_report,
         "recipe_report": recipe_report,
         "reconciliation_rows_written": rows_written,
+        "english_source_file_rows_written": len(file_rows),
     }
 
 
@@ -240,6 +331,7 @@ def main(argv: "list[str] | None" = None) -> int:
         f"publish_claim_contradiction={recipe['total_publish_claim_contradiction_findings']} "
         f"unpublished_disclosure={recipe['total_unpublished_disclosure_findings']} | "
         f"reconciliation_rows_written={result['reconciliation_rows_written']} "
+        f"(english_source_file_rows={result['english_source_file_rows_written']}) "
         f"sweep_run_id={result['sweep_run_id']}"
     )
 
