@@ -80,6 +80,14 @@ Session identity (HARDEN-A2 / ST-021, 2026-07-22; extended 2026-08-01):
   ongoing merges are not and are by design; any resulting candidate list is still
   surfaced for review by S-76's commit-plan preview before anything stages.
 
+  Stale-open-mission surface (TC-GOV-02-02, REQ-GOV-02, 2026-09-19): every `init`
+  -- including each --if-missing fast path the SessionStart hook takes -- ends by
+  printing, to stdout, a short block naming open missions with no recent taskcard
+  activity (and missions whose ledger is unreadable) with a pointer to
+  `mission_authority.py status`. Fail-open (one short line on any failure, never a
+  non-zero exit), silent when nothing is stale. See the comment block above
+  emit_stale_mission_block() for the constraints it is built around.
+
 Exit codes:
   0  Success
   1  Error (no active session, I/O failure)
@@ -93,6 +101,7 @@ import json
 import secrets
 import subprocess
 import sys
+from collections.abc import Callable
 from dataclasses import dataclass
 from datetime import datetime, timezone
 from pathlib import Path
@@ -111,6 +120,12 @@ _DEFAULT_REPO_ROOT = Path(__file__).resolve().parent.parent.parent.parent.parent
 _REPO_ROOT = _DEFAULT_REPO_ROOT
 _SESSION_DIR = _REPO_ROOT / "reports" / "session-state"
 _ACTIVE_POINTER = _SESSION_DIR / "ACTIVE"
+
+# DI seam for the session-start stale-mission block (TC-GOV-02-02): a callable
+# root -> list of mission_authority._plan_state_report()-shaped rows. None (the
+# default) means "read the real plan_state store". Only tests set it, through
+# configure(plan_state_rows_fn=...); configure() with no argument resets it.
+_PLAN_STATE_ROWS_FN: Callable[[Path], list[dict]] | None = None
 
 _ENV_SESSION_ID = "AGENT_SESSION_ID"
 _DEFAULT_STALE_AFTER_HOURS = 8.0
@@ -131,18 +146,23 @@ class AmbiguousSessionError(Exception):
 def configure(
     repo_root: Path | None = None,
     session_dir: Path | None = None,
+    plan_state_rows_fn: Callable[[Path], list[dict]] | None = None,
 ) -> None:
     """Reconfigure module-level paths for testing or alternative layouts.
 
     - Called with no arguments: resets to built-in defaults.
     - repo_root only: derives session_dir as ``repo_root / "reports" / "session-state"``.
     - Both provided: uses them directly.
+    - plan_state_rows_fn: test seam replacing the plan_state row source used by
+      the session-start stale-mission block; None (the default) restores the
+      real store, so every configure() call resets it.
 
     ``_ACTIVE_POINTER`` is always recomputed from ``_SESSION_DIR``.
     """
-    global _REPO_ROOT, _SESSION_DIR, _ACTIVE_POINTER
+    global _REPO_ROOT, _SESSION_DIR, _ACTIVE_POINTER, _PLAN_STATE_ROWS_FN
 
     _REPO_ROOT = repo_root if repo_root is not None else _DEFAULT_REPO_ROOT
+    _PLAN_STATE_ROWS_FN = plan_state_rows_fn
 
     if session_dir is not None:
         _SESSION_DIR = session_dir
@@ -1038,7 +1058,162 @@ def adopt_by_group(
 # CLI commands
 # ---------------------------------------------------------------------------
 
+# ---------------------------------------------------------------------------
+# Session-start stale-open-mission surface (TC-GOV-02-02, REQ-GOV-02)
+#
+# mission_authority._plan_state_report() (TC-GOV-02-01/-FIX) knows which open
+# missions have gone quiet, but nothing told a NEW session about it: MT066 and
+# a dozen others sat open for weeks because nobody thought to run `status`.
+# This is the session-start half: cmd_init prints a short block for them.
+#
+# Constraints this block is built around (each is pinned by a test):
+#   - FAIL OPEN. Session start must never break or hang because of it. The
+#     emitter catches Exception and prints one short line with the error CLASS
+#     only (a message can carry a local path). KeyboardInterrupt/SystemExit are
+#     deliberately not caught.
+#   - STDOUT, not stderr: the SessionStart hook runs `init ... 2>/dev/null`, so
+#     anything on stderr never reaches the agent.
+#   - EVERY init path: the hook always passes --if-missing, and cmd_init's
+#     --if-missing fast paths (already-active / reactivated / reopened) return
+#     BEFORE the print block that only a brand-new session id reaches. A warning
+#     placed only in that block would be missing on resume/clear/compact starts,
+#     i.e. the normal hook invocation. cmd_init therefore wraps the whole body.
+#   - CONCISE: this text lands in every agent session's context.
+#   - INDEPENDENT of every other store. The plan_state store is called directly,
+#     never through mission_authority.build_liveness_report(), which also bundles
+#     the session-state manifests (one valid-JSON-list manifest makes its
+#     _session_ledger_report() raise AttributeError), the lock store, and a
+#     skill-context subprocess with a 10 second timeout -- any of which would
+#     suppress or delay this warning for reasons unrelated to it.
+#   - BOTH lists: stale_open_missions AND the missions whose ledger could not be
+#     read (plan_state_errors). Those are deliberately not "stale" (their
+#     staleness is unknown) but are never silently fine either.
+# ---------------------------------------------------------------------------
+
+_STALE_MISSION_MAX_LISTED = 5
+_UNREADABLE_MISSION_MAX_LISTED = 3
+_MISSION_ID_DISPLAY_MAX = 64
+_MISSION_STATUS_COMMAND = (
+    "python scripts/pipeline/commands/governance/mission_authority.py status"
+)
+
+
+def _ascii_display(value: object, limit: int) -> str:
+    """A bounded, one-line, ASCII-only rendering of `value` (the SessionStart
+    output can reach a cp1252 console, and a mission id is free text from yaml)."""
+    text = " ".join(str(value).split()).encode("ascii", "backslashreplace").decode("ascii")
+    return text if len(text) <= limit else text[: limit - 3] + "..."
+
+
+def _default_plan_state_rows(root: Path) -> list[dict]:
+    """Rows from the real plan_state store, called directly.
+
+    The is-dir pre-check keeps a repo with no reports/plan_state (every test
+    repo, a fresh clone) from paying for the import at all. The import is lazy
+    so session_ledger's own import cost and failure modes are unchanged.
+    """
+    if not (root / "reports" / "plan_state").is_dir():
+        return []
+    pipeline_root = str(_PIPELINE_ROOT)
+    if pipeline_root not in sys.path:
+        sys.path.append(pipeline_root)  # append, never insert: cannot shadow anything
+    from commands.governance import mission_authority  # noqa: E402
+
+    return mission_authority._plan_state_report(root)
+
+
+def stale_mission_block_lines(
+    root: Path | None = None,
+    *,
+    plan_state_rows_fn: Callable[[Path], list[dict]] | None = None,
+) -> list[str]:
+    """The lines of the session-start stale-mission block; [] when there is
+    nothing to say (a healthy repo prints nothing at all).
+
+    Shape: one header with the count, at most _STALE_MISSION_MAX_LISTED rows
+    (id plus days quiet, oldest first, a mission with no activity signal at all
+    first of all), one line naming the unreadable-ledger missions, and one
+    pointer to the full list. Raises whatever the row source raises --
+    emit_stale_mission_block() is the fail-open caller.
+    """
+    root = root if root is not None else _REPO_ROOT
+    rows_fn = plan_state_rows_fn or _PLAN_STATE_ROWS_FN or _default_plan_state_rows
+    rows = [row for row in rows_fn(root) if isinstance(row, dict)]
+    stale = [row for row in rows if row.get("stale")]
+    unreadable = [row for row in rows if "error" in row]
+
+    def _age(row: dict) -> float | None:
+        age = row.get("age_days_since_last_activity")
+        if isinstance(age, bool) or not isinstance(age, (int, float)):
+            return None
+        return float(age)
+
+    def _sort_key(row: dict) -> tuple:
+        age = _age(row)
+        name = str(row.get("mission_id", "?"))
+        return (0, 0.0, name) if age is None else (1, -age, name)
+
+    stale.sort(key=_sort_key)
+
+    lines: list[str] = []
+    if stale:
+        lines.append(
+            "Stale open missions (informational, no recent taskcard activity): "
+            f"{len(stale)}"
+        )
+        for row in stale[:_STALE_MISSION_MAX_LISTED]:
+            name = _ascii_display(row.get("mission_id", "?"), _MISSION_ID_DISPLAY_MAX)
+            age = _age(row)
+            quiet = "no activity signal" if age is None else f"quiet {int(age)}d"
+            lines.append(f"  {name}  {quiet}")
+    if unreadable:
+        names = [
+            _ascii_display(row.get("mission_id", "?"), _MISSION_ID_DISPLAY_MAX)
+            for row in unreadable
+        ]
+        shown = ", ".join(names[:_UNREADABLE_MISSION_MAX_LISTED])
+        if len(names) > _UNREADABLE_MISSION_MAX_LISTED:
+            shown += f", +{len(names) - _UNREADABLE_MISSION_MAX_LISTED} more"
+        lines.append(
+            f"Mission ledgers unreadable (staleness unknown): {len(unreadable)} - {shown}"
+        )
+    if lines:
+        hidden = len(stale) - _STALE_MISSION_MAX_LISTED
+        lead = f"  ... and {hidden} more. " if hidden > 0 else "  "
+        lines.append(f"{lead}Full list: {_MISSION_STATUS_COMMAND}")
+    return lines
+
+
+def emit_stale_mission_block(
+    root: Path | None = None,
+    *,
+    plan_state_rows_fn: Callable[[Path], list[dict]] | None = None,
+) -> None:
+    """Print the stale-mission block to stdout. FAIL OPEN: never raises an
+    Exception; on any failure prints exactly one short line naming the error
+    class (never its message) so a broken detector is visible, not silent."""
+    try:
+        lines = stale_mission_block_lines(root, plan_state_rows_fn=plan_state_rows_fn)
+        if lines:
+            print("\n".join(lines))
+    except Exception as exc:  # noqa: BLE001 -- fail-open by design: never break session start
+        try:
+            print(f"stale-mission check unavailable: {type(exc).__name__}")
+        except Exception:  # noqa: BLE001 -- even a closed stdout must not break init
+            pass
+
+
 def cmd_init(args: argparse.Namespace) -> int:
+    """Initialize (or idempotently resume) a session, then surface stale open
+    missions. The surface is emitted here, around the whole body, so it runs on
+    every path -- including the --if-missing fast paths that return before the
+    print block (see the comment block above)."""
+    rc = _cmd_init(args)
+    emit_stale_mission_block()
+    return rc
+
+
+def _cmd_init(args: argparse.Namespace) -> int:
     _sweep_stale()
     if getattr(args, "if_missing", False) and args.session_id:
         # SessionStart-hook path (2026-08-30, T3): idempotent by design --
@@ -1610,7 +1785,9 @@ def main(argv: list[str] | None = None) -> int:
     p_init.add_argument("--if-missing", action="store_true", dest="if_missing",
                         help="Idempotent init (SessionStart hook): active manifest is a "
                              "no-op, stale reactivates, closed reopens; only a missing "
-                             "manifest performs a real init. Requires --session-id.")
+                             "manifest performs a real init. Requires --session-id. "
+                             "Every path (fast or not) still ends with the stale-open-"
+                             "mission block, when there is anything to report.")
     p_init.add_argument("--force-reinit", action="store_true", dest="force_reinit",
                         help="Re-init an id whose manifest is ACTIVE (wipes its ledger — audited)")
 

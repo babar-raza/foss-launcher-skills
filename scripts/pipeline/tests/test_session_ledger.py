@@ -2,12 +2,15 @@
 from __future__ import annotations
 
 import json
+from datetime import datetime, timedelta, timezone
 from pathlib import Path
 from unittest.mock import patch
 
 import pytest
+import yaml
 
 import session_ledger
+from taskcard_store import TaskcardStore
 
 
 # ---------------------------------------------------------------------------
@@ -1368,3 +1371,344 @@ class TestClosedEnvIdResolutionFix:
         resolved = session_ledger._resolve_session(None)
         assert resolved is not None
         assert resolved[0] == "scan-target"
+
+
+# ---------------------------------------------------------------------------
+# TC-GOV-02-02 (REQ-GOV-02): stale-open-mission block at session start
+#
+# The detector itself (mission_authority._plan_state_report) is TC-GOV-02-01's
+# and is tested in test_mission_authority.py. What is pinned here is the
+# session-start SURFACE: it must appear on every path the SessionStart hook
+# actually takes (the --if-missing fast paths return before init's print block),
+# it must stay short, it must show the unreadable-ledger list next to the stale
+# one, and it must never break or hang session start.
+# ---------------------------------------------------------------------------
+
+_MISSION_STUB = {
+    "mission_summary": "A test mission.",
+    "governing_plan_path": "plans/test.md",
+    "in_scope_outcomes": ["outcome"],
+    "out_of_scope_items": ["excluded"],
+    "mandatory_acceptance_criteria": ["criterion"],
+    "mission_locked": False,
+}
+
+
+def _iso_days_ago(days: float) -> str:
+    return (datetime.now(timezone.utc) - timedelta(days=days)).isoformat().replace("+00:00", "Z")
+
+
+def _write_archive(
+    root: Path,
+    dir_name: str,
+    *,
+    status: str = "open",
+    mission_id: "str | None" = None,
+    archived_at: "str | None" = None,
+) -> Path:
+    mission_dir = root / "reports" / "plan_state" / dir_name
+    mission_dir.mkdir(parents=True, exist_ok=True)
+    snapshot = dict(_MISSION_STUB, mission_id=mission_id or dir_name, _archive_status=status)
+    if archived_at is not None:
+        snapshot["_archived_at"] = archived_at
+    (mission_dir / "mission_authority.yaml").write_text(
+        yaml.safe_dump({"mission_authority": snapshot}, sort_keys=False, allow_unicode=True),
+        encoding="utf-8",
+    )
+    return mission_dir
+
+
+def _seed_mission(root: Path, mission_id: str, *, days_quiet: float, status: str = "open") -> None:
+    """A mission whose only taskcard row (written through the sanctioned
+    TaskcardStore writer) is `days_quiet` days old."""
+    _write_archive(root, mission_id, status=status)
+    TaskcardStore(mission_id, repo_root=root).append({
+        "task_id": "TC-1",
+        "mission_id": mission_id,
+        "status": "IN_PROGRESS",
+        "recorded_at": _iso_days_ago(days_quiet),
+        "evidence_refs": [],
+        "recorded_by": "test-fixture",
+    })
+
+
+def _seed_unreadable_mission(root: Path, mission_id: str) -> None:
+    mission_dir = root / "reports" / "plan_state" / mission_id
+    mission_dir.mkdir(parents=True, exist_ok=True)
+    (mission_dir / "mission_authority.yaml").write_text(
+        "mission_authority: [unclosed", encoding="utf-8",
+    )
+
+
+class TestStaleMissionBlockLines:
+    def test_lists_stale_open_mission_with_days_quiet_and_pointer(self, tmp_path):
+        _seed_mission(tmp_path, "MT-STALE", days_quiet=30)
+        _seed_mission(tmp_path, "MT-FRESH", days_quiet=1)
+        _seed_mission(tmp_path, "MT-CLOSED", days_quiet=90, status="closed")
+
+        lines = session_ledger.stale_mission_block_lines(tmp_path)
+
+        text = "\n".join(lines)
+        assert lines[0].startswith("Stale open missions") and lines[0].endswith(": 1")
+        assert any("MT-STALE" in ln and "quiet 30d" in ln for ln in lines)
+        assert "MT-FRESH" not in text and "MT-CLOSED" not in text
+        assert "mission_authority.py status" in lines[-1]
+
+    def test_nothing_to_say_when_nothing_is_stale_or_unreadable(self, tmp_path):
+        _seed_mission(tmp_path, "MT-FRESH", days_quiet=1)
+        _seed_mission(tmp_path, "MT-CLOSED", days_quiet=90, status="closed")
+        assert session_ledger.stale_mission_block_lines(tmp_path) == []
+
+    def test_nothing_to_say_when_there_is_no_plan_state_dir(self, tmp_path):
+        assert session_ledger.stale_mission_block_lines(tmp_path) == []
+
+    def test_caps_rows_at_five_oldest_first_and_folds_the_rest(self, tmp_path):
+        for i in range(8):
+            _seed_mission(tmp_path, f"MT-S{i}", days_quiet=10 + i)  # MT-S7 is the oldest
+
+        lines = session_ledger.stale_mission_block_lines(tmp_path)
+
+        assert lines[0].endswith(": 8")
+        rows = [ln for ln in lines if ln.startswith("  MT-S")]
+        assert len(rows) == 5
+        assert "MT-S7" in rows[0] and "MT-S3" in rows[4]
+        assert "and 3 more" in lines[-1]
+        assert len(lines) <= 8  # header + 5 rows + one tail line (+ at most one more)
+
+    def test_no_signal_open_mission_is_listed_first_as_no_activity_signal(self, tmp_path):
+        _seed_mission(tmp_path, "MT-OLD", days_quiet=40)
+        _write_archive(tmp_path, "MT-NEVER")  # open, no taskcards, no _archived_at
+
+        lines = session_ledger.stale_mission_block_lines(tmp_path)
+
+        rows = [ln for ln in lines if ln.startswith("  MT-")]
+        assert "MT-NEVER" in rows[0] and "no activity signal" in rows[0]
+        assert "MT-OLD" in rows[1]
+
+    def test_unreadable_ledger_is_named_separately_and_not_counted_as_stale(self, tmp_path):
+        _seed_mission(tmp_path, "MT-STALE", days_quiet=30)
+        _seed_unreadable_mission(tmp_path, "MT-BROKEN")
+
+        lines = session_ledger.stale_mission_block_lines(tmp_path)
+
+        assert lines[0].endswith(": 1")  # only the genuinely stale mission is counted
+        rows = [ln for ln in lines if ln.startswith("  MT-")]
+        assert len(rows) == 1 and "MT-STALE" in rows[0]
+        unreadable = [ln for ln in lines if "nreadable" in ln]
+        assert len(unreadable) == 1
+        assert "MT-BROKEN" in unreadable[0] and "staleness unknown" in unreadable[0]
+        assert unreadable[0].rstrip().endswith("MT-BROKEN")
+
+    def test_only_unreadable_ledgers_still_print_a_block(self, tmp_path):
+        _seed_unreadable_mission(tmp_path, "MT-BROKEN")
+
+        lines = session_ledger.stale_mission_block_lines(tmp_path)
+
+        text = "\n".join(lines)
+        assert "MT-BROKEN" in text and "Stale open missions" not in text
+        assert "mission_authority.py status" in lines[-1]
+
+    def test_unreadable_names_are_capped_at_three(self, tmp_path):
+        for i in range(5):
+            _seed_unreadable_mission(tmp_path, f"MT-BROKEN{i}")
+
+        lines = session_ledger.stale_mission_block_lines(tmp_path)
+
+        unreadable = [ln for ln in lines if "nreadable" in ln][0]
+        assert ": 5" in unreadable
+        assert "MT-BROKEN0" in unreadable and "MT-BROKEN2" in unreadable
+        assert "MT-BROKEN3" not in unreadable and "+2 more" in unreadable
+
+    def test_output_is_ascii_and_each_line_is_bounded(self, tmp_path):
+        # A short directory holding a free-text yaml mission_id that is both
+        # non-ASCII and very long (a 300-char directory name would exceed
+        # MAX_PATH on Windows before it ever tested the formatter).
+        long_id = "MT-café-" + "x" * 300
+        _write_archive(
+            tmp_path, "MT-SHORT-DIR", mission_id=long_id, archived_at=_iso_days_ago(30),
+        )
+
+        lines = session_ledger.stale_mission_block_lines(tmp_path)
+
+        assert any("MT-caf\\xe9-" in ln for ln in lines)  # shown, ASCII-escaped
+        assert all(ln.isascii() for ln in lines)
+        assert all(len(ln) <= 140 for ln in lines)
+
+    def test_a_crash_in_an_unrelated_session_store_cannot_suppress_the_warning(self, tmp_path):
+        """mission_authority._session_ledger_report() raises AttributeError on a
+        session manifest that is valid JSON but not an object (verified by an
+        independent reviewer). build_liveness_report() would therefore blind the
+        stale-mission detector; the session-start path must call the plan_state
+        store directly and stay independent of every other store."""
+        session_dir = tmp_path / "reports" / "session-state"
+        session_dir.mkdir(parents=True)
+        (session_dir / "poison.json").write_text("[1, 2]", encoding="utf-8")
+        _seed_mission(tmp_path, "MT-STALE", days_quiet=30)
+
+        lines = session_ledger.stale_mission_block_lines(tmp_path)
+
+        assert any("MT-STALE" in ln for ln in lines)
+
+
+class TestEmitStaleMissionBlock:
+    def test_prints_nothing_at_all_when_nothing_is_stale(self, tmp_path, capsys):
+        _seed_mission(tmp_path, "MT-FRESH", days_quiet=1)
+
+        session_ledger.emit_stale_mission_block(tmp_path)
+
+        captured = capsys.readouterr()
+        assert captured.out == "" and captured.err == ""
+
+    def test_prints_the_block_to_stdout(self, tmp_path, capsys):
+        _seed_mission(tmp_path, "MT-STALE", days_quiet=30)
+
+        session_ledger.emit_stale_mission_block(tmp_path)
+
+        captured = capsys.readouterr()
+        # stdout, not stderr: the SessionStart hook discards init's stderr.
+        assert "MT-STALE" in captured.out and captured.err == ""
+
+    def test_a_crash_in_the_report_is_swallowed_with_one_short_line(self, tmp_path, capsys):
+        def boom(root):
+            raise RuntimeError("secret detail about " + str(tmp_path))
+
+        session_ledger.emit_stale_mission_block(tmp_path, plan_state_rows_fn=boom)
+
+        captured = capsys.readouterr()
+        assert captured.out == "stale-mission check unavailable: RuntimeError\n"
+        assert captured.err == ""  # and never the exception message (it can carry paths)
+
+    def test_a_non_exception_interrupt_is_not_swallowed(self, tmp_path):
+        def interrupt(root):
+            raise KeyboardInterrupt
+
+        with pytest.raises(KeyboardInterrupt):
+            session_ledger.emit_stale_mission_block(tmp_path, plan_state_rows_fn=interrupt)
+
+    def test_a_source_returning_garbage_rows_is_contained(self, tmp_path, capsys):
+        session_ledger.emit_stale_mission_block(
+            tmp_path, plan_state_rows_fn=lambda root: [None, 7, "x", {"stale": True}],
+        )
+
+        out = capsys.readouterr().out
+        assert "Traceback" not in out and out.count("\n") <= 8
+
+
+class TestInitSurfacesStaleMissions:
+    """cmd_init handles --if-missing fast paths BEFORE its print block, and the
+    SessionStart hook always passes --if-missing -- so the block must be emitted
+    on every path, not only inside the print block (which only a brand-new
+    session id ever reaches)."""
+
+    def test_fresh_init_prints_the_block_after_the_existing_output(self, tmp_path, capsys):
+        _seed_mission(tmp_path, "MT-STALE", days_quiet=30)
+
+        ret = session_ledger.main(["init", "--session-id", "sm-fresh"])
+
+        out = capsys.readouterr().out
+        assert ret == 0
+        assert "Session initialized: sm-fresh" in out and "MT-STALE" in out
+        assert out.index("Session initialized") < out.index("Stale open missions")
+
+    def test_if_missing_already_active_fast_path_prints_the_block(self, tmp_path, capsys):
+        session_ledger.init_session("sm-active")
+        _seed_mission(tmp_path, "MT-STALE", days_quiet=30)
+
+        ret = session_ledger.main(["init", "--if-missing", "--session-id", "sm-active"])
+
+        out = capsys.readouterr().out
+        assert ret == 0
+        assert "already-active" in out and "MT-STALE" in out
+
+    def test_if_missing_reactivated_fast_path_prints_the_block(
+        self, isolate_session_dir, tmp_path, capsys
+    ):
+        session_ledger.init_session("sm-stale")
+        path = isolate_session_dir / "sm-stale.json"
+        manifest = json.loads(path.read_text(encoding="utf-8"))
+        manifest["status"] = "stale"
+        path.write_text(json.dumps(manifest), encoding="utf-8")
+        _seed_mission(tmp_path, "MT-STALE", days_quiet=30)
+
+        ret = session_ledger.main(["init", "--if-missing", "--session-id", "sm-stale"])
+
+        out = capsys.readouterr().out
+        assert ret == 0
+        assert "reactivated" in out and "MT-STALE" in out
+
+    def test_if_missing_reopened_fast_path_prints_the_block(self, tmp_path, capsys):
+        session_ledger.init_session("sm-closed")
+        session_ledger.close_session("sm-closed")
+        _seed_mission(tmp_path, "MT-STALE", days_quiet=30)
+
+        ret = session_ledger.main(["init", "--if-missing", "--session-id", "sm-closed"])
+
+        out = capsys.readouterr().out
+        assert ret == 0
+        assert "reopened" in out and "MT-STALE" in out
+
+    def test_if_missing_missing_manifest_path_prints_the_block(self, tmp_path, capsys):
+        _seed_mission(tmp_path, "MT-STALE", days_quiet=30)
+
+        ret = session_ledger.main(["init", "--if-missing", "--session-id", "sm-new"])
+
+        out = capsys.readouterr().out
+        assert ret == 0
+        assert "Session initialized: sm-new" in out and "MT-STALE" in out
+
+    def test_hook_invocation_shape_with_repo_root_flag_prints_the_block(self, tmp_path, capsys):
+        """The hook runs `session_ledger.py --repo-root <root> init --if-missing
+        --session-id <id>` in a fresh process (no prior configure())."""
+        _seed_mission(tmp_path, "MT-STALE", days_quiet=30)
+        try:
+            ret = session_ledger.main([
+                "--repo-root", str(tmp_path), "init", "--if-missing", "--session-id", "sm-hook",
+            ])
+            out = capsys.readouterr().out
+        finally:
+            session_ledger.configure()  # reset -- --repo-root reconfigured the module
+        assert ret == 0
+        assert "MT-STALE" in out
+
+    def test_if_missing_fast_path_stays_a_single_line_when_nothing_is_stale(
+        self, tmp_path, capsys
+    ):
+        session_ledger.init_session("sm-quiet")
+        _seed_mission(tmp_path, "MT-FRESH", days_quiet=1)
+
+        ret = session_ledger.main(["init", "--if-missing", "--session-id", "sm-quiet"])
+
+        lines = capsys.readouterr().out.strip().splitlines()
+        assert ret == 0 and len(lines) == 1 and "already-active" in lines[0]
+
+    def test_a_crash_in_the_report_never_breaks_init(self, tmp_path, isolate_session_dir, capsys):
+        def boom(root):
+            raise ValueError("boom")
+
+        session_ledger.configure(repo_root=tmp_path, plan_state_rows_fn=boom)
+
+        ret = session_ledger.main(["init", "--session-id", "sm-crash"])
+
+        out = capsys.readouterr().out
+        assert ret == 0
+        assert (isolate_session_dir / "sm-crash.json").is_file()  # init itself completed
+        assert [ln for ln in out.splitlines() if "stale-mission" in ln] == [
+            "stale-mission check unavailable: ValueError"
+        ]
+        assert "Traceback" not in out
+
+    def test_a_crash_in_the_report_never_breaks_the_if_missing_fast_path(
+        self, tmp_path, capsys
+    ):
+        def boom(root):
+            raise ValueError("boom")
+
+        session_ledger.init_session("sm-crash-fast")
+        session_ledger.configure(repo_root=tmp_path, plan_state_rows_fn=boom)
+
+        ret = session_ledger.main(["init", "--if-missing", "--session-id", "sm-crash-fast"])
+
+        out = capsys.readouterr().out
+        assert ret == 0
+        assert "already-active" in out
+        assert "stale-mission check unavailable: ValueError" in out
