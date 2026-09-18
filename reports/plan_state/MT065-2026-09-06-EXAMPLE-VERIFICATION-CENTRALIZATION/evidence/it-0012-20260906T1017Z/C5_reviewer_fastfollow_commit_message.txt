@@ -1,0 +1,48 @@
+fix(example-verification): C5 fast-follow -- fix 2 real bugs an independent reviewer found in GoRunner
+
+An independent reviewer (ACCEPT WITH NOTES) confirmed commits 7ff4f5ef0d
+and 7b4b7367d6 (C5's helper extraction + GoRunner) are correctly scoped,
+non-regressive on the currently-blocking check_go_code_blocks.py CLI path
+(independently reproduced the zero-diff pilot claim), and free of scope
+creep -- but found 2 real, confirmed bugs in the new GoRunner class:
+
+1. classify()'s UPSTREAM-BROKEN heuristic never actually fires. It checked
+   whether the raw replace_path string appeared verbatim in captured
+   output, but real go vet/go run errors inside a replaced package cite a
+   location RELATIVE to the invoking directory (e.g.
+   "..\upstream_pkg\lib.go:4:2: undefined: x"), never the replace target's
+   own absolute path -- reviewer reproduced this with a real subprocess
+   call. Fixed: now looks for any <file>.go:<line> citation whose basename
+   isn't main.go (present for a real upstream defect, absent for an
+   ordinary error in the block's own generated wrapper, whether the
+   citation is relative or the absolute path a runtime panic trace uses).
+   New test_example_verification_runners_go.py::TestClassifyRealUpstreamError
+   reproduces the exact scenario for real (a synthetic upstream package
+   with a genuine bug, replaced in, real go vet call) -- confirmed
+   mechanically real: reverted the fix locally, watched this test fail
+   with COMPILE-ERROR instead of UPSTREAM-BROKEN, restored the fix,
+   confirmed it passes again.
+
+2. acquire()'s class-level docstring claimed it "reports {"ok": False}
+   for a family with no resolvable local clone" -- no such branch exists;
+   acquire() always returns ok=True (correctly -- a stdlib-only block
+   needs no replace directive at all). The reviewer flagged the real
+   consequence this contradiction was masking: when a real product module
+   NEEDS a replace directive but none resolves (evicted clone cache, fresh
+   checkout), GOFLAGS=-mod=mod alone would let Go silently resolve the
+   bare require over the real network against whatever public package
+   happens to share that module path, and execute() would then actually
+   RUN that unverified code with no error ever surfacing. Fixed: _exec_go
+   now also sets GOPROXY=off, so an unresolved dependency fails loudly (a
+   real, honest COMPILE-ERROR/RUNTIME-ERROR) instead of silently resolving
+   over the network. Docstrings corrected to describe the real behavior
+   instead of the aspirational one.
+
+Verification: full test_example_verification_runners_go.py (16 tests, 2
+new) + test_ci_go_code_blocks.py (23) = 39 real (no mocked subprocess
+calls) tests green. check_monkeypatch_lint.py: 0 violations.
+
+Mission: MT065-2026-09-06-EXAMPLE-VERIFICATION-CENTRALIZATION
+Taskcards: C5 (checkpoint, IN_PROGRESS -- pending final closure decision)
+
+Co-Authored-By: Claude Sonnet 5 <noreply@anthropic.com>

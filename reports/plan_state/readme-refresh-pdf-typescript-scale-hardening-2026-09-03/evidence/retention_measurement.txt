@@ -1,0 +1,82 @@
+  # title                                           bytes  ntok  prose%  table%   any%
+ 13 SVG embedding                                   11787   190     42%     37%    48%
+ 56 Rendering (page → PNG/JPEG/TIFF/BMP/GIF)         6733    51     39%     29%    55%
+ 66 Digital signatures                               4896    79     32%     27%    44%
+ 57 Export (PDF → HTML)                              3506    39     62%     49%    74%
+ 18 HTML to PDF                                      2761    35     54%     49%    69%
+ 60 Export (PDF → EPUB)                              2070     8     38%     25%    38%
+ 23 Text extraction                                  2056    17     29%     65%    88%
+ 68 Grayscale conversion                             1858    11     55%     64%   100%
+ 30 Image extraction                                 1853    21     81%     52%    95%
+ 69 Markdown parsing                                 1802    49     47%     73%    86%
+ 21 Page composition                                 1744    29     45%     90%    93%
+ 31 Redaction                                        1534    18     22%     50%    67%
+ 16 Flow layout                                      1358    26     27%     46%    81%
+ 35 Optional content (layers / OCG)                  1347    17     29%     12%    59%
+ 46 Tagged-PDF structure authoring                   1340    36     53%     42%    67%
+ 61 Saving                                           1239    16     69%     50%    69%
+ 50 PDF/A validation                                 1223    19     42%     32%    53%
+ 52 PDF/X validation                                 1162    19     16%      5%    26%
+ 47 Accessibility auto-tagging                       1079    23     52%     57%    74%
+ 58 Export (PDF → Markdown)                          1063    11     64%     82%    82%
+ 51 PDF/A conversion                                 1051    18     44%     17%    44%
+  8 Text stamping                                    1039    15     53%     67%    80%
+ 14 Table authoring                                  1036    12     33%     58%    67%
+ 22 Page decoration                                  1020    23     57%     70%    74%
+ 24 Table extraction                                 1007    21     67%     76%    90%
+ 53 PDF/X conversion                                  982    22     32%     18%    41%
+ 12 Image insertion                                   944    14     50%      7%    64%
+ 25 Vector path extraction                            895    16     31%     38%    88%
+ 17 Markdown to PDF                                   886    14     57%     71%    93%
+ 67 Optimization                                      886     9     44%     44%    78%
+ 59 Export (PDF → DOCX)                               883    11     36%     91%    91%
+ 54 PDF/UA remediation                                835    16     50%     38%    56%
+ 55 Rendering (page → SVG)                            808     9     44%     67%    89%
+ 65 Stream re-filtering                               761    13     85%     23%    85%
+ 26 Text search                                       739    12     50%     83%    92%
+ 10 Vector drawing                                    699    10     30%     50%    60%
+ 49 PDF/UA validation                                 676    18     61%     67%    94%
+ 33 Form fields (AcroForm)                            671    11     55%     55%    73%
+  7 HTML parsing                                      657     7      0%     71%    71%
+ 20 Barcodes                                          619    16     44%     44%    94%
+ 28 Annotation text search (drawn)                    602     7     29%     71%    71%
+ 48 Tagged-PDF attribute semantics                    598    15     40%     53%    53%
+ 32 Flatten                                           580    10     30%    100%   100%
+ 64 Public-key encryption (PubSec)                    565     5     80%     40%    80%
+ 29 Text replace                                      563     5     40%     20%    60%
+ 34 Form data (FDF / XFDF)                            543    11     36%     45%    64%
+ 42 Annotations                                       524    14     36%     93%   100%
+ 44 Tagged-PDF structure reading                      523    17     41%     24%    59%
+ 45 Tagged-PDF structure preservation                 514    14     71%     57%    93%
+  9 Complex-text shaping (i18n)                       509     9     44%     56%    89%
+ 62 Linearization (Fast Web View)                     495     4      0%     75%    75%
+  2 Encrypted documents                               474     7     14%     29%    43%
+  1 Parsing                                           461    13     92%      8%   100%
+ 27 Annotation text search (carried)                  457     6     17%     83%    83%
+ 40 Embedded files / attachments                      438    12     17%     50%    67%
+ 41 Portfolios (collections)                          436    14     57%     86%    86%
+ 36 Outlines (bookmarks)                              396     5     40%     40%   100%
+ 11 Reusable templates                                387    14     79%     79%    86%
+ 15 Table of contents                                 387     6     33%     83%   100%
+  4 Page manipulation                                 354    12     42%     50%    92%
+ 39 Open behaviour and document JavaScript            349     9      0%     89%    89%
+ 43 Metadata                                          327     8     62%    100%   100%
+ 37 Page labels                                       295    10     40%     70%   100%
+ 19 Flow blocks                                       282    17     59%     94%    94%
+ 63 Encrypted output                                  278     2     50%     50%   100%
+ 38 Named destinations                                245     6     17%     67%   100%
+  3 Page access                                       244    13     54%     85%    92%
+  5 Split & merge                                     221     7     29%     57%    71%
+  6 Content streams                                   169     3     33%     67%   100%
+
+AGGREGATE (byte-weighted):
+  byte-weighted avg: prose=43.9%  table=47.3%  anywhere=68.0%
+  simple avg: prose=43.5%  table=55.2%  anywhere=77.4%
+  bullets with <50% token coverage anywhere: 7 of 69
+   - SVG embedding (48%, 11787b)
+   - Digital signatures (44%, 4896b)
+   - Export (PDF → EPUB) (38%, 2070b)
+   - PDF/X validation (26%, 1162b)
+   - PDF/A conversion (44%, 1051b)
+   - PDF/X conversion (41%, 982b)
+   - Encrypted documents (43%, 474b)

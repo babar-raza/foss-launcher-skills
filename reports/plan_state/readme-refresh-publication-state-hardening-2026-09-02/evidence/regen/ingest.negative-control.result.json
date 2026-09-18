@@ -1,0 +1,1023 @@
+{
+  "required_sections": {
+    "hard_gate": true,
+    "findings": []
+  },
+  "banner_present": {
+    "hard_gate": true,
+    "findings": []
+  },
+  "banner_links_to_homepage": {
+    "hard_gate": true,
+    "findings": []
+  },
+  "banner_asset_exists": {
+    "hard_gate": true,
+    "findings": []
+  },
+  "no_excluded_domain_links": {
+    "hard_gate": true,
+    "findings": []
+  },
+  "license_link_target": {
+    "hard_gate": true,
+    "findings": []
+  },
+  "license_section_matches_template": {
+    "hard_gate": true,
+    "findings": []
+  },
+  "enterprise_edition_link_resolves": {
+    "hard_gate": true,
+    "findings": []
+  },
+  "enterprise_edition_anchor_matches_relationship": {
+    "hard_gate": true,
+    "findings": []
+  },
+  "no_implementation_bridge_disclosure": {
+    "hard_gate": true,
+    "findings": []
+  },
+  "diagram_shape": {
+    "hard_gate": true,
+    "findings": []
+  },
+  "at_a_glance_section_shape": {
+    "hard_gate": true,
+    "findings": []
+  },
+  "diagram_column_balance": {
+    "hard_gate": true,
+    "findings": []
+  },
+  "diagram_label_token_length": {
+    "hard_gate": false,
+    "findings": []
+  },
+  "diagram_label_geometry": {
+    "hard_gate": true,
+    "findings": []
+  },
+  "diagram_starting_points_presence": {
+    "hard_gate": true,
+    "findings": []
+  },
+  "diagram_matches_capability_dependencies": {
+    "hard_gate": true,
+    "findings": []
+  },
+  "diagram_hybrid_reverification": {
+    "hard_gate": true,
+    "findings": []
+  },
+  "diagram_verified_format_claims": {
+    "hard_gate": true,
+    "findings": []
+  },
+  "diagram_starting_points_format_purity": {
+    "hard_gate": true,
+    "findings": []
+  },
+  "diagram_outputs_format_purity": {
+    "hard_gate": true,
+    "findings": []
+  },
+  "diagram_format_completeness_hint": {
+    "hard_gate": false,
+    "findings": [
+      {
+        "format": "A3DW",
+        "container": "outputs",
+        "reason": "formats.md marks A3DW Export=Yes but it is not named in the Outputs container"
+      },
+      {
+        "format": "ABSOLUTE",
+        "container": "outputs",
+        "reason": "formats.md marks ABSOLUTE Export=Yes but it is not named in the Outputs container"
+      },
+      {
+        "format": "AMF",
+        "container": "outputs",
+        "reason": "formats.md marks AMF Export=Yes but it is not named in the Outputs container"
+      },
+      {
+        "format": "COLLADA",
+        "container": "outputs",
+        "reason": "formats.md marks COLLADA Export=Yes but it is not named in the Outputs container"
+      },
+      {
+        "format": "DEGREE",
+        "container": "starting_points",
+        "reason": "formats.md marks DEGREE Import=Yes but it is not named in the Starting Points container"
+      },
+      {
+        "format": "DRACO",
+        "container": "outputs",
+        "reason": "formats.md marks DRACO Export=Yes but it is not named in the Outputs container"
+      },
+      {
+        "format": "FBX",
+        "container": "starting_points",
+        "reason": "formats.md marks FBX Import=Yes but it is not named in the Starting Points container"
+      },
+      {
+        "format": "FBX",
+        "container": "outputs",
+        "reason": "formats.md marks FBX Export=Yes but it is not named in the Outputs container"
+      },
+      {
+        "format": "HTML5",
+        "container": "outputs",
+        "reason": "formats.md marks HTML5 Export=Yes but it is not named in the Outputs container"
+      },
+      {
+        "format": "JT",
+        "container": "starting_points",
+        "reason": "formats.md marks JT Import=Yes but it is not named in the Starting Points container"
+      },
+      {
+        "format": "PDF",
+        "container": "starting_points",
+        "reason": "formats.md marks PDF Import=Yes but it is not named in the Starting Points container"
+      },
+      {
+        "format": "PDF",
+        "container": "outputs",
+        "reason": "formats.md marks PDF Export=Yes but it is not named in the Outputs container"
+      },
+      {
+        "format": "PLY",
+        "container": "starting_points",
+        "reason": "formats.md marks PLY Import=Yes but it is not named in the Starting Points container"
+      },
+      {
+        "format": "PLY",
+        "container": "outputs",
+        "reason": "formats.md marks PLY Export=Yes but it is not named in the Outputs container"
+      },
+      {
+        "format": "POINTS",
+        "container": "starting_points",
+        "reason": "formats.md marks POINTS Import=Yes but it is not named in the Starting Points container"
+      },
+      {
+        "format": "RADIAN",
+        "container": "starting_points",
+        "reason": "formats.md marks RADIAN Import=Yes but it is not named in the Starting Points container"
+      },
+      {
+        "format": "RVM",
+        "container": "starting_points",
+        "reason": "formats.md marks RVM Import=Yes but it is not named in the Starting Points container"
+      },
+      {
+        "format": "RVM",
+        "container": "outputs",
+        "reason": "formats.md marks RVM Export=Yes but it is not named in the Outputs container"
+      },
+      {
+        "format": "U3D",
+        "container": "starting_points",
+        "reason": "formats.md marks U3D Import=Yes but it is not named in the Starting Points container"
+      },
+      {
+        "format": "U3D",
+        "container": "outputs",
+        "reason": "formats.md marks U3D Export=Yes but it is not named in the Outputs container"
+      },
+      {
+        "format": "USD",
+        "container": "outputs",
+        "reason": "formats.md marks USD Export=Yes but it is not named in the Outputs container"
+      }
+    ]
+  },
+  "format_name_casing": {
+    "hard_gate": true,
+    "findings": []
+  },
+  "no_cross_product_citation": {
+    "hard_gate": true,
+    "findings": []
+  },
+  "examples_table_collapsed": {
+    "hard_gate": true,
+    "findings": []
+  },
+  "api_reference_detail_collapsed": {
+    "hard_gate": true,
+    "findings": []
+  },
+  "heading_title_case": {
+    "hard_gate": true,
+    "findings": []
+  },
+  "no_undisclosed_blocking_commands": {
+    "hard_gate": true,
+    "findings": []
+  },
+  "installation_matches_package_registry": {
+    "hard_gate": false,
+    "findings": []
+  },
+  "installation_matches_manifest_version": {
+    "hard_gate": false,
+    "findings": []
+  },
+  "installation_matches_live_publication": {
+    "hard_gate": true,
+    "findings": [
+      {
+        "expected": "aspose-3d-foss",
+        "registry_type": "pypi",
+        "evidence_url": "https://pypi.org/pypi/aspose-3d-foss/json",
+        "reason": "published_without_registry_install_command",
+        "detail": "the live pypi probe confirms 'aspose-3d-foss' is published, but the Installation section shows no registry-native install command naming it"
+      },
+      {
+        "expected": "aspose-3d-foss",
+        "registry_type": "pypi",
+        "evidence_url": "https://pypi.org/pypi/aspose-3d-foss/json",
+        "reason": "published_with_unpublished_disclosure",
+        "detail": "the live pypi probe confirms 'aspose-3d-foss' is published, but the Installation section still says it has not been published"
+      }
+    ]
+  },
+  "published_version_matches_manifest": {
+    "hard_gate": false,
+    "findings": []
+  },
+  "no_upstream_issue_leaked": {
+    "hard_gate": true,
+    "findings": []
+  },
+  "no_upstream_issue_leaked_install_quickstart": {
+    "hard_gate": true,
+    "findings": []
+  },
+  "key_capabilities_quality": {
+    "hard_gate": false,
+    "findings": []
+  },
+  "key_capabilities_structural_variety": {
+    "hard_gate": false,
+    "findings": []
+  },
+  "key_capabilities_formatting": {
+    "hard_gate": false,
+    "findings": []
+  },
+  "section_intro_no_meta_narration": {
+    "hard_gate": true,
+    "findings": []
+  },
+  "capability_scope_contradiction": {
+    "hard_gate": false,
+    "findings": [
+      {
+        "capability_bullet": "Author and edit mesh data directly through `Mesh.control_points`, `Mesh.create_polygon()`, and",
+        "matched_keyword": "Mesh",
+        "scope_bullet": "`Mesh.do_boolean()`, `union()`, `difference()`, and `intersect()` raise `NotImplementedError`",
+        "reason": "'Mesh' is named as a working capability here, but a Scope and Limitations bullet documents related functionality as not-implemented/stub -- verify this isn't a fabricated-capability contradiction"
+      }
+    ]
+  },
+  "diagram_from_scratch_capability_labeled": {
+    "hard_gate": false,
+    "findings": []
+  },
+  "scope_limitations_format": {
+    "hard_gate": true,
+    "findings": []
+  },
+  "dev_test_artifacts_linked": {
+    "hard_gate": true,
+    "findings": [
+      {
+        "path": "docs/releasing.md",
+        "kind": "docs_guide",
+        "reason": "real artifact 'docs/releasing.md' exists in the source repo but is not linked anywhere in the README (expected in 'Documentation & Resources')"
+      },
+      {
+        "path": ".github/workflows/publish.yml",
+        "kind": "ci_workflow",
+        "reason": "real artifact '.github/workflows/publish.yml' exists in the source repo but is not linked anywhere in the README (expected in 'Development and Testing')"
+      }
+    ]
+  },
+  "development_testing_collapse": {
+    "hard_gate": false,
+    "findings": []
+  },
+  "readme_already_published": {
+    "hard_gate": false,
+    "findings": [],
+    "detail": {
+      "published": false
+    }
+  },
+  "published_readme_current": {
+    "hard_gate": false,
+    "findings": [
+      {
+        "reason": "3d/python was published upstream (last known 2026-08-14) but the live upstream README no longer matches the canonical candidate -- republication pending",
+        "evidence": "reconciled by publication_reconciler.py: PR #2 (https://github.com/aspose-3d-foss/Aspose.3D-FOSS-for-Python/pull/2), merged 2026-08-14T09:56:03Z"
+      }
+    ]
+  },
+  "dropped_content": {
+    "hard_gate": true,
+    "findings": [],
+    "detail": {
+      "dropped_links": [],
+      "dropped_headings": [
+        "Animation (`aspose.threed.animation`)",
+        "Assign a PBR material and export to glTF",
+        "Build a cube and export it to 3MF",
+        "Build a mesh and export it to STL",
+        "Convert a parametric primitive to a mesh",
+        "Format load/save options (`aspose.threed.formats`)",
+        "Import a COLLADA file",
+        "Materials (`aspose.threed.shading`)",
+        "Math utilities (`aspose.threed.utilities`)",
+        "Meshes and primitives (`aspose.threed.entities`)",
+        "Scene graph (`aspose.threed`)"
+      ],
+      "internal_labels": []
+    }
+  },
+  "dropped_content_uncorrelated": {
+    "hard_gate": false,
+    "findings": [
+      "Animation (`aspose.threed.animation`)",
+      "Assign a PBR material and export to glTF",
+      "Build a cube and export it to 3MF",
+      "Build a mesh and export it to STL",
+      "Convert a parametric primitive to a mesh",
+      "Format load/save options (`aspose.threed.formats`)",
+      "Import a COLLADA file",
+      "Materials (`aspose.threed.shading`)",
+      "Math utilities (`aspose.threed.utilities`)",
+      "Meshes and primitives (`aspose.threed.entities`)",
+      "Scene graph (`aspose.threed`)"
+    ],
+    "detail": {
+      "note": "downgraded from hard-gate to advisory: a content-dispositions.json exists for this product (TC-HARDEN-04) -- confirm it accounts for each of these before treating this candidate as clean, but do not block on literal string non-match alone",
+      "dropped_links": [],
+      "dropped_headings": [
+        "Animation (`aspose.threed.animation`)",
+        "Assign a PBR material and export to glTF",
+        "Build a cube and export it to 3MF",
+        "Build a mesh and export it to STL",
+        "Convert a parametric primitive to a mesh",
+        "Format load/save options (`aspose.threed.formats`)",
+        "Import a COLLADA file",
+        "Materials (`aspose.threed.shading`)",
+        "Math utilities (`aspose.threed.utilities`)",
+        "Meshes and primitives (`aspose.threed.entities`)",
+        "Scene graph (`aspose.threed`)"
+      ],
+      "internal_labels": []
+    }
+  },
+  "content_unit_disposition_coverage": {
+    "hard_gate": true,
+    "findings": []
+  },
+  "content_unit_excerpt_matches_extraction": {
+    "hard_gate": true,
+    "findings": []
+  },
+  "content_unit_evidence_resolves": {
+    "hard_gate": true,
+    "findings": []
+  },
+  "content_unit_evidence_supports_claim": {
+    "hard_gate": false,
+    "findings": [
+      {
+        "unit_id": "u0001",
+        "support_check": "supported",
+        "matched_token": "OBJ"
+      },
+      {
+        "unit_id": "u0012",
+        "support_check": "supported",
+        "matched_token": "Scene"
+      },
+      {
+        "unit_id": "u0013",
+        "support_check": "supported",
+        "matched_token": "OBJ"
+      },
+      {
+        "unit_id": "u0014",
+        "support_check": "supported",
+        "matched_token": "OBJ"
+      },
+      {
+        "unit_id": "u0015",
+        "support_check": "supported",
+        "matched_token": "albedo"
+      },
+      {
+        "unit_id": "u0016",
+        "support_check": "supported",
+        "matched_token": "Box"
+      },
+      {
+        "unit_id": "u0018",
+        "support_check": "supported",
+        "matched_token": "AnimationClip"
+      },
+      {
+        "unit_id": "u0020",
+        "support_check": "supported",
+        "matched_token": "3.7"
+      },
+      {
+        "unit_id": "u0026",
+        "support_check": "unsupported",
+        "evidence_ref": "aspose/threed/__init__.py",
+        "checked_tokens": [
+          "aspose.threed",
+          "aspose.threed.entities",
+          "aspose.threed.shading",
+          "aspose.threed.formats",
+          "aspose.threed.utilities",
+          "ObjImporter",
+          "ColladaExporter",
+          "GltfExporter",
+          "aspose.threed.formats.gltf",
+          "Scene.open()",
+          "Scene.save()",
+          "*LoadOptions",
+          "*SaveOptions",
+          "LoadOptions",
+          "SaveOptions"
+        ],
+        "reason": "none of this unit's literal_tokens (aspose.threed, aspose.threed.entities, aspose.threed.shading, aspose.threed.formats, aspose.threed.utilities, ObjImporter, ColladaExporter, GltfExporter, aspose.threed.formats.gltf, Scene.open(), Scene.save(), *LoadOptions, *SaveOptions, LoadOptions, SaveOptions) -- nor any light call-signature/Maven-coordinate normalization of them -- appear anywhere in the cited evidence file 'aspose/threed/__init__.py''s real content"
+      },
+      {
+        "unit_id": "u0027",
+        "support_check": "not_applicable_limitation_claim",
+        "reason": "target_section is Scope and Limitations -- a limitation claim's own cited evidence typically proves ABSENCE of a capability, not its presence; literal-token-found would be the wrong signal here"
+      },
+      {
+        "unit_id": "u0079",
+        "support_check": "not_applicable_limitation_claim",
+        "reason": "target_section is Scope and Limitations -- a limitation claim's own cited evidence typically proves ABSENCE of a capability, not its presence; literal-token-found would be the wrong signal here"
+      },
+      {
+        "unit_id": "u0080",
+        "support_check": "not_applicable_limitation_claim",
+        "reason": "target_section is Scope and Limitations -- a limitation claim's own cited evidence typically proves ABSENCE of a capability, not its presence; literal-token-found would be the wrong signal here"
+      },
+      {
+        "unit_id": "u0081",
+        "support_check": "not_applicable_limitation_claim",
+        "reason": "target_section is Scope and Limitations -- a limitation claim's own cited evidence typically proves ABSENCE of a capability, not its presence; literal-token-found would be the wrong signal here"
+      },
+      {
+        "unit_id": "u0085",
+        "support_check": "supported",
+        "matched_token": "dev"
+      },
+      {
+        "unit_id": "u0086",
+        "support_check": "supported",
+        "matched_token": "MIT"
+      }
+    ]
+  },
+  "content_unit_merged_into_target_section": {
+    "hard_gate": true,
+    "findings": []
+  },
+  "content_unit_disposition_text_diff": {
+    "hard_gate": false,
+    "findings": [
+      {
+        "unit_id": "u0019",
+        "target_section": "Installation",
+        "excerpt": "A PyPI package has not been published yet. Install directly from a local clone:",
+        "reason": "disposition claims merged_verbatim but this unit's old prose (normalized for case/whitespace/dash/quote/marker variance only) is not present anywhere in the candidate -- if the wording genuinely changed, the correct disposition is 'merged_reframed', not 'merged_verbatim'"
+      },
+      {
+        "unit_id": "u0075",
+        "target_section": "Documentation & Resources",
+        "excerpt": "- **[Getting started guide](https://docs.aspose.org/3d/python/)** — installation, key capabilities,\n  and links to detailed developer guides for this library.",
+        "reason": "disposition claims merged_verbatim but this unit's old prose (normalized for case/whitespace/dash/quote/marker variance only) is not present anywhere in the candidate -- if the wording genuinely changed, the correct disposition is 'merged_reframed', not 'merged_verbatim'"
+      },
+      {
+        "unit_id": "u0076",
+        "target_section": "Documentation & Resources",
+        "excerpt": "- **[How-to guides & FAQ](https://kb.aspose.org/3d/python/)** — task-focused how-to guides for\n  loading, converting, and manipulating 3D files with the pip-ins",
+        "reason": "disposition claims merged_verbatim but this unit's old prose (normalized for case/whitespace/dash/quote/marker variance only) is not present anywhere in the candidate -- if the wording genuinely changed, the correct disposition is 'merged_reframed', not 'merged_verbatim'"
+      }
+    ]
+  },
+  "content_unit_no_exact_duplicate_merge": {
+    "hard_gate": true,
+    "findings": []
+  },
+  "content_unit_redundant_claim_verifiable": {
+    "hard_gate": false,
+    "findings": []
+  },
+  "content_unit_classification_plausibility": {
+    "hard_gate": false,
+    "findings": [
+      {
+        "unit_id": "u0002",
+        "reason": "classified as narrative/CTA but the prefilter found no tone signal -- confirm this genuinely has nothing checkable/reusable in it"
+      },
+      {
+        "unit_id": "u0003",
+        "reason": "classified as narrative/CTA but the prefilter found no tone signal -- confirm this genuinely has nothing checkable/reusable in it"
+      },
+      {
+        "unit_id": "u0004",
+        "reason": "classified as narrative/CTA but the prefilter found no tone signal -- confirm this genuinely has nothing checkable/reusable in it"
+      },
+      {
+        "unit_id": "u0005",
+        "reason": "classified as narrative/CTA but the prefilter found no tone signal -- confirm this genuinely has nothing checkable/reusable in it"
+      },
+      {
+        "unit_id": "u0006",
+        "reason": "classified as narrative/CTA but the prefilter found no tone signal -- confirm this genuinely has nothing checkable/reusable in it"
+      },
+      {
+        "unit_id": "u0007",
+        "reason": "classified as narrative/CTA but the prefilter found no tone signal -- confirm this genuinely has nothing checkable/reusable in it"
+      },
+      {
+        "unit_id": "u0008",
+        "reason": "classified as narrative/CTA but the prefilter found no tone signal -- confirm this genuinely has nothing checkable/reusable in it"
+      },
+      {
+        "unit_id": "u0009",
+        "reason": "classified as narrative/CTA but the prefilter found no tone signal -- confirm this genuinely has nothing checkable/reusable in it"
+      },
+      {
+        "unit_id": "u0010",
+        "reason": "classified as narrative/CTA but the prefilter found no tone signal -- confirm this genuinely has nothing checkable/reusable in it"
+      },
+      {
+        "unit_id": "u0011",
+        "reason": "classified as narrative/CTA but the prefilter found no tone signal -- confirm this genuinely has nothing checkable/reusable in it"
+      },
+      {
+        "unit_id": "u0019",
+        "reason": "classified as narrative/CTA but the prefilter found no tone signal -- confirm this genuinely has nothing checkable/reusable in it"
+      },
+      {
+        "unit_id": "u0021",
+        "reason": "classified as narrative/CTA but the prefilter found no tone signal -- confirm this genuinely has nothing checkable/reusable in it"
+      },
+      {
+        "unit_id": "u0022",
+        "reason": "classified as narrative/CTA but the prefilter found no tone signal -- confirm this genuinely has nothing checkable/reusable in it"
+      },
+      {
+        "unit_id": "u0023",
+        "reason": "classified as narrative/CTA but the prefilter found no tone signal -- confirm this genuinely has nothing checkable/reusable in it"
+      },
+      {
+        "unit_id": "u0024",
+        "reason": "classified as narrative/CTA but the prefilter found no tone signal -- confirm this genuinely has nothing checkable/reusable in it"
+      },
+      {
+        "unit_id": "u0025",
+        "reason": "classified as narrative/CTA but the prefilter found no tone signal -- confirm this genuinely has nothing checkable/reusable in it"
+      },
+      {
+        "unit_id": "u0028",
+        "reason": "classified as narrative/CTA but the prefilter found no tone signal -- confirm this genuinely has nothing checkable/reusable in it"
+      },
+      {
+        "unit_id": "u0074",
+        "reason": "classified as narrative/CTA but the prefilter found no tone signal -- confirm this genuinely has nothing checkable/reusable in it"
+      },
+      {
+        "unit_id": "u0075",
+        "reason": "classified as narrative/CTA but the prefilter found no tone signal -- confirm this genuinely has nothing checkable/reusable in it"
+      },
+      {
+        "unit_id": "u0076",
+        "reason": "classified as narrative/CTA but the prefilter found no tone signal -- confirm this genuinely has nothing checkable/reusable in it"
+      },
+      {
+        "unit_id": "u0077",
+        "reason": "classified as narrative/CTA but the prefilter found no tone signal -- confirm this genuinely has nothing checkable/reusable in it"
+      },
+      {
+        "unit_id": "u0078",
+        "reason": "classified as narrative/CTA but the prefilter found no tone signal -- confirm this genuinely has nothing checkable/reusable in it"
+      },
+      {
+        "unit_id": "u0083",
+        "reason": "classified as narrative/CTA but the prefilter found no tone signal -- confirm this genuinely has nothing checkable/reusable in it"
+      },
+      {
+        "unit_id": "u0084",
+        "reason": "classified as narrative/CTA but the prefilter found no tone signal -- confirm this genuinely has nothing checkable/reusable in it"
+      }
+    ]
+  },
+  "content_unit_probable_duplicate": {
+    "hard_gate": false,
+    "findings": []
+  },
+  "content_unit_embedded_actionable_fact": {
+    "hard_gate": false,
+    "findings": []
+  },
+  "image_content_unit_excluded_reason_verified": {
+    "hard_gate": false,
+    "findings": []
+  },
+  "structural_unit_disposition_coverage": {
+    "hard_gate": true,
+    "findings": []
+  },
+  "structural_unit_evidence_resolves": {
+    "hard_gate": true,
+    "findings": []
+  },
+  "structural_unit_merged_into_target_section": {
+    "hard_gate": true,
+    "findings": []
+  },
+  "structural_unit_no_exact_duplicate_merge": {
+    "hard_gate": true,
+    "findings": []
+  },
+  "structural_unit_disposition_text_diff": {
+    "hard_gate": true,
+    "findings": []
+  },
+  "structural_unit_tree_paths_plausible": {
+    "hard_gate": false,
+    "findings": []
+  },
+  "candidate_section_disposition_traceability": {
+    "hard_gate": false,
+    "findings": []
+  },
+  "code_example_disposition_coverage": {
+    "hard_gate": true,
+    "findings": []
+  },
+  "code_example_evidence_resolves": {
+    "hard_gate": true,
+    "findings": []
+  },
+  "code_example_no_exact_duplicate_merge": {
+    "hard_gate": true,
+    "findings": []
+  },
+  "code_example_disposition_text_diff": {
+    "hard_gate": true,
+    "findings": []
+  },
+  "code_example_api_coverage_survives": {
+    "hard_gate": true,
+    "findings": [
+      {
+        "unit_id": "c0006b",
+        "target_section": "Additional Examples",
+        "fingerprint": [
+          "Scene",
+          "Mesh",
+          "mesh.control_points.add",
+          "Vector4",
+          "mesh.create_polygon"
+        ],
+        "survived": [
+          "Scene"
+        ],
+        "fingerprint_source": "live_extractor",
+        "reason": "fewer than half of this code unit's fingerprinted API calls appear anywhere in the candidate's own code blocks -- the claimed survival does not actually resolve"
+      },
+      {
+        "unit_id": "c0006e",
+        "target_section": "Additional Examples",
+        "fingerprint": [
+          "io.BytesIO",
+          "GltfFormat.create_save_options",
+          "stream",
+          "scene.save",
+          "GltfSaveOptions",
+          "FileFormat.get_format_by_extension"
+        ],
+        "survived": [
+          "scene.save"
+        ],
+        "fingerprint_source": "live_extractor",
+        "reason": "fewer than half of this code unit's fingerprinted API calls appear anywhere in the candidate's own code blocks -- the claimed survival does not actually resolve"
+      },
+      {
+        "unit_id": "c0006f",
+        "target_section": "Additional Examples",
+        "fingerprint": [
+          "stream.seek",
+          "json.loads",
+          "stream.read",
+          "decode"
+        ],
+        "survived": [],
+        "fingerprint_source": "live_extractor",
+        "reason": "fewer than half of this code unit's fingerprinted API calls appear anywhere in the candidate's own code blocks -- the claimed survival does not actually resolve"
+      }
+    ]
+  },
+  "code_example_excluded_reason_citation_too_narrow": {
+    "hard_gate": false,
+    "findings": []
+  },
+  "cli_category_representation": {
+    "hard_gate": false,
+    "findings": []
+  },
+  "cli_subcommand_coverage": {
+    "hard_gate": false,
+    "findings": []
+  },
+  "badge_disposition_coverage": {
+    "hard_gate": true,
+    "findings": []
+  },
+  "badge_evidence_resolves": {
+    "hard_gate": true,
+    "findings": []
+  },
+  "badge_preserved_or_credited_in_candidate": {
+    "hard_gate": true,
+    "findings": []
+  },
+  "badge_probable_duplicate_disposition": {
+    "hard_gate": false,
+    "findings": []
+  },
+  "project_structure_canonical_tree_format": {
+    "hard_gate": true,
+    "findings": []
+  },
+  "badge_static_claims_dynamic_fact": {
+    "hard_gate": false,
+    "findings": []
+  },
+  "no_duplicate_badges_in_candidate": {
+    "hard_gate": true,
+    "findings": []
+  },
+  "badge_row_meets_verified_floor": {
+    "hard_gate": true,
+    "findings": []
+  },
+  "badge_available_fact_not_shown": {
+    "hard_gate": false,
+    "findings": [
+      {
+        "category": "package_version",
+        "reason": "a real, verified 'package_version' fact is available for this product but no badge in this category appears in the candidate's badge row -- consider adding one (not required beyond the mandatory floor)",
+        "suggested_alt_text": "Package Version",
+        "suggested_image_url": "https://img.shields.io/pypi/v/aspose-3d-foss.svg"
+      },
+      {
+        "category": "ci_build_status",
+        "reason": "a real, verified 'ci_build_status' fact is available for this product but no badge in this category appears in the candidate's badge row -- consider adding one (not required beyond the mandatory floor)",
+        "suggested_alt_text": "Build",
+        "suggested_image_url": "https://github.com/aspose-3d-foss/Aspose.3D-FOSS-for-Python/actions/workflows/publish.yml/badge.svg"
+      }
+    ]
+  },
+  "diagram_known_subgraph_ids": {
+    "hard_gate": false,
+    "findings": []
+  },
+  "section_job_distinctness": {
+    "hard_gate": false,
+    "findings": []
+  },
+  "diagram_no_mechanism_duplicate_output": {
+    "hard_gate": false,
+    "findings": []
+  },
+  "diagram_container_duplicates_capability": {
+    "hard_gate": false,
+    "findings": [
+      {
+        "node_id": "i1",
+        "label": "An existing OBJ, STL, glTF, COLLADA, or 3MF file",
+        "container": "starting_points",
+        "capability_node_id": "c1",
+        "capability_label": "Multi-format scene import (OBJ, STL, glTF, COLLADA, 3MF)",
+        "shared_words": [
+          "collada",
+          "gltf"
+        ]
+      }
+    ]
+  },
+  "process_narration_smells": {
+    "hard_gate": false,
+    "findings": []
+  },
+  "enterprise_edition_naming": {
+    "hard_gate": false,
+    "findings": []
+  },
+  "api_reference_classes_exist": {
+    "hard_gate": true,
+    "findings": []
+  },
+  "api_reference_class_internal_only": {
+    "hard_gate": false,
+    "findings": [
+      {
+        "class_name": "FbxElement",
+        "reason": "'FbxElement' has zero internal fan-in (no other real source file references it) and is absent from the top-level package __init__.py exports -- possible internal-only class; verify before shipping (record a confirmed internal class in data/api_reference_class_exclusions.json to suppress this prompt permanently, once genuinely confirmed)"
+      },
+      {
+        "class_name": "FbxScope",
+        "reason": "'FbxScope' has zero internal fan-in (no other real source file references it) and is absent from the top-level package __init__.py exports -- possible internal-only class; verify before shipping (record a confirmed internal class in data/api_reference_class_exclusions.json to suppress this prompt permanently, once genuinely confirmed)"
+      },
+      {
+        "class_name": "InvalidOperationException",
+        "reason": "'InvalidOperationException' has zero internal fan-in (no other real source file references it) and is absent from the top-level package __init__.py exports -- possible internal-only class; verify before shipping (record a confirmed internal class in data/api_reference_class_exclusions.json to suppress this prompt permanently, once genuinely confirmed)"
+      }
+    ]
+  },
+  "no_leaked_docstring_artifacts": {
+    "hard_gate": false,
+    "findings": []
+  },
+  "named_member_accuracy": {
+    "hard_gate": false,
+    "findings": []
+  },
+  "code_example_imports_match_source": {
+    "hard_gate": true,
+    "findings": []
+  },
+  "api_reference_table_completeness": {
+    "hard_gate": true,
+    "findings": [
+      {
+        "module": "Core API",
+        "class_name": "Token",
+        "reason": "missing_class",
+        "detail": "'Token' is a real class in reference.aspose.org's 'Core API' module but is absent from the README's table for that module"
+      },
+      {
+        "module": "Core API",
+        "class_name": "TokenType",
+        "reason": "missing_class",
+        "detail": "'TokenType' is a real class in reference.aspose.org's 'Core API' module but is absent from the README's table for that module"
+      }
+    ]
+  },
+  "reference_index_source_dirty": {
+    "hard_gate": false,
+    "findings": []
+  },
+  "api_reference_table_no_duplicate_rows": {
+    "hard_gate": true,
+    "findings": []
+  },
+  "api_reference_public_type_count_matches_table": {
+    "hard_gate": true,
+    "findings": []
+  },
+  "api_reference_generic_description": {
+    "hard_gate": false,
+    "findings": []
+  },
+  "api_reference_truncated_description": {
+    "hard_gate": false,
+    "findings": []
+  },
+  "api_reference_stripped_example": {
+    "hard_gate": false,
+    "findings": []
+  },
+  "dependency_snapshot_completeness": {
+    "hard_gate": true,
+    "findings": []
+  },
+  "unqualified_dependency_claims": {
+    "hard_gate": true,
+    "findings": []
+  },
+  "dependency_section_manifest_corroboration": {
+    "hard_gate": false,
+    "findings": []
+  },
+  "dependency_direct_transitive_confusion": {
+    "hard_gate": true,
+    "findings": []
+  },
+  "dependency_optional_presented_as_required": {
+    "hard_gate": true,
+    "findings": []
+  },
+  "dependency_dev_only_presented_as_runtime": {
+    "hard_gate": true,
+    "findings": []
+  },
+  "dependency_development_claim_not_in_manifest": {
+    "hard_gate": true,
+    "findings": []
+  },
+  "dependency_scope_claim_matches_evidence": {
+    "hard_gate": false,
+    "findings": []
+  },
+  "dependencies_scope_limitations_contradiction": {
+    "hard_gate": false,
+    "findings": []
+  },
+  "dependencies_intro_contradiction": {
+    "hard_gate": true,
+    "findings": []
+  },
+  "dependency_version_pin_freshness": {
+    "hard_gate": false,
+    "findings": []
+  },
+  "dependency_native_system_scope_limitations_placement": {
+    "hard_gate": true,
+    "findings": []
+  },
+  "dependency_disposition_reconciliation": {
+    "hard_gate": true,
+    "findings": []
+  },
+  "dependency_section_subheadings_present": {
+    "hard_gate": true,
+    "findings": []
+  },
+  "seo_keyword_plan_usage": {
+    "hard_gate": false,
+    "findings": []
+  },
+  "additional_example_headings": {
+    "hard_gate": true,
+    "findings": []
+  },
+  "navigation_toc_matches_headings": {
+    "hard_gate": true,
+    "findings": []
+  },
+  "candidate_drift_since_last_verified": {
+    "hard_gate": false,
+    "findings": []
+  },
+  "verification_currency": {
+    "hard_gate": false,
+    "findings": []
+  },
+  "dependency_verification_matrix": {
+    "rows": [
+      {
+        "name": "Python",
+        "ecosystem": "pypi",
+        "version": ">=3.7",
+        "category": "required",
+        "dev_only": false,
+        "role": "runtime",
+        "bucket": "native_system",
+        "in_dependency_snapshot": true,
+        "in_readme_dependencies_section": false,
+        "in_readme_prose_elsewhere": true,
+        "in_claims_json": false,
+        "corroboration_score": 1,
+        "status": "NEEDS_REVIEW"
+      },
+      {
+        "name": "pytest",
+        "ecosystem": "pypi",
+        "version": ">=7.0.0",
+        "category": "required",
+        "dev_only": true,
+        "role": "runtime",
+        "bucket": "development",
+        "in_dependency_snapshot": true,
+        "in_readme_dependencies_section": false,
+        "in_readme_prose_elsewhere": false,
+        "in_claims_json": false,
+        "corroboration_score": 0,
+        "status": "NEEDS_REVIEW"
+      }
+    ],
+    "scoped_claims": []
+  },
+  "candidate_store_integrity": {
+    "hard_gate": true,
+    "findings": []
+  }
+}

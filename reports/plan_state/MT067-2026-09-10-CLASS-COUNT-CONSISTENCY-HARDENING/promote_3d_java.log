@@ -1,0 +1,31 @@
+Promote: 3d/java
+  Scout: 3008 claims, 266 api_surface entries
+  Enriched: 1182 claims (from enrich.py)
+  Total claims: 4190
+  WARNING: 2 claim_id hash COLLISION(s) between DIFFERENT claim texts — re-hashing with more context so both survive under distinct ids (never silently dropping real data):
+    CLM-3d-9cd141:
+      - EllipseShape.extent property of type Vector2
+      - Torus.getRadialSegments() -> int
+    CLM-3d-f6937d:
+      - Camera.fieldOfView property of type double
+      - RevolvedAreaSolid.setAngleStart(value) -> void
+    re-hashed CLM-3d-f6937d -> CLM-3d-7a9686f3: RevolvedAreaSolid.setAngleStart(value) -> void
+    re-hashed CLM-3d-9cd141 -> CLM-3d-8be4a302: Torus.getRadialSegments() -> int
+  WARNING: 36 duplicate CLM claim_id(s) (identical text, safe to dedupe) — deduplicating (43 excess removed)
+    CLM-3d-e8015d: 6 occurrences
+    CLM-3d-debcdb: 3 occurrences
+    CLM-3d-ad908a: 3 occurrences
+    CLM-3d-4cc207: 3 occurrences
+    CLM-3d-75feb1: 2 occurrences
+  Semantic dedup: skipped (use --semantic-dedup to enable)
+  GoDoc fallback: 1962 method(s) inferred from name patterns (doc_source: name_inference)
+  API surface: 266 entries (266 classes)
+  Snippets: 75 (from scout)
+  api_surface.md: 266 classes, 204732 bytes
+  Forbidden claims: 80
+  All artifacts written to knowledge\3d\java\merged.staging.ac1bce3d-8826-40b0-b9ff-559aaa6a43a7
+  Format-claims reconciliation: PASS (19 formats checked)
+  Artifact validation: PASS
+PROMOTE_ATOMIC: bundle ac1bce3d-8826-40b0-b9ff-559aaa6a43a7 promoted for 3d/java
+
+PROMOTE: PASS

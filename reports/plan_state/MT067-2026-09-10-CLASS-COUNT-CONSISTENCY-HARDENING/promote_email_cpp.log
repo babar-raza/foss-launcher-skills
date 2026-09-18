@@ -1,0 +1,29 @@
+Promote: email/cpp
+  Scout: 251 claims, 26 api_surface entries
+  WARNING: enriched_claims.json is stale — generated from api_surface SHA 'dd774ea9321f8b1f', current is '7043a6ad4328bb43'.
+  Run /knowledge-enrich email cpp to regenerate. Ignoring stale enriched claims for this promotion.
+  Enriched: 0 claims (from enrich.py)
+  Total claims: 251
+  WARNING: 14 duplicate CLM claim_id(s) (identical text, safe to dedupe) — deduplicating (14 excess removed)
+    CLM-email-af611b: 2 occurrences
+    CLM-email-840766: 2 occurrences
+    CLM-email-1777ab: 2 occurrences
+    CLM-email-cd677e: 2 occurrences
+    CLM-email-5ad35b: 2 occurrences
+  Semantic dedup: skipped (use --semantic-dedup to enable)
+  GoDoc fallback: 64 method(s) inferred from name patterns (doc_source: name_inference)
+  API surface: 26 entries (26 classes)
+  Snippets: 5 (from scout)
+  api_surface.md: 26 classes, 11279 bytes
+  Forbidden claims: 0
+  All artifacts written to knowledge\email\cpp\merged.staging.f14f7f46-8e3d-441f-aac4-1e75fbb4f3a5
+  Format-claims reconciliation: PASS (3 formats checked)
+  Artifact validation: PASS
+
+  WARNING: enriched_claims.json exists in scout/ but contributed 0 claims.
+  This usually means enrich.py ran AFTER promote.py.
+  Correct order: scout -> enrich -> promote
+  Re-run: python scripts/pipeline/commands/knowledge/promote.py email cpp
+PROMOTE_ATOMIC: bundle f14f7f46-8e3d-441f-aac4-1e75fbb4f3a5 promoted for email/cpp
+
+PROMOTE: PASS

@@ -1,0 +1,10 @@
+{
+  "unaided_finding_id": "FND-tex-python-008",
+  "root_cause_id": "RC-tex-python-05",
+  "task_id": "TC-tex-python-03-COMPILE-CHECK-GAP",
+  "system_fix_diff_ref": "995e1a303f (new evaluator scripts/pipeline/content_eval/evaluators/module_compilability.py + registration in config.py/__init__.py)",
+  "regen_command": "no content regeneration required (regeneration_required: false) -- this taskcard adds a missing evaluator check; verified live against real tex/python content: 2 real FAILs reproduced (DviDevice/FileInputSource citing the 2 broken source files)",
+  "verification_before_hash": "7d2de40102d3e006731f35eeac179a60c3acebeb8d463e96a51fe96514b295b4",
+  "verification_after_hash": "5f1c54088903f2548357c804bcf56ff5615c2e0d9363825e5e147f22cda9e10a",
+  "agentic_consumption_recheck_passed": true
+}

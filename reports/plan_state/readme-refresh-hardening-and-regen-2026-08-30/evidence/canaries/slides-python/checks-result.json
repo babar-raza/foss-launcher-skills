@@ -1,0 +1,831 @@
+{
+  "required_sections": {
+    "hard_gate": true,
+    "findings": []
+  },
+  "banner_present": {
+    "hard_gate": true,
+    "findings": []
+  },
+  "banner_links_to_homepage": {
+    "hard_gate": true,
+    "findings": []
+  },
+  "banner_asset_exists": {
+    "hard_gate": true,
+    "findings": []
+  },
+  "no_excluded_domain_links": {
+    "hard_gate": true,
+    "findings": []
+  },
+  "license_link_target": {
+    "hard_gate": true,
+    "findings": []
+  },
+  "license_section_matches_template": {
+    "hard_gate": true,
+    "findings": []
+  },
+  "enterprise_edition_link_resolves": {
+    "hard_gate": true,
+    "findings": []
+  },
+  "enterprise_edition_anchor_matches_relationship": {
+    "hard_gate": true,
+    "findings": []
+  },
+  "no_implementation_bridge_disclosure": {
+    "hard_gate": true,
+    "findings": []
+  },
+  "diagram_shape": {
+    "hard_gate": true,
+    "findings": []
+  },
+  "diagram_column_balance": {
+    "hard_gate": true,
+    "findings": []
+  },
+  "diagram_label_token_length": {
+    "hard_gate": false,
+    "findings": []
+  },
+  "diagram_label_geometry": {
+    "hard_gate": true,
+    "findings": []
+  },
+  "diagram_starting_points_presence": {
+    "hard_gate": true,
+    "findings": []
+  },
+  "diagram_matches_capability_dependencies": {
+    "hard_gate": true,
+    "findings": []
+  },
+  "diagram_hybrid_reverification": {
+    "hard_gate": true,
+    "findings": []
+  },
+  "diagram_verified_format_claims": {
+    "hard_gate": true,
+    "findings": []
+  },
+  "diagram_starting_points_format_purity": {
+    "hard_gate": true,
+    "findings": []
+  },
+  "diagram_outputs_format_purity": {
+    "hard_gate": true,
+    "findings": []
+  },
+  "diagram_format_completeness_hint": {
+    "hard_gate": false,
+    "findings": [
+      {
+        "format": "CACHE",
+        "container": "outputs",
+        "reason": "formats.md marks CACHE Export=Yes but it is not named in the Outputs container"
+      },
+      {
+        "format": "POTM",
+        "container": "outputs",
+        "reason": "formats.md marks POTM Export=Yes but it is not named in the Outputs container"
+      },
+      {
+        "format": "POTX",
+        "container": "outputs",
+        "reason": "formats.md marks POTX Export=Yes but it is not named in the Outputs container"
+      },
+      {
+        "format": "PPSM",
+        "container": "outputs",
+        "reason": "formats.md marks PPSM Export=Yes but it is not named in the Outputs container"
+      },
+      {
+        "format": "PPSX",
+        "container": "outputs",
+        "reason": "formats.md marks PPSX Export=Yes but it is not named in the Outputs container"
+      },
+      {
+        "format": "PPTM",
+        "container": "outputs",
+        "reason": "formats.md marks PPTM Export=Yes but it is not named in the Outputs container"
+      }
+    ]
+  },
+  "format_name_casing": {
+    "hard_gate": true,
+    "findings": []
+  },
+  "no_cross_product_citation": {
+    "hard_gate": true,
+    "findings": []
+  },
+  "examples_table_collapsed": {
+    "hard_gate": true,
+    "findings": []
+  },
+  "api_reference_detail_collapsed": {
+    "hard_gate": true,
+    "findings": []
+  },
+  "heading_title_case": {
+    "hard_gate": true,
+    "findings": []
+  },
+  "no_undisclosed_blocking_commands": {
+    "hard_gate": true,
+    "findings": []
+  },
+  "installation_matches_package_registry": {
+    "hard_gate": false,
+    "findings": []
+  },
+  "no_upstream_issue_leaked": {
+    "hard_gate": true,
+    "findings": []
+  },
+  "no_upstream_issue_leaked_install_quickstart": {
+    "hard_gate": true,
+    "findings": []
+  },
+  "key_capabilities_quality": {
+    "hard_gate": false,
+    "findings": [
+      {
+        "reason": "13 bullet(s) -- outside the healthy 4-12 range (too thin to be useful, or too fragmented/duplicative)"
+      }
+    ]
+  },
+  "key_capabilities_structural_variety": {
+    "hard_gate": false,
+    "findings": []
+  },
+  "key_capabilities_formatting": {
+    "hard_gate": false,
+    "findings": []
+  },
+  "section_intro_no_meta_narration": {
+    "hard_gate": true,
+    "findings": []
+  },
+  "capability_scope_contradiction": {
+    "hard_gate": false,
+    "findings": []
+  },
+  "diagram_from_scratch_capability_labeled": {
+    "hard_gate": false,
+    "findings": []
+  },
+  "scope_limitations_format": {
+    "hard_gate": true,
+    "findings": []
+  },
+  "dev_test_artifacts_linked": {
+    "hard_gate": true,
+    "findings": []
+  },
+  "development_testing_collapse": {
+    "hard_gate": false,
+    "findings": []
+  },
+  "readme_already_published": {
+    "hard_gate": false,
+    "findings": [],
+    "detail": {
+      "published": false
+    }
+  },
+  "published_readme_current": {
+    "hard_gate": false,
+    "findings": []
+  },
+  "dropped_content": {
+    "hard_gate": true,
+    "findings": [],
+    "detail": {
+      "dropped_links": [],
+      "dropped_headings": [
+        "Development Dependencies"
+      ],
+      "internal_labels": []
+    }
+  },
+  "dropped_content_uncorrelated": {
+    "hard_gate": false,
+    "findings": [
+      "Development Dependencies"
+    ],
+    "detail": {
+      "note": "downgraded from hard-gate to advisory: a content-dispositions.json exists for this product (TC-HARDEN-04) -- confirm it accounts for each of these before treating this candidate as clean, but do not block on literal string non-match alone",
+      "dropped_links": [],
+      "dropped_headings": [
+        "Development Dependencies"
+      ],
+      "internal_labels": []
+    }
+  },
+  "content_unit_disposition_coverage": {
+    "hard_gate": true,
+    "findings": []
+  },
+  "content_unit_excerpt_matches_extraction": {
+    "hard_gate": true,
+    "findings": []
+  },
+  "content_unit_evidence_resolves": {
+    "hard_gate": true,
+    "findings": []
+  },
+  "content_unit_merged_into_target_section": {
+    "hard_gate": true,
+    "findings": []
+  },
+  "content_unit_no_exact_duplicate_merge": {
+    "hard_gate": true,
+    "findings": []
+  },
+  "content_unit_redundant_claim_verifiable": {
+    "hard_gate": false,
+    "findings": []
+  },
+  "content_unit_classification_plausibility": {
+    "hard_gate": false,
+    "findings": [
+      {
+        "unit_id": "u0025",
+        "reason": "classified as narrative/CTA but the prefilter found no tone signal -- confirm this genuinely has nothing checkable/reusable in it"
+      },
+      {
+        "unit_id": "u0029",
+        "reason": "classified as narrative/CTA but the prefilter found no tone signal -- confirm this genuinely has nothing checkable/reusable in it"
+      },
+      {
+        "unit_id": "u0030",
+        "reason": "classified as narrative/CTA but the prefilter found no tone signal -- confirm this genuinely has nothing checkable/reusable in it"
+      },
+      {
+        "unit_id": "u0034",
+        "reason": "classified as narrative/CTA but the prefilter found no tone signal -- confirm this genuinely has nothing checkable/reusable in it"
+      },
+      {
+        "unit_id": "u0036",
+        "reason": "classified as narrative/CTA but the prefilter found no tone signal -- confirm this genuinely has nothing checkable/reusable in it"
+      },
+      {
+        "unit_id": "u0149",
+        "reason": "classified as narrative/CTA but the prefilter found no tone signal -- confirm this genuinely has nothing checkable/reusable in it"
+      },
+      {
+        "unit_id": "u0150",
+        "reason": "classified as narrative/CTA but the prefilter found no tone signal -- confirm this genuinely has nothing checkable/reusable in it"
+      },
+      {
+        "unit_id": "u0151",
+        "reason": "classified as narrative/CTA but the prefilter found no tone signal -- confirm this genuinely has nothing checkable/reusable in it"
+      },
+      {
+        "unit_id": "u0152",
+        "reason": "classified as narrative/CTA but the prefilter found no tone signal -- confirm this genuinely has nothing checkable/reusable in it"
+      },
+      {
+        "unit_id": "u0153",
+        "reason": "classified as narrative/CTA but the prefilter found no tone signal -- confirm this genuinely has nothing checkable/reusable in it"
+      },
+      {
+        "unit_id": "u0154",
+        "reason": "classified as narrative/CTA but the prefilter found no tone signal -- confirm this genuinely has nothing checkable/reusable in it"
+      },
+      {
+        "unit_id": "u0155",
+        "reason": "classified as narrative/CTA but the prefilter found no tone signal -- confirm this genuinely has nothing checkable/reusable in it"
+      },
+      {
+        "unit_id": "u0164",
+        "reason": "classified as narrative/CTA but the prefilter found no tone signal -- confirm this genuinely has nothing checkable/reusable in it"
+      }
+    ]
+  },
+  "content_unit_probable_duplicate": {
+    "hard_gate": false,
+    "findings": [
+      {
+        "unit_ids": [
+          "u0035",
+          "u0037"
+        ],
+        "target_section": "API Reference",
+        "shared_tokens": [
+          "presentation",
+          "shapecollection",
+          "slide",
+          "slidecollection"
+        ],
+        "reason": "two different content units share 2+ salient tokens merged into the same section -- likely restating the same fact twice"
+      },
+      {
+        "unit_ids": [
+          "u0037",
+          "u0061"
+        ],
+        "target_section": "API Reference",
+        "shared_tokens": [
+          "baseslide",
+          "layoutslide",
+          "masterslide",
+          "slide"
+        ],
+        "reason": "two different content units share 2+ salient tokens merged into the same section -- likely restating the same fact twice"
+      },
+      {
+        "unit_ids": [
+          "u0037",
+          "u0076"
+        ],
+        "target_section": "API Reference",
+        "shared_tokens": [
+          "effectformat",
+          "fillformat",
+          "lineformat",
+          "threedformat"
+        ],
+        "reason": "two different content units share 2+ salient tokens merged into the same section -- likely restating the same fact twice"
+      },
+      {
+        "unit_ids": [
+          "u0037",
+          "u0082"
+        ],
+        "target_section": "API Reference",
+        "shared_tokens": [
+          "bulletformat",
+          "paragraphformat",
+          "portioncollection"
+        ],
+        "reason": "two different content units share 2+ salient tokens merged into the same section -- likely restating the same fact twice"
+      },
+      {
+        "unit_ids": [
+          "u0037",
+          "u0106"
+        ],
+        "target_section": "API Reference",
+        "shared_tokens": [
+          "colorformat",
+          "gradientformat",
+          "patternformat",
+          "picturefillformat"
+        ],
+        "reason": "two different content units share 2+ salient tokens merged into the same section -- likely restating the same fact twice"
+      },
+      {
+        "unit_ids": [
+          "u0037",
+          "u0127"
+        ],
+        "target_section": "API Reference",
+        "shared_tokens": [
+          "lightrig",
+          "shapebevel"
+        ],
+        "reason": "two different content units share 2+ salient tokens merged into the same section -- likely restating the same fact twice"
+      },
+      {
+        "unit_ids": [
+          "u0037",
+          "u0134"
+        ],
+        "target_section": "API Reference",
+        "shared_tokens": [
+          "notesslideheaderfootermanager",
+          "textframe"
+        ],
+        "reason": "two different content units share 2+ salient tokens merged into the same section -- likely restating the same fact twice"
+      },
+      {
+        "unit_ids": [
+          "u0038",
+          "u0108"
+        ],
+        "target_section": "API Reference",
+        "shared_tokens": [
+          "linealignment",
+          "linecapstyle",
+          "linedashstyle",
+          "linejoinstyle"
+        ],
+        "reason": "two different content units share 2+ salient tokens merged into the same section -- likely restating the same fact twice"
+      },
+      {
+        "unit_ids": [
+          "u0039",
+          "u0098"
+        ],
+        "target_section": "API Reference",
+        "shared_tokens": [
+          "coloreffect",
+          "effect",
+          "motioneffect",
+          "propertyeffect",
+          "rotationeffect",
+          "scaleeffect"
+        ],
+        "reason": "two different content units share 2+ salient tokens merged into the same section -- likely restating the same fact twice"
+      },
+      {
+        "unit_ids": [
+          "u0041",
+          "u0088"
+        ],
+        "target_section": "API Reference",
+        "shared_tokens": [
+          "axesmanager",
+          "chartdata",
+          "charttitle"
+        ],
+        "reason": "two different content units share 2+ salient tokens merged into the same section -- likely restating the same fact twice"
+      },
+      {
+        "unit_ids": [
+          "u0041",
+          "u0090"
+        ],
+        "target_section": "API Reference",
+        "shared_tokens": [
+          "chartcategorycollection",
+          "chartdataworkbook",
+          "chartseriescollection"
+        ],
+        "reason": "two different content units share 2+ salient tokens merged into the same section -- likely restating the same fact twice"
+      },
+      {
+        "unit_ids": [
+          "u0047",
+          "u0123"
+        ],
+        "target_section": "API Reference",
+        "shared_tokens": [
+          "fillformatcollection",
+          "lineformatcollection"
+        ],
+        "reason": "two different content units share 2+ salient tokens merged into the same section -- likely restating the same fact twice"
+      },
+      {
+        "unit_ids": [
+          "u0076",
+          "u0086"
+        ],
+        "target_section": "API Reference",
+        "shared_tokens": [
+          "fill_format -> fillformat",
+          "fillformat"
+        ],
+        "reason": "two different content units share 2+ salient tokens merged into the same section -- likely restating the same fact twice"
+      },
+      {
+        "unit_ids": [
+          "u0154",
+          "u0155"
+        ],
+        "target_section": "Documentation & Resources",
+        "shared_tokens": [
+          "foss",
+          "github"
+        ],
+        "reason": "two different content units share 2+ salient tokens merged into the same section -- likely restating the same fact twice"
+      },
+      {
+        "unit_ids": [
+          "u0156",
+          "u0161"
+        ],
+        "target_section": "Scope and Limitations",
+        "shared_tokens": [
+          ".pptx",
+          "potx",
+          "saveformat"
+        ],
+        "reason": "two different content units share 2+ salient tokens merged into the same section -- likely restating the same fact twice"
+      },
+      {
+        "unit_ids": [
+          "u0156",
+          "u0164"
+        ],
+        "target_section": "Scope and Limitations",
+        "shared_tokens": [
+          "html",
+          "pdf",
+          "pptx"
+        ],
+        "reason": "two different content units share 2+ salient tokens merged into the same section -- likely restating the same fact twice"
+      },
+      {
+        "unit_ids": [
+          "u0157",
+          "u0164"
+        ],
+        "target_section": "Scope and Limitations",
+        "shared_tokens": [
+          "ole",
+          "smartart"
+        ],
+        "reason": "two different content units share 2+ salient tokens merged into the same section -- likely restating the same fact twice"
+      }
+    ]
+  },
+  "content_unit_embedded_actionable_fact": {
+    "hard_gate": false,
+    "findings": []
+  },
+  "image_content_unit_excluded_reason_verified": {
+    "hard_gate": false,
+    "findings": []
+  },
+  "structural_unit_disposition_coverage": {
+    "hard_gate": true,
+    "findings": []
+  },
+  "structural_unit_evidence_resolves": {
+    "hard_gate": true,
+    "findings": []
+  },
+  "structural_unit_merged_into_target_section": {
+    "hard_gate": true,
+    "findings": []
+  },
+  "structural_unit_no_exact_duplicate_merge": {
+    "hard_gate": true,
+    "findings": []
+  },
+  "structural_unit_disposition_text_diff": {
+    "hard_gate": true,
+    "findings": []
+  },
+  "structural_unit_tree_paths_plausible": {
+    "hard_gate": false,
+    "findings": []
+  },
+  "candidate_section_disposition_traceability": {
+    "hard_gate": false,
+    "findings": []
+  },
+  "code_example_disposition_coverage": {
+    "hard_gate": true,
+    "findings": []
+  },
+  "code_example_evidence_resolves": {
+    "hard_gate": true,
+    "findings": []
+  },
+  "code_example_no_exact_duplicate_merge": {
+    "hard_gate": true,
+    "findings": []
+  },
+  "code_example_disposition_text_diff": {
+    "hard_gate": true,
+    "findings": []
+  },
+  "code_example_api_coverage_survives": {
+    "hard_gate": true,
+    "findings": []
+  },
+  "code_example_excluded_reason_citation_too_narrow": {
+    "hard_gate": false,
+    "findings": []
+  },
+  "cli_category_representation": {
+    "hard_gate": false,
+    "findings": []
+  },
+  "badge_disposition_coverage": {
+    "hard_gate": true,
+    "findings": []
+  },
+  "badge_evidence_resolves": {
+    "hard_gate": true,
+    "findings": []
+  },
+  "badge_preserved_or_credited_in_candidate": {
+    "hard_gate": true,
+    "findings": []
+  },
+  "badge_probable_duplicate_disposition": {
+    "hard_gate": false,
+    "findings": []
+  },
+  "project_structure_canonical_tree_format": {
+    "hard_gate": true,
+    "findings": []
+  },
+  "badge_static_claims_dynamic_fact": {
+    "hard_gate": false,
+    "findings": []
+  },
+  "no_duplicate_badges_in_candidate": {
+    "hard_gate": true,
+    "findings": []
+  },
+  "badge_row_meets_verified_floor": {
+    "hard_gate": true,
+    "findings": []
+  },
+  "badge_available_fact_not_shown": {
+    "hard_gate": false,
+    "findings": []
+  },
+  "diagram_known_subgraph_ids": {
+    "hard_gate": false,
+    "findings": []
+  },
+  "section_job_distinctness": {
+    "hard_gate": false,
+    "findings": []
+  },
+  "diagram_no_mechanism_duplicate_output": {
+    "hard_gate": false,
+    "findings": []
+  },
+  "diagram_container_duplicates_capability": {
+    "hard_gate": false,
+    "findings": []
+  },
+  "process_narration_smells": {
+    "hard_gate": false,
+    "findings": []
+  },
+  "enterprise_edition_naming": {
+    "hard_gate": false,
+    "findings": []
+  },
+  "api_reference_classes_exist": {
+    "hard_gate": true,
+    "findings": []
+  },
+  "api_reference_class_internal_only": {
+    "hard_gate": false,
+    "findings": []
+  },
+  "no_leaked_docstring_artifacts": {
+    "hard_gate": false,
+    "findings": []
+  },
+  "named_member_accuracy": {
+    "hard_gate": false,
+    "findings": []
+  },
+  "code_example_imports_match_source": {
+    "hard_gate": true,
+    "findings": []
+  },
+  "api_reference_table_completeness": {
+    "hard_gate": true,
+    "findings": []
+  },
+  "reference_index_source_dirty": {
+    "hard_gate": false,
+    "findings": []
+  },
+  "api_reference_table_no_duplicate_rows": {
+    "hard_gate": true,
+    "findings": []
+  },
+  "api_reference_public_type_count_matches_table": {
+    "hard_gate": true,
+    "findings": []
+  },
+  "api_reference_generic_description": {
+    "hard_gate": false,
+    "findings": []
+  },
+  "api_reference_truncated_description": {
+    "hard_gate": false,
+    "findings": []
+  },
+  "api_reference_stripped_example": {
+    "hard_gate": false,
+    "findings": []
+  },
+  "dependency_snapshot_completeness": {
+    "hard_gate": true,
+    "findings": []
+  },
+  "unqualified_dependency_claims": {
+    "hard_gate": true,
+    "findings": []
+  },
+  "dependency_section_manifest_corroboration": {
+    "hard_gate": false,
+    "findings": []
+  },
+  "dependency_direct_transitive_confusion": {
+    "hard_gate": true,
+    "findings": []
+  },
+  "dependency_optional_presented_as_required": {
+    "hard_gate": true,
+    "findings": []
+  },
+  "dependency_dev_only_presented_as_runtime": {
+    "hard_gate": true,
+    "findings": []
+  },
+  "dependency_development_claim_not_in_manifest": {
+    "hard_gate": true,
+    "findings": []
+  },
+  "dependency_scope_claim_matches_evidence": {
+    "hard_gate": false,
+    "findings": []
+  },
+  "dependencies_scope_limitations_contradiction": {
+    "hard_gate": false,
+    "findings": []
+  },
+  "dependencies_intro_contradiction": {
+    "hard_gate": true,
+    "findings": []
+  },
+  "dependency_version_pin_freshness": {
+    "hard_gate": false,
+    "findings": []
+  },
+  "dependency_native_system_scope_limitations_placement": {
+    "hard_gate": true,
+    "findings": []
+  },
+  "dependency_disposition_reconciliation": {
+    "hard_gate": true,
+    "findings": []
+  },
+  "dependency_section_subheadings_present": {
+    "hard_gate": true,
+    "findings": []
+  },
+  "seo_keyword_plan_usage": {
+    "hard_gate": false,
+    "findings": []
+  },
+  "additional_example_headings": {
+    "hard_gate": true,
+    "findings": []
+  },
+  "navigation_toc_matches_headings": {
+    "hard_gate": true,
+    "findings": []
+  },
+  "candidate_drift_since_last_verified": {
+    "hard_gate": false,
+    "findings": [
+      {
+        "reason": "candidate content changed since it was last verified at '2026-08-31T19:33:54.442681Z' (run 'rr-20260831T193318Z-ad86dd3f443b') -- review this change before treating the candidate as previously audited",
+        "last_verified_at": "2026-08-31T19:33:54.442681Z",
+        "last_verified_by_run_id": "rr-20260831T193318Z-ad86dd3f443b"
+      }
+    ]
+  },
+  "verification_currency": {
+    "hard_gate": false,
+    "findings": []
+  },
+  "dependency_verification_matrix": {
+    "rows": [
+      {
+        "name": "lxml",
+        "ecosystem": "pypi",
+        "version": ">=4.9",
+        "category": "required",
+        "dev_only": false,
+        "role": "runtime",
+        "bucket": "required",
+        "in_dependency_snapshot": true,
+        "in_readme_dependencies_section": true,
+        "in_readme_prose_elsewhere": true,
+        "in_claims_json": false,
+        "corroboration_score": 2,
+        "status": "VERIFIED"
+      },
+      {
+        "name": "requires-python",
+        "ecosystem": "pypi",
+        "version": ">=3.10",
+        "category": "native-system",
+        "dev_only": false,
+        "role": "runtime",
+        "bucket": "native_system",
+        "in_dependency_snapshot": true,
+        "in_readme_dependencies_section": false,
+        "in_readme_prose_elsewhere": false,
+        "in_claims_json": false,
+        "corroboration_score": 0,
+        "status": "NEEDS_REVIEW"
+      }
+    ],
+    "scoped_claims": []
+  },
+  "candidate_store_integrity": {
+    "hard_gate": true,
+    "findings": []
+  }
+}

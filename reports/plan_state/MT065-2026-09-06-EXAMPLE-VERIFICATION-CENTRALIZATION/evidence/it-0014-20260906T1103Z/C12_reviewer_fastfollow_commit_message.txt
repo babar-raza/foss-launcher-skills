@@ -1,0 +1,50 @@
+fix(example-verification): C12 fast-follow -- fix 2 real bugs an independent reviewer found in JavaRunner
+
+An independent reviewer REJECTED commit 8f3941a2f2 (C12's JavaRunner)
+after finding a severe, confirmed defect the commit message's "applied
+both prior taskcards' lessons from the start" claim did not actually
+cover:
+
+1. _wrap_fragment indented the ENTIRE fragment -- including any leading
+   `import` statement -- straight into the generated Main.main() method
+   body, which is illegal Java (imports must precede the class
+   declaration, never appear inside a method body). Reproduced live: the
+   exact shape starts_chain() itself is designed to recognize as a valid
+   chain start (an import line followed by code using it) -- and the
+   realistic shape of virtually every real Java Quick Start snippet --
+   fails to compile with "illegal start of expression" on the import
+   line, misclassified COMPILE-ERROR. GoRunner already solved this exact
+   problem (hoisting a leading import block above the wrapped body) and
+   the fix was not ported. Fixed: _wrap_fragment now hoists leading
+   `import`/comment lines above the generated class declaration, matching
+   GoRunner's own approach.
+
+2. _class_name_for returned the FIRST `class` match regardless of
+   modifier, and _CLASS_DECL_RE was not comment-aware. Two real,
+   reproduced consequences: (a) a block declaring a helper class before
+   its real public class picked the helper's name -- Java requires the
+   file/invoked-class name to match the PUBLIC class, so this produced a
+   real "class X is public, should be declared in a file named X.java"
+   compile error; (b) a `class X` mention inside a comment could suppress
+   fragment-wrapping for what should be an ordinary statement fragment.
+   Fixed: _class_name_for now comment-strips first (stripping both
+   `//` line comments and `/* */` block comments) and prefers a `public`
+   match when one exists, falling back to the first match otherwise.
+
+New regression tests added directly to test_example_verification_java.py
+(3 tests: an import-led fragment compiles; a helper-class-then-public-
+class block keeps the public name; a comment-only class mention doesn't
+suppress wrapping). Confirmed mechanically real: reverted the fix locally
+via git stash, re-ran the two most load-bearing new tests, watched both
+fail with the exact real javac errors the reviewer described ("illegal
+start of expression" on the import line; "class Widget is public, should
+be declared in a file named Widget.java"), restored the fix, confirmed
+all 22 tests pass again.
+
+Verification: full test_example_verification_java.py (22 tests, 3 new)
+green. check_monkeypatch_lint.py: 0 violations.
+
+Mission: MT065-2026-09-06-EXAMPLE-VERIFICATION-CENTRALIZATION
+Taskcards: C12 (pending re-review before deciding closure)
+
+Co-Authored-By: Claude Sonnet 5 <noreply@anthropic.com>

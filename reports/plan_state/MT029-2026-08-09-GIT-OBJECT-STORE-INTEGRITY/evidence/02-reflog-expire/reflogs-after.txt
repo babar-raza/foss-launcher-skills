@@ -1,0 +1,7 @@
+=== finish TC-MT029-02 evidence: other 4 worktrees' reflogs unchanged? ===
+.git/logs/HEAD : 869 lines, 169035 bytes
+.git/logs/refs/heads/main : 845 lines, 165133 bytes
+.git/worktrees/blog-url-frontmatter-fix/logs/HEAD : 3 lines, 488 bytes
+.git/worktrees/format-denominator-hardening/logs/HEAD : 1 lines, 135 bytes
+.git/worktrees/feather-colt/logs/HEAD : 1 lines, 211 bytes
+.git/worktrees/aspose.org-pilot-zero-defect-v2/logs/HEAD : 0 lines, 0 bytes

@@ -1,0 +1,344 @@
+# Aspose.Email FOSS for C++
+
+[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE) [![C++](https://img.shields.io/badge/C%2B%2B-17-blue.svg)](CMakeLists.txt)
+
+Aspose.Email FOSS for C++ is a dependency-free C++17 library for deterministic binary email
+container and message processing without external runtime dependencies. It reads and writes
+Compound File Binary (CFB) containers, Outlook `.msg` files, and `.eml` (RFC 5322 / MIME)
+messages — no Microsoft Outlook installation or COM interop required.
+
+## Navigation
+
+- [At a glance](#at-a-glance)
+- [Key capabilities](#key-capabilities)
+- [Installation](#installation)
+- [Quick start](#quick-start)
+- [Additional examples](#additional-examples)
+- [API reference](#api-reference)
+- [Documentation & resources](#documentation--resources)
+- [Scope and limitations](#scope-and-limitations)
+- [Development and testing](#development-and-testing)
+- [License](#license)
+
+## At a glance
+
+```mermaid
+flowchart LR
+  subgraph Inputs["Inputs and formats"]
+    I1["CFB containers (file, stream, bytes)"]
+    I2["Outlook .msg files (file, stream)"]
+    I3[".eml files (RFC 5322 / MIME)"]
+  end
+
+  PRODUCT["Aspose.Email FOSS for C++"]
+
+  subgraph Capabilities["Core capabilities"]
+    C1["Low-level CFB read/write"]
+    C2["Low-level MSG read/write"]
+    C3["High-level mapi_message API"]
+    C4["EML load/save bridge"]
+  end
+
+  subgraph Outputs["Outputs"]
+    O1["CFB containers"]
+    O2[".msg files"]
+    O3[".eml files"]
+  end
+
+  I1 --- PRODUCT
+  I2 --- PRODUCT
+  I3 --- PRODUCT
+  PRODUCT --- C1
+  PRODUCT --- C2
+  PRODUCT --- C3
+  PRODUCT --- C4
+  C1 --- O1
+  C2 --- O2
+  C3 --- O2
+  C4 --- O3
+```
+
+## Key capabilities
+
+- Read CFB containers from file paths, streams, and in-memory byte buffers (`cfb_reader::from_file()`,
+  `from_stream()`, `from_bytes()`, `from_buffer()`); traverse storages, streams, and the directory tree.
+- Build and write CFB containers with `cfb_document` and `cfb_writer` (`to_bytes()`, `write_file()`,
+  `write_stream()`).
+- Read and write low-level MSG documents through `msg_reader`, `msg_document`, and `msg_writer`,
+  including access to the underlying CFB structure via `msg_document::to_cfb_document()`.
+- Create, edit, save, and reload high-level messages through `mapi_message` — subject, body,
+  HTML body, sender, MAPI properties, recipients, and attachments.
+- Work with regular attachments (`mapi_attachment::from_bytes()` / `from_stream()`) and embedded-
+  message attachments (`is_embedded_message()`).
+- Load `.eml` into `mapi_message` via an in-repository MIME engine (`mapi_message::load_from_eml()`)
+  and save a `mapi_message` back to `.eml` (`save_to_eml()`) without external MIME libraries.
+
+## Installation
+
+No NuGet package has been published for this library yet — it ships as CMake source you build and
+link directly. (C++ isn't registry-less in general: [Aspose.Cells FOSS for
+C++](https://www.nuget.org/packages/Aspose.Cells.Cpp.FOSS/) does publish there.)
+
+```powershell
+cmake --preset default
+cmake --build --preset default
+ctest --preset default
+```
+
+```powershell
+cmake --install out\build\default --prefix out\install\default
+```
+
+The `default` CMake preset (`CMakePresets.json`) configures a Ninja build in
+`out/build/default` with `CMAKE_BUILD_TYPE=RelWithDebInfo`. Requires a C++17 compiler and
+CMake 3.26+. To consume the library in your own CMake project instead:
+
+```cmake
+add_subdirectory(path/to/Aspose.Email-FOSS-for-Cpp)
+target_link_libraries(your_target PRIVATE AsposeEmailFoss::AsposeEmailFoss)
+```
+
+## Quick start
+
+Read a subject from an MSG file:
+
+```cpp
+#include <fstream>
+#include <iostream>
+
+#include "aspose/email/foss/msg/mapi_message.hpp"
+
+int main()
+{
+    std::ifstream input("sample.msg", std::ios::binary);
+    auto message = aspose::email::foss::msg::mapi_message::from_stream(input);
+    std::cout << message.subject() << '\n';
+}
+```
+
+Create a message and save both MSG and EML:
+
+```cpp
+#include <fstream>
+
+#include "aspose/email/foss/msg/mapi_message.hpp"
+
+int main()
+{
+    auto message = aspose::email::foss::msg::mapi_message::create("Hello", "Body");
+    message.set_sender_name("Alice");
+    message.set_sender_email_address("alice@example.com");
+    message.add_recipient("bob@example.com", "Bob");
+    message.add_attachment("note.txt", std::vector<std::uint8_t>{'a', 'b', 'c'}, "text/plain");
+
+    std::ofstream msg_output("hello.msg", std::ios::binary);
+    message.save(msg_output);
+
+    std::ofstream eml_output("hello.eml", std::ios::binary);
+    message.save_to_eml(eml_output);
+}
+```
+
+## Additional examples
+
+Full runnable examples are available under `examples/` (build with
+`-DASPOSE_EMAIL_FOSS_BUILD_EXAMPLES=ON`):
+
+### Read a message summary through the high-level API
+
+Open a `.msg` through `mapi_message` and print subject, sender, recipients, attachments, and a
+body preview (excerpted from `examples/msg_summary.cpp`):
+
+```cpp
+const auto message = aspose::email::foss::msg::mapi_message::from_file(msg_path);
+
+std::cout << "subject: " << message.subject() << '\n';
+std::cout << "sender_name: " << message.sender_name() << '\n';
+std::cout << "sender_email: " << message.sender_email_address() << '\n';
+std::cout << "recipients_count: " << message.recipients().size() << '\n';
+std::cout << "attachments_count: " << message.attachments().size() << '\n';
+
+for (const auto& recipient : message.recipients()) {
+    std::cout << "- name=" << recipient.display_name
+               << " email=" << recipient.email_address
+               << " type=" << recipient.recipient_type << '\n';
+}
+```
+
+<details>
+<summary>View additional examples</summary>
+
+### Inspect low-level MSG/CFB structure
+
+Open a `.msg` through `msg_reader` and `msg_document` for raw container inspection (excerpted
+from `examples/msg_reader.cpp`):
+
+```cpp
+const auto reader = aspose::email::foss::msg::msg_reader::from_file(msg_path);
+const auto document = aspose::email::foss::msg::msg_document::from_reader(reader);
+```
+
+### Build a message with custom MAPI properties
+
+Set arbitrary MAPI properties (transport headers, display-to/cc/bcc) directly, in addition to the
+convenience setters (excerpted from `examples/create_msg_and_eml.cpp`). The example uses a small
+`to_underlying` helper (also defined in `examples/create_msg_and_eml.cpp`, requires `<type_traits>`)
+to convert the property-id and property-type enums to the integer types `set_property` expects:
+
+```cpp
+template <typename Enum>
+constexpr auto to_underlying(const Enum value) noexcept
+{
+    return static_cast<std::underlying_type_t<Enum>>(value);
+}
+```
+
+```cpp
+auto message = aspose::email::foss::msg::mapi_message::create(
+    "Quarterly status update and rollout plan",
+    "Hello team,\n\nPlease find the latest rollout summary attached.\n\nRegards,\nEngineering");
+
+message.set_property(
+    to_underlying(aspose::email::foss::msg::common_message_property_id::sender_name),
+    to_underlying(aspose::email::foss::msg::property_type_code::ptyp_string),
+    std::string("Build Agent"));
+
+message.add_recipient("alice@example.com", "Alice Example");
+message.add_recipient("carol@example.com", "Carol Example",
+    aspose::email::foss::msg::mapi_message::recipient_type_cc);
+
+message.add_attachment("hello.txt",
+    std::vector<std::uint8_t>{'s', 'a', 'm', 'p', 'l', 'e'}, "text/plain");
+message.save(std::filesystem::path(msg_path));
+
+auto loaded_message = aspose::email::foss::msg::mapi_message::from_file(std::filesystem::path(msg_path));
+loaded_message.save_to_eml(std::filesystem::path(eml_path));
+```
+
+</details>
+
+## API reference
+
+The library exposes three stable public namespaces: `aspose::email::foss` (high-level
+`mapi_message` API and EML bridge), `aspose::email::foss::cfb` (low-level CFB container access),
+and `aspose::email::foss::msg` (low-level MSG document access built on CFB).
+
+<details>
+<summary>View the core API surface</summary>
+
+### High-level message API (`aspose::email::foss::msg`)
+
+- `mapi_message`
+  - `create(subject, body, unicode_strings) -> mapi_message`
+  - `from_file(path, strict)` / `from_stream(stream, strict)`
+  - `from_msg_document(document)`
+  - `load_from_eml(path)` / `load_from_eml(stream)`
+  - `validation_issues() -> std::vector<std::string>`
+  - `subject()` / `set_subject(value)`
+  - `body()` / `set_body(value)`, `html_body()` / `set_html_body(value)`
+  - `sender_name()` / `set_sender_name(value)`
+  - `sender_email_address()` / `set_sender_email_address(value)`
+  - `recipients() -> std::vector<mapi_recipient>`
+  - `attachments() -> std::vector<mapi_attachment>`
+  - `add_recipient(email_address, display_name, recipient_type)`
+  - `add_attachment(filename, data, mime_type, content_id)`
+  - `add_embedded_message_attachment(message, filename, mime_type)`
+  - `set_property(property_id, property_type, value, flags)`
+  - `get_property_value(property_id, property_type) -> std::any`
+  - `to_msg_document() -> msg_document`
+  - `save() -> std::vector<std::uint8_t>` / `save(path)` / `save(stream)`
+  - `save_to_eml()` / `save_to_eml(path)` / `save_to_eml(stream)`
+- `mapi_attachment`
+  - `from_bytes(filename, data, mime_type, content_id)`
+  - `from_stream(filename, stream, mime_type, content_id)`
+  - `load_data(stream)`
+  - `is_embedded_message() -> bool`
+  - properties: `filename`, `data`, `mime_type`, `content_id`, `embedded_message`, `properties`
+- `mapi_recipient` — properties: `display_name`, `email_address`, `recipient_type`, `address_type`,
+  `properties`
+- `mapi_property` — `property_id()`, `property_type()`, `value()`, `set_value(value)`,
+  `flags()` / `set_flags(value)`, `property_tag()`
+- `mapi_property_collection` — `set(property)`, `add(property_id, property_type, value, flags)`,
+  `get(property_id, property_type)`, `remove(property_id, property_type)`, `items()`
+- `common_message_property_id` (enum) — `subject`, `body`, `body_html`, `sender_name`,
+  `sender_email_address`, `display_to`, `display_cc`, `display_bcc`, `internet_message_id`,
+  `transport_message_headers`, `attach_filename`, `attach_mime_tag`, and more
+- `property_type_code` (enum) — `ptyp_string`, `ptyp_binary`, `ptyp_boolean`, `ptyp_integer32`,
+  `ptyp_time`, `ptyp_guid`, and other MAPI property type codes
+
+### Low-level MSG API (`aspose::email::foss::msg`)
+
+- `msg_reader`
+  - `from_file(path, strict)` / `from_stream(stream, strict)`
+  - `cfb() -> cfb::cfb_reader`
+  - `strict() -> bool`
+  - `validation_issues() -> std::vector<std::string>`
+- `msg_writer`
+  - `to_bytes(document)`, `write_file(document, path)`, `write_stream(document, stream)`
+- `msg_document`
+  - `from_reader(reader)`, `from_file(path, strict)`, `from_stream(stream, strict)`
+  - `root() -> msg_storage`
+  - `major_version()`, `minor_version()`, `strict()`
+  - `to_cfb_document() -> cfb::cfb_document`
+- `msg_storage` — `add_stream()`, `add_storage()`, `find_stream(name)`, `find_storage(name)`
+- `msg_stream` — properties: `name`, `data`, `clsid`, `state_bits`, `creation_time`, `modified_time`
+
+### Low-level CFB API (`aspose::email::foss::cfb`)
+
+- `cfb_reader`
+  - `from_file(path)`, `from_stream(stream)`, `from_bytes(data)`, `from_buffer(data, size)`
+  - `storage_ids()`, `stream_ids()`, `child_ids(storage_stream_id)`
+  - `find_child_by_name(storage_stream_id, name)`, `resolve_path(names, start_stream_id)`
+  - `get_entry(stream_id)`, `get_stream_data(stream_id)`
+- `cfb_writer` — `to_bytes(document)`, `write_file(document, path)`, `write_stream(document, stream)`
+- `cfb_document` — `root() -> cfb_storage`, `major_version()`, `minor_version()`,
+  `from_reader/from_file/from_stream/from_bytes/from_buffer`
+- `cfb_storage` — `children()`, `add_storage(storage)`, `add_stream(stream)`
+- `cfb_node` — `is_storage()`, `is_stream()`, `name()`, `clsid()`, `state_bits()`, `creation_time()`,
+  `modified_time()`
+- `cfb_stream` — `data()`, `set_data(value)`
+- `directory_entry` — `is_storage()`, `is_stream()`, `is_root()`, plus raw directory-entry fields
+- `header` — CFB header fields (`sector_size()`, `mini_sector_size()`, FAT/DIFAT layout)
+
+### Exceptions
+
+- `cfb_exception`
+- `msg_exception`
+
+</details>
+
+## Documentation & resources
+
+- **[Getting started guide](https://docs.aspose.org/email/cpp/)** — installation, walkthroughs, and feature guides for this library.
+- **[How-to guides & FAQ](https://kb.aspose.org/email/cpp/)** — task-focused answers for common MSG/CFB/EML processing questions.
+- **[Full API reference](https://reference.aspose.org/email/cpp/)** — the complete, browsable reference for the public API surface (the [API reference](#api-reference) section above covers the essentials).
+- Found a bug or have a feature request? [Open an issue](https://github.com/aspose-email-foss/Aspose.Email-FOSS-for-Cpp/issues) on GitHub.
+
+## Scope and limitations
+
+This library reads and writes local CFB, MSG, and EML files only — it does not connect to mail
+servers (no IMAP, SMTP, or POP3 support). TNEF (Transport Neutral Encapsulation Format,
+`winmail.dat`) is not parsed or generated, and there is no dedicated calendar/appointment API
+(calendar-specific MAPI properties can still be accessed generically through the property
+methods). The library is at its first public release (v0.1.0); API stability is expected to
+improve in subsequent versions.
+
+For workflows that require mail-server connectivity, TNEF, calendaring, or commercial support,
+see [Aspose.Email for C++ — Enterprise Product](https://products.aspose.com/email/cpp/).
+
+## Development and testing
+
+Tests build by default (`ASPOSE_EMAIL_FOSS_BUILD_TESTS=ON` in `CMakeLists.txt`) and run through
+the `default` CMake preset:
+
+```powershell
+cmake --preset default
+cmake --build --preset default
+ctest --preset default
+```
+
+## License
+
+This project is licensed under the [MIT License](LICENSE). The MIT License permits use, copying,
+modification, distribution, sublicensing, and commercial use, provided its copyright and
+permission notice are retained. The software is provided without warranty.

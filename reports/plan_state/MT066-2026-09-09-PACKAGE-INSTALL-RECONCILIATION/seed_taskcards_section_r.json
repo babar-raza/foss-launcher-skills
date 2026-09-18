@@ -1,0 +1,272 @@
+[
+  {
+    "task_id": "PKGINSTALL-VERSION-BUMP-AND-LINT",
+    "status": "READY",
+    "title": "Bump install_recipe's EVALUATOR_VERSIONS entry + add a CI lint enforcing future bumps",
+    "objective": "Bump EVALUATOR_VERSIONS['install_recipe'] from '1' to '2' in scripts/pipeline/content_eval/__init__.py (it has never been bumped despite 3 real logic changes in 2026: RC-W1-003 2026-08-14, ST-054 TC-14 2026-09-10, ST-054 TC-16 2026-09-10) so --skip-graded correctly treats old grades as stale for this evaluator going forward. Add a new blocking CI lint, scripts/ci/checks/check_evaluator_version_bump.py, modeled on check_script_skill_sync.py's diff-aware pattern: fails when a changed content_eval/evaluators/{name}.py has no corresponding EVALUATOR_VERSIONS/EVALUATOR_LOGIC_VERSION bump in the same diff, with a narrow self-documenting exemption comment for cosmetic-only edits.",
+    "why_it_matters": "Zero-blast-radius, zero-dependency fix that closes a real process gap (evaluator logic changed silently, 3 times, with no staleness signal) independent of the larger grading-visibility redesign's timeline -- see governing plan section R.3.9/R.1 point 3.",
+    "allowed_paths": [
+      "scripts/pipeline/content_eval/__init__.py",
+      "scripts/ci/checks/check_evaluator_version_bump.py",
+      "scripts/pipeline/tests/test_evaluator_version_bump_check.py",
+      ".github/workflows/content-governance-checks.yml"
+    ],
+    "forbidden_paths": [
+      "content/",
+      "data/package_registry.json"
+    ],
+    "dependencies": [],
+    "acceptance_checks": [
+      "EVALUATOR_VERSIONS['install_recipe'] == '2'",
+      "check_evaluator_version_bump.py: a diff changing an evaluator file without a version bump exits 1; the same diff with a bump exits 0",
+      "pytest scripts/pipeline/tests/test_evaluator_version_bump_check.py -q -> all green",
+      "full pytest scripts/pipeline/tests/ -q -> no new failures vs. the 26 pre-existing/unrelated baseline established in ST-054 TC-10"
+    ],
+    "rollback_or_recovery": "git revert the single commit -- this card touches no content and no data/ files, so no registry or content rollback is needed."
+  },
+  {
+    "task_id": "PKGINSTALL-COLLISION-CLASSIFIER",
+    "status": "READY",
+    "title": "Codify the manual SAFE_FOR_MECHANICAL_MIGRATION/COLLISION_RISK classification into a real, tested function",
+    "objective": "Build scripts/pipeline/lib/install_collision_classifier.py, codifying reports/audit/st-054-collision-classification-2026-08-16.md's own manual method (extract real namespace/using (net), import (python), ES-module import/require (typescript), quoted import path (go) tokens from runs/.clone_cache/{repo}; normalize via casefold + strip-non-alphanumeric; compare against the registry candidate) into classify_collision_risk(family, platform) -> SAFE_FOR_MECHANICAL_MIGRATION | COLLISION_RISK_STRUCTURAL | COLLISION_RISK_PENDING_VERIFICATION (fail-closed on any parse/extraction error -- never defaults to SAFE). Structural-risk is real only when the install-command token shape and the source language's own identifier shape share the same naming convention (confirmed: only NuGet+C# dotted-PascalCase, i.e. only nuget-registry-type products); pypi/npm/go_modules naming-convention differences are not real corruption risk since the prefix-anchored install-command regex can never match inside an import/using statement regardless. Wire --respect-collision-gate (default True) into package_install_migrator.py and package_install_inline_migrator.py's run_migration(), refusing to write unless SAFE_FOR_MECHANICAL_MIGRATION or --force is passed.",
+    "why_it_matters": "The only existing safety classification (18 SAFE / 9 COLLISION_RISK of 27 products) is a hand-written Markdown report never loaded or enforced by any code -- any future automated orchestration could re-introduce the exact cells/net-class identity-collision corruption risk ST-054 was built to prevent. Re-deriving the classification precisely also reclassifies 8 of the 9 flagged products as actually safe, unblocking real remaining scope. See governing plan section R.3.2/R.1 point 2.",
+    "allowed_paths": [
+      "scripts/pipeline/lib/install_collision_classifier.py",
+      "scripts/pipeline/tests/test_install_collision_classifier.py",
+      "scripts/pipeline/commands/content/package_install_migrator.py",
+      "scripts/pipeline/commands/content/package_install_inline_migrator.py",
+      "scripts/pipeline/tests/test_package_install_migrator.py",
+      "scripts/pipeline/tests/test_package_install_inline_migrator.py"
+    ],
+    "forbidden_paths": [
+      "content/",
+      "data/package_registry.json"
+    ],
+    "dependencies": [],
+    "acceptance_checks": [
+      "Golden-file regression test pins all 27 real products against fixture clone-cache snippets, reproducing exactly: 26 SAFE_FOR_MECHANICAL_MIGRATION, cells/net COLLISION_RISK_STRUCTURAL",
+      "A missing/unreadable clone-cache fixture resolves to COLLISION_RISK_PENDING_VERIFICATION, never SAFE (fail-closed proof)",
+      "Both migrators refuse to write against a COLLISION_RISK_* classification without --force; --dry-run summary of any of the 8 newly-reclassified-safe products manually diffed and confirmed correct before trusting the classifier's SAFE verdict for real execution",
+      "pytest scripts/pipeline/tests/test_install_collision_classifier.py scripts/pipeline/tests/test_package_install_migrator.py scripts/pipeline/tests/test_package_install_inline_migrator.py -q -> all green, no regression on existing tests"
+    ],
+    "rollback_or_recovery": "git revert the commit. The gate defaults to blocking (fail-closed), so reverting only removes the new safety check, not any content -- no content rollback needed. If already used to gate a real migration run, the migration commits themselves roll back independently per their own one-product-per-commit convention."
+  },
+  {
+    "task_id": "PKGINSTALL-RECONCILIATION-STORE",
+    "status": "READY",
+    "title": "Build the durable page-level detection/remediation state-tracking artifact",
+    "objective": "Build scripts/pipeline/lib/reconciliation_store.py, modeled on taskcard_store.py's locking/append discipline (FileLock from advisory_lock.py) but batch-oriented for ~20k-file sweep runs: ReconciliationStore.append_batch(records) / .read_latest() / .read_latest_for_product(family, platform), writing newline-delimited JSON to reports/package-reconciliation/inventory.jsonl (last-occurrence-per-path wins on read). Schema per row: path, family, platform, site, locale, representation (literal|shortcode_block|shortcode_inline|shortcode_maven|mixed|none), registry_type, published, collision_classification, finding_count_literal, finding_count_install_recipe_fail, sweep_run_id, base_sha, recorded_at. Add validate_reconciliation_record() to scripts/pipeline/lib/schema_validators.py.",
+    "why_it_matters": "No state currently persists between detection and remediation -- every session re-derives scope from scratch, which is the primary reason 16 completed taskcards produced only ~68 of ~6,522 fixes. This artifact is the resumable work queue future sessions and automation read instead of re-discovering scope. Deliberately placed under reports/, not data/package_registry.json -- per-page granularity cannot fit that file's per-(family,platform) shape, and this mission's own plan-repair review already flagged that observation-only fields in data/ risk daily spurious full-portfolio rebuilds once the deploy-trigger fix lands. See governing plan section R.3.1.",
+    "allowed_paths": [
+      "scripts/pipeline/lib/reconciliation_store.py",
+      "scripts/pipeline/lib/schema_validators.py",
+      "scripts/pipeline/tests/test_reconciliation_store.py",
+      "reports/package-reconciliation/"
+    ],
+    "forbidden_paths": [
+      "content/",
+      "data/package_registry.json"
+    ],
+    "dependencies": [],
+    "acceptance_checks": [
+      "append_batch/read_latest/read_latest_for_product round-trip correctly on a fixture batch",
+      "last-occurrence-per-path wins semantics proven when the same path appears in two different sweep_run_id batches",
+      "concurrent-write locking proven safe (two append_batch calls from separate processes/threads never corrupt the file)",
+      "validate_reconciliation_record() rejects a malformed row (missing required field, invalid representation enum value)",
+      "pytest scripts/pipeline/tests/test_reconciliation_store.py -q -> all green"
+    ],
+    "rollback_or_recovery": "This is a new, additive, reports/-scoped artifact with no consumers yet in this taskcard -- git revert the commit; no data/content rollback needed since nothing else depends on it until PKGINSTALL-CHANGE-BUDGET/PKGINSTALL-LOCALE-PATCH-MODULE/PKGINSTALL-BLOCK-UPDATER-CALLSITE/PKGINSTALL-CONTENT-HEALING-STATUS-WRITEBACK/PKGINSTALL-DEFECT-SWEEP-REDESIGN land."
+  },
+  {
+    "task_id": "PKGINSTALL-CHANGE-BUDGET",
+    "status": "TODO",
+    "title": "Content-level blast-radius circuit breaker for install-instruction changes",
+    "objective": "Build scripts/pipeline/lib/install_change_budget.py + scripts/pipeline/config/install_change_budgets.yaml, modeled directly on the real, working scripts/seo/pipeline/change_budget.py pattern (static caps always active + rolling-baseline anomaly check per mechanism with an explicit, always-logged warm-up period, fail-closed, never truncate-and-continue). History co-located under reports/package-reconciliation/change_budget_history.json. Each integration site (the migrators, the future locale_patch.py) builds its own proposed-change-volume object and calls check_budget() before writing.",
+    "why_it_matters": "Nothing today caps or validates the blast radius of a proposed content change before it's applied -- the 'one product per commit, never one all-products commit' rule is prose-only guidance, not machine-enforced. This directly satisfies PKGINSTALL-PERMANENT-RECONCILIATION-LOOP's own stated acceptance check ('a fixture proposal set that exceeds the threshold aborts-and-defers'). See governing plan section R.3.6.",
+    "allowed_paths": [
+      "scripts/pipeline/lib/install_change_budget.py",
+      "scripts/pipeline/config/install_change_budgets.yaml",
+      "scripts/pipeline/tests/test_install_change_budget.py",
+      "reports/package-reconciliation/"
+    ],
+    "forbidden_paths": [
+      "content/",
+      "data/package_registry.json"
+    ],
+    "dependencies": ["PKGINSTALL-RECONCILIATION-STORE"],
+    "acceptance_checks": [
+      "check_budget() rejects a proposed volume exceeding a static cap, fail-closed (no partial application)",
+      "warm-up mode (fewer than warmup_runs of history) always logs its INACTIVE status visibly rather than silently skipping the anomaly check",
+      "rolling-baseline anomaly check rejects a run whose proposed total exceeds anomaly_multiplier times the mean of recent actual run totals",
+      "pytest scripts/pipeline/tests/test_install_change_budget.py -q -> all green, mirroring change_budget.py's own existing test shapes"
+    ],
+    "rollback_or_recovery": "git revert the commit. Fail-closed by design -- removing this check only removes a safety gate, does not itself require any content/data rollback."
+  },
+  {
+    "task_id": "PKGINSTALL-LOCALE-PATCH-MODULE",
+    "status": "TODO",
+    "title": "Build a real, tested, committed S-75 locale-propagation module",
+    "objective": "Build scripts/pipeline/commands/content/locale_patch.py, generalizing S-75's exact algorithm (skills/locale-patch.md: byte-identical old_text/new_text match-or-skip, never fuzzy -- unchanged core safety principle) as a real module with its own test file, replacing the ad hoc throwaway script ST-054 TC-07 used and deleted. New capability: is_english_source_ready(family, platform, source_path) consults the reconciliation store -- refuses to propagate from an English source still representation:literal or with an unresolved COLLISION_RISK_STRUCTURAL classification. skills/locale-patch.md becomes a thin wrapper with a CONTRACT comment pointing at this module.",
+    "why_it_matters": "S-75 currently has no reusable, tested, repo-committed implementation -- every future use requires re-deriving the same throwaway script from scratch, and there is no tooling today that checks English-source readiness before propagating (the skill's own docstring explicitly disclaims this as 'not this skill's responsibility'). See governing plan section R.3.5.",
+    "allowed_paths": [
+      "scripts/pipeline/commands/content/locale_patch.py",
+      "scripts/pipeline/tests/test_locale_patch.py",
+      "skills/locale-patch.md",
+      "reports/agents/locale-patch/"
+    ],
+    "forbidden_paths": [
+      "data/package_registry.json"
+    ],
+    "dependencies": ["PKGINSTALL-RECONCILIATION-STORE", "PKGINSTALL-CHANGE-BUDGET"],
+    "acceptance_checks": [
+      "apply_patch_to_file: byte-identical old_text match replaces correctly; a non-matching old_text returns not_found and never corrupts the file (regression pin for the real Danish 'dotnet add-pakke' precedent)",
+      "is_english_source_ready() refuses when the reconciliation store shows representation:literal or an unresolved COLLISION_RISK_STRUCTURAL row for the source file",
+      "run_locale_patch() calls install_change_budget.check_budget() before writing and aborts on a budget violation",
+      "skills/locale-patch.md carries a CONTRACT comment pointing at locale_patch.py and passes the existing skill-script-sync drift check",
+      "pytest scripts/pipeline/tests/test_locale_patch.py -q -> all green"
+    ],
+    "rollback_or_recovery": "git revert the commit for the module itself. Any real locale-propagation run made through this module lands as its own per-product commit (per existing sequencing discipline) and rolls back independently."
+  },
+  {
+    "task_id": "PKGINSTALL-REGEX-NARROWING",
+    "status": "TODO",
+    "title": "Narrow the literal-mention detection regex to drop non-Aspose noise (validate before landing)",
+    "objective": "In scripts/pipeline/audit/package_install_literal.py's verify_package_install_literals(), suppress a structural _INSTALL_CMD_RE match only when the captured token neither contains 'aspose' (case-insensitive) nor is empty/flag-shaped (starts with '-', e.g. '-r requirements.txt', '--upgrade'). Do NOT require exact candidate-identity match -- stay identity-agnostic for anything plausibly Aspose-related, since a hand-typed WRONG Aspose package name is exactly the defect class this gate must keep catching (3D-NET-REFRESH-002 precedent). This is explicitly a lower-confidence item: before landing, run the narrowed rule against a real snapshot of the current ~6,454 findings, manually spot-check a sample (50-100) of everything that disappears to confirm each is genuinely unrelated, and pin regression fixtures for both true positives (cells/net's real collision, the 3D-NET-REFRESH-002 shape) and the named false positives.",
+    "why_it_matters": "The current regex is deliberately identity-agnostic (correct, by design) but as a side effect matches many commands with zero connection to any Aspose package (pip install -r requirements.txt, pip install --upgrade, pip install fastmcp, pip install markitdown-aspose-cells-plugin) -- 'zero findings' is not a well-defined, achievable target until this noise is characterized and removed. See governing plan section R.3.7/R.1 point 5. Confidence on the exact effect size is explicitly low until validated -- this card's own acceptance checks require that validation before merge, not after.",
+    "allowed_paths": [
+      "scripts/pipeline/audit/package_install_literal.py",
+      "scripts/pipeline/tests/test_package_install_literal.py",
+      "reports/package-reconciliation/"
+    ],
+    "forbidden_paths": [
+      "content/",
+      "data/package_registry.json"
+    ],
+    "dependencies": ["PKGINSTALL-RECONCILIATION-STORE"],
+    "acceptance_checks": [
+      "Regression fixtures pin known true positives (cells/net Aspose.Cells_FOSS-shaped, 3D-NET-REFRESH-002-shaped) as still-flagged after the change",
+      "Regression fixtures pin the named false positives (-r requirements.txt, --upgrade, unrelated pip install pytest) as no-longer-flagged after the change",
+      "A before/after finding-count delta run against real current content is manually spot-checked (sample of 50-100 newly-dropped findings) and the reviewed delta is published in the reconciliation store / sweep report, not silently absorbed",
+      "pytest scripts/pipeline/tests/test_package_install_literal.py -q -> all green"
+    ],
+    "rollback_or_recovery": "git revert the regex change -- this is a read-only detector, reverting it only changes what future sweeps report, no content/data rollback needed."
+  },
+  {
+    "task_id": "PKGINSTALL-BLOCK-UPDATER-CALLSITE",
+    "status": "TODO",
+    "title": "Give install_block_updater.py a real (dry-run-only) call site from refresh_knowledge.py",
+    "objective": "In scripts/pipeline/commands/knowledge/refresh_knowledge.py, immediately after _write_manifest_delta() writes an install_cmd_changes/coordinate_changes/version_changes event, call install_block_updater.run_update(family, platform, dry_run=True) and fold its summary (files needing updates, human-review-required list) into both the refresh run's own report and the reconciliation store. The actual --execute step stays a distinct, explicit, human/agent-reviewed action surfaced as a required step in refresh-product's documented sequence when the dry-run summary is non-empty -- never auto-fired as a side effect of a knowledge refresh, consistent with this repo's S-73 per-file-review mandate. Before implementing, do a focused read of refresh_knowledge.py's surrounding error-handling/finally-block contract to rule out a double-fire risk across concurrent sessions.",
+    "why_it_matters": "install_block_updater.py's TC-03 logic (stop regenerating literal text on refresh events) is correct but has zero call sites anywhere in the codebase -- an orphaned module. See governing plan section R.3.8.",
+    "allowed_paths": [
+      "scripts/pipeline/commands/knowledge/refresh_knowledge.py",
+      "scripts/pipeline/tests/test_refresh_knowledge.py",
+      "skills/refresh-product.md",
+      "reports/package-reconciliation/"
+    ],
+    "forbidden_paths": [
+      "content/",
+      "data/package_registry.json"
+    ],
+    "dependencies": ["PKGINSTALL-RECONCILIATION-STORE"],
+    "acceptance_checks": [
+      "Focused read of refresh_knowledge.py's error-handling/finally contract completed and documented in evidence_refs BEFORE the call site is added, confirming no double-fire risk across concurrent sessions",
+      "A manifest_delta.json with a relevant event triggers install_block_updater.run_update(dry_run=True) exactly once and its summary appears in both the refresh report and the reconciliation store",
+      "A manifest_delta.json with no relevant event does not invoke the updater at all",
+      "The --execute step is never auto-fired -- confirmed via test that dry_run=True is hardcoded at this call site",
+      "pytest scripts/pipeline/tests/test_refresh_knowledge.py -q -> all green, no regression"
+    ],
+    "rollback_or_recovery": "git revert the commit. Dry-run-only call site never writes content, so no content rollback is needed; reverting simply re-orphans the module."
+  },
+  {
+    "task_id": "PKGINSTALL-CONTENT-HEALING-STATUS-WRITEBACK",
+    "status": "TODO",
+    "title": "Reconcile content_healing_status from real remediation completion (dry-run until deploy-trigger fix ships)",
+    "objective": "Factor the content_healing_status mutation currently inlined in package_publish_watch.py::apply_proposal() into a shared set_content_healing_status(entry, status, *, checked_at, reason) helper in scripts/pipeline/lib/package_registry_data.py (apply_proposal's own behavior unchanged). Build scripts/pipeline/commands/ops/reconcile_content_healing_status.py, which reads ReconciliationStore.read_latest_for_product() and computes pending->healed when zero literal rows remain for a product, writing via the same atomic path. This must run --dry-run only (report the proposed transition, do not commit it) until PKGINSTALL-DEPLOY-TRIGGER-3LAYER-FIX reaches CLOSED, since content_healing_status lives inside data/package_registry.json which is Hugo-consumed and this mission's own plan-repair review already flagged the daily-spurious-rebuild risk of writing observation-derived fields there before that fix lands.",
+    "why_it_matters": "content_healing_status is real, actively-written code but is never updated to reflect actual remediation completion, and is already demonstrably stale on products this mission's own earlier work fixed. Split out as its own taskcard (not folded into PKGINSTALL-RECONCILIATION-STORE) because the live MT066 taskcard store confirms PKGINSTALL-PERMANENT-RECONCILIATION-LOOP's own forbidden_paths already lists data/package_registry.json -- this card is the correctly-scoped home for that specific write path. See governing plan section R.3.1's corrected scoping.",
+    "allowed_paths": [
+      "scripts/pipeline/lib/package_registry_data.py",
+      "scripts/pipeline/commands/ops/reconcile_content_healing_status.py",
+      "scripts/pipeline/tests/test_package_registry_data.py",
+      "scripts/pipeline/tests/test_reconcile_content_healing_status.py",
+      "reports/package-reconciliation/"
+    ],
+    "forbidden_paths": [
+      "content/"
+    ],
+    "dependencies": ["PKGINSTALL-RECONCILIATION-STORE"],
+    "acceptance_checks": [
+      "set_content_healing_status() extracted with byte-identical behavior to the current inline code in apply_proposal() -- existing test_apply_proposal_sets_content_healing_status_atomically still passes unchanged",
+      "reconcile_content_healing_status.py --dry-run reports (never writes) a pending->healed transition when the reconciliation store shows zero remaining literal findings for a product",
+      "An explicit, loud guard refuses any non-dry-run write while PKGINSTALL-DEPLOY-TRIGGER-3LAYER-FIX is not CLOSED",
+      "pytest scripts/pipeline/tests/test_package_registry_data.py scripts/pipeline/tests/test_reconcile_content_healing_status.py scripts/pipeline/tests/test_package_publish_watch.py -q -> all green, no regression"
+    ],
+    "rollback_or_recovery": "git revert the commit. Dry-run-only in this phase means no data/package_registry.json state is ever mutated by this card -- no registry rollback needed."
+  },
+  {
+    "task_id": "PKGINSTALL-DEFECT-SWEEP-REDESIGN",
+    "status": "TODO",
+    "title": "Extend the recurring sweep to install_recipe's safety checks + fix un-deduplicated weekly issue spam",
+    "objective": "Build scripts/pipeline/commands/ops/install_defect_sweep.py as install_literal_sweep.py's successor: run the existing literal-text sweep unchanged, plus a new run_install_recipe_sweep() using content_eval.loader/evaluators.get_evaluator('install_recipe') to call _verify_publish_channel_claims/_verify_no_unpublished_disclosure portfolio-wide. Every row from both sweeps is appended into ReconciliationStore.append_batch(). Rename the workflow install-literal-sweep.yml -> install-defect-sweep.yml: run the combined sweep, commit the durable report via git_plumb_commit.py (reports-only, low blast radius) instead of leaving it in the ephemeral runner, and invoke check_package_content_healing_staleness.py (real, tested, currently wired into nothing) on the same schedule. Fix the dedup gap with scripts/pipeline/commands/ops/sync_tracked_issues.py, keyed by (family, platform, defect_class) -- update/close an existing tracked issue via a stable label instead of creating a new one every run; gh issue create only when none exists for that key.",
+    "why_it_matters": "TC-09's sweep is real and correctly cron'd/read-only, but only covers the literal-mention defect class (never install_recipe's publish-claim-contradiction/disclosure checks) and files a brand-new, un-deduplicated GitHub issue every single week findings remain -- an ever-growing pile of duplicate issues at the current ~6,454-finding pace. See governing plan section R.3.4/R.1 point 6.",
+    "allowed_paths": [
+      "scripts/pipeline/commands/ops/install_defect_sweep.py",
+      "scripts/pipeline/commands/ops/sync_tracked_issues.py",
+      "scripts/pipeline/tests/test_install_defect_sweep.py",
+      "scripts/pipeline/tests/test_sync_tracked_issues.py",
+      ".github/workflows/install-literal-sweep.yml",
+      "reports/package-reconciliation/"
+    ],
+    "forbidden_paths": [
+      "content/",
+      "data/package_registry.json"
+    ],
+    "dependencies": [
+      "PKGINSTALL-VERSION-BUMP-AND-LINT",
+      "PKGINSTALL-COLLISION-CLASSIFIER",
+      "PKGINSTALL-RECONCILIATION-STORE",
+      "PKGINSTALL-CONTENT-HEALING-STATUS-WRITEBACK"
+    ],
+    "acceptance_checks": [
+      "run_install_recipe_sweep() surfaces the same 89 real PUBLISH-CLAIM-CONTRADICTION-001 findings when run against current content (regression pin against the known-real number)",
+      "Every sweep row is appended into the reconciliation store with a shared sweep_run_id",
+      "sync_tracked_issues: a second run with unchanged findings updates the existing issue body rather than creating a new one (dedup proof); a run with zero findings for a previously-open key closes that issue",
+      "the redesigned workflow commits the sweep report via git_plumb_commit.py rather than leaving it in an ephemeral runner path",
+      "pytest scripts/pipeline/tests/test_install_defect_sweep.py scripts/pipeline/tests/test_sync_tracked_issues.py -q -> all green"
+    ],
+    "rollback_or_recovery": "git revert the commit(s); restore install-literal-sweep.yml from git history if the rename/redesign needs to be undone. This card is read-only against content/data -- no content/registry rollback needed, only workflow/report-commit rollback."
+  },
+  {
+    "task_id": "PKGINSTALL-GRADE-SAFETY-OVERRIDE",
+    "status": "TODO",
+    "title": "Close the grading-invisibility gap for install_recipe's two safety-critical checks",
+    "objective": "Split install_recipe.py's shared category='IR' so _verify_publish_channel_claims gets 'IR_PUBLISH_CLAIM' and _verify_no_unpublished_disclosure gets 'IR_UNPUBLISHED_DISCLOSURE' (leave _verify_install_accuracy's 'IR' unchanged). Add SAFETY_OVERRIDE_FINDINGS: frozenset[tuple[str,str]] to content_eval/config.py covering exactly those two (evaluator, category) pairs. In content_eval/models.py, replace the inline 'f.evaluator in CANONICAL_EVALUATORS' filters in both grade_reasons() (line ~304) and compute_grade_with_criticality() (line ~414) with a shared _is_grade_eligible(f) helper: true if canonical, OR if f.level=='FAIL' and (f.evaluator, f.category) in SAFETY_OVERRIDE_FINDINGS. Add both new categories to grade_config.yaml's critical_categories. Write a new GRADE_CONTRACT.md section 10 ('Safety-Override Findings') documenting this as a lighter process than full graduation (FAIL-only, deterministic, already-tested, documented safety justification, maintainer sign-off, contract version bump -- explicitly no 14-day wait or corpus-wide noise-rate run, since those bars are about an evaluator's overall noise profile, not two already-verified FAIL-only checks). Bump EVALUATOR_LOGIC_VERSION/EVALUATOR_FREEZE_VERSION, run a full --skip-graded corpus re-evaluation, and record the resulting grade-distribution shift before merging. Ship scripts/ci/checks/check_install_recipe_safety_fails.py (hard-blocking on PR-touched files, independent of stored grade) as an immediate stopgap while this taskcard's larger change is in review; retire it once the change lands.",
+    "why_it_matters": "install_recipe has been EXPERIMENTAL (never CANONICAL) since 2026-04-24, four months before the safety-critical _verify_publish_channel_claims check was written into it on 2026-08-14 -- content_eval/models.py filters every install_recipe finding out of grade computation before any category/criticality logic runs, confirmed by direct code read, so 89 real FAIL findings never surfaced despite pages grading A. Full graduation is explicitly rejected as too broad (carries unvetted WARN noise from _verify_install_accuracy) and too slow (14-day+corpus-validation process) for what's actually needed. This is this redesign's single most novel mechanism and needs maintainer sign-off on the lighter process itself, not just the code -- see governing plan section R.3.3/R.7's own honesty note that the GRADE_CONTRACT.md wording is a proposal, not a settled agreement.",
+    "allowed_paths": [
+      "scripts/pipeline/content_eval/evaluators/install_recipe.py",
+      "scripts/pipeline/content_eval/config.py",
+      "scripts/pipeline/content_eval/models.py",
+      "scripts/pipeline/content_eval/__init__.py",
+      "scripts/pipeline/content_eval/grade_config.yaml",
+      "scripts/pipeline/tests/test_install_recipe.py",
+      "scripts/pipeline/tests/content_eval/test_models.py",
+      "scripts/ci/checks/check_install_recipe_safety_fails.py",
+      "scripts/pipeline/tests/test_check_install_recipe_safety_fails.py",
+      "GRADE_CONTRACT.md",
+      ".github/workflows/content-audit.yml"
+    ],
+    "forbidden_paths": [
+      "content/",
+      "data/package_registry.json"
+    ],
+    "dependencies": [],
+    "acceptance_checks": [
+      "A fixture page with a FAIL in IR_PUBLISH_CLAIM computes grade F via compute_grade_with_criticality() and grade_reasons() cites the critical-category override -- proving the fix actually changes grade output, not just category labels",
+      "A fixture page with a FAIL in the untouched, non-safety IR category (_verify_install_accuracy) does NOT flip grade -- proving the override is narrowly scoped, not a blanket install_recipe graduation",
+      "GRADE_CONTRACT.md section 10 is written and the contract version is bumped per its own section 9 rules",
+      "A full --skip-graded corpus re-evaluation is run and its grade-distribution shift (before/after counts per grade letter) is recorded in evidence_refs before this card can close",
+      "check_install_recipe_safety_fails.py hard-blocks a PR touching a file with either safety FAIL, independent of that file's stored grade",
+      "pytest scripts/pipeline/tests/test_install_recipe.py scripts/pipeline/tests/content_eval/test_models.py scripts/pipeline/tests/test_check_install_recipe_safety_fails.py -q -> all green, full test suite shows no new failures vs. the ST-054 TC-10 baseline"
+    ],
+    "rollback_or_recovery": "git revert the commit(s). Since this changes grade computation portfolio-wide, revert must be followed by a second --skip-graded corpus re-evaluation to confirm grades return to their pre-change distribution -- a revert here is not zero-cost, unlike most other cards in this batch."
+  }
+]

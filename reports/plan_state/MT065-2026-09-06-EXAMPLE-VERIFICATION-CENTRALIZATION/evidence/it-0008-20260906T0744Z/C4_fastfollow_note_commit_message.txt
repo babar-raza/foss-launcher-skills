@@ -1,0 +1,15 @@
+docs(example-verification): C4 fast-follow -- correct a stale registry.yaml note on result.py
+
+Independent review of C4 found a small, real inaccuracy: registry.yaml's
+result.py entry said "No live caller yet -- C7/C4 wire the first real
+ones", but C4's own actual, disclosed scope decision was to rebuild
+smoke_test.py's CLI surface WITHOUT wiring it to result.py or to
+lib/example_verification/api.py (which doesn't exist yet and isn't
+assigned to any current taskcard). The note is corrected to reflect the
+real state as of C4's close, cross-referencing C4_promotion_gate_decision.md
+for the full reasoning.
+
+Mission: MT065-2026-09-06-EXAMPLE-VERIFICATION-CENTRALIZATION
+Taskcards: C4
+
+Co-Authored-By: Claude Sonnet 5 <noreply@anthropic.com>

@@ -1,0 +1,3176 @@
+{
+  "family": "3d",
+  "platform": "python",
+  "old_readme_baseline": null,
+  "old_readme_found": true,
+  "report": {
+    "rows": [
+      {
+        "kind": "content",
+        "unit_id": "u0001",
+        "label": "Aspose.3D FOSS for Python is a free, open-source, pure-Python library for building, readin",
+        "disposition": "merged_reframed",
+        "target_section": "Intro",
+        "verification_status": "verified_against_source",
+        "excluded_reason": null,
+        "verdict": {
+          "status": "reframed",
+          "basis": "fidelity",
+          "found_in": [
+            "Intro (traced)"
+          ],
+          "fidelity": {
+            "score": 0.73,
+            "scope": "document",
+            "missing_words": [
+              "cameras",
+              "compile",
+              "free",
+              "lights",
+              "models",
+              "moves",
+              "reading",
+              "writing"
+            ]
+          },
+          "target_traced": true
+        }
+      },
+      {
+        "kind": "content",
+        "unit_id": "u0002",
+        "label": "- [At a glance](#at-a-glance)",
+        "disposition": "merged_verbatim",
+        "target_section": "Navigation",
+        "verification_status": "not_applicable_category_1",
+        "excluded_reason": null,
+        "verdict": {
+          "status": "verbatim",
+          "basis": "normalized_text",
+          "found_in": [
+            "Navigation"
+          ],
+          "fidelity": {
+            "score": 1.0,
+            "scope": "target_section",
+            "missing_words": []
+          },
+          "target_traced": true
+        }
+      },
+      {
+        "kind": "content",
+        "unit_id": "u0003",
+        "label": "- [Key capabilities](#key-capabilities)",
+        "disposition": "merged_verbatim",
+        "target_section": "Navigation",
+        "verification_status": "not_applicable_category_1",
+        "excluded_reason": null,
+        "verdict": {
+          "status": "verbatim",
+          "basis": "normalized_text",
+          "found_in": [
+            "Navigation"
+          ],
+          "fidelity": {
+            "score": 1.0,
+            "scope": "target_section",
+            "missing_words": []
+          },
+          "target_traced": true
+        }
+      },
+      {
+        "kind": "content",
+        "unit_id": "u0004",
+        "label": "- [Installation](#installation)",
+        "disposition": "merged_verbatim",
+        "target_section": "Navigation",
+        "verification_status": "not_applicable_category_1",
+        "excluded_reason": null,
+        "verdict": {
+          "status": "verbatim",
+          "basis": "normalized_text",
+          "found_in": [
+            "Navigation"
+          ],
+          "fidelity": {
+            "score": 1.0,
+            "scope": "target_section",
+            "missing_words": []
+          },
+          "target_traced": true
+        }
+      },
+      {
+        "kind": "content",
+        "unit_id": "u0005",
+        "label": "- [Quick start](#quick-start)",
+        "disposition": "merged_verbatim",
+        "target_section": "Navigation",
+        "verification_status": "not_applicable_category_1",
+        "excluded_reason": null,
+        "verdict": {
+          "status": "verbatim",
+          "basis": "normalized_text",
+          "found_in": [
+            "Navigation"
+          ],
+          "fidelity": {
+            "score": 1.0,
+            "scope": "target_section",
+            "missing_words": []
+          },
+          "target_traced": true
+        }
+      },
+      {
+        "kind": "content",
+        "unit_id": "u0006",
+        "label": "- [Additional examples](#additional-examples)",
+        "disposition": "merged_verbatim",
+        "target_section": "Navigation",
+        "verification_status": "not_applicable_category_1",
+        "excluded_reason": null,
+        "verdict": {
+          "status": "verbatim",
+          "basis": "normalized_text",
+          "found_in": [
+            "Navigation"
+          ],
+          "fidelity": {
+            "score": 1.0,
+            "scope": "target_section",
+            "missing_words": []
+          },
+          "target_traced": true
+        }
+      },
+      {
+        "kind": "content",
+        "unit_id": "u0007",
+        "label": "- [API reference](#api-reference)",
+        "disposition": "merged_verbatim",
+        "target_section": "Navigation",
+        "verification_status": "not_applicable_category_1",
+        "excluded_reason": null,
+        "verdict": {
+          "status": "verbatim",
+          "basis": "normalized_text",
+          "found_in": [
+            "Navigation",
+            "Documentation & Resources"
+          ],
+          "fidelity": {
+            "score": 1.0,
+            "scope": "target_section",
+            "missing_words": []
+          },
+          "target_traced": true
+        }
+      },
+      {
+        "kind": "content",
+        "unit_id": "u0008",
+        "label": "- [Documentation & resources](#documentation--resources)",
+        "disposition": "merged_verbatim",
+        "target_section": "Navigation",
+        "verification_status": "not_applicable_category_1",
+        "excluded_reason": null,
+        "verdict": {
+          "status": "verbatim",
+          "basis": "normalized_text",
+          "found_in": [
+            "Navigation"
+          ],
+          "fidelity": {
+            "score": 1.0,
+            "scope": "target_section",
+            "missing_words": []
+          },
+          "target_traced": true
+        }
+      },
+      {
+        "kind": "content",
+        "unit_id": "u0009",
+        "label": "- [Scope and limitations](#scope-and-limitations)",
+        "disposition": "merged_verbatim",
+        "target_section": "Navigation",
+        "verification_status": "not_applicable_category_1",
+        "excluded_reason": null,
+        "verdict": {
+          "status": "verbatim",
+          "basis": "normalized_text",
+          "found_in": [
+            "Navigation"
+          ],
+          "fidelity": {
+            "score": 1.0,
+            "scope": "target_section",
+            "missing_words": []
+          },
+          "target_traced": true
+        }
+      },
+      {
+        "kind": "content",
+        "unit_id": "u0010",
+        "label": "- [Development and testing](#development-and-testing)",
+        "disposition": "merged_verbatim",
+        "target_section": "Navigation",
+        "verification_status": "not_applicable_category_1",
+        "excluded_reason": null,
+        "verdict": {
+          "status": "verbatim",
+          "basis": "normalized_text",
+          "found_in": [
+            "Navigation",
+            "Dependencies"
+          ],
+          "fidelity": {
+            "score": 1.0,
+            "scope": "target_section",
+            "missing_words": []
+          },
+          "target_traced": true
+        }
+      },
+      {
+        "kind": "content",
+        "unit_id": "u0011",
+        "label": "- [License](#license)",
+        "disposition": "merged_verbatim",
+        "target_section": "Navigation",
+        "verification_status": "not_applicable_category_1",
+        "excluded_reason": null,
+        "verdict": {
+          "status": "verbatim",
+          "basis": "normalized_text",
+          "found_in": [
+            "Navigation"
+          ],
+          "fidelity": {
+            "score": 1.0,
+            "scope": "target_section",
+            "missing_words": []
+          },
+          "target_traced": true
+        }
+      },
+      {
+        "kind": "content",
+        "unit_id": "u0012",
+        "label": "- Build 3D scenes programmatically with `Scene`, `Node`, `Mesh`, `Camera`, and `Light` in ",
+        "disposition": "merged_reframed",
+        "target_section": "Key Capabilities",
+        "verification_status": "verified_against_source",
+        "excluded_reason": null,
+        "verdict": {
+          "status": "reframed",
+          "basis": "fidelity",
+          "found_in": [
+            "Key Capabilities (traced)"
+          ],
+          "fidelity": {
+            "score": 0.6,
+            "scope": "target_section",
+            "missing_words": [
+              "camera",
+              "hierarchical",
+              "light",
+              "programmatically"
+            ]
+          },
+          "target_traced": true
+        }
+      },
+      {
+        "kind": "content",
+        "unit_id": "u0013",
+        "label": "- Import OBJ (with `.mtl` materials), STL (binary and ASCII), glTF 2.0 / GLB, COLLADA (`.d",
+        "disposition": "merged_reframed",
+        "target_section": "Key Capabilities",
+        "verification_status": "verified_against_source",
+        "excluded_reason": null,
+        "verdict": {
+          "status": "reframed",
+          "basis": "fidelity",
+          "found_in": [
+            "Key Capabilities (traced)"
+          ],
+          "fidelity": {
+            "score": 1.0,
+            "scope": "document",
+            "missing_words": []
+          },
+          "target_traced": true
+        }
+      },
+      {
+        "kind": "content",
+        "unit_id": "u0014",
+        "label": "- Export the same `Scene` model back out to OBJ, STL, glTF/GLB, or 3MF with `Scene.save(..",
+        "disposition": "merged_reframed",
+        "target_section": "Key Capabilities",
+        "verification_status": "verified_against_source",
+        "excluded_reason": null,
+        "verdict": {
+          "status": "reframed",
+          "basis": "fidelity",
+          "found_in": [
+            "Key Capabilities (traced)"
+          ],
+          "fidelity": {
+            "score": 0.67,
+            "scope": "target_section",
+            "missing_words": [
+              "currently",
+              "import",
+              "model",
+              "public",
+              "supported"
+            ]
+          },
+          "target_traced": true
+        }
+      },
+      {
+        "kind": "content",
+        "unit_id": "u0015",
+        "label": "- Assign Lambert, Phong, or PBR (metallic-roughness) materials to nodes, including glTF ma",
+        "disposition": "merged_reframed",
+        "target_section": "Key Capabilities",
+        "verification_status": "verified_against_source",
+        "excluded_reason": null,
+        "verdict": {
+          "status": "reframed",
+          "basis": "fidelity",
+          "found_in": [
+            "Key Capabilities (traced)"
+          ],
+          "fidelity": {
+            "score": 0.5,
+            "scope": "target_section",
+            "missing_words": [
+              "including",
+              "lambert",
+              "materials",
+              "metallic_factor",
+              "nodes",
+              "phong",
+              "roughness_factor"
+            ]
+          },
+          "target_traced": true
+        }
+      },
+      {
+        "kind": "content",
+        "unit_id": "u0016",
+        "label": "- Convert built-in parametric primitives (`Box`, `Cylinder`, `Sphere`, `Torus`, `Pyramid`,",
+        "disposition": "merged_reframed",
+        "target_section": "Key Capabilities",
+        "verification_status": "verified_against_source",
+        "excluded_reason": null,
+        "verdict": {
+          "status": "reframed",
+          "basis": "fidelity",
+          "found_in": [
+            "Key Capabilities (traced)"
+          ],
+          "fidelity": {
+            "score": 0.69,
+            "scope": "target_section",
+            "missing_words": [
+              "built",
+              "objects",
+              "parametric",
+              "triangulated"
+            ]
+          },
+          "target_traced": true
+        }
+      },
+      {
+        "kind": "content",
+        "unit_id": "u0017",
+        "label": "- Work with `Vector2`/`Vector3`/`Vector4`, `Matrix4`, `Quaternion`, and `BoundingBox` util",
+        "disposition": "excluded",
+        "target_section": null,
+        "verification_status": "verified_redundant",
+        "excluded_reason": "`Vector2`, `Vector3`, `Vector4`, `Matrix4`, `Quaternion`, and `BoundingBox` all already appear as their own rows in the candidate's comprehensive API Reference table; the recomposed Key Capabilities section does not carry a dedicated math-utilities highlight bullet, but the underlying types and their real methods are not lost -- cross-checked present via a real grep index against the API Reference section.",
+        "verdict": {
+          "status": "excluded",
+          "basis": "excluded_reason",
+          "found_in": [],
+          "fidelity": {
+            "score": 1.0,
+            "scope": "document",
+            "missing_words": []
+          },
+          "target_traced": true
+        }
+      },
+      {
+        "kind": "content",
+        "unit_id": "u0018",
+        "label": "- Animate scene properties with keyframe sequences (`AnimationClip`, `KeyframeSequence.add",
+        "disposition": "merged_reframed",
+        "target_section": "Key Capabilities",
+        "verification_status": "verified_against_source",
+        "excluded_reason": null,
+        "verdict": {
+          "status": "reframed",
+          "basis": "fidelity",
+          "found_in": [
+            "Key Capabilities (traced)"
+          ],
+          "fidelity": {
+            "score": 0.53,
+            "scope": "target_section",
+            "missing_words": [
+              "animate",
+              "bindpoint",
+              "bound",
+              "interpolation",
+              "sequences",
+              "time",
+              "value"
+            ]
+          },
+          "target_traced": true
+        }
+      },
+      {
+        "kind": "content",
+        "unit_id": "u0019",
+        "label": "A PyPI package has not been published yet. Install directly from a local clone:",
+        "disposition": "corrected",
+        "target_section": "Installation",
+        "verification_status": "verified_against_source",
+        "excluded_reason": null,
+        "verdict": {
+          "status": "corrected",
+          "basis": "fidelity",
+          "found_in": [
+            "Installation (traced)"
+          ],
+          "fidelity": {
+            "score": 0.71,
+            "scope": "target_section",
+            "missing_words": [
+              "directly",
+              "local"
+            ]
+          },
+          "target_traced": true
+        }
+      },
+      {
+        "kind": "content",
+        "unit_id": "u0020",
+        "label": "The package declares support for Python 3.7 through 3.12 and has no required third-party d",
+        "disposition": "merged_reframed",
+        "target_section": "Dependencies",
+        "verification_status": "verified_against_manifest",
+        "excluded_reason": null,
+        "verdict": {
+          "status": "reframed",
+          "basis": "fidelity",
+          "found_in": [
+            "Dependencies (traced)"
+          ],
+          "fidelity": {
+            "score": 0.67,
+            "scope": "target_section",
+            "missing_words": [
+              "declares",
+              "support",
+              "through"
+            ]
+          },
+          "target_traced": true
+        }
+      },
+      {
+        "kind": "content",
+        "unit_id": "u0021",
+        "label": "Load an OBJ scene and inspect its meshes:",
+        "disposition": "merged_reframed",
+        "target_section": "Quick Start",
+        "verification_status": "not_applicable_category_1",
+        "excluded_reason": null,
+        "verdict": {
+          "status": "reframed",
+          "basis": "fidelity",
+          "found_in": [
+            "Quick Start (traced)"
+          ],
+          "fidelity": {
+            "score": 0.5,
+            "scope": "target_section",
+            "missing_words": [
+              "load",
+              "meshes"
+            ]
+          },
+          "target_traced": true
+        }
+      },
+      {
+        "kind": "content",
+        "unit_id": "u0022",
+        "label": "Convert the same kind of scene to a binary glTF (GLB):",
+        "disposition": "merged_reframed",
+        "target_section": "Additional Examples",
+        "verification_status": "not_applicable_category_1",
+        "excluded_reason": null,
+        "verdict": {
+          "status": "reframed",
+          "basis": "fidelity",
+          "found_in": [
+            "Additional Examples (traced)"
+          ],
+          "fidelity": {
+            "score": 0.6,
+            "scope": "target_section",
+            "missing_words": [
+              "binary",
+              "kind"
+            ]
+          },
+          "target_traced": true
+        }
+      },
+      {
+        "kind": "content",
+        "unit_id": "u0023",
+        "label": "The snippets below cover building meshes from scratch, applying materials, and working wit",
+        "disposition": "merged_reframed",
+        "target_section": "Additional Examples",
+        "verification_status": "not_applicable_category_1",
+        "excluded_reason": null,
+        "verdict": {
+          "status": "reframed",
+          "basis": "fidelity",
+          "found_in": [
+            "Additional Examples (traced)"
+          ],
+          "fidelity": {
+            "score": 0.56,
+            "scope": "target_section",
+            "missing_words": [
+              "above",
+              "applying",
+              "building",
+              "cluttering",
+              "cover",
+              "meshes",
+              "scratch",
+              "working"
+            ]
+          },
+          "target_traced": true
+        }
+      },
+      {
+        "kind": "content",
+        "unit_id": "u0024",
+        "label": "<details> <summary>View additional examples</summary>",
+        "disposition": "merged_verbatim",
+        "target_section": "Additional Examples",
+        "verification_status": "not_applicable_category_1",
+        "excluded_reason": null,
+        "verdict": {
+          "status": "verbatim",
+          "basis": "normalized_text",
+          "found_in": [
+            "Additional Examples"
+          ],
+          "fidelity": {
+            "score": 1.0,
+            "scope": "target_section",
+            "missing_words": []
+          },
+          "target_traced": true
+        }
+      },
+      {
+        "kind": "content",
+        "unit_id": "u0025",
+        "label": "</details>",
+        "disposition": "merged_verbatim",
+        "target_section": "Additional Examples",
+        "verification_status": "not_applicable_category_1",
+        "excluded_reason": null,
+        "verdict": {
+          "status": "verbatim",
+          "basis": "normalized_text",
+          "found_in": [
+            "Additional Examples",
+            "API Reference"
+          ],
+          "fidelity": {
+            "score": 1.0,
+            "scope": "target_section",
+            "missing_words": []
+          },
+          "target_traced": true
+        }
+      },
+      {
+        "kind": "content",
+        "unit_id": "u0026",
+        "label": "The public entry points are organized under `aspose.threed` (core scene graph), `aspose.th",
+        "disposition": "merged_reframed",
+        "target_section": "API Reference",
+        "verification_status": "verified_against_source",
+        "excluded_reason": null,
+        "verdict": {
+          "status": "reframed",
+          "basis": "fidelity",
+          "found_in": [
+            "API Reference (traced)"
+          ],
+          "fidelity": {
+            "score": 0.73,
+            "scope": "target_section",
+            "missing_words": [
+              "cameras",
+              "classes",
+              "detection",
+              "documented",
+              "lights",
+              "live",
+              "math",
+              "move",
+              "organized",
+              "primitives",
+              "registry",
+              "submodules",
+              "threed"
+            ]
+          },
+          "target_traced": true
+        }
+      },
+      {
+        "kind": "content",
+        "unit_id": "u0027",
+        "label": "> **Import from the format submodule, not the top-level package.** `aspose.threed.formats`",
+        "disposition": "merged_reframed",
+        "target_section": "Scope and Limitations",
+        "verification_status": "verified_against_source",
+        "excluded_reason": null,
+        "verdict": {
+          "status": "reframed",
+          "basis": "fidelity",
+          "found_in": [
+            "Scope and Limitations (traced)"
+          ],
+          "fidelity": {
+            "score": 0.75,
+            "scope": "document",
+            "missing_words": [
+              "attributeerror",
+              "because",
+              "elsewhere",
+              "exports",
+              "fine",
+              "fully",
+              "ignore",
+              "inherit",
+              "init__",
+              "need",
+              "qualified",
+              "resolve",
+              "shown",
+              "stub"
+            ]
+          },
+          "target_traced": true
+        }
+      },
+      {
+        "kind": "content",
+        "unit_id": "u0028",
+        "label": "<details> <summary>View the supported public API surface</summary>",
+        "disposition": "merged_verbatim",
+        "target_section": "API Reference",
+        "verification_status": "not_applicable_category_1",
+        "excluded_reason": null,
+        "verdict": {
+          "status": "verbatim",
+          "basis": "normalized_text",
+          "found_in": [
+            "API Reference"
+          ],
+          "fidelity": {
+            "score": 1.0,
+            "scope": "target_section",
+            "missing_words": []
+          },
+          "target_traced": true
+        }
+      },
+      {
+        "kind": "content",
+        "unit_id": "u0029",
+        "label": "- `Scene`",
+        "disposition": "excluded",
+        "target_section": null,
+        "verification_status": "verified_redundant",
+        "excluded_reason": "`Scene` already appear with an equivalent or more complete description in the candidate's own comprehensive API Reference table (233 real public classes, far broader than this old README's curated per-module bullet list) -- cross-checked present via a real grep index against the candidate's API Reference section; the old curated bullet is redundant, not dropped.",
+        "verdict": {
+          "status": "excluded",
+          "basis": "excluded_reason",
+          "found_in": [
+            "__preamble__",
+            "API Reference"
+          ],
+          "fidelity": {
+            "score": 1.0,
+            "scope": "document",
+            "missing_words": []
+          },
+          "target_traced": true
+        }
+      },
+      {
+        "kind": "content",
+        "unit_id": "u0030",
+        "label": "- `open(file_or_stream, options)`, `save(file_or_stream, format_or_options)`, `from_file(f",
+        "disposition": "excluded",
+        "target_section": null,
+        "verification_status": "verified_redundant",
+        "excluded_reason": "the named member(s) already appear with an equivalent or more complete description in the candidate's own comprehensive API Reference table (233 real public classes, far broader than this old README's curated per-module bullet list) -- cross-checked present via a real grep index against the candidate's API Reference section; the old curated bullet is redundant, not dropped.",
+        "verdict": {
+          "status": "excluded",
+          "basis": "excluded_reason",
+          "found_in": [],
+          "fidelity": {
+            "score": 0.57,
+            "scope": "document",
+            "missing_words": [
+              "file_or_stream",
+              "format_or_options",
+              "from_file"
+            ]
+          },
+          "target_traced": true
+        }
+      },
+      {
+        "kind": "content",
+        "unit_id": "u0031",
+        "label": "- `root_node`, `sub_scenes`, `asset_info`, `animation_clips`",
+        "disposition": "excluded",
+        "target_section": null,
+        "verification_status": "verified_redundant",
+        "excluded_reason": "the named member(s) already appear with an equivalent or more complete description in the candidate's own comprehensive API Reference table (233 real public classes, far broader than this old README's curated per-module bullet list) -- cross-checked present via a real grep index against the candidate's API Reference section; the old curated bullet is redundant, not dropped.",
+        "verdict": {
+          "status": "excluded",
+          "basis": "excluded_reason",
+          "found_in": [],
+          "fidelity": {
+            "score": 0.25,
+            "scope": "document",
+            "missing_words": [
+              "animation_clips",
+              "asset_info",
+              "sub_scenes"
+            ]
+          },
+          "target_traced": true
+        }
+      },
+      {
+        "kind": "content",
+        "unit_id": "u0032",
+        "label": "- `create_animation_clip(name)`, `clear()`",
+        "disposition": "excluded",
+        "target_section": null,
+        "verification_status": "verified_redundant",
+        "excluded_reason": "the named member(s) already appear with an equivalent or more complete description in the candidate's own comprehensive API Reference table (233 real public classes, far broader than this old README's curated per-module bullet list) -- cross-checked present via a real grep index against the candidate's API Reference section; the old curated bullet is redundant, not dropped.",
+        "verdict": {
+          "status": "excluded",
+          "basis": "excluded_reason",
+          "found_in": [],
+          "fidelity": {
+            "score": 0.33,
+            "scope": "document",
+            "missing_words": [
+              "clear",
+              "create_animation_clip"
+            ]
+          },
+          "target_traced": true
+        }
+      },
+      {
+        "kind": "content",
+        "unit_id": "u0033",
+        "label": "- `Node`",
+        "disposition": "excluded",
+        "target_section": null,
+        "verification_status": "verified_redundant",
+        "excluded_reason": "`Node` already appear with an equivalent or more complete description in the candidate's own comprehensive API Reference table (233 real public classes, far broader than this old README's curated per-module bullet list) -- cross-checked present via a real grep index against the candidate's API Reference section; the old curated bullet is redundant, not dropped.",
+        "verdict": {
+          "status": "excluded",
+          "basis": "excluded_reason",
+          "found_in": [
+            "__preamble__",
+            "API Reference"
+          ],
+          "fidelity": {
+            "score": 1.0,
+            "scope": "document",
+            "missing_words": []
+          },
+          "target_traced": true
+        }
+      },
+      {
+        "kind": "content",
+        "unit_id": "u0034",
+        "label": "- `create_child_node(node_name, entity, material) -> 'Node'`",
+        "disposition": "excluded",
+        "target_section": null,
+        "verification_status": "verified_redundant",
+        "excluded_reason": "the named member(s) already appear with an equivalent or more complete description in the candidate's own comprehensive API Reference table (233 real public classes, far broader than this old README's curated per-module bullet list) -- cross-checked present via a real grep index against the candidate's API Reference section; the old curated bullet is redundant, not dropped.",
+        "verdict": {
+          "status": "excluded",
+          "basis": "excluded_reason",
+          "found_in": [],
+          "fidelity": {
+            "score": 0.8,
+            "scope": "document",
+            "missing_words": [
+              "node_name"
+            ]
+          },
+          "target_traced": true
+        }
+      },
+      {
+        "kind": "content",
+        "unit_id": "u0035",
+        "label": "- `add_entity(entity)`, `add_child_node(node)`, `merge(node)`",
+        "disposition": "excluded",
+        "target_section": null,
+        "verification_status": "verified_redundant",
+        "excluded_reason": "the named member(s) already appear with an equivalent or more complete description in the candidate's own comprehensive API Reference table (233 real public classes, far broader than this old README's curated per-module bullet list) -- cross-checked present via a real grep index against the candidate's API Reference section; the old curated bullet is redundant, not dropped.",
+        "verdict": {
+          "status": "excluded",
+          "basis": "excluded_reason",
+          "found_in": [],
+          "fidelity": {
+            "score": 0.8,
+            "scope": "document",
+            "missing_words": [
+              "add_child_node"
+            ]
+          },
+          "target_traced": true
+        }
+      },
+      {
+        "kind": "content",
+        "unit_id": "u0036",
+        "label": "- `entity`, `entities`, `material`, `materials`, `child_nodes`, `parent_node`",
+        "disposition": "excluded",
+        "target_section": null,
+        "verification_status": "verified_redundant",
+        "excluded_reason": "the named member(s) already appear with an equivalent or more complete description in the candidate's own comprehensive API Reference table (233 real public classes, far broader than this old README's curated per-module bullet list) -- cross-checked present via a real grep index against the candidate's API Reference section; the old curated bullet is redundant, not dropped.",
+        "verdict": {
+          "status": "excluded",
+          "basis": "excluded_reason",
+          "found_in": [],
+          "fidelity": {
+            "score": 0.83,
+            "scope": "document",
+            "missing_words": [
+              "parent_node"
+            ]
+          },
+          "target_traced": true
+        }
+      },
+      {
+        "kind": "content",
+        "unit_id": "u0037",
+        "label": "- `transform`, `global_transform`, `visible`, `excluded`",
+        "disposition": "excluded",
+        "target_section": null,
+        "verification_status": "verified_redundant",
+        "excluded_reason": "the named member(s) already appear with an equivalent or more complete description in the candidate's own comprehensive API Reference table (233 real public classes, far broader than this old README's curated per-module bullet list) -- cross-checked present via a real grep index against the candidate's API Reference section; the old curated bullet is redundant, not dropped.",
+        "verdict": {
+          "status": "excluded",
+          "basis": "excluded_reason",
+          "found_in": [],
+          "fidelity": {
+            "score": 0.25,
+            "scope": "document",
+            "missing_words": [
+              "excluded",
+              "global_transform",
+              "visible"
+            ]
+          },
+          "target_traced": true
+        }
+      },
+      {
+        "kind": "content",
+        "unit_id": "u0038",
+        "label": "- `evaluate_global_transform(with_geometric_transform)`, `get_bounding_box()`",
+        "disposition": "excluded",
+        "target_section": null,
+        "verification_status": "verified_redundant",
+        "excluded_reason": "the named member(s) already appear with an equivalent or more complete description in the candidate's own comprehensive API Reference table (233 real public classes, far broader than this old README's curated per-module bullet list) -- cross-checked present via a real grep index against the candidate's API Reference section; the old curated bullet is redundant, not dropped.",
+        "verdict": {
+          "status": "excluded",
+          "basis": "excluded_reason",
+          "found_in": [],
+          "fidelity": {
+            "score": 0.33,
+            "scope": "document",
+            "missing_words": [
+              "evaluate_global_transform",
+              "with_geometric_transform"
+            ]
+          },
+          "target_traced": true
+        }
+      },
+      {
+        "kind": "content",
+        "unit_id": "u0039",
+        "label": "- `Entity` (base of `Mesh` and the primitive shapes)",
+        "disposition": "excluded",
+        "target_section": null,
+        "verification_status": "verified_redundant",
+        "excluded_reason": "`Entity`, `Mesh` already appear with an equivalent or more complete description in the candidate's own comprehensive API Reference table (233 real public classes, far broader than this old README's curated per-module bullet list) -- cross-checked present via a real grep index against the candidate's API Reference section; the old curated bullet is redundant, not dropped.",
+        "verdict": {
+          "status": "excluded",
+          "basis": "excluded_reason",
+          "found_in": [],
+          "fidelity": {
+            "score": 0.8,
+            "scope": "document",
+            "missing_words": [
+              "shapes"
+            ]
+          },
+          "target_traced": true
+        }
+      },
+      {
+        "kind": "content",
+        "unit_id": "u0040",
+        "label": "- `get_bounding_box()`, `parent_node`, `parent_nodes`, `excluded`, `name`",
+        "disposition": "excluded",
+        "target_section": null,
+        "verification_status": "verified_redundant",
+        "excluded_reason": "the named member(s) already appear with an equivalent or more complete description in the candidate's own comprehensive API Reference table (233 real public classes, far broader than this old README's curated per-module bullet list) -- cross-checked present via a real grep index against the candidate's API Reference section; the old curated bullet is redundant, not dropped.",
+        "verdict": {
+          "status": "excluded",
+          "basis": "excluded_reason",
+          "found_in": [],
+          "fidelity": {
+            "score": 0.4,
+            "scope": "document",
+            "missing_words": [
+              "excluded",
+              "parent_node",
+              "parent_nodes"
+            ]
+          },
+          "target_traced": true
+        }
+      },
+      {
+        "kind": "content",
+        "unit_id": "u0041",
+        "label": "- `Transform` / `GlobalTransform`",
+        "disposition": "excluded",
+        "target_section": null,
+        "verification_status": "verified_redundant",
+        "excluded_reason": "`Transform`, `GlobalTransform` already appear with an equivalent or more complete description in the candidate's own comprehensive API Reference table (233 real public classes, far broader than this old README's curated per-module bullet list) -- cross-checked present via a real grep index against the candidate's API Reference section; the old curated bullet is redundant, not dropped.",
+        "verdict": {
+          "status": "excluded",
+          "basis": "excluded_reason",
+          "found_in": [],
+          "fidelity": {
+            "score": 1.0,
+            "scope": "document",
+            "missing_words": []
+          },
+          "target_traced": true
+        }
+      },
+      {
+        "kind": "content",
+        "unit_id": "u0042",
+        "label": "- `translation`, `scaling`, `rotation`, `euler_angles`, `transform_matrix`",
+        "disposition": "excluded",
+        "target_section": null,
+        "verification_status": "verified_redundant",
+        "excluded_reason": "the named member(s) already appear with an equivalent or more complete description in the candidate's own comprehensive API Reference table (233 real public classes, far broader than this old README's curated per-module bullet list) -- cross-checked present via a real grep index against the candidate's API Reference section; the old curated bullet is redundant, not dropped.",
+        "verdict": {
+          "status": "excluded",
+          "basis": "excluded_reason",
+          "found_in": [],
+          "fidelity": {
+            "score": 1.0,
+            "scope": "document",
+            "missing_words": []
+          },
+          "target_traced": true
+        }
+      },
+      {
+        "kind": "content",
+        "unit_id": "u0043",
+        "label": "- `set_translation(tx, ty, tz)`, `set_scale(sx, sy, sz)`, `set_rotation(rw, rx, ry, rz)`",
+        "disposition": "excluded",
+        "target_section": null,
+        "verification_status": "verified_redundant",
+        "excluded_reason": "the named member(s) already appear with an equivalent or more complete description in the candidate's own comprehensive API Reference table (233 real public classes, far broader than this old README's curated per-module bullet list) -- cross-checked present via a real grep index against the candidate's API Reference section; the old curated bullet is redundant, not dropped.",
+        "verdict": {
+          "status": "excluded",
+          "basis": "excluded_reason",
+          "found_in": [],
+          "fidelity": {
+            "score": 0.33,
+            "scope": "document",
+            "missing_words": [
+              "set_rotation",
+              "set_scale"
+            ]
+          },
+          "target_traced": true
+        }
+      },
+      {
+        "kind": "content",
+        "unit_id": "u0044",
+        "label": "- `Mesh(name)`",
+        "disposition": "excluded",
+        "target_section": null,
+        "verification_status": "verified_redundant",
+        "excluded_reason": "`Mesh` already appear with an equivalent or more complete description in the candidate's own comprehensive API Reference table (233 real public classes, far broader than this old README's curated per-module bullet list) -- cross-checked present via a real grep index against the candidate's API Reference section; the old curated bullet is redundant, not dropped.",
+        "verdict": {
+          "status": "excluded",
+          "basis": "excluded_reason",
+          "found_in": [],
+          "fidelity": {
+            "score": 1.0,
+            "scope": "document",
+            "missing_words": []
+          },
+          "target_traced": true
+        }
+      },
+      {
+        "kind": "content",
+        "unit_id": "u0045",
+        "label": "- `control_points: ArrayListAdapter[Vector4]`, `polygon_count`, `polygons`",
+        "disposition": "excluded",
+        "target_section": null,
+        "verification_status": "verified_redundant",
+        "excluded_reason": "the named member(s) already appear with an equivalent or more complete description in the candidate's own comprehensive API Reference table (233 real public classes, far broader than this old README's curated per-module bullet list) -- cross-checked present via a real grep index against the candidate's API Reference section; the old curated bullet is redundant, not dropped.",
+        "verdict": {
+          "status": "excluded",
+          "basis": "excluded_reason",
+          "found_in": [],
+          "fidelity": {
+            "score": 1.0,
+            "scope": "document",
+            "missing_words": []
+          },
+          "target_traced": true
+        }
+      },
+      {
+        "kind": "content",
+        "unit_id": "u0046",
+        "label": "- `create_polygon(*indices)`, `triangulate()`, `get_bounding_box()`",
+        "disposition": "excluded",
+        "target_section": null,
+        "verification_status": "verified_redundant",
+        "excluded_reason": "the named member(s) already appear with an equivalent or more complete description in the candidate's own comprehensive API Reference table (233 real public classes, far broader than this old README's curated per-module bullet list) -- cross-checked present via a real grep index against the candidate's API Reference section; the old curated bullet is redundant, not dropped.",
+        "verdict": {
+          "status": "excluded",
+          "basis": "excluded_reason",
+          "found_in": [],
+          "fidelity": {
+            "score": 1.0,
+            "scope": "document",
+            "missing_words": []
+          },
+          "target_traced": true
+        }
+      },
+      {
+        "kind": "content",
+        "unit_id": "u0047",
+        "label": "- `Box`, `Cylinder`, `Sphere`, `Torus`, `Pyramid`, `Dish`, `Circle`, `Ellipse`, `Frustum`",
+        "disposition": "excluded",
+        "target_section": null,
+        "verification_status": "verified_redundant",
+        "excluded_reason": "`Box`, `Cylinder`, `Sphere`, `Torus`, `Pyramid`, `Dish`, `Circle`, `Ellipse`, `Frustum` already appear with an equivalent or more complete description in the candidate's own comprehensive API Reference table (233 real public classes, far broader than this old README's curated per-module bullet list) -- cross-checked present via a real grep index against the candidate's API Reference section; the old curated bullet is redundant, not dropped.",
+        "verdict": {
+          "status": "excluded",
+          "basis": "excluded_reason",
+          "found_in": [],
+          "fidelity": {
+            "score": 1.0,
+            "scope": "document",
+            "missing_words": []
+          },
+          "target_traced": true
+        }
+      },
+      {
+        "kind": "content",
+        "unit_id": "u0048",
+        "label": "- each exposes `to_mesh() -> 'Mesh'` to convert the parameterized primitive into a concret",
+        "disposition": "excluded",
+        "target_section": null,
+        "verification_status": "verified_redundant",
+        "excluded_reason": "the named member(s) already appear with an equivalent or more complete description in the candidate's own comprehensive API Reference table (233 real public classes, far broader than this old README's curated per-module bullet list) -- cross-checked present via a real grep index against the candidate's API Reference section; the old curated bullet is redundant, not dropped.",
+        "verdict": {
+          "status": "excluded",
+          "basis": "excluded_reason",
+          "found_in": [],
+          "fidelity": {
+            "score": 1.0,
+            "scope": "document",
+            "missing_words": []
+          },
+          "target_traced": true
+        }
+      },
+      {
+        "kind": "content",
+        "unit_id": "u0049",
+        "label": "- `Camera`, `Light`",
+        "disposition": "excluded",
+        "target_section": null,
+        "verification_status": "verified_redundant",
+        "excluded_reason": "`Camera`, `Light` already appear with an equivalent or more complete description in the candidate's own comprehensive API Reference table (233 real public classes, far broader than this old README's curated per-module bullet list) -- cross-checked present via a real grep index against the candidate's API Reference section; the old curated bullet is redundant, not dropped.",
+        "verdict": {
+          "status": "excluded",
+          "basis": "excluded_reason",
+          "found_in": [],
+          "fidelity": {
+            "score": 1.0,
+            "scope": "document",
+            "missing_words": []
+          },
+          "target_traced": true
+        }
+      },
+      {
+        "kind": "content",
+        "unit_id": "u0050",
+        "label": "- `near_plane`, `far_plane`, `field_of_view`, `direction`, `target`, `up`",
+        "disposition": "excluded",
+        "target_section": null,
+        "verification_status": "verified_redundant",
+        "excluded_reason": "the named member(s) already appear with an equivalent or more complete description in the candidate's own comprehensive API Reference table (233 real public classes, far broader than this old README's curated per-module bullet list) -- cross-checked present via a real grep index against the candidate's API Reference section; the old curated bullet is redundant, not dropped.",
+        "verdict": {
+          "status": "excluded",
+          "basis": "excluded_reason",
+          "found_in": [],
+          "fidelity": {
+            "score": 0.8,
+            "scope": "document",
+            "missing_words": [
+              "field_of_view"
+            ]
+          },
+          "target_traced": true
+        }
+      },
+      {
+        "kind": "content",
+        "unit_id": "u0051",
+        "label": "- `Material` (base) — `get_texture(slot_name)`, `set_texture(slot_name, texture)`",
+        "disposition": "excluded",
+        "target_section": null,
+        "verification_status": "verified_redundant",
+        "excluded_reason": "`Material` already appear with an equivalent or more complete description in the candidate's own comprehensive API Reference table (233 real public classes, far broader than this old README's curated per-module bullet list) -- cross-checked present via a real grep index against the candidate's API Reference section; the old curated bullet is redundant, not dropped.",
+        "verdict": {
+          "status": "excluded",
+          "basis": "excluded_reason",
+          "found_in": [],
+          "fidelity": {
+            "score": 0.5,
+            "scope": "document",
+            "missing_words": [
+              "get_texture",
+              "set_texture",
+              "slot_name"
+            ]
+          },
+          "target_traced": true
+        }
+      },
+      {
+        "kind": "content",
+        "unit_id": "u0052",
+        "label": "- `LambertMaterial` — `emissive_color`, `ambient_color`, `diffuse_color`, `transparent_col",
+        "disposition": "excluded",
+        "target_section": null,
+        "verification_status": "verified_redundant",
+        "excluded_reason": "`LambertMaterial` already appear with an equivalent or more complete description in the candidate's own comprehensive API Reference table (233 real public classes, far broader than this old README's curated per-module bullet list) -- cross-checked present via a real grep index against the candidate's API Reference section; the old curated bullet is redundant, not dropped.",
+        "verdict": {
+          "status": "excluded",
+          "basis": "excluded_reason",
+          "found_in": [],
+          "fidelity": {
+            "score": 0.33,
+            "scope": "document",
+            "missing_words": [
+              "ambient_color",
+              "emissive_color",
+              "transparency",
+              "transparent_color"
+            ]
+          },
+          "target_traced": true
+        }
+      },
+      {
+        "kind": "content",
+        "unit_id": "u0053",
+        "label": "- `PhongMaterial(LambertMaterial)` — adds `specular_color`, `specular_factor`, `shininess`",
+        "disposition": "excluded",
+        "target_section": null,
+        "verification_status": "verified_redundant",
+        "excluded_reason": "`PhongMaterial` already appear with an equivalent or more complete description in the candidate's own comprehensive API Reference table (233 real public classes, far broader than this old README's curated per-module bullet list) -- cross-checked present via a real grep index against the candidate's API Reference section; the old curated bullet is redundant, not dropped.",
+        "verdict": {
+          "status": "excluded",
+          "basis": "excluded_reason",
+          "found_in": [],
+          "fidelity": {
+            "score": 0.57,
+            "scope": "document",
+            "missing_words": [
+              "reflection_color",
+              "shininess",
+              "specular_factor"
+            ]
+          },
+          "target_traced": true
+        }
+      },
+      {
+        "kind": "content",
+        "unit_id": "u0054",
+        "label": "- `PbrMaterial` — `albedo`, `metallic_factor`, `roughness_factor`, `albedo_texture`, `norm",
+        "disposition": "excluded",
+        "target_section": null,
+        "verification_status": "verified_redundant",
+        "excluded_reason": "`PbrMaterial` already appear with an equivalent or more complete description in the candidate's own comprehensive API Reference table (233 real public classes, far broader than this old README's curated per-module bullet list) -- cross-checked present via a real grep index against the candidate's API Reference section; the old curated bullet is redundant, not dropped.",
+        "verdict": {
+          "status": "excluded",
+          "basis": "excluded_reason",
+          "found_in": [],
+          "fidelity": {
+            "score": 0.44,
+            "scope": "document",
+            "missing_words": [
+              "albedo_texture",
+              "emissive_color",
+              "emissive_texture",
+              "normal_texture",
+              "occlusion_texture"
+            ]
+          },
+          "target_traced": true
+        }
+      },
+      {
+        "kind": "content",
+        "unit_id": "u0055",
+        "label": "- `ObjLoadOptions` — `flip_coordinate_system`, `enable_materials`, `scale`, `normalize_nor",
+        "disposition": "excluded",
+        "target_section": null,
+        "verification_status": "verified_redundant",
+        "excluded_reason": "`ObjLoadOptions` already appear with an equivalent or more complete description in the candidate's own comprehensive API Reference table (233 real public classes, far broader than this old README's curated per-module bullet list) -- cross-checked present via a real grep index against the candidate's API Reference section; the old curated bullet is redundant, not dropped.",
+        "verdict": {
+          "status": "excluded",
+          "basis": "excluded_reason",
+          "found_in": [],
+          "fidelity": {
+            "score": 0.8,
+            "scope": "document",
+            "missing_words": [
+              "normalize_normal"
+            ]
+          },
+          "target_traced": true
+        }
+      },
+      {
+        "kind": "content",
+        "unit_id": "u0056",
+        "label": "- `ObjSaveOptions` — `apply_unit_scale`, `point_cloud`, `verbose`, `serialize_w`,   `enabl",
+        "disposition": "excluded",
+        "target_section": null,
+        "verification_status": "verified_redundant",
+        "excluded_reason": "`ObjSaveOptions` already appear with an equivalent or more complete description in the candidate's own comprehensive API Reference table (233 real public classes, far broader than this old README's curated per-module bullet list) -- cross-checked present via a real grep index against the candidate's API Reference section; the old curated bullet is redundant, not dropped.",
+        "verdict": {
+          "status": "excluded",
+          "basis": "excluded_reason",
+          "found_in": [],
+          "fidelity": {
+            "score": 0.5,
+            "scope": "document",
+            "missing_words": [
+              "axis_system",
+              "point_cloud",
+              "serialize_w",
+              "verbose"
+            ]
+          },
+          "target_traced": true
+        }
+      },
+      {
+        "kind": "content",
+        "unit_id": "u0057",
+        "label": "- `StlLoadOptions` / `StlSaveOptions` — `binary_mode` (save only), `scale`, `flip_coordina",
+        "disposition": "excluded",
+        "target_section": null,
+        "verification_status": "verified_redundant",
+        "excluded_reason": "`StlLoadOptions`, `StlSaveOptions` already appear with an equivalent or more complete description in the candidate's own comprehensive API Reference table (233 real public classes, far broader than this old README's curated per-module bullet list) -- cross-checked present via a real grep index against the candidate's API Reference section; the old curated bullet is redundant, not dropped.",
+        "verdict": {
+          "status": "excluded",
+          "basis": "excluded_reason",
+          "found_in": [],
+          "fidelity": {
+            "score": 1.0,
+            "scope": "document",
+            "missing_words": []
+          },
+          "target_traced": true
+        }
+      },
+      {
+        "kind": "content",
+        "unit_id": "u0058",
+        "label": "- `GltfLoadOptions` / `GltfSaveOptions` — `binary_mode` (save only), `flip_tex_coord_v`",
+        "disposition": "excluded",
+        "target_section": null,
+        "verification_status": "verified_redundant",
+        "excluded_reason": "`GltfLoadOptions`, `GltfSaveOptions` already appear with an equivalent or more complete description in the candidate's own comprehensive API Reference table (233 real public classes, far broader than this old README's curated per-module bullet list) -- cross-checked present via a real grep index against the candidate's API Reference section; the old curated bullet is redundant, not dropped.",
+        "verdict": {
+          "status": "excluded",
+          "basis": "excluded_reason",
+          "found_in": [],
+          "fidelity": {
+            "score": 1.0,
+            "scope": "document",
+            "missing_words": []
+          },
+          "target_traced": true
+        }
+      },
+      {
+        "kind": "content",
+        "unit_id": "u0059",
+        "label": "- `ColladaLoadOptions` / `ColladaSaveOptions` — `flip_coordinate_system`, `enable_material",
+        "disposition": "excluded",
+        "target_section": null,
+        "verification_status": "verified_redundant",
+        "excluded_reason": "`ColladaLoadOptions`, `ColladaSaveOptions` already appear with an equivalent or more complete description in the candidate's own comprehensive API Reference table (233 real public classes, far broader than this old README's curated per-module bullet list) -- cross-checked present via a real grep index against the candidate's API Reference section; the old curated bullet is redundant, not dropped.",
+        "verdict": {
+          "status": "excluded",
+          "basis": "excluded_reason",
+          "found_in": [],
+          "fidelity": {
+            "score": 0.83,
+            "scope": "document",
+            "missing_words": [
+              "indented"
+            ]
+          },
+          "target_traced": true
+        }
+      },
+      {
+        "kind": "content",
+        "unit_id": "u0060",
+        "label": "- `ThreeMfLoadOptions` / `ThreeMfSaveOptions` — `flip_coordinate_system`, `enable_compress",
+        "disposition": "excluded",
+        "target_section": null,
+        "verification_status": "verified_redundant",
+        "excluded_reason": "`ThreeMfLoadOptions`, `ThreeMfSaveOptions` already appear with an equivalent or more complete description in the candidate's own comprehensive API Reference table (233 real public classes, far broader than this old README's curated per-module bullet list) -- cross-checked present via a real grep index against the candidate's API Reference section; the old curated bullet is redundant, not dropped.",
+        "verdict": {
+          "status": "excluded",
+          "basis": "excluded_reason",
+          "found_in": [],
+          "fidelity": {
+            "score": 0.75,
+            "scope": "document",
+            "missing_words": [
+              "build_all",
+              "pretty_print"
+            ]
+          },
+          "target_traced": true
+        }
+      },
+      {
+        "kind": "content",
+        "unit_id": "u0061",
+        "label": "- `FbxLoadOptions` / `FbxSaveOptions` — `compatible_mode`, `export_textures`, `embed_textu",
+        "disposition": "excluded",
+        "target_section": null,
+        "verification_status": "verified_redundant",
+        "excluded_reason": "`FbxLoadOptions`, `FbxSaveOptions` already appear with an equivalent or more complete description in the candidate's own comprehensive API Reference table (233 real public classes, far broader than this old README's curated per-module bullet list) -- cross-checked present via a real grep index against the candidate's API Reference section; the old curated bullet is redundant, not dropped.",
+        "verdict": {
+          "status": "excluded",
+          "basis": "excluded_reason",
+          "found_in": [],
+          "fidelity": {
+            "score": 1.0,
+            "scope": "document",
+            "missing_words": []
+          },
+          "target_traced": true
+        }
+      },
+      {
+        "kind": "content",
+        "unit_id": "u0062",
+        "label": "- `FileFormat` — `detect(stream, file_name)`, `get_format_by_extension(extension_name)`, `",
+        "disposition": "excluded",
+        "target_section": null,
+        "verification_status": "verified_redundant",
+        "excluded_reason": "`FileFormat` already appear with an equivalent or more complete description in the candidate's own comprehensive API Reference table (233 real public classes, far broader than this old README's curated per-module bullet list) -- cross-checked present via a real grep index against the candidate's API Reference section; the old curated bullet is redundant, not dropped.",
+        "verdict": {
+          "status": "excluded",
+          "basis": "excluded_reason",
+          "found_in": [],
+          "fidelity": {
+            "score": 0.62,
+            "scope": "document",
+            "missing_words": [
+              "can_export",
+              "can_import",
+              "extension_name"
+            ]
+          },
+          "target_traced": true
+        }
+      },
+      {
+        "kind": "content",
+        "unit_id": "u0063",
+        "label": "- `Vector2`, `Vector3`, `Vector4` — `x`/`y`/`z`/`w`, `length`, `normalize()`, `dot()`, `cr",
+        "disposition": "excluded",
+        "target_section": null,
+        "verification_status": "verified_redundant",
+        "excluded_reason": "`Vector2`, `Vector3`, `Vector4` already appear with an equivalent or more complete description in the candidate's own comprehensive API Reference table (233 real public classes, far broader than this old README's curated per-module bullet list) -- cross-checked present via a real grep index against the candidate's API Reference section; the old curated bullet is redundant, not dropped.",
+        "verdict": {
+          "status": "excluded",
+          "basis": "excluded_reason",
+          "found_in": [],
+          "fidelity": {
+            "score": 1.0,
+            "scope": "document",
+            "missing_words": []
+          },
+          "target_traced": true
+        }
+      },
+      {
+        "kind": "content",
+        "unit_id": "u0064",
+        "label": "- `Matrix4` — `translate()`, `scale()`, `rotate()`, `decompose()`, `inverse()`, `get_ident",
+        "disposition": "excluded",
+        "target_section": null,
+        "verification_status": "verified_redundant",
+        "excluded_reason": "`Matrix4` already appear with an equivalent or more complete description in the candidate's own comprehensive API Reference table (233 real public classes, far broader than this old README's curated per-module bullet list) -- cross-checked present via a real grep index against the candidate's API Reference section; the old curated bullet is redundant, not dropped.",
+        "verdict": {
+          "status": "excluded",
+          "basis": "excluded_reason",
+          "found_in": [],
+          "fidelity": {
+            "score": 0.43,
+            "scope": "document",
+            "missing_words": [
+              "decompose",
+              "inverse",
+              "rotate",
+              "translate"
+            ]
+          },
+          "target_traced": true
+        }
+      },
+      {
+        "kind": "content",
+        "unit_id": "u0065",
+        "label": "- `Quaternion` — `slerp(t, v1, v2)`, `to_matrix()`, `from_euler_angle()`, `from_angle_axis",
+        "disposition": "excluded",
+        "target_section": null,
+        "verification_status": "verified_redundant",
+        "excluded_reason": "`Quaternion` already appear with an equivalent or more complete description in the candidate's own comprehensive API Reference table (233 real public classes, far broader than this old README's curated per-module bullet list) -- cross-checked present via a real grep index against the candidate's API Reference section; the old curated bullet is redundant, not dropped.",
+        "verdict": {
+          "status": "excluded",
+          "basis": "excluded_reason",
+          "found_in": [],
+          "fidelity": {
+            "score": 0.4,
+            "scope": "document",
+            "missing_words": [
+              "from_angle_axis",
+              "from_euler_angle",
+              "to_matrix"
+            ]
+          },
+          "target_traced": true
+        }
+      },
+      {
+        "kind": "content",
+        "unit_id": "u0066",
+        "label": "- `BoundingBox` — `minimum`, `maximum`, `center`, `size`, `merge()`, `contains()`",
+        "disposition": "excluded",
+        "target_section": null,
+        "verification_status": "verified_redundant",
+        "excluded_reason": "`BoundingBox` already appear with an equivalent or more complete description in the candidate's own comprehensive API Reference table (233 real public classes, far broader than this old README's curated per-module bullet list) -- cross-checked present via a real grep index against the candidate's API Reference section; the old curated bullet is redundant, not dropped.",
+        "verdict": {
+          "status": "excluded",
+          "basis": "excluded_reason",
+          "found_in": [],
+          "fidelity": {
+            "score": 0.71,
+            "scope": "document",
+            "missing_words": [
+              "maximum",
+              "minimum"
+            ]
+          },
+          "target_traced": true
+        }
+      },
+      {
+        "kind": "content",
+        "unit_id": "u0067",
+        "label": "- `AnimationClip` — `create_animation_node(name) -> AnimationNode`, `animations`, `start`,",
+        "disposition": "excluded",
+        "target_section": null,
+        "verification_status": "verified_redundant",
+        "excluded_reason": "`AnimationClip` already appear with an equivalent or more complete description in the candidate's own comprehensive API Reference table (233 real public classes, far broader than this old README's curated per-module bullet list) -- cross-checked present via a real grep index against the candidate's API Reference section; the old curated bullet is redundant, not dropped.",
+        "verdict": {
+          "status": "excluded",
+          "basis": "excluded_reason",
+          "found_in": [],
+          "fidelity": {
+            "score": 0.86,
+            "scope": "document",
+            "missing_words": [
+              "stop"
+            ]
+          },
+          "target_traced": true
+        }
+      },
+      {
+        "kind": "content",
+        "unit_id": "u0068",
+        "label": "- `AnimationNode` — `create_bind_point(obj, prop_name)`, `get_keyframe_sequence(target, pr",
+        "disposition": "excluded",
+        "target_section": null,
+        "verification_status": "verified_redundant",
+        "excluded_reason": "`AnimationNode` already appear with an equivalent or more complete description in the candidate's own comprehensive API Reference table (233 real public classes, far broader than this old README's curated per-module bullet list) -- cross-checked present via a real grep index against the candidate's API Reference section; the old curated bullet is redundant, not dropped.",
+        "verdict": {
+          "status": "excluded",
+          "basis": "excluded_reason",
+          "found_in": [],
+          "fidelity": {
+            "score": 0.33,
+            "scope": "document",
+            "missing_words": [
+              "bind_points",
+              "channel_name",
+              "create_bind_point",
+              "get_keyframe_sequence",
+              "prop_name",
+              "sub_animations"
+            ]
+          },
+          "target_traced": true
+        }
+      },
+      {
+        "kind": "content",
+        "unit_id": "u0069",
+        "label": "- `AnimationChannel` (extends `KeyframeSequence`) — `component_type`, `default_value`,   `",
+        "disposition": "excluded",
+        "target_section": null,
+        "verification_status": "verified_redundant",
+        "excluded_reason": "`AnimationChannel`, `KeyframeSequence` already appear with an equivalent or more complete description in the candidate's own comprehensive API Reference table (233 real public classes, far broader than this old README's curated per-module bullet list) -- cross-checked present via a real grep index against the candidate's API Reference section; the old curated bullet is redundant, not dropped.",
+        "verdict": {
+          "status": "excluded",
+          "basis": "excluded_reason",
+          "found_in": [],
+          "fidelity": {
+            "score": 0.5,
+            "scope": "document",
+            "missing_words": [
+              "default_value",
+              "extends",
+              "keyframe_sequence"
+            ]
+          },
+          "target_traced": true
+        }
+      },
+      {
+        "kind": "content",
+        "unit_id": "u0070",
+        "label": "- `KeyframeSequence` — `add(time, value, interpolation)`, `key_frames`, `pre_behavior`/   ",
+        "disposition": "excluded",
+        "target_section": null,
+        "verification_status": "verified_redundant",
+        "excluded_reason": "`KeyframeSequence`, `Extrapolation` already appear with an equivalent or more complete description in the candidate's own comprehensive API Reference table (233 real public classes, far broader than this old README's curated per-module bullet list) -- cross-checked present via a real grep index against the candidate's API Reference section; the old curated bullet is redundant, not dropped.",
+        "verdict": {
+          "status": "excluded",
+          "basis": "excluded_reason",
+          "found_in": [],
+          "fidelity": {
+            "score": 0.62,
+            "scope": "document",
+            "missing_words": [
+              "key_frames",
+              "post_behavior",
+              "pre_behavior"
+            ]
+          },
+          "target_traced": true
+        }
+      },
+      {
+        "kind": "content",
+        "unit_id": "u0071",
+        "label": "- `KeyFrame` — `time`, `value`, `interpolation` (`Interpolation`), tangent/weight fields  ",
+        "disposition": "excluded",
+        "target_section": null,
+        "verification_status": "verified_redundant",
+        "excluded_reason": "`KeyFrame`, `Interpolation` already appear with an equivalent or more complete description in the candidate's own comprehensive API Reference table (233 real public classes, far broader than this old README's curated per-module bullet list) -- cross-checked present via a real grep index against the candidate's API Reference section; the old curated bullet is redundant, not dropped.",
+        "verdict": {
+          "status": "excluded",
+          "basis": "excluded_reason",
+          "found_in": [],
+          "fidelity": {
+            "score": 0.58,
+            "scope": "document",
+            "missing_words": [
+              "bias",
+              "continuity",
+              "step_mode",
+              "tangent_weight_mode",
+              "tension"
+            ]
+          },
+          "target_traced": true
+        }
+      },
+      {
+        "kind": "content",
+        "unit_id": "u0072",
+        "label": "- `BindPoint`, `Interpolation`, `Extrapolation`/`ExtrapolationType`, `StepMode`, `Weighted",
+        "disposition": "excluded",
+        "target_section": null,
+        "verification_status": "verified_redundant",
+        "excluded_reason": "`BindPoint`, `Interpolation`, `Extrapolation`, `ExtrapolationType`, `StepMode`, `WeightedMode` already appear with an equivalent or more complete description in the candidate's own comprehensive API Reference table (233 real public classes, far broader than this old README's curated per-module bullet list) -- cross-checked present via a real grep index against the candidate's API Reference section; the old curated bullet is redundant, not dropped.",
+        "verdict": {
+          "status": "excluded",
+          "basis": "excluded_reason",
+          "found_in": [],
+          "fidelity": {
+            "score": 1.0,
+            "scope": "document",
+            "missing_words": []
+          },
+          "target_traced": true
+        }
+      },
+      {
+        "kind": "content",
+        "unit_id": "u0073",
+        "label": "- `ImportException`, `ExportException`, `ParseException`, `InvalidOperationException`",
+        "disposition": "excluded",
+        "target_section": null,
+        "verification_status": "verified_redundant",
+        "excluded_reason": "`ImportException`, `ExportException`, `ParseException`, `InvalidOperationException` already appear with an equivalent or more complete description in the candidate's own comprehensive API Reference table (233 real public classes, far broader than this old README's curated per-module bullet list) -- cross-checked present via a real grep index against the candidate's API Reference section; the old curated bullet is redundant, not dropped.",
+        "verdict": {
+          "status": "excluded",
+          "basis": "excluded_reason",
+          "found_in": [],
+          "fidelity": {
+            "score": 1.0,
+            "scope": "document",
+            "missing_words": []
+          },
+          "target_traced": true
+        }
+      },
+      {
+        "kind": "content",
+        "unit_id": "u0074",
+        "label": "</details>",
+        "disposition": "merged_verbatim",
+        "target_section": "API Reference",
+        "verification_status": "not_applicable_category_1",
+        "excluded_reason": null,
+        "verdict": {
+          "status": "verbatim",
+          "basis": "normalized_text",
+          "found_in": [
+            "Additional Examples",
+            "API Reference"
+          ],
+          "fidelity": {
+            "score": 1.0,
+            "scope": "target_section",
+            "missing_words": []
+          },
+          "target_traced": true
+        }
+      },
+      {
+        "kind": "content",
+        "unit_id": "u0075",
+        "label": "- **[Getting started guide](https://docs.aspose.org/3d/python/)** — installation, key capa",
+        "disposition": "merged_reframed",
+        "target_section": "Documentation & Resources",
+        "verification_status": "not_applicable_category_1",
+        "excluded_reason": null,
+        "verdict": {
+          "status": "reframed",
+          "basis": "fidelity",
+          "found_in": [
+            "Documentation & Resources (traced)"
+          ],
+          "fidelity": {
+            "score": 0.71,
+            "scope": "target_section",
+            "missing_words": [
+              "capabilities",
+              "detailed",
+              "developer",
+              "links"
+            ]
+          },
+          "target_traced": true
+        }
+      },
+      {
+        "kind": "content",
+        "unit_id": "u0076",
+        "label": "- **[How-to guides & FAQ](https://kb.aspose.org/3d/python/)** — task-focused how-to guides",
+        "disposition": "merged_reframed",
+        "target_section": "Documentation & Resources",
+        "verification_status": "not_applicable_category_1",
+        "excluded_reason": null,
+        "verdict": {
+          "status": "reframed",
+          "basis": "fidelity",
+          "found_in": [
+            "Documentation & Resources (traced)"
+          ],
+          "fidelity": {
+            "score": 0.58,
+            "scope": "target_section",
+            "missing_words": [
+              "converting",
+              "files",
+              "installable",
+              "loading",
+              "manipulating"
+            ]
+          },
+          "target_traced": true
+        }
+      },
+      {
+        "kind": "content",
+        "unit_id": "u0077",
+        "label": "- **[Full API reference](https://reference.aspose.org/3d/python/)** — the complete, browsa",
+        "disposition": "corrected",
+        "target_section": "Documentation & Resources",
+        "verification_status": "verified_against_source",
+        "excluded_reason": null,
+        "verdict": {
+          "status": "corrected",
+          "basis": "fidelity",
+          "found_in": [
+            "Documentation & Resources (traced)"
+          ],
+          "fidelity": {
+            "score": 1.0,
+            "scope": "target_section",
+            "missing_words": []
+          },
+          "target_traced": true
+        }
+      },
+      {
+        "kind": "content",
+        "unit_id": "u0078",
+        "label": "- Found a bug or have a feature request? [Open an issue](https://github.com/aspose-3d-foss",
+        "disposition": "merged_verbatim",
+        "target_section": "Documentation & Resources",
+        "verification_status": "not_applicable_category_1",
+        "excluded_reason": null,
+        "verdict": {
+          "status": "verbatim",
+          "basis": "normalized_text",
+          "found_in": [
+            "Documentation & Resources"
+          ],
+          "fidelity": {
+            "score": 1.0,
+            "scope": "target_section",
+            "missing_words": []
+          },
+          "target_traced": true
+        }
+      },
+      {
+        "kind": "content",
+        "unit_id": "u0079",
+        "label": "This project focuses on scene-graph modeling and the OBJ, STL, glTF, COLLADA, and 3MF form",
+        "disposition": "merged_reframed",
+        "target_section": "Scope and Limitations",
+        "verification_status": "verified_against_source",
+        "excluded_reason": null,
+        "verdict": {
+          "status": "reframed",
+          "basis": "fidelity",
+          "found_in": [
+            "Scope and Limitations (traced)"
+          ],
+          "fidelity": {
+            "score": 0.62,
+            "scope": "target_section",
+            "missing_words": [
+              "builds",
+              "curve",
+              "data",
+              "evaluation",
+              "focuses",
+              "graph",
+              "ibuffer",
+              "icommandlist",
+              "irenderwindow",
+              "itexture2d",
+              "modeling",
+              "pipelines",
+              "project",
+              "rasterize",
+              "reads",
+              "surface",
+              "writes"
+            ]
+          },
+          "target_traced": true
+        }
+      },
+      {
+        "kind": "content",
+        "unit_id": "u0080",
+        "label": "FBX support is more limited than the other formats: the FBX tokenizer and parser are exerc",
+        "disposition": "merged_reframed",
+        "target_section": "Scope and Limitations",
+        "verification_status": "verified_against_source",
+        "excluded_reason": null,
+        "verdict": {
+          "status": "reframed",
+          "basis": "fidelity",
+          "found_in": [
+            "Scope and Limitations (traced)"
+          ],
+          "fidelity": {
+            "score": 0.64,
+            "scope": "target_section",
+            "missing_words": [
+              "covered",
+              "exercised",
+              "fidelity",
+              "full",
+              "limited",
+              "matters",
+              "prefer",
+              "round",
+              "suite",
+              "trip"
+            ]
+          },
+          "target_traced": true
+        }
+      },
+      {
+        "kind": "content",
+        "unit_id": "u0081",
+        "label": "COLLADA import works, but COLLADA export is not currently reachable through the public `Sc",
+        "disposition": "merged_reframed",
+        "target_section": "Scope and Limitations",
+        "verification_status": "verified_against_source",
+        "excluded_reason": null,
+        "verdict": {
+          "status": "reframed",
+          "basis": "fidelity",
+          "found_in": [
+            "Scope and Limitations (traced)"
+          ],
+          "fidelity": {
+            "score": 0.68,
+            "scope": "target_section",
+            "missing_words": [
+              "ahead",
+              "currently",
+              "dispatcher",
+              "exists",
+              "implementation",
+              "plugin",
+              "reached",
+              "source",
+              "tree"
+            ]
+          },
+          "target_traced": true
+        }
+      },
+      {
+        "kind": "content",
+        "unit_id": "u0082",
+        "label": "For workflows that need scene rendering, complete FBX read/write support, or additional fo",
+        "disposition": "merged_reframed",
+        "target_section": "Scope and Limitations",
+        "verification_status": "verified_redundant",
+        "excluded_reason": null,
+        "verdict": {
+          "status": "reframed",
+          "basis": "fidelity",
+          "found_in": [
+            "Scope and Limitations (traced)"
+          ],
+          "fidelity": {
+            "score": 0.62,
+            "scope": "target_section",
+            "missing_words": [
+              "additional",
+              "complete",
+              "need",
+              "read",
+              "workflows",
+              "write"
+            ]
+          },
+          "target_traced": true
+        }
+      },
+      {
+        "kind": "content",
+        "unit_id": "u0083",
+        "label": "Install the repository in editable mode and run the test suite:",
+        "disposition": "merged_reframed",
+        "target_section": "Development and Testing",
+        "verification_status": "not_applicable_category_1",
+        "excluded_reason": null,
+        "verdict": {
+          "status": "reframed",
+          "basis": "fidelity",
+          "found_in": [
+            "Development and Testing (traced)"
+          ],
+          "fidelity": {
+            "score": 0.67,
+            "scope": "target_section",
+            "missing_words": [
+              "editable",
+              "mode"
+            ]
+          },
+          "target_traced": true
+        }
+      },
+      {
+        "kind": "content",
+        "unit_id": "u0084",
+        "label": "Run a single test file:",
+        "disposition": "merged_verbatim",
+        "target_section": "Development and Testing",
+        "verification_status": "not_applicable_category_1",
+        "excluded_reason": null,
+        "verdict": {
+          "status": "verbatim",
+          "basis": "normalized_text",
+          "found_in": [
+            "Development and Testing"
+          ],
+          "fidelity": {
+            "score": 1.0,
+            "scope": "target_section",
+            "missing_words": []
+          },
+          "target_traced": true
+        }
+      },
+      {
+        "kind": "content",
+        "unit_id": "u0085",
+        "label": "The optional `dev` extra (`pip install -e \".[dev]\"`) installs `pytest`, though the bundled",
+        "disposition": "merged_reframed",
+        "target_section": "Dependencies",
+        "verification_status": "verified_against_manifest",
+        "excluded_reason": null,
+        "verdict": {
+          "status": "reframed",
+          "basis": "fidelity",
+          "found_in": [
+            "Dependencies (traced)"
+          ],
+          "fidelity": {
+            "score": 0.88,
+            "scope": "target_section",
+            "missing_words": [
+              "installs",
+              "though"
+            ]
+          },
+          "target_traced": true
+        }
+      },
+      {
+        "kind": "content",
+        "unit_id": "u0086",
+        "label": "This project is licensed under the [MIT License](LICENSE). The MIT License permits use, co",
+        "disposition": "merged_verbatim",
+        "target_section": "License",
+        "verification_status": "verified_against_source",
+        "excluded_reason": null,
+        "verdict": {
+          "status": "verbatim",
+          "basis": "normalized_text",
+          "found_in": [
+            "License"
+          ],
+          "fidelity": {
+            "score": 1.0,
+            "scope": "target_section",
+            "missing_words": []
+          },
+          "target_traced": true
+        }
+      },
+      {
+        "kind": "structural",
+        "unit_id": "s0001",
+        "label": "At a glance (generic_structural_block)",
+        "disposition": "merged_reframed",
+        "target_section": "At a Glance",
+        "verification_status": "verified_against_source",
+        "excluded_reason": null,
+        "verdict": {
+          "status": "reframed",
+          "basis": "whitespace_normalized_block",
+          "found_in": [],
+          "fidelity": null
+        }
+      },
+      {
+        "kind": "structural",
+        "unit_id": "s0002",
+        "label": "Assign a PBR material and export to glTF (generic_structural_block)",
+        "disposition": "merged_reframed",
+        "target_section": "Additional Examples",
+        "verification_status": "verified_against_source",
+        "excluded_reason": null,
+        "verdict": {
+          "status": "verbatim",
+          "basis": "whitespace_normalized_block",
+          "found_in": [
+            "Additional Examples"
+          ],
+          "fidelity": null
+        }
+      },
+      {
+        "kind": "structural",
+        "unit_id": "s0003",
+        "label": "Import a COLLADA file (generic_structural_block)",
+        "disposition": "excluded",
+        "target_section": null,
+        "verification_status": "verified_against_source",
+        "excluded_reason": "This specific worked COLLADA-import snippet was not reproduced in the recomposed Additional Examples set; COLLADA import itself remains real and working per the cited importer, and is independently documented via Key Capabilities and the Scope and Limitations submodule-import guidance.",
+        "verdict": {
+          "status": "excluded",
+          "basis": "whitespace_normalized_block",
+          "found_in": [
+            "Additional Examples"
+          ],
+          "fidelity": null
+        }
+      },
+      {
+        "kind": "structural",
+        "unit_id": "s0004",
+        "label": "Convert a parametric primitive to a mesh (generic_structural_block)",
+        "disposition": "excluded",
+        "target_section": null,
+        "verification_status": "verified_redundant",
+        "excluded_reason": "Superseded by Quick Start's own second example, which already demonstrates converting a parametric Box primitive to a Mesh via to_mesh() before exporting it -- reproducing a near-identical standalone snippet here would be redundant.",
+        "verdict": {
+          "status": "excluded",
+          "basis": "whitespace_normalized_block",
+          "found_in": [
+            "Additional Examples"
+          ],
+          "fidelity": null
+        }
+      },
+      {
+        "kind": "code",
+        "unit_id": "c0001",
+        "label": "[At a glance] flowchart TD",
+        "disposition": "merged_reframed",
+        "target_section": "At a Glance",
+        "verification_status": "verified_against_source",
+        "excluded_reason": null,
+        "verdict": {
+          "status": "diagram",
+          "basis": "gated_by_diagram_checks",
+          "found_in": [],
+          "fidelity": null,
+          "fingerprint": [
+            "files",
+            "COLLADA"
+          ],
+          "survived": []
+        }
+      },
+      {
+        "kind": "code",
+        "unit_id": "c0002",
+        "label": "[Installation] git clone https://github.com/aspose-3d-foss/Aspose.3D-FOSS-for-Python.git",
+        "disposition": "merged_reframed",
+        "target_section": "Installation",
+        "verification_status": "verified_against_source",
+        "excluded_reason": null,
+        "verdict": {
+          "status": "api_survived",
+          "basis": "live_fingerprint",
+          "found_in": [
+            "Installation"
+          ],
+          "fidelity": null,
+          "fingerprint": [
+            "git clone",
+            "pip install"
+          ],
+          "survived": [
+            "git clone"
+          ]
+        }
+      },
+      {
+        "kind": "code",
+        "unit_id": "c0003",
+        "label": "[Quick start] scene = Scene()",
+        "disposition": "merged_reframed",
+        "target_section": "Quick Start",
+        "verification_status": "verified_against_source",
+        "excluded_reason": null,
+        "verdict": {
+          "status": "api_survived",
+          "basis": "live_fingerprint",
+          "found_in": [
+            "Quick Start",
+            "Additional Examples"
+          ],
+          "fidelity": null,
+          "fingerprint": [
+            "Scene",
+            "ObjLoadOptions",
+            "scene.open"
+          ],
+          "survived": [
+            "Scene",
+            "ObjLoadOptions",
+            "scene.open"
+          ]
+        }
+      },
+      {
+        "kind": "code",
+        "unit_id": "c0004",
+        "label": "[Quick start] scene = Scene()",
+        "disposition": "merged_reframed",
+        "target_section": "Additional Examples",
+        "verification_status": "verified_against_source",
+        "excluded_reason": null,
+        "verdict": {
+          "status": "api_survived",
+          "basis": "live_fingerprint",
+          "found_in": [
+            "Quick Start",
+            "Additional Examples"
+          ],
+          "fidelity": null,
+          "fingerprint": [
+            "Scene",
+            "scene.open",
+            "GltfSaveOptions",
+            "scene.save"
+          ],
+          "survived": [
+            "Scene",
+            "scene.open",
+            "GltfSaveOptions",
+            "scene.save"
+          ]
+        }
+      },
+      {
+        "kind": "code",
+        "unit_id": "c0005a",
+        "label": "[Build a mesh and export it to STL] import io",
+        "disposition": "merged_verbatim",
+        "target_section": "Additional Examples",
+        "verification_status": "verified_against_source",
+        "excluded_reason": null,
+        "verdict": {
+          "status": "verbatim",
+          "basis": "whitespace_normalized_code",
+          "found_in": [
+            "Additional Examples"
+          ],
+          "fidelity": null,
+          "fingerprint": [],
+          "survived": []
+        }
+      },
+      {
+        "kind": "code",
+        "unit_id": "c0005b",
+        "label": "[Build a mesh and export it to STL] scene = Scene()",
+        "disposition": "merged_verbatim",
+        "target_section": "Additional Examples",
+        "verification_status": "verified_against_source",
+        "excluded_reason": null,
+        "verdict": {
+          "status": "verbatim",
+          "basis": "whitespace_normalized_code",
+          "found_in": [
+            "Additional Examples"
+          ],
+          "fidelity": null,
+          "fingerprint": [
+            "Scene",
+            "Mesh",
+            "mesh.control_points.add",
+            "Vector4",
+            "mesh.create_polygon"
+          ],
+          "survived": [
+            "Scene",
+            "Mesh",
+            "mesh.control_points.add",
+            "Vector4",
+            "mesh.create_polygon"
+          ]
+        }
+      },
+      {
+        "kind": "code",
+        "unit_id": "c0005c",
+        "label": "[Build a mesh and export it to STL] node = scene.root_node.create_child_node(\"triangle_nod",
+        "disposition": "merged_verbatim",
+        "target_section": "Additional Examples",
+        "verification_status": "verified_against_source",
+        "excluded_reason": null,
+        "verdict": {
+          "status": "verbatim",
+          "basis": "whitespace_normalized_code",
+          "found_in": [
+            "Additional Examples"
+          ],
+          "fidelity": null,
+          "fingerprint": [
+            "scene.root_node.create_child_node"
+          ],
+          "survived": [
+            "scene.root_node.create_child_node"
+          ]
+        }
+      },
+      {
+        "kind": "code",
+        "unit_id": "c0005d",
+        "label": "[Build a mesh and export it to STL] stream = io.StringIO()",
+        "disposition": "merged_verbatim",
+        "target_section": "Additional Examples",
+        "verification_status": "verified_against_source",
+        "excluded_reason": null,
+        "verdict": {
+          "status": "verbatim",
+          "basis": "whitespace_normalized_code",
+          "found_in": [
+            "Additional Examples"
+          ],
+          "fidelity": null,
+          "fingerprint": [
+            "io.StringIO",
+            "FileFormat.get_format_by_extension",
+            "create_save_options",
+            "StlSaveOptions",
+            "scene.save",
+            "stream.getvalue"
+          ],
+          "survived": [
+            "io.StringIO",
+            "FileFormat.get_format_by_extension",
+            "create_save_options",
+            "StlSaveOptions",
+            "scene.save",
+            "stream.getvalue"
+          ]
+        }
+      },
+      {
+        "kind": "code",
+        "unit_id": "c0006a",
+        "label": "[Assign a PBR material and export to glTF] import io",
+        "disposition": "merged_verbatim",
+        "target_section": "Additional Examples",
+        "verification_status": "verified_against_source",
+        "excluded_reason": null,
+        "verdict": {
+          "status": "verbatim",
+          "basis": "whitespace_normalized_code",
+          "found_in": [
+            "Additional Examples"
+          ],
+          "fidelity": null,
+          "fingerprint": [],
+          "survived": []
+        }
+      },
+      {
+        "kind": "code",
+        "unit_id": "c0006b",
+        "label": "[Assign a PBR material and export to glTF] scene = Scene()",
+        "disposition": "merged_verbatim",
+        "target_section": "Additional Examples",
+        "verification_status": "verified_against_source",
+        "excluded_reason": null,
+        "verdict": {
+          "status": "verbatim",
+          "basis": "whitespace_normalized_code",
+          "found_in": [
+            "Additional Examples"
+          ],
+          "fidelity": null,
+          "fingerprint": [
+            "Scene",
+            "Mesh",
+            "mesh.control_points.add",
+            "Vector4",
+            "mesh.create_polygon"
+          ],
+          "survived": [
+            "Scene",
+            "Mesh",
+            "mesh.control_points.add",
+            "Vector4",
+            "mesh.create_polygon"
+          ]
+        }
+      },
+      {
+        "kind": "code",
+        "unit_id": "c0006c",
+        "label": "[Assign a PBR material and export to glTF] albedo = Vector3(0.8, 0.2, 0.3)",
+        "disposition": "merged_verbatim",
+        "target_section": "Additional Examples",
+        "verification_status": "verified_against_source",
+        "excluded_reason": null,
+        "verdict": {
+          "status": "verbatim",
+          "basis": "whitespace_normalized_code",
+          "found_in": [
+            "Additional Examples"
+          ],
+          "fidelity": null,
+          "fingerprint": [
+            "Vector3",
+            "PbrMaterial"
+          ],
+          "survived": [
+            "Vector3",
+            "PbrMaterial"
+          ]
+        }
+      },
+      {
+        "kind": "code",
+        "unit_id": "c0006d",
+        "label": "[Assign a PBR material and export to glTF] node = scene.root_node.create_child_node(\"TestN",
+        "disposition": "merged_verbatim",
+        "target_section": "Additional Examples",
+        "verification_status": "verified_against_source",
+        "excluded_reason": null,
+        "verdict": {
+          "status": "verbatim",
+          "basis": "whitespace_normalized_code",
+          "found_in": [
+            "Additional Examples"
+          ],
+          "fidelity": null,
+          "fingerprint": [
+            "scene.root_node.create_child_node"
+          ],
+          "survived": [
+            "scene.root_node.create_child_node"
+          ]
+        }
+      },
+      {
+        "kind": "code",
+        "unit_id": "c0006e",
+        "label": "[Assign a PBR material and export to glTF] stream = io.BytesIO()",
+        "disposition": "merged_verbatim",
+        "target_section": "Additional Examples",
+        "verification_status": "verified_against_source",
+        "excluded_reason": null,
+        "verdict": {
+          "status": "verbatim",
+          "basis": "whitespace_normalized_code",
+          "found_in": [
+            "Additional Examples"
+          ],
+          "fidelity": null,
+          "fingerprint": [
+            "io.BytesIO",
+            "GltfFormat.create_save_options",
+            "stream",
+            "scene.save",
+            "GltfSaveOptions",
+            "FileFormat.get_format_by_extension"
+          ],
+          "survived": [
+            "io.BytesIO",
+            "GltfFormat.create_save_options",
+            "stream",
+            "scene.save",
+            "GltfSaveOptions",
+            "FileFormat.get_format_by_extension"
+          ]
+        }
+      },
+      {
+        "kind": "code",
+        "unit_id": "c0006f",
+        "label": "[Assign a PBR material and export to glTF] stream.seek(0)",
+        "disposition": "merged_verbatim",
+        "target_section": "Additional Examples",
+        "verification_status": "verified_against_source",
+        "excluded_reason": null,
+        "verdict": {
+          "status": "verbatim",
+          "basis": "whitespace_normalized_code",
+          "found_in": [
+            "Additional Examples"
+          ],
+          "fidelity": null,
+          "fingerprint": [
+            "stream.seek",
+            "json.loads",
+            "stream.read",
+            "decode"
+          ],
+          "survived": [
+            "stream.seek",
+            "json.loads",
+            "stream.read",
+            "decode"
+          ]
+        }
+      },
+      {
+        "kind": "code",
+        "unit_id": "c0007",
+        "label": "[Import a COLLADA file] scene = Scene()",
+        "disposition": "merged_verbatim",
+        "target_section": "Additional Examples",
+        "verification_status": "verified_against_source",
+        "excluded_reason": null,
+        "verdict": {
+          "status": "verbatim",
+          "basis": "whitespace_normalized_code",
+          "found_in": [
+            "Additional Examples"
+          ],
+          "fidelity": null,
+          "fingerprint": [
+            "Scene",
+            "ColladaLoadOptions",
+            "scene.open"
+          ],
+          "survived": [
+            "Scene",
+            "ColladaLoadOptions",
+            "scene.open"
+          ]
+        }
+      },
+      {
+        "kind": "code",
+        "unit_id": "c0008",
+        "label": "[Convert a parametric primitive to a mesh] box = Box(10, 20, 30)",
+        "disposition": "merged_verbatim",
+        "target_section": "Additional Examples",
+        "verification_status": "verified_against_source",
+        "excluded_reason": null,
+        "verdict": {
+          "status": "verbatim",
+          "basis": "whitespace_normalized_code",
+          "found_in": [
+            "Additional Examples"
+          ],
+          "fidelity": null,
+          "fingerprint": [
+            "Box",
+            "box.to_mesh"
+          ],
+          "survived": [
+            "Box",
+            "box.to_mesh"
+          ]
+        }
+      },
+      {
+        "kind": "code",
+        "unit_id": "c0009a",
+        "label": "[Build a cube and export it to 3MF] import io",
+        "disposition": "merged_verbatim",
+        "target_section": "Additional Examples",
+        "verification_status": "verified_against_source",
+        "excluded_reason": null,
+        "verdict": {
+          "status": "verbatim",
+          "basis": "whitespace_normalized_code",
+          "found_in": [
+            "Additional Examples"
+          ],
+          "fidelity": null,
+          "fingerprint": [],
+          "survived": []
+        }
+      },
+      {
+        "kind": "code",
+        "unit_id": "c0009b",
+        "label": "[Build a cube and export it to 3MF] scene = Scene()",
+        "disposition": "merged_verbatim",
+        "target_section": "Additional Examples",
+        "verification_status": "verified_against_source",
+        "excluded_reason": null,
+        "verdict": {
+          "status": "verbatim",
+          "basis": "whitespace_normalized_code",
+          "found_in": [
+            "Additional Examples"
+          ],
+          "fidelity": null,
+          "fingerprint": [
+            "Scene",
+            "Mesh",
+            "Vector4",
+            "mesh.control_points.add"
+          ],
+          "survived": [
+            "Scene",
+            "Mesh",
+            "Vector4",
+            "mesh.control_points.add"
+          ]
+        }
+      },
+      {
+        "kind": "code",
+        "unit_id": "c0009c",
+        "label": "[Build a cube and export it to 3MF] mesh.create_polygon(0, 1, 2)",
+        "disposition": "merged_verbatim",
+        "target_section": "Additional Examples",
+        "verification_status": "verified_against_source",
+        "excluded_reason": null,
+        "verdict": {
+          "status": "verbatim",
+          "basis": "whitespace_normalized_code",
+          "found_in": [
+            "Additional Examples"
+          ],
+          "fidelity": null,
+          "fingerprint": [
+            "mesh.create_polygon"
+          ],
+          "survived": [
+            "mesh.create_polygon"
+          ]
+        }
+      },
+      {
+        "kind": "code",
+        "unit_id": "c0009d",
+        "label": "[Build a cube and export it to 3MF] node = scene.root_node.create_child_node(\"cube\")",
+        "disposition": "merged_verbatim",
+        "target_section": "Additional Examples",
+        "verification_status": "verified_against_source",
+        "excluded_reason": null,
+        "verdict": {
+          "status": "verbatim",
+          "basis": "whitespace_normalized_code",
+          "found_in": [
+            "Additional Examples"
+          ],
+          "fidelity": null,
+          "fingerprint": [
+            "scene.root_node.create_child_node"
+          ],
+          "survived": [
+            "scene.root_node.create_child_node"
+          ]
+        }
+      },
+      {
+        "kind": "code",
+        "unit_id": "c0009e",
+        "label": "[Build a cube and export it to 3MF] stream = io.BytesIO()",
+        "disposition": "merged_verbatim",
+        "target_section": "Additional Examples",
+        "verification_status": "verified_against_source",
+        "excluded_reason": null,
+        "verdict": {
+          "status": "verbatim",
+          "basis": "whitespace_normalized_code",
+          "found_in": [
+            "Additional Examples"
+          ],
+          "fidelity": null,
+          "fingerprint": [
+            "io.BytesIO",
+            "ThreeMfSaveOptions",
+            "scene.save"
+          ],
+          "survived": [
+            "io.BytesIO",
+            "ThreeMfSaveOptions",
+            "scene.save"
+          ]
+        }
+      },
+      {
+        "kind": "code",
+        "unit_id": "c0010",
+        "label": "[Development and testing] git clone https://github.com/aspose-3d-foss/Aspose.3D-FOSS-for-P",
+        "disposition": "merged_reframed",
+        "target_section": "Development and Testing",
+        "verification_status": "verified_against_source",
+        "excluded_reason": null,
+        "verdict": {
+          "status": "api_survived",
+          "basis": "live_fingerprint",
+          "found_in": [
+            "Installation"
+          ],
+          "fidelity": null,
+          "fingerprint": [
+            "git clone",
+            "pip install"
+          ],
+          "survived": [
+            "git clone"
+          ]
+        }
+      },
+      {
+        "kind": "code",
+        "unit_id": "c0011",
+        "label": "[Development and testing] python -m unittest tests.test_obj_importer",
+        "disposition": "merged_verbatim",
+        "target_section": "Development and Testing",
+        "verification_status": "verified_against_source",
+        "excluded_reason": null,
+        "verdict": {
+          "status": "verbatim",
+          "basis": "whitespace_normalized_code",
+          "found_in": [
+            "Development and Testing"
+          ],
+          "fidelity": null,
+          "fingerprint": [],
+          "survived": []
+        }
+      },
+      {
+        "kind": "badge",
+        "unit_id": "b0001",
+        "label": "License: MIT",
+        "disposition": "preserved",
+        "target_section": "__preamble__",
+        "verification_status": "verified_redundant",
+        "excluded_reason": null,
+        "verdict": {
+          "status": "verbatim",
+          "basis": "badge_category_credit",
+          "found_in": [
+            "__preamble__"
+          ],
+          "fidelity": null
+        }
+      },
+      {
+        "kind": "badge",
+        "unit_id": "b0002",
+        "label": "Python",
+        "disposition": "preserved",
+        "target_section": "__preamble__",
+        "verification_status": "verified_redundant",
+        "excluded_reason": null,
+        "verdict": {
+          "status": "verbatim",
+          "basis": "badge_category_credit",
+          "found_in": [
+            "__preamble__"
+          ],
+          "fidelity": null
+        }
+      },
+      {
+        "kind": "badge",
+        "unit_id": "b0003",
+        "label": "Contributors",
+        "disposition": "preserved",
+        "target_section": "__preamble__",
+        "verification_status": "verified_redundant",
+        "excluded_reason": null,
+        "verdict": {
+          "status": "verbatim",
+          "basis": "badge_category_credit",
+          "found_in": [
+            "__preamble__"
+          ],
+          "fidelity": null
+        }
+      },
+      {
+        "kind": "heading",
+        "unit_id": "h0001",
+        "label": "# Aspose.3D FOSS for Python",
+        "disposition": null,
+        "target_section": null,
+        "verification_status": null,
+        "excluded_reason": null,
+        "verdict": {
+          "status": "present",
+          "basis": "normalized_heading_or_substring",
+          "found_in": [],
+          "fidelity": null
+        }
+      },
+      {
+        "kind": "heading",
+        "unit_id": "h0002",
+        "label": "## Navigation",
+        "disposition": null,
+        "target_section": null,
+        "verification_status": null,
+        "excluded_reason": null,
+        "verdict": {
+          "status": "present",
+          "basis": "normalized_heading_or_substring",
+          "found_in": [],
+          "fidelity": null
+        }
+      },
+      {
+        "kind": "heading",
+        "unit_id": "h0003",
+        "label": "## At a glance",
+        "disposition": "structural_unit",
+        "target_section": "s0001",
+        "verification_status": null,
+        "excluded_reason": null,
+        "verdict": {
+          "status": "present",
+          "basis": "normalized_heading_or_substring",
+          "found_in": [],
+          "fidelity": null
+        }
+      },
+      {
+        "kind": "heading",
+        "unit_id": "h0004",
+        "label": "## Key capabilities",
+        "disposition": null,
+        "target_section": null,
+        "verification_status": null,
+        "excluded_reason": null,
+        "verdict": {
+          "status": "present",
+          "basis": "normalized_heading_or_substring",
+          "found_in": [],
+          "fidelity": null
+        }
+      },
+      {
+        "kind": "heading",
+        "unit_id": "h0005",
+        "label": "## Installation",
+        "disposition": null,
+        "target_section": null,
+        "verification_status": null,
+        "excluded_reason": null,
+        "verdict": {
+          "status": "present",
+          "basis": "normalized_heading_or_substring",
+          "found_in": [],
+          "fidelity": null
+        }
+      },
+      {
+        "kind": "heading",
+        "unit_id": "h0006",
+        "label": "## Quick start",
+        "disposition": null,
+        "target_section": null,
+        "verification_status": null,
+        "excluded_reason": null,
+        "verdict": {
+          "status": "present",
+          "basis": "normalized_heading_or_substring",
+          "found_in": [],
+          "fidelity": null
+        }
+      },
+      {
+        "kind": "heading",
+        "unit_id": "h0007",
+        "label": "## Additional examples",
+        "disposition": null,
+        "target_section": null,
+        "verification_status": null,
+        "excluded_reason": null,
+        "verdict": {
+          "status": "present",
+          "basis": "normalized_heading_or_substring",
+          "found_in": [],
+          "fidelity": null
+        }
+      },
+      {
+        "kind": "heading",
+        "unit_id": "h0008",
+        "label": "### Build a mesh and export it to STL",
+        "disposition": null,
+        "target_section": null,
+        "verification_status": null,
+        "excluded_reason": null,
+        "verdict": {
+          "status": "present",
+          "basis": "normalized_heading_or_substring",
+          "found_in": [],
+          "fidelity": null
+        }
+      },
+      {
+        "kind": "heading",
+        "unit_id": "h0009",
+        "label": "### Assign a PBR material and export to glTF",
+        "disposition": "structural_unit",
+        "target_section": "s0002",
+        "verification_status": null,
+        "excluded_reason": null,
+        "verdict": {
+          "status": "absent",
+          "basis": "normalized_heading_or_substring",
+          "found_in": [],
+          "fidelity": null
+        }
+      },
+      {
+        "kind": "heading",
+        "unit_id": "h0010",
+        "label": "### Import a COLLADA file",
+        "disposition": "structural_unit",
+        "target_section": "s0003",
+        "verification_status": null,
+        "excluded_reason": null,
+        "verdict": {
+          "status": "present",
+          "basis": "normalized_heading_or_substring",
+          "found_in": [],
+          "fidelity": null
+        }
+      },
+      {
+        "kind": "heading",
+        "unit_id": "h0011",
+        "label": "### Convert a parametric primitive to a mesh",
+        "disposition": "structural_unit",
+        "target_section": "s0004",
+        "verification_status": null,
+        "excluded_reason": null,
+        "verdict": {
+          "status": "present",
+          "basis": "normalized_heading_or_substring",
+          "found_in": [],
+          "fidelity": null
+        }
+      },
+      {
+        "kind": "heading",
+        "unit_id": "h0012",
+        "label": "### Build a cube and export it to 3MF",
+        "disposition": null,
+        "target_section": null,
+        "verification_status": null,
+        "excluded_reason": null,
+        "verdict": {
+          "status": "present",
+          "basis": "normalized_heading_or_substring",
+          "found_in": [],
+          "fidelity": null
+        }
+      },
+      {
+        "kind": "heading",
+        "unit_id": "h0013",
+        "label": "## API reference",
+        "disposition": null,
+        "target_section": null,
+        "verification_status": null,
+        "excluded_reason": null,
+        "verdict": {
+          "status": "present",
+          "basis": "normalized_heading_or_substring",
+          "found_in": [],
+          "fidelity": null
+        }
+      },
+      {
+        "kind": "heading",
+        "unit_id": "h0014",
+        "label": "### Scene graph (`aspose.threed`)",
+        "disposition": null,
+        "target_section": null,
+        "verification_status": null,
+        "excluded_reason": null,
+        "verdict": {
+          "status": "absent",
+          "basis": "normalized_heading_or_substring",
+          "found_in": [],
+          "fidelity": null
+        }
+      },
+      {
+        "kind": "heading",
+        "unit_id": "h0015",
+        "label": "### Meshes and primitives (`aspose.threed.entities`)",
+        "disposition": null,
+        "target_section": null,
+        "verification_status": null,
+        "excluded_reason": null,
+        "verdict": {
+          "status": "absent",
+          "basis": "normalized_heading_or_substring",
+          "found_in": [],
+          "fidelity": null
+        }
+      },
+      {
+        "kind": "heading",
+        "unit_id": "h0016",
+        "label": "### Materials (`aspose.threed.shading`)",
+        "disposition": null,
+        "target_section": null,
+        "verification_status": null,
+        "excluded_reason": null,
+        "verdict": {
+          "status": "absent",
+          "basis": "normalized_heading_or_substring",
+          "found_in": [],
+          "fidelity": null
+        }
+      },
+      {
+        "kind": "heading",
+        "unit_id": "h0017",
+        "label": "### Format load/save options (`aspose.threed.formats`)",
+        "disposition": null,
+        "target_section": null,
+        "verification_status": null,
+        "excluded_reason": null,
+        "verdict": {
+          "status": "absent",
+          "basis": "normalized_heading_or_substring",
+          "found_in": [],
+          "fidelity": null
+        }
+      },
+      {
+        "kind": "heading",
+        "unit_id": "h0018",
+        "label": "### Math utilities (`aspose.threed.utilities`)",
+        "disposition": null,
+        "target_section": null,
+        "verification_status": null,
+        "excluded_reason": null,
+        "verdict": {
+          "status": "absent",
+          "basis": "normalized_heading_or_substring",
+          "found_in": [],
+          "fidelity": null
+        }
+      },
+      {
+        "kind": "heading",
+        "unit_id": "h0019",
+        "label": "### Animation (`aspose.threed.animation`)",
+        "disposition": null,
+        "target_section": null,
+        "verification_status": null,
+        "excluded_reason": null,
+        "verdict": {
+          "status": "absent",
+          "basis": "normalized_heading_or_substring",
+          "found_in": [],
+          "fidelity": null
+        }
+      },
+      {
+        "kind": "heading",
+        "unit_id": "h0020",
+        "label": "### Exceptions",
+        "disposition": null,
+        "target_section": null,
+        "verification_status": null,
+        "excluded_reason": null,
+        "verdict": {
+          "status": "absorbed",
+          "basis": "normalized_heading_or_substring",
+          "found_in": [],
+          "fidelity": null
+        }
+      },
+      {
+        "kind": "heading",
+        "unit_id": "h0021",
+        "label": "## Documentation & resources",
+        "disposition": null,
+        "target_section": null,
+        "verification_status": null,
+        "excluded_reason": null,
+        "verdict": {
+          "status": "present",
+          "basis": "normalized_heading_or_substring",
+          "found_in": [],
+          "fidelity": null
+        }
+      },
+      {
+        "kind": "heading",
+        "unit_id": "h0022",
+        "label": "## Scope and limitations",
+        "disposition": null,
+        "target_section": null,
+        "verification_status": null,
+        "excluded_reason": null,
+        "verdict": {
+          "status": "present",
+          "basis": "normalized_heading_or_substring",
+          "found_in": [],
+          "fidelity": null
+        }
+      },
+      {
+        "kind": "heading",
+        "unit_id": "h0023",
+        "label": "## Development and testing",
+        "disposition": null,
+        "target_section": null,
+        "verification_status": null,
+        "excluded_reason": null,
+        "verdict": {
+          "status": "present",
+          "basis": "normalized_heading_or_substring",
+          "found_in": [],
+          "fidelity": null
+        }
+      },
+      {
+        "kind": "heading",
+        "unit_id": "h0024",
+        "label": "## License",
+        "disposition": null,
+        "target_section": null,
+        "verification_status": null,
+        "excluded_reason": null,
+        "verdict": {
+          "status": "present",
+          "basis": "normalized_heading_or_substring",
+          "found_in": [],
+          "fidelity": null
+        }
+      }
+    ],
+    "summary": {
+      "content": {
+        "reframed": 21,
+        "verbatim": 17,
+        "excluded": 46,
+        "corrected": 2
+      },
+      "structural": {
+        "reframed": 1,
+        "verbatim": 1,
+        "excluded": 2
+      },
+      "code": {
+        "diagram": 1,
+        "api_survived": 4,
+        "verbatim": 18
+      },
+      "badge": {
+        "verbatim": 3
+      },
+      "heading": {
+        "present": 16,
+        "absent": 7,
+        "absorbed": 1
+      }
+    },
+    "needs_attention": [
+      "heading:h0009",
+      "heading:h0014",
+      "heading:h0015",
+      "heading:h0016",
+      "heading:h0017",
+      "heading:h0018",
+      "heading:h0019"
+    ]
+  }
+}

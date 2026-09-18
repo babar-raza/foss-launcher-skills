@@ -1,0 +1,206 @@
+I have all the evidence I need. Here is the complete updated report.
+
+## Forensic Audit Report — 3d/net (Aspose.3D FOSS for .NET)
+
+## Identity
+
+All four requested artifact states were obtainable, with one important nuance: the clone-cache copy of "current upstream" turned out to be **stale and effectively identical to the pre-refresh original**, not to what is actually live on GitHub right now.
+
+| Artifact | Source | Path | SHA-256 |
+|---|---|---|---|
+| Original-at-generation-time | Reconstructed from disposition-file excerpts (verbatim quotes); confirmed to equal the clone-cache HEAD content below | `reports/repo-presenter-regen-full/3d/net/content-dispositions.json` (excerpts) | `61cbf2bb0f0c3f2a2952bb95bfe57d847cb240b13e7d8dd82b113989eb326ff4` |
+| Current upstream — **via clone cache** (task item 4) | Clone cache, git HEAD `70933ab13eb0e313d9b160c55845011d366b1599` (2026-08-14, "fix: eliminate Mermaid node-text clipping…"), working tree clean (`git status`) | `runs/.clone_cache/aspose_3d_net/README.md` | `61cbf2bb0f0c3f2a2952bb95bfe57d847cb240b13e7d8dd82b113989eb326ff4` (**same as generation-time original — clone cache was never advanced past generation**) |
+| Current upstream — **via live GitHub fetch** | `gh api repos/aspose-3d-foss/Aspose.3D-FOSS-for-.NET/contents/README.md --jq .content \| base64 -d` | (fetched, not local) | `2315cffc461c2872fe4999bc3e9e47fc5ec331ec8fee5ce477f9cf47a49cfb40` |
+| Candidate | `reports/repo-presenter-regen-full/3d/net/readme.md` | same | `2315cffc461c2872fe4999bc3e9e47fc5ec331ec8fee5ce477f9cf47a49cfb40` |
+| Published (real, non-dry-run) | Confirmed via `data/readme_published_state.json` entry + live GitHub fetch above | — | `2315cffc461c2872fe4999bc3e9e47fc5ec331ec8fee5ce477f9cf47a49cfb40` |
+
+**Key fact**: candidate, live-GitHub-fetch, and `last-verified.json`'s recorded hash are all byte-identical. The clone cache, which the task instructed me to treat as "current live upstream," is **not** current — it is 11 days stale and reflects the same content the candidate was generated from, not what is live today.
+
+## Factual Accuracy
+
+Spot-verified claims against clone-cache source and `knowledge/3d/net/merged/*`:
+
+- Package version `26.1.0` ↔ `Aspose.ThreeD.csproj:9 <Version>26.1.0</Version>` — **correct**.
+- `TargetFrameworks` Release = `net10.0;net8.0;net6.0;netcoreapp3.1` ↔ candidate line 100 — **correct** (Debug-only-net10.0 nuance from the old README is omitted but not contradicted).
+- Zero `<PackageReference>` in main csproj ↔ verified via grep, no matches — **correct**.
+- Dev dependencies (`Microsoft.NET.Test.Sdk` 17.12.0, `xunit` 2.9.2, `xunit.runner.visualstudio` 2.8.2, `coverlet.collector` 6.0.2) ↔ `Aspose.ThreeD.Tests.csproj` — **exact match**.
+- PLY correction (candidate lines 577–582, "PLY import and export both work through `Scene.Open()`/`Scene.Save()`… confirmed by round-tripping…") is backed by an explicit executable-proof citation in `content-dispositions.json:627` and corrects a real defect in the old README ("PLY (import only)") — **correct and an improvement**.
+- Watermark correctly demoted from a Key Capability (old README) to a disclosed non-functional limitation (candidate) — matches `Watermark.cs` (`EncodeWatermark`/`DecodeWatermark` throw unconditionally, confirmed in `upstream-issues.md:29-46`).
+- Docs & Resources links to `docs/foss-net-progress.md` and `docs/release-26.2.0.md` — both files **exist** in the clone cache.
+- **Defect found**: Key Capabilities bullet at `readme.md:85-87` — "dedicated options types (…and their COLLADA/3MF/RVM/U3D counterparts)" implies paired Load+Save option classes for all four. `grep -n '"ColladaLoadOptions"\|"Microsoft3MFLoadOptions"' knowledge/3d/net/merged/api_surface.json` → **0 matches**; only `ColladaSaveOptions` (api_surface.json:2787) and `Microsoft3MFSaveOptions` (candidate table line 334) exist. RVM/U3D genuinely have both sides (`RvmLoadOptions`/`RvmSaveOptions` at api_surface.json:30460/30621; `U3dLoadOptions`/`U3dSaveOptions` at 30886/30969). The claim overstates symmetry for 2 of the 4 named formats. **MINOR**.
+
+## Content-Preservation Ledger
+
+Enumerated from `content-dispositions.json` (56 units), `structure-dispositions.json` (2 units), `badge-dispositions.json` (3 units), `code-example-dispositions.json` (9 units) — 70 total original-README units — cross-checked against the actual candidate text, not just the JSON's self-report.
+
+| Section | Units | Disposition breakdown | My verification |
+|---|---|---|---|
+| Title/Intro | u0001 | `merged_reframed` | **PRESERVED (reframed)** — confirmed in candidate lines 1,7-12 |
+| Badges | b0001-b0003 (NuGet, License, Contributors) | all `preserved` | **PRESERVED** — identical badge row, candidate line 3 |
+| Navigation | u0002-u0011 | all `merged_verbatim` | **PRESERVED** |
+| At a Glance (mermaid) | s0001 | `merged_reframed` | **TRANSFORMED** — restructured with `capl`/`capr` two-column subgraphs (the clipping fix); confirmed present in candidate lines 29-61 |
+| Key Capabilities | u0012-u0017 | 5× `merged_reframed`, 1× `excluded` (u0017, Watermark) | **PRESERVED/TRANSFORMED**, Watermark correctly **DROPPED-WITH-REASON** (verified false capability, re-surfaced in Limitations instead — not lost) |
+| Installation | u0018-u0019 | `merged_verbatim` / `merged_reframed` | **PRESERVED** |
+| Quick Start / Additional Examples | u0020-u0024, c0001-c0007, s0002 | mostly `merged_verbatim`/`merged_reframed`; u0022 `excluded` (redundant transition sentence) | **PRESERVED/MERGED**; u0022's exclusion verified harmless (replacement transition exists in candidate) |
+| API Reference | u0025-u0046 | all `merged_reframed` | **TRANSFORMED (expanded)** — old bullet-list (7 groups, ~35 named types) fully preserved conceptually and **expanded** into full Main/Interfaces/Structs/Enumerations tables (~200 rows) in candidate |
+| Documentation & Resources | u0047-u0051 | all `merged_verbatim` | **PRESERVED**, plus 2 new links added (progress notes, release notes) — both verified to exist on disk |
+| Scope and Limitations | u0052-u0053 | `corrected` / `merged_reframed` | **PARTIALLY DROPPED-SILENTLY** — see finding below: the "ZIP-backed file systems" clause inside u0052's excerpt is **not present anywhere in the candidate**, despite the disposition record claiming the whole paragraph was "corrected" into this section. Grep of the full candidate for "zip" (case-insensitive): **zero matches**. Independently confirmed as a real, current limitation via `knowledge/3d/net/merged/limitations.md:151-152` (`FileSystem.cs:211,216`, `NotImplementedException("Zip file system read/write not implemented…")`). This is a genuine DROPPED-SILENTLY unit mislabeled as fully "corrected" in the audit trail. |
+| Development and Testing | u0054-u0055, c0008-c0009 | `merged_verbatim`/`merged_reframed` | **PRESERVED** (build sequence reordered — clone+test vs. old's build+test — functionally equivalent, not a defect) |
+| License | u0056 | `merged_reframed` | **PRESERVED** |
+
+No units were found to be INCORRECTLY-EXCLUDED beyond the ZIP clause noted above (Watermark's exclusion is correct and well-reasoned; the redundant-transition exclusion is correct).
+
+## Usability
+
+- Structure is materially improved over the old README: dedicated `## Dependencies` section, much deeper `## Scope and Limitations`, expanded API reference as browsable tables inside `<details>`, more runnable examples (node-hierarchy enumeration, Lambert→PBR conversion, unrecognized-format handling).
+- The PLY capability — verified working both ways — is disclosed only inside a Scope-and-Limitations correction paragraph (candidate lines 577-582) and not surfaced in the Key Capabilities bullet that lists working formats (line 81-84) or in the format-conversion prose. A reader skimming Key Capabilities would not learn PLY export works at all; they'd have to reach the limitations section and parse a clarification about a "confusable" decoy class to find it. **MINOR usability gap** — real capability under-advertised.
+- Mermaid diagram now uses two-column wrapping (`capl`/`capr`) specifically to fix a previously-confirmed real GitHub-rendering clipping bug (per `docs/readme-refresh/current-operational-reference.md:440`, "Mermaid clipping reproduced against GitHub's real renderer"). This fix is present in the candidate.
+
+## Presentation/SEO
+
+- Heading casing was normalized to Title Case throughout (old README used sentence case: "At a glance" → candidate "At a Glance", etc.) — consistent, no anchor breakage found (Navigation links in candidate correctly use the new Title-Case anchor slugs).
+- Banner image link added (`https://products.aspose.org/media/3d/net/banner-readme.png` → `https://products.aspose.org/3d/net/`), not present in the old README; verified the asset exists locally at `static/media/3d/net/banner-readme.png`.
+- Intro paragraph is denser and more format-specific than the old one; no keyword-stuffing or contamination observed.
+
+## Dependency Accuracy
+
+All dependency claims verified byte-for-byte against the two `.csproj` files:
+- Zero runtime `<PackageReference>` entries — confirmed (candidate line 109-110).
+- Test/dev dependencies (`Microsoft.NET.Test.Sdk` 17.12.0, `xunit` 2.9.2, `xunit.runner.visualstudio` 2.8.2, `coverlet.collector` 6.0.2) — **exact match**, versions included.
+- Multi-targeting list — **exact match** to `Aspose.ThreeD.csproj`'s Release `<TargetFrameworks>`.
+No inaccuracies found in this dimension.
+
+## Example Verification
+
+Spot-checked symbols used in the 6 code examples against `knowledge/3d/net/merged/api_surface.json`:
+- `LambertMaterial(string name)` constructor — exists (api_surface.json:44286-44289).
+- `PbrMaterial.FromMaterial(...)` — exists (api_surface.json:44819).
+- `Scene.RootNode.CreateChildNode(...)` — 5 overloads exist (api_surface.json:32160-32215), consistent with the 2- and 3-argument call forms used.
+- `FileFormat.FBX7400Binary` — exists (multiple hits, e.g. api_surface.json:222).
+- FBX export path (`scene.Save(..., FileFormat.FBX7400Binary)`) — cross-checked directly against `FbxWriter.cs` (1304 lines, **zero** `NotImplementedException` occurrences, real `Export()` method) — genuinely functional, **not** a stub (see Presentation note under Verdict re: `AGENTS.md`'s stale/self-contradicting claim to the contrary).
+- `ObjLoadOptions.FlipCoordinateSystem`/`NormalizeNormal`, `ColladaSaveOptions` via stream — all present in `code-example-dispositions.json` with `verified_against_source` citations I independently re-confirmed exist as real classes.
+
+No fabricated or non-existent API usage found in any of the 6 examples.
+
+## API Accuracy
+
+- The expanded API Reference table (Main/Interfaces/Structs/Enumerations, ~200 rows) carries per-entry functional caveats exactly where source-level investigation (documented in `upstream-issues.md`) found real gaps: `DracoFormat`, `PdfFormat`, `PlyFormat` (decoy class), `PolygonModifier`, `BooleanOperand`/`BooleanOperator`, `TriMesh`, `NurbsCurve`/`NurbsSurface`, `Microsoft3MFFormat`, `RvmFormat`, `License`/`Metered`, rendering classes (`RenderFactory`, `Viewport`, etc.) — all correctly annotated as non-functional/stub in this FOSS build.
+- **Finding (see Verdict)**: the mechanically-generated grounding artifact `knowledge/3d/net/merged/formats.md` disagrees with these (correct) candidate claims for DRACO, PDF, JT, USD, A3DW — it still reports the raw (misleading) format-registry flags rather than actual throw behavior.
+- Load/Save-options symmetry overstatement for COLLADA/3MF (see Factual Accuracy) is the one confirmed inaccuracy inside the API-facing prose.
+
+## Link/Rendering
+
+- All 4 cross-subdomain Documentation & Resources links resolve to locally-existing content directories: `content/docs.aspose.org/en/3d/net`, `content/kb.aspose.org/en/3d/net`, `content/reference.aspose.org/en/3d/net`, `content/products.aspose.org/en/3d` — all **EXISTS**.
+- In-repo file links (`docs/foss-net-progress.md`, `docs/release-26.2.0.md`, `AGENTS.md`, `LICENSE`) — all confirmed to exist in the clone cache.
+- Mermaid diagram: candidate uses the "flat-topology"/two-column fix; this is the version now confirmed live on GitHub (byte-identical fetch), so the previously-documented clipping regression (`docs/readme-refresh/current-operational-reference.md:441`) is resolved in what's actually published — even though the tracking ledger doesn't yet say so (see Verdict #1).
+
+## Verdict
+
+1. **MAJOR / systemic** — Publication-tracking ledger and plan documents are stale relative to actual live GitHub state; they still record the republish as blocked/open when it has, in fact, happened.
+   Evidence: `data/readme_published_state.json:7` (`"last_known_publication": "2026-08-05", "evidence": "...NEVER republished with flat-topology diagram — live clipping confirmed 2026-08-14...; TC-HARDEN-47 open"`); `docs/readme-refresh/current-operational-reference.md:221` ("Open, P0... Push explicitly gated on a fresh, separate user go-ahead... not authorized"); `docs/readme-refresh/current-operational-reference.md:441-442` ("awaiting TC-HARDEN-47/48 republication"). Contradicted by: `gh api repos/aspose-3d-foss/Aspose.3D-FOSS-for-.NET/contents/README.md --jq .content | base64 -d` → sha256 `2315cffc461c2872fe4999bc3e9e47fc5ec331ec8fee5ce477f9cf47a49cfb40`, identical to `reports/repo-presenter-regen-full/3d/net/readme.md` and to `reports/repo-presenter-regen-full/3d/net/last-verified.json:2` (`verified_at: 2026-08-25T17:55:46Z`, same hash). Systemic: this ledger and the associated `check_published_readme_current` tripwire cover ~11 products; the identical failure mode is explicitly documented as having already happened once before (`docs/readme-refresh/plan-system-forensic-reconciliation.md:160,397` — "TC-HARDEN-47/48 lost from the 'exhaustive' MT055 register while their P0 defect stayed live"), and the sibling product `3d/python` is named in the same stale ledger row as sharing this exact defect pattern.
+
+2. **MAJOR / systemic** — Local clone cache (`runs/.clone_cache/aspose_3d_net`) is stale and does not reflect the actual current upstream tip.
+   Evidence: `git -C runs/.clone_cache/aspose_3d_net rev-parse HEAD` → `70933ab13eb0e313d9b160c55845011d366b1599` (2026-08-14); `git -C runs/.clone_cache/aspose_3d_net status` → clean; `sha256sum runs/.clone_cache/aspose_3d_net/README.md` → `61cbf2bb0f0c3f2a2952bb95bfe57d847cb240b13e7d8dd82b113989eb326ff4` ≠ live GitHub hash `2315cffc...`. Following the audit task's own item-4 instruction (treat clone cache as "current live upstream") would have produced a false conclusion that the candidate has never been published. Systemic risk for any product whose clone cache post-dates its own last real push but predates a later one.
+
+3. **MAJOR / product-specific, false self-report in audit trail** — `content-dispositions.json` unit u0052 claims disposition `corrected` (fully merged into Scope and Limitations), but the "ZIP-backed file systems" limitation named in that same unit's excerpt is absent from the candidate.
+   Evidence: `reports/repo-presenter-regen-full/3d/net/content-dispositions.json:618-628` (excerpt text includes "...ZIP-backed file systems..."); candidate `readme.md` lines 573-606 (Scope and Limitations, 8 bullets, none mention ZIP); `grep -in zip reports/repo-presenter-regen-full/3d/net/readme.md` → no output (zero matches); ground truth confirming the limitation is real and current: `knowledge/3d/net/merged/limitations.md:151-152` citing `src/main/Aspose.ThreeD/Aspose/ThreeD/Utilities/FileSystem.cs:211` (`ReadFile`) and `:216` (`WriteFile`), both `throw new NotImplementedException("Zip file system read/write not implemented in FOSS...")`.
+
+4. **MINOR / product-specific** — Key Capabilities bullet overstates Load/Save option-class symmetry for COLLADA and 3MF.
+   Evidence: candidate `readme.md:85-87`; `grep -n '"ColladaLoadOptions"\|"Microsoft3MFLoadOptions"' knowledge/3d/net/merged/api_surface.json` → 0 matches; only `ColladaSaveOptions` (api_surface.json:2787) and `Microsoft3MFSaveOptions` (candidate table, line 334) exist for those two formats, vs. genuine Load+Save pairs for RVM (api_surface.json:30460, 30621) and U3D (30886, 30969).
+
+5. **MINOR / systemic (grounding-source reliability, not a candidate defect)** — Knowledge-pipeline artifacts intended for grounding are themselves unreliable and disagree with the (correct) candidate.
+   Evidence: `knowledge/3d/net/merged/formats.md:14,18,20,25` claims DRACO export=Yes, PDF import/export=Yes, JT import=Yes, USD/A3DW export=Yes; contradicted by `reports/repo-presenter-regen-full/3d/net/upstream-issues.md:5-27` and candidate `readme.md:573-584`, which are independently correct (confirmed via source: those classes' `Encode`/`Decode`/`Extract` methods unconditionally throw, or have no reader/writer at all). Separately, `runs/.clone_cache/aspose_3d_net/AGENTS.md:66` vs `:75` self-contradicts on whether FBX export is implemented; direct inspection of `runs/.clone_cache/aspose_3d_net/src/main/Aspose.ThreeD/Aspose/ThreeD/Formats/FbxWriter.cs` (1304 lines, 0 occurrences of `NotImplementedException`) confirms the candidate's (correct) treatment of FBX export as fully functional, and that `AGENTS.md` is simply stale. This did not produce a candidate-side error here, but flags that these particular grounding files should not be trusted without the same manual source-verification the README's own generation evidently applied.
+
+6. **MINOR / systemic (governance/provenance)** — `last-verified.json`'s `verified_by_run_id` is `null` despite the record being demonstrably correct (matches a live fetch performed independently in this audit).
+   Evidence: `reports/repo-presenter-regen-full/3d/net/last-verified.json:2-5`.
+
+7. **NIT / product-specific, unproven** — `structure-dispositions.json` has only 2 entries versus 56 in `content-dispositions.json`; thin, but I found no concrete evidence of a missed structural unit (old README had no project-structure/tree section), so this is a legibility note, not a confirmed defect.
+
+**Overall**: the candidate content itself is high-quality and, on the dimensions I could verify, the *live, currently-published* README (byte-identical to the candidate) is materially more accurate than the version it replaced — it corrects two real false-capability claims (PLY import-only, Watermark functional) with cited executable proof. The serious problems found are not in the README text but in the **surrounding tracking/governance layer**: the publication ledger and plan documents say this exact republication is still blocked and pending user go-ahead, while live evidence shows it already happened; and the clone cache the audit task pointed me at for "current upstream" is itself out of date and would have masked that fact.
+
+## Stage B: Source Cross-Check
+
+I independently re-derived every Factual/Dependency/API Accuracy claim above by reading the clone-cache source myself (not the disposition/knowledge JSON as ground truth), and traced the actual runtime dispatch path (`Scene.Open`/`Scene.Save`/`Scene.FromFile` → `FileFormat.GetFormatByExtension`/`IOService.CreateImporter`/`CreateExporter`) rather than relying on class-existence alone. This surfaced one **new MAJOR defect Stage A did not catch**, which changes the audit's bottom line: the candidate README's content itself is not fully clean.
+
+### Per-claim verification
+
+**Factual Accuracy**
+
+| # | Claim | Verdict | My evidence |
+|---|---|---|---|
+| 1 | Version `26.1.0` | **CONFIRMED** | Read `Aspose.ThreeD.csproj` line 9: `<Version>26.1.0</Version>` |
+| 2 | `TargetFrameworks` Release = `net10.0;net8.0;net6.0;netcoreapp3.1` | **CONFIRMED** | Same file, line 22, exact string match; Debug-only block (line 17-19) separately confirms `net10.0` |
+| 3 | Zero `<PackageReference>` in main csproj | **CONFIRMED** | Full read of `Aspose.ThreeD.csproj` — only `<None Include>` items, no `<PackageReference>` anywhere |
+| 4 | Test deps exact match | **CONFIRMED** | Full read of `Aspose.ThreeD.Tests.csproj` — `Microsoft.NET.Test.Sdk 17.12.0`, `xunit 2.9.2`, `xunit.runner.visualstudio 2.8.2`, `coverlet.collector 6.0.2`, byte-for-byte |
+| 5 | PLY import+export both genuinely work | **CONFIRMED** | Read `PlyReader.cs` in full: `Import()` (line 12) parses real ASCII/binary PLY, populates `Mesh.ControlPoints`/polygons, no throw. Read `PlyWriter.cs` in full: `Export()` (line 12) writes a real ASCII PLY stream, no throw. Both are registered in `IOService.cs` `CreateImporter`/`CreateExporter` switches (`FileFormat.PlyFormat => new PlyReader()/PlyWriter()`) and `FileFormat.PlyFormat` **is** in the internal `_formats` list built by `InitializeFormats()` — so `Scene.Open("x.ply")`/`Scene.Save("x.ply")` genuinely dispatch to real code. |
+| 6 | Watermark fully non-functional | **CONFIRMED** | Read `Watermark.cs` in full: all 5 overloads (`EncodeWatermark`×3, `DecodeWatermark`×2) unconditionally `throw new NotImplementedException(...)` |
+| 7 | `docs/foss-net-progress.md`, `docs/release-26.2.0.md` exist | **CONFIRMED** | `ls runs/.clone_cache/aspose_3d_net/docs/` → both files present |
+| 8 | COLLADA/3MF Load/Save symmetry overstated | **CONFIRMED, independently** | `grep -n "class.*Options" .../Formats/FormatOptions.cs` lists `ColladaSaveOptions` (line 370) and `Microsoft3MFSaveOptions` (line 391) but **no** `ColladaLoadOptions` or `Microsoft3MFLoadOptions` class anywhere in the repo (confirmed by full-repo `find`). `ColladaReader.Import` (line 13) and `Microsoft3MFReader.Import` (line 14) both take the generic base `LoadOptions options`, not a dedicated subclass — proving no such class was ever meant to exist, not an omission. `RvmLoadOptions`/`RvmSaveOptions` and `U3dLoadOptions`/`U3dSaveOptions` do exist as real classes (see next section) — but see new Finding B below: their existence does **not** mean the formats actually work. |
+
+**Dependency Accuracy** — all **CONFIRMED** via the same two `.csproj` reads above; no discrepancies found.
+
+**API Accuracy**
+
+| Claim | Verdict | My evidence |
+|---|---|---|
+| `LambertMaterial(string name)` constructor exists | **CONFIRMED** | `grep -n "public LambertMaterial" LambertMaterial.cs` → line 27: `public LambertMaterial(string name) : base(name)` |
+| `PbrMaterial.FromMaterial(Material)` exists | **CONFIRMED** | `PbrMaterial.cs:154`: `public static PbrMaterial FromMaterial(Material material)` |
+| `Node.CreateChildNode` has 5 overloads matching candidate call sites | **CONFIRMED** | `Node.cs` lines 189, 199, 209, 219, 229 — exactly `()`, `(string)`, `(Entity)`, `(string, Entity)`, `(string, Entity, Material)` |
+| `FileFormat.FBX7400Binary` exists | **CONFIRMED** | `FileFormat.cs:66` |
+| `FbxWriter` is a real, complete exporter (not a stub) | **CONFIRMED** | Full read of `FbxWriter.cs` — 1304 lines (`wc -l`), `grep NotImplementedException` → 0 matches, real `public void Export(...)` at line 13 |
+| `ObjLoadOptions.FlipCoordinateSystem` / `.NormalizeNormal` exist | **CONFIRMED** | `FormatOptions.cs` lines 10-41, both properties present with documented defaults |
+| `ColladaSaveOptions` via stream (`scene.Save(stream, options)`) works | **CONFIRMED** | `Scene.cs:369-394`, `Save(Stream, SaveOptions)` switch explicitly includes `Formats.ColladaSaveOptions => FileFormat.ColladaFormat` (line 377), and `ColladaFormat` is registered in `IOService.CreateExporter` |
+| `formats.md` disagrees with candidate on DRACO/PDF/JT/USD/A3DW | **CONFIRMED, independently** | Read `knowledge/3d/net/merged/formats.md` in full: line 14 `DRACO \| - \| Yes`, line 18 `JT \| Yes \| -`, line 20 `PDF \| Yes \| Yes`, line 25 `USD \| - \| Yes` (and line 8 `A3DW \| - \| Yes`). Cross-checked against source: `DracoFormat.cs` — every `Decode`/`Encode` overload throws `NotImplementedException`; `PdfFormat.cs` — every `Extract`/`ExtractScene` overload throws; `IOService.cs` has no case for `Draco`/`Pdf`/`Jt`/`Usd`/`A3dw` formats at all. `formats.md` is confirmed unreliable exactly as Stage A said. |
+| API Reference table's `RvmFormat` entry ("core geometry import/export works; attribute loading is not implemented") | **REFUTED — new finding, see below** | |
+
+### New Finding (Stage B, not caught in Stage A): AMF, HTML5, RVM, and U3D are claimed as working formats but are structurally non-functional through the library's only supported API
+
+I traced the actual dispatch mechanism rather than just checking class existence, because Stage A's method (grepping `api_surface.json` for class names) cannot distinguish "the class exists" from "the format actually works." Tracing `Scene.Open`/`Scene.Save`/`Scene.FromFile` end-to-end:
+
+1. `Scene.Save(string fileName)` (`Scene.cs:415-420`) and `Scene.Open(string fileName)` (`Scene.cs:267-271`) both resolve the format via `FileFormat.GetFormatByExtension(Path.GetExtension(fileName))`.
+2. `GetFormatByExtension` (`FileFormat.cs:163-183`) only searches the internal `_formats` list.
+3. `_formats` is populated **exclusively** inside `InitializeFormats()` (`FileFormat.cs:360-380`), which contains exactly 8 `_formats.Add(...)` calls: `ObjFormat, StlFormat, GltfFormat, FbxFormat, Microsoft3MFFormat, ColladaFormat, PlyFormat, Discreet3DSFormat`. Nothing else is ever added.
+4. `IOService.CreateImporter`/`CreateExporter` (`IOService.cs:55-90`) independently confirm the same 8-format ceiling — their `switch` expressions only match those same 8 `FileFormat` instances; every other case falls through to `throw new NotSupportedException(...)`.
+5. `FileFormat.Universal3D` (`FileFormat.cs:90`), `FileFormat.RvmText`/`RvmBinary` (`FileFormat.cs:101-102`), `FileFormat.AMF` (`FileFormat.cs:111`), and `FileFormat.HTML5`/`Aspose3DWeb` (`FileFormat.cs:113-114`) all exist as static fields — but **none of them is ever added to `_formats`**, and none has a case in the `IOService` switches.
+6. No reader/writer class exists anywhere in the repository for any of these four formats: `find ... -iname "RvmReader*" -o -iname "RvmWriter*" -o -iname "U3dReader*" -o -iname "U3dWriter*" -o -iname "AmfWriter*" -o -iname "AmfReader*" -o -iname "Html5Writer*" -o -iname "Html5Reader*"` → zero results. `RvmFormat.cs` (39 lines, full read) contains only `LoadAttributes` overloads, which themselves throw `NotImplementedException` — it has no Import/Export logic of its own, and is structurally identical to the `DracoFormat`/`PdfFormat` "decoy" pattern the candidate correctly calls out elsewhere.
+7. Zero test coverage: `grep -rin "rvm|u3d|universal3d|\bamf\b|html5" src/test/` → **no matches anywhere** in the 12-file test suite.
+
+**Net effect**: calling `Scene.Open("model.rvm")`, `Scene.Save("model.u3d")`, `scene.Save("scene.amf")`, or `scene.Save("scene.html")` — i.e., exactly the `Scene.FromFile()`/`Scene.Save()` API the README's own Key Capabilities bullet cites — throws `ArgumentException("Unsupported file format: ...")` immediately at `GetFormatByExtension`, before any importer/exporter is even reached. These four formats do not work at all, not even partially.
+
+This directly contradicts the candidate in **four separate places**:
+
+- **Intro paragraph**, `readme.md:9-12`: "...reading and writing widely used interchange formats such as FBX, glTF, Wavefront OBJ, STL, COLLADA, and Universal 3D, as pure managed code..." — lists U3D alongside formats that do work, with no distinction.
+- **"At a Glance" mermaid diagram**, `readme.md:33,35,58`: lists "...PLY, or U3D file" and "3MF or RVM file" as valid inputs, and "AMF or HTML5 (Aspose 3D Web viewer) output" as a valid output — presented with equal confidence as the genuinely-working formats in the same diagram.
+- **Key Capabilities bullet**, `readme.md:82-84`: "Convert 3D scenes by reading and writing FBX, glTF, Wavefront OBJ, STL, COLLADA, and Universal 3D (U3D) — including FBX-to-OBJ and glTF-to-OBJ conversions — with full round-trip fidelity, plus Microsoft 3MF and AVEVA PDMS RVM models, AMF, and an HTML5/Aspose 3D Web viewer export, through `Scene.FromFile()`/`Scene.Save()` and the matching `FileFormat` constants." — explicitly claims "full round-trip fidelity" through the exact API that structurally cannot support these formats.
+- **API Reference table**, `readme.md:381`: "`RvmFormat` \| AVEVA PDMS RVM format registration — **core geometry import/export works**; attribute loading is not implemented (see Scope and Limitations)." — this is the one place the README makes a testable factual assertion about RVM specifically, and it is **false**: core geometry import/export does not work, because RVM is never dispatched at all.
+
+The Scope and Limitations section (`readme.md:594-596`) only discloses the narrower, second-order defect ("`RvmFormat.LoadAttributes` is not implemented — core RVM geometry import/export works, RVM attribute data does not load") — reinforcing the false claim rather than correcting it — and says **nothing at all** about AMF, HTML5, or U3D being non-functional. Unlike the PLY/Draco/PDF entries elsewhere in the same table (which correctly distinguish "decoy" throwing classes from the real dispatch path), RVM/U3D/AMF/HTML5 get no such treatment anywhere in the candidate.
+
+This is a genuine, previously-undetected **MAJOR candidate-content defect** — a testable, source-verifiable false capability claim repeated in four locations including the README's most prominent summary bullet, not merely a governance/tracking-layer problem as Stage A's verdict concluded. It plausibly slipped through the knowledge pipeline because `api_surface.json` performs static class-surface reflection only (confirmed: `RvmFormat`/`RvmLoadOptions`/`RvmSaveOptions`/`U3dLoadOptions`/`U3dSaveOptions` all appear in `api_surface.json` with `"reachable": true`, since their public classes genuinely exist and are reachable) — it does not trace whether a format is actually wired into `FileFormat._formats`/`IOService`'s dispatch switches, which is a materially different (and here, decisive) question. `knowledge/3d/net/merged/limitations.md` and `claims.json` only capture the disclosed `RvmFormat.LoadAttributes` throw — neither knowledge artifact contains any signal about the missing dispatch registration, so this gap was invisible to every generation-time grounding source, not just to Stage A's review method.
+
+### Secondary observation (not a README defect, informational only)
+
+`Scene.Save(Stream stream, SaveOptions options)` (`Scene.cs:369-394`) has a narrower options-type switch (only `Obj/Stl/Gltf/Fbx/Collada/Microsoft3MF SaveOptions` map to a format) than the filename-based `Scene.Save(string fileName, SaveOptions options)` (`Scene.cs:434-446`, which correctly dispatches by file extension for all 8 real formats including PLY). This means `scene.Save(stream, new PlySaveOptions())` would throw `NotSupportedException("...for the provided options type")` even though PLY genuinely works via the filename path. I checked every code example in the candidate against this: none of the 6 examples hit this gap (the one stream-based `Save` example uses `ColladaSaveOptions`, which **is** in the narrower switch). So no candidate text is falsified by this — it's a latent inconsistency in the underlying library between its two `Save` overload families, undisclosed in the README, worth a NIT but not elevating any existing claim to false.
+
+### Verdict addendum
+
+**8. MAJOR / product-specific, new — candidate makes a false, testable capability claim.** AMF, HTML5, RVM, and U3D format import/export are presented as working (Key Capabilities bullet, intro paragraph, "At a Glance" diagram, and — for RVM specifically — an explicit "core geometry import/export works" assertion in the API Reference table) but are structurally non-functional: none of the four is registered in `FileFormat`'s internal `_formats` list (`FileFormat.cs:360-380`) or has a dispatch case in `IOService.CreateImporter`/`CreateExporter` (`IOService.cs:55-90`), no reader/writer class exists for any of them anywhere in the repository, and none has any test coverage. `Scene.Open()`/`Scene.Save()`/`Scene.FromFile()` — the exact API the README cites — throw `ArgumentException("Unsupported file format: ...")` immediately for all four. Only OBJ, STL, glTF, FBX, Microsoft 3MF, COLLADA, PLY, and 3DS are genuinely wired end-to-end. This should be corrected in the README (either remove the four formats from all four locations, or explicitly disclose them as registered-but-unimplemented in Scope and Limitations the same way PDF/Draco/USD/A3DW/JT already are) and should also be added to `knowledge/3d/net/merged/limitations.md`/`claims.json`, since the current knowledge-pipeline artifacts have no signal for this class of "class exists but is never dispatched" defect.
+
+**Revised overall assessment**: Stage A's conclusion that "the serious problems found are not in the README text but in the surrounding tracking/governance layer" does not fully hold. The governance/tracking findings (Verdict #1-#3) are real and independently reproducible, but the candidate README itself also contains a genuine, multiply-repeated, source-refutable false capability claim (AMF/HTML5/RVM/U3D) that both the disposition audit trail and the knowledge-pipeline grounding artifacts failed to catch.
+
+## Stage C: Adversarial Verification
+
+Independently re-derived every citation in the Verdict section — re-read cited files at cited line numbers, re-ran cited/equivalent commands (including a live `gh api` fetch of the actual current GitHub README and an independent SHA-256 computation), and additionally ran an unprompted exhaustive check (`grep -rl "class.*: *IImporter|class.*: *IExporter"`) that the original review did not itself run, to stress-test Finding 8's central claim.
+
+| # | Finding | Determination | Reason |
+|---|---|---|---|
+| 1 | Publication ledger stale vs. live GitHub | **CONFIRMED**, with one citation defect | `data/readme_published_state.json:7` and `current-operational-reference.md:221` verified verbatim; live `gh api .../contents/README.md` fetch independently reproduces sha256 `2315cffc...`, byte-identical (`diff`) to the candidate — all match exactly. But the citation `current-operational-reference.md:441-442` is **wrong**: that file has only 293 lines (worktree copy: 279); the quoted text ("awaiting TC-HARDEN-47/48 republication") actually lives in `docs/readme-refresh/plan-system-forensic-reconciliation.md:442`, a different file. Also "3d/python is named in the same stale ledger row" is imprecise — it's a separate JSON row, not the same one. Core claim still holds independently (live tip is actually commit `042a1e5f731d`, 2026-08-19 — one commit newer than even the review realized). |
+| 2 | Clone cache stale vs. live upstream | **CONFIRMED** | Independently reran: `git rev-parse HEAD` → `70933ab13eb0...`, `git status --porcelain` → clean, `sha256sum README.md` → `61cbf2bb0f...` — all match exactly. Live GitHub fetch confirms mismatch. Found additional supporting fact the review missed: the true live tip is a *further* commit (`042a1e5f731d`, 2026-08-19, README-only diff) one past what the review even cited — clone cache is stale by one more commit than reported, strengthening (not weakening) the finding. |
+| 3 | u0052 false "corrected" self-report (ZIP clause dropped) | **CONFIRMED** | `content-dispositions.json:617-628` verbatim match (excerpt text, `"disposition": "corrected"`, target section). `grep -in zip candidate` → exit 1 (zero matches), confirmed. Scope and Limitations (573-606) read in full: exactly 8 bullets, none mention ZIP. `limitations.md:151-152` and `FileSystem.cs:211,216` (`ReadFile`/`WriteFile`, both throwing the exact quoted `NotImplementedException` strings) verified byte-for-byte. Severity note: MAJOR is defensible on process-reliability grounds (a ledger built to prove no silent drops demonstrably lied about one) but is arguably generous for a single omitted disclosure of a narrow, non-mainstream feature (ZIP-backed virtual file systems) — a reasonable reviewer could call this MINOR instead. Not downgrading, but flagging as borderline. |
+| 4 | COLLADA/3MF Load/Save symmetry overstated | **CONFIRMED** | `readme.md:85-87` exact match. `grep '"ColladaLoadOptions"\|"Microsoft3MFLoadOptions"'` on `api_surface.json` → 0 matches (confirmed). `ColladaSaveOptions` at 2787, `RvmLoadOptions/RvmSaveOptions` at 30460/30621, `U3dLoadOptions/U3dSaveOptions` at 30886/30969 — all exact line matches. `Microsoft3MFSaveOptions` cited from candidate table line 334 — verified verbatim there. MINOR is correctly calibrated. |
+| 5 | Knowledge-pipeline `formats.md` unreliable | **CONFIRMED** | `formats.md` lines 8/14/18/20/25 (A3DW, DRACO, JT, PDF, USD) all match cited Yes/- values exactly. `DracoFormat.cs` and `PdfFormat.cs` read in full: every method unconditionally throws, confirmed. `AGENTS.md:66` ("FbxWriter - complete") vs `:75` ("Scene.Save() for FBX \| Stub (throws exception)") — genuine self-contradiction, confirmed verbatim. `FbxWriter.cs`: 1304 lines, 0 `NotImplementedException` occurrences, real `Export()` at line 13 — all confirmed. Explicitly self-scoped as "not a candidate defect" — accurate framing. |
+| 6 | `last-verified.json.verified_by_run_id` is null | **CONFIRMED** | File read directly: `"verified_by_run_id": null` present exactly as cited. Trivial but accurate; MINOR is correct. |
+| 7 | `structure-dispositions.json` thin (2 vs 56 units) | **CONFIRMED** | Counted `"unit_id"` occurrences directly: content=56, structure=2, badge=3, code-example=9 (70 total) — exact match. Finding is self-labeled NIT/unproven and offers no fabricated defect — honest, appropriately hedged. |
+| 8 | AMF/HTML5/RVM/U3D claimed as working but structurally non-dispatched | **CONFIRMED — and understated in urgency** | This is the most rigorously checkable claim and it survives every test. `FileFormat.cs:360-380` (`InitializeFormats`) read in full: exactly 8 `_formats.Add(...)` calls (Obj/Stl/Gltf/Fbx/Microsoft3MF/Collada/Ply/Discreet3DS) — RVM/U3D/AMF/HTML5 never added. `GetFormatByExtension` (163-183) throws `ArgumentException("Unsupported file format: ...")` exactly as quoted. `Universal3D` (line 90), `RvmText`/`RvmBinary` (101-102), `AMF` (111), `Aspose3DWeb`/`HTML5` (113-114) — all exact line matches, fields never wired into `_formats`. `IOService.cs:55-90` read in full: both switches cover exactly the same 8 formats, default case throws `NotSupportedException` — exact match. `RvmFormat.cs` (39 lines) confirmed to contain only two throwing `LoadAttributes` overloads, no Import/Export. `Scene.cs` `Open(string)` (267-271) and `Save(string)` (415-420) both confirmed to call `GetFormatByExtension` first, meaning the failure happens before any importer/exporter is reached — exactly as claimed. I additionally ran `grep -rl "class.*: *IImporter\|class.*: *IExporter"` across the entire `src/main` tree myself (a check the review's write-up describes but I re-verified independently): exactly 16 files, covering only the same 8 formats × Reader/Writer — zero RVM/U3D/AMF/HTML5 reader or writer exists anywhere. `readme.md:9-12`, `:33/35/58`, `:81-84` (bullet starts at 81, not 82 as cited — trivial off-by-one), and `:381` (`RvmFormat` table row) all quoted verbatim-correctly. `api_surface.json`'s `RvmFormat` entry confirmed `"reachable": true` (line 6921) despite never being runtime-dispatched, confirming the stated root-cause diagnosis. Test-coverage grep independently reran (`grep -rinE "rvm|u3d|universal3d|\bamf\b|html5" src/test/`) → zero matches, confirmed — but the review's "12-file test suite" is wrong; there are 16 `.cs` test files, not 12 (found via `find ... -name "*.cs" | wc -l`). This numeric slip doesn't affect the substance. **Severity call**: tagged "MAJOR / product-specific," but the review never cross-references its own Finding #1 conclusion (candidate == live GitHub, byte-identical) — meaning this false, four-times-repeated "full round-trip fidelity" / "core geometry import/export works" claim is not a pending candidate risk, it is **already live in production on the public repo today**, actively misleading real developers right now. That materially raises the real-world urgency above what "MAJOR / product-specific, new" conveys on its own. |
+
+**Overall**: All 8 Verdict findings are evidentially CONFIRMED against independent re-derivation from primary sources (source code reads, JSON reads, exact line/command reruns, and a live GitHub fetch). No finding is fabricated or unsupported by its own cited evidence. Two citation-accuracy defects were caught (Finding 1's `current-operational-reference.md:441-442` points to the wrong file; the "same ledger row" phrasing for 3d/python is imprecise) and one minor numeric error (Finding 8's "12-file" test suite, actually 16 files) — none of which undermines the substance of the findings they appear in. The one genuine calibration debate is Finding 3 (MAJOR arguably generous for a narrow omitted disclosure) and Finding 8 (MAJOR arguably understates that this is a live, public, testable false claim rather than a mere candidate-stage risk).

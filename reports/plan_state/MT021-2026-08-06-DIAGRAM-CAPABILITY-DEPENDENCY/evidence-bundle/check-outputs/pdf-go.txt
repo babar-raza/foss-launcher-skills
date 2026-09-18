@@ -1,0 +1,2 @@
+PASS: reports/repo-presenter/pdf/go/readme.md -- diagram matches recorded capability dependencies
+PASS: reports/repo-presenter/pdf/go/readme.md -- no orphaned capability nodes

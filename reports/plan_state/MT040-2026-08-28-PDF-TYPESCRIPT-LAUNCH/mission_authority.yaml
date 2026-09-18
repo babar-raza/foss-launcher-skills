@@ -1,0 +1,91 @@
+mission_authority:
+  mission_id: MT040-2026-08-28-PDF-TYPESCRIPT-LAUNCH
+  mission_summary: 'Harden the TypeScript-platform content pipeline (scout/reachability/doc-capture/formats/snippets/reference-grouping/prose-purity/install-identity/completeness
+    diagnostics/wiring test, plus the structural layer D-1..D-8: capability contract,
+    extraction fidelity gate, language adapters, module assignment, tiered snippets,
+    format-signal recogniser, product-registry loader, launch execution contract,
+    acceptance bindings) under S-99 pipeline-harden, then launch pdf/typescript (aspose-pdf-foss/Aspose.PDF-FOSS-for-TypeScript)
+    through the hardened /launch-product chain across all 5 aspose.org subdomains
+    to S-90 PUBLISH and READY TO SHIP, then (Phase I) remediate the two already-launched
+    TypeScript products, cells/typescript and 3d/typescript, through a run-bound refresh_run.py
+    --mode combined using the same hardened extractor, resolving cells'' active-vs-excluded
+    liveness contradiction and harvesting 3d''s hand-curated reference index into
+    the generator, all traced through one taskcard.jsonl and one evidence bundle.'
+  governing_plan_path: <local-plan-cache>/pdf-typescript-aspose-pdf-foss-aspose-pd-functional-papert.md
+  in_scope_outcomes:
+  - 'TypeScript pipeline hardening: 12 G-TS gaps + 6 G-SK skill-doc gaps + structural
+    D-1..D-8 layer, all with dedicated regression tests, landed as C1-C4 commits +
+    skill-doc commit'
+  - pdf/typescript registered, cloned, knowledge-bootstrapped (baseline + authoritative),
+    and launched across products/blog/docs/kb/reference on aspose.org, with websites.aspose.org
+    sync
+  - pdf/typescript passes AGENTS.md §7d, truth-audit 0 FAIL, all 16 launch gates,
+    S-90 PUBLISH verdict, readiness scorecard READY TO SHIP
+  - cells/typescript liveness (active vs excluded) resolved with live evidence; both
+    cells/typescript and 3d/typescript remediated end-to-end via refresh_run --mode
+    combined (re-scout, full reference rebuild, body refresh, locale handoff, bound
+    S-90 verdict)
+  - one taskcard.jsonl (schema 5f) as the sole durable status ledger; one evidence
+    bundle at reports/plan_state/MT040-2026-08-28-PDF-TYPESCRIPT-LAUNCH/evidence/,
+    validated by validate_evidence_bundle.py
+  out_of_scope_items:
+  - Building the full run-bound `launch` mode inside refresh_run.py (D-8c) — proposed
+    as a shared card with MT039 TC-MT039-12, not built in this mission
+  - Extending unreachable-class skipping (reference_filter policy) to python/rust
+    products — scheduled for their own future refresh runs
+  - Harvesting TSDoc @example blocks into snippets — deferred until a TS product has
+    >=10 such blocks (filed as a backlog follow-up)
+  - Publishing @asposefoss/pdf to npm — outside this repo's authority; package_registry
+    entry records published:false
+  - Non-English (locale) content generation for the NEW pdf/typescript launch — English-only
+    per MT012/MT013 precedent; a /ht-translate-batch follow-up is filed
+  - Fixing MT039's own planning-sprint scope beyond the 4 refresh-chain gap cards
+    (G5-04/06/12/22) this mission needs for Phase I
+  mandatory_acceptance_criteria:
+  - Every G-TS/G-SK/D-1..D-8 taskcard reaches CLOSED with evidence_refs, or an explicit
+    BLOCKED_EXTERNAL/SUPERSEDED/OUT_OF_SCOPE disposition with evidence — none silently
+    abandoned at TODO/IN_PROGRESS
+  - 'pdf/typescript: launch_gate.py reports all 16 gates PASS/SKIP/WARN with zero
+    PASS->FAIL regressions vs the S-99 baseline; S-90 final-verdict.md = PUBLISH;
+    readiness_scorecard.py reports READY TO SHIP'
+  - 'Fleet regression: scout_fidelity calibration re-run over all 31 products shows
+    every product equal-or-better than its pre-mission baseline; extraction goldens
+    for non-TS-opted platforms are byte-identical'
+  - 'cells/typescript and 3d/typescript: refresh_run.py manifests reach COMMITTED
+    (or a recorded BLOCKED_EXTERNAL with exact resume condition), content_coverage_comparison.newly_missing
+    == [] for each, S-90 verdicts bound (R-1) and current'
+  - A single evidence bundle exists at reports/plan_state/MT040-2026-08-28-PDF-TYPESCRIPT-LAUNCH/evidence/,
+    passes validate_evidence_bundle.py with exit 0, and its absolute path is reported
+    in the final response
+  - mission_authority.py close --mission-id MT040-2026-08-28-PDF-TYPESCRIPT-LAUNCH
+    run against the archived snapshot once the mission reaches a terminal state
+  human_authority_boundaries:
+  - Any edit to AGENTS.md itself (§7d wording amendment is proposed in the mission
+    doc, not applied to AGENTS.md by the agent)
+  - KNOWLEDGE_QUALITY_OVERRIDE token issuance
+  conflicts_found:
+  - 'Checked live at mission open (2026-08-29, this session): mission_authority.py
+    status --json -> locks: [] (empty), sessions: no active session besides this one.
+    Root MISSION_AUTHORITY.yaml was held by MT037-2026-08-24-FOSS-PORTFOLIO-FORENSIC-HEAL
+    (open, mission_locked:false) with an archived snapshot at reports/plan_state/MT037-2026-08-24-FOSS-PORTFOLIO-FORENSIC-HEAL/mission_authority.yaml
+    -- per this repo''s established precedent (mission_authority.py close only updates
+    the archive, never the root projection), taking over the root slot here does not
+    destroy MT037''s own archived state.'
+  - MT039-2026-08-28-PRODUCT-LAUNCH-REFRESH-EXECUTION (19 taskcards, all TODO, mission
+    never opened via mission_authority.py open) shares 5 cards with this mission by
+    design (TC-MT039-13 liveness/exclusions <-> TC-MT040-51; TC-MT039-11 extractor-hash
+    <-> TC-MT040-48; TC-MT039-12 no-op state <-> TC-MT040-53/56; TC-MT039-01/03/04/02
+    refresh-chain gaps <-> TC-MT040-52). Both mission ids are recorded in the shared
+    cards' source_finding; this mission fixes the 4 refresh-chain gaps and the extractor-hash/liveness
+    items directly (Decision 18a) rather than waiting on MT039.
+  - 'Working tree carries 804 dirty lines (42 files staged, 191 untracked) from other
+    sessions at mission-open time, none overlapping this mission''s allowed_paths
+    (spot-checked: knowledge/pdf/net/**, keywords/*.json, backlog/inbox.md, .claude/commands/{new-docs-index,new-products-page,page-update}.md,
+    data/registry_exclusions.json, data/seo_schema_a_migration_state.json) -- left
+    untouched; all commits in this mission use git_plumb_commit.py''s isolated temp
+    index (never `git add`/`git commit` against the shared real index) so this foreign
+    staged state is never at risk of being swept into a mission commit.'
+  mission_locked: false
+  _archive_status: closed
+  _archived_at: '2026-08-29T08:21:31Z'
+  _closed_at: '2026-08-31T09:02:05Z'

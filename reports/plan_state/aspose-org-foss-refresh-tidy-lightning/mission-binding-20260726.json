@@ -1,0 +1,56 @@
+{
+  "mission_binding": {
+    "mission_id": "MT006-2026-07-17-REFRESH-PIPELINE-VERIFICATION-REFOUNDATION",
+    "repository": "D:/onedrive/Documents/GitHub/aspose.org",
+    "branch": "main",
+    "repository_head": "98a4e51c70d2edfe8d102b2574022fe18e3de05c",
+    "plan_path": "plans/master-plan.md#MT006-2026-07-17-REFRESH-PIPELINE-VERIFICATION-REFOUNDATION",
+    "plan_id": "aspose-org-foss-refresh-tidy-lightning",
+    "plan_version": "2.0",
+    "plan_hash": "ae292bfa9c5cdb85a21db6c43f8eae74b80521a2d31ccad7ab16f134dbb4a83f",
+    "plan_hash_method": "SHA-256 with the Canonical plan hash value normalized to PENDING_CANONICAL_HASH",
+    "source_of_authority": "explicit conversation plan, then matching repository mission and schema-5f taskcard store",
+    "summary_sources": [
+      "reports/sprint/pdf-net-hardening/final_verdict.json",
+      "reports/pilot_comparison/cells-java/pilot-comparison-20260725.md"
+    ],
+    "audit_sources": [
+      "reports/refresh_forensics/pdf/net/cac04456c762-a6eda23a1930.json",
+      "reports/refresh_forensics/3d/net/029a568ea7dd-3113c9f0fefd.json",
+      "reports/refresh_forensics/3d/java/825945dad43c-fa5dfa31a6ad.json",
+      "reports/truth-audit/cells-java-20260725.json"
+    ],
+    "task_sources": [
+      "reports/plan_state/aspose-org-foss-refresh-tidy-lightning/taskcards.jsonl"
+    ],
+    "evidence_sources": [
+      "reports/refresh_runs/cells/java/rf-cells-java-pilot-20260725-01",
+      "reports/refresh_runs/cells/java/rf-cells-java-pilot-20260725-02",
+      "reports/refresh_runs/cells/java/rf-cells-java-pilot-20260725-03",
+      "reports/refresh_runs/cells/java/rf-cells-java-pilot-20260725-04"
+    ],
+    "mandatory_outcomes": [
+      "semantic stale-prose gate",
+      "complete stage observability",
+      "independent SEO result",
+      "reliable Windows truth audit",
+      "repeatable production-shaped cells/java canary",
+      "remaining A/H/I lane execution after K closure"
+    ],
+    "non_goals": [
+      "remote push or deployment",
+      "alleged-601 bulk remediation",
+      "unrelated product or locale mutation",
+      "clone-cache writes"
+    ],
+    "confidence": "high",
+    "conflicts": [
+      "plan v1 claimed the cells/java canary was not run; four runs now exist",
+      "latest canary triage verdict conflicts with target-page truth-audit findings",
+      "concurrent dirty work overlaps shared pipeline files and requires path/hash ownership reconciliation"
+    ],
+    "binding_outcome": "BOUND_EXISTING_PLAN",
+    "recorded_at": "2026-07-26T01:29:55Z",
+    "recorded_by": "refresh-pipeline-recovery-20260726"
+  }
+}

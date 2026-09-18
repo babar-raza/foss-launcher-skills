@@ -1,0 +1,22 @@
+Promote: cells/rust
+  Scout: 2153 claims, 219 api_surface entries
+  Enriched: 202 claims (from enrich.py)
+  Total claims: 2355
+  WARNING: 150 duplicate CLM claim_id(s) (identical text, safe to dedupe) — deduplicating (320 excess removed)
+    CLM-cells-ef8075: 24 occurrences
+    CLM-cells-c852ea: 24 occurrences
+    CLM-cells-c352d7: 17 occurrences
+    CLM-cells-077403: 16 occurrences
+    CLM-cells-1ed228: 11 occurrences
+  Semantic dedup: skipped (use --semantic-dedup to enable)
+  GoDoc fallback: 190 method(s) inferred from name patterns (doc_source: name_inference)
+  API surface: 219 entries (213 classes)
+  Snippets: 21 (from scout)
+  api_surface.md: 213 classes, 101215 bytes
+  Forbidden claims: 0
+  All artifacts written to knowledge\cells\rust\merged.staging.f25df66b-5e39-438b-9b64-040c2496017f
+  Format-claims reconciliation: PASS (2 formats checked)
+  Artifact validation: PASS
+PROMOTE_ATOMIC: bundle f25df66b-5e39-438b-9b64-040c2496017f promoted for cells/rust
+
+PROMOTE: PASS

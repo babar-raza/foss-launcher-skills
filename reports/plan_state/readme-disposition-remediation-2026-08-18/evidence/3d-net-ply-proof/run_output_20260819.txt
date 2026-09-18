@@ -1,0 +1,39 @@
+
+=== TEST 1: Scene.Save("file.ply") export via public API ===
+  PASS: output file was created
+  PASS: output file is non-empty (313 bytes)
+  PASS: file starts with the PLY magic header (got: 'ply')
+
+=== TEST 2: Scene.Open("file.ply") import of the file just written ===
+  PASS: reloaded scene has a child node
+  PASS: reloaded node's entity is a Mesh
+  PASS: reloaded mesh has the box's 8 control points (got: 8)
+  PASS: reloaded mesh has the box's 6 polygons (got: 6)
+
+=== TEST 3: Scene.Open on an independently-authored PLY fixture (ASCII, single triangle) ===
+
+=== TEST 3b (discovery): Scene.Save(".ply") on a raw, unconverted Primitive (Box) ===
+  INFO: no exception thrown; output file has 163 bytes
+  INFO: header lines:
+    ply
+    format ascii 1.0
+    element vertex 0
+    property float x
+    property float y
+    property float z
+    element face 0
+    property list uchar int vertex_indices
+    end_header
+  PASS: fixture scene has a child node
+  PASS: fixture node's entity is a Mesh
+  PASS: fixture mesh has 3 vertices (got: 3)
+  PASS: fixture mesh has 1 polygon (got: 1)
+
+=== TEST 4: FileFormat.PLY (Formats.PlyFormat) direct Encode/Decode -- confirm broken, capture exact exception ===
+  PASS: FileFormat.PLY.Encode() throws NotImplementedException: "PLY encoding not implemented in FOSS version"
+  PASS: FileFormat.PLY.Decode() throws NotImplementedException: "PLY decoding not implemented in FOSS version"
+
+=== TEST 5: Scene.Save(stream, FileFormat.PLY) -- explicit public-field format object ===
+  INFO: Scene.Save(stream, FileFormat.PLY) throws NotImplementedException: "Save options not implemented for ply"
+
+=== SUMMARY: ALL ASSERTIONS PASSED ===

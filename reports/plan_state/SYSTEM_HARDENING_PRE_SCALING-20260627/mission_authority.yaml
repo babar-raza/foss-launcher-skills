@@ -1,0 +1,42 @@
+mission_authority:
+  mission_id: SYSTEM_HARDENING_PRE_SCALING-20260627
+  mission_summary: Harden the aspose.org content generation system for scaling to
+    many future plugins/products/formats by addressing the 4 must-fix and 5 should-fix
+    items identified in the layman system status review
+  governing_plan_path: LAYMAN_SYSTEM_STATUS_REVIEW.md
+  current_phase: BASELINE_ESTABLISHED
+  in_scope_outcomes:
+  - Add cross-platform consistency gate (G-07) to readiness_gate.py
+  - Fix email/python evaluator false positives (13 wrong-claim findings on import
+    statements)
+  - Re-scout 3d/typescript to add missing classes (VertexElementVertexColor, TextureMapping)
+    to api_surface.json
+  - Automate repo-patrol in CI (schedule weekly)
+  - Document template override patterns
+  - Add evidence_depth.py staleness check to CI
+  - Fix index.py total_claims=0 bug (HSI-004)
+  - Resolve note/python scene-entities (human policy decision on planner output)
+  - Add fixer generator scaffold
+  out_of_scope_items:
+  - Full translation quality validation (future enhancement)
+  - Blog slug migration tooling (future enhancement)
+  - LLM prompt versioning for healing (future enhancement)
+  - Cross-evaluator interference tests (future enhancement)
+  mandatory_acceptance_criteria:
+  - All 4 must-fix items implemented and verified
+  - All 5 should-fix items implemented and verified
+  - readiness_gate.py passes with G-07 cross-platform gate for all 16 products
+  - email/python gap-eval shows 0 wrong-claim false positives
+  - 3d/typescript api_surface.json includes VertexElementVertexColor and TextureMapping
+  - repo-patrol runs in CI weekly
+  - Template override documentation exists and is accurate
+  - evidence_depth.py staleness check runs in CI
+  - index.py total_claims returns correct count
+  - note/python scene-entities decision documented
+  - Fixer generator scaffold produces working fixer
+  - All existing tests still pass (3462+)
+  - No regression in any product's publication readiness
+  conflicts_found: []
+  mission_locked: true
+  _archive_status: closed
+  _archived_at: '2026-07-29T14:06:56Z'

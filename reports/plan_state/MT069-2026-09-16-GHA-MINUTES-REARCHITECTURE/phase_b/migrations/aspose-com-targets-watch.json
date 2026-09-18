@@ -1,0 +1,36 @@
+{
+  "workflow_name": "aspose-com-targets-watch.yml",
+  "state": "CANARY_CONFIRMED",
+  "state_history": [
+    {"state": "CREATED", "at": "2026-09-17T15:40:00Z", "note": "Selected as this mission's designated canary per dossiers/aspose-com-targets-watch.md and design/public_execution_boundary.md."},
+    {"state": "BASELINE_PINNED", "at": "2026-09-17T15:42:00Z", "note": "Private original hash-pinned before any change.", "private_baseline_sha256": "341e697605ff46a1ac64cd44a63aed6da97b72fbd89ade1b5081264b6c0bc6f3", "private_baseline_commit": "HEAD (pre-flip, committed)"},
+    {"state": "TEMPLATE_BUILT", "at": "2026-09-17T15:45:00Z", "note": "Local template built at scripts/ci/deployed-workflows/aspose-com-targets-watch.yml -- cross-repo checkout added (repository: Aspose/aspose.org + REPO_TOKEN/GH_TOKEN), token pre-flight check added (matching seo-apply.yml's proven pattern), issue-creation retargeted explicitly to owner:'Aspose',repo:'aspose.org' with an explicit github-token override (the default github.token is scoped only to aspose.org-workflows). YAML-parse validated (actionlint unavailable on this machine -- same documented fallback S-115 already uses)."},
+    {"state": "CANARY_DEPLOYED", "at": "2026-09-17T15:50:47Z", "note": "Pushed to Aspose/aspose.org-workflows main via isolated-temp-index plumbing (local clone's working tree/index/main ref left completely untouched throughout -- 3 unrelated files from a concurrent session were never touched; see 'Concurrent-session hazard encountered' below).", "deployed_commit_sha": "a00a226538a5a41e2ef7604dc520d856a790e615", "deployed_commit_parent": "015b0a18bb379b2116de6d42a5fb414366871921", "public_template_sha256": "8dd0bb9be08c902274a0daeda83865169f31816b22850867149bb2febe1775f0", "verified_byte_identical_to_local_template": true},
+    {"state": "CANARY_OBSERVING", "at": "2026-09-17T15:51:34Z", "note": "Manually dispatched for a real end-to-end proof run (public repo -- explicitly authorized by the user for testing).", "run_id": 35242951424, "run_url": "https://github.com/Aspose/aspose.org-workflows/actions/runs/35242951424"},
+    {"state": "CANARY_CONFIRMED", "at": "2026-09-17T15:53:48Z", "note": "Run completed successfully (2m14s). Verified via gh run watch: checkout of the private Aspose/aspose.org repo succeeded via REPO_TOKEN/GH_TOKEN; both real Python checks ran against live data and passed clean (no drift/staleness found this run); issue-creation step correctly skipped (conditional on a failure that didn't occur); no new issue was created on Aspose/aspose.org (confirmed via gh issue list -- only the pre-existing 2026-09-12 issue present); private repo's own workflow file and data/aspose_com_targets.json confirmed untouched by the run (git status clean)."}
+  ],
+  "reconciliation": {
+    "public_run_landed": true,
+    "no_new_private_run_since_migration": "not yet observable -- private trigger was flipped to workflow_dispatch-only in this same session, so there is no future scheduled private run to compare against; will be implicitly true going forward since nothing can trigger it on a schedule anymore",
+    "billing_trend": "not yet observable this billing cycle -- too soon after migration"
+  },
+  "private_original": {
+    "path": ".github/workflows/aspose-com-targets-watch.yml",
+    "action_taken": "trigger flipped from schedule(daily 10:30 UTC) to workflow_dispatch-only",
+    "not_deleted": true,
+    "not_enabled_or_disabled_via_api": true,
+    "working_tree_sha256_post_flip": "4227ef0f209cbc922a78f56c4ec3b0bb7795218544b86db16192ed4fc055d414",
+    "committed": false,
+    "note": "UNCOMMITTED as of this record, same open-precondition pattern TC-11 flagged for the concurrency-guard fixes -- flagged explicitly here too, not silently repeated."
+  },
+  "concurrent_session_hazard_encountered": {
+    "description": "The local aspose.org-workflows clone at d:/onedrive/Documents/GitHub/aspose.org-workflows was far more stale than assumed (hundreds of commits behind origin/main, not 'kept in sync' as an earlier session memory claimed) and had 3 unrelated uncommitted files from another concurrent session (.github/workflows/www.aspose.org.yml, scripts/deploy/deploy_manifest.json, scripts/deploy/scan_state.json).",
+    "what_went_wrong_and_was_corrected": "An initial commit was built and the local main ref was advanced on top of the STALE parent before the staleness was discovered. Caught before pushing (a plain push attempt was rejected by the remote as non-fast-forward). The local main ref was restored to its exact original value and the file unstaged via `git restore --staged`, fully undoing the premature advance -- the other session's 3 dirty files were never at risk since the premature commit's tree differed from the stale parent by exactly one new file (no shared paths with the 3 dirty files).",
+    "correct_approach_used_for_the_real_push": "Fetched origin/main's true current tip, built the commit via an isolated temp index rooted at that real tip (never touching the local main ref or the real working index/tree at any point), and pushed that commit's SHA directly to refs/heads/main on the remote. The local clone's main ref, working tree, and index were byte-identical before and after the entire operation, confirmed via git status --porcelain and git rev-parse main at each step.",
+    "lesson": "The 64-day-old memory claiming this clone was 'kept in sync' was stale and should not have been trusted without a live git fetch first -- corrected in memory after this session."
+  },
+  "pre_existing_unrelated_finding_surfaced": {
+    "workflow": "seo-keyword-refresh.yml",
+    "finding": "DIVERGED per check_workflow_drift.py -- the deployed copy (421 lines) is substantially different from (larger than) the local template (334 lines) in this repo. Pre-existing, not caused by this session's work, not fixed here (out of scope for PHB-05) -- flagged for the user's awareness and a future taskcard."
+  }
+}

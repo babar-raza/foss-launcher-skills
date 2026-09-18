@@ -1,0 +1,39 @@
+feat(example-verification): C1 -- canonical CommonMark fence tokenizer + CI wiring
+
+Add lib/example_verification/code_fences.py, the first piece of the shared
+example-verification package (S-63-owned): enumerate_code_blocks()/
+block_spans() implement CommonMark fence rules (tilde fences, a closing
+fence longer than the opening, indented fences with content de-indent, an
+unterminated fence running to EOF, and c#/c++/objective-c info strings the
+old `\w*`-based regexes across this pipeline could not match at all).
+18 focused tests cover these cases plus canonicalize_lang() aliasing and
+sha256_norm normalization.
+
+A portfolio-wide, read-only parity pilot diffed the new tokenizer against
+content_eval/models.py's existing regex parser over all 158,863
+content/**/*.md files: 99.8% identical. The 320 divergent files all trace
+to one pre-existing content defect (a code example missing its opening
+fence, orphaning a closing fence) confirmed by direct reads of two
+representative files -- not a tokenizer defect. Per the plan's own
+promotion-gate wording, this is not a "CommonMark case", so
+content_eval/models.py keeps its existing parser as the active path this
+iteration; code_fences.py ships new, tested, and not yet wired into any
+consumer. Full analysis in
+reports/plan_state/MT065-2026-09-06-EXAMPLE-VERIFICATION-CENTRALIZATION/evidence/it-0001-20260906T0441Z/.
+
+Also deletes core/markdown.py's orphaned, unimported _CODE_FENCE_RE
+(confirmed zero importers repo-wide), and lands
+.github/workflows/example-verification-tests.yml (ubuntu + windows) so
+this new suite runs in CI from its first commit rather than only when
+someone remembers to run it by hand.
+
+registry.yaml registration and the orphaned-fence content defect's
+backlog entry are deliberately deferred -- both fall outside this
+taskcard's allowed_paths (registry.yaml is C4's; backlog/ needs a
+session with backlog/ in scope); drafted text for both is preserved in
+this run's evidence directory.
+
+Mission: MT065-2026-09-06-EXAMPLE-VERIFICATION-CENTRALIZATION
+Taskcards: C1
+
+Co-Authored-By: Claude Sonnet 5 <noreply@anthropic.com>

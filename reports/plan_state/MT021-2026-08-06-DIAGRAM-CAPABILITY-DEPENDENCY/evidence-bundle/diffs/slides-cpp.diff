@@ -1,0 +1,27 @@
+--- reports/plan_state/MT021-2026-08-06-DIAGRAM-CAPABILITY-DEPENDENCY/snapshots/slides-cpp-readme.md.orig	2026-08-06 17:04:05.247493000 +0500
++++ reports/repo-presenter/slides/cpp/readme.md	2026-08-06 17:04:15.035128300 +0500
+@@ -31,8 +31,10 @@
+ 
+   subgraph Capabilities["Core capabilities"]
+     C1["Slide, shape, and table creation and management"]
++    C1b["Picture frame creation (add_picture_frame)"]
+     C2["Text formatting (character, paragraph, frame)"]
+     C3["Fill, line, and visual effects"]
++    C3b["Picture fill formatting"]
+     C4["Notes, comments, and document properties"]
+     C5["Images"]
+   end
+@@ -47,9 +49,13 @@
+   PRODUCT --- C3
+   PRODUCT --- C4
+   PRODUCT --- C5
++  C5 --- C1b
++  C5 --- C3b
+   C1 --- O1
++  C1b --- O1
+   C2 --- O1
+   C3 --- O1
++  C3b --- O1
+   C4 --- O1
+   C5 --- O1
+ ```

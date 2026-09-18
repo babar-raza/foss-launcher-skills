@@ -1,0 +1,57 @@
+mission_authority:
+  mission_id: MT062-2026-09-02-ASPOSE-ORG-FULL-PORTFOLIO-TRANSLATION
+  external_mission_id: aspose-org-full-portfolio-translation-20260901
+  mission_summary: 'Autonomous /loop mission executed from the hugo-translator repo
+    (branch mission/aspose-org-full-portfolio-translation-20260901): translate/retranslate
+    every eligible page of the 6 in-scope aspose.org sites (blog, docs, kb, products,
+    reference, websites; www.aspose.org excluded by operator decision) into the 25
+    approved locales (ar cs de el es fa fr he hi hu id it ja ko nl pl pt ro ru sv
+    th tr uk vi zh) through hugo-translator''s campaign_runner under validation_policy
+    zero-defect (44 write gates, receipt-backed outputs), with Claude review and a
+    stop-heal-prove-resume discipline. Accepted batches are committed by the loop
+    into this repo''s local main via the S-76 procedure (session-ledger scoped, hook-compliant,
+    Skills invoked: [S-HT-02]); never pushed. Registered via the durable archive path
+    because the root MISSION_AUTHORITY.yaml projection is held by concurrently active
+    sessions (MT058 open; MT059 pending override token) -- GOV-02 retroactive-registration
+    rule.'
+  governing_plan_path: <local-plan-cache>/hugo-translator-aspose-org-partitioned-kahn.md
+  in_scope_outcomes:
+  - 'Every (source, approved-locale) cell of the 6 in-scope sites (229,650 cells over
+    9,186 sources per TC-APT-002) reaches a terminal ledger state: UP_TO_DATE via
+    receipt-backed, Claude-approved translation; EXCLUDED_BY_PROFILE; or a documented
+    BLOCKED/BLOCKED_EXTERNAL exception'
+  - All locale outputs written only by hugo-translator campaign_runner.py under validation_policy
+    zero-defect (all 44 write gates; warn-tier gates promoted to block); no --force-accept,
+    no validator skip
+  - 'Every accepted batch committed to this repo''s local main via S-76 (session ledger
+    adopt of exactly the receipt-listed paths, path_guard, override token for content/websites.aspose.org/,
+    skill-run record, Skills invoked: [S-HT-02], one Co-Authored-By trailer)'
+  - skills/ht-translate.md and skills/ht-translate-batch.md updated to the governed
+    zero-defect path and the 25-code locale set (TC-APT-025)
+  - Gate 11 evidence bundle with PUBLISH readiness verdict for the local-commit tier
+    only
+  out_of_scope_items:
+  - www.aspose.org (excluded by operator decision, 2026-09-01)
+  - Any push of this repo's main to origin, any aspose.org-workflows deployment action
+    (separately gated operator actions)
+  - Deleting any content file, including the 11 profile-excluded legacy locale directories
+    (bg ca da fi hr lt lv ms no sk sr)
+  - Editing path_guard.py or AGENTS.md; committing any other session's files
+  - NLLB-200 models (CC-BY-NC-4.0) -- permanent non-use
+  mandatory_acceptance_criteria:
+  - Zero missing expected targets among non-excluded, non-blocked cells; zero outputs
+    in the 11 excluded locales produced by this mission
+  - Zero unresolved Claude REJECT_* verdicts; zero receipts carrying a literal warn
+    gate action at Gate 9 reconciliation
+  - professionalize_llm formally qualified as primary (TC-APT-004b) with model identity
+    pinned/drift-monitored (TC-APT-021), or the m2m100_418m default explicitly recorded
+  - Gate 10 idempotent empty-queue re-run passes; rerun-determinism rates measured
+    and recorded (TC-APT-023)
+  - Every accepted batch committed to local main through the governed procedure; working
+    tree clean for this mission's files between batches; no push
+  mission_locked: true
+  registered_by_session: d18689cf-ac87-4bcb-b33f-655ef2b84358
+  registration_mode: archive_path_GOV-02 (root projection held by MT058/MT059 sessions;
+    not overwritten)
+  _archive_status: open
+  _archived_at: '2026-09-02T06:02:40Z'

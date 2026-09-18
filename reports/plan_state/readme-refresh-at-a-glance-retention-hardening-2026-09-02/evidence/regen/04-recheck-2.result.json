@@ -1,0 +1,665 @@
+{
+  "required_sections": {
+    "hard_gate": true,
+    "findings": []
+  },
+  "banner_present": {
+    "hard_gate": true,
+    "findings": []
+  },
+  "banner_links_to_homepage": {
+    "hard_gate": true,
+    "findings": []
+  },
+  "banner_asset_exists": {
+    "hard_gate": true,
+    "findings": []
+  },
+  "no_excluded_domain_links": {
+    "hard_gate": true,
+    "findings": []
+  },
+  "license_link_target": {
+    "hard_gate": true,
+    "findings": []
+  },
+  "license_section_matches_template": {
+    "hard_gate": true,
+    "findings": []
+  },
+  "enterprise_edition_link_resolves": {
+    "hard_gate": true,
+    "findings": []
+  },
+  "enterprise_edition_anchor_matches_relationship": {
+    "hard_gate": true,
+    "findings": []
+  },
+  "no_implementation_bridge_disclosure": {
+    "hard_gate": true,
+    "findings": []
+  },
+  "diagram_shape": {
+    "hard_gate": true,
+    "findings": []
+  },
+  "at_a_glance_section_shape": {
+    "hard_gate": true,
+    "findings": []
+  },
+  "diagram_column_balance": {
+    "hard_gate": true,
+    "findings": []
+  },
+  "diagram_label_token_length": {
+    "hard_gate": false,
+    "findings": []
+  },
+  "diagram_label_geometry": {
+    "hard_gate": true,
+    "findings": []
+  },
+  "diagram_starting_points_presence": {
+    "hard_gate": true,
+    "findings": []
+  },
+  "diagram_matches_capability_dependencies": {
+    "hard_gate": true,
+    "findings": []
+  },
+  "diagram_hybrid_reverification": {
+    "hard_gate": true,
+    "findings": []
+  },
+  "diagram_verified_format_claims": {
+    "hard_gate": true,
+    "findings": []
+  },
+  "diagram_starting_points_format_purity": {
+    "hard_gate": true,
+    "findings": []
+  },
+  "diagram_outputs_format_purity": {
+    "hard_gate": true,
+    "findings": []
+  },
+  "diagram_format_completeness_hint": {
+    "hard_gate": false,
+    "findings": []
+  },
+  "format_name_casing": {
+    "hard_gate": true,
+    "findings": []
+  },
+  "no_cross_product_citation": {
+    "hard_gate": true,
+    "findings": []
+  },
+  "examples_table_collapsed": {
+    "hard_gate": true,
+    "findings": []
+  },
+  "api_reference_detail_collapsed": {
+    "hard_gate": true,
+    "findings": []
+  },
+  "heading_title_case": {
+    "hard_gate": true,
+    "findings": []
+  },
+  "no_undisclosed_blocking_commands": {
+    "hard_gate": true,
+    "findings": []
+  },
+  "installation_matches_package_registry": {
+    "hard_gate": false,
+    "findings": []
+  },
+  "installation_matches_manifest_version": {
+    "hard_gate": false,
+    "findings": []
+  },
+  "no_upstream_issue_leaked": {
+    "hard_gate": true,
+    "findings": []
+  },
+  "no_upstream_issue_leaked_install_quickstart": {
+    "hard_gate": true,
+    "findings": []
+  },
+  "key_capabilities_quality": {
+    "hard_gate": false,
+    "findings": []
+  },
+  "key_capabilities_structural_variety": {
+    "hard_gate": false,
+    "findings": []
+  },
+  "key_capabilities_formatting": {
+    "hard_gate": false,
+    "findings": []
+  },
+  "section_intro_no_meta_narration": {
+    "hard_gate": true,
+    "findings": []
+  },
+  "capability_scope_contradiction": {
+    "hard_gate": false,
+    "findings": []
+  },
+  "diagram_from_scratch_capability_labeled": {
+    "hard_gate": false,
+    "findings": []
+  },
+  "scope_limitations_format": {
+    "hard_gate": true,
+    "findings": []
+  },
+  "dev_test_artifacts_linked": {
+    "hard_gate": true,
+    "findings": []
+  },
+  "development_testing_collapse": {
+    "hard_gate": false,
+    "findings": []
+  },
+  "readme_already_published": {
+    "hard_gate": false,
+    "findings": [],
+    "detail": {
+      "published": false
+    }
+  },
+  "published_readme_current": {
+    "hard_gate": false,
+    "findings": []
+  },
+  "dropped_content": {
+    "hard_gate": true,
+    "findings": [],
+    "detail": {
+      "dropped_links": [],
+      "dropped_headings": [],
+      "internal_labels": []
+    }
+  },
+  "content_unit_disposition_coverage": {
+    "hard_gate": true,
+    "findings": []
+  },
+  "content_unit_excerpt_matches_extraction": {
+    "hard_gate": true,
+    "findings": []
+  },
+  "content_unit_evidence_resolves": {
+    "hard_gate": true,
+    "findings": []
+  },
+  "content_unit_evidence_supports_claim": {
+    "hard_gate": false,
+    "findings": [
+      {
+        "unit_id": "u0001",
+        "support_check": "supported",
+        "matched_token": "TeX"
+      },
+      {
+        "unit_id": "u0002",
+        "support_check": "not_applicable_limitation_claim",
+        "reason": "target_section is Scope and Limitations -- a limitation claim's own cited evidence typically proves ABSENCE of a capability, not its presence; literal-token-found would be the wrong signal here"
+      },
+      {
+        "unit_id": "u0003",
+        "support_check": "supported",
+        "matched_token": "3.10"
+      },
+      {
+        "unit_id": "u0004",
+        "support_check": "no_literal_tokens",
+        "reason": "excerpt has no backtick/CamelCase-ALLCAPS/version/link-target-shaped token -- nothing literal to test"
+      },
+      {
+        "unit_id": "u0009",
+        "support_check": "supported",
+        "matched_token": "<path>"
+      },
+      {
+        "unit_id": "u0010",
+        "support_check": "supported",
+        "matched_token": "\\message"
+      },
+      {
+        "unit_id": "u0011",
+        "support_check": "supported",
+        "matched_token": "extra_format_paths"
+      },
+      {
+        "unit_id": "u0012",
+        "support_check": "supported",
+        "matched_token": "logging.NullHandler"
+      },
+      {
+        "unit_id": "u0013",
+        "support_check": "supported",
+        "matched_token": "LICENSE"
+      }
+    ]
+  },
+  "content_unit_merged_into_target_section": {
+    "hard_gate": true,
+    "findings": []
+  },
+  "content_unit_disposition_text_diff": {
+    "hard_gate": false,
+    "findings": []
+  },
+  "content_unit_no_exact_duplicate_merge": {
+    "hard_gate": true,
+    "findings": []
+  },
+  "content_unit_redundant_claim_verifiable": {
+    "hard_gate": false,
+    "findings": [
+      {
+        "unit_id": "u0006",
+        "reason": "this excluded/redundant_with_existing claim has no backtick-quoted identifier and fewer than 3 distinctive words remain after the generic-label stoplist -- cannot mechanically verify the claimed redundancy is real; confirm by hand before trusting it"
+      },
+      {
+        "unit_id": "u0007",
+        "reason": "this excluded/redundant_with_existing claim has no backtick-quoted identifier and fewer than 3 distinctive words remain after the generic-label stoplist -- cannot mechanically verify the claimed redundancy is real; confirm by hand before trusting it"
+      },
+      {
+        "unit_id": "u0008",
+        "reason": "this excluded/redundant_with_existing claim has no backtick-quoted identifier and fewer than 3 distinctive words remain after the generic-label stoplist -- cannot mechanically verify the claimed redundancy is real; confirm by hand before trusting it"
+      }
+    ]
+  },
+  "content_unit_classification_plausibility": {
+    "hard_gate": false,
+    "findings": []
+  },
+  "content_unit_probable_duplicate": {
+    "hard_gate": false,
+    "findings": []
+  },
+  "content_unit_embedded_actionable_fact": {
+    "hard_gate": false,
+    "findings": []
+  },
+  "image_content_unit_excluded_reason_verified": {
+    "hard_gate": false,
+    "findings": []
+  },
+  "structural_unit_disposition_coverage": {
+    "hard_gate": true,
+    "findings": []
+  },
+  "structural_unit_evidence_resolves": {
+    "hard_gate": true,
+    "findings": []
+  },
+  "structural_unit_merged_into_target_section": {
+    "hard_gate": true,
+    "findings": []
+  },
+  "structural_unit_no_exact_duplicate_merge": {
+    "hard_gate": true,
+    "findings": []
+  },
+  "structural_unit_disposition_text_diff": {
+    "hard_gate": true,
+    "findings": []
+  },
+  "structural_unit_tree_paths_plausible": {
+    "hard_gate": false,
+    "findings": []
+  },
+  "candidate_section_disposition_traceability": {
+    "hard_gate": false,
+    "findings": [
+      {
+        "heading": "At a Glance",
+        "reason": "'At a Glance' has real candidate content but zero disposition entries (content or structural) target it -- may be candidate-authored new content with no traceability to the old README, or may be legitimately sourced from and verified by a different mechanism entirely (package registry, reference.aspose.org); advisory only -- verify which case this is before treating it as a defect"
+      },
+      {
+        "heading": "Dependencies",
+        "reason": "'Dependencies' has real candidate content but zero disposition entries (content or structural) target it -- may be candidate-authored new content with no traceability to the old README, or may be legitimately sourced from and verified by a different mechanism entirely (package registry, reference.aspose.org); advisory only -- verify which case this is before treating it as a defect"
+      },
+      {
+        "heading": "Quick Start",
+        "reason": "'Quick Start' has real candidate content but zero disposition entries (content or structural) target it -- may be candidate-authored new content with no traceability to the old README, or may be legitimately sourced from and verified by a different mechanism entirely (package registry, reference.aspose.org); advisory only -- verify which case this is before treating it as a defect"
+      },
+      {
+        "heading": "API Reference",
+        "reason": "'API Reference' has real candidate content but zero disposition entries (content or structural) target it -- may be candidate-authored new content with no traceability to the old README, or may be legitimately sourced from and verified by a different mechanism entirely (package registry, reference.aspose.org); advisory only -- verify which case this is before treating it as a defect"
+      },
+      {
+        "heading": "Documentation & Resources",
+        "reason": "'Documentation & Resources' has real candidate content but zero disposition entries (content or structural) target it -- may be candidate-authored new content with no traceability to the old README, or may be legitimately sourced from and verified by a different mechanism entirely (package registry, reference.aspose.org); advisory only -- verify which case this is before treating it as a defect"
+      }
+    ]
+  },
+  "code_example_disposition_coverage": {
+    "hard_gate": true,
+    "findings": []
+  },
+  "code_example_evidence_resolves": {
+    "hard_gate": true,
+    "findings": []
+  },
+  "code_example_no_exact_duplicate_merge": {
+    "hard_gate": true,
+    "findings": []
+  },
+  "code_example_disposition_text_diff": {
+    "hard_gate": true,
+    "findings": []
+  },
+  "code_example_api_coverage_survives": {
+    "hard_gate": true,
+    "findings": []
+  },
+  "code_example_excluded_reason_citation_too_narrow": {
+    "hard_gate": false,
+    "findings": []
+  },
+  "cli_category_representation": {
+    "hard_gate": false,
+    "findings": []
+  },
+  "badge_disposition_coverage": {
+    "hard_gate": true,
+    "findings": []
+  },
+  "badge_evidence_resolves": {
+    "hard_gate": true,
+    "findings": []
+  },
+  "badge_preserved_or_credited_in_candidate": {
+    "hard_gate": true,
+    "findings": []
+  },
+  "badge_probable_duplicate_disposition": {
+    "hard_gate": false,
+    "findings": []
+  },
+  "project_structure_canonical_tree_format": {
+    "hard_gate": true,
+    "findings": []
+  },
+  "badge_static_claims_dynamic_fact": {
+    "hard_gate": false,
+    "findings": []
+  },
+  "no_duplicate_badges_in_candidate": {
+    "hard_gate": true,
+    "findings": []
+  },
+  "badge_row_meets_verified_floor": {
+    "hard_gate": true,
+    "findings": []
+  },
+  "badge_available_fact_not_shown": {
+    "hard_gate": false,
+    "findings": [
+      {
+        "category": "contributor_count",
+        "reason": "a real, verified 'contributor_count' fact is available for this product but no badge in this category appears in the candidate's badge row -- consider adding one (not required beyond the mandatory floor)",
+        "suggested_alt_text": "Contributors",
+        "suggested_image_url": "https://img.shields.io/github/contributors/aspose-tex-foss/Aspose.TeX-FOSS-for-Python.svg"
+      }
+    ]
+  },
+  "diagram_known_subgraph_ids": {
+    "hard_gate": false,
+    "findings": []
+  },
+  "section_job_distinctness": {
+    "hard_gate": false,
+    "findings": []
+  },
+  "diagram_no_mechanism_duplicate_output": {
+    "hard_gate": false,
+    "findings": []
+  },
+  "diagram_container_duplicates_capability": {
+    "hard_gate": false,
+    "findings": []
+  },
+  "process_narration_smells": {
+    "hard_gate": false,
+    "findings": []
+  },
+  "enterprise_edition_naming": {
+    "hard_gate": false,
+    "findings": []
+  },
+  "api_reference_classes_exist": {
+    "hard_gate": true,
+    "findings": []
+  },
+  "api_reference_class_internal_only": {
+    "hard_gate": false,
+    "findings": [
+      {
+        "class_name": "AsposeTeXError",
+        "reason": "'AsposeTeXError' has zero internal fan-in (no other real source file references it) and is absent from the top-level package __init__.py exports -- possible internal-only class; verify before shipping (record a confirmed internal class in data/api_reference_class_exclusions.json to suppress this prompt permanently, once genuinely confirmed)"
+      }
+    ]
+  },
+  "no_leaked_docstring_artifacts": {
+    "hard_gate": false,
+    "findings": []
+  },
+  "named_member_accuracy": {
+    "hard_gate": false,
+    "findings": []
+  },
+  "code_example_imports_match_source": {
+    "hard_gate": true,
+    "findings": []
+  },
+  "api_reference_table_completeness": {
+    "hard_gate": true,
+    "findings": []
+  },
+  "reference_index_source_dirty": {
+    "hard_gate": false,
+    "findings": []
+  },
+  "api_reference_table_no_duplicate_rows": {
+    "hard_gate": true,
+    "findings": []
+  },
+  "api_reference_public_type_count_matches_table": {
+    "hard_gate": true,
+    "findings": []
+  },
+  "api_reference_generic_description": {
+    "hard_gate": false,
+    "findings": []
+  },
+  "api_reference_truncated_description": {
+    "hard_gate": false,
+    "findings": []
+  },
+  "api_reference_stripped_example": {
+    "hard_gate": false,
+    "findings": []
+  },
+  "dependency_snapshot_completeness": {
+    "hard_gate": true,
+    "findings": []
+  },
+  "unqualified_dependency_claims": {
+    "hard_gate": true,
+    "findings": []
+  },
+  "dependency_section_manifest_corroboration": {
+    "hard_gate": false,
+    "findings": []
+  },
+  "dependency_direct_transitive_confusion": {
+    "hard_gate": true,
+    "findings": []
+  },
+  "dependency_optional_presented_as_required": {
+    "hard_gate": true,
+    "findings": []
+  },
+  "dependency_dev_only_presented_as_runtime": {
+    "hard_gate": true,
+    "findings": []
+  },
+  "dependency_development_claim_not_in_manifest": {
+    "hard_gate": true,
+    "findings": []
+  },
+  "dependency_scope_claim_matches_evidence": {
+    "hard_gate": false,
+    "findings": []
+  },
+  "dependencies_scope_limitations_contradiction": {
+    "hard_gate": false,
+    "findings": []
+  },
+  "dependencies_intro_contradiction": {
+    "hard_gate": true,
+    "findings": []
+  },
+  "dependency_version_pin_freshness": {
+    "hard_gate": false,
+    "findings": []
+  },
+  "dependency_native_system_scope_limitations_placement": {
+    "hard_gate": true,
+    "findings": []
+  },
+  "dependency_disposition_reconciliation": {
+    "hard_gate": true,
+    "findings": []
+  },
+  "dependency_section_subheadings_present": {
+    "hard_gate": true,
+    "findings": []
+  },
+  "seo_keyword_plan_usage": {
+    "hard_gate": false,
+    "findings": []
+  },
+  "additional_example_headings": {
+    "hard_gate": true,
+    "findings": []
+  },
+  "navigation_toc_matches_headings": {
+    "hard_gate": true,
+    "findings": []
+  },
+  "candidate_drift_since_last_verified": {
+    "hard_gate": false,
+    "findings": []
+  },
+  "verification_currency": {
+    "hard_gate": false,
+    "findings": []
+  },
+  "dependency_verification_matrix": {
+    "rows": [
+      {
+        "name": "requires-python",
+        "ecosystem": "pypi",
+        "version": ">=3.10",
+        "category": "native-system",
+        "dev_only": false,
+        "role": "runtime",
+        "bucket": "native_system",
+        "in_dependency_snapshot": true,
+        "in_readme_dependencies_section": false,
+        "in_readme_prose_elsewhere": false,
+        "in_claims_json": false,
+        "corroboration_score": 0,
+        "status": "NEEDS_REVIEW"
+      },
+      {
+        "name": "pytest",
+        "ecosystem": "pypi",
+        "version": ">=7.4",
+        "category": "required",
+        "dev_only": true,
+        "role": "runtime",
+        "bucket": "development",
+        "in_dependency_snapshot": true,
+        "in_readme_dependencies_section": false,
+        "in_readme_prose_elsewhere": true,
+        "in_claims_json": false,
+        "corroboration_score": 1,
+        "status": "NEEDS_REVIEW"
+      },
+      {
+        "name": "ruff",
+        "ecosystem": "pypi",
+        "version": ">=0.4",
+        "category": "required",
+        "dev_only": true,
+        "role": "runtime",
+        "bucket": "development",
+        "in_dependency_snapshot": true,
+        "in_readme_dependencies_section": false,
+        "in_readme_prose_elsewhere": true,
+        "in_claims_json": false,
+        "corroboration_score": 1,
+        "status": "NEEDS_REVIEW"
+      },
+      {
+        "name": "build",
+        "ecosystem": "pypi",
+        "version": ">=1.2",
+        "category": "required",
+        "dev_only": true,
+        "role": "runtime",
+        "bucket": "development",
+        "in_dependency_snapshot": true,
+        "in_readme_dependencies_section": false,
+        "in_readme_prose_elsewhere": true,
+        "in_claims_json": false,
+        "corroboration_score": 1,
+        "status": "NEEDS_REVIEW"
+      },
+      {
+        "name": "twine",
+        "ecosystem": "pypi",
+        "version": ">=5.0",
+        "category": "required",
+        "dev_only": true,
+        "role": "runtime",
+        "bucket": "development",
+        "in_dependency_snapshot": true,
+        "in_readme_dependencies_section": false,
+        "in_readme_prose_elsewhere": true,
+        "in_claims_json": false,
+        "corroboration_score": 1,
+        "status": "NEEDS_REVIEW"
+      },
+      {
+        "name": "tomli",
+        "ecosystem": "pypi",
+        "version": ">=2.0",
+        "category": "required",
+        "dev_only": true,
+        "role": "runtime",
+        "bucket": "development",
+        "in_dependency_snapshot": true,
+        "in_readme_dependencies_section": false,
+        "in_readme_prose_elsewhere": false,
+        "in_claims_json": false,
+        "corroboration_score": 0,
+        "status": "NEEDS_REVIEW"
+      }
+    ],
+    "scoped_claims": []
+  },
+  "candidate_store_integrity": {
+    "hard_gate": true,
+    "findings": []
+  }
+}

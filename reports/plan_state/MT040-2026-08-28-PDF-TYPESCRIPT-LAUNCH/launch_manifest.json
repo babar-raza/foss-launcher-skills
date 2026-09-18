@@ -1,0 +1,39 @@
+{
+  "schema": "MT040-launch-manifest-v1",
+  "mission_id": "MT040-2026-08-28-PDF-TYPESCRIPT-LAUNCH",
+  "family": "pdf",
+  "platform": "typescript",
+  "created_at": "2026-08-29T08:35:21Z",
+  "base_commit_sha": "934e700929997ac70a6a080201728c98f932c18c",
+  "initial_source_sha": "04e7b50a3dc37427e5e7d72147dd0baf62ccbb9f",
+  "extractor_hash_at_pin": "662d97a270edc5c5",
+  "input_digests": {
+    "data/products.json": "412b18e07027af2018eebb525a11347a70cef77fe99dbca2f6d3353b9cee4a5a",
+    "data/package_registry.json": "e50d706ece2852ebdb52798b6abb949d52edab20b891e0a61024b29639835487"
+  },
+  "pinning_events": [
+    {
+      "event": "clone",
+      "commit_sha": "04e7b50a3dc37427e5e7d72147dd0baf62ccbb9f",
+      "at": "TC-MT040-01"
+    },
+    {
+      "event": "products_json_registered",
+      "at": "TC-MT040-01"
+    }
+  ],
+  "prescan_evidence": {
+    "typescript_api_completeness_pre_scout": {
+      "status": "FAIL_expected_no_knowledge_yet",
+      "api_surface_classes": 0,
+      "source_exports_found": 680
+    },
+    "abstract_class_export_count": 1,
+    "barrel_export_lines": 154,
+    "total_export_declarations_in_src": 2033,
+    "node_modules_present": false,
+    "docs_ts_fence_files": 396,
+    "formats_prescan_report": "reports/plan_state/MT040-2026-08-28-PDF-TYPESCRIPT-LAUNCH/evidence/prescan-formats-baseline.json",
+    "formats_prescan_note": "10 entries detected by today's extractor (not the plan's predicted 0-1) -- several are false positives from Pass 1e PascalCase-verb matching on unrelated words (Byte/Huffman/Ot/SVG-from-page.ts) and at least one likely-wrong direction (Markdown import from document.ts, line 1641 -- needs verification post-hardening). This is qualitatively consistent with the plan's G-TS-11 finding (format detection unreliable for this repo's shape) even though the raw count differs from the original read-only prediction; recorded honestly rather than silently matched."
+  }
+}

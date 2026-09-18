@@ -1,0 +1,24 @@
+Promote: words/net
+  Scout: 4141 claims, 618 api_surface entries
+  Enriched: 1163 claims (from enrich.py)
+  Total claims: 5304
+  WARNING: 5 duplicate CLM claim_id(s) (identical text, safe to dedupe) — deduplicating (10 excess removed)
+    CLM-words-1b5f55: 4 occurrences
+    CLM-words-137c5a: 4 occurrences
+    CLM-words-9abdd8: 3 occurrences
+    CLM-words-a1d5e0: 2 occurrences
+    CLM-words-4a15c6: 2 occurrences
+  Semantic dedup: skipped (use --semantic-dedup to enable)
+  GoDoc fallback: 91 method(s) inferred from name patterns (doc_source: name_inference)
+  API surface: 618 entries (618 classes)
+  Snippets: 100 (from scout)
+  api_surface.md: 618 classes, 296721 bytes
+  Forbidden claims: 32
+  All artifacts written to knowledge\words\net\merged.staging.3d0620e9-c3ce-449a-bbe4-15abcf79ed6a
+  WARNING: format-claims contradiction: format='Docx' direction='export' claim='Digital signatures in DOCX files can be verified and inspected, but creating new signatures is not supported in this edition.'
+  WARNING: format-claims contradiction: format='Docx' direction='export' claim='Digital signatures in DOCX files can be verified and inspected, but creating new signatures is not supported in this edition.'
+  Reconciliation report written to reports\knowledge-reconciliation\words-net.md
+  Artifact validation: PASS
+PROMOTE_ATOMIC: bundle 3d0620e9-c3ce-449a-bbe4-15abcf79ed6a promoted for words/net
+
+PROMOTE: PASS

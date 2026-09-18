@@ -1,0 +1,49 @@
+feat(example-verification): C4 checkpoint 2 -- smoke_test.py CLI: --max-tier/--json + RC22 auto-detect fix
+
+Continues taskcard C4 (checkpointed once already: acd165e07e -- registry
+registration, platform_capabilities.yaml site, RC20 go fix). Adds:
+
+1. --max-tier {1,2} (default 2, unchanged from this module's original
+   behavior -- confirmed by every pre-existing test in test_smoke_test.py
+   passing unchanged). Tier 1 skips Python's mypy type-check step (syntax
+   only); tier 2 is the original default. Tier 3 (real execution) is
+   deliberately NOT wired into this CLI in this taskcard -- it would need
+   to dispatch into lib/example_verification/runners/{python,typescript}.py,
+   which don't yet expose a stable api.py entrypoint for a CLI to call
+   (later work).
+
+2. --json: the same PASS/WARN/FAIL report as machine-readable JSON,
+   returning the identical exit code as the text report (verified by a
+   shared _exit_code_for() helper both report functions call, and a test
+   proving both return the same code for the same input).
+
+3. RC22 fix (a real doc/code mismatch, not cosmetic): a bare `--files
+   {path}` invocation -- the exact call shape /eval-page's own step 2b
+   uses, and code-smoke.md's own "Integration with eval-page" section
+   documents as "multi-language: Python, C#, Java, C++, TypeScript" --
+   used to hardcode the language set to frozenset({"python"}) regardless
+   of the file's real content, silently skipping every non-Python block.
+   Language tags are now auto-detected by scanning the file's own fence
+   tags (via the same _CODE_FENCE_ANY_RE this module already uses) against
+   every language this script can syntax-check, falling back to
+   {"python"} only when none is found.
+
+Real pilot run (per the stage's own pilot scope, "font/python via a real
+/eval-page step-2b dry run"): loaded the pre-C4 smoke_test.py
+(commit b76392b9f3) side-by-side with the current module and ran both
+against the exact eval-page step-2b command
+(`--files content/docs.aspose.org/en/font/python/developer-guide/
+core-management.md`) -- byte-identical SmokeResult (6/6 PASS), and 5
+separate latency measurements all in the same ~1.4-1.75s band (no new
+subprocess calls at default tier). Full writeup:
+reports/plan_state/MT065-.../evidence/it-0008-.../C4_eval_page_pilot.md.
+
+12 new tests (TestMaxTier, TestJsonReport, TestDetectLangsInFiles); all 48
+tests in test_smoke_test.py pass, plus the full
+test_platform_capability_matrix.py/test_rust_platform_maps.py suites
+(357 passed, 7 skipped total).
+
+Mission: MT065-2026-09-06-EXAMPLE-VERIFICATION-CENTRALIZATION
+Taskcards: C4 (checkpoint, not closed -- skill docs land in a separate commit next)
+
+Co-Authored-By: Claude Sonnet 5 <noreply@anthropic.com>

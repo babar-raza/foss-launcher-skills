@@ -1,0 +1,34 @@
+product            registry   name                               source                 live  record drift version   meta
+3d/java            maven      org.aspose:aspose-3d-foss          live_probe             True  True   False None      0
+3d/net             nuget      Aspose.3D.FOSS                     live_probe             True  True   False None      0
+3d/python          pypi       aspose-3d-foss                     live_probe             True  False  True  26.1.0    3
+3d/typescript      npm        @aspose/3d                         live_probe             False False  False None      0
+barcode/python     pypi       aspose-barcode-foss                live_probe             False False  False None      0
+cells/cpp          nuget      Aspose.Cells.Cpp.FOSS              live_probe             True  True   False None      0
+cells/go           go_modules None                               package_registry.json  True  True   False None      0
+cells/java         maven      org.aspose:aspose-cells-foss       live_probe             True  True   False None      0
+cells/net          nuget      Aspose.Cells.FOSS                  live_probe             True  True   False None      0
+cells/python       pypi       aspose-cells-foss                  live_probe             True  True   False 26.7.0    1
+cells/rust         cargo      aspose-cells-foss-rust             package_registry.json  False False  False None      0
+cells/typescript   npm        excel-cells                        live_probe             False False  False None      0
+email/cpp          nuget      AsposeEmailFoss                    live_probe             False False  False None      0
+email/net          nuget      Aspose.Email.FOSS                  live_probe             True  True   False None      0
+email/python       pypi       aspose-email-foss                  live_probe             True  True   False 26.3      0
+font/python        pypi       aspose-font                        live_probe             False False  False None      0
+html/python        pypi       aspose-html-foss                   live_probe             False False  False None      0
+note/python        pypi       aspose-note                        live_probe             True  True   False 26.3.2    0
+page/python        pypi       aspose-page-foss                   live_probe             False False  False None      0
+pdf/cpp            nuget      Aspose_PDF_FOSS                    live_probe             False False  False None      0
+pdf/go             go_modules None                               package_registry.json  True  True   False None      0
+pdf/java           maven      org.aspose:aspose-pdf-foss         live_probe             True  True   False None      0
+pdf/net            nuget      Aspose.PDF.FOSS                    live_probe             True  True   False None      0
+pdf/python         pypi       aspose-pdf-foss-for-python         live_probe             False False  False None      0
+slides/cpp         nuget      aspose_slides_foss                 live_probe             False False  False None      0
+slides/java        maven      org.aspose:aspose-slides-foss      live_probe             True  True   False None      0
+slides/net         nuget      Aspose.Slides.Foss                 live_probe             False False  False None      0
+slides/python      pypi       aspose-slides-foss                 live_probe             True  True   False 26.8.0    0
+tex/python         pypi       aspose-tex                         live_probe             False False  False None      0
+words/net          nuget      Aspose.Words.FOSS                  live_probe             True  False  True  None      0
+words/python       pypi       aspose-words-foss                  live_probe             True  True   False 26.7.0    0
+drift products: ['3d/python', 'words/net']
+fallback (non-live) sources: [('cells/go', 'package_registry.json '), ('cells/rust', 'package_registry.json '), ('pdf/go', 'package_registry.json ')]

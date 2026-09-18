@@ -1,0 +1,62 @@
+{
+  "cells/typescript@docs": {
+    "status": 404,
+    "via": "head",
+    "retries": 0
+  },
+  "cells/typescript@products": {
+    "status": 404,
+    "via": "head",
+    "retries": 0
+  },
+  "email/python@docs": {
+    "status": 403,
+    "via": "get",
+    "retries": 0
+  },
+  "email/python@products": {
+    "status": 403,
+    "via": "get",
+    "retries": 0
+  },
+  "page/python@docs": {
+    "status": 404,
+    "via": "head",
+    "retries": 0
+  },
+  "page/python@products": {
+    "status": 404,
+    "via": "head",
+    "retries": 0
+  },
+  "tex/python@docs": {
+    "status": 404,
+    "via": "head",
+    "retries": 0
+  },
+  "tex/python@products": {
+    "status": 404,
+    "via": "head",
+    "retries": 0
+  },
+  "cad/net@reference": {
+    "status": 502,
+    "via": "head",
+    "retries": 2
+  },
+  "cad/net@kb": {
+    "status": 200,
+    "via": "head",
+    "retries": 0
+  },
+  "cad/net@docs": {
+    "status": 200,
+    "via": "get",
+    "retries": 0
+  },
+  "cad/net@products": {
+    "status": 200,
+    "via": "head",
+    "retries": 0
+  }
+}

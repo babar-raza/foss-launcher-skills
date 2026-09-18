@@ -1,0 +1,10 @@
+{
+  "unaided_finding_id": "SFND-font-python-004",
+  "root_cause_id": "RC-font-python-04",
+  "task_id": "TC-BSA-bsa-mt028-font-python-20260809T100802Z-04",
+  "system_fix_diff_ref": "reports/manual-edits/2026-08-09-vendor-md-tc04-investigation.json",
+  "regen_command": "no regen required (regeneration_required: false) -- investigation confirmed vendor.md is intentionally draft:true; attach_evidence.py --dry-run correctly returns SKIP (draft), re-confirmed live 2026-08-24",
+  "verification_before_hash": "stale evidence block flagged by unaided review, pre-investigation",
+  "verification_after_hash": "confirmed draft:true is the correct terminal state -- SKIP (draft) is not a defect",
+  "agentic_consumption_recheck_passed": true
+}

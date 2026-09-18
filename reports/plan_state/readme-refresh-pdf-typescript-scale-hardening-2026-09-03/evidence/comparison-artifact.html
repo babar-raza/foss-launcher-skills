@@ -1,0 +1,644 @@
+<title>pdf/typescript Refresh Report</title>
+<style>
+  :root {
+    --paper: #f6f7f9;
+    --surface: #ffffff;
+    --surface-raised: #ffffff;
+    --ink: #14181d;
+    --ink-soft: #545b66;
+    --ink-faint: #8891a0;
+    --line: #e1e4e9;
+    --line-strong: #cdd2da;
+    --accent: #2a63a8;
+    --accent-ink: #14385f;
+    --accent-soft: #e7effa;
+    --good: #1f7a4d;
+    --good-soft: #e5f3ec;
+    --warn: #a6560a;
+    --warn-soft: #fbeee0;
+    --code-bg: #eef1f5;
+    --code-ink: #2a2f37;
+    --shadow: 0 1px 2px rgba(20, 24, 29, 0.04), 0 8px 24px rgba(20, 24, 29, 0.05);
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --paper: #101317;
+      --surface: #181c22;
+      --surface-raised: #1e232a;
+      --ink: #e8eaf0;
+      --ink-soft: #a1a8b5;
+      --ink-faint: #6b7280;
+      --line: #2a2f38;
+      --line-strong: #383e49;
+      --accent: #7aa8e0;
+      --accent-ink: #cfe0f5;
+      --accent-soft: #1c2a3c;
+      --good: #52c088;
+      --good-soft: #16261e;
+      --warn: #e0994f;
+      --warn-soft: #2b2013;
+      --code-bg: #0f1216;
+      --code-ink: #d7dbe2;
+      --shadow: 0 1px 2px rgba(0, 0, 0, 0.3), 0 8px 24px rgba(0, 0, 0, 0.35);
+    }
+  }
+  :root[data-theme="dark"] {
+    --paper: #101317;
+    --surface: #181c22;
+    --surface-raised: #1e232a;
+    --ink: #e8eaf0;
+    --ink-soft: #a1a8b5;
+    --ink-faint: #6b7280;
+    --line: #2a2f38;
+    --line-strong: #383e49;
+    --accent: #7aa8e0;
+    --accent-ink: #cfe0f5;
+    --accent-soft: #1c2a3c;
+    --good: #52c088;
+    --good-soft: #16261e;
+    --warn: #e0994f;
+    --warn-soft: #2b2013;
+    --code-bg: #0f1216;
+    --code-ink: #d7dbe2;
+    --shadow: 0 1px 2px rgba(0, 0, 0, 0.3), 0 8px 24px rgba(0, 0, 0, 0.35);
+  }
+
+  * { box-sizing: border-box; }
+  body {
+    background: var(--paper);
+    color: var(--ink);
+    font-family: "IBM Plex Sans", -apple-system, "Segoe UI", sans-serif;
+    line-height: 1.6;
+    font-size: 15.5px;
+  }
+  .wrap { max-width: 880px; margin: 0 auto; padding: 56px 24px 96px; }
+
+  h1, h2, h3, .display {
+    font-family: "Fraunces", Georgia, "Times New Roman", serif;
+    text-wrap: balance;
+    color: var(--ink);
+  }
+
+  code, .mono, .stat-value, .tag { font-family: "IBM Plex Mono", ui-monospace, Menlo, Consolas, monospace; }
+
+  /* ---------- Masthead ---------- */
+  .masthead { margin-bottom: 48px; }
+  .eyebrow {
+    font-family: "IBM Plex Mono", monospace;
+    font-size: 12px;
+    letter-spacing: 0.11em;
+    text-transform: uppercase;
+    color: var(--accent);
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 14px;
+  }
+  .eyebrow::before {
+    content: "";
+    width: 22px; height: 1px;
+    background: var(--accent);
+    display: inline-block;
+  }
+  h1.display {
+    font-size: clamp(34px, 5vw, 48px);
+    font-weight: 600;
+    font-optical-sizing: auto;
+    letter-spacing: -0.01em;
+    margin: 0 0 6px;
+  }
+  .subtitle {
+    color: var(--ink-soft);
+    font-size: 17px;
+    max-width: 62ch;
+    margin: 0 0 22px;
+  }
+  .meta-row {
+    display: flex; flex-wrap: wrap; gap: 10px 22px;
+    font-size: 13px; color: var(--ink-faint);
+    padding-bottom: 28px;
+    border-bottom: 1px solid var(--line);
+  }
+  .meta-row span b { color: var(--ink-soft); font-weight: 600; }
+  .status-badge {
+    display: inline-flex; align-items: center; gap: 7px;
+    background: var(--warn-soft); color: var(--warn);
+    border: 1px solid color-mix(in srgb, var(--warn) 35%, transparent);
+    padding: 3px 10px 3px 8px; border-radius: 20px;
+    font-family: "IBM Plex Mono", monospace; font-size: 11.5px; font-weight: 600;
+    letter-spacing: 0.03em; text-transform: uppercase;
+  }
+  .status-badge .dot { width: 7px; height: 7px; border-radius: 50%; background: var(--warn); }
+
+  /* ---------- Stat tiles ---------- */
+  .tiles {
+    display: grid; grid-template-columns: repeat(4, 1fr); gap: 1px;
+    background: var(--line);
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    overflow: hidden;
+    margin-top: 28px;
+  }
+  .tile { background: var(--surface); padding: 18px 16px; }
+  .tile .stat-value {
+    font-size: 24px; font-weight: 600; color: var(--ink);
+    font-variant-numeric: tabular-nums;
+    display: block;
+  }
+  .tile .stat-label {
+    font-size: 11.5px; color: var(--ink-faint);
+    text-transform: uppercase; letter-spacing: 0.05em;
+    margin-top: 4px;
+  }
+  .tile.good .stat-value { color: var(--good); }
+
+  /* ---------- Sections ---------- */
+  section { margin-top: 56px; }
+  .section-head {
+    display: flex; align-items: baseline; gap: 14px;
+    margin-bottom: 20px;
+  }
+  .section-num {
+    font-family: "IBM Plex Mono", monospace;
+    font-size: 13px; color: var(--ink-faint);
+    border: 1px solid var(--line-strong);
+    border-radius: 6px;
+    padding: 2px 7px;
+    flex-shrink: 0;
+  }
+  h2 { font-size: 25px; font-weight: 600; margin: 0; }
+  .section-intro { color: var(--ink-soft); max-width: 68ch; margin: 0 0 22px; }
+
+  p { margin: 0 0 14px; }
+  .lede-note { color: var(--ink-soft); font-size: 14px; }
+
+  /* ---------- Comparison panel ---------- */
+  .compare {
+    display: grid; grid-template-columns: 1fr 1fr;
+    border: 1px solid var(--line); border-radius: 12px;
+    overflow: hidden; box-shadow: var(--shadow);
+  }
+  .compare > div { padding: 22px 24px; }
+  .compare .src { background: var(--surface); border-right: 1px solid var(--line); }
+  .compare .cand { background: var(--accent-soft); }
+  .compare h3 {
+    font-size: 12px; text-transform: uppercase; letter-spacing: 0.07em;
+    font-family: "IBM Plex Mono", monospace; font-weight: 600;
+    color: var(--ink-faint); margin: 0 0 14px;
+  }
+  .compare .cand h3 { color: var(--accent); }
+  .metric-row {
+    display: flex; justify-content: space-between; align-items: baseline;
+    padding: 7px 0; border-bottom: 1px dashed var(--line);
+    font-size: 14px;
+  }
+  .metric-row:last-child { border-bottom: none; }
+  .metric-row .v { font-family: "IBM Plex Mono", monospace; font-weight: 600; font-variant-numeric: tabular-nums; }
+
+  .defect-callout {
+    margin-top: 18px;
+    background: var(--warn-soft);
+    border: 1px solid color-mix(in srgb, var(--warn) 30%, transparent);
+    border-radius: 10px;
+    padding: 16px 20px;
+    font-size: 14px;
+  }
+  .defect-callout .tag {
+    display: inline-block; font-size: 11px; font-weight: 700;
+    color: var(--warn); text-transform: uppercase; letter-spacing: 0.05em;
+    margin-bottom: 6px;
+  }
+
+  /* ---------- Timeline ---------- */
+  .timeline { display: flex; flex-direction: column; gap: 0; border-left: 2px solid var(--line); margin-left: 8px; }
+  .tl-item { position: relative; padding: 0 0 30px 28px; }
+  .tl-item:last-child { padding-bottom: 0; }
+  .tl-item::before {
+    content: ""; position: absolute; left: -7px; top: 3px;
+    width: 12px; height: 12px; border-radius: 50%;
+    background: var(--surface); border: 2px solid var(--ink-faint);
+  }
+  .tl-item.ok::before { border-color: var(--good); background: var(--good); }
+  .tl-item .tl-label {
+    font-family: "IBM Plex Mono", monospace; font-size: 11.5px; font-weight: 700;
+    text-transform: uppercase; letter-spacing: 0.05em; color: var(--ink-faint);
+  }
+  .tl-item.ok .tl-label { color: var(--good); }
+  .tl-item h4 { margin: 3px 0 6px; font-size: 16.5px; font-weight: 600; font-family: "Fraunces", serif; }
+  .tl-item p { color: var(--ink-soft); font-size: 14px; margin: 0; max-width: 66ch; }
+  .tl-item .tl-count {
+    font-family: "IBM Plex Mono", monospace; font-weight: 700; color: var(--ink);
+    font-variant-numeric: tabular-nums;
+  }
+
+  /* ---------- Defect cards ---------- */
+  .defects { display: flex; flex-direction: column; gap: 14px; }
+  .defect {
+    background: var(--surface); border: 1px solid var(--line); border-radius: 10px;
+    padding: 18px 22px;
+  }
+  .defect-head { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; flex-wrap: wrap; }
+  .defect-id {
+    font-family: "IBM Plex Mono", monospace; font-size: 12px; font-weight: 700;
+    color: var(--accent); background: var(--accent-soft);
+    border-radius: 5px; padding: 2px 7px;
+  }
+  .defect-head h4 { margin: 0; font-size: 16px; font-weight: 600; font-family: "IBM Plex Sans"; color: var(--ink); }
+  .defect p { font-size: 14px; color: var(--ink-soft); margin: 0 0 8px; }
+  .defect p:last-child { margin-bottom: 0; }
+  .defect .fix {
+    font-size: 13.5px; color: var(--ink);
+    background: var(--code-bg); border-radius: 7px;
+    padding: 9px 12px; margin-top: 8px;
+  }
+  .defect .fix b { color: var(--good); font-family: "IBM Plex Mono", monospace; font-size: 11px; text-transform: uppercase; letter-spacing: 0.04em; margin-right: 6px; }
+  code.inline { background: var(--code-bg); color: var(--code-ink); padding: 1px 5px; border-radius: 4px; font-size: 0.9em; }
+
+  /* ---------- Retention ---------- */
+  .retention-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; }
+  .ret-card { background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 18px 20px; }
+  .ret-card h4 { margin: 0 0 12px; font-size: 13px; text-transform: uppercase; letter-spacing: 0.05em; color: var(--ink-faint); font-family: "IBM Plex Mono", monospace; font-weight: 600; }
+  .bar { display: flex; height: 26px; border-radius: 6px; overflow: hidden; margin-bottom: 12px; }
+  .bar span { display: block; height: 100%; }
+  .seg-verbatim { background: var(--good); }
+  .seg-reframed { background: var(--accent); }
+  .seg-excluded { background: var(--ink-faint); }
+  .legend { display: flex; flex-wrap: wrap; gap: 12px 18px; font-size: 12.5px; color: var(--ink-soft); }
+  .legend .lg { display: flex; align-items: center; gap: 6px; }
+  .legend .sw { width: 10px; height: 10px; border-radius: 3px; }
+  .ret-note { font-size: 13px; color: var(--ink-faint); margin-top: 12px; }
+
+  /* ---------- Backlog table ---------- */
+  table.backlog { width: 100%; border-collapse: collapse; font-size: 13.5px; }
+  table.backlog th {
+    text-align: left; font-family: "IBM Plex Mono", monospace; font-size: 11px;
+    text-transform: uppercase; letter-spacing: 0.05em; color: var(--ink-faint);
+    padding: 0 12px 10px; border-bottom: 1px solid var(--line-strong);
+    font-weight: 600;
+  }
+  table.backlog td { padding: 12px; border-bottom: 1px solid var(--line); vertical-align: top; color: var(--ink-soft); }
+  table.backlog td:first-child { font-family: "IBM Plex Mono", monospace; color: var(--ink); font-weight: 600; white-space: nowrap; }
+  table.backlog tr:last-child td { border-bottom: none; }
+
+  /* ---------- Footer verdict ---------- */
+  .verdict {
+    margin-top: 64px;
+    border: 1px solid var(--line-strong);
+    border-radius: 12px;
+    padding: 26px 28px;
+    background: var(--surface);
+    display: flex; gap: 20px; align-items: flex-start;
+    box-shadow: var(--shadow);
+  }
+  .verdict .icon {
+    width: 38px; height: 38px; border-radius: 50%;
+    background: var(--warn-soft); color: var(--warn);
+    display: flex; align-items: center; justify-content: center;
+    font-family: "IBM Plex Mono", monospace; font-weight: 700; font-size: 15px;
+    flex-shrink: 0;
+  }
+  .verdict h3 { margin: 0 0 6px; font-size: 17px; }
+  .verdict p { margin: 0; font-size: 14px; color: var(--ink-soft); }
+
+  @media (max-width: 640px) {
+    .tiles { grid-template-columns: repeat(2, 1fr); }
+    .compare, .retention-grid { grid-template-columns: 1fr; }
+    .compare .src { border-right: none; border-bottom: 1px solid var(--line); }
+  }
+</style>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500;600;700&display=swap">
+
+<div class="wrap">
+
+  <div class="masthead">
+    <div class="eyebrow">README-Refresh &middot; S-120 mission report</div>
+    <h1 class="display">pdf/typescript</h1>
+    <p class="subtitle">A 274&nbsp;KB, 2,642-line upstream README — the largest and densest this skill has ever composed
+      a candidate from — regenerated, gap-checked against the live source three times, and used to
+      root-cause nine real defects in the refresh skill itself, plus one genuine upstream defect.</p>
+    <div class="meta-row">
+      <span><b>Product</b> aspose-pdf-foss / TypeScript</span>
+      <span><b>Mission</b> readme-refresh-pdf-typescript-scale-hardening-2026-09-03</span>
+      <span><b>Source commit</b> 197de270</span>
+      <span class="status-badge"><span class="dot"></span>Awaiting review</span>
+    </div>
+    <div class="tiles">
+      <div class="tile"><span class="stat-value">274,584 B</span><span class="stat-label">Source README</span></div>
+      <div class="tile"><span class="stat-value">235,111 B</span><span class="stat-label">Candidate README</span></div>
+      <div class="tile good"><span class="stat-value">0 / 72</span><span class="stat-label">Hard-gate findings</span></div>
+      <div class="tile"><span class="stat-value">9</span><span class="stat-label">Skill defects fixed</span></div>
+    </div>
+  </div>
+
+  <section id="source">
+    <div class="section-head"><span class="section-num">01</span><h2>The source, measured</h2></div>
+    <p class="section-intro">Before touching the skill, the upstream repo was measured directly — not assumed —
+      and its own extraction pass run for real: 324 content units, 114 code units, 3 structural units, 0 badges.</p>
+
+    <div class="compare">
+      <div class="src">
+        <h3>Upstream README.md</h3>
+        <div class="metric-row"><span>Size</span><span class="v">274,584 B</span></div>
+        <div class="metric-row"><span>Lines</span><span class="v">2,642</span></div>
+        <div class="metric-row"><span>H2 sections</span><span class="v">6</span></div>
+        <div class="metric-row"><span>H3/H4 subsections</span><span class="v">42</span></div>
+        <div class="metric-row"><span>Features bullets</span><span class="v">71</span></div>
+        <div class="metric-row"><span>Worked examples</span><span class="v">32</span></div>
+      </div>
+      <div class="cand">
+        <h3>Candidate readme.md</h3>
+        <div class="metric-row"><span>Size</span><span class="v">235,111 B</span></div>
+        <div class="metric-row"><span>Lines</span><span class="v">3,172</span></div>
+        <div class="metric-row"><span>H2 sections</span><span class="v">12</span></div>
+        <div class="metric-row"><span>H3/H4 subsections</span><span class="v">48</span></div>
+        <div class="metric-row"><span>Key Capabilities bullets</span><span class="v">17</span></div>
+        <div class="metric-row"><span>Worked examples</span><span class="v">33</span></div>
+      </div>
+    </div>
+
+    <div class="defect-callout">
+      <span class="tag">Live upstream defect &mdash; disclosed, not fixed here</span>
+      <p style="margin:0">Byte 0 of the live README is a stray API-table row glued directly onto the
+        <code class="inline">"# Aspose.PDF FOSS for TypeScript"</code> title with no line break. Confirmed independently
+        via GitHub's own markdown-render API (<code class="inline">POST /markdown</code>, <code class="inline">mode: gfm</code>):
+        the entire first line renders as one plain <code class="inline">&lt;p&gt;</code> — the H1 does not render as a
+        heading at all on the live page. Verified on a clean re-fetch (blob <code class="inline">b454dac7</code>) so it
+        isn't a fetch artifact. Classified as an extraction artifact to exclude, not a real content claim.</p>
+    </div>
+  </section>
+
+  <section id="rounds">
+    <div class="section-head"><span class="section-num">02</span><h2>Three regeneration rounds</h2></div>
+    <p class="section-intro">The user's mandate was explicit: generate, compare, harden, regenerate — repeat until
+      the candidate carries everything the source does, with verification. That loop ran three times.</p>
+
+    <div class="timeline">
+      <div class="tl-item">
+        <div class="tl-label">Round 1 &middot; first pass</div>
+        <h4>Composed at full scale, checked for real</h4>
+        <p>The first honest <code class="inline">ingest-candidate</code> against the as-composed candidate failed
+          across <span class="tl-count">10</span> hard-gate categories — roughly
+          <span class="tl-count">700+</span> individual findings — a scale of failure this skill had never been
+          tested against. No shortcuts, no pre-tuning: this is what the real checks found on the real first draft.</p>
+      </div>
+      <div class="tl-item">
+        <div class="tl-label">Round 2 &middot; harden</div>
+        <h4>Seven real skill/check defects root-caused and fixed</h4>
+        <p>Each failure was traced to its actual cause before any code changed — a prose-extraction gap, an
+          undocumented stop-marker convention, an acronym heuristic that broke at document scale, a TypeScript
+          runner that could never resolve a package's own self-import. See §03.</p>
+      </div>
+      <div class="tl-item ok">
+        <div class="tl-label">Round 3 &middot; reverify</div>
+        <h4>Clean across every applicable hard gate</h4>
+        <p><code class="inline">ingest-candidate</code> now reports <span class="tl-count">0 hard-gate findings
+          across all 72 applicable hard gates</span>. A portfolio-wide <code class="inline">audit-portfolio</code>
+          run before and after the shared-check fix confirmed zero regression on the other 30 products (25 clean /
+          7 dirty, identical dirty set, both times).</p>
+      </div>
+    </div>
+  </section>
+
+  <section id="defects">
+    <div class="section-head"><span class="section-num">03</span><h2>Nine defects, root-caused and fixed</h2></div>
+    <p class="section-intro">Every fix below is a genuine bug in the checking machinery or the composition,
+      confirmed against real content before touching code — none are "the gate complained, so widen the gate."</p>
+
+    <div class="defects">
+      <div class="defect">
+        <div class="defect-head"><span class="defect-id">2.1</span><h4>Title-case check ignored its own internal-capitals rule</h4></div>
+        <p>The docstring always said a word with internal capitals (<code class="inline">glTF</code>,
+          <code class="inline">macOS</code>) counts as correctly cased; the code only checked the first letter.
+          Fixed earlier the same day on a sibling mission — re-confirmed load-bearing here on headings like
+          <code class="inline">Certificate-Based (Public-Key) Encryption</code>.</p>
+      </div>
+      <div class="defect">
+        <div class="defect-head"><span class="defect-id">2.2</span><h4>Format-name casing scanned inside fenced code and HTML tags</h4></div>
+        <p>The inline-backtick stripper only consumed to the next backtick, so a triple-backtick fence left its
+          entire body as "prose" — with 32 real TypeScript examples, a variable like <code class="inline">const doc</code>
+          false-positived against the registry's <code class="inline">DOC</code> format entry. A literal
+          <code class="inline">&lt;svg&gt;</code>/<code class="inline">&lt;img&gt;</code> tag name hit the same path.</p>
+        <div class="fix"><b>Fix</b>Strip fenced code blocks and HTML tag names before scanning — a pure narrowing, verified to add zero findings on the other 30 candidates.</div>
+      </div>
+      <div class="defect">
+        <div class="defect-head"><span class="defect-id">2.3</span><h4>One-off ALL-CAPS emphasis words read as acronym claims</h4></div>
+        <p>Verbatim prose used bare ALL-CAPS for emphasis the way most candidates use bold — <code class="inline">IS</code>,
+          <code class="inline">WHICH</code>, <code class="inline">PIXELS</code>, each exactly once — colliding with
+          ordinary lowercase uses elsewhere. A real acronym like <code class="inline">SVG</code> or
+          <code class="inline">PDF</code> recurs 17&ndash;95&times; in this document; a one-off emphasis word doesn't.</p>
+        <div class="fix"><b>Fix</b>Acronym-candidacy now requires &ge;2 independent all-caps occurrences (or &ge;3 distinct casing variants, to keep an existing glTF/GLTF/Gltf regression test green).</div>
+      </div>
+      <div class="defect">
+        <div class="defect-head"><span class="defect-id">2.4</span><h4>API-table stop-marker convention was never written down</h4></div>
+        <p>The API Reference section's supplementary detail must be introduced with the exact heading
+          <code class="inline">#### Detailed Member Reference</code> for the completeness checks to stop scanning
+          there — real, working, portfolio-wide convention, but undocumented. A first-time composing agent invented
+          its own label and produced 121 completeness findings from a 35&nbsp;KB table being folded in as spurious
+          extra "modules."</p>
+        <div class="fix"><b>Fix</b>Documentation gap, not a code bug — the skill doc now states the exact required heading.</div>
+      </div>
+      <div class="defect">
+        <div class="defect-head"><span class="defect-id">2.5</span><h4>The skill doc's own example violated its own heading-case gate</h4></div>
+        <p>The composition guide illustrated <code class="inline">&lt;summary&gt;&lt;strong&gt;View Additional Examples&lt;/strong&gt;&lt;/summary&gt;</code>
+          — copying it literally fails <code class="inline">check_heading_title_case</code>, because the regex
+          extracts <code class="inline">&lt;strong&gt;</code> as part of the heading text.</p>
+        <div class="fix"><b>Fix</b>Corrected the illustration to plain text, matching every already-shipped candidate.</div>
+      </div>
+      <div class="defect">
+        <div class="defect-head"><span class="defect-id">2.6</span><h4>TypeScript runner couldn't resolve a package's own self-import</h4></div>
+        <p>pdf/typescript's Quick Start imports <em>by its own declared package name</em> —
+          <code class="inline">import { Document } from '@asposefoss/pdf'</code> — not the relative-import
+          convention other products use. Plain <code class="inline">npm install</code> only resolves a manifest's
+          own listed dependencies; it never makes a package resolvable by its own name from inside its own source
+          tree. Result on the first real end-to-end run: <code class="inline">ERR_MODULE_NOT_FOUND</code> on
+          <span style="color:var(--warn); font-weight:600">86 of 91</span> real code blocks.</p>
+        <div class="fix"><b>Fix</b>Run <code class="inline">npm run build</code> when the manifest declares it, then create a real filesystem symlink <code class="inline">node_modules/{scope}/{name} &rarr; project dir</code> — the same mechanism <code class="inline">npm link</code> uses internally. <code class="inline">npm install .</code> was tried first and confirmed to be a silent no-op.</div>
+      </div>
+      <div class="defect">
+        <div class="defect-head"><span class="defect-id">2.7</span><h4>Badge template mislabeled a Node.js constraint as a TypeScript version</h4></div>
+        <p>The suggested language-version badge for any <code class="inline">typescript</code>-platform product
+          read "TypeScript Version," but the underlying data (<code class="inline">engines.node</code>) is a
+          runtime constraint, never the compiler/language version.</p>
+        <div class="fix"><b>Fix</b>Relabeled "Node.js" with the real npm-ecosystem logo — inert on every currently-shipped candidate, but would have mislabeled the badge for the next typescript product to use it.</div>
+      </div>
+      <div class="defect">
+        <div class="defect-head"><span class="defect-id">2.8</span><h4>TypeScript runner had no fixture staging or example chaining</h4></div>
+        <p>The Python runner earned both in a prior mission (ST-171); the TypeScript runner never did. After the
+          self-import fix (2.6) landed, a real end-to-end run still failed 83 of 91 blocks — now with
+          <code class="inline">ReferenceError: doc is not defined</code> instead of
+          <code class="inline">ERR_MODULE_NOT_FOUND</code>. Root cause: the upstream README itself writes several
+          long runs of <code class="inline">###</code> sections as one continuous narrative sharing an ambient
+          <code class="inline">doc</code>, not as independently-runnable snippets — real upstream authoring
+          style, faithfully preserved verbatim.</p>
+        <div class="fix"><b>Fix</b>Reused the Python runner's own fixture-staging code unchanged (already language-agnostic) and added an import-based example-chaining heuristic for TypeScript. Result: 83 undifferentiated errors collapsed to 72 honest "depends on a named failed block" plus 11 individually-understood root causes.</div>
+      </div>
+      <div class="defect">
+        <div class="defect-head"><span class="defect-id">2.9</span><h4>No classifier distinguished a real upstream defect from an example mistake</h4></div>
+        <p>One of the 11 root causes from 2.8 wasn't an ambient-scope issue: <code class="inline">htmlFileToPdf</code>
+          is documented as importable from <code class="inline">@asposefoss/pdf</code> and is a real, exported
+          function in the package's own <code class="inline">src/node.ts</code> — but the package's only real
+          entry point, <code class="inline">src/index.ts</code>, never re-exports it. A real build + Node's ESM
+          loader confirms the import genuinely cannot resolve.</p>
+        <div class="fix"><b>Fix</b>Added an UPSTREAM-BROKEN classifier (mirroring a Python-runner distinction that already existed) so this reports as a real upstream defect, not generic RUNTIME-ERROR — recorded with full evidence in upstream-issues.md.</div>
+      </div>
+    </div>
+  </section>
+
+  <section id="verification">
+    <div class="section-head"><span class="section-num">04</span><h2>Verification: every one of 91 code blocks, honestly classified</h2></div>
+    <p class="section-intro">The TypeScript execution runner itself needed hardening mid-mission — it had never been
+      exercised against a document old enough to write examples as one continuous narrative across several
+      headings. Fixed by giving it the same fixture-staging and example-chaining capability the Python runner
+      already had, plus a new upstream-defect classifier.</p>
+
+    <div class="ret-card" style="margin-bottom:18px;">
+      <h4>91 real TypeScript blocks &middot; compiled and executed for real (npm install + build + tsc + tsx)</h4>
+      <div class="bar">
+        <span class="seg-verbatim" style="width:3.3%" title="3 compiled and ran clean"></span>
+        <span class="seg-reframed" style="width:79.1%" title="72 depends-on-failed-block"></span>
+        <span class="seg-excluded" style="width:17.6%" title="16 named root causes"></span>
+      </div>
+      <div class="legend">
+        <span class="lg"><span class="sw" style="background:var(--good)"></span>3 compiled &amp; ran clean</span>
+        <span class="lg"><span class="sw" style="background:var(--accent)"></span>72 depends-on-failed-block</span>
+        <span class="lg"><span class="sw" style="background:var(--ink-faint)"></span>16 named root causes</span>
+      </div>
+      <p class="ret-note">Root causes, each individually understood: 5 <code class="inline">TOOLCHAIN-UNAVAILABLE</code>
+        (non-TypeScript blocks — bash/mermaid — correctly out of this runner's scope), 5
+        <code class="inline">FIXTURE-UNAVAILABLE</code> (<code class="inline">in.pdf</code>,
+        <code class="inline">secret.pdf</code> etc. — confirmed by direct search to exist nowhere in the real
+        repo; illustrative placeholder names, not real files), 5 <code class="inline">RUNTIME-ERROR</code>
+        (ST-179 — a handful of examples the chain heuristic can't fully bridge; the upstream README's own
+        narrative style, disclosed not hidden), 1 <code class="inline">UPSTREAM-BROKEN</code> (below).</p>
+    </div>
+
+    <div class="defect-callout">
+      <span class="tag">Real upstream defect found by verification &mdash; disclosed, not fixed here</span>
+      <p style="margin:0"><code class="inline">htmlFileToPdf</code> is documented in the upstream README as
+        importable from <code class="inline">@asposefoss/pdf</code> and is a real, fully-implemented, exported
+        function in the package's own <code class="inline">src/node.ts</code> &mdash; but
+        <code class="inline">src/index.ts</code>, the package's only real entry point, never re-exports it
+        (confirmed by reading both files directly). A real build + Node's ESM loader raises
+        <code class="inline">SyntaxError: The requested module '@asposefoss/pdf' does not provide an export
+        named 'htmlFileToPdf'</code>. Recorded with full evidence in
+        <code class="inline">upstream-issues.md</code>.</p>
+    </div>
+  </section>
+
+  <section id="retention">
+    <div class="section-head"><span class="section-num">05</span><h2>Content retention</h2></div>
+    <p class="section-intro">Every unit the old README carried was traced to a disposition — merged verbatim,
+      reframed, or honestly excluded — and every disposition is verified against a real, resolvable source in
+      this repo, not asserted.</p>
+
+    <div class="retention-grid">
+      <div class="ret-card">
+        <h4>Content units &middot; 324</h4>
+        <div class="bar">
+          <span class="seg-verbatim" style="width:75%" title="243 merged verbatim"></span>
+          <span class="seg-reframed" style="width:22.2%" title="72 merged reframed"></span>
+          <span class="seg-excluded" style="width:2.8%" title="9 excluded"></span>
+        </div>
+        <div class="legend">
+          <span class="lg"><span class="sw" style="background:var(--good)"></span>243 verbatim</span>
+          <span class="lg"><span class="sw" style="background:var(--accent)"></span>72 reframed</span>
+          <span class="lg"><span class="sw" style="background:var(--ink-faint)"></span>9 excluded</span>
+        </div>
+        <p class="ret-note">The 9 exclusions are deep, per-parameter PDF-object-name tokens
+          (<code class="inline">/BBox</code>, <code class="inline">/DW2</code>) below the level any Key
+          Capabilities bullet states for any product in the portfolio, plus one glued extraction artifact
+          (the byte-0 defect above) &mdash; each disposed with a precise, checked reason.</p>
+      </div>
+      <div class="ret-card">
+        <h4>Code &amp; structural units</h4>
+        <div class="bar">
+          <span class="seg-verbatim" style="width:100%" title="114/114 code verbatim"></span>
+        </div>
+        <div class="legend">
+          <span class="lg"><span class="sw" style="background:var(--good)"></span>114 / 114 code units verbatim</span>
+          <span class="lg"><span class="sw" style="background:var(--good)"></span>3 / 3 structural units verbatim</span>
+        </div>
+        <p class="ret-note">41 old headings traced: 8 verbatim, 24 absorbed into a real target section, and 9
+          reported "absent" that are each a deliberate, task-descriptive retitling of a fully-preserved worked
+          example (e.g. <code class="inline">### Text stamping</code> &rarr;
+          <code class="inline">### Stamp Text on a Page</code>) &mdash; confirmed not a real loss via the
+          114/114 verbatim code ledger.</p>
+      </div>
+    </div>
+  </section>
+
+  <section id="deferred">
+    <div class="section-head"><span class="section-num">06</span><h2>Deferred, disclosed</h2></div>
+    <p class="section-intro">Four real, narrow gaps were found and consciously not fixed this pass — worked
+      around or honestly disclosed, filed for a future session rather than rushed.</p>
+    <table class="backlog">
+      <thead><tr><th>ID</th><th>Gap</th><th>Worked around by</th></tr></thead>
+      <tbody>
+        <tr>
+          <td>ST-176</td>
+          <td>Format-casing check is sourced from the full cross-portfolio registry, unscoped to the current
+            product — a canonical format spelling that collides with a common English word
+            (<code class="inline">DOC</code>, <code class="inline">DOT</code>) can still false-positive on
+            ordinary prose ("dot leaders").</td>
+          <td>Reworded 7 occurrences in the candidate rather than change portfolio-wide behavior untested.</td>
+        </tr>
+        <tr>
+          <td>ST-177</td>
+          <td>Claims Policy's dependency-scope regex accepts "crate(s)/package(s)/librar(y|ies)" after
+            "third-party" but not bare "dependency" — awkward for an npm product describing a hand-written
+            decoder that isn't really a library.</td>
+          <td>Reworded to "no third-party library" in the candidate.</td>
+        </tr>
+        <tr>
+          <td>ST-178</td>
+          <td>The CLI's own <code class="inline">recheck</code> stdout print crashes on Windows cp1252 the
+            moment a finding contains a non-Latin-1 character (e.g. <code class="inline">&rarr;</code>).</td>
+          <td>Cosmetic only &mdash; the underlying <code class="inline">result.json</code> write always succeeds.</td>
+        </tr>
+        <tr>
+          <td>ST-179</td>
+          <td>The TypeScript runner's chain heuristic resets on any leading <code class="inline">import</code> —
+            it can't bridge a later section that imports one new symbol while still depending on an unrelated
+            earlier section's local variable (5 of 91 blocks).</td>
+          <td>Honestly reported as <code class="inline">RUNTIME-ERROR</code>, disclosed in
+            <code class="inline">upstream-issues.md</code> — reflects the source's own narrative authoring style.</td>
+        </tr>
+      </tbody>
+    </table>
+  </section>
+
+  <section id="addendum">
+    <div class="section-head"><span class="section-num">07</span><h2>Addendum: Installation no longer discloses publication status</h2></div>
+    <p class="section-intro">After this report first published, a live review of the Installation section flagged its
+      publication-status narration as internal-only information. Fixed at the skill level and reversed a prior,
+      deliberate 2026-09-02 precedent.</p>
+    <div class="compare">
+      <div class="src">
+        <h3>Before</h3>
+        <p style="font-size:13.5px; color:var(--ink-soft); margin:0">"<code class="inline">@asposefoss/pdf</code> has not yet
+          been published to npm... Once published this will become <code class="inline">npm install @asposefoss/pdf</code>."</p>
+      </div>
+      <div class="cand">
+        <h3>After</h3>
+        <p style="font-size:13.5px; color:var(--ink); margin:0">Plain, working instructions only &mdash; clone, install,
+          build &mdash; with no mention of publication status either way.</p>
+      </div>
+    </div>
+    <p class="ret-note" style="margin-top:14px">The hard gate <code class="inline">check_installation_matches_live_publication</code>
+      now forbids the disclosure/preview outright (it previously required it). Measured, disclosed, not fixed here:
+      9 other already-shipped candidates still carry the old, now-forbidden text (backlog ST-180).</p>
+  </section>
+
+  <div class="verdict">
+    <div class="icon">i</div>
+    <div>
+      <h3>Run is AWAITING_REVIEW &mdash; no push made</h3>
+      <p>Per this skill's own standing rule, a run never approves or pushes itself. The candidate at
+        <code class="inline">reports/repo-presenter-regen-full/pdf/typescript/readme.md</code> is ready for
+        manual review; <code class="inline">approve</code> / <code class="inline">push</code> require an explicit,
+        fresh go-ahead.</p>
+    </div>
+  </div>
+
+</div>

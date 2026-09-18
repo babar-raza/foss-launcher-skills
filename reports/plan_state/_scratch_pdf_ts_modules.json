@@ -1,0 +1,1460 @@
+{
+ "Core API": [
+  [
+   "Background",
+   "A bare RGB tuple, or the object form when `padding` is wanted."
+  ],
+  [
+   "BarcodeModel",
+   "Class in the Pdf TYPESCRIPT API."
+  ],
+  [
+   "BarcodeSpec",
+   "Which barcode to draw."
+  ],
+  [
+   "BorderSides",
+   "Which edges of a border box are painted: every edge, no edge, or exactly the ones flagged true (an omitted flag is false, so `{ bottom: true }` is a bottom rule only)."
+  ],
+  [
+   "BorderStyle",
+   "Class in the Pdf TYPESCRIPT API."
+  ],
+  [
+   "ButtonIconPosition",
+   "Where a push button's icon sits relative to its caption \u2014 all seven layouts PDF 32000-1 table 189 defines."
+  ],
+  [
+   "CellBuilder",
+   "One cell in a table row: a text string, optional per-cell style, and how many columns it spans."
+  ],
+  [
+   "CellHeader",
+   "How a cell is marked in a tagged table: a /TH carrying the given /Scope, or a /TD."
+  ],
+  [
+   "ChoiceOption",
+   "One option of a choice field."
+  ],
+  [
+   "CollectionFieldType",
+   "A schema column: built-in fields derive from the filespec; custom fields (string/date/number) read their value from each file's /CI."
+  ],
+  [
+   "CollectionView",
+   "How a viewer presents the portfolio."
+  ],
+  [
+   "ColumnWidth",
+   "A column-width spec: an absolute width in points (`fixed`), or a share of the leftover space after fixed columns are allotted (`fraction`)."
+  ],
+  [
+   "CommitmentType",
+   "Standard CAdES commitment-type identifiers, or a custom dotted OID string."
+  ],
+  [
+   "ContentItem",
+   "A marked-content reference owned by a structure element."
+  ],
+  [
+   "ConvertCategory",
+   "Class in the Pdf TYPESCRIPT API."
+  ],
+  [
+   "Decoration-svgtext",
+   "Class in the Pdf TYPESCRIPT API."
+  ],
+  [
+   "Decoration-textdecor",
+   "`true` uses the font's metrics and the text's own colour; `false` is off."
+  ],
+  [
+   "DigestAlgorithm",
+   "Class in the Pdf TYPESCRIPT API."
+  ],
+  [
+   "Document",
+   "Class with 109 methods and 26 properties."
+  ],
+  [
+   "Edged",
+   "A single value, or one-per-edge [top, right, bottom, left]."
+  ],
+  [
+   "EditableContent",
+   "Editable per-stream view of a page's content (Phase 4 foundation, F1)."
+  ],
+  [
+   "EmbeddedFont",
+   "An opaque handle to a font program registered with AddFont."
+  ],
+  [
+   "FieldActionsUpdate",
+   "A field-actions update: an action to set, `null` to remove that trigger, and an absent key to leave it as it is \u2014 the same shape `SetStyle` takes."
+  ],
+  [
+   "FieldBorderStyle",
+   "How a widget's border is drawn (/BS /S)."
+  ],
+  [
+   "FloatingBox",
+   "A padded/bordered/filled box of paragraphs and/or an image, floated into a Flow column by `flow.AddFloatBox`."
+  ],
+  [
+   "Flow",
+   "A flow layout container."
+  ],
+  [
+   "FlowClear",
+   "Which side's floats an element must clear before it places."
+  ],
+  [
+   "FlowListNode",
+   "A list node: a bare string leaf or a FlowListItem that may nest."
+  ],
+  [
+   "Form",
+   "The document's interactive form: terminal fields of the /AcroForm tree."
+  ],
+  [
+   "GoToAction",
+   "A GoTo action: jump to a page in this document."
+  ],
+  [
+   "Gradient",
+   "Class in the Pdf TYPESCRIPT API."
+  ],
+  [
+   "ImageInfo",
+   "A single embedded image XObject: a live, read-only handle over its stream."
+  ],
+  [
+   "InlineImageInfo",
+   "A single `BI \u2026 EI` image drawn on a page, addressed by its position in the content stream that draws it."
+  ],
+  [
+   "InvalidPasswordError",
+   "Class with 1 method."
+  ],
+  [
+   "JavaScriptAction",
+   "A JavaScript action."
+  ],
+  [
+   "Layer",
+   "A single optional-content group (layer): a live handle over its /OCG dict."
+  ],
+  [
+   "LayerConfig",
+   "A viewing configuration (/D or a /Configs entry)."
+  ],
+  [
+   "MdAlign",
+   "GFM table alignment, from the `:` markers on the delimiter row."
+  ],
+  [
+   "MdBlock",
+   "Class in the Pdf TYPESCRIPT API."
+  ],
+  [
+   "MdInline",
+   "Class in the Pdf TYPESCRIPT API."
+  ],
+  [
+   "MdNode",
+   "Class in the Pdf TYPESCRIPT API."
+  ],
+  [
+   "OpenAction",
+   "What a document does when it is opened: go to a view, or run an action."
+  ],
+  [
+   "OptionalContent",
+   "The document's optional-content properties (/OCProperties)."
+  ],
+  [
+   "Padding-floatbox",
+   "Class with 4 properties."
+  ],
+  [
+   "Padding-tableauthor",
+   "Inner cell padding: one value for every side, or an object naming the sides that differ."
+  ],
+  [
+   "Page",
+   "A single PDF page: a live, mutable handle over its real page dict."
+  ],
+  [
+   "PageFormat",
+   "A page size in points (1/72\")."
+  ],
+  [
+   "PageGraphics",
+   "A buffered builder for drawing vector content onto a page."
+  ],
+  [
+   "PathSegment",
+   "Class with 8 properties."
+  ],
+  [
+   "PdfALevel",
+   "Conformance target: part (1/2/3) + level (b/u/a)."
+  ],
+  [
+   "PdfAction",
+   "Any action this library models, for an annotation's /A."
+  ],
+  [
+   "PdfParseError",
+   "Class with 1 method."
+  ],
+  [
+   "PdfXLevel",
+   "PDF/X conformance target."
+  ],
+  [
+   "PubSecRecipient",
+   "Class with 4 properties."
+  ],
+  [
+   "QrEcc",
+   "Class in the Pdf TYPESCRIPT API."
+  ],
+  [
+   "RGB-annotdraw",
+   "Class in the Pdf TYPESCRIPT API."
+  ],
+  [
+   "RGB-structattr",
+   "Class in the Pdf TYPESCRIPT API."
+  ],
+  [
+   "Rect-tablemodel",
+   "Class extending TextRect."
+  ],
+  [
+   "Rect-text",
+   "A page-space rectangle [x0,y0,x1,y1] (corners in any order)."
+  ],
+  [
+   "ResetAction",
+   "A ResetForm action: clear the named fields, or every field."
+  ],
+  [
+   "RevocationFetcher",
+   "A fetcher for revocation material: given the target and its issuer (DER), return the OCSP response / CRL bytes, or undefined when none is available."
+  ],
+  [
+   "RevocationStatus",
+   "A revocation verdict for one certificate."
+  ],
+  [
+   "RowBuilder",
+   "One row: an ordered list of cells plus an optional row-level style."
+  ],
+  [
+   "SaveOptions",
+   "Options for Save/WriteTo."
+  ],
+  [
+   "Severity",
+   "Class in the Pdf TYPESCRIPT API."
+  ],
+  [
+   "Signer",
+   "Any accepted signer: a credential source, or a pre-resolved CmsSigner (certificate DER + `KeyObject`) for callers that already hold a key."
+  ],
+  [
+   "StdFont",
+   "Class in the Pdf TYPESCRIPT API."
+  ],
+  [
+   "StreamFilterName",
+   "Byte-filters this pass can re-encode a stream into."
+  ],
+  [
+   "StructElement",
+   "A node in the structure tree: a live handle over its real /StructElem dict."
+  ],
+  [
+   "StructTreeRoot",
+   "The document's logical structure tree: a live handle over /StructTreeRoot."
+  ],
+  [
+   "SubmitAction",
+   "A SubmitForm action: send the form's field values to `url`."
+  ],
+  [
+   "Table",
+   "A reconstructed table: a rows\u00d7cells model with page-space quads and text, serializable to HTML or Markdown."
+  ],
+  [
+   "TableBuilder",
+   "A page-independent table: ordered rows over shared text defaults."
+  ],
+  [
+   "Template",
+   "A reusable piece of drawn content, placed on any number of pages from a single Form XObject."
+  ],
+  [
+   "TextFont",
+   "Class with 6 methods and 10 properties."
+  ],
+  [
+   "TilingPattern-tiling",
+   "A handle returned by `Document.NewTilingPattern`."
+  ],
+  [
+   "TimestampProvider",
+   "A timestamp provider: given a DER `TimeStampReq`, return either the bare `TimeStampToken` (a CMS ContentInfo) or a full `TimeStampResp`."
+  ],
+  [
+   "UnsupportedFeatureError",
+   "Class with 1 method."
+  ],
+  [
+   "UriAction",
+   "A URI action: open an external URL."
+  ],
+  [
+   "ValidationReport",
+   "The result of a validation pass (PDF/UA or PDF/A)."
+  ],
+  [
+   "VectorGraphics",
+   "A buffered builder for vector content: every path constructor, paint operator, graphics-state setting and marked-content bracket, accumulated in memory as operator text."
+  ],
+  [
+   "XmpUpdate",
+   "A partial XMP update: each known field may be set, or `null` to delete."
+  ],
+  [
+   "AddBarcodeOptions",
+   "Interface with 8 properties."
+  ],
+  [
+   "AddImageOptions",
+   "Interface with 5 properties."
+  ],
+  [
+   "AddImagePagesOptions",
+   "Interface with 3 properties."
+  ],
+  [
+   "AddImagePagesResult",
+   "Interface with 2 properties."
+  ],
+  [
+   "AddLayerOptions",
+   "Options for AddLayer."
+  ],
+  [
+   "AddSVGOptions",
+   "Options for AddSVGObject."
+  ],
+  [
+   "AddSVGResult",
+   "The outcome of AddSVGObject."
+  ],
+  [
+   "AddTableOptions",
+   "Options for drawTable / `page.AddTable`."
+  ],
+  [
+   "AddTableResult",
+   "The outcome of drawTable / `page.AddTable`."
+  ],
+  [
+   "AutoTagOptions",
+   "Options for AutoTag."
+  ],
+  [
+   "AutoTagReport",
+   "Counts of the elements AutoTag produced."
+  ],
+  [
+   "BackgroundStyle",
+   "A fill painted behind the glyphs."
+  ],
+  [
+   "BatesOptions",
+   "Options for AddBatesNumbering."
+  ],
+  [
+   "BookletOptions",
+   "Options for Booklet."
+  ],
+  [
+   "BorderEdges",
+   "The four edge flags, resolved from a BorderSides."
+  ],
+  [
+   "BorderInfo",
+   "A cell/table border: stroke width (pt), RGB colour (0..1), optional dash, and which edges to paint."
+  ],
+  [
+   "CadesAttributes",
+   "Optional CAdES signed attributes for a PAdES signature."
+  ],
+  [
+   "CellOptions",
+   "`addCell` options: the per-cell text style plus an optional horizontal span."
+  ],
+  [
+   "CellTextOptions",
+   "Per-cell/row text + visual style; each field falls back through the cascade (cell ??."
+  ],
+  [
+   "CertInfo",
+   "Summary of the signer's X.509 certificate."
+  ],
+  [
+   "ChainOptions",
+   "Interface with 2 properties."
+  ],
+  [
+   "ChainResult",
+   "Interface with 3 properties."
+  ],
+  [
+   "Change",
+   "One object that changed in a revision added after a signature."
+  ],
+  [
+   "CheckboxInit",
+   "Options for Form.AddCheckbox / Page.AddCheckbox."
+  ],
+  [
+   "ChoiceInit",
+   "Options common to both choice field types."
+  ],
+  [
+   "CollectionFieldDef",
+   "Interface with 6 properties."
+  ],
+  [
+   "CollectionSettings",
+   "Interface with 5 properties."
+  ],
+  [
+   "ColoredTilingPattern",
+   "A tiling pattern that carries its own colours."
+  ],
+  [
+   "ComboBoxInit",
+   "Options for Form.AddComboBox / Page.AddComboBox."
+  ],
+  [
+   "ContentAddr",
+   "Address of an operator within a page's content."
+  ],
+  [
+   "ContentOp",
+   "Interface with 5 properties."
+  ],
+  [
+   "ContentVisitor",
+   "Interface with 3 methods."
+  ],
+  [
+   "ConvertOptions",
+   "Interface with 5 properties."
+  ],
+  [
+   "Crl",
+   "Interface with 7 properties."
+  ],
+  [
+   "CrlEntry",
+   "Interface with 2 properties."
+  ],
+  [
+   "DecorationOptions",
+   "The decoration options shared by every text-authoring options type."
+  ],
+  [
+   "DecorationStyle",
+   "A rule drawn beneath (underline) or through (strikethrough) the text."
+  ],
+  [
+   "DocumentJavaScript",
+   "One entry of the document-level JavaScript name tree."
+  ],
+  [
+   "DocumentTimestampReport",
+   "Verdict for one document timestamp (`/DocTimeStamp`): the RFC 3161 token's time and imprint/TSA-signature checks, plus coverage and the TSA cert."
+  ],
+  [
+   "DrPruneResult",
+   "Interface with 3 properties."
+  ],
+  [
+   "DssEntry",
+   "Per-signature validation data to embed under one `/VRI` entry."
+  ],
+  [
+   "ElemOpts",
+   "Options for creating a structure element."
+  ],
+  [
+   "ExportFormDataOptions",
+   "Interface with 3 properties."
+  ],
+  [
+   "ExternalSigner",
+   "Sign via an external callback (HSM/KMS/smartcard) \u2014 the key never leaves the device."
+  ],
+  [
+   "ExtractPagesOptions",
+   "Interface with 1 property."
+  ],
+  [
+   "Field-structattr",
+   "One field: its PDF key plus a decode/encode pair."
+  ],
+  [
+   "FieldActions",
+   "A field's additional-actions (/AA), PDF 32000-1 table 197."
+  ],
+  [
+   "FieldInit",
+   "Options common to every field-creation entry point."
+  ],
+  [
+   "FieldStyle",
+   "WidgetStyle plus the /DA text half."
+  ],
+  [
+   "FloatBoxImageOptions",
+   "Options for AddImage."
+  ],
+  [
+   "FloatBoxOptions",
+   "Options for NewFloatingBox."
+  ],
+  [
+   "FlowCodeOptions",
+   "Options for codeBlock / `Flow.AddCodeBlock`."
+  ],
+  [
+   "FlowElement",
+   "A unit of flow content."
+  ],
+  [
+   "FlowHeadingOptions",
+   "Options for AddHeading."
+  ],
+  [
+   "FlowImageOptions",
+   "Options for AddImage."
+  ],
+  [
+   "FlowListItem",
+   "One nested-list item."
+  ],
+  [
+   "FlowListOptions",
+   "Options for AddList."
+  ],
+  [
+   "FlowOptions",
+   "Options for NewFlow."
+  ],
+  [
+   "FlowParagraphOptions",
+   "Typographic options for AddParagraph (a subset of the text-block options; flow content is always laid top-down, so `valign` is not offered)."
+  ],
+  [
+   "FlowQuoteBar",
+   "The bar drawn down a quote's gutter."
+  ],
+  [
+   "FlowQuoteOptions",
+   "Options for quote / `Flow.AddQuote`."
+  ],
+  [
+   "FlowRuleOptions",
+   "Options for rule / `Flow.AddRule`."
+  ],
+  [
+   "FlowTableOptions",
+   "Options for table / `Flow.AddTable`."
+  ],
+  [
+   "FontFamily",
+   "The four faces emphasis selects between, loaded from disk."
+  ],
+  [
+   "FontMatch",
+   "What a name resolves to -- reported without loading or embedding anything."
+  ],
+  [
+   "FontOptimization",
+   "Interface with 4 properties."
+  ],
+  [
+   "FormData",
+   "Interface with 5 properties."
+  ],
+  [
+   "FormDataField",
+   "One field's data, format-neutral."
+  ],
+  [
+   "G4EncodeOptions",
+   "Interface with 1 property."
+  ],
+  [
+   "GradientStop",
+   "One gradient stop."
+  ],
+  [
+   "GrayImageResult",
+   "Interface with 4 properties."
+  ],
+  [
+   "GraySkipped",
+   "Interface with 3 properties."
+  ],
+  [
+   "GrayscaleOptions",
+   "Document-wide grayscale conversion."
+  ],
+  [
+   "GrayscaleReport",
+   "Interface with 8 properties."
+  ],
+  [
+   "HeaderFooterBand",
+   "One band of a header/footer: up to three independently-positioned cells."
+  ],
+  [
+   "HeaderFooterOptions",
+   "Options for AddHeaderFooter."
+  ],
+  [
+   "HtmlOptions",
+   "Options for ToHtml and ToHtml."
+  ],
+  [
+   "ImageEvent",
+   "A placed image with provenance."
+  ],
+  [
+   "ImageOptimization",
+   "Interface with 7 properties."
+  ],
+  [
+   "ImportOptions",
+   "Options for the four import methods."
+  ],
+  [
+   "ImportReport",
+   "Interface with 8 properties."
+  ],
+  [
+   "InsertPagesOptions",
+   "Interface with 1 property."
+  ],
+  [
+   "LayoutAttributes",
+   "Interface with 32 properties."
+  ],
+  [
+   "LinearBarcode",
+   "1D barcode geometry: alternating bar/space run widths in unit modules."
+  ],
+  [
+   "LinearGradient",
+   "An axial (linear) gradient: a colour ramp along the axis from (x1, y1) to (x2, y2), in the **default** user space of the content stream it paints into \u2014 see the /Matrix note on PageGraphics.setFillGradient."
+  ],
+  [
+   "LinearizationCheck",
+   "Interface with 2 properties."
+  ],
+  [
+   "ListAttributes",
+   "Interface with 1 property."
+  ],
+  [
+   "ListBoxInit",
+   "Options for Form.AddListBox / Page.AddListBox."
+  ],
+  [
+   "LoadFontOptions",
+   "A style request alongside the ordinary font options."
+  ],
+  [
+   "MatrixBarcode",
+   "2D barcode geometry: a square matrix of dark/light modules, row-major."
+  ],
+  [
+   "MdBlockQuote",
+   "Interface with 2 properties."
+  ],
+  [
+   "MdCode",
+   "Interface with 2 properties."
+  ],
+  [
+   "MdCodeBlock",
+   "`info` is the raw info string of a fenced block, entity-decoded and backslash-unescaped but not split on whitespace; '' for an indented block."
+  ],
+  [
+   "MdDocument",
+   "The CommonMark abstract syntax tree, per CommonMark 0.31.2."
+  ],
+  [
+   "MdEmph",
+   "Interface with 2 properties."
+  ],
+  [
+   "MdHardBreak",
+   "Interface with 1 property."
+  ],
+  [
+   "MdHeading",
+   "Level 1..6, identical for the ATX (`# x`) and setext (`x\\n=`) spellings."
+  ],
+  [
+   "MdHtmlBlock",
+   "Raw HTML, verbatim."
+  ],
+  [
+   "MdHtmlInline",
+   "Interface with 2 properties."
+  ],
+  [
+   "MdImage",
+   "Interface with 4 properties."
+  ],
+  [
+   "MdItem",
+   "Interface with 3 properties."
+  ],
+  [
+   "MdLink",
+   "Inline and reference links are indistinguishable here: both carry a resolved destination and title, which is what gl6o.3 wants."
+  ],
+  [
+   "MdList",
+   "`tight` decides whether an item's paragraphs render as paragraphs (loose) or as bare content (tight)."
+  ],
+  [
+   "MdParagraph",
+   "Interface with 2 properties."
+  ],
+  [
+   "MdSoftBreak",
+   "Interface with 1 property."
+  ],
+  [
+   "MdStrikethrough",
+   "GFM strikethrough."
+  ],
+  [
+   "MdStrong",
+   "Interface with 2 properties."
+  ],
+  [
+   "MdTable",
+   "`align` carries one entry per column, null where the delimiter row gave none \u2014 which is not the same as 'left', since a renderer may have its own default."
+  ],
+  [
+   "MdTableCell",
+   "Holds inlines, like a paragraph does."
+  ],
+  [
+   "MdTableRow",
+   "Interface with 3 properties."
+  ],
+  [
+   "MdText",
+   "Interface with 2 properties."
+  ],
+  [
+   "MdThematicBreak",
+   "Interface with 1 property."
+  ],
+  [
+   "Metadata",
+   "Interface with 9 properties."
+  ],
+  [
+   "MetadataUpdate",
+   "Interface with 9 properties."
+  ],
+  [
+   "NUpOptions",
+   "Interface with 5 properties."
+  ],
+  [
+   "ObjStmDamage",
+   "What one /ObjStm container yielded, and what it cost."
+  ],
+  [
+   "OcspResponse",
+   "Interface with 7 properties."
+  ],
+  [
+   "OcspSingleResponse",
+   "Interface with 8 properties."
+  ],
+  [
+   "OoxmlPart",
+   "One part of an OPC package."
+  ],
+  [
+   "OoxmlRelationship",
+   "One entry of a `.rels` file."
+  ],
+  [
+   "OpenOptions",
+   "Interface with 2 properties."
+  ],
+  [
+   "OptimizeImageOptions",
+   "Target for the lossy image pass."
+  ],
+  [
+   "OptimizeOptions",
+   "Which concerns to run."
+  ],
+  [
+   "OptimizeReport",
+   "Interface with 13 properties."
+  ],
+  [
+   "OverlayOptions",
+   "Interface with 5 properties."
+  ],
+  [
+   "PageLabel",
+   "A logical page-label range in the /Root /PageLabels number tree."
+  ],
+  [
+   "PagePath",
+   "Interface with 11 properties."
+  ],
+  [
+   "PathEvent",
+   "A painted vector path, its subpaths flattened to page-space segments."
+  ],
+  [
+   "PathPaint",
+   "Interface with 2 properties."
+  ],
+  [
+   "PathSubpath",
+   "Interface with 2 properties."
+  ],
+  [
+   "PdfUaConvertOptions",
+   "Interface with 3 properties."
+  ],
+  [
+   "PdfXConvertOptions",
+   "Interface with 9 properties."
+  ],
+  [
+   "PemSigner",
+   "Sign from a PEM private key plus its PEM/DER certificate chain (leaf first)."
+  ],
+  [
+   "Pkcs12Signer",
+   "Sign from a PKCS#12 (`.pfx`/`.p12`) blob; the key and chain are extracted."
+  ],
+  [
+   "PlaceContext",
+   "Where an element is being placed."
+  ],
+  [
+   "PlaceElementsOptions",
+   "Options for placeElements."
+  ],
+  [
+   "PlaceElementsResult",
+   "Result of placeElements."
+  ],
+  [
+   "PlaceOptions",
+   "Options for PlaceOn."
+  ],
+  [
+   "PlaceResult",
+   "Outcome of place."
+  ],
+  [
+   "PrunePolicy",
+   "Interface with 1 method and 1 property."
+  ],
+  [
+   "PushButtonInit",
+   "Options for Form.AddPushButton / Page.AddPushButton."
+  ],
+  [
+   "QrOptions",
+   "Interface with 2 properties."
+  ],
+  [
+   "Quantized",
+   "The result of quantizing an image."
+  ],
+  [
+   "RadialGradient",
+   "A radial gradient: the ramp runs from the focal point out to the circle (cx, cy, r)."
+  ],
+  [
+   "RadioGroupInit",
+   "Options for Form.AddRadioGroup."
+  ],
+  [
+   "RadioOption",
+   "One button of a radio group."
+  ],
+  [
+   "RecoveryReport",
+   "How Open obtained its cross-reference data."
+  ],
+  [
+   "Rect-barcodeplace",
+   "A dark rectangle in PDF user space."
+  ],
+  [
+   "RegionHits",
+   "Glyph and image events intersecting a set of regions."
+  ],
+  [
+   "RemoveImageOptions",
+   "Options for removeImage / `ImageInfo.Remove`."
+  ],
+  [
+   "ReplaceImageOptions",
+   "Options for replaceImage / `ImageInfo.Replace`."
+  ],
+  [
+   "ResizeOptions",
+   "Interface with 1 property."
+  ],
+  [
+   "ResolvedFamily",
+   "A family with all four faces filled."
+  ],
+  [
+   "ResolvedPadding",
+   "Padding with every side settled to a number."
+  ],
+  [
+   "RevocationMaterial",
+   "Raw revocation material for one certificate (DER bytes, as fetched)."
+  ],
+  [
+   "RevocationResult",
+   "Interface with 2 properties."
+  ],
+  [
+   "RowOptions",
+   "`addRow` options: the row-level text style plus row-only geometry."
+  ],
+  [
+   "SearchOptions",
+   "Scope for a text search."
+  ],
+  [
+   "SigAlg",
+   "Signature algorithm passed to an external signer callback: the public-key scheme plus the message-digest algorithm to hash the data with."
+  ],
+  [
+   "SignerLocation",
+   "CAdES `signer-location` signed attribute (all fields optional)."
+  ],
+  [
+   "SignerOptions",
+   "Options common to the credential-source signer variants."
+  ],
+  [
+   "SkippedFont",
+   "Interface with 2 properties."
+  ],
+  [
+   "SkippedFrame",
+   "Interface with 2 properties."
+  ],
+  [
+   "SkippedImage",
+   "Interface with 3 properties."
+  ],
+  [
+   "SplitOptions",
+   "Interface with 2 properties."
+  ],
+  [
+   "SvgOptions",
+   "Interface with 2 properties."
+  ],
+  [
+   "TableAttributes",
+   "Interface with 5 properties."
+  ],
+  [
+   "TableCell",
+   "Interface with 13 properties."
+  ],
+  [
+   "TableDefaults",
+   "Table-level defaults; the cascade root, plus table-only fields."
+  ],
+  [
+   "TableExtractOptions",
+   "Interface with 2 properties."
+  ],
+  [
+   "TableMetrics",
+   "Measurement result for a table at given resolved column widths."
+  ],
+  [
+   "TableRow",
+   "Interface with 3 properties."
+  ],
+  [
+   "TableStitchOptions",
+   "Interface with 1 property."
+  ],
+  [
+   "TextBlock",
+   "A paragraph-like cluster of consecutive lines, ordered top-to-bottom."
+  ],
+  [
+   "TextFieldInit",
+   "Options for Form.AddTextField / Page.AddTextField."
+  ],
+  [
+   "TextFragment",
+   "A positioned text run sharing one font, size, and baseline \u2014 the public unit of structured extraction (`Page.GetTextFragments`)."
+  ],
+  [
+   "TextLine",
+   "Interface with 4 properties."
+  ],
+  [
+   "TextMatch",
+   "A positioned text match."
+  ],
+  [
+   "TextRun",
+   "One styled span of a rich text block."
+  ],
+  [
+   "TilingPattern-pagerender",
+   "A resolved PatternType 1 (tiling) pattern."
+  ],
+  [
+   "TilingPatternOptions",
+   "Placement and repetition for a tiling pattern."
+  ],
+  [
+   "TimestampInfo",
+   "Verdict on a signature timestamp: the asserted time plus whether the token binds to the signature (imprint) and whether the TSA's signature is valid."
+  ],
+  [
+   "TrailerChoice",
+   "What trailer synthesis chose."
+  ],
+  [
+   "TstInfo",
+   "Interface with 6 properties."
+  ],
+  [
+   "UncoloredTilingPattern",
+   "A tiling pattern whose colour is supplied at use time."
+  ],
+  [
+   "ValidationDataOptions",
+   "Options for AddValidationData: callbacks that fetch the OCSP response / CRL for each signer, plus any extra certificates to embed (e.g."
+  ],
+  [
+   "ValidationIssue",
+   "A single validation finding."
+  ],
+  [
+   "VerifyOptions",
+   "Options for VerifySignatures."
+  ],
+  [
+   "WatermarkOptions",
+   "Options for AddWatermark."
+  ],
+  [
+   "WidgetStyle",
+   "/MK + /BS: what a widget's box looks like."
+  ],
+  [
+   "XmpMetadata",
+   "Structured view of a document's XMP packet (read side)."
+  ],
+  [
+   "ZipEntry",
+   "One file in an archive."
+  ]
+ ],
+ "Annotations": [
+  [
+   "Annotation",
+   "A live, mutable handle over an annotation dictionary."
+  ],
+  [
+   "AnnotationTextKey",
+   "The annotation entries that count as carried text."
+  ],
+  [
+   "AuthoringFont",
+   "A font for the text-authoring API: one of the 12 Latin Standard-14 faces (by name) or an embedded font handle from AddFont."
+  ],
+  [
+   "CaretAnnotation",
+   "A /Caret annotation (PDF 32000-1 \u00a712.5.6.11): a text-insertion mark, drawn as a wedge at the point where text should be added, optionally with a paragraph sign."
+  ],
+  [
+   "FileAttachmentAnnotation",
+   "A /FileAttachment annotation: an icon on the page whose /FS embeds a file."
+  ],
+  [
+   "LinkAction",
+   "@deprecated Use PdfAction."
+  ],
+  [
+   "LinkAnnotation",
+   "A /Link annotation."
+  ],
+  [
+   "MarkupAnnotation",
+   "A text-markup annotation (/Highlight, /Underline, /StrikeOut, /Squiggly) positioned by /QuadPoints (8 numbers per marked quad)."
+  ],
+  [
+   "MarkupType",
+   "The four text-markup subtypes, lower-cased."
+  ],
+  [
+   "RedactAnnotation",
+   "A /Redact annotation (PDF 32000-1 \u00a712.5.6.23): a *mark* over a region, plus the overlay to paint when it is applied."
+  ],
+  [
+   "StampAnnotation",
+   "A /Stamp (rubber-stamp) annotation."
+  ],
+  [
+   "StampPosition",
+   "Where a stamp anchors in the page's visual frame."
+  ],
+  [
+   "TextAnnotation",
+   "A /Text (sticky-note) annotation: an icon-and-popup markup with no appearance stream."
+  ],
+  [
+   "AnnotData",
+   "Interface with 4 properties."
+  ],
+  [
+   "AnnotationMatch",
+   "A match in the text one annotation's appearance stream draws."
+  ],
+  [
+   "AnnotationTextMatch",
+   "A match in the text an annotation CARRIES, rather than the text it draws."
+  ],
+  [
+   "CaretOptions",
+   "Options for Page.AddCaret."
+  ],
+  [
+   "FileAttachmentOptions",
+   "Options for AddFileAttachment."
+  ],
+  [
+   "ImportedAnnot",
+   "An annotation that was applied to the document."
+  ],
+  [
+   "LinkOptions",
+   "Options for Page.AddLink."
+  ],
+  [
+   "MarkupOptions",
+   "Options for the Page.Add{Highlight,Underline,StrikeOut,Squiggly} methods."
+  ],
+  [
+   "RedactAnnotationOptions",
+   "Options for Page.AddRedact."
+  ],
+  [
+   "SkippedAnnot",
+   "An annotation that was present in the data file but not applied."
+  ],
+  [
+   "StampAnnotationOptions",
+   "Options for Page.AddStamp."
+  ],
+  [
+   "StampOptions",
+   "Options for stamping text onto a page."
+  ],
+  [
+   "StampWithOptions",
+   "Interface with 4 properties."
+  ],
+  [
+   "TextBlockOptions",
+   "Options for flowing wrapped text into a rectangle."
+  ],
+  [
+   "TextNoteOptions",
+   "Options for Page.AddTextNote."
+  ],
+  [
+   "TimeStampRequestInfo",
+   "Interface with 3 properties."
+  ],
+  [
+   "TimeStampRequestOptions",
+   "Interface with 3 properties."
+  ],
+  [
+   "TimeStampTokenOptions",
+   "Interface with 3 properties."
+  ]
+ ],
+ "Attachments": [
+  [
+   "Attachment",
+   "A live handle over one embedded file's /Filespec."
+  ],
+  [
+   "AttachmentOptions",
+   "Options shared by document-level attachments and FileAttachment annotations."
+  ]
+ ],
+ "Conversion": [
+  [
+   "ImageFormat",
+   "What `ImageOptions.format` accepts."
+  ],
+  [
+   "MarkdownFontSpec",
+   "A single face (whose family is derived when it is Standard-14) or an explicit family."
+  ],
+  [
+   "AddMarkdownResult",
+   "What AddMarkdown reports."
+  ],
+  [
+   "ConversionReport",
+   "The result of a conversion run: what was applied, what still fails, pass flag."
+  ],
+  [
+   "ConvertAction",
+   "One remediation performed by a converter (PDF/A or PDF/UA)."
+  ],
+  [
+   "DocxExtras",
+   "Parts and relationships a caller adds beside the minimal set \u2014 styles, numbering, images."
+  ],
+  [
+   "DocxOptions",
+   "Options for ToDocx and ToDocx."
+  ],
+  [
+   "EpubOptions",
+   "Options for ToEpub."
+  ],
+  [
+   "ImageOptions",
+   "Interface with 9 properties."
+  ],
+  [
+   "MarkdownAsset",
+   "One image file an external-image export expects to be written."
+  ],
+  [
+   "MarkdownElements",
+   "What markdownElements produced."
+  ],
+  [
+   "MarkdownExportOptions",
+   "Options for ToMarkdown and ToMarkdown."
+  ],
+  [
+   "MarkdownExportResult",
+   "Markdown plus the image files it references."
+  ],
+  [
+   "MarkdownFlowOptions",
+   "Options for the Markdown entry points."
+  ],
+  [
+   "MarkdownFontFamily",
+   "The four faces emphasis selects between."
+  ],
+  [
+   "MarkdownOptions",
+   "Options for `parseMarkdown`."
+  ],
+  [
+   "MarkdownResult",
+   "What a Markdown entry point reports."
+  ],
+  [
+   "MarkdownStyle",
+   "How Markdown renders."
+  ],
+  [
+   "TiffEncodeOptions",
+   "Interface with 1 property."
+  ],
+  [
+   "TiffExportOptions",
+   "Options for renderDocumentToTiff."
+  ],
+  [
+   "TiffFrame",
+   "One page of a TIFF."
+  ]
+ ],
+ "Forms": [
+  [
+   "ButtonField",
+   "A push button (`/FT /Btn` with the Pushbutton flag)."
+  ],
+  [
+   "CheckboxField",
+   "A checkbox (`/FT /Btn`, neither Pushbutton nor Radio)."
+  ],
+  [
+   "ChoiceField",
+   "A combo box or list box (`/FT /Ch`)."
+  ],
+  [
+   "Field-formfield",
+   "A terminal AcroForm field: a live, mutable handle over its field dict."
+  ],
+  [
+   "FieldType",
+   "Class in the Pdf TYPESCRIPT API."
+  ],
+  [
+   "RadioField",
+   "A radio group (`/FT /Btn` with the Radio flag)."
+  ],
+  [
+   "TextField",
+   "A text field (`/FT /Tx`)."
+  ]
+ ],
+ "Redaction": [
+  [
+   "MarkRedactTextOptions",
+   "Options for `Page.MarkRedactText` \u2014 everything `AddRedact` takes except the geometry, which comes from the search hit, plus the search scope."
+  ],
+  [
+   "ApplyRedactionsOptions",
+   "Options for `Page.ApplyRedactions` / `Document.ApplyRedactions`."
+  ],
+  [
+   "RedactOptions",
+   "Options for redactPage / `page.Redact` / `doc.Redact`."
+  ]
+ ],
+ "Security": [
+  [
+   "DocMdpPermission",
+   "DocMDP permitted-changes level for a certification signature (PDF 32000-1 \u00a712.8.2.2): the `/P` value in the DocMDP `/TransformParams`."
+  ],
+  [
+   "SignatureScheme",
+   "Class in the Pdf TYPESCRIPT API."
+  ],
+  [
+   "CertifyOptions",
+   "Options for Certify: a SignOptions plus the DocMDP permitted-changes level (default `no-changes`)."
+  ],
+  [
+   "DocumentTimestampOptions",
+   "Options for AddDocumentTimestamp."
+  ],
+  [
+   "EncryptOptions",
+   "Interface with 5 properties."
+  ],
+  [
+   "Permissions",
+   "Interface with 8 properties."
+  ],
+  [
+   "PubSecEncryptOptions",
+   "Interface with 6 properties."
+  ],
+  [
+   "PubSecRecipientCert",
+   "Interface with 2 properties."
+  ],
+  [
+   "SignOptions",
+   "Interface with 12 properties."
+  ],
+  [
+   "SignatureAppearance",
+   "A visible signature appearance request."
+  ],
+  [
+   "SignatureField",
+   "Read-side view of a signature field (always available, like `doc.Form`)."
+  ],
+  [
+   "SignatureReport",
+   "Interface with 13 properties."
+  ]
+ ],
+ "Structure": [
+  [
+   "OutlineDest",
+   "An outline or link target: an explicit page, or a named destination."
+  ],
+  [
+   "OutlineView",
+   "A PDF 32000-1 \u00a712.3.2.2 destination view."
+  ],
+  [
+   "AddTOCResult",
+   "The outcome of drawTOC / `page.AddTOC`."
+  ],
+  [
+   "NamedDest",
+   "A destination given by name, resolved by the viewer through the document's named-destination tables rather than at write time."
+  ],
+  [
+   "NamedDestination",
+   "A named destination: a name plus its resolved target."
+  ],
+  [
+   "OutlineItem",
+   "A node in the document outline (bookmark) tree."
+  ],
+  [
+   "PageDest",
+   "A page destination: 1-based page number plus an optional view."
+  ],
+  [
+   "TOCEntry",
+   "One row of a table of contents."
+  ],
+  [
+   "TOCOptions",
+   "Options for AddTOC."
+  ]
+ ],
+ "Text": [
+  [
+   "GlyphEvent",
+   "A positioned glyph with provenance back to the operator that drew it."
+  ]
+ ]
+}

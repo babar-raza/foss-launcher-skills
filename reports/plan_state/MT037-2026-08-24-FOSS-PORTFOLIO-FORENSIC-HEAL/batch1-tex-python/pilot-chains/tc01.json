@@ -1,0 +1,10 @@
+{
+  "unaided_finding_id": "FND-tex-python-001",
+  "root_cause_id": "RC-tex-python-01",
+  "task_id": "TC-BSA-bsa-20260825T015217Z-bfb996a32dfe-01",
+  "system_fix_diff_ref": "no separate system-layer diff in this batch -- RC-tex-python-01's grade-staleness gap (audit.py FAILs never invalidate a persisted grade) is documented but not systemically remediated here; this taskcard's actual scope was the content-only fix (matches MT028 TC-03 precedent)",
+  "regen_command": "S-73 manual-edit, commit e42275e5d8: swapped hardcoded pip-install command for the package-install shortcode",
+  "verification_before_hash": "a2a0e4167ef5dab3fdf6dfe5ec8558e88d7d057876fffbe6893e04eb69eee1c0",
+  "verification_after_hash": "d4b3711d72575610e310b8102dab326de8c410e54b4d022c330a4eb81ea4cafa",
+  "agentic_consumption_recheck_passed": true
+}

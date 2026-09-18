@@ -1,0 +1,1 @@
+PASS: reports/repo-presenter/slides/java/readme.md -- no orphaned capability nodes

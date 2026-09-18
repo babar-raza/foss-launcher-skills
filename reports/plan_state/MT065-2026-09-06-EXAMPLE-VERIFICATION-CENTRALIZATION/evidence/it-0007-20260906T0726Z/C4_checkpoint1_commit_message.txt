@@ -1,0 +1,59 @@
+feat(example-verification): C4 checkpoint 1 -- registry.yaml registration + platform_capabilities.yaml site + RC20 go fix
+
+Partial progress on taskcard C4 (rebuild S-63 code-smoke CLI over the
+package + capability site). This checkpoint ships four independent,
+individually-tested pieces before the larger CLI rebuild:
+
+1. registry.yaml: registers all 11 files of the lib/example_verification/
+   package (deliberately deferred from C1/C2/C3, which is why this
+   taskcard exists for it) -- code_fences/registry/syntax/result/policy/
+   cache/toolchain/acquire.py + runners/{base,python,typescript}.py, each
+   with owner_domain content-quality and a real test_targets entry.
+
+2. RC20 fix (real bug, not cosmetic): smoke_test.py's _PLATFORM_LANGS/
+   _TS_LANG_MAP used to be independent hardcoded dicts with no "go" entry
+   -- a Go product's code blocks silently fell through
+   _PLATFORM_LANGS.get(platform, frozenset({"python"})) and were
+   smoke-tested as if they were Python. Both dicts are now DERIVED from
+   the shared lib/example_verification/registry.py (verified
+   byte-identical to the old hardcoded values for every pre-existing
+   platform before switching), which already declares "go"/"golang" --
+   the fallback bug is closed for real. 2 new tests
+   (test_platform_langs_go_is_declared,
+   test_go_block_is_syntax_checked_not_treated_as_python).
+
+3. platform_capabilities.yaml gains a new example_verification site
+   (max_tier/offline_tier/runner_module/precommit_blocking) for all 7
+   platforms, mirroring lib/example_verification/registry.py's
+   PLATFORM_CONTRACT -- the code-side single source of truth this YAML
+   site replaces the design's earlier separate-JSON-contract-plus-parity-
+   script plan with. go's smoke_test_langs entry is corrected to reflect
+   the real, partially-fixed state (smoke_test.py fixed;
+   content_eval/config.py:PLATFORM_EXPECTED_LANGS and
+   code_syntax_check.py:_TS_LANGS remain unfixed -- different files, out
+   of this taskcard's scope).
+
+4. check_platform_capabilities.py gains check_example_verification()
+   (styled on the existing check_reachability_enforced), wired into
+   _SITE_CHECKS; test_platform_capability_matrix.py gains
+   TestExampleVerificationMatrix (4 new tests) and
+   _REQUIRED_SITE_KEYS gains the site; the pre-existing
+   test_go_is_the_undeclared_platform_everywhere is rewritten (it asserted
+   "go" is absent from smoke_test._PLATFORM_LANGS, which is now false by
+   design per fix #2) to test_go_is_partially_fixed_not_fully_undeclared_anymore,
+   documenting exactly which of the three real dicts are fixed vs. not.
+
+check_platform_capabilities.py: PASS, 0 findings (verified it genuinely
+catches a deliberately-introduced mismatch, not vacuously passing).
+345 tests pass across test_smoke_test.py / test_platform_capability_matrix.py
+/ test_rust_platform_maps.py.
+
+Remaining C4 scope (next checkpoint): the actual CLI flag rebuild
+(--max-tier/--json/--exit-codes/etc per the plan's consumer-wiring table),
+skill doc updates (code-smoke.md + provider mirrors + registry.json), and
+the real /eval-page step-2b dry-run pilot against font/python.
+
+Mission: MT065-2026-09-06-EXAMPLE-VERIFICATION-CENTRALIZATION
+Taskcards: C4 (checkpoint, not closed)
+
+Co-Authored-By: Claude Sonnet 5 <noreply@anthropic.com>

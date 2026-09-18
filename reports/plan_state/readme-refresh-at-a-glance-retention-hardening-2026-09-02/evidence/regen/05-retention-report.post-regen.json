@@ -1,0 +1,861 @@
+{
+  "family": "tex",
+  "platform": "python",
+  "old_readme_baseline": null,
+  "old_readme_found": true,
+  "report": {
+    "rows": [
+      {
+        "kind": "content",
+        "unit_id": "u0001",
+        "label": "Pure-Python library for TeX/LaTeX processing. Parses TeX input and produces PDF, SVG, and ",
+        "disposition": "merged_reframed",
+        "target_section": "Intro",
+        "verification_status": "verified_against_source",
+        "excluded_reason": null,
+        "verdict": {
+          "status": "reframed",
+          "basis": "fidelity",
+          "found_in": [
+            "Intro (traced)"
+          ],
+          "fidelity": {
+            "score": 0.83,
+            "scope": "target_section",
+            "missing_words": [
+              "hyphenation",
+              "input",
+              "patterns"
+            ]
+          },
+          "target_traced": true
+        }
+      },
+      {
+        "kind": "content",
+        "unit_id": "u0002",
+        "label": "> **Status: Pre-Alpha.** The core engine and public API are under active > development. In",
+        "disposition": "merged_reframed",
+        "target_section": "Scope and Limitations",
+        "verification_status": "verified_against_source",
+        "excluded_reason": null,
+        "verdict": {
+          "status": "reframed",
+          "basis": "fidelity",
+          "found_in": [
+            "Scope and Limitations (traced)"
+          ],
+          "fidelity": {
+            "score": 0.91,
+            "scope": "target_section",
+            "missing_words": [
+              "status"
+            ]
+          },
+          "target_traced": true
+        }
+      },
+      {
+        "kind": "content",
+        "unit_id": "u0003",
+        "label": "- Python 3.10+",
+        "disposition": "merged_reframed",
+        "target_section": "Installation",
+        "verification_status": "verified_against_source",
+        "excluded_reason": null,
+        "verdict": {
+          "status": "verbatim",
+          "basis": "normalized_text",
+          "found_in": [
+            "Installation"
+          ],
+          "fidelity": {
+            "score": 1.0,
+            "scope": "target_section",
+            "missing_words": []
+          },
+          "target_traced": true
+        }
+      },
+      {
+        "kind": "content",
+        "unit_id": "u0004",
+        "label": "For development:",
+        "disposition": "merged_reframed",
+        "target_section": "Development and Testing",
+        "verification_status": "verified_against_source",
+        "excluded_reason": null,
+        "verdict": {
+          "status": "reframed",
+          "basis": "fidelity",
+          "found_in": [
+            "Development and Testing (traced)"
+          ],
+          "fidelity": {
+            "score": 1.0,
+            "scope": "target_section",
+            "missing_words": []
+          },
+          "target_traced": true
+        }
+      },
+      {
+        "kind": "content",
+        "unit_id": "u0005",
+        "label": "In-memory PDF:",
+        "disposition": "excluded",
+        "target_section": null,
+        "verification_status": "verified_redundant",
+        "excluded_reason": "The in-memory PDF example is already the flagship Quick Start example using the real TeXJob/PdfDevice API.",
+        "verdict": {
+          "status": "excluded",
+          "basis": "excluded_reason",
+          "found_in": [],
+          "fidelity": {
+            "score": 1.0,
+            "scope": "document",
+            "missing_words": []
+          },
+          "target_traced": true
+        }
+      },
+      {
+        "kind": "content",
+        "unit_id": "u0006",
+        "label": "Output to file directly:",
+        "disposition": "excluded",
+        "target_section": null,
+        "verification_status": "verified_redundant",
+        "excluded_reason": "DVI file-output is demonstrated, with equivalent real code, in the Additional Examples section.",
+        "verdict": {
+          "status": "excluded",
+          "basis": "excluded_reason",
+          "found_in": [],
+          "fidelity": {
+            "score": 1.0,
+            "scope": "document",
+            "missing_words": []
+          },
+          "target_traced": true
+        }
+      },
+      {
+        "kind": "content",
+        "unit_id": "u0007",
+        "label": "Output to file:",
+        "disposition": "excluded",
+        "target_section": null,
+        "verification_status": "verified_redundant",
+        "excluded_reason": "SVG file-output is demonstrated, with equivalent real code, in the Additional Examples section.",
+        "verdict": {
+          "status": "excluded",
+          "basis": "excluded_reason",
+          "found_in": [],
+          "fidelity": {
+            "score": 1.0,
+            "scope": "document",
+            "missing_words": []
+          },
+          "target_traced": true
+        }
+      },
+      {
+        "kind": "content",
+        "unit_id": "u0008",
+        "label": "Multi-page in-memory output:",
+        "disposition": "excluded",
+        "target_section": null,
+        "verification_status": "verified_redundant",
+        "excluded_reason": "Multi-page in-memory SVG output is demonstrated, with equivalent real code, in the Additional Examples section.",
+        "verdict": {
+          "status": "excluded",
+          "basis": "excluded_reason",
+          "found_in": [],
+          "fidelity": {
+            "score": 1.0,
+            "scope": "document",
+            "missing_words": []
+          },
+          "target_traced": true
+        }
+      },
+      {
+        "kind": "content",
+        "unit_id": "u0009",
+        "label": "SVG output is self-contained — glyph outlines are extracted from the bundled Computer Mode",
+        "disposition": "merged_reframed",
+        "target_section": "Key Capabilities",
+        "verification_status": "verified_against_source",
+        "excluded_reason": null,
+        "verdict": {
+          "status": "reframed",
+          "basis": "fidelity",
+          "found_in": [
+            "Key Capabilities (traced)"
+          ],
+          "fidelity": {
+            "score": 0.62,
+            "scope": "target_section",
+            "missing_words": [
+              "contained",
+              "embedded",
+              "extracted",
+              "required",
+              "self",
+              "viewer"
+            ]
+          },
+          "target_traced": true
+        }
+      },
+      {
+        "kind": "content",
+        "unit_id": "u0010",
+        "label": "`TeXJob.messages` returns a copy of the messages collected during the most recent run. `\\m",
+        "disposition": "merged_reframed",
+        "target_section": "Key Capabilities",
+        "verification_status": "verified_against_source",
+        "excluded_reason": null,
+        "verdict": {
+          "status": "reframed",
+          "basis": "fidelity",
+          "found_in": [
+            "Key Capabilities (traced)"
+          ],
+          "fidelity": {
+            "score": 0.82,
+            "scope": "target_section",
+            "missing_words": [
+              "appends",
+              "leading",
+              "prefix"
+            ]
+          },
+          "target_traced": true
+        }
+      },
+      {
+        "kind": "content",
+        "unit_id": "u0011",
+        "label": "`extra_format_paths` is searched after bundled format data and before the current working ",
+        "disposition": "merged_reframed",
+        "target_section": "Key Capabilities",
+        "verification_status": "verified_against_source",
+        "excluded_reason": null,
+        "verdict": {
+          "status": "reframed",
+          "basis": "fidelity",
+          "found_in": [
+            "Key Capabilities (traced)"
+          ],
+          "fidelity": {
+            "score": 1.0,
+            "scope": "target_section",
+            "missing_words": []
+          },
+          "target_traced": true
+        }
+      },
+      {
+        "kind": "content",
+        "unit_id": "u0012",
+        "label": "The package registers a `logging.NullHandler` on the `aspose_tex` logger so applications c",
+        "disposition": "merged_reframed",
+        "target_section": "Development and Testing",
+        "verification_status": "verified_against_source",
+        "excluded_reason": null,
+        "verdict": {
+          "status": "reframed",
+          "basis": "fidelity",
+          "found_in": [
+            "Development and Testing (traced)"
+          ],
+          "fidelity": {
+            "score": 0.93,
+            "scope": "target_section",
+            "missing_words": [
+              "receiving"
+            ]
+          },
+          "target_traced": true
+        }
+      },
+      {
+        "kind": "content",
+        "unit_id": "u0013",
+        "label": "Released under the MIT License — see [LICENSE](LICENSE). Bundled Computer Modern fonts are",
+        "disposition": "merged_reframed",
+        "target_section": "License",
+        "verification_status": "verified_against_source",
+        "excluded_reason": null,
+        "verdict": {
+          "status": "reframed",
+          "basis": "fidelity",
+          "found_in": [
+            "License (traced)"
+          ],
+          "fidelity": {
+            "score": 0.88,
+            "scope": "target_section",
+            "missing_words": [
+              "released"
+            ]
+          },
+          "target_traced": true
+        }
+      },
+      {
+        "kind": "structural",
+        "unit_id": "s0001",
+        "label": "Options (generic_structural_block)",
+        "disposition": "merged_verbatim",
+        "target_section": "Additional Examples",
+        "verification_status": "verified_against_source",
+        "excluded_reason": null,
+        "verdict": {
+          "status": "verbatim",
+          "basis": "whitespace_normalized_block",
+          "found_in": [
+            "Additional Examples"
+          ],
+          "fidelity": null
+        }
+      },
+      {
+        "kind": "code",
+        "unit_id": "c0001",
+        "label": "[Installation] pip install aspose-tex",
+        "disposition": "corrected",
+        "target_section": "Installation",
+        "verification_status": "verified_against_source",
+        "excluded_reason": null,
+        "verdict": {
+          "status": "api_survived",
+          "basis": "live_fingerprint",
+          "found_in": [
+            "Installation",
+            "Development and Testing"
+          ],
+          "fidelity": null,
+          "fingerprint": [
+            "pip install"
+          ],
+          "survived": [
+            "pip install"
+          ]
+        }
+      },
+      {
+        "kind": "code",
+        "unit_id": "c0002",
+        "label": "[Installation] pip install -e \".[dev]\"",
+        "disposition": "merged_verbatim",
+        "target_section": "Installation",
+        "verification_status": "verified_against_source",
+        "excluded_reason": null,
+        "verdict": {
+          "status": "verbatim",
+          "basis": "whitespace_normalized_code",
+          "found_in": [
+            "Installation",
+            "Development and Testing"
+          ],
+          "fidelity": null,
+          "fingerprint": [
+            "pip install"
+          ],
+          "survived": [
+            "pip install"
+          ]
+        }
+      },
+      {
+        "kind": "code",
+        "unit_id": "c0003",
+        "label": "[PDF output] source = create_input_source(\"Hello World\\n\\\\bye\")",
+        "disposition": "merged_verbatim",
+        "target_section": "Quick Start",
+        "verification_status": "verified_against_source",
+        "excluded_reason": null,
+        "verdict": {
+          "status": "verbatim",
+          "basis": "whitespace_normalized_code",
+          "found_in": [
+            "Quick Start"
+          ],
+          "fidelity": null,
+          "fingerprint": [
+            "create_input_source",
+            "PdfDevice",
+            "Path",
+            "TeXJob",
+            "TeXOptions",
+            "job.run"
+          ],
+          "survived": [
+            "create_input_source",
+            "PdfDevice",
+            "Path",
+            "TeXJob",
+            "TeXOptions",
+            "job.run"
+          ]
+        }
+      },
+      {
+        "kind": "code",
+        "unit_id": "c0004",
+        "label": "[PDF output] source = create_input_source(\"Hello World\\n\\\\bye\")",
+        "disposition": "merged_verbatim",
+        "target_section": "Quick Start",
+        "verification_status": "verified_against_source",
+        "excluded_reason": null,
+        "verdict": {
+          "status": "verbatim",
+          "basis": "whitespace_normalized_code",
+          "found_in": [
+            "Quick Start"
+          ],
+          "fidelity": null,
+          "fingerprint": [
+            "create_input_source",
+            "PdfDevice",
+            "TeXJob",
+            "TeXOptions",
+            "job.run"
+          ],
+          "survived": [
+            "create_input_source",
+            "PdfDevice",
+            "TeXJob",
+            "TeXOptions",
+            "job.run"
+          ]
+        }
+      },
+      {
+        "kind": "code",
+        "unit_id": "c0005",
+        "label": "[DVI output] source = create_input_source(\"Hello World\\n\\\\bye\")",
+        "disposition": "merged_verbatim",
+        "target_section": "Additional Examples",
+        "verification_status": "verified_against_source",
+        "excluded_reason": null,
+        "verdict": {
+          "status": "verbatim",
+          "basis": "whitespace_normalized_code",
+          "found_in": [
+            "Additional Examples"
+          ],
+          "fidelity": null,
+          "fingerprint": [
+            "create_input_source",
+            "DviDevice",
+            "TeXJob",
+            "TeXOptions",
+            "job.run"
+          ],
+          "survived": [
+            "create_input_source",
+            "DviDevice",
+            "TeXJob",
+            "TeXOptions",
+            "job.run"
+          ]
+        }
+      },
+      {
+        "kind": "code",
+        "unit_id": "c0006",
+        "label": "[DVI output] source = create_input_source(\"Hello World\\n\\\\bye\")",
+        "disposition": "merged_verbatim",
+        "target_section": "Additional Examples",
+        "verification_status": "verified_against_source",
+        "excluded_reason": null,
+        "verdict": {
+          "status": "verbatim",
+          "basis": "whitespace_normalized_code",
+          "found_in": [
+            "Additional Examples"
+          ],
+          "fidelity": null,
+          "fingerprint": [
+            "create_input_source",
+            "DviDevice",
+            "Path",
+            "TeXJob",
+            "TeXOptions",
+            "job.run"
+          ],
+          "survived": [
+            "create_input_source",
+            "DviDevice",
+            "Path",
+            "TeXJob",
+            "TeXOptions",
+            "job.run"
+          ]
+        }
+      },
+      {
+        "kind": "code",
+        "unit_id": "c0007",
+        "label": "[SVG output] source = create_input_source(\"Hello World\\n\\\\bye\")",
+        "disposition": "merged_verbatim",
+        "target_section": "Additional Examples",
+        "verification_status": "verified_against_source",
+        "excluded_reason": null,
+        "verdict": {
+          "status": "verbatim",
+          "basis": "whitespace_normalized_code",
+          "found_in": [
+            "Additional Examples"
+          ],
+          "fidelity": null,
+          "fingerprint": [
+            "create_input_source",
+            "SvgDevice",
+            "TeXJob",
+            "TeXOptions",
+            "job.run"
+          ],
+          "survived": [
+            "create_input_source",
+            "SvgDevice",
+            "TeXJob",
+            "TeXOptions",
+            "job.run"
+          ]
+        }
+      },
+      {
+        "kind": "code",
+        "unit_id": "c0008",
+        "label": "[SVG output] source = create_input_source(\"Hello World\\n\\\\bye\")",
+        "disposition": "merged_reframed",
+        "target_section": "Additional Examples",
+        "verification_status": "verified_against_source",
+        "excluded_reason": null,
+        "verdict": {
+          "status": "api_survived",
+          "basis": "live_fingerprint",
+          "found_in": [
+            "Quick Start",
+            "Additional Examples"
+          ],
+          "fidelity": null,
+          "fingerprint": [
+            "create_input_source",
+            "SvgDevice",
+            "Path",
+            "TeXJob",
+            "TeXOptions",
+            "job.run",
+            "hello.svg"
+          ],
+          "survived": [
+            "create_input_source",
+            "SvgDevice",
+            "Path",
+            "TeXJob",
+            "TeXOptions",
+            "job.run"
+          ]
+        }
+      },
+      {
+        "kind": "code",
+        "unit_id": "c0009",
+        "label": "[SVG output] source = create_input_source(\"Page one\\n\\\\eject\\nPage two\\n\\\\bye\")",
+        "disposition": "merged_verbatim",
+        "target_section": "Additional Examples",
+        "verification_status": "verified_against_source",
+        "excluded_reason": null,
+        "verdict": {
+          "status": "verbatim",
+          "basis": "whitespace_normalized_code",
+          "found_in": [
+            "Additional Examples"
+          ],
+          "fidelity": null,
+          "fingerprint": [
+            "create_input_source",
+            "SvgDevice",
+            "TeXJob",
+            "TeXOptions",
+            "job.run",
+            "device.get_all_pages"
+          ],
+          "survived": [
+            "create_input_source",
+            "SvgDevice",
+            "TeXJob",
+            "TeXOptions",
+            "job.run",
+            "device.get_all_pages"
+          ]
+        }
+      },
+      {
+        "kind": "code",
+        "unit_id": "c0010",
+        "label": "[Options] opts = TeXOptions(job_name=\"hello\", magnification=1200, load_format=False)",
+        "disposition": "merged_verbatim",
+        "target_section": "Additional Examples",
+        "verification_status": "verified_against_source",
+        "excluded_reason": null,
+        "verdict": {
+          "status": "verbatim",
+          "basis": "whitespace_normalized_code",
+          "found_in": [
+            "Additional Examples"
+          ],
+          "fidelity": null,
+          "fingerprint": [
+            "TeXOptions",
+            "create_input_source",
+            "PdfDevice",
+            "TeXJob",
+            "job.run"
+          ],
+          "survived": [
+            "TeXOptions",
+            "create_input_source",
+            "PdfDevice",
+            "TeXJob",
+            "job.run"
+          ]
+        }
+      },
+      {
+        "kind": "code",
+        "unit_id": "c0011",
+        "label": "[Messages and logging] opts = TeXOptions(load_format=False, extra_format_paths=[Path(\"tex-",
+        "disposition": "merged_verbatim",
+        "target_section": "Additional Examples",
+        "verification_status": "verified_against_source",
+        "excluded_reason": null,
+        "verdict": {
+          "status": "verbatim",
+          "basis": "whitespace_normalized_code",
+          "found_in": [
+            "Additional Examples"
+          ],
+          "fidelity": null,
+          "fingerprint": [
+            "TeXOptions",
+            "Path",
+            "create_input_source",
+            "TeXJob",
+            "DviDevice",
+            "job.run"
+          ],
+          "survived": [
+            "TeXOptions",
+            "Path",
+            "create_input_source",
+            "TeXJob",
+            "DviDevice",
+            "job.run"
+          ]
+        }
+      },
+      {
+        "kind": "code",
+        "unit_id": "c0012",
+        "label": "[Messages and logging] logging.basicConfig(level=logging.INFO)",
+        "disposition": "merged_verbatim",
+        "target_section": "Additional Examples",
+        "verification_status": "verified_against_source",
+        "excluded_reason": null,
+        "verdict": {
+          "status": "verbatim",
+          "basis": "whitespace_normalized_code",
+          "found_in": [
+            "Additional Examples"
+          ],
+          "fidelity": null,
+          "fingerprint": [
+            "logging.basicConfig",
+            "logging.getLogger",
+            "setLevel"
+          ],
+          "survived": [
+            "logging.basicConfig",
+            "logging.getLogger",
+            "setLevel"
+          ]
+        }
+      },
+      {
+        "kind": "heading",
+        "unit_id": "h0001",
+        "label": "# aspose-tex",
+        "disposition": null,
+        "target_section": null,
+        "verification_status": null,
+        "excluded_reason": null,
+        "verdict": {
+          "status": "absorbed",
+          "basis": "normalized_heading_or_substring",
+          "found_in": [],
+          "fidelity": null
+        }
+      },
+      {
+        "kind": "heading",
+        "unit_id": "h0002",
+        "label": "## Requirements",
+        "disposition": null,
+        "target_section": null,
+        "verification_status": null,
+        "excluded_reason": null,
+        "verdict": {
+          "status": "absorbed",
+          "basis": "normalized_heading_or_substring",
+          "found_in": [],
+          "fidelity": null
+        }
+      },
+      {
+        "kind": "heading",
+        "unit_id": "h0003",
+        "label": "## Installation",
+        "disposition": null,
+        "target_section": null,
+        "verification_status": null,
+        "excluded_reason": null,
+        "verdict": {
+          "status": "present",
+          "basis": "normalized_heading_or_substring",
+          "found_in": [],
+          "fidelity": null
+        }
+      },
+      {
+        "kind": "heading",
+        "unit_id": "h0004",
+        "label": "## Quick Start",
+        "disposition": null,
+        "target_section": null,
+        "verification_status": null,
+        "excluded_reason": null,
+        "verdict": {
+          "status": "present",
+          "basis": "normalized_heading_or_substring",
+          "found_in": [],
+          "fidelity": null
+        }
+      },
+      {
+        "kind": "heading",
+        "unit_id": "h0005",
+        "label": "### PDF output",
+        "disposition": null,
+        "target_section": null,
+        "verification_status": null,
+        "excluded_reason": null,
+        "verdict": {
+          "status": "absorbed",
+          "basis": "normalized_heading_or_substring",
+          "found_in": [],
+          "fidelity": null
+        }
+      },
+      {
+        "kind": "heading",
+        "unit_id": "h0006",
+        "label": "### DVI output",
+        "disposition": null,
+        "target_section": null,
+        "verification_status": null,
+        "excluded_reason": null,
+        "verdict": {
+          "status": "present",
+          "basis": "normalized_heading_or_substring",
+          "found_in": [],
+          "fidelity": null
+        }
+      },
+      {
+        "kind": "heading",
+        "unit_id": "h0007",
+        "label": "### SVG output",
+        "disposition": null,
+        "target_section": null,
+        "verification_status": null,
+        "excluded_reason": null,
+        "verdict": {
+          "status": "present",
+          "basis": "normalized_heading_or_substring",
+          "found_in": [],
+          "fidelity": null
+        }
+      },
+      {
+        "kind": "heading",
+        "unit_id": "h0008",
+        "label": "### Options",
+        "disposition": "structural_unit",
+        "target_section": "s0001",
+        "verification_status": null,
+        "excluded_reason": null,
+        "verdict": {
+          "status": "absorbed",
+          "basis": "normalized_heading_or_substring",
+          "found_in": [],
+          "fidelity": null
+        }
+      },
+      {
+        "kind": "heading",
+        "unit_id": "h0009",
+        "label": "### Messages and logging",
+        "disposition": null,
+        "target_section": null,
+        "verification_status": null,
+        "excluded_reason": null,
+        "verdict": {
+          "status": "present",
+          "basis": "normalized_heading_or_substring",
+          "found_in": [],
+          "fidelity": null
+        }
+      },
+      {
+        "kind": "heading",
+        "unit_id": "h0010",
+        "label": "## License",
+        "disposition": null,
+        "target_section": null,
+        "verification_status": null,
+        "excluded_reason": null,
+        "verdict": {
+          "status": "present",
+          "basis": "normalized_heading_or_substring",
+          "found_in": [],
+          "fidelity": null
+        }
+      }
+    ],
+    "summary": {
+      "content": {
+        "reframed": 8,
+        "verbatim": 1,
+        "excluded": 4
+      },
+      "structural": {
+        "verbatim": 1
+      },
+      "code": {
+        "api_survived": 2,
+        "verbatim": 10
+      },
+      "heading": {
+        "absorbed": 4,
+        "present": 6
+      }
+    },
+    "needs_attention": []
+  }
+}

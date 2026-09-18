@@ -1,0 +1,48 @@
+feat(example-verification): C3 checkpoint 3 -- faithful Python runner port
+
+Continues taskcard C3 (checkpointed twice already: 21c1281ead toolchain.py,
+dae315b99b acquire.py). Adds runners/python.py: a faithful,
+behavior-preserving port of S-120's real Python verification runner
+(readme_refresh_run.py:4725-5115 -- acquire_python_environment,
+classify_python_failure, run_single_python_block,
+python_block_starts_chain, product_console_scripts, venv_script_path,
+classify_bash_failure, run_bash_block, python_verification_runner).
+Fixture staging reuses acquire.py (already identical between S-120's real
+python/typescript runners before this port).
+
+27 tests: direct behavior tests mirroring S-120's own TC-HARDEN-01 test
+names/shapes, plus 9 direct parity checks that import the real,
+unmodified S-120 functions (readme_refresh_run.rr.*) and assert
+byte-identical output against this port for the same inputs -- including
+python_verification_runner itself end-to-end (stub-path case) and a real,
+local, no-network venv-creation test for acquire_python_environment's
+honest-failure path (mirrors S-120's own
+test_acquire_python_environment_real_venv_unpublished_no_clone_cache). Also
+adds a byte-identical-rerun test (same candidate run twice -> identical
+report) per the stage's own promotion-gate wording.
+
+Adds policy.py::clone_cache_path() (same layout as S-120's
+_product_clone_cache: `{root}/aspose_{family}_{platform}`) since this
+package has no configure()-seam global to read the root from -- the
+caller passes it explicitly; C7's eventual adapter passes S-120's own
+configured root, keeping behavior identical end-to-end.
+
+readme_refresh_run.py and test_readme_refresh_run.py remain untouched;
+C3 stays IN_PROGRESS. Remaining scope: the TypeScript runner
+(_acquire_typescript_environment/typescript_verification_runner,
+readme_refresh_run.py:5144-5426 -- comparable size and risk to the Python
+port just completed).
+
+Note: a concurrent session is actively modifying/deleting
+scripts/seo/workflows/*.yml and adding a deletion-governance-request file
+in this same working tree during this iteration -- confirmed via
+git status diff against this iteration's own dirty-tree baseline (none of
+those paths were dirty at iteration start). Left completely untouched;
+this commit's --files list is scoped to exactly the 4 paths above via the
+isolated-index plumbing tool, which never touches anything outside that
+list.
+
+Mission: MT065-2026-09-06-EXAMPLE-VERIFICATION-CENTRALIZATION
+Taskcards: C3 (checkpoint, not closed)
+
+Co-Authored-By: Claude Sonnet 5 <noreply@anthropic.com>

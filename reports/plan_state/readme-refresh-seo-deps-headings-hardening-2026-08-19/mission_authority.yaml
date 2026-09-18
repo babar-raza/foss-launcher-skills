@@ -1,0 +1,62 @@
+mission_authority:
+  mission_id: readme-refresh-seo-deps-headings-hardening-2026-08-19
+  mission_summary: 'User-reported investigation of 3 quality defects in reports/repo-presenter-regen-full/3d/net/readme.md
+    (Key Capabilities not using available SEO keywords from keywords/3d.json; Dependencies
+    section thinner/less structured than recently-improved pdf/* candidates; Additional
+    Examples with no per-example headings), with an explicit mandate to fix the governing
+    readme-refresh (S-120) machinery, not just hand-edit the one candidate. All 3 confirmed
+    real by direct source inspection. Investigation additionally surfaced a 4th, larger,
+    portfolio-wide root cause the user did not name: dependency_extract.py''s native_system
+    category (feeding the mandatory "### Native and System Requirements" Dependencies
+    subsection) is populated for exactly 1 of 7 ecosystems (Go) -- .NET/Rust/Python/npm/Maven
+    have zero native/language-version extraction despite the type system and rendering
+    contract already existing. On explicit user follow-up ("deepreassess", production
+    standard, no shortcuts), scope was confirmed to include all 4 defects plus a durable,
+    cross-rerun-consistent design (a checks-module-currency staleness tripwire, since
+    3d/net''s own "audit_portfolio -> clean:true" result from earlier today, 2026-08-19,
+    was true only against the checks that existed at that moment -- nothing in the system
+    currently flags that a candidate''s "clean" certification has gone stale relative to
+    checks added since). This mission is standalone: the existing readme-disposition-remediation-2026-08-18
+    mission is explicitly out of scope for touching readme_refresh_checks.py/readme_refresh_run.py
+    or reports/repo-presenter-regen-full/ (its own mission_authority.yaml out_of_scope_items),
+    so this work cannot be filed under it. Root MISSION_AUTHORITY.yaml currently holds an
+    unrelated, live mission (concurrent-toasting-biscuit, Phase 0 bootstrap) -- overwriting
+    it would destroy that in-progress work, so this mission''s contract is written directly
+    to its own reports/plan_state/ directory without ever touching the root file, following
+    the exact precedent readme-disposition-remediation-2026-08-18 already established for
+    the same reason.'
+  governing_plan_path: '<local-plan-cache>/soft-hatching-anchor.md'
+  current_phase: 'Complete 2026-08-19T11:26:51Z-12:15Z: all 17 taskcards (TC-SDH-00..17) CLOSED. The 8 remaining TC-SDH-06 impact-matrix products (pdf/cpp, pdf/java, pdf/python, slides/java, slides/net, slides/python, 3d/typescript, barcode/python) each received exactly the fix their own row required -- verified via a full-battery isolation check per product (target gates clear, zero unexplained new findings). One self-caused bullet-formatting defect was found and fixed during verification (pdf/cpp). A significant, unplanned structural finding was also surfaced and disclosed (not fixed, out of scope): editing any already-published-state candidate flips off the readme_already_published preservation-tracking bypass, exposing pre-existing disposition-family staleness unrelated to this mission -- confirmed real by grepping the live clone-cache README.md files, which already carry the same defects verbatim on GitHub today for 6 of the 8 products.'
+  in_scope_outcomes:
+  - 'TC-SDH-01: native-system dependency extraction added for nuget/cargo/pypi/npm/maven (Go already had it), plus the _select_main_csproj OutputType tie-break fix found in the same review pass'
+  - 'TC-SDH-02: check_dependency_section_subheadings_present hard gate (Required/Optional/Native and System Requirements/Development Dependencies contract)'
+  - 'TC-SDH-03: seo_keyword_placement_plan factpack field + check_seo_keyword_plan_usage heuristic (lexical-overlap evidence that filtered SEO keywords were actually used, never a hard keyword-count gate)'
+  - 'TC-SDH-04: check_additional_example_headings hard gate (one real, non-generic, unique heading per worked example)'
+  - 'TC-SDH-05: checks-module-currency staleness tripwire (CHECKS_MODULE_VERSION + last-verified.json field + advisory finding)'
+  - 'TC-SDH-06: portfolio impact assessment via audit-portfolio --json, read-only, after the new checks land'
+  - 'TC-SDH-07: regenerate 3d/net -- Key Capabilities, Dependencies, Additional Examples headings only; every other section byte-identical'
+  - 'TC-SDH-08: idempotency proof, full validation battery, final 13-point report per the mission spec'
+  - 'TC-SDH-09..16: apply the exact fix(es) the TC-SDH-06 impact matrix identified to pdf/cpp, pdf/java, pdf/python, slides/java, slides/net, slides/python, 3d/typescript, barcode/python -- one taskcard per product, each touching only its flagged section(s)'
+  - 'TC-SDH-17: verify all 8 products clean under the new hard gates, diff-prove no unrelated section changed on any of them, final batch report'
+  out_of_scope_items:
+  - Pushing, opening a PR, or approving any candidate -- every regenerated candidate stays local-only
+  - Regenerating any candidate OTHER than the 8 named in TC-SDH-09..16 above (superseded 2026-08-19T11:26:51Z for exactly these 8; still out of scope for the rest of the ~30-product portfolio)
+  - Building the MT056 acceptance-registry/declare-scope/accept-blocks scope-lock machinery for 3d/net -- not needed, 3d/net has no acceptance-registry.json today
+  - Resolving TC-HARDEN-47 (3d/net's live upstream README republication, open since 2026-08-05) -- flagged as a natural next step, not executed here
+  - Adding an example-workflows.json structured sidecar for Additional Examples -- deliberately recommended against (TC-MICRO-02 disposition-drift precedent cited in the plan); validation is against the rendered Markdown directly instead
+  - Any change to MISSION_AUTHORITY.yaml (root), data/readme_candidate_store.json, or content/
+  mandatory_acceptance_criteria:
+  - Every new check_* function has scoped tests in test_readme_refresh_checks.py / test_dependency_extract.py, run and green
+  - 3d/net's regenerated Key Capabilities, Dependencies, and Additional Examples all pass the new hard gates
+  - audit_portfolio(family=3d, platform=net) reports clean/zero hard-gate findings on the regenerated candidate
+  - Every unrelated 3d/net section is byte-identical before/after (diffed, not assumed)
+  - A second regeneration of the same 3 sections with unchanged inputs reaches the same structural/gate-passing state (exact LLM prose wording is a disclosed, pre-existing non-goal)
+  - root MISSION_AUTHORITY.yaml is byte-identical before and after this mission
+  - No target product repository (Aspose.3D-FOSS-for-.NET or any other) is pushed to or otherwise modified
+  - Each of the 8 named products (TC-SDH-09..16) changes ONLY the section(s) its own impact-matrix row flagged -- diff-proven per product, same discipline as TC-SDH-07
+  - Every new fact written into any of the 8 products is re-verified against that product's own pinned clone cache, never copied from the investigation report without a fresh check
+  - audit_portfolio re-run per product after each fix reports clean for that product's own previously-flagged hard gate(s)
+  - No target repository (any of the 8 products') is pushed to or otherwise modified
+  mission_locked: false
+  _archive_status: open
+  _archived_at: '2026-08-19T10:09:25Z'

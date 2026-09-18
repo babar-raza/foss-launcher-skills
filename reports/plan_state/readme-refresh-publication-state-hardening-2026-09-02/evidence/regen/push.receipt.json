@@ -1,0 +1,17 @@
+{
+  "branch": "readme-refresh/2026-09-03",
+  "default_branch": "master",
+  "commit_sha": "158f2eea5e8a355fc11639f8ceee38761e63aa44",
+  "declared_files": [
+    "README.md"
+  ],
+  "dry_run": false,
+  "prepared_at": "2026-09-03T07:12:13.380751Z",
+  "pr_url": "https://github.com/aspose-3d-foss/Aspose.3D-FOSS-for-Python/pull/3",
+  "target_authority": "canonical",
+  "target_authority_signals": {
+    "zero_parent_head": false,
+    "orphan_root_count": 2,
+    "mirror_text_hit": false
+  }
+}

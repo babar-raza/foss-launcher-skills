@@ -1,0 +1,10 @@
+{
+  "unaided_finding_id": "FND-tex-python-005",
+  "root_cause_id": "RC-tex-python-06",
+  "task_id": "TC-tex-python-05-BLOG-CONTENT-FIX",
+  "system_fix_diff_ref": "no separate system-layer diff -- RC-tex-python-06 (audit.py vs content_eval coverage gap) is documented as a machinery finding but not itself remediated in this batch; content-only fix (both PyPI claims removed, Supported Formats table corrected)",
+  "regen_command": "S-73 manual-edit, commit e42275e5d8",
+  "verification_before_hash": "21ba77fbe36cf6458aee905545d6f1f8eeafa7e03bfa4a63909c35f3e71ce261",
+  "verification_after_hash": "1b405ddee6776b9e736f43a04b3c3ee6764c35ff67e9ae62f62197634f452529",
+  "agentic_consumption_recheck_passed": true
+}

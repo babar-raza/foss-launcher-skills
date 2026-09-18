@@ -1,0 +1,48 @@
+fix(example-verification): C6 fast-follow -- fix a real stale-file provenance bug the independent reviewer found
+
+An independent reviewer (ACCEPT WITH NOTES) confirmed commit 907ba11f62
+(C6's snippet code_sha256 field) is correctly scoped and non-regressive,
+but found one real, addressable bug:
+
+_promote_snippets's code_sha256 computation gated on
+`(merged_snip / src_file).exists()` -- the COPY DESTINATION -- rather than
+on this run's actual scout source. promote_atomic() seeds the staging
+merged/ dir via shutil.copytree of the PRIOR promotion's output before
+calling promote() (promote.py's own atomic-swap design), and snippet
+filenames are purely positional (snippet_NNN, reused run-over-run for
+completely different content). So if this run's scout is missing a file
+the index still references -- a real, already-anticipated path (the very
+next line already guarded the copy itself against it) -- a same-named
+leftover file from the PRIOR run could still be sitting in merged_snip,
+and the old code would silently hash that stale leftover and stamp it as
+this run's verified content. That directly undermines the "verify at the
+source" guarantee the whole field exists to provide.
+
+Fix: hash from `scout_snip / src_file` (this run's actual data), gated on
+the exact same condition that triggers the copy itself, so code_sha256 can
+never be computed from anything but a file this run genuinely just copied.
+
+New regression test,
+test_promote_snippets_does_not_hash_a_stale_leftover_in_merged_dir:
+pre-seeds merged_dir with a same-named stale file, points the scout index
+at a filename absent from THIS run's scout, and asserts no code_sha256 is
+stamped and the stale file itself is left untouched. Confirmed mechanically
+real: reverted the promote.py fix locally, re-ran this one test, watched it
+fail with the exact stale hash getting stamped, then restored the fix and
+confirmed it passes again.
+
+Also hardened launch_gate.py:997 per the reviewer's minor note:
+`proof.get("tier", 0)` -> `proof.get("tier") or 0`, so a future sweep that
+ever writes an explicit `"tier": null` can't raise TypeError on the `<`
+comparison (unreachable today -- no sweep writes execution_proof yet --
+but a one-line, zero-risk hardening while the code is already open).
+
+Verification: all 191 tests across test_promote_*.py (all 7 suites, now
+including the new regression test) + test_gate_l01_l07.py +
+test_launch_gate.py pass. check_monkeypatch_lint.py: 0 violations on every
+changed file.
+
+Mission: MT065-2026-09-06-EXAMPLE-VERIFICATION-CENTRALIZATION
+Taskcards: C6 (checkpoint, not closed)
+
+Co-Authored-By: Claude Sonnet 5 <noreply@anthropic.com>

@@ -1,0 +1,377 @@
+{
+  "_reviewer_note": "ROUND 2. Built by a fresh, independent reviewer session (9167fa07-9d6d-4083-9594-83a7ecf01812), distinct from both the sealing/reconciling session (e2e5e67b-0183-4cc6-b0b0-2e0b6d8898cf) and the original round-1 reviewer session (cfc338a6-f38c-45e9-8671-9a2437ff98e8). This bundle starts from the round-1 adversarial-evidence-bundle.json verbatim and updates only A-05 and A-09, the two probes round 1 found as BLOCKER, after independently re-verifying the real repair work landed. A-01..A-04, A-06..A-08, A-10..A-12 are carried forward unchanged from round 1 except a short round-2 follow-up annotation added to A-10 (see below) -- their underlying git state for tex/python content has not changed since 2026-08-25, and A-10/A-12 were spot-re-verified live on 2026-08-26 and still hold.",
+
+  "A-01": {
+    "products_scoped": ["tex/python"],
+    "products_with_unaided_repo_summary": ["tex/python"],
+    "products_with_unaided_content_findings": ["tex/python"]
+  },
+
+  "A-02": {
+    "unaided_first_verdict": "VIOLATED",
+    "override_present": true,
+    "_reviewer_verification": "Independently confirmed the override's factual basis: runs/.clone_cache/aspose_tex_python HEAD is 2f4bfab3863e66ef32868f5464685eb4c2d36911 (matches pinned model_sha exactly), `git status --short` in that clone is clean (no tracked-file changes), and 6 __pycache__ dirs exist under the clone (_engine, _fonts, _input, _output, top-level, tests) -- matching the override's claimed side effect of running py_compile during unaided-content review. The override is a real, disclosed, verifiable exception, not a fabricated excuse."
+  },
+
+  "A-03": {
+    "orphan_finding_ids": [],
+    "_reviewer_verification": "Read reports/blind_spot_audit/bsa-20260825T015217Z-bfb996a32dfe/evidence-blind-spots.json directly: orphan_finding_ids is [] in the source artifact itself. All 8 FND + 4 SFND ids appear in either the classified rows or the unclassified_issue_types list."
+  },
+
+  "A-04": {
+    "root_causes": [
+      {
+        "root_cause_id": "RC-tex-python-01",
+        "layer": "script",
+        "file_ref": "scripts/pipeline/lib/grade_writer.py:244",
+        "_reviewer_verification": "Line 244 is `def write_grade(` -- confirmed audit.py has zero references to grade-writing (grep confirmed no import of grade_writer in audit.py's call path)."
+      },
+      {
+        "root_cause_id": "RC-tex-python-02",
+        "layer": "script",
+        "file_ref": "scripts/pipeline/content_eval/evaluators/install_recipe.py:491",
+        "_reviewer_verification": "Real line inside the FAIL-message construction for the unpublished-package check. NOTE: this root cause was later SUPERSEDED by RC-tex-python-06 (the diagnosis that install_recipe.py needed extending was wrong -- it already had _verify_publish_channel_claims; the real gap was audit.py vs content_eval tool coverage). Included here for historical completeness/transparency, not as a currently-actionable root cause."
+      },
+      {
+        "root_cause_id": "RC-tex-python-03",
+        "layer": "prompt",
+        "file_ref": "skills/page-update.md:72",
+        "_reviewer_verification": "Confirmed via git show e42275e5d8 -- skills/page-update.md: the curation-check text was really added at this location. Cross-checked skills/new-docs-index.md:107-118 and skills/new-products-page.md:102-108 contain the equivalent added text (grep -n exported_via_package_init confirms all 3 + the pre-existing skills/new-docs-page.md:141 and skills/new-kb-howto.md:143)."
+      },
+      {
+        "root_cause_id": "RC-tex-python-04",
+        "layer": "script",
+        "file_ref": "scripts/pipeline/extraction/api_surface.py:637",
+        "_reviewer_verification": "Line 637 is `def _strip_string_prefix_and_quotes(text: str) -> str:` -- read the full function body directly: `_STRING_PREFIX_RE = re.compile(r'^[a-zA-Z]{1,2}(?=[\"\\'])')` (line 634) correctly matches a 1-2 letter raw/byte prefix immediately followed by a quote char, strips it, then applies the original .strip(\"\\\"' \\n\\r\") -- independently confirmed this correctly handles r\"\"\"...\"\"\" by manual regex trace, not just by trusting the passing tests."
+      },
+      {
+        "root_cause_id": "RC-tex-python-05",
+        "layer": "script",
+        "file_ref": "scripts/pipeline/content_eval/evaluators/_reachability.py:3",
+        "_reviewer_verification": "_reachability.py's module docstring documents RC-W1-004's 'reachable' signal, which is what api_completeness/private_api_usage build on -- confirmed by reading the file that none of the existing reachability logic ever calls py_compile or attempts an import; the new module_compilability.py evaluator (registered EXPERIMENTAL at config.py:44,100 and evaluators/__init__.py:82, all independently confirmed present) is the first to do so."
+      },
+      {
+        "root_cause_id": "RC-tex-python-06",
+        "layer": "data",
+        "file_ref": "scripts/pipeline/commands/content/audit.py:50",
+        "_reviewer_verification": "Line 50 is `from audit.runner import main` -- confirmed by grep that audit.py has zero content_eval imports anywhere in the file, verifying the taskcard's claim that audit.py and content_eval are separate, non-overlapping tools."
+      }
+    ]
+  },
+
+  "A-05": {
+    "fix_plan_items": [
+      {
+        "root_cause_id": "RC-tex-python-01",
+        "options": [
+          {
+            "correctness": "high: matches the already-correct pattern used by installation.md and MT028's TC-03 fix for the identical defect class",
+            "scope": "narrow: 2 files, shortcode substitution only (3 occurrences total: 1 on docs index, 2 on products index)",
+            "maintainability": "good: uses the existing {{< package-install >}} shortcode mechanism, no new code",
+            "risk": "low",
+            "repeatability": "high -- same fix pattern applies to any future unpublished-package-install-claim finding",
+            "verification_cost": "low: audit.py re-run is deterministic and already proved these exact 3 lines as the FAIL locations",
+            "selected": true
+          },
+          {
+            "correctness": "medium: could instead wait and let a full batch_reference regeneration pass naturally correct these pages as part of a broader refresh",
+            "scope": "broad: would touch the entire product's generated pages, not just the 2 affected files",
+            "maintainability": "n/a until a broader regen is actually scheduled",
+            "risk": "medium: a full regen this early in the campaign risks masking whether the targeted fix alone was sufficient, and delays a clearly-scoped P0 fix behind unrelated work",
+            "repeatability": "n/a",
+            "verification_cost": "medium: would require verifying the entire regenerated page set, not just these 3 lines",
+            "selected": false
+          }
+        ],
+        "_reviewer_source": "reports/plan_state/.../batch1-tex-python/fix-plan-evidence.json (formal S-122 fix-plan phase, both options recorded at authoring time -- never insufficient, RE-CONFIRMED live in round 2)"
+      },
+      {
+        "root_cause_id": "RC-tex-python-02",
+        "options": [
+          {
+            "correctness": "high: closes the exact evasion path this finding demonstrates (prose assertion instead of a command pattern) at the evaluator layer, not just the one instance",
+            "scope": "medium: one evaluator function extended, plus a regression test, plus the one affected content file corrected",
+            "maintainability": "good: reuses the same verification.published check the command-pattern path already relies on",
+            "risk": "low: additive check, does not change existing command-pattern detection behavior",
+            "repeatability": "high: will catch this defect class on any of the remaining 30 products without further manual discovery",
+            "verification_cost": "medium: needs a new regression test fixture (a page asserting publication in prose for an unpublished package) in addition to re-running audit.py",
+            "selected": true
+          },
+          {
+            "correctness": "low: fixes only the one instance found, leaves the systemic evasion path open for the other 30 products in this campaign",
+            "scope": "narrow: content-only edit",
+            "maintainability": "n/a",
+            "risk": "low short-term, but defers a known-real gap that this campaign's own root-cause pass already surfaced",
+            "repeatability": "none -- the same defect must be manually rediscovered per product",
+            "verification_cost": "low",
+            "selected": false
+          }
+        ],
+        "_reviewer_source": "reports/plan_state/.../batch1-tex-python/fix-plan-evidence.json (formal S-122 fix-plan phase, both options recorded at authoring time -- never insufficient, RE-CONFIRMED live in round 2)"
+      },
+      {
+        "root_cause_id": "RC-tex-python-03",
+        "options": [
+          {
+            "approach": "Propagate the exact proven exported_via_package_init/public_import_module instruction from new-docs-page.md to the 3 sibling skills, then fix the 2 already-affected pages",
+            "correctness": "high: reuses a pattern already validated by MT028's real fix, not a new design",
+            "scope": "narrow: 3 skill files + 2 content files",
+            "maintainability": "good: single source-of-truth pattern repeated verbatim",
+            "risk": "low",
+            "repeatability": "high -- same instruction text, easy to re-verify via grep",
+            "verification_cost": "low: grep -c on the 3 files + audit.py on the 2 pages",
+            "selected": true
+          },
+          {
+            "approach": "Build a single shared, importable curation-check module (e.g. a Python helper all 6 content-generation skills call) instead of duplicating the instruction text 4 times across skill docs",
+            "correctness": "higher long-term (single source of truth, no drift risk)",
+            "scope": "much broader: skills aren't code, they're LLM-prompt markdown -- would require redesigning how generation skills consult shared logic, not a text edit",
+            "maintainability": "best in theory, but no existing mechanism for skills to import shared prompt-logic exists in this repo",
+            "risk": "medium-high: novel mechanism, no precedent, larger blast radius for a single taskcard",
+            "repeatability": "n/a until built",
+            "verification_cost": "high: would need new tooling + tests for the mechanism itself",
+            "selected": false
+          }
+        ],
+        "_reviewer_repair_verification": "A-05 REPAIR VERIFIED LIVE (round 2): round 1 correctly found this root cause had only 1 option anywhere. reports/plan_state/.../batch1-tex-python/a05_repair.py was run against the real TaskcardStore (retroactive append, recorded_by=e2e5e67b-0183-4cc6-b0b0-2e0b6d8898cf, recorded_at=2026-08-26T05:59:47.111286Z). Independently re-read TaskcardStore('MT037-2026-08-24-FOSS-PORTFOLIO-FORENSIC-HEAL').read_latest()['TC-tex-python-01-PROPAGATE-IMPORT-FIX']['options'] myself (fresh session, not trusting a05_repair.py's own claim) and confirmed exactly these 2 options are present verbatim, each with all 6 required axes (correctness, scope, maintainability, risk, repeatability, verification_cost) plus 'approach'/'selected'. Real, landed, not fabricated."
+      },
+      {
+        "root_cause_id": "RC-tex-python-04",
+        "options": [
+          {
+            "approach": "Fix _extract_doc_comment's quote-stripping to also strip a leading raw-string prefix, add a regression test, patch the one affected knowledge-model doc field directly, then regenerate only the dependent pages via batch_reference.py",
+            "correctness": "high: fixes the exact root cause with a minimal, well-tested change",
+            "scope": "narrow: 2 lines of production code + 1 knowledge field + 6 regenerated pages, all within tex/python",
+            "maintainability": "good: isolated helper function, clear regression test",
+            "risk": "low",
+            "repeatability": "high -- the same fix protects every future extraction across all 31 products",
+            "verification_cost": "low: 6 new unit tests + existing 40 api_surface tests re-run clean",
+            "selected": true
+          },
+          {
+            "approach": "Run a full re-scout (S-34 repo-scout) for tex/python to regenerate the entire knowledge model fresh with the fixed extraction code, instead of hand-patching the one affected field",
+            "correctness": "high in principle (fully authoritative regeneration)",
+            "scope": "very broad: knowledge_delta.json already showed 138 pending API changes and 520 pending claim changes for this product -- a full re-scout would pull all of that in, unreviewed, as a side effect of a docstring fix",
+            "maintainability": "n/a -- one-time regeneration, doesn't reduce future risk",
+            "risk": "high: would import 138+520 unrelated, unreviewed changes into a narrowly-scoped bug-fix taskcard",
+            "repeatability": "n/a",
+            "verification_cost": "very high: would require reviewing every one of the unrelated pending changes before trusting the result",
+            "selected": false
+          }
+        ],
+        "_reviewer_repair_verification": "A-05 REPAIR VERIFIED LIVE (round 2): independently re-read TaskcardStore.read_latest()['TC-tex-python-02-DOCSTRING-RPREFIX']['options'] myself and confirmed exactly these 2 options are present verbatim with all 6 axes."
+      },
+      {
+        "root_cause_id": "RC-tex-python-05",
+        "options": [
+          {
+            "approach": "Add a new, narrowly-scoped module_compilability evaluator (Python-only, py_compile-based) registered EXPERIMENTAL per GRADE_CONTRACT.md section 6, verified live against the real tex/python defect",
+            "correctness": "high: directly closes the exact proven gap (no evaluator checks whether a cited module can be imported at all)",
+            "scope": "narrow: 1 new evaluator file + registration + tests, Python-only",
+            "maintainability": "good: follows the exact BaseEvaluator/configure() seam conventions already established by sibling evaluators",
+            "risk": "low: EXPERIMENTAL registration means it cannot affect any page's canonical grade until a maintainer graduates it after 14+ days corpus-wide validation",
+            "repeatability": "high -- protects all 31 products going forward, not just tex/python",
+            "verification_cost": "low: 6 new unit tests + live reproduction of the real tex/python defect",
+            "selected": true
+          },
+          {
+            "approach": "Build full multi-language compilability checking (javac, csc, g++, go build, rustc) in the same taskcard, so every platform is covered from day one, not just Python",
+            "correctness": "would be more complete",
+            "scope": "very broad: requires verifying toolchain availability across 5+ languages in this evaluation environment, plus per-language invocation/parsing logic",
+            "maintainability": "unclear until each toolchain's real behavior in this environment is investigated",
+            "risk": "high: could silently fail or behave inconsistently if a toolchain isn't actually installed here, and there's no evidence yet that any non-Python product has this exact defect class",
+            "repeatability": "n/a until built and proven",
+            "verification_cost": "very high: would need real fixtures and environment verification per language before trusting any of it",
+            "selected": false
+          }
+        ],
+        "_reviewer_repair_verification": "A-05 REPAIR VERIFIED LIVE (round 2): independently re-read TaskcardStore.read_latest()['TC-tex-python-03-COMPILE-CHECK-GAP']['options'] myself and confirmed exactly these 2 options are present verbatim with all 6 axes."
+      },
+      {
+        "root_cause_id": "RC-tex-python-06",
+        "options": [
+          {
+            "approach": "Fix the 2 false PyPI-publication prose claims and the unverifiable Supported Formats table directly on the one affected blog post; leave the deeper audit.py-vs-content_eval coverage gap as a documented, disclosed machinery finding rather than fixing it inline",
+            "correctness": "high for the immediate defect; content_eval independently confirms the install_recipe FAILs are fully resolved",
+            "scope": "narrow: 1 content file",
+            "maintainability": "n/a -- content fix, not a mechanism change",
+            "risk": "low",
+            "repeatability": "n/a to this specific claim (the underlying evaluator-coverage gap is tracked separately, not fixed by this option)",
+            "verification_cost": "low: content_eval evaluate confirms install_recipe FAILs gone (format_truth FAILs on unrelated prose remain, disclosed separately)",
+            "selected": true
+          },
+          {
+            "approach": "Additionally wire gap-eval (or audit.py) to always dispatch to the full content_eval evaluator suite, closing the coverage gap that let this false claim survive undetected, as part of this same taskcard",
+            "correctness": "would close the real root cause, not just the symptom",
+            "scope": "very broad: affects every product's system-review pass campaign-wide, not just this one blog post",
+            "maintainability": "good in principle, but needs its own careful design (which evaluators, what performance cost, how it interacts with gap-eval's tier system) -- not a same-taskcard afterthought",
+            "risk": "medium: changing what tooling runs by default for every product is a campaign-wide behavior change that deserves its own dedicated investigation, not a rider on a single blog-post content fix",
+            "repeatability": "high once built, but not appropriately scoped to build inside this taskcard",
+            "verification_cost": "high: would need corpus-wide validation before trusting the new default dispatch",
+            "selected": false
+          }
+        ],
+        "_reviewer_repair_verification": "A-05 REPAIR VERIFIED LIVE (round 2): independently re-read TaskcardStore.read_latest()['TC-tex-python-05-BLOG-CONTENT-FIX']['options'] myself and confirmed exactly these 2 options are present verbatim with all 6 axes. All 6 root causes now have >=2 fully-scored options; probe_a05_solution_options_missing should return zero bad items."
+      }
+    ]
+  },
+
+  "A-06": {
+    "taskcards": [
+      {
+        "task_id": "TC-BSA-bsa-20260825T015217Z-bfb996a32dfe-01",
+        "allowed_paths": ["content/docs.aspose.org/en/tex/python/_index.md", "content/products.aspose.org/en/tex/python/_index.md"],
+        "verification_commands": ["PYTHONPATH=scripts/pipeline .venv/Scripts/python scripts/pipeline/commands/content/audit.py --files content/docs.aspose.org/en/tex/python/_index.md content/products.aspose.org/en/tex/python/_index.md"],
+        "rollback": "git checkout HEAD -- content/docs.aspose.org/en/tex/python/_index.md content/products.aspose.org/en/tex/python/_index.md"
+      },
+      {
+        "task_id": "TC-tex-python-01-PROPAGATE-IMPORT-FIX",
+        "allowed_paths": ["skills/page-update.md", "skills/new-docs-index.md", "skills/new-products-page.md", "content/docs.aspose.org/en/tex/python/_index.md", "content/products.aspose.org/en/tex/python/_index.md"],
+        "verification_commands": ["grep -c exported_via_package_init skills/page-update.md skills/new-docs-index.md skills/new-products-page.md"],
+        "rollback": "git checkout HEAD -- skills/page-update.md skills/new-docs-index.md skills/new-products-page.md content/docs.aspose.org/en/tex/python/_index.md content/products.aspose.org/en/tex/python/_index.md"
+      },
+      {
+        "task_id": "TC-tex-python-02-DOCSTRING-RPREFIX",
+        "allowed_paths": ["scripts/pipeline/extraction/api_surface.py", "content/reference.aspose.org/en/tex/python/_index.md", "content/reference.aspose.org/en/tex/python/TeXOptions.md"],
+        "verification_commands": ["PYTHONPATH=scripts/pipeline .venv/Scripts/python -m pytest scripts/pipeline/tests/test_api_surface_docstring_prefix.py -v"],
+        "rollback": "git checkout HEAD -- scripts/pipeline/extraction/api_surface.py content/reference.aspose.org/en/tex/python/_index.md content/reference.aspose.org/en/tex/python/TeXOptions.md"
+      },
+      {
+        "task_id": "TC-tex-python-03-COMPILE-CHECK-GAP",
+        "allowed_paths": ["scripts/pipeline/content_eval/evaluators/", "scripts/pipeline/tests/content_eval/"],
+        "verification_commands": ["PYTHONPATH=scripts/pipeline .venv/Scripts/python -m pytest scripts/pipeline/tests/content_eval/test_module_compilability.py -v"],
+        "rollback": "git checkout HEAD -- scripts/pipeline/content_eval/evaluators/"
+      },
+      {
+        "task_id": "TC-tex-python-05-BLOG-CONTENT-FIX",
+        "allowed_paths": ["content/blog.aspose.org/tex/python/introducing-tex-foss-python/index.md"],
+        "verification_commands": ["PYTHONPATH=scripts/pipeline .venv/Scripts/python -m scripts.pipeline.content_eval evaluate --files content/blog.aspose.org/tex/python/introducing-tex-foss-python/index.md --format json"],
+        "rollback": "git checkout HEAD -- content/blog.aspose.org/tex/python/introducing-tex-foss-python/index.md"
+      }
+    ]
+  },
+
+  "A-07": {
+    "taskcards": [
+      {"task_id": "TC-BSA-bsa-20260825T015217Z-bfb996a32dfe-01", "status": "PILOT_PROVEN", "root_cause_id": "RC-tex-python-01"},
+      {"task_id": "TC-tex-python-01-PROPAGATE-IMPORT-FIX", "status": "PILOT_PROVEN", "root_cause_id": "RC-tex-python-03"},
+      {"task_id": "TC-tex-python-02-DOCSTRING-RPREFIX", "status": "PILOT_PROVEN", "root_cause_id": "RC-tex-python-04"},
+      {"task_id": "TC-tex-python-03-COMPILE-CHECK-GAP", "status": "PILOT_PROVEN", "root_cause_id": "RC-tex-python-05"},
+      {"task_id": "TC-tex-python-05-BLOG-CONTENT-FIX", "status": "PILOT_PROVEN", "root_cause_id": "RC-tex-python-06"}
+    ],
+    "root_cause_ids": ["RC-tex-python-01", "RC-tex-python-02", "RC-tex-python-03", "RC-tex-python-04", "RC-tex-python-05", "RC-tex-python-06"],
+    "_reviewer_note": "Re-confirmed live in round 2: real current taskcards.jsonl status for all 5 in-scope cards is still PILOT_PROVEN, not CLOSED -- the S-123 lifecycle's `close` command (run AFTER adversarial-review passes) is what will set CLOSED. This probe is honestly vacuous at this stage (zero CLOSED cards to check yet), same as round 1 -- not a fabricated pass."
+  },
+
+  "A-08": {
+    "changed_content_paths": [
+      "content/docs.aspose.org/en/tex/python/_index.md",
+      "content/products.aspose.org/en/tex/python/_index.md",
+      "content/blog.aspose.org/tex/python/introducing-tex-foss-python/index.md",
+      "content/reference.aspose.org/en/tex/python/_index.md",
+      "content/reference.aspose.org/en/tex/python/DviDevice.md",
+      "content/reference.aspose.org/en/tex/python/OutputDevice.md",
+      "content/reference.aspose.org/en/tex/python/PdfDevice.md",
+      "content/reference.aspose.org/en/tex/python/SvgDevice.md",
+      "content/reference.aspose.org/en/tex/python/TeXJob.md",
+      "content/reference.aspose.org/en/tex/python/TeXOptions.md"
+    ],
+    "attributed_content_paths": [
+      "content/docs.aspose.org/en/tex/python/_index.md",
+      "content/products.aspose.org/en/tex/python/_index.md",
+      "content/blog.aspose.org/tex/python/introducing-tex-foss-python/index.md",
+      "content/reference.aspose.org/en/tex/python/_index.md",
+      "content/reference.aspose.org/en/tex/python/DviDevice.md",
+      "content/reference.aspose.org/en/tex/python/OutputDevice.md",
+      "content/reference.aspose.org/en/tex/python/PdfDevice.md",
+      "content/reference.aspose.org/en/tex/python/SvgDevice.md",
+      "content/reference.aspose.org/en/tex/python/TeXJob.md",
+      "content/reference.aspose.org/en/tex/python/TeXOptions.md"
+    ],
+    "_reviewer_verification": "Independently derived changed_content_paths from `git show e42275e5d8 --stat` (995e1a303f touches zero content/ paths -- confirmed, it's evaluator-only). The 3 manually-edited pages (docs-index, products-index, blog) each have a real reports/manual-edits/2026-08-25-*.json S-73 record. The 7 reference pages were NOT hand-edited: reports/generation/tex-python.yaml records a real batch_reference.py run (generated_at: 2026-08-25T08:19:06Z, pages_updated: 6, model_sha matches pinned commit) -- and that exact timestamp appears verbatim as content_created_at in the regenerated TeXOptions.md frontmatter, independently proving the pipeline (not a human) wrote these 7 files. All 10 changed content paths trace to a recorded mechanism; none are unattributed hand-edits. Re-confirmed round 2: `git log` shows no further content/ commits for tex/python since e42275e5d8 -- this list is still complete."
+  },
+
+  "A-09": {
+    "taskcards": [
+      {
+        "task_id": "TC-BSA-bsa-20260825T015217Z-bfb996a32dfe-01",
+        "layer": "script",
+        "regeneration_required": true,
+        "system_heal_evidence_at": null,
+        "content_regen_evidence_at": "2026-08-25T08:08:00Z"
+      },
+      {
+        "task_id": "TC-tex-python-01-PROPAGATE-IMPORT-FIX",
+        "layer": "prompt",
+        "regeneration_required": true,
+        "system_heal_evidence_at": "2026-08-25T04:18:28.365530Z",
+        "content_regen_evidence_at": "2026-08-25T08:07:00Z"
+      },
+      {
+        "task_id": "TC-tex-python-02-DOCSTRING-RPREFIX",
+        "layer": "script",
+        "regeneration_required": true,
+        "system_heal_evidence_at": "2026-08-25T04:18:28.365530Z",
+        "content_regen_evidence_at": "2026-08-25T08:19:06Z"
+      },
+      {
+        "task_id": "TC-tex-python-03-COMPILE-CHECK-GAP",
+        "layer": "script",
+        "regeneration_required": false
+      },
+      {
+        "task_id": "TC-tex-python-05-BLOG-CONTENT-FIX",
+        "layer": "data",
+        "regeneration_required": true,
+        "system_heal_evidence_at": null,
+        "content_regen_evidence_at": "2026-08-25T08:13:00Z"
+      }
+    ],
+    "_reviewer_note": "A-09 PROBE FIX VERIFIED LIVE (round 2): scripts/pipeline/lib/forensic_heal/adversarial_probes.py's probe_a09_wrong_order (git commit 25c5355ec2, 'fix(forensic-heal): A-09 probe ignored root-cause layer, flagging legitimate content-only fixes') now exempts any taskcard whose layer is NOT in sprint_state.SYSTEM_LAYERS ({script, prompt, validator, governance_doc, skill}) from the heal-before-regen ordering check -- 'data' and missing/unrecognized layers are exempt, matching sprint_state.check_system_before_content_gate's own established rule. I independently re-read each of these 5 taskcards' real 'layer' field from TaskcardStore('MT037-2026-08-24-FOSS-PORTFOLIO-FORENSIC-HEAL').read_latest() myself (not trusting the taskcard_bridge/A-04 narrative): TC-BSA-01=script, TC-tex-python-01=prompt, TC-tex-python-02=script, TC-tex-python-03=script, TC-tex-python-05=data. All 5 match A-04's root-cause layer values exactly (RC-01=script, RC-03=prompt, RC-04=script, RC-05=script, RC-06=data). With these layer values now present: TC-tex-python-05 (layer=data) is now correctly EXEMPT and drops out of the probe's 'bad' list entirely -- it is no longer flagged, which is the intended fix (its fix-plan always disclosed no system-layer diff exists for a data-layer root cause). TC-tex-python-03 has regeneration_required=false so it was never evaluated either way. TC-BSA-01 (layer=script, a genuine SYSTEM_LAYERS card) is NOT exempt and correctly remains flagged: system_heal_evidence_at is honestly null because there really is no system-layer fix for this taskcard -- its fix-plan (RC-tex-python-01) deliberately chose a content-only remediation over ever wiring audit.py to grade_writer.py, and that gap is still genuinely open today. This is the accepted, disclosed outcome, not something this round's evidence rebuild should or does paper over. Expected probe result after this update: bad=['TC-BSA-bsa-20260825T015217Z-bfb996a32dfe-01'] only -- still a real BLOCKER for this one card, DISPROVEN_WITH_EVIDENCE is not achievable for it without either fabricating a system-heal timestamp (refused) or actually wiring the script-layer fix (out of this batch's scope)."
+  },
+
+  "A-10": {
+    "taskcards": [
+      {
+        "task_id": "TC-BSA-bsa-20260825T015217Z-bfb996a32dfe-01",
+        "regeneration_required": true,
+        "before_hash": "5874140454436b46c132caff13cd2cff",
+        "after_hash": "2f52e108e400c9d53a1aceeb2ed05150"
+      },
+      {
+        "task_id": "TC-tex-python-01-PROPAGATE-IMPORT-FIX",
+        "regeneration_required": true,
+        "before_hash": "137713c839",
+        "after_hash": "9ea28c03e6"
+      },
+      {
+        "task_id": "TC-tex-python-02-DOCSTRING-RPREFIX",
+        "regeneration_required": true,
+        "before_hash": "8d149ec6ab4f30392f445ba3d57e3234",
+        "after_hash": "055a6791a955f5dd64f140d25421c42f"
+      },
+      {
+        "task_id": "TC-tex-python-03-COMPILE-CHECK-GAP",
+        "regeneration_required": false
+      },
+      {
+        "task_id": "TC-tex-python-05-BLOG-CONTENT-FIX",
+        "regeneration_required": true,
+        "before_hash": "c09c2785e70138dc6964264b3d491c29",
+        "after_hash": "0db81ad47f550736f35776248ff7b126"
+      }
+    ],
+    "_reviewer_finding_content_hash_blind_spot": "IMPORTANT REAL FINDING (round 1, carried forward): content/products.aspose.org/en/tex/python/_index.md's own `content_hash` frontmatter field is IDENTICAL before and after commit e42275e5d8 (e3b0c44298fc1c149afbf4c8996fb924 both times), even though `git show e42275e5d8 -- content/products.aspose.org/en/tex/python/_index.md` proves the file's real content changed substantially (pip-install text removed, Font Management block rewritten, InputReader->InputSource). Root cause: compute_content_hash() in scripts/pipeline/lib/provenance.py hashed only the page BODY text after the closing frontmatter fence; this 'plugin' layout page type has NO body at all, so content_hash always equalled sha256('')[:32] regardless of what actually changed inside the frontmatter fields. For TC-tex-python-01's before/after pair above I substituted the real git blob SHA of the whole file (137713c839 -> 9ea28c03e6) instead of the page's own content_hash, specifically to avoid reporting a false pass.",
+    "_reviewer_followup_round2": "GENUINE CHANGE FOUND during round-2 spot check, per the task's own instruction to briefly re-verify A-10: commit 22e199dfc4 ('fix(pipeline): harden backlink backfill and provenance content-hash handling', authored 2026-08-26T12:23:16+05:00, i.e. AFTER round 1's review) rewrote compute_content_hash() to explicitly cite this exact gap -- its new docstring literally names 'RC-tex-python-07 (MT037 blind-spot audit, adversarial review)' and adds a fallback: when the normalized body is empty but a frontmatter block exists, it now hashes the frontmatter text itself instead of returning a constant. I independently read the new function body (scripts/pipeline/lib/provenance.py:319-345) and confirmed the fallback is real and correctly gated (only activates when body is empty; pages with real body content are unaffected). This means round 1's own finding was acted on and repaired at the system level by a separate commit -- but it is NOT part of this MT037 batch's 5 in-scope taskcards (no taskcard here claims RC-tex-python-07, and the content/products.aspose.org/en/tex/python/_index.md frontmatter's on-disk content_hash field still shows the stale, pre-fix value e3b0c44298fc1c149afbf4c8996fb924, since nothing has re-run the hash computation against that file since the fix landed). Reporting this as a real, out-of-band positive development, not altering this batch's before/after hash values (which already correctly avoided the bug via the git-blob-SHA workaround) or this probe's disposition."
+  },
+
+  "A-11": {
+    "hardening_items": [],
+    "_reviewer_note": "This batch (MT037 Batch 1, tex/python) has no distinct hardening phase separate from its 5 taskcards -- unlike missions that add a dedicated post-fix hardening pass, this campaign's scope was find-and-fix for one product. Using an honest empty list rather than inventing hardening claims, per the task's own guidance for this case. Unchanged from round 1."
+  },
+
+  "A-12": {
+    "pilot_chain_links": [true, true, true, true, true, true, true],
+    "_reviewer_verification": "Round 1 independently ran `forensic_heal_sprint_run.py pilot-check --chain-file ...` against all 5 real chain files (tc01.json, tc05.json, tc-propagate.json, tc-docstring.json, tc-compilecheck.json) on 2026-08-26. All 5 returned {resolved: true} with all 7 links (unaided_finding, root_cause, taskcard, system_fix_diff, regen_command, verification_artifact_pair, agentic_consumption_recheck) true. RE-VERIFIED LIVE AGAIN in round 2 (2026-08-26, this session): re-ran pilot-check against the same 5 real chain files myself; identical result, all 5 still {resolved: true, links all true}. scripts/pipeline/lib/forensic_heal/pilot_chain.py has had no commits since its original authoring (git log confirms only the initial feature commit ec697d2944), so the mechanism itself is unchanged. CAVEAT (unchanged from round 1): pilot_chain.resolve_pilot_chain()'s 'system_fix_diff' link only checks that system_fix_diff_ref is a non-empty string -- it does NOT verify the string describes an actual system-layer diff. tc01.json's and tc05.json's system_fix_diff_ref fields are non-empty strings that literally say 'no separate system-layer diff in this batch' -- which mechanically satisfies this link's bool() check while being, in substance, the same disclosed gap flagged under A-09 for TC-BSA-01 (tc05's own case, TC-tex-python-05, is now correctly exempted by the A-09 fix since its root cause is layer=data). Reporting both the literal (true) result and this caveat rather than hiding it."
+  }
+}

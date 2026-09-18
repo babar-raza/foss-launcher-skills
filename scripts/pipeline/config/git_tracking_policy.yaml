@@ -44,6 +44,20 @@ policies:
       - type: literal
         names: ["install-defect-sweep-latest"]
 
+  - root: reports/plan_state
+    type: whole_subtree
+    description: >
+      TC-GOV-01 (MT071-2026-09-17-GOVERNANCE-DURABILITY-HARDENING, D1 decision): the durable
+      mission/taskcard ledger (schema 5f) is git-ignored and exists only on whichever single
+      machine last touched it -- invisible to concurrent sessions, unrecoverable if that
+      machine's state is lost. Unlike reports/audit or reports/repo-presenter-regen-full, its
+      child mission directories are unbounded and grow weekly, not a small stable enumerable
+      set -- hence type: whole_subtree, not family_glob/literal (no keep: list -- this type
+      tracks its entire root wholesale, per resolve_keep_names()'s own contract). Every
+      embedded local-machine absolute path was redacted first
+      (redact_plan_state_paths.py --fix, TC-GOV-01-02/-03) so no operator-specific path ever
+      enters git history.
+
   - root: reports/repo-presenter-regen-full
     description: >
       Per-family repo-presenter README-refresh disposition/audit trail

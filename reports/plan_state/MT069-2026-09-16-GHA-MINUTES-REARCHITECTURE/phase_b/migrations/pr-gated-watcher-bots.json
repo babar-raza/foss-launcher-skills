@@ -1,0 +1,44 @@
+{
+  "batch": "4 auto-commit watcher bots converted to PR-gated public execution",
+  "decision_basis": "Explicit user decision, 2026-09-17: convert to PR-gated rather than keep auto-commit or skip. upstream-monitor.yml migrated too despite its separate defect, believed at the time to be an unresolved PAT gap (issue #94) -- migration did not fix or worsen it, confirmed live. CORRECTED 2026-09-18: the defect was never a PAT gap -- a missing-clone-cache bug in repo_patrol.py's cmd_sweep(), fixed in Aspose/aspose.org commit 72821fbb4a. The migrated public copy picks up the fix automatically (fresh checkout of Aspose/aspose.org on every run).",
+  "state": "CANARY_CONFIRMED",
+  "deployed_commit_sha": "05cc241976eb60974e2b71b3e7f0dedd271129f4",
+  "deployed_commit_parent": "0ec7865fa7723b41742b77406b3a3606cb2ec2a8",
+  "workflows": [
+    {
+      "name": "maven-publish-watcher.yml",
+      "run_id": 35258684339,
+      "run_url": "https://github.com/Aspose/aspose.org-workflows/actions/runs/35258684339",
+      "result": "Clean pass, no changes detected this run -- PR-open step correctly skipped (conditional on wrote_changes)."
+    },
+    {
+      "name": "package-publish-watch.yml",
+      "run_id": 35258694339,
+      "run_url": "https://github.com/Aspose/aspose.org-workflows/actions/runs/35258694339",
+      "result": "Real finding: PR #99 opened on Aspose/aspose.org (data/package_registry.json, 11 additions/10 deletions). Confirmed via `gh pr view 99` -- correctly scoped diff, correct body, not merged (human-authority boundary respected)."
+    },
+    {
+      "name": "install-literal-sweep.yml",
+      "run_id": 35258703879,
+      "run_url": "https://github.com/Aspose/aspose.org-workflows/actions/runs/35258703879",
+      "result": "PR #100 opened on Aspose/aspose.org (durable sweep report). sync_tracked_issues step correctly skipped (zero findings this run -- confirmed via gh issue list, nothing new)."
+    },
+    {
+      "name": "upstream-monitor.yml",
+      "run_id": 35258714456,
+      "run_url": "https://github.com/Aspose/aspose.org-workflows/actions/runs/35258714456",
+      "result": "Most thorough proof of the 4: real drift found -> PR #103 opened (fleet freshness snapshot) AND deduped issues #101/#102 correctly filed on Aspose/aspose.org (not the public repo) AND the job correctly self-failed (by design, surfaces drift in notifications) AND the sweep step's fetch_failures reproduced identically (33/33, unchanged in shape from the private original) -- confirms migration neither fixed nor worsened the underlying defect. CORRECTED 2026-09-18: that defect was never issue #94's believed PAT gap -- it was a missing-clone-cache bug in repo_patrol.py's cmd_sweep(), now fixed in Aspose/aspose.org commit 72821fbb4a. The public copy here needs no redeployment to pick up the fix."
+    }
+  ],
+  "private_originals": {
+    "action_taken": "all 4 flipped from schedule to workflow_dispatch-only",
+    "not_deleted": true,
+    "not_enabled_or_disabled_via_api": true,
+    "committed": false,
+    "note": "UNCOMMITTED as of this record, same open-precondition pattern flagged for every other private-side edit this mission."
+  },
+  "not_migrated_this_batch": {
+    "ci-eval-consistency.yml": "Partial-split candidate, not a pure copy -- push/PR leg must stay private, only the schedule leg (which currently no-ops anyway per TC-03's own finding) would move. Genuinely different mechanism, not attempted here.",
+    "launch-dashboard.yml": "Partial-split candidate AND separately REQUIRES_REDESIGN (100% failure, missing pip install step) -- migrating a broken workflow doesn't fix it. Not attempted here; fix the defect first."
+  }
+}

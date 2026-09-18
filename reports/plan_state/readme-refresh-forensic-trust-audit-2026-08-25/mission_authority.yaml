@@ -1,0 +1,102 @@
+mission_authority:
+  mission_id: readme-refresh-forensic-trust-audit-2026-08-25
+  mission_summary: 'Manual, evidence-backed forensic audit of the readme-refresh (S-120)
+    system: how it was designed/implemented, what machinery it actually uses, what
+    candidate/published READMEs it has produced across all 31 registered products
+    (data/products.json), how accurate/useful/complete/consistent/maintainable those
+    outputs are, which defects are product-specific vs systemic, why existing validators
+    failed to catch confirmed defects, and what must be repaired before autonomous
+    recurring use. Audit-and-planning only: no remediation, no portfolio regeneration,
+    no writes to target product repositories during this mission. Bounded diagnostic
+    experiments to prove root cause are allowed; the audited baseline (current candidate
+    tree at reports/repo-presenter-regen-full/, current published READMEs) must be
+    preserved throughout. Triggered because docs/readme-refresh/current-operational-reference.md''s
+    ''30/30 clean, 0 dirty'' closure claim (dated 2026-08-20) was independently re-verified
+    live on 2026-08-25 and found false: pdf/net, pdf/cpp, pdf/go, and pdf/java are
+    currently dirty (pdf/net alone: 167 content_unit_excerpt_matches_extraction findings),
+    and the doc''s own §13 self-consistency check (a sha256 pin on its supporting
+    out-of-repo plan file) fails right now. Governing plan file authored via Claude
+    Code Plan Mode.'
+  governing_plan_path: <local-plan-cache>/mission-forensic-audit-shimmering-shore.md
+  current_phase: 'Phase 1 (Baseline & Governance Reconciliation) in progress: mission
+    contract archived, conflict check clear, corrected per-product audit-portfolio
+    baseline underway.'
+  in_scope_outcomes:
+  - 'Phase 1: hand-authored mission contract + taskcard store bound (this file); mission_authority.py
+    status --json conflict check recorded; corrected, dated, per-product audit-portfolio
+    snapshot superseding the stale 30/30 claim; seed findings for already-known drift
+    filed as AUD-* cards.'
+  - 'Phase 2: complete stage-by-stage implementation/dependency-closure map and intended-vs-implemented
+    contract matrix for readme_refresh_run.py, readme_refresh_checks.py, dependency_extract.py,
+    upstream_issue_workflow.py.'
+  - 'Phase 3: full output inventory plus per-product four-way manual review (original
+    README / current upstream README / generated candidate / published README) for
+    all 31 registered products, cross-checked against clone-cache source and knowledge
+    artifacts.'
+  - 'Phase 4: validator-effectiveness matrix mapping every confirmed defect to the
+    check_* function(s) that should have caught it; test/oracle coverage census.'
+  - 'Phase 5: systemic failure clustering and root-cause analysis for every confirmed
+    occurrence, tracing to the earliest responsible pipeline stage.'
+  - 'Phase 6: prioritized remediation plan (immediate corrections / shared-machinery
+    blockers / hardening / product-specific / deferred) with canary+rollout plan for
+    a separate follow-on remediation mission; four required go/no-go verdicts (continued
+    local generation, human review, republishing, autonomous scheduling).'
+  - 'Phase 7: final report assembly, mechanical closeout proofs, confirmation no target
+    repository was modified, mission_authority.py close.'
+  out_of_scope_items:
+  - Any remediation, fix, or content edit to a readme-refresh candidate, published
+    README, or target product repository during this mission -- confirmed findings
+    become RC-* taskcards for a separate follow-on remediation mission, never fixed
+    inline.
+  - Any write to root MISSION_AUTHORITY.yaml -- that slot is currently occupied by
+    a live, unrelated, in-progress mission (MT037-2026-08-24-FOSS-PORTFOLIO-FORENSIC-HEAL,
+    auditing website content, not readme-refresh). This mission's contract is hand-authored
+    directly at its final archive location instead, per the readme-refresh mission
+    line's own established precedent for root-slot contention (docs/readme-refresh/plan-system-forensic-reconciliation.md
+    Decision D-15).
+  - Portfolio-wide regeneration of any kind -- this mission explicitly does not propose
+    or execute another blind portfolio regen; the canary/rollout plan produced in
+    Phase 6 is for a separate future mission to execute.
+  mandatory_acceptance_criteria:
+  - 'Every AUD-* taskcard bound to this mission_id reaches CLOSED (meaning: review/matrix/report
+    produced and evidence filed, never ''defect fixed'') or an explicitly documented
+    BLOCKED_LOCAL/BLOCKED_EXTERNAL/OUT_OF_SCOPE exception.'
+  - 'Every RC-* taskcard remains at TODO, BLOCKED_LOCAL, BLOCKED_EXTERNAL, or OUT_OF_SCOPE
+    for this mission''s entire life -- never IMPLEMENTED or any status beyond it.
+    Mechanically checkable: no RC-* row in taskcards.jsonl may show a status outside
+    {TODO, BLOCKED_LOCAL, BLOCKED_EXTERNAL, OUT_OF_SCOPE} at mission close.'
+  - 'Phase 1''s corrected baseline table is independently reproducible: re-running
+    audit-portfolio --family X --platform Y --json for any product matches the filed
+    AUD-P1-BASELINE result at time of filing.'
+  - Every finding in Phases 3-5 cites an exact evidence path (file+line, or command+output),
+    never a paraphrase.
+  - git status / git log against every target product's clone cache and any reports/readme_refresh_runs/_scratch/*
+    push clones shows no new pushes, no new PRs, and no candidate-tree writes beyond
+    this mission's own gitignored reports/plan_state/ audit trail.
+  - Final report states explicit go/no-go verdicts for continued local candidate generation,
+    human review, republishing existing candidates, and autonomous scheduled execution,
+    each traceable to a specific Phase 1-6 finding.
+  conflicts_found:
+  - 'Checked live via mission_authority.py status --json (2026-08-25, this session):
+    locks: [] (empty); skill_context.legacy: null, skill_context.sessions: {} (no
+    active skill-context scope held by any session). 4 sessions show status=active
+    (400003e6-5fb1-4cff-8b82-84975a40e2b4, 4f8dfe4c-73cb-4102-afb7-9f8ee97b4ae5, a2fdb8ba-3ca1-4e5a-a9b1-eb9fdce5dd02
+    [this session], e2e5e67b-0183-4cc6-b0b0-2e0b6d8898cf) but none hold a lock or
+    skill-context scope overlapping readme-refresh paths (scripts/pipeline/commands/foss/readme_refresh*.py,
+    reports/repo-presenter-regen-full/, reports/readme_refresh_runs/, reports/plan_state/readme-refresh-forensic-trust-audit-2026-08-25/).'
+  - 'Root MISSION_AUTHORITY.yaml confirmed occupied by MT037-2026-08-24-FOSS-PORTFOLIO-FORENSIC-HEAL
+    (mission_locked: false, current_phase mid-Batch-1 tex/python), an unrelated S-122/S-123
+    website-content audit whose own out_of_scope_items do not mention readme-refresh
+    paths. This mission deliberately does not open the root slot (see out_of_scope_items
+    above) -- no conflict with MT037''s live work.'
+  - 'ListAgents (this session''s own peer-session listing, not a repo-queryable manifest)
+    showed two offline session titles suggestive of related prior work (''readme-refresh
+    surgical idempotency audit'', ''Graph-native autonomous README mission state machine
+    v2''). Session titles are not persisted in any repo-queryable store, so this cannot
+    be verified or reconciled against repo state -- recorded here as an acknowledged,
+    unverifiable signal rather than silently ignored. Mitigating control: re-run mission_authority.py
+    status --json at the start of each later phase/session of this mission.'
+  mission_locked: false
+  _archive_status: closed
+  _archived_at: '2026-08-25T13:45:00Z'
+  _closed_at: '2026-08-25T21:54:51Z'

@@ -1,0 +1,19 @@
+{
+  "unaided_findings": [
+    {"finding_id": "FND-tex-python-001", "family": "tex", "platform": "python", "page": "docs.aspose.org/en/tex/python/_index.md", "issue_type": "unpublished_package_install_claim", "verdict": "FAIL"},
+    {"finding_id": "FND-tex-python-002", "family": "tex", "platform": "python", "page": "docs.aspose.org/en/tex/python/_index.md", "issue_type": "private_import_notice", "verdict": "FAIL"},
+    {"finding_id": "FND-tex-python-003a", "family": "tex", "platform": "python", "page": "reference.aspose.org/en/tex/python/_index.md", "issue_type": "raw_docstring_leak", "verdict": "FAIL"},
+    {"finding_id": "FND-tex-python-003b", "family": "tex", "platform": "python", "page": "reference.aspose.org/en/tex/python/TeXOptions.md", "issue_type": "raw_docstring_leak", "verdict": "FAIL"},
+    {"finding_id": "FND-tex-python-004", "family": "tex", "platform": "python", "page": "products.aspose.org/en/tex/python/_index.md", "issue_type": "unpublished_package_install_claim", "verdict": "FAIL"},
+    {"finding_id": "FND-tex-python-005", "family": "tex", "platform": "python", "page": "blog.aspose.org/tex/python/introducing-tex-foss-python/index.md", "issue_type": "false_publication_claim", "verdict": "FAIL"},
+    {"finding_id": "FND-tex-python-006", "family": "tex", "platform": "python", "page": "products.aspose.org/en/tex/python/_index.md", "issue_type": "private_import_notice", "verdict": "FAIL"},
+    {"finding_id": "FND-tex-python-007", "family": "tex", "platform": "python", "page": "docs.aspose.org/en/tex/python/getting-started/quickstart.md", "issue_type": "load_format_inconsistency", "verdict": "FAIL"},
+    {"finding_id": "FND-tex-python-008", "family": "tex", "platform": "python", "page": "docs.aspose.org/en/tex/python/_index.md", "issue_type": "source_does_not_compile", "verdict": "FAIL"}
+  ],
+  "system_findings": [
+    {"finding_id": "SFND-tex-python-001", "family": "tex", "platform": "python", "page": "docs.aspose.org/en/tex/python/_index.md", "issue_type": "unpublished_package_install_claim", "verdict": "FAIL"},
+    {"finding_id": "SFND-tex-python-002", "family": "tex", "platform": "python", "page": "products.aspose.org/en/tex/python/_index.md", "issue_type": "unpublished_package_install_claim", "verdict": "FAIL"},
+    {"finding_id": "SFND-tex-python-003", "family": "tex", "platform": "python", "page": "blog.aspose.org/tex/python/_index.md", "issue_type": "stale_evidence", "verdict": "FAIL"},
+    {"finding_id": "SFND-tex-python-004", "family": "tex", "platform": "python", "page": "docs.aspose.org/en/tex/python/_index.md", "issue_type": "missing_optional_page", "verdict": "FAIL"}
+  ]
+}

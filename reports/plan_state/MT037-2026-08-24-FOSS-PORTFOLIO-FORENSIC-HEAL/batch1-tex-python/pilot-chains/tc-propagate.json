@@ -1,0 +1,10 @@
+{
+  "unaided_finding_id": "FND-tex-python-002",
+  "root_cause_id": "RC-tex-python-03",
+  "task_id": "TC-tex-python-01-PROPAGATE-IMPORT-FIX",
+  "system_fix_diff_ref": "e42275e5d8 (skills/new-docs-index.md, skills/new-products-page.md, skills/page-update.md + 6 provider mirrors)",
+  "regen_command": "S-73 manual-edit for the 2 affected pages, same commit e42275e5d8",
+  "verification_before_hash": "7eb4f15784ef4d2b394aac8433401c4acf46ca71885c63c935b2d7ebdd94f40c",
+  "verification_after_hash": "92857d2f455536d08d760f35ff3ab3054d7cb16a27f5b94d3e317876f47e8711",
+  "agentic_consumption_recheck_passed": true
+}

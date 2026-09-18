@@ -1,0 +1,85 @@
+{
+  "generated_at_utc": "2026-09-17T07:00:00Z",
+  "mission_id": "MT069-2026-09-16-GHA-MINUTES-REARCHITECTURE",
+  "taskcard": "MT069-TC-05-FAILURE-SIGNATURE-ANALYSIS",
+  "source": "gh api repos/Aspose/aspose.org/actions/runs (read-only, --paginate), 1767 runs retrieved covering 2026-03-26 through 2026-09-14 (172 days -- retention window is NOT a limiting factor, contrary to the mission's original planning assumption). Sample failure logs pulled via gh api .../jobs and .../logs for the highest-impact workflows.",
+  "retention_finding": "This repo's Actions run-history retention extends at least 172 days back (2026-03-26), far beyond the ~90-day default many orgs use. TC-04's 'check the retention window' action item is resolved: retention is not a constraint on this mission's analysis.",
+  "per_workflow_september_window": {
+    "note": "Filtered to 2026-09-01..2026-09-18 to match the real usage-cost export exactly (TC-04). Run counts here match the usage export's run counts 1:1 where comparable, confirming data consistency across sources.",
+    "rows": [
+      {"workflow": "Content Governance Checks", "runs": 200, "success": 102, "failure": 98, "failure_rate_pct": 49.0},
+      {"workflow": "Skill Governance", "runs": 40, "success": 0, "failure": 40, "failure_rate_pct": 100.0},
+      {"workflow": "SEO Pipeline Tests", "runs": 41, "success": 27, "failure": 14, "failure_rate_pct": 34.1},
+      {"workflow": "Launch Dashboard", "runs": 14, "success": 0, "failure": 14, "failure_rate_pct": 100.0},
+      {"workflow": "Upstream Drift Monitor", "runs": 1, "success": 0, "failure": 1, "failure_rate_pct": 100.0},
+      {"workflow": "LLMs Output Regeneration", "runs": 89, "success": 89, "failure": 0, "failure_rate_pct": 0.0},
+      {"workflow": "Example Verification Tests", "runs": 22, "success": 22, "failure": 0, "failure_rate_pct": 0.0},
+      {"workflow": "Backlink Compliance Watch", "runs": 13, "success": 13, "failure": 0, "failure_rate_pct": 0.0},
+      {"workflow": "aspose.com Targets Watch", "runs": 13, "success": 13, "failure": 0, "failure_rate_pct": 0.0},
+      {"workflow": "Package Publish Watch", "runs": 13, "success": 13, "failure": 0, "failure_rate_pct": 0.0},
+      {"workflow": "Maven Publish Watcher", "runs": 13, "success": 13, "failure": 0, "failure_rate_pct": 0.0},
+      {"workflow": "Eval Rerun Consistency", "runs": 11, "success": 11, "failure": 0, "failure_rate_pct": 0.0},
+      {"workflow": "Reference Index Structure", "runs": 6, "success": 6, "failure": 0, "failure_rate_pct": 0.0},
+      {"workflow": "ACT Pipeline Tests", "runs": 6, "success": 6, "failure": 0, "failure_rate_pct": 0.0},
+      {"workflow": "Extraction Pipeline", "runs": 5, "success": 5, "failure": 0, "failure_rate_pct": 0.0},
+      {"workflow": "SEO Weekly Analysis", "runs": 1, "success": 1, "failure": 0, "failure_rate_pct": 0.0}
+    ]
+  },
+  "full_history_march_to_september": {
+    "note": "172-day view. Several workflows show recent improvement or degradation vs. the September-only snapshot above -- both windows are informative.",
+    "rows": [
+      {"workflow": "Content Governance Checks", "runs": 446, "success": 175, "failure": 271, "failure_rate_pct": 60.8},
+      {"workflow": "Skill Governance", "runs": 303, "success": 51, "failure": 252, "failure_rate_pct": 83.2},
+      {"workflow": "Launch Dashboard", "runs": 58, "success": 0, "failure": 58, "failure_rate_pct": 100.0},
+      {"workflow": "Upstream Drift Monitor", "runs": 15, "success": 1, "failure": 14, "failure_rate_pct": 93.3},
+      {"workflow": "Content API Audit", "runs": 13, "success": 3, "failure": 10, "failure_rate_pct": 76.9, "note": "Dead trigger (never fires now) -- these are historical runs from before the push-only convention solidified"},
+      {"workflow": "SEO Weekly Analysis", "runs": 7, "success": 1, "failure": 6, "failure_rate_pct": 85.7},
+      {"workflow": "Metrics Governance", "runs": 22, "success": 7, "failure": 15, "failure_rate_pct": 68.2},
+      {"workflow": "Package Publish Watch", "runs": 45, "success": 28, "failure": 17, "failure_rate_pct": 37.8},
+      {"workflow": "SEO Pipeline Tests", "runs": 41, "success": 27, "failure": 14, "failure_rate_pct": 34.1},
+      {"workflow": "Eval Rerun Consistency", "runs": 93, "success": 76, "failure": 17, "failure_rate_pct": 18.3, "note": "0/11 failures in September -- recently stable, historical issues resolved"},
+      {"workflow": "ACT Pipeline Tests", "runs": 55, "success": 44, "failure": 11, "failure_rate_pct": 20.0},
+      {"workflow": "LLMs Output Regeneration", "runs": 362, "success": 362, "failure": 0, "failure_rate_pct": 0.0},
+      {"workflow": "Reference Index Structure", "runs": 87, "success": 87, "failure": 0, "failure_rate_pct": 0.0},
+      {"workflow": "Maven Publish Watcher", "runs": 51, "success": 51, "failure": 0, "failure_rate_pct": 0.0},
+      {"workflow": "Extraction Pipeline", "runs": 62, "success": 58, "failure": 4, "failure_rate_pct": 6.5},
+      {"workflow": "Cross-Repo Index Sync", "runs": 11, "success": 11, "failure": 0, "failure_rate_pct": 0.0},
+      {"workflow": "Backlink Compliance Watch", "runs": 22, "success": 22, "failure": 0, "failure_rate_pct": 0.0},
+      {"workflow": "Example Verification Tests", "runs": 22, "success": 22, "failure": 0, "failure_rate_pct": 0.0},
+      {"workflow": "aspose.com Targets Watch", "runs": 42, "success": 41, "failure": 1, "failure_rate_pct": 2.4}
+    ]
+  },
+  "root_cause_investigation": [
+    {
+      "workflow": "Skill Governance",
+      "finding": "100% failure rate in September (40/40 runs) is driven entirely by the REQUIRED 'enforce-venv-python' job (the soft-launched, continue-on-error Windows job is unrelated to overall run conclusion). Sampled run 34629171322 (2026-09-11): the 'Run governance test suite' step fails with '1 failed, 1594 passed, 44 skipped' -- a SINGLE deterministic test assertion failure (kind: value_mismatch), not flakiness: registry.PLATFORM_CONTRACT declares 6 platforms (python, go, net, java, rust, cpp) for the example_verification site, but platform_capabilities.yaml has no corresponding row for any of them.",
+      "classification": "PRODUCT_DEFECT (a real content-pipeline configuration gap: platform_capabilities.yaml is missing rows the registry contract declares) -- NOT a CI workflow defect, NOT flaky, NOT a dependency outage.",
+      "cost_impact": "This single unfixed config gap is directly responsible for a 100% failure rate on the #3 cost driver (326 min/21.8% of total this period) -- every one of those minutes was spent on a run that was always going to fail.",
+      "scope_note": "Fixing platform_capabilities.yaml is outside MT069's mandate (GH Actions cost/infra, not content-pipeline configuration) -- flagging for separate attention, not fixing here. Self-hosting (MT069-PHB-07) does not fix or worsen this -- the same test will fail at the same rate regardless of where the job runs."
+    },
+    {
+      "workflow": "Content Governance Checks",
+      "finding": "49% failure rate in September (98/200 runs) is NOT a single recurring bug -- sampled 3 different failed runs and found 3 DIFFERENT blocking causes: run 34681458190 blocked on 'check_evaluator_version_bump.py' (scripts/pipeline/content_eval/evaluators/description_completeness.py changed without a version bump); run 34630174372 blocked on the same check but a different evaluator (capability_claim_check.py); run 34638073599 failed for a different reason not yet isolated. DIFF_BASE (the parent-commit comparison point) correctly varies per run -- ruled out a stuck/broken diff-base as the cause.",
+      "classification": "PROCESS_DISCIPLINE_GAP, not a CI/workflow defect -- the check is correctly catching real evaluator-version-bump policy violations at a high, recurring rate, suggesting whoever/whatever edits scripts/pipeline/content_eval/evaluators/*.py (likely multiple concurrent agent sessions, per this repo's own documented concurrency hazards) frequently forgets to bump EVALUATOR_VERSIONS.",
+      "cost_impact": "A failed push here likely gets fixed and re-pushed (bump added), meaning each real logical change can cost 2x the CI minutes (one failing run, one passing re-run) on the #1 cost driver (546 min/36.5% of total).",
+      "scope_note": "Also outside MT069's mandate to fix (a content-pipeline authoring-discipline issue, not a GH Actions infra issue). Same self-hosting note as above: hosting location doesn't change this failure rate."
+    },
+    {
+      "workflow": "Launch Dashboard",
+      "finding": "100% failure rate, all recorded history (58/58 historical, 14/14 in September) -- this workflow has never once succeeded.",
+      "classification": "CORRECTED TWICE, same day (2026-09-18). Pass 1 disproved 'missing pip install' (zero third-party imports, runs fine locally) and wrongly concluded this was a healthy gate correctly reporting real gaps. Pass 2, after actually dispatching the migrated schedule leg on a real fresh checkout, found the true root cause: launch_dashboard.py's real inputs (reports/phase_state.json, reports/human-review/**, reports/**/readiness.md) are gitignored, cumulative local state (project_phase_store.py) never available in ANY fresh checkout. Real dispatched result: NO REPORT: 33/33, Gaps: 99 -- not the 2-gap result the local-only test showed. CONFIRMED_DEFECT stands, but for a structural data-availability reason, not a missing pip-install crash and not 'healthy, no defect' either.",
+      "cost_impact": "Low (17 min/1.1% of total) -- 100% of this cost currently produces a report with zero real content.",
+      "scope_note": "ORIGINAL (superseded): candidate for a quick, safe fix (add the missing pip install step) IF launch_dashboard.py has third-party dependencies -- still needs that source verification per HP-11's original deferral reasoning, not done in this pass. RESOLUTION (2026-09-18, two passes): no dependencies exist, so no pip-install fix was ever relevant; the real fix is a script-level redesign (stop depending on gitignored local state) or retiring this as a CI job entirely -- neither attempted here, see dossiers/launch-dashboard.md for full detail and the two-pass correction history."
+    },
+    {
+      "workflow": "Upstream Drift Monitor",
+      "finding": "93.3% historical failure rate (14/15), 1/1 in the September sample.",
+      "classification": "CORRECTED 2026-09-18: originally classified CONFIRMED_DEFECT per TC-03's HP-05 as a 'PAT gap, issue #94' -- this was a misdiagnosis. Direct source read of repo_patrol.py's cmd_sweep() plus a live repro found the real cause: clone_exists() is a pure filesystem check against the gitignored runs/.clone_cache/, never present on a fresh checkout, with zero token involvement. Fixed in Aspose/aspose.org commit 72821fbb4a (ensure_clone() auto-clone self-heal), tested (78/78 passing), verified live end-to-end.",
+      "cost_impact": "Negligible (2 min/0.1% of total) -- the significance here is correctness/reliability of upstream-drift monitoring, not cost.",
+      "scope_note": "RESOLVED 2026-09-18 -- fixed at the source, not deferred. No human PAT-provisioning decision was ever needed; issue #94 should be closed as a misdiagnosis."
+    }
+  ],
+  "workflows_with_zero_recorded_runs_in_the_full_172_day_history": [
+    "Install Defect Sweep (durability) / install-literal-sweep.yml -- zero runs found in 1767 retrieved records across 172 days. RESOLVED (TC-11 independent review, 2026-09-17; re-verified independently via `git log --follow --diff-filter=A`): NOT 'despite being a weekly-scheduled bot [present the whole time]' -- the workflow was added 2026-09-10 (commit f9cbe210fb), so it was only ever eligible to fire once (Monday 2026-09-14, weekly 11:00 UTC schedule) inside the 172-day window before the mass-disable. Zero recorded runs is fully explained by young file age plus mass-disable timing -- not a broken trigger or a data-pull gap."
+  ]
+}

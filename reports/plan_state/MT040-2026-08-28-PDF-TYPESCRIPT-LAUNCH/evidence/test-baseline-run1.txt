@@ -1,0 +1,725 @@
+........................................................................ [  0%]
+........................................................................ [  1%]
+........................................................................ [  2%]
+........................................................................ [  2%]
+........................................................................ [  3%]
+........................................................................ [  4%]
+........................................................................ [  4%]
+........................................................................ [  5%]
+........................................................................ [  6%]
+........................................................................ [  6%]
+........................................................................ [  7%]
+........................................................................ [  8%]
+........................................................................ [  8%]
+........................................................................ [  9%]
+........................................................................ [ 10%]
+.....................................s.................................. [ 10%]
+........................................................................ [ 11%]
+........................................................................ [ 12%]
+........................................................................ [ 12%]
+........................................................................ [ 13%]
+........................................................................ [ 14%]
+........................................................................ [ 14%]
+........................................................................ [ 15%]
+........................................................................ [ 16%]
+........................................................................ [ 16%]
+........................................................................ [ 17%]
+........................................................................ [ 18%]
+........................................................................ [ 18%]
+....................s................................................... [ 19%]
+........................................................................ [ 20%]
+........................................................................ [ 20%]
+........................................................................ [ 21%]
+........................................................................ [ 22%]
+........................................................................ [ 22%]
+.............s.......................................................... [ 23%]
+..................s..................................................... [ 24%]
+........................................................................ [ 24%]
+........................................................................ [ 25%]
+........................................................................ [ 26%]
+........................................................................ [ 26%]
+........................................................................ [ 27%]
+........................................................................ [ 28%]
+........................................................................ [ 28%]
+........................................................................ [ 29%]
+........................................................................ [ 30%]
+........................................................................ [ 30%]
+........................................................................ [ 31%]
+........................................................................ [ 32%]
+........................................................................ [ 32%]
+........................................................................ [ 33%]
+........................................................................ [ 34%]
+........................................................................ [ 34%]
+........................................................................ [ 35%]
+........................................................................ [ 36%]
+........................................................................ [ 36%]
+........................................................................ [ 37%]
+........................................................................ [ 38%]
+..................................................................F..... [ 38%]
+........................................................................ [ 39%]
+........................................................................ [ 40%]
+........................................................................ [ 40%]
+........................................................................ [ 41%]
+........................................................................ [ 42%]
+.............s.......................................................... [ 42%]
+........................................................................ [ 43%]
+.................ss..................................................... [ 44%]
+........................................................................ [ 44%]
+........................................................................ [ 45%]
+........................................................................ [ 46%]
+........sssss........................................................... [ 46%]
+........................................................................ [ 47%]
+........................................................................ [ 48%]
+........................................................................ [ 48%]
+........................................................................ [ 49%]
+........................................................................ [ 50%]
+........................................................................ [ 50%]
+..........................................sss..ss........ss...s......... [ 51%]
+.....F.................................................................. [ 52%]
+........................................................................ [ 52%]
+........................................................................ [ 53%]
+........................................................................ [ 54%]
+........................................................................ [ 54%]
+........................................................................ [ 55%]
+........................................................................ [ 56%]
+........................................................................ [ 56%]
+........................................................................ [ 57%]
+........................................................................ [ 58%]
+........................................................................ [ 58%]
+........................................................................ [ 59%]
+........................................................................ [ 60%]
+........................................................................ [ 60%]
+........................................................................ [ 61%]
+........................................................................ [ 62%]
+........................................................................ [ 62%]
+........................................................................ [ 63%]
+........................................................................ [ 64%]
+........................................................................ [ 64%]
+........................................................................ [ 65%]
+........................................................................ [ 66%]
+........................................................................ [ 66%]
+........................................................................ [ 67%]
+........................................................................ [ 68%]
+........................................................................ [ 68%]
+........................................................................ [ 69%]
+........................................................................ [ 70%]
+........................................................................ [ 71%]
+........................................................................ [ 71%]
+........................................................................ [ 72%]
+........................................................................ [ 73%]
+........................................................................ [ 73%]
+.....................................................................F.. [ 74%]
+........................................................................ [ 75%]
+........................................................................ [ 75%]
+........................................................................ [ 76%]
+........................................................................ [ 77%]
+........................................................................ [ 77%]
+.............................................................FF.F....... [ 78%]
+........................................................................ [ 79%]
+........................................................................ [ 79%]
+.................................F...................................... [ 80%]
+........................................................................ [ 81%]
+.......................................................sss.....F..FF..FF [ 81%]
+.F.......F.............................................................. [ 82%]
+........................................................................ [ 83%]
+........................................................................ [ 83%]
+........................................................................ [ 84%]
+......................................................................s. [ 85%]
+........................................................................ [ 85%]
+........................................................................ [ 86%]
+........................................................................ [ 87%]
+........................................................................ [ 87%]
+........................................................................ [ 88%]
+........................................................................ [ 89%]
+........................................................................ [ 89%]
+........................................................................ [ 90%]
+........................................................................ [ 91%]
+.......F......F............................................................................... [ 91%]
+........................................................................ [ 92%]
+........................................................................ [ 93%]
+......................................F................................. [ 93%]
+........................................................................ [ 94%]
+........................................................................ [ 95%]
+........................................................................ [ 95%]
+........................................................................ [ 96%]
+........................................................................ [ 97%]
+........................................................................ [ 97%]
+........................................................................ [ 98%]
+........................................................................ [ 99%]
+.......................................................................  [100%]
+================================== FAILURES ===================================
+_____ TestGateL01KnowledgeFreshness.test_fail_when_model_yaml_unparseable _____
+
+self = <test_gate_l01_l07.TestGateL01KnowledgeFreshness object at 0x0000021B157F0180>
+tmp_path = WindowsPath('C:/Users/prora/AppData/Local/Temp/pytest-of-prora/pytest-2337/test_fail_when_model_yaml_unpa0')
+
+    def test_fail_when_model_yaml_unparseable(self, tmp_path):
+        merged = _make_merged(tmp_path)
+        (merged / "model.yaml").write_text(": invalid: yaml: [", encoding="utf-8")
+        result = gate_l01_knowledge_freshness("test", "python")
+        assert result.status == STATUS_FAIL
+>       assert "parse error" in result.detail
+E       AssertionError: assert 'parse error' in 'state=PROVENANCE_MISSING: no merged/model.yaml found for this product -- run S-12->S-14 before launch'
+E        +  where 'state=PROVENANCE_MISSING: no merged/model.yaml found for this product -- run S-12->S-14 before launch' = GateResult(gate_id='L-01', name='Knowledge freshness', status='FAIL', detail='state=PROVENANCE_MISSING: no merged/model.yaml found for this product -- run S-12->S-14 before launch', extra_lines=[]).detail
+
+scripts\pipeline\tests\test_gate_l01_l07.py:101: AssertionError
+_ TestAT16_DocPropagationCheckPasses.test_docs_propagation_strict_passes_live_repo _
+
+self = <test_metrics_autonomous_capture.TestAT16_DocPropagationCheckPasses object at 0x0000021B160A5F90>
+
+    def test_docs_propagation_strict_passes_live_repo(self):
+        """check_metrics_docs_propagation --strict returns exit code 0.
+    
+        Slices 10 and 11 (metrics obligation docs/skill propagation) confirmed
+        complete 2026-06-03: present=46, pending=0, missing=0. Skip gate removed.
+        """
+        result = subprocess.run(
+            [sys.executable,
+             str(_CHECKS_DIR / "check_metrics_docs_propagation.py"),
+             "--strict"],
+            capture_output=True,
+            text=True,
+            cwd=str(_REPO_ROOT),
+        )
+>       assert result.returncode == 0, (
+            f"check_metrics_docs_propagation --strict FAILED:\n{result.stdout}\n{result.stderr}"
+        )
+E       AssertionError: check_metrics_docs_propagation --strict FAILED:
+E         check_metrics_docs_propagation [STRICT]: present=63, pending=5, missing=2, n/a=44
+E           NOTE: 5 item(s) pending Slices 10/11 propagation, 2 missing
+E           FAIL MISSING: docs/governance/forensic-heal-history.md  (Metrics clause expected after Slice 10 (docs propagation))
+E           FAIL MISSING: docs/governance/planning-methodology.md  (Metrics clause expected after Slice 10 (docs propagation))
+E           FAIL PENDING_SLICE_10_11: .claude/commands/blind-spot-audit.md  (LLM-using skill: metrics clause expected after Slice 11)
+E           FAIL PENDING_SLICE_10_11: .claude/commands/blog-release-check.md  (LLM-using skill: metrics clause expected after Slice 11)
+E           FAIL PENDING_SLICE_10_11: .claude/commands/discovery-triage.md  (LLM-using skill: metrics clause expected after Slice 11)
+E           FAIL PENDING_SLICE_10_11: .claude/commands/forensic-heal-sprint.md  (LLM-using skill: metrics clause expected after Slice 11)
+E           FAIL PENDING_SLICE_10_11: .claude/commands/new-kb-faq.md  (LLM-using skill: metrics clause expected after Slice 11)
+E         check_metrics_docs_propagation: FAIL (strict mode)
+E         
+E         
+E       assert 1 == 0
+E        +  where 1 = CompletedProcess(args=['D:\\onedrive\\Documents\\GitHub\\aspose.org\\.venv\\Scripts\\python.exe', 'D:\\onedrive\\Docum...using skill: metrics clause expected after Slice 11)\ncheck_metrics_docs_propagation: FAIL (strict mode)\n', stderr='').returncode
+
+scripts\pipeline\tests\test_metrics_autonomous_capture.py:1001: AssertionError
+__ test_detect_enterprise_link_uses_canonical_override_over_stale_raw_cache ___
+
+tmp_path = WindowsPath('C:/Users/prora/AppData/Local/Temp/pytest-of-prora/pytest-2337/test_detect_enterprise_link_us0')
+
+    def test_detect_enterprise_link_uses_canonical_override_over_stale_raw_cache(tmp_path):
+        # Reproduces the real, confirmed cells/python fix: the override file's own dated policy says
+        # python-net; the raw cached target map (a later, less-explained "manual correction") instead
+        # held python-java. Without loading the override, /readme-refresh silently used the less-
+        # authoritative value -- this proves the fix, not just that the override file parses. The
+        # anchor consequence (MT044) is identical either way -- "Python" -- but the real URL must be
+        # the authoritative one, not the stale cache.
+        repo_root = tmp_path / "repo"
+        repo_root.mkdir()
+        _write_target_map(repo_root, {
+            "products.aspose.com": {
+                "platforms": {
+                    "cells/python-net": {"url": "https://products.aspose.com/cells/python-net/", "http_status": 200},
+                    "cells/python-java": {"url": "https://products.aspose.com/cells/python-java/", "http_status": 200},
+                },
+                "families": {},
+            },
+        })
+        overrides_dir = repo_root / "data" / "backlinks"
+        overrides_dir.mkdir(parents=True)
+        (overrides_dir / "platform_canonical_overrides.yaml").write_text(
+            "overrides:\n"
+            "  cells/python:\n"
+            "    target_platform: \"python-net\"\n"
+            "    http_verified: true\n",
+            encoding="utf-8",
+        )
+        rr.configure(repo_root=repo_root)
+        result = rr._detect_enterprise_link("cells", "python")
+>       assert result["url"] == "https://products.aspose.com/cells/python-net/"
+E       AssertionError: assert None == 'https://products.aspose.com/cells/python-net/'
+
+scripts\pipeline\tests\test_readme_refresh_run.py:910: AssertionError
+________ test_verify_run_writes_page_impact_matrix_and_records_digest _________
+
+tmp_path = WindowsPath('C:/Users/prora/AppData/Local/Temp/pytest-of-prora/pytest-2337/test_verify_run_writes_page_im0')
+
+    def test_verify_run_writes_page_impact_matrix_and_records_digest(tmp_path: Path):
+        """Task 2 (S9.1, closes G7): verify_run() must build and persist the
+        Page-Impact Matrix as part of a normal successful verification, and
+        record its digest in manifest["output_digests"] -- the same pattern
+        already used for the validation.json digest just above it in the code.
+        Also proves the FRESH-001-style repo_root lockstep fix actually works:
+        page_impact_matrix.py must write under tmp_path (this test's own isolated
+        repo_root), never the real checkout -- an earlier version of this wiring
+        silently wrote into the real repo's reports/ tree instead."""
+        manifest = refresh_run.create_run(
+            "pdf", "net", mode="upstream", run_id="RUN-VERIFY-PIM", session_id="session-1",
+        )
+        manifest["target_model_sha"] = MODEL_SHA
+        manifest["target_source_sha"] = MODEL_SHA
+        manifest["scope"]["digest"] = "sha256:scope"
+        manifest["scope"]["paths"] = ["content/docs.aspose.org/en/pdf/net/page.md"]
+        refresh_run._transition(manifest, "PLANNED")
+        refresh_run._transition(manifest, "APPLYING")
+        manifest["receipt_refs"] = ["receipts/RCP-001.yaml"]
+        manifest["page_decision_ref"] = "page_decisions.jsonl"
+        refresh_run._transition(manifest, "VALIDATING")
+        _write_run_evidence(tmp_path, manifest)
+    
+        refresh_run.verify_run(manifest)
+    
+        assert manifest["state"] == "READY_TO_COMMIT"
+        assert manifest["output_digests"]["page_impact_matrix"] is not None
+        assert manifest["output_digests"]["page_impact_matrix"].startswith("sha256:")
+        matrix_path = tmp_path / "reports" / "refresh_review" / "pdf" / "net" / "page_impact_matrix.json"
+        assert matrix_path.is_file()
+        # Real repo's reports/ tree must never have been touched by this test --
+        # this product has no real refresh_runs/pdf/net matrix on disk today.
+        real_repo_root = Path(__file__).resolve().parents[3]
+        real_matrix_path = real_repo_root / "reports" / "refresh_review" / "pdf" / "net" / "page_impact_matrix.json"
+>       assert not real_matrix_path.is_file()
+E       AssertionError: assert not True
+E        +  where True = is_file()
+E        +    where is_file = WindowsPath('D:/onedrive/Documents/GitHub/aspose.org/reports/refresh_review/pdf/net/page_impact_matrix.json').is_file
+
+scripts\pipeline\tests\test_refresh_run.py:2513: AssertionError
+---------------------------- Captured stdout call -----------------------------
+STOP: api_surface.json not found at C:\Users\prora\AppData\Local\Temp\pytest-of-prora\pytest-2337\test_verify_run_writes_page_im0\knowledge\pdf\net\merged\api_surface.json. Run /knowledge-bootstrap pdf net first.
+_______________ test_verify_run_writes_locale_staleness_summary _______________
+
+tmp_path = WindowsPath('C:/Users/prora/AppData/Local/Temp/pytest-of-prora/pytest-2337/test_verify_run_writes_locale_0')
+
+    def test_verify_run_writes_locale_staleness_summary(tmp_path: Path):
+        """Task 11d (§9.8, closes G8/sizes F7): verify_run() must additionally size
+        locale evidence-staleness as an advisory step (same placement/advisory
+        pattern as the Page-Impact Matrix just above), recording a compact summary
+        in manifest["locale_staleness_summary"] and writing the full report under
+        reports/locale_staleness/{family}-{platform}.json -- both under this test's
+        own isolated tmp_path repo_root, never the real checkout."""
+        # The autouse _isolate fixture already creates knowledge/pdf/net/merged/model.yaml
+        # with repo_sha=MODEL_SHA -- Knowledge.available also requires api_surface.json/
+        # claims.json to exist alongside it, so add those (empty is sufficient).
+        knowledge_dir = tmp_path / "knowledge" / "pdf" / "net" / "merged"
+        (knowledge_dir / "api_surface.json").write_text("[]", encoding="utf-8")
+        (knowledge_dir / "claims.json").write_text("[]", encoding="utf-8")
+        stale_locale_page = tmp_path / "content/docs.aspose.org/fr/pdf/net/page.md"
+        stale_locale_page.parent.mkdir(parents=True, exist_ok=True)
+        stale_locale_page.write_text(
+            "---\ntitle: Test\nevidence:\n  model_sha: old_sha\n---\n\nBody.\n", encoding="utf-8",
+        )
+    
+        manifest = refresh_run.create_run(
+            "pdf", "net", mode="upstream", run_id="RUN-VERIFY-LOCALE", session_id="session-1",
+        )
+        manifest["target_model_sha"] = MODEL_SHA
+        manifest["target_source_sha"] = MODEL_SHA
+        manifest["scope"]["digest"] = "sha256:scope"
+        manifest["scope"]["paths"] = ["content/docs.aspose.org/en/pdf/net/page.md"]
+        refresh_run._transition(manifest, "PLANNED")
+        refresh_run._transition(manifest, "APPLYING")
+        manifest["receipt_refs"] = ["receipts/RCP-001.yaml"]
+        manifest["page_decision_ref"] = "page_decisions.jsonl"
+        refresh_run._transition(manifest, "VALIDATING")
+        _write_run_evidence(tmp_path, manifest)
+    
+        refresh_run.verify_run(manifest)
+    
+        assert manifest["state"] == "READY_TO_COMMIT"
+        assert manifest.get("locale_staleness_error") is None
+        summary = manifest["locale_staleness_summary"]
+        assert summary["knowledge_repo_sha"] == MODEL_SHA
+        assert summary["total_locale_files"] == 1
+        assert summary["total_stale"] == 1
+        report_path = tmp_path / "reports" / "locale_staleness" / "pdf-net.json"
+        assert report_path.is_file()
+        real_repo_root = Path(__file__).resolve().parents[3]
+        real_report_path = real_repo_root / "reports" / "locale_staleness" / "pdf-net.json"
+>       assert not real_report_path.is_file()
+E       AssertionError: assert not True
+E        +  where True = is_file()
+E        +    where is_file = WindowsPath('D:/onedrive/Documents/GitHub/aspose.org/reports/locale_staleness/pdf-net.json').is_file
+
+scripts\pipeline\tests\test_refresh_run.py:2561: AssertionError
+---------------------------- Captured stdout call -----------------------------
+Found 0 candidates: 0 to generate, 0 to skip (already exist or slug-duplicate).
+DRY-RUN: no files written.
+_______________ test_verify_run_writes_content_coverage_summary _______________
+
+tmp_path = WindowsPath('C:/Users/prora/AppData/Local/Temp/pytest-of-prora/pytest-2337/test_verify_run_writes_content0')
+
+    def test_verify_run_writes_content_coverage_summary(tmp_path: Path):
+        """Content-coverage audit (found live 2026-08-24, closes the "a real
+        knowledge advance whose content generation was never triggered stays
+        permanently invisible" gap): verify_run() must record a compact summary
+        in manifest["content_coverage_summary"] and write the full report under
+        reports/content_coverage/{family}-{platform}.json, mirroring the locale-
+        staleness step immediately above it."""
+        knowledge_dir = tmp_path / "knowledge" / "pdf" / "net" / "merged"
+        # kind must be C#'s real tree-sitter node type ("class_declaration"), not
+        # e.g. Python's "class_definition" -- _passes_platform_scope's kind
+        # allowlist is platform-specific (found live: an earlier version of this
+        # fixture used the wrong kind string and silently produced 0 candidates).
+        (knowledge_dir / "api_surface.json").write_text(json.dumps([
+            {"name": "HasPage", "kind": "class_declaration", "methods": [], "properties": [],
+             "visibility": "public", "reachable": True, "file": "HasPage.cs"},
+            {"name": "MissingPage", "kind": "class_declaration", "methods": [], "properties": [],
+             "visibility": "public", "reachable": True, "file": "MissingPage.cs"},
+        ]), encoding="utf-8")
+        (knowledge_dir / "claims.json").write_text("[]", encoding="utf-8")
+        ref_dir = tmp_path / "content" / "reference.aspose.org" / "en" / "pdf" / "net"
+        ref_dir.mkdir(parents=True, exist_ok=True)
+        (ref_dir / "HasPage.md").write_text("---\nauto_updatable: true\n---\n# HasPage\n", encoding="utf-8")
+    
+        manifest = refresh_run.create_run(
+            "pdf", "net", mode="upstream", run_id="RUN-VERIFY-COVERAGE", session_id="session-1",
+        )
+        manifest["target_model_sha"] = MODEL_SHA
+        manifest["target_source_sha"] = MODEL_SHA
+        manifest["scope"]["digest"] = "sha256:scope"
+        manifest["scope"]["paths"] = ["content/docs.aspose.org/en/pdf/net/page.md"]
+        refresh_run._transition(manifest, "PLANNED")
+        refresh_run._transition(manifest, "APPLYING")
+        manifest["receipt_refs"] = ["receipts/RCP-001.yaml"]
+        manifest["page_decision_ref"] = "page_decisions.jsonl"
+        refresh_run._transition(manifest, "VALIDATING")
+        _write_run_evidence(tmp_path, manifest)
+    
+        refresh_run.verify_run(manifest)
+    
+        assert manifest["state"] == "READY_TO_COMMIT"
+        assert manifest.get("content_coverage_error") is None
+        summary = manifest["content_coverage_summary"]
+        assert summary["total_candidates"] == 2
+        assert summary["missing_page_count"] == 1
+        report_path = tmp_path / "reports" / "content_coverage" / "pdf-net.json"
+        assert report_path.is_file()
+        report = json.loads(report_path.read_text(encoding="utf-8"))
+        assert report["missing_classes"] == ["MissingPage"]
+        real_repo_root = Path(__file__).resolve().parents[3]
+        real_report_path = real_repo_root / "reports" / "content_coverage" / "pdf-net.json"
+>       assert not real_report_path.is_file()
+E       AssertionError: assert not True
+E        +  where True = is_file()
+E        +    where is_file = WindowsPath('D:/onedrive/Documents/GitHub/aspose.org/reports/content_coverage/pdf-net.json').is_file
+
+scripts\pipeline\tests\test_refresh_run.py:2650: AssertionError
+---------------------------- Captured stdout call -----------------------------
+Found 2 candidates: 1 to generate, 1 to skip (already exist or slug-duplicate).
+DRY-RUN: no files written.
+  WOULD GENERATE: MissingPage (class_declaration)
+__________________ test_real_repo_scan_matches_manual_audit ___________________
+
+    def test_real_repo_scan_matches_manual_audit():
+        """Regression pin against the real repo (no fixture). Originally pinned
+        the pre-backfill state (31 discovered, 7 registered, 24 uncovered); as
+        of TC-MT018-06's full backfill (2026-08-01), coverage is complete --
+        updated to pin that instead. cells/typescript's exclusion-drift finding
+        is unaffected by the backfill (it's a content-vs-exclusion-list
+        discrepancy, not a registry-coverage one) and must still be flagged."""
+        sut.configure(repo_root=None)
+        report = sut.scan_coverage()
+>       assert report["total_discovered"] == 31
+E       assert 32 == 31
+
+scripts\pipeline\tests\test_registry_coverage_scan.py:157: AssertionError
+_____________ TestPreCommitGuard.test_source_contains_step0_guard _____________
+
+self = <test_reports_boundary.TestPreCommitGuard object at 0x0000021B18271F90>
+
+    def test_source_contains_step0_guard(self):
+        content = self._SOURCE.read_text(encoding="utf-8")
+>       assert "Step 0" in content, (
+            "scripts/pre-commit-audit.sh is missing the Step 0 reports/ guard"
+        )
+E       AssertionError: scripts/pre-commit-audit.sh is missing the Step 0 reports/ guard
+E       assert 'Step 0' in '#!/bin/bash\n# Pre-commit hook: enforce path guard and verify API accuracy in staged content files.\n# Install: cp sc...p 37] SKIP: .venv not found or check_backlink_compliance.py missing." >&2\n    _pc_step_end "SKIP"\nfi\n\n_pc_exit 0\n'
+
+scripts\pipeline\tests\test_reports_boundary.py:68: AssertionError
+__________ TestPreCommitGuard.test_source_reports_guard_is_blocking ___________
+
+self = <test_reports_boundary.TestPreCommitGuard object at 0x0000021B1829D0F0>
+
+    def test_source_reports_guard_is_blocking(self):
+        """Step 0 was downgraded to WARN on 2026-08-08 (CI rules audit), then restored to
+        BLOCK on 2026-08-14 (TC-CIR-01, CI reliability reassessment): content-audit.yml's
+        identical whole-tree copy is pull_request-only and never fires under this repo's
+        direct-to-main push model, so the WARN window left this defect class with zero
+        live enforcement, not enforcement merely relocated to CI. The guard must detect
+        the violation and exit the commit."""
+        content = self._SOURCE.read_text(encoding="utf-8")
+>       start = content.index("# Step 0:")
+                ^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       ValueError: substring not found
+
+scripts\pipeline\tests\test_reports_boundary.py:100: ValueError
+____ TestTierOneRestoredSteps.test_step1b_filename_conventions_is_blocking ____
+
+self = <test_reports_boundary.TestTierOneRestoredSteps object at 0x0000021B18272210>
+
+    def test_step1b_filename_conventions_is_blocking(self):
+        content = self._SOURCE.read_text(encoding="utf-8")
+>       block = self._step_block(content, "# Step 1b:")
+                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+scripts\pipeline\tests\test_reports_boundary.py:130: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+content = '#!/bin/bash\n# Pre-commit hook: enforce path guard and verify API accuracy in staged content files.\n# Install: cp sc...p 37] SKIP: .venv not found or check_backlink_compliance.py missing." >&2\n    _pc_step_end "SKIP"\nfi\n\n_pc_exit 0\n'
+start_marker = '# Step 1b:', end_marker = '_pc_step_start'
+
+    @staticmethod
+    def _step_block(content: str, start_marker: str, end_marker: str = "_pc_step_start") -> str:
+>       start = content.index(start_marker)
+                ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       ValueError: substring not found
+
+scripts\pipeline\tests\test_reports_boundary.py:124: ValueError
+_____ TestTierOneRestoredSteps.test_step9_onboarding_integrity_stays_warn _____
+
+self = <test_reports_boundary.TestTierOneRestoredSteps object at 0x0000021B1829D220>
+
+    def test_step9_onboarding_integrity_stays_warn(self):
+        """Step 9 is the one deliberate, working exception — must NOT be reverted."""
+        content = self._SOURCE.read_text(encoding="utf-8")
+>       block = self._step_block(content, "# Step 9:", end_marker="# Step 9b:")
+                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+scripts\pipeline\tests\test_reports_boundary.py:149: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+content = '#!/bin/bash\n# Pre-commit hook: enforce path guard and verify API accuracy in staged content files.\n# Install: cp sc...p 37] SKIP: .venv not found or check_backlink_compliance.py missing." >&2\n    _pc_step_end "SKIP"\nfi\n\n_pc_exit 0\n'
+start_marker = '# Step 9:', end_marker = '# Step 9b:'
+
+    @staticmethod
+    def _step_block(content: str, start_marker: str, end_marker: str = "_pc_step_start") -> str:
+        start = content.index(start_marker)
+>       end = content.index(end_marker, start + 1)
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       ValueError: substring not found
+
+scripts\pipeline\tests\test_reports_boundary.py:125: ValueError
+______ TestTierOneRestoredSteps.test_step9b_root_docs_truth_is_blocking _______
+
+self = <test_reports_boundary.TestTierOneRestoredSteps object at 0x0000021B1828D7F0>
+
+    def test_step9b_root_docs_truth_is_blocking(self):
+        content = self._SOURCE.read_text(encoding="utf-8")
+>       block = self._step_block(content, "# Step 9b:")
+                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+scripts\pipeline\tests\test_reports_boundary.py:158: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+content = '#!/bin/bash\n# Pre-commit hook: enforce path guard and verify API accuracy in staged content files.\n# Install: cp sc...p 37] SKIP: .venv not found or check_backlink_compliance.py missing." >&2\n    _pc_step_end "SKIP"\nfi\n\n_pc_exit 0\n'
+start_marker = '# Step 9b:', end_marker = '_pc_step_start'
+
+    @staticmethod
+    def _step_block(content: str, start_marker: str, end_marker: str = "_pc_step_start") -> str:
+>       start = content.index(start_marker)
+                ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       ValueError: substring not found
+
+scripts\pipeline\tests\test_reports_boundary.py:124: ValueError
+_____ TestStep5NoSilentAutoStage.test_step5_does_not_pass_auto_stage_flag _____
+
+self = <test_reports_boundary.TestStep5NoSilentAutoStage object at 0x0000021B18272490>
+
+    def test_step5_does_not_pass_auto_stage_flag(self):
+        content = self._SOURCE.read_text(encoding="utf-8")
+        start = content.index("# Step 5:")
+        end = content.index("_pc_step_start", start + 1)
+        step5_block = content[start:end]
+        invocation_lines = [
+            ln for ln in step5_block.splitlines()
+            if "provenance_normalize_hash.py" in ln
+        ]
+>       assert invocation_lines, "Step 5 must invoke provenance_normalize_hash.py"
+E       AssertionError: Step 5 must invoke provenance_normalize_hash.py
+E       assert []
+
+scripts\pipeline\tests\test_reports_boundary.py:185: AssertionError
+__________ TestHookInstallMechanism.test_core_hooks_path_configured ___________
+
+self = <test_reports_boundary.TestHookInstallMechanism object at 0x0000021B18272E90>
+
+    def test_core_hooks_path_configured(self):
+        # TC-CIR-09 (2026-08-14): originally skipped in CI here, because CI never
+        # ran install-hooks.sh (a fresh actions/checkout@v4 clone has
+        # core.hooksPath unset). CORRECTED (2026-08-16, found live: this exact
+        # skip pattern combined with test_wrappers_are_executable's -- which had
+        # NO skip -- broke skill-governance.yml on every single push for 2 days
+        # before being noticed, since core.fileMode=false also means the
+        # executable bit isn't preserved by checkout either). Real fix:
+        # skill-governance.yml now runs `bash scripts/install-hooks.sh` before
+        # this suite, so this assertion is genuinely meaningful in CI too --
+        # no skip needed, this now verifies the installer itself still works on
+        # a fresh checkout, not just a locally-installed developer machine.
+        configured = self._configured_hooks_path()
+>       assert configured == "scripts/githooks", (
+            f"core.hooksPath is '{configured}', expected 'scripts/githooks' — "
+            "run: bash scripts/install-hooks.sh"
+        )
+E       AssertionError: core.hooksPath is 'D:\onedrive\Documents\GitHub\aspose.org\scripts\githooks', expected 'scripts/githooks' — run: bash scripts/install-hooks.sh
+E       assert 'D:\\onedrive...pts\\githooks' == 'scripts/githooks'
+E         
+E         - scripts/githooks
+E         + D:\onedrive\Documents\GitHub\aspose.org\scripts\githooks
+
+scripts\pipeline\tests\test_reports_boundary.py:311: AssertionError
+_________ TestSkillGapIndexCompleteness.test_every_report_is_indexed __________
+
+self = <test_skill_contract_paths.TestSkillGapIndexCompleteness testMethod=test_every_report_is_indexed>
+
+    def test_every_report_is_indexed(self):
+        gaps_dir = self._gaps_dir()
+        if gaps_dir is None:
+            self.skipTest("reports/skill-gaps/ not present (gitignored — expected on a fresh checkout)")
+        entries = self._load_index(gaps_dir)
+        if entries is None:
+            self.skipTest("reports/skill-gaps/index.yaml not found")
+        indexed_paths = {entry["report"] for entry in entries}
+        all_reports = sorted(gaps_dir.glob("*.md"))
+        missing = []
+        for report_path in all_reports:
+            rel_path = f"reports/skill-gaps/{report_path.name}"
+            if rel_path not in indexed_paths:
+                missing.append(rel_path)
+>       self.assertEqual(
+            missing,
+            [],
+            "Reports missing from reports/skill-gaps/index.yaml:\n"
+            + "\n".join(missing),
+        )
+E       AssertionError: Lists differ: ['reports/skill-gaps/2026-08-22-reference-[159 chars].md'] != []
+E       
+E       First list contains 3 additional elements.
+E       First extra element 0:
+E       'reports/skill-gaps/2026-08-22-reference-com-family-coverage-gap.md'
+E       
+E       + []
+E       - ['reports/skill-gaps/2026-08-22-reference-com-family-coverage-gap.md',
+E       -  'reports/skill-gaps/2026-08-26-pipeline-reliability-hardening.md',
+E       -  'reports/skill-gaps/2026-08-29-refresh-run-launch-mode-proposal.md'] : Reports missing from reports/skill-gaps/index.yaml:
+E       reports/skill-gaps/2026-08-22-reference-com-family-coverage-gap.md
+E       reports/skill-gaps/2026-08-26-pipeline-reliability-hardening.md
+E       reports/skill-gaps/2026-08-29-refresh-run-launch-mode-proposal.md
+
+scripts\pipeline\tests\test_skill_contract_paths.py:260: AssertionError
+__________ TestScriptRegistration.test_registration_check_exits_zero __________
+
+self = <test_skill_contract_paths.TestScriptRegistration testMethod=test_registration_check_exits_zero>
+
+    def test_registration_check_exits_zero(self):
+        import subprocess
+        result = subprocess.run(
+            ["python", str(REPO_ROOT / "scripts" / "ci" / "checks" / "check_pipeline_registration.py")],
+            cwd=str(REPO_ROOT),
+            capture_output=True,
+            text=True,
+        )
+>       self.assertEqual(
+            result.returncode, 0,
+            f"check_pipeline_registration.py exited {result.returncode}:\n"
+            f"stdout: {result.stdout}\nstderr: {result.stderr}",
+        )
+E       AssertionError: 1 != 0 : check_pipeline_registration.py exited 1:
+E       stdout: 
+E       stderr: WARN: 4 advisory issue(s):
+E         [CHECK 4b] scripts/pipeline/commands/ops/content_region_indexer.py: active entrypoint/library has no test_target
+E         [CHECK 4b] scripts/pipeline/commands/ops/post_body_refresh_evidence.py: active entrypoint/library has no test_target
+E         [CHECK 5] DEPRECATED: scripts/pipeline/commands/ops/check_audit_results.py (lifecycle=deprecated)
+E         [CHECK 5] DEPRECATED: scripts/pipeline/commands/ops/refresh_run_manifest.py (lifecycle=deprecated)
+E       
+E       FAIL: 2 blocking issue(s):
+E         [CHECK 1] UNREGISTERED: scripts/pipeline/commands/foss/upstream_issue_workflow.py exists on disk but has no registry entry
+E         [CHECK 1] UNREGISTERED: scripts/pipeline/commands/governance/grade_staleness_sweep.py exists on disk but has no registry entry
+
+scripts\pipeline\tests\test_skill_contract_paths.py:354: AssertionError
+____________________ TestSkillIDs.test_all_skills_have_ids ____________________
+
+self = <test_sync_skills.TestSkillIDs object at 0x0000021B18923D90>
+
+    def test_all_skills_have_ids(self):
+        skills = list_skill_ids()
+        no_id = [s for s in skills if s[0] == "NONE"]
+>       assert len(no_id) == 0, (
+            f"{len(no_id)} skills without IDs: "
+            + ", ".join(s[1] for s in no_id)
+        )
+E       AssertionError: 1 skills without IDs: foss-java-publish
+E       assert 1 == 0
+E        +  where 1 = len([('NONE', 'foss-java-publish', '<!-- CONTRACT: agent-executed')])
+
+scripts\pipeline\tests\test_sync_skills.py:77: AssertionError
+============================== warnings summary ===============================
+scripts\pipeline\tests\integration\test_cross_subdomain_refresh.py:86
+  D:\onedrive\Documents\GitHub\aspose.org\scripts\pipeline\tests\integration\test_cross_subdomain_refresh.py:86: PytestUnknownMarkWarning: Unknown pytest.mark.slow - is this a typo?  You can register custom marks to avoid this warning - for details, see https://docs.pytest.org/en/stable/how-to/mark.html
+    @pytest.mark.slow
+
+scripts\pipeline\tests\integration\test_cross_subdomain_refresh.py:132
+  D:\onedrive\Documents\GitHub\aspose.org\scripts\pipeline\tests\integration\test_cross_subdomain_refresh.py:132: PytestUnknownMarkWarning: Unknown pytest.mark.slow - is this a typo?  You can register custom marks to avoid this warning - for details, see https://docs.pytest.org/en/stable/how-to/mark.html
+    @pytest.mark.slow
+
+scripts\pipeline\tests\integration\test_cross_subdomain_refresh.py:174
+  D:\onedrive\Documents\GitHub\aspose.org\scripts\pipeline\tests\integration\test_cross_subdomain_refresh.py:174: PytestUnknownMarkWarning: Unknown pytest.mark.slow - is this a typo?  You can register custom marks to avoid this warning - for details, see https://docs.pytest.org/en/stable/how-to/mark.html
+    @pytest.mark.slow
+
+scripts\pipeline\tests\integration\test_cross_subdomain_refresh.py:241
+  D:\onedrive\Documents\GitHub\aspose.org\scripts\pipeline\tests\integration\test_cross_subdomain_refresh.py:241: PytestUnknownMarkWarning: Unknown pytest.mark.slow - is this a typo?  You can register custom marks to avoid this warning - for details, see https://docs.pytest.org/en/stable/how-to/mark.html
+    @pytest.mark.slow
+
+scripts\pipeline\tests\integration\test_cross_subdomain_refresh.py:293
+  D:\onedrive\Documents\GitHub\aspose.org\scripts\pipeline\tests\integration\test_cross_subdomain_refresh.py:293: PytestUnknownMarkWarning: Unknown pytest.mark.slow - is this a typo?  You can register custom marks to avoid this warning - for details, see https://docs.pytest.org/en/stable/how-to/mark.html
+    @pytest.mark.slow
+
+scripts\pipeline\tests\test_gap_eval_profile_safety.py:1243
+  D:\onedrive\Documents\GitHub\aspose.org\scripts\pipeline\tests\test_gap_eval_profile_safety.py:1243: PytestUnknownMarkWarning: Unknown pytest.mark.integration - is this a typo?  You can register custom marks to avoid this warning - for details, see https://docs.pytest.org/en/stable/how-to/mark.html
+    @pytest.mark.integration
+
+scripts\pipeline\tests\test_gap_eval_profile_safety.py:1260
+  D:\onedrive\Documents\GitHub\aspose.org\scripts\pipeline\tests\test_gap_eval_profile_safety.py:1260: PytestUnknownMarkWarning: Unknown pytest.mark.integration - is this a typo?  You can register custom marks to avoid this warning - for details, see https://docs.pytest.org/en/stable/how-to/mark.html
+    @pytest.mark.integration
+
+scripts\pipeline\tests\test_gap_eval_profile_safety.py:1281
+  D:\onedrive\Documents\GitHub\aspose.org\scripts\pipeline\tests\test_gap_eval_profile_safety.py:1281: PytestUnknownMarkWarning: Unknown pytest.mark.integration - is this a typo?  You can register custom marks to avoid this warning - for details, see https://docs.pytest.org/en/stable/how-to/mark.html
+    @pytest.mark.integration
+
+scripts\pipeline\tests\test_gap_eval_profile_safety.py:1293
+  D:\onedrive\Documents\GitHub\aspose.org\scripts\pipeline\tests\test_gap_eval_profile_safety.py:1293: PytestUnknownMarkWarning: Unknown pytest.mark.no_cache_skip - is this a typo?  You can register custom marks to avoid this warning - for details, see https://docs.pytest.org/en/stable/how-to/mark.html
+    @pytest.mark.no_cache_skip
+
+scripts/pipeline/tests/test_metrics_ci_checks.py::TestCheckProfessionalizeCallSites::test_passes_current_registered_call_sites
+scripts/pipeline/tests/test_metrics_ci_checks.py::TestCrossCutting::test_no_check_makes_network_calls
+  D:\onedrive\Documents\GitHub\aspose.org\scripts\pipeline\content_eval\evaluators\format_truth.py:257: SyntaxWarning: invalid escape sequence '\s'
+    """ST-029 pattern (3): resolve a bare "both" claim for a format that is
+
+scripts/pipeline/tests/test_products_path_invariants.py::TestNewProductsPagePath::test_new_products_page_targets_platform_path
+scripts/pipeline/tests/test_products_path_invariants.py::TestPagePlanRouting::test_page_plan_products_routing_mentions_platform_path
+scripts/pipeline/tests/test_rust_extraction.py::TestRustFormatDetection::test_save_format_enum_members_detected
+  D:\onedrive\Documents\GitHub\aspose.org\.venv\Lib\site-packages\_pytest\fixtures.py:1313: PytestRemovedIn10Warning: Class-scoped fixture defined as instance method is deprecated.
+  Instance attributes set in this fixture will NOT be visible to test methods,
+  as each test gets a new instance while the fixture runs only once per class.
+  Use @classmethod decorator and set attributes on cls instead.
+  See https://docs.pytest.org/en/stable/deprecations.html#class-scoped-fixture-as-instance-method
+    fixturefunc = resolve_fixture_function(fixturedef, request)
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ===========================
+FAILED scripts/pipeline/tests/test_gate_l01_l07.py::TestGateL01KnowledgeFreshness::test_fail_when_model_yaml_unparseable
+FAILED scripts/pipeline/tests/test_metrics_autonomous_capture.py::TestAT16_DocPropagationCheckPasses::test_docs_propagation_strict_passes_live_repo
+FAILED scripts/pipeline/tests/test_readme_refresh_run.py::test_detect_enterprise_link_uses_canonical_override_over_stale_raw_cache
+FAILED scripts/pipeline/tests/test_refresh_run.py::test_verify_run_writes_page_impact_matrix_and_records_digest
+FAILED scripts/pipeline/tests/test_refresh_run.py::test_verify_run_writes_locale_staleness_summary
+FAILED scripts/pipeline/tests/test_refresh_run.py::test_verify_run_writes_content_coverage_summary
+FAILED scripts/pipeline/tests/test_registry_coverage_scan.py::test_real_repo_scan_matches_manual_audit
+FAILED scripts/pipeline/tests/test_reports_boundary.py::TestPreCommitGuard::test_source_contains_step0_guard
+FAILED scripts/pipeline/tests/test_reports_boundary.py::TestPreCommitGuard::test_source_reports_guard_is_blocking
+FAILED scripts/pipeline/tests/test_reports_boundary.py::TestTierOneRestoredSteps::test_step1b_filename_conventions_is_blocking
+FAILED scripts/pipeline/tests/test_reports_boundary.py::TestTierOneRestoredSteps::test_step9_onboarding_integrity_stays_warn
+FAILED scripts/pipeline/tests/test_reports_boundary.py::TestTierOneRestoredSteps::test_step9b_root_docs_truth_is_blocking
+FAILED scripts/pipeline/tests/test_reports_boundary.py::TestStep5NoSilentAutoStage::test_step5_does_not_pass_auto_stage_flag
+FAILED scripts/pipeline/tests/test_reports_boundary.py::TestHookInstallMechanism::test_core_hooks_path_configured
+FAILED scripts/pipeline/tests/test_skill_contract_paths.py::TestSkillGapIndexCompleteness::test_every_report_is_indexed
+FAILED scripts/pipeline/tests/test_skill_contract_paths.py::TestScriptRegistration::test_registration_check_exits_zero
+FAILED scripts/pipeline/tests/test_sync_skills.py::TestSkillIDs::test_all_skills_have_ids
+17 failed, 10708 passed, 25 skipped, 14 warnings, 266 subtests passed in 1812.49s (0:30:12)
+exit=1

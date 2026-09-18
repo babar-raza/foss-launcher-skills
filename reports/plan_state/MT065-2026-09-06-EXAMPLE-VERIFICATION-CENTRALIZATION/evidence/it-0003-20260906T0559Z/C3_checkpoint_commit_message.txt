@@ -1,0 +1,40 @@
+feat(example-verification): C3 checkpoint -- shared toolchain discovery (toolchain.py)
+
+Partial progress on taskcard C3 (extract toolchain/acquire/runners-base/
+python/typescript from S-120 behind parity). C3's full scope is large and
+security-sensitive (real subprocess/pip/venv calls in
+_acquire_python_environment/_acquire_typescript_environment/
+python_verification_runner/typescript_verification_runner, ~340+ lines for
+Python alone); this checkpoint ships the self-contained, lower-risk piece
+first rather than rushing a faithful port of the rest in the same pass.
+readme_refresh_run.py and test_readme_refresh_run.py are untouched -- the
+existing S-120 runners remain the live, active code path; this taskcard
+stays IN_PROGRESS for a later iteration to continue with acquire.py and
+runners/{base,python,typescript}.py.
+
+Adds toolchain.py per Phase 0 item 7's spec: find()/version_of() (the
+`_resolve_node_bin` WinError-2 fix generalized to every tool, not just
+npm/npx), maven_java_version() (confirmed live: mvn resolves its OWN JDK,
+different from PATH java), msvc_env() (vswhere + vcvarsall capture),
+exec_env() (the Round 3 H allow-list -- never leaks this repo's own
+PYTHONPATH), and fingerprint() (cache.py's toolchain_fp component). 14
+tests, all real/local/no-network (matching this repo's own established
+test convention for the two existing runners).
+
+Real, previously-wrong claim caught and corrected while building
+msvc_env(): the governing plan's "Verified toolchain inventory" said MSVC
+was "Installed" on this machine, with only "cl.exe not on PATH by default"
+as the caveat. msvc_env() honestly returned None; direct inspection found
+VC\Auxiliary\Build\vcvarsall.bat and cl.exe genuinely do not exist under
+this machine's VS 2022 Community install (only VC\Auxiliary + VC\Redist
+exist -- the "Desktop development with C++" workload was never installed).
+This is a real environment-prerequisite gap, the same class as Rust's
+already-disclosed one, not an environment-init nuance. Corrected directly
+in the plan file (outside this git repo, C:\Users\prora\.claude\plans\
+do-another-round-of-indexed-graham.md -- not subject to this taskcard's
+allowed_paths, which only govern this repo's own dirty-path gate).
+
+Mission: MT065-2026-09-06-EXAMPLE-VERIFICATION-CENTRALIZATION
+Taskcards: C3 (checkpoint, not closed)
+
+Co-Authored-By: Claude Sonnet 5 <noreply@anthropic.com>

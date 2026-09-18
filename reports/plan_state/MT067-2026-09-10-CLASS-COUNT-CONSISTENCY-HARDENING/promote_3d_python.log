@@ -1,0 +1,28 @@
+Promote: 3d/python
+  Scout: 2278 claims, 329 api_surface entries
+  Enriched: 1293 claims (from enrich.py)
+  Total claims: 3571
+  WARNING: 10 duplicate CLM claim_id(s) (identical text, safe to dedupe) — deduplicating (10 excess removed)
+    CLM-3d-490017: 2 occurrences
+    CLM-3d-ae2984: 2 occurrences
+    CLM-3d-f30095: 2 occurrences
+    CLM-3d-59d7ac: 2 occurrences
+    CLM-3d-d0e840: 2 occurrences
+  Semantic dedup: skipped (use --semantic-dedup to enable)
+  GoDoc fallback: 1543 method(s) inferred from name patterns (doc_source: name_inference)
+  API surface: 329 entries (329 classes)
+  Snippets: 100 (from scout)
+  api_surface.md: 329 classes, 101941 bytes
+  Forbidden claims: 401
+  All artifacts written to knowledge\3d\python\merged.staging.0244647d-47de-4080-b3a5-24ef4008c180
+  WARNING: format-claims contradiction: format='Collada' direction='export' claim='COLLADA files can be imported but not exported; attempting to save a scene as COLLADA will fail because no export API is defined.'
+  WARNING: format-claims contradiction: format='Collada' direction='export' claim='When exporting to COLLADA, the library will raise a NotImplementedError because COLLADA export is not supported in the FOSS version.'
+  WARNING: format-claims contradiction: format='Collada' direction='export' claim='COLLADA files can be imported but not exported; attempting to save a scene as COLLADA will fail because no export API is defined.'
+  WARNING: format-claims contradiction: format='Collada' direction='export' claim='When exporting to COLLADA, the library will raise a NotImplementedError because COLLADA export is not supported in the FOSS version.'
+  WARNING: format-claims contradiction: format='Collada' direction='export' claim='COLLADA files can be imported but not exported; attempting to save a scene as COLLADA will fail because no export API is defined.'
+  WARNING: format-claims contradiction: format='Collada' direction='export' claim='When exporting to COLLADA, the library will raise a NotImplementedError because COLLADA export is not supported in the FOSS version.'
+  Reconciliation report written to reports\knowledge-reconciliation\3d-python.md
+  Artifact validation: PASS
+PROMOTE_ATOMIC: bundle 0244647d-47de-4080-b3a5-24ef4008c180 promoted for 3d/python
+
+PROMOTE: PASS

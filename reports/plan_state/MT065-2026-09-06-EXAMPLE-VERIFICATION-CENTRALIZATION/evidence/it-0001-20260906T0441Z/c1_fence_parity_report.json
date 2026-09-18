@@ -1,0 +1,28 @@
+{
+  "category_counts": {
+    "content_differs": 178,
+    "identical": 158543,
+    "old_finds_more_blocks": 142
+  },
+  "csharp_or_cpp_tagged_block_occurrences": 0,
+  "csharp_or_cpp_tagged_files": 0,
+  "examples_per_category": {
+    "content_differs": [
+      "content\\reference.aspose.org\\zh\\3d\\java\\mesh.md",
+      "content\\reference.aspose.org\\zh\\3d\\typescript\\node.md",
+      "content\\reference.aspose.org\\zh\\3d\\typescript\\scene.md",
+      "content\\reference.aspose.org\\zh\\3d\\java\\load-save-options\\_index.md",
+      "content\\reference.aspose.org\\vi\\3d\\java\\mesh.md"
+    ],
+    "old_finds_more_blocks": [
+      "content\\reference.aspose.org\\zh\\3d\\typescript\\mesh.md",
+      "content\\reference.aspose.org\\vi\\3d\\typescript\\mesh.md",
+      "content\\reference.aspose.org\\vi\\3d\\typescript\\quaternion.md",
+      "content\\reference.aspose.org\\vi\\3d\\typescript\\vector3.md",
+      "content\\reference.aspose.org\\uk\\3d\\typescript\\mesh.md"
+    ]
+  },
+  "files_containing_tilde_sequence": 0,
+  "files_with_any_code_block": 24094,
+  "total_files_scanned": 158863
+}

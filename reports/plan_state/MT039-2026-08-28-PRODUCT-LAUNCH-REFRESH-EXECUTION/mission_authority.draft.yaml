@@ -1,0 +1,32 @@
+# DRAFT mission contract - NOT the live root MISSION_AUTHORITY.yaml.
+# Promoting this file to the repo root requires an operator override token (root file is tracked and path_guard DENY)
+# and displaces MT037-2026-08-24-FOSS-PORTFOLIO-FORENSIC-HEAL's root projection (its archive persists).
+# Written by PRODUCT-LAUNCH-REFRESH-PLANNING-MEGA-TRAIN-005 on 2026-08-28T08:41:23Z. Same shape as the root file (7 required fields).
+mission_authority:
+  mission_id: MT039-2026-08-28-PRODUCT-LAUNCH-REFRESH-EXECUTION
+  mission_summary: "Execute the pilot-first product refresh plan produced by PRODUCT-LAUNCH-REFRESH-PLANNING-MEGA-TRAIN-005: P1 barcode/python upstream no-op characterization, P2 cells/rust upstream chain qualification (must reach COMMITTED via refresh_run.py + S-124 + S-90 + S-76 + bind-commit), then P3 pdf/python (HIGH drift, PDF-PYTHON-REFRESH-001) only after P2 and ST-082 mitigation; expand to the ranked candidates in product-refresh-candidates.yaml only under a frozen campaign. New launches: none (psd stubs on R-02/R-03 watch). Must-fix gaps before Step 1: G5-02, G5-04, G5-06, G5-12, G5-22 (system-gaps-and-hardening-backlog.yaml)."
+  governing_plan_path: "reports/PRODUCT-LAUNCH-REFRESH-PLANNING-MEGA-TRAIN-005/execution-mega-train-prompt.md"
+  current_phase: "DRAFT - not opened. Execution Step 0 promotes this file with the operator token and runs mission_authority.py open."
+  in_scope_outcomes:
+    - "Step 0 preflight predicates pass and are recorded (HEAD pin, ACTIVE-run scan, skill-context scan, clean scripts/pipeline, extractor hash current, no foreign claims on data/knowledge_state.json + data/upstream_baselines.json)"
+    - "Must-fix gaps G5-02, G5-04, G5-06, G5-12, G5-22 fixed with tests or waived by the operator with a recorded reason"
+    - "P1 barcode/python: negative-control run, zero writes, validators PASS, closed as abandon --reason NO_OP_CHARACTERIZATION"
+    - "P2 cells/rust: refresh_run.py COMMITTED with Refresh-* trailers and bind-commit; S-90 PUBLISH; S-107 handoff; S-114 classification"
+    - "P3 pdf/python: only after P2, ST-082 mitigation documented, data.md clean"
+    - "Expansion: one product per run in ranked order under a frozen campaign; stop on the first pipeline-change defect"
+  out_of_scope_items:
+    - "Any git push or live publication (operator literal instruction only)"
+    - "Any new product launch (no launchable candidate exists; psd stubs are on watch)"
+    - "Products with non-terminal runs owned by other sessions, foreign dirty files, registry exclusion, MT037 batch membership, scout-only enrichment, or stale extractor hash without a budgeted re-enrich"
+    - "Edits to AGENTS.md, CLAUDE.md, hooks, path_guard.py, docs/governance|workflows|registries or skills/ without an override token"
+  mandatory_acceptance_criteria:
+    - "Every taskcard bound to this mission reaches CLOSED or a documented BLOCKED_EXTERNAL/BLOCKED_LOCAL/PAUSED/OUT_OF_SCOPE/SUPERSEDED with evidence_refs"
+    - "P2 run manifest state COMMITTED with all six blocking validators PASS and a bound commit"
+    - "No content commit without Refresh-Run/Refresh-Base/Refresh-Source-SHA trailers exactly once"
+    - "No push occurred unless the operator wrote the word push"
+  human_authority_boundaries:
+    - "override token to write the root MISSION_AUTHORITY.yaml"
+    - "waiver decisions on must-fix gaps"
+    - "governed takeover of orphan run mt011-cells-go-ref (only if cells/go is selected)"
+    - "git push / publication"
+  mission_locked: false

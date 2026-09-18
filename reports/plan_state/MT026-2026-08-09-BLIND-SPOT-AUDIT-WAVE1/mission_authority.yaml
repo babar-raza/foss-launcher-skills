@@ -1,0 +1,105 @@
+mission_authority:
+  mission_id: MT026-2026-08-09-BLIND-SPOT-AUDIT-WAVE1
+  mission_summary: "Run the real S-122 blind-spot-audit skill (registered, tested, built by
+    MT025-2026-08-08-FORENSIC-BLIND-SPOT-HEAL-SKILLS) against a first wave of 5 never-audited
+    FOSS repos, as Wave 1 of the operator's pasted forensic-inspection mission spec. Originally
+    planned as a hand-rolled Phase 0-13 mechanism (plan file
+    <local-plan-cache>/merry-bouncing-cookie.md) mirroring the ungoverned
+    2026-06-17 run's own invented 00-intake/../17-final/ evidence scheme -- superseded in
+    place once discovery during Phase 0 execution found MT025 had already formalized this
+    exact mission into governed skills S-122 (complete) and S-123 forensic-heal-sprint
+    (partial, Wave 5/6 in progress as of mission open). Operator explicitly chose to use the
+    real skill instead of the bespoke mechanism. This mission runs S-122's full state machine
+    (open -> intake -> scope -> unaided-repo -> unaided-content -> agentic-consumption ->
+    seal -> system-review -> blind-spots -> root-cause -> fix-plan -> bind-taskcards -> close)
+    against cells/rust, barcode/python, html/python, words/python, cells/net, producing a
+    real measured system_recall metric, root-caused findings, and schema-5f taskcards ready
+    for S-123 (or manual governed healing if S-123 is not yet finished when this run closes)."
+  governing_plan_path: '<local-plan-cache>/merry-bouncing-cookie.md'
+  current_phase: "CLOSED 2026-08-09T13:15:55Z. S-122 (bsa-20260809T044618Z-5891c467551a) reached
+    TASKCARDS_BOUND with 298 unaided + 237 system findings, system_recall=2.5%, 6 root causes,
+    6 taskcards. S-123 (forensic-heal-sprint) executed all 9 taskcards (6 original + 3
+    follow-ups TC-07/08/09 from a deep-reassessment triggered by the first independent
+    adversarial review) to real CLOSED status. Real 12-probe deterministic adversarial review:
+    any_blocker=false. Computed verdict: SYSTEM_HEALED_WITH_LIMITATIONS /
+    READY_WITH_LIMITATIONS / CONSUMABLE_WITH_LIMITATIONS. Durable row appended to
+    docs/governance/forensic-heal-history.md.
+    2026-08-14: operator-triggered live reassessment (plan §19) re-verified all 9 taskcards
+    CLOSED, the durable row, and 230/230 core tests fresh -- found one real gap (the 4
+    follow-up backlog items were only ever written into the plan file, never filed via the
+    repo's real /backlog mechanism) and one genuinely still-open decision (commit/push).
+    Both closed same session: backlog items ST-072..075 filed for real in backlog/inbox.md
+    (plan §20); operator approved committing the mission's exact 29-file scope via
+    git_plumb_commit.py (isolated temp index, never touches the shared .git/index --
+    CLAUDE.md ST-021 guidance, warranted by confirmed heavy concurrent-session activity
+    throughout this mission). Pushed to main as commit 6d4bf909834118cfc5dd903fabd65d602555a12b
+    (retroactive skill-run record retroactive-20260814-084344-s122-s123, RECONCILED per
+    check_skill_run_records.py). One of the 29 named files (api_surface.py) produced a
+    zero-byte diff against parent HEAD -- its content was already present on main (converged
+    with earlier/concurrent work), confirmed correct post-commit via a fresh 45/45 pass of
+    the reachability + duplicate_content test suites; the mandatory stale-file-regression
+    check inside git_plumb_commit.py ran first and did not block, so this was not a silent
+    revert. Mission fully closed: computed verdict stands, all fixes are on main, backlog
+    gap corrected, nothing left uncommitted.
+    Next-execution scope: Wave 2 (remaining 26 of 31 launched products, run S-122 fresh per
+    product/batch) -- a future session's starting brief, not carried forward as open work here."
+  in_scope_outcomes:
+    - "blind_spot_audit_run.py run reaches TASKCARDS_BOUND for products cells/rust,
+      barcode/python, html/python, words/python, cells/net (or BLOCKED_UNAIDED_FIRST with a
+      recorded, honest violation -- not silently forced to CLEAN)"
+    - "Real unaided-first findings (FND-{family}-{platform}-NNN) for all 5 products, following
+      the reference-page sampling discipline from the superseded plan section (100% docs/kb/
+      blog/products pages + 100% reference index pages + stratified 30-50 reference
+      class/method-page sample per repo, logged not silent)"
+    - "Real system-tooling findings (SFND-NNN) via S-23/S-32/S-51/S-85/S-43/S-90 for the same
+      scope"
+    - "A real blind-spot comparison matrix with a computed system_recall metric per product"
+    - "Root-caused findings (layer-attributed: skill/script/prompt/validator/governance_doc/
+      data) with fix-plan items, each with >=2 scored options and exactly one selected"
+    - "Schema-5f taskcards (status TODO) bound into
+      reports/plan_state/MT026-2026-08-09-BLIND-SPOT-AUDIT-WAVE1/taskcards.jsonl via
+      TaskcardStore, ready for S-123 (or a documented handoff if S-123 is still incomplete)"
+  out_of_scope_items:
+    - "The other 26 not-yet-audited family/platform repos -- deferred to a Wave 2+ run of the
+      same skill, named in this mission's own next-execution note once Wave 1 closes"
+    - "Actually executing the fixes S-122 finds -- that is S-123 forensic-heal-sprint's job
+      (still mid-build under MT025 as of this mission's open); if S-123 is unavailable when
+      this run reaches TASKCARDS_BOUND, healing execution is a checkpoint decision for the
+      operator, not something this mission does by hand-rolled substitution"
+    - "Any edit to AGENTS.md, skills/blind-spot-audit.md, or any file under MT025's
+      allowed_paths -- this mission only calls the finished CLI, never edits the skill it
+      is exercising"
+    - "Resuming concurrent-toasting-biscuit's own unfinished work -- unrelated, untouched"
+  mandatory_acceptance_criteria:
+    - "blind_spot_audit_run.py status --run-id <id> shows a terminal state
+      (TASKCARDS_BOUND or BLOCKED_UNAIDED_FIRST/ABANDONED with recorded reason)"
+    - "If TASKCARDS_BOUND: every emitted taskcard is a real row in this mission's
+      taskcards.jsonl, schema-5f valid, status TODO, with non-empty allowed/forbidden paths
+      and verification_commands"
+    - "The unaided-first gate verdict (UNAIDED_FIRST_CLEAN/VIOLATED/UNPROVABLE) is honestly
+      reported, never silently forced"
+    - "No file under any SYSTEM_TOOLING/SYSTEM_ARTIFACT scope is touched during the
+      unaided-repo/unaided-content window"
+  conflicts_found:
+    - "Root MISSION_AUTHORITY.yaml is held by concurrent-toasting-biscuit (mission_locked:
+      false, [open] per mission_authority.py list, re-verified live 2026-08-09 immediately
+      before this file was authored: 22 taskcards, 3 CLOSED, 15 READY, 3 TODO, 1
+      BLOCKED_EXTERNAL -- still genuinely in progress). This mission follows MT025's own
+      precedent for the identical situation: archive-only path, never calls
+      mission_authority.py open, never touches root MISSION_AUTHORITY.yaml; this file is a
+      hand-authored archive snapshot to the same schema instead."
+    - "MT025-2026-08-08-FORENSIC-BLIND-SPOT-HEAL-SKILLS is also open and active (Wave 4/6
+      CLOSED, Wave 5 IN_PROGRESS as of 2026-08-09T04:37:48Z per its own taskcards.jsonl) --
+      it is the mission that BUILT the skill this mission USES. No path overlap: MT025's
+      allowed_paths are scripts/pipeline/lib/forensic_heal/,
+      scripts/pipeline/commands/diagnostics/, scripts/pipeline/commands/governance/
+      forensic_heal_sprint_run.py, skills/blind-spot-audit.md, skills/forensic-heal-sprint.md,
+      docs/governance/forensic-heal-history.md -- this mission only ever *invokes* those
+      paths as a CLI consumer, never edits them. Re-check mission_authority.py status /
+      MT025's taskcards before any Wave 2 continuation in case MT025 has since closed and
+      S-123 is now available."
+    - "No active blind_spot_audit run found at reports/blind_spot_audit/ before this mission's
+      run was opened (verified live 2026-08-09) -- no run-level collision."
+  mission_locked: false
+  _archive_status: open
+  _archived_at: '2026-08-09T00:00:00Z'

@@ -1,0 +1,2644 @@
+{
+  "family": "font",
+  "platform": "python",
+  "old_readme_baseline": null,
+  "old_readme_found": true,
+  "report": {
+    "rows": [
+      {
+        "kind": "content",
+        "unit_id": "u0001",
+        "label": "Pure-Python font workflow automation for teams that need to prepare, review, package, and ",
+        "disposition": "merged_reframed",
+        "target_section": "Intro",
+        "verification_status": "verified_against_source",
+        "excluded_reason": null,
+        "verdict": {
+          "status": "reframed",
+          "basis": "fidelity",
+          "found_in": [
+            "Intro (traced)"
+          ],
+          "fidelity": {
+            "score": 1.0,
+            "scope": "target_section",
+            "missing_words": []
+          },
+          "target_traced": true
+        }
+      },
+      {
+        "kind": "content",
+        "unit_id": "u0002",
+        "label": "Use it when you need deployable web-font packages, visual review assets, variable-font ins",
+        "disposition": "merged_reframed",
+        "target_section": "Intro",
+        "verification_status": "verified_against_source",
+        "excluded_reason": null,
+        "verdict": {
+          "status": "reframed",
+          "basis": "fidelity",
+          "found_in": [
+            "Intro (traced)"
+          ],
+          "fidelity": {
+            "score": 0.92,
+            "scope": "document",
+            "missing_words": [
+              "deployable"
+            ]
+          },
+          "target_traced": true
+        }
+      },
+      {
+        "kind": "content",
+        "unit_id": "u0003",
+        "label": "Public GitHub repository: [aspose-font-foss/Aspose.Font-FOSS-for-Python](https://github.co",
+        "disposition": "excluded",
+        "target_section": null,
+        "verification_status": "verified_redundant",
+        "excluded_reason": "self-referential link to the repository the README lives in; the URL is already the Installation section's git clone target",
+        "verdict": {
+          "status": "excluded",
+          "basis": "excluded_reason",
+          "found_in": [],
+          "fidelity": {
+            "score": 1.0,
+            "scope": "document",
+            "missing_words": []
+          },
+          "target_traced": true
+        }
+      },
+      {
+        "kind": "content",
+        "unit_id": "u0004",
+        "label": "| Workflow | Output | | --- | --- | | Optimize fonts for the web | WOFF2/WOFF files, CSS, ",
+        "disposition": "merged_reframed",
+        "target_section": "Key Capabilities",
+        "verification_status": "verified_against_source",
+        "excluded_reason": null,
+        "verdict": {
+          "status": "reframed",
+          "basis": "fidelity",
+          "found_in": [
+            "Key Capabilities (traced)"
+          ],
+          "fidelity": {
+            "score": 0.64,
+            "scope": "target_section",
+            "missing_words": [
+              "animations",
+              "apis",
+              "commands",
+              "comparisons",
+              "create",
+              "decisions",
+              "deliverables",
+              "engine",
+              "explanations",
+              "fallback",
+              "mode",
+              "operations",
+              "optimize",
+              "output",
+              "outputs",
+              "proof",
+              "pure",
+              "python",
+              "quality",
+              "reasons",
+              "release",
+              "tools",
+              "visual",
+              "workflow"
+            ]
+          },
+          "target_traced": true
+        }
+      },
+      {
+        "kind": "content",
+        "unit_id": "u0005",
+        "label": "- Pure Python: no native font-tooling runtime dependency for local scripts or CI.",
+        "disposition": "merged_reframed",
+        "target_section": "Dependencies",
+        "verification_status": "verified_against_source",
+        "excluded_reason": null,
+        "verdict": {
+          "status": "reframed",
+          "basis": "fidelity",
+          "found_in": [
+            "Dependencies (traced)"
+          ],
+          "fidelity": {
+            "score": 1.0,
+            "scope": "document",
+            "missing_words": []
+          },
+          "target_traced": true
+        }
+      },
+      {
+        "kind": "content",
+        "unit_id": "u0006",
+        "label": "- Business artifacts first: packages, reports, manifests, previews, and review boards.",
+        "disposition": "merged_reframed",
+        "target_section": "Additional Examples",
+        "verification_status": "verified_against_source",
+        "excluded_reason": null,
+        "verdict": {
+          "status": "reframed",
+          "basis": "fidelity",
+          "found_in": [
+            "Additional Examples (traced)"
+          ],
+          "fidelity": {
+            "score": 0.56,
+            "scope": "target_section",
+            "missing_words": [
+              "artifacts",
+              "business",
+              "first",
+              "manifests"
+            ]
+          },
+          "target_traced": true
+        }
+      },
+      {
+        "kind": "content",
+        "unit_id": "u0007",
+        "label": "- Variable-font aware: axes, named instances, static/live web modes, naming policies, and ",
+        "disposition": "merged_reframed",
+        "target_section": "Key Capabilities",
+        "verification_status": "verified_against_source",
+        "excluded_reason": null,
+        "verdict": {
+          "status": "reframed",
+          "basis": "fidelity",
+          "found_in": [
+            "Key Capabilities (traced)"
+          ],
+          "fidelity": {
+            "score": 0.83,
+            "scope": "target_section",
+            "missing_words": [
+              "modes",
+              "policies"
+            ]
+          },
+          "target_traced": true
+        }
+      },
+      {
+        "kind": "content",
+        "unit_id": "u0008",
+        "label": "- Broad format coverage: TrueType, OpenType, CFF, Type 1, WOFF, WOFF2, and EOT.",
+        "disposition": "merged_reframed",
+        "target_section": "Key Capabilities",
+        "verification_status": "verified_against_source",
+        "excluded_reason": null,
+        "verdict": {
+          "status": "reframed",
+          "basis": "fidelity",
+          "found_in": [
+            "Key Capabilities (traced)"
+          ],
+          "fidelity": {
+            "score": 0.88,
+            "scope": "target_section",
+            "missing_words": [
+              "broad"
+            ]
+          },
+          "target_traced": true
+        }
+      },
+      {
+        "kind": "content",
+        "unit_id": "u0009",
+        "label": "- Built for automation: Python, CLI, and optional MCP surfaces share the same capabilities",
+        "disposition": "merged_reframed",
+        "target_section": "Key Capabilities",
+        "verification_status": "verified_against_source",
+        "excluded_reason": null,
+        "verdict": {
+          "status": "reframed",
+          "basis": "fidelity",
+          "found_in": [
+            "Key Capabilities (traced)"
+          ],
+          "fidelity": {
+            "score": 0.71,
+            "scope": "document",
+            "missing_words": [
+              "share",
+              "surfaces"
+            ]
+          },
+          "target_traced": true
+        }
+      },
+      {
+        "kind": "content",
+        "unit_id": "u0010",
+        "label": "Install MCP support only when you want the built-in server surface:",
+        "disposition": "merged_reframed",
+        "target_section": "Installation",
+        "verification_status": "verified_against_source",
+        "excluded_reason": null,
+        "verdict": {
+          "status": "reframed",
+          "basis": "fidelity",
+          "found_in": [
+            "Installation (traced)"
+          ],
+          "fidelity": {
+            "score": 1.0,
+            "scope": "target_section",
+            "missing_words": []
+          },
+          "target_traced": true
+        }
+      },
+      {
+        "kind": "content",
+        "unit_id": "u0011",
+        "label": "Build a web handoff package:",
+        "disposition": "excluded",
+        "target_section": null,
+        "verification_status": "verified_redundant",
+        "excluded_reason": "one-line caption for an example that is carried in full (with a fuller lead-in) as the Additional Examples flagship",
+        "verdict": {
+          "status": "excluded",
+          "basis": "excluded_reason",
+          "found_in": [],
+          "fidelity": {
+            "score": 1.0,
+            "scope": "document",
+            "missing_words": []
+          },
+          "target_traced": true
+        }
+      },
+      {
+        "kind": "content",
+        "unit_id": "u0012",
+        "label": "Generate QA evidence:",
+        "disposition": "excluded",
+        "target_section": null,
+        "verification_status": "verified_redundant",
+        "excluded_reason": "one-line caption for an example carried in full under its own heading in Additional Examples",
+        "verdict": {
+          "status": "excluded",
+          "basis": "excluded_reason",
+          "found_in": [],
+          "fidelity": {
+            "score": 1.0,
+            "scope": "document",
+            "missing_words": []
+          },
+          "target_traced": true
+        }
+      },
+      {
+        "kind": "content",
+        "unit_id": "u0013",
+        "label": "Create a release-safe static instance:",
+        "disposition": "excluded",
+        "target_section": null,
+        "verification_status": "verified_redundant",
+        "excluded_reason": "one-line caption for an example carried in full under its own heading in Additional Examples",
+        "verdict": {
+          "status": "excluded",
+          "basis": "excluded_reason",
+          "found_in": [],
+          "fidelity": {
+            "score": 1.0,
+            "scope": "document",
+            "missing_words": []
+          },
+          "target_traced": true
+        }
+      },
+      {
+        "kind": "content",
+        "unit_id": "u0014",
+        "label": "These fixture-backed examples mirror the generated demo site and show the kinds of artifac",
+        "disposition": "merged_reframed",
+        "target_section": "Additional Examples",
+        "verification_status": "verified_against_source",
+        "excluded_reason": null,
+        "verdict": {
+          "status": "reframed",
+          "basis": "fidelity",
+          "found_in": [
+            "Additional Examples (traced)"
+          ],
+          "fidelity": {
+            "score": 0.83,
+            "scope": "target_section",
+            "missing_words": [
+              "artifacts",
+              "kinds"
+            ]
+          },
+          "target_traced": true
+        }
+      },
+      {
+        "kind": "content",
+        "unit_id": "u0015",
+        "label": "`WebFontBuilder` and the `web-build` CLI produce browser-ready files plus machine-readable",
+        "disposition": "merged_reframed",
+        "target_section": "Additional Examples",
+        "verification_status": "verified_against_source",
+        "excluded_reason": null,
+        "verdict": {
+          "status": "reframed",
+          "basis": "fidelity",
+          "found_in": [
+            "Additional Examples (traced)"
+          ],
+          "fidelity": {
+            "score": 1.0,
+            "scope": "target_section",
+            "missing_words": []
+          },
+          "target_traced": true
+        }
+      },
+      {
+        "kind": "content",
+        "unit_id": "u0016",
+        "label": "The manifest records export mode, source/output variable status, coverage diagnostics, nam",
+        "disposition": "merged_reframed",
+        "target_section": "Additional Examples",
+        "verification_status": "verified_against_source",
+        "excluded_reason": null,
+        "verdict": {
+          "status": "reframed",
+          "basis": "fidelity",
+          "found_in": [
+            "Additional Examples (traced)"
+          ],
+          "fidelity": {
+            "score": 1.0,
+            "scope": "target_section",
+            "missing_words": []
+          },
+          "target_traced": true
+        }
+      },
+      {
+        "kind": "content",
+        "unit_id": "u0017",
+        "label": "`FontQaReporter.build_package(...)` and `qa-report --package-output` produce a review fold",
+        "disposition": "merged_reframed",
+        "target_section": "Additional Examples",
+        "verification_status": "verified_against_source",
+        "excluded_reason": null,
+        "verdict": {
+          "status": "reframed",
+          "basis": "fidelity",
+          "found_in": [
+            "Additional Examples (traced)"
+          ],
+          "fidelity": {
+            "score": 1.0,
+            "scope": "target_section",
+            "missing_words": []
+          },
+          "target_traced": true
+        }
+      },
+      {
+        "kind": "content",
+        "unit_id": "u0018",
+        "label": "![Font QA Report summary](./website/generated/roboto-qa-report-summary.svg)",
+        "disposition": "merged_verbatim",
+        "target_section": "Additional Examples",
+        "verification_status": "verified_against_source",
+        "excluded_reason": null,
+        "verdict": {
+          "status": "verbatim",
+          "basis": "normalized_text",
+          "found_in": [
+            "Additional Examples"
+          ],
+          "fidelity": {
+            "score": 1.0,
+            "scope": "target_section",
+            "missing_words": []
+          },
+          "target_traced": true
+        }
+      },
+      {
+        "kind": "content",
+        "unit_id": "u0019",
+        "label": "Generate approval-ready boards for selected named instances:",
+        "disposition": "merged_reframed",
+        "target_section": "Additional Examples",
+        "verification_status": "verified_against_source",
+        "excluded_reason": null,
+        "verdict": {
+          "status": "reframed",
+          "basis": "fidelity",
+          "found_in": [
+            "Additional Examples (traced)"
+          ],
+          "fidelity": {
+            "score": 0.86,
+            "scope": "target_section",
+            "missing_words": [
+              "selected"
+            ]
+          },
+          "target_traced": true
+        }
+      },
+      {
+        "kind": "content",
+        "unit_id": "u0020",
+        "label": "![Family review board](./website/generated/roboto-family-review-board.png)",
+        "disposition": "merged_verbatim",
+        "target_section": "Additional Examples",
+        "verification_status": "verified_against_source",
+        "excluded_reason": null,
+        "verdict": {
+          "status": "verbatim",
+          "basis": "normalized_text",
+          "found_in": [
+            "Additional Examples"
+          ],
+          "fidelity": {
+            "score": 1.0,
+            "scope": "target_section",
+            "missing_words": []
+          },
+          "target_traced": true
+        }
+      },
+      {
+        "kind": "content",
+        "unit_id": "u0021",
+        "label": "Show how a variable font behaves across weight and width:",
+        "disposition": "merged_reframed",
+        "target_section": "Additional Examples",
+        "verification_status": "verified_against_source",
+        "excluded_reason": null,
+        "verdict": {
+          "status": "reframed",
+          "basis": "fidelity",
+          "found_in": [
+            "Additional Examples (traced)"
+          ],
+          "fidelity": {
+            "score": 1.0,
+            "scope": "target_section",
+            "missing_words": []
+          },
+          "target_traced": true
+        }
+      },
+      {
+        "kind": "content",
+        "unit_id": "u0022",
+        "label": "![Axis grid preview](./website/generated/roboto-axis-grid.png)",
+        "disposition": "merged_verbatim",
+        "target_section": "Additional Examples",
+        "verification_status": "verified_against_source",
+        "excluded_reason": null,
+        "verdict": {
+          "status": "verbatim",
+          "basis": "normalized_text",
+          "found_in": [
+            "Additional Examples"
+          ],
+          "fidelity": {
+            "score": 1.0,
+            "scope": "target_section",
+            "missing_words": []
+          },
+          "target_traced": true
+        }
+      },
+      {
+        "kind": "content",
+        "unit_id": "u0023",
+        "label": "Inspect how outlines change between variable-font instances:",
+        "disposition": "merged_reframed",
+        "target_section": "Additional Examples",
+        "verification_status": "verified_against_source",
+        "excluded_reason": null,
+        "verdict": {
+          "status": "reframed",
+          "basis": "fidelity",
+          "found_in": [
+            "Additional Examples (traced)"
+          ],
+          "fidelity": {
+            "score": 1.0,
+            "scope": "target_section",
+            "missing_words": []
+          },
+          "target_traced": true
+        }
+      },
+      {
+        "kind": "content",
+        "unit_id": "u0024",
+        "label": "![Delta comparison board](./website/generated/roboto-delta-compare.png)",
+        "disposition": "merged_verbatim",
+        "target_section": "Additional Examples",
+        "verification_status": "verified_against_source",
+        "excluded_reason": null,
+        "verdict": {
+          "status": "verbatim",
+          "basis": "normalized_text",
+          "found_in": [
+            "Additional Examples"
+          ],
+          "fidelity": {
+            "score": 1.0,
+            "scope": "target_section",
+            "missing_words": []
+          },
+          "target_traced": true
+        }
+      },
+      {
+        "kind": "content",
+        "unit_id": "u0025",
+        "label": "Create APNG sweeps, scripted paths, frame packages, review bundles, and showcase folders:",
+        "disposition": "merged_reframed",
+        "target_section": "Additional Examples",
+        "verification_status": "verified_against_source",
+        "excluded_reason": null,
+        "verdict": {
+          "status": "reframed",
+          "basis": "fidelity",
+          "found_in": [
+            "Additional Examples (traced)"
+          ],
+          "fidelity": {
+            "score": 0.73,
+            "scope": "target_section",
+            "missing_words": [
+              "folders",
+              "frame",
+              "paths"
+            ]
+          },
+          "target_traced": true
+        }
+      },
+      {
+        "kind": "content",
+        "unit_id": "u0026",
+        "label": "![Variable font animation sweep](./website/generated/roboto-animation-sweep.png)",
+        "disposition": "merged_verbatim",
+        "target_section": "Additional Examples",
+        "verification_status": "verified_against_source",
+        "excluded_reason": null,
+        "verdict": {
+          "status": "verbatim",
+          "basis": "normalized_text",
+          "found_in": [
+            "Additional Examples"
+          ],
+          "fidelity": {
+            "score": 1.0,
+            "scope": "target_section",
+            "missing_words": []
+          },
+          "target_traced": true
+        }
+      },
+      {
+        "kind": "content",
+        "unit_id": "u0027",
+        "label": "| Area | What You Can Do Now | | --- | --- | | Load and inspect | Open TTF, OTF, CFF, Type",
+        "disposition": "merged_reframed",
+        "target_section": "Key Capabilities",
+        "verification_status": "verified_against_source",
+        "excluded_reason": null,
+        "verdict": {
+          "status": "reframed",
+          "basis": "fidelity",
+          "found_in": [
+            "Key Capabilities (traced)"
+          ],
+          "fidelity": {
+            "score": 0.63,
+            "scope": "target_section",
+            "missing_words": [
+              "animation",
+              "area",
+              "artifacts",
+              "automation",
+              "build",
+              "cards",
+              "clean",
+              "clear",
+              "codepoints",
+              "comparative",
+              "component",
+              "composite",
+              "coordinate",
+              "create",
+              "deliverables",
+              "desktop",
+              "diagram",
+              "diff",
+              "directly",
+              "distribution",
+              "docs",
+              "downstream",
+              "emit",
+              "explicit",
+              "exported",
+              "facing",
+              "filters",
+              "flows",
+              "glyphs",
+              "grids",
+              "guided",
+              "inspector",
+              "level",
+              "loader",
+              "machine",
+              "marketing",
+              "mode",
+              "multiple",
+              "needed",
+              "outputs",
+              "overlay",
+              "packaging",
+              "packs",
+              "panels",
+              "policies",
+              "presentation",
+              "pure",
+              "python",
+              "readable",
+              "reusable",
+              "richer",
+              "selection",
+              "shape",
+              "sharing",
+              "sliders",
+              "smaller",
+              "source",
+              "streams",
+              "style",
+              "suffix",
+              "suggest",
+              "templates",
+              "widths",
+              "workflows"
+            ]
+          },
+          "target_traced": true
+        }
+      },
+      {
+        "kind": "content",
+        "unit_id": "u0028",
+        "label": "The current roadmap is centered on variable fonts. The strongest surface area today is the",
+        "disposition": "excluded",
+        "target_section": null,
+        "verification_status": "not_applicable_category_1",
+        "excluded_reason": "roadmap/positioning narrative ('the current roadmap is centered on variable fonts; the strongest surface area today is...') -- a statement of development focus, not a checkable product mechanism; the bullets it introduced are each carried separately",
+        "verdict": {
+          "status": "excluded",
+          "basis": "excluded_reason",
+          "found_in": [],
+          "fidelity": {
+            "score": 0.5,
+            "scope": "document",
+            "missing_words": [
+              "area",
+              "centered",
+              "roadmap",
+              "strongest",
+              "today"
+            ]
+          },
+          "target_traced": true
+        }
+      },
+      {
+        "kind": "content",
+        "unit_id": "u0029",
+        "label": "- `font.axes`, `font.named_instances`, and `font.smart_instancer`",
+        "disposition": "merged_reframed",
+        "target_section": "Key Capabilities",
+        "verification_status": "verified_against_source",
+        "excluded_reason": null,
+        "verdict": {
+          "status": "verbatim",
+          "basis": "normalized_text",
+          "found_in": [
+            "Key Capabilities"
+          ],
+          "fidelity": {
+            "score": 1.0,
+            "scope": "target_section",
+            "missing_words": []
+          },
+          "target_traced": true
+        }
+      },
+      {
+        "kind": "content",
+        "unit_id": "u0030",
+        "label": "- `font.variable_axes` with labels, presets, and presentation metadata for common axes",
+        "disposition": "merged_reframed",
+        "target_section": "Additional Examples",
+        "verification_status": "verified_against_source",
+        "excluded_reason": null,
+        "verdict": {
+          "status": "reframed",
+          "basis": "fidelity",
+          "found_in": [
+            "Additional Examples (traced)"
+          ],
+          "fidelity": {
+            "score": 0.88,
+            "scope": "target_section",
+            "missing_words": [
+              "common"
+            ]
+          },
+          "target_traced": true
+        }
+      },
+      {
+        "kind": "content",
+        "unit_id": "u0031",
+        "label": "- additive axis summaries such as `axis.range_summary`, `axis.default_ratio`, and preset-a",
+        "disposition": "merged_reframed",
+        "target_section": "Additional Examples",
+        "verification_status": "verified_against_source",
+        "excluded_reason": null,
+        "verdict": {
+          "status": "reframed",
+          "basis": "fidelity",
+          "found_in": [
+            "Additional Examples (traced)"
+          ],
+          "fidelity": {
+            "score": 1.0,
+            "scope": "target_section",
+            "missing_words": []
+          },
+          "target_traced": true
+        }
+      },
+      {
+        "kind": "content",
+        "unit_id": "u0032",
+        "label": "- locale-aware axis and named-instance labels through `axis.name(...)`, `instance.name(...",
+        "disposition": "merged_reframed",
+        "target_section": "Additional Examples",
+        "verification_status": "verified_against_source",
+        "excluded_reason": null,
+        "verdict": {
+          "status": "reframed",
+          "basis": "fidelity",
+          "found_in": [
+            "Additional Examples (traced)"
+          ],
+          "fidelity": {
+            "score": 1.0,
+            "scope": "target_section",
+            "missing_words": []
+          },
+          "target_traced": true
+        }
+      },
+      {
+        "kind": "content",
+        "unit_id": "u0033",
+        "label": "- ordered localization inventory through `axis.localized_labels(...)`, `instance.localized",
+        "disposition": "merged_reframed",
+        "target_section": "Additional Examples",
+        "verification_status": "verified_against_source",
+        "excluded_reason": null,
+        "verdict": {
+          "status": "reframed",
+          "basis": "fidelity",
+          "found_in": [
+            "Additional Examples (traced)"
+          ],
+          "fidelity": {
+            "score": 0.69,
+            "scope": "target_section",
+            "missing_words": [
+              "broader",
+              "common",
+              "inventory",
+              "localization"
+            ]
+          },
+          "target_traced": true
+        }
+      },
+      {
+        "kind": "content",
+        "unit_id": "u0034",
+        "label": "- display-ready requested-language profile payloads through `axis.language_profiles(...)`,",
+        "disposition": "merged_reframed",
+        "target_section": "Additional Examples",
+        "verification_status": "verified_against_source",
+        "excluded_reason": null,
+        "verdict": {
+          "status": "reframed",
+          "basis": "fidelity",
+          "found_in": [
+            "Additional Examples (traced)"
+          ],
+          "fidelity": {
+            "score": 0.83,
+            "scope": "target_section",
+            "missing_words": [
+              "profile",
+              "requested"
+            ]
+          },
+          "target_traced": true
+        }
+      },
+      {
+        "kind": "content",
+        "unit_id": "u0035",
+        "label": "- axis-aware named-instance coordinate labels through `instance.format_coordinates(...)` a",
+        "disposition": "merged_reframed",
+        "target_section": "Additional Examples",
+        "verification_status": "verified_against_source",
+        "excluded_reason": null,
+        "verdict": {
+          "status": "reframed",
+          "basis": "fidelity",
+          "found_in": [
+            "Additional Examples (traced)"
+          ],
+          "fidelity": {
+            "score": 0.91,
+            "scope": "target_section",
+            "missing_words": [
+              "richer"
+            ]
+          },
+          "target_traced": true
+        }
+      },
+      {
+        "kind": "content",
+        "unit_id": "u0036",
+        "label": "- JSON-ready Axes Explorer snapshots through `axis.to_presentation(...)`, `instance.to_pre",
+        "disposition": "corrected",
+        "target_section": "Additional Examples",
+        "verification_status": "verified_against_source",
+        "excluded_reason": "corrected: the API facts are carried; the pointer to docs/variable-presentation-schema.md is dropped because that file does not exist in this tree",
+        "verdict": {
+          "status": "corrected",
+          "basis": "fidelity",
+          "found_in": [
+            "Additional Examples (traced)"
+          ],
+          "fidelity": {
+            "score": 0.75,
+            "scope": "target_section",
+            "missing_words": [
+              "contract",
+              "docs",
+              "integration",
+              "schema",
+              "stable"
+            ]
+          },
+          "target_traced": true
+        }
+      },
+      {
+        "kind": "content",
+        "unit_id": "u0037",
+        "label": "- preset-aware coordinate selection such as `wght=\"Bold\"` or `wdth=\"Condensed\"`",
+        "disposition": "merged_reframed",
+        "target_section": "Additional Examples",
+        "verification_status": "verified_against_source",
+        "excluded_reason": null,
+        "verdict": {
+          "status": "reframed",
+          "basis": "fidelity",
+          "found_in": [
+            "Additional Examples (traced)"
+          ],
+          "fidelity": {
+            "score": 0.88,
+            "scope": "target_section",
+            "missing_words": [
+              "selection"
+            ]
+          },
+          "target_traced": true
+        }
+      },
+      {
+        "kind": "content",
+        "unit_id": "u0038",
+        "label": "- guided axis-grid suggestions through `SmartInstancer.suggest_axis_values(...)` and prese",
+        "disposition": "merged_reframed",
+        "target_section": "Additional Examples",
+        "verification_status": "verified_against_source",
+        "excluded_reason": null,
+        "verdict": {
+          "status": "reframed",
+          "basis": "fidelity",
+          "found_in": [
+            "Additional Examples (traced)"
+          ],
+          "fidelity": {
+            "score": 0.8,
+            "scope": "target_section",
+            "missing_words": [
+              "driven",
+              "exports"
+            ]
+          },
+          "target_traced": true
+        }
+      },
+      {
+        "kind": "content",
+        "unit_id": "u0039",
+        "label": "- `HVAR`-aware static instancing so exported widths can follow horizontal metric variation",
+        "disposition": "merged_reframed",
+        "target_section": "Key Capabilities",
+        "verification_status": "verified_against_source",
+        "excluded_reason": null,
+        "verdict": {
+          "status": "reframed",
+          "basis": "fidelity",
+          "found_in": [
+            "Key Capabilities (traced)"
+          ],
+          "fidelity": {
+            "score": 0.91,
+            "scope": "document",
+            "missing_words": [
+              "follow"
+            ]
+          },
+          "target_traced": true
+        }
+      },
+      {
+        "kind": "content",
+        "unit_id": "u0040",
+        "label": "- configurable naming strategies for generated static instances and web handoff packages, ",
+        "disposition": "merged_reframed",
+        "target_section": "Key Capabilities",
+        "verification_status": "verified_against_source",
+        "excluded_reason": null,
+        "verdict": {
+          "status": "reframed",
+          "basis": "fidelity",
+          "found_in": [
+            "Key Capabilities (traced)"
+          ],
+          "fidelity": {
+            "score": 0.62,
+            "scope": "target_section",
+            "missing_words": [
+              "channel",
+              "coexistence",
+              "explicit",
+              "generated",
+              "labeling",
+              "overrides",
+              "policies",
+              "release",
+              "safer",
+              "style"
+            ]
+          },
+          "target_traced": true
+        }
+      },
+      {
+        "kind": "content",
+        "unit_id": "u0041",
+        "label": "- high-level previews through `FontPreviewBuilder`",
+        "disposition": "merged_reframed",
+        "target_section": "Additional Examples",
+        "verification_status": "verified_against_source",
+        "excluded_reason": null,
+        "verdict": {
+          "status": "reframed",
+          "basis": "fidelity",
+          "found_in": [
+            "Additional Examples (traced)"
+          ],
+          "fidelity": {
+            "score": 0.8,
+            "scope": "target_section",
+            "missing_words": [
+              "high"
+            ]
+          },
+          "target_traced": true
+        }
+      },
+      {
+        "kind": "content",
+        "unit_id": "u0042",
+        "label": "- web handoff packaging through `WebFontBuilder`, `SmartInstancer.build_web_bundle(...)`, ",
+        "disposition": "merged_reframed",
+        "target_section": "Key Capabilities",
+        "verification_status": "verified_against_source",
+        "excluded_reason": null,
+        "verdict": {
+          "status": "reframed",
+          "basis": "fidelity",
+          "found_in": [
+            "Key Capabilities (traced)"
+          ],
+          "fidelity": {
+            "score": 0.86,
+            "scope": "target_section",
+            "missing_words": [
+              "coordinate",
+              "packaging"
+            ]
+          },
+          "target_traced": true
+        }
+      },
+      {
+        "kind": "content",
+        "unit_id": "u0043",
+        "label": "- QA reporting through `FontQaReporter`, `CompatibilityChecker`, and `DeltaInspector`",
+        "disposition": "merged_reframed",
+        "target_section": "Key Capabilities",
+        "verification_status": "verified_against_source",
+        "excluded_reason": null,
+        "verdict": {
+          "status": "reframed",
+          "basis": "fidelity",
+          "found_in": [
+            "Key Capabilities (traced)"
+          ],
+          "fidelity": {
+            "score": 0.8,
+            "scope": "target_section",
+            "missing_words": [
+              "reporting"
+            ]
+          },
+          "target_traced": true
+        }
+      },
+      {
+        "kind": "content",
+        "unit_id": "u0044",
+        "label": "- deeper compatibility issue notes for segment mix, control points, contour closure, and e",
+        "disposition": "merged_reframed",
+        "target_section": "Key Capabilities",
+        "verification_status": "verified_against_source",
+        "excluded_reason": null,
+        "verdict": {
+          "status": "reframed",
+          "basis": "fidelity",
+          "found_in": [
+            "Key Capabilities (traced)"
+          ],
+          "fidelity": {
+            "score": 0.91,
+            "scope": "target_section",
+            "missing_words": [
+              "deeper"
+            ]
+          },
+          "target_traced": true
+        }
+      },
+      {
+        "kind": "content",
+        "unit_id": "u0045",
+        "label": "- additive interpolation diagnostics for active `gvar` tuple changes between compared inst",
+        "disposition": "merged_reframed",
+        "target_section": "Key Capabilities",
+        "verification_status": "verified_against_source",
+        "excluded_reason": null,
+        "verdict": {
+          "status": "reframed",
+          "basis": "fidelity",
+          "found_in": [
+            "Key Capabilities (traced)"
+          ],
+          "fidelity": {
+            "score": 0.91,
+            "scope": "target_section",
+            "missing_words": [
+              "additive"
+            ]
+          },
+          "target_traced": true
+        }
+      },
+      {
+        "kind": "content",
+        "unit_id": "u0046",
+        "label": "The generated grid-family package links back to the demo-site direction: `family.html` sho",
+        "disposition": "merged_reframed",
+        "target_section": "Additional Examples",
+        "verification_status": "verified_against_source",
+        "excluded_reason": null,
+        "verdict": {
+          "status": "reframed",
+          "basis": "fidelity",
+          "found_in": [
+            "Additional Examples (traced)"
+          ],
+          "fidelity": {
+            "score": 1.0,
+            "scope": "target_section",
+            "missing_words": []
+          },
+          "target_traced": true
+        }
+      },
+      {
+        "kind": "content",
+        "unit_id": "u0047",
+        "label": "Expose the library to AI clients and local toolchains:",
+        "disposition": "merged_reframed",
+        "target_section": "Additional Examples",
+        "verification_status": "verified_against_source",
+        "excluded_reason": null,
+        "verdict": {
+          "status": "reframed",
+          "basis": "fidelity",
+          "found_in": [
+            "Additional Examples (traced)"
+          ],
+          "fidelity": {
+            "score": 1.0,
+            "scope": "target_section",
+            "missing_words": []
+          },
+          "target_traced": true
+        }
+      },
+      {
+        "kind": "content",
+        "unit_id": "u0048",
+        "label": "The MCP server now covers low-level inspection tools, machine-readable variable-font compa",
+        "disposition": "merged_reframed",
+        "target_section": "Additional Examples",
+        "verification_status": "verified_against_source",
+        "excluded_reason": null,
+        "verdict": {
+          "status": "reframed",
+          "basis": "fidelity",
+          "found_in": [
+            "Additional Examples (traced)"
+          ],
+          "fidelity": {
+            "score": 0.96,
+            "scope": "target_section",
+            "missing_words": [
+              "high"
+            ]
+          },
+          "target_traced": true
+        }
+      },
+      {
+        "kind": "content",
+        "unit_id": "u0049",
+        "label": "These verification flows also refresh the generated demo site content.",
+        "disposition": "merged_reframed",
+        "target_section": "Development and Testing",
+        "verification_status": "verified_against_source",
+        "excluded_reason": null,
+        "verdict": {
+          "status": "reframed",
+          "basis": "fidelity",
+          "found_in": [
+            "Development and Testing (traced)"
+          ],
+          "fidelity": {
+            "score": 1.0,
+            "scope": "target_section",
+            "missing_words": []
+          },
+          "target_traced": true
+        }
+      },
+      {
+        "kind": "content",
+        "unit_id": "u0050",
+        "label": "[MIT](./LICENSE.txt)",
+        "disposition": "merged_reframed",
+        "target_section": "License",
+        "verification_status": "verified_against_source",
+        "excluded_reason": null,
+        "verdict": {
+          "status": "reframed",
+          "basis": "fidelity",
+          "found_in": [
+            "License (traced)"
+          ],
+          "fidelity": {
+            "score": 1.0,
+            "scope": "target_section",
+            "missing_words": []
+          },
+          "target_traced": true
+        }
+      },
+      {
+        "kind": "structural",
+        "unit_id": "s0001",
+        "label": "Variable Font Discovery (generic_structural_block)",
+        "disposition": "merged_verbatim",
+        "target_section": "Additional Examples",
+        "verification_status": "verified_against_source",
+        "excluded_reason": null,
+        "verdict": {
+          "status": "verbatim",
+          "basis": "whitespace_normalized_block",
+          "found_in": [
+            "Additional Examples"
+          ],
+          "fidelity": null
+        }
+      },
+      {
+        "kind": "structural",
+        "unit_id": "s0002",
+        "label": "CLI Highlights (generic_structural_block)",
+        "disposition": "merged_verbatim",
+        "target_section": "Additional Examples",
+        "verification_status": "verified_against_source",
+        "excluded_reason": null,
+        "verdict": {
+          "status": "verbatim",
+          "basis": "whitespace_normalized_block",
+          "found_in": [
+            "Additional Examples"
+          ],
+          "fidelity": null
+        }
+      },
+      {
+        "kind": "code",
+        "unit_id": "c0001",
+        "label": "[Install] pip install aspose-font",
+        "disposition": "corrected",
+        "target_section": "Installation",
+        "verification_status": "verified_against_source",
+        "excluded_reason": null,
+        "verdict": {
+          "status": "verbatim",
+          "basis": "whitespace_normalized_code",
+          "found_in": [
+            "Installation"
+          ],
+          "fidelity": null,
+          "fingerprint": [
+            "pip install"
+          ],
+          "survived": [
+            "pip install"
+          ]
+        }
+      },
+      {
+        "kind": "code",
+        "unit_id": "c0002",
+        "label": "[Install] pip install \"aspose-font[mcp]\"",
+        "disposition": "corrected",
+        "target_section": "Installation",
+        "verification_status": "verified_against_source",
+        "excluded_reason": null,
+        "verdict": {
+          "status": "api_survived",
+          "basis": "live_fingerprint",
+          "found_in": [
+            "Installation",
+            "Additional Examples",
+            "Development and Testing"
+          ],
+          "fidelity": null,
+          "fingerprint": [
+            "pip install"
+          ],
+          "survived": [
+            "pip install"
+          ]
+        }
+      },
+      {
+        "kind": "code",
+        "unit_id": "c0003",
+        "label": "[Quick Start] font = FontLoader.open(\"Roboto-VariableFont_wdth,wght.ttf\")",
+        "disposition": "merged_verbatim",
+        "target_section": "Additional Examples",
+        "verification_status": "verified_against_source",
+        "excluded_reason": null,
+        "verdict": {
+          "status": "verbatim",
+          "basis": "whitespace_normalized_code",
+          "found_in": [
+            "Additional Examples"
+          ],
+          "fidelity": null,
+          "fingerprint": [
+            "FontLoader.open",
+            "WebFontBuilder.build",
+            "bundle.write_to"
+          ],
+          "survived": [
+            "FontLoader.open",
+            "WebFontBuilder.build",
+            "bundle.write_to"
+          ]
+        }
+      },
+      {
+        "kind": "code",
+        "unit_id": "c0004",
+        "label": "[Quick Start] font = FontLoader.open(\"Roboto-VariableFont_wdth,wght.ttf\")",
+        "disposition": "merged_verbatim",
+        "target_section": "Additional Examples",
+        "verification_status": "verified_against_source",
+        "excluded_reason": null,
+        "verdict": {
+          "status": "verbatim",
+          "basis": "whitespace_normalized_code",
+          "found_in": [
+            "Additional Examples"
+          ],
+          "fidelity": null,
+          "fingerprint": [
+            "FontLoader.open",
+            "FontQaReporter.build_package"
+          ],
+          "survived": [
+            "FontLoader.open",
+            "FontQaReporter.build_package"
+          ]
+        }
+      },
+      {
+        "kind": "code",
+        "unit_id": "c0005",
+        "label": "[Quick Start] font = FontLoader.open(\"Roboto-VariableFont_wdth,wght.ttf\")",
+        "disposition": "corrected",
+        "target_section": "Additional Examples",
+        "verification_status": "verified_against_source",
+        "excluded_reason": null,
+        "verdict": {
+          "status": "api_survived",
+          "basis": "live_fingerprint",
+          "found_in": [
+            "Quick Start",
+            "Additional Examples"
+          ],
+          "fidelity": null,
+          "fingerprint": [
+            "FontLoader.open",
+            "font.instantiate",
+            "instance.save"
+          ],
+          "survived": [
+            "FontLoader.open",
+            "font.instantiate",
+            "instance.save"
+          ]
+        }
+      },
+      {
+        "kind": "code",
+        "unit_id": "c0006",
+        "label": "[Web Package Handoff] web-out/",
+        "disposition": "merged_verbatim",
+        "target_section": "Additional Examples",
+        "verification_status": "verified_against_source",
+        "excluded_reason": null,
+        "verdict": {
+          "status": "verbatim",
+          "basis": "whitespace_normalized_code",
+          "found_in": [
+            "Additional Examples"
+          ],
+          "fidelity": null,
+          "fingerprint": [],
+          "survived": []
+        }
+      },
+      {
+        "kind": "code",
+        "unit_id": "c0007",
+        "label": "[Web Package Handoff] aspose-font web-build Roboto-VariableFont_wdth,wght.ttf web-out --pr",
+        "disposition": "merged_verbatim",
+        "target_section": "Additional Examples",
+        "verification_status": "verified_against_source",
+        "excluded_reason": null,
+        "verdict": {
+          "status": "verbatim",
+          "basis": "whitespace_normalized_code",
+          "found_in": [
+            "Additional Examples"
+          ],
+          "fidelity": null,
+          "fingerprint": [
+            "aspose-font web-build"
+          ],
+          "survived": [
+            "aspose-font web-build"
+          ]
+        }
+      },
+      {
+        "kind": "code",
+        "unit_id": "c0008",
+        "label": "[QA Report Package] qa-package/",
+        "disposition": "merged_verbatim",
+        "target_section": "Additional Examples",
+        "verification_status": "verified_against_source",
+        "excluded_reason": null,
+        "verdict": {
+          "status": "verbatim",
+          "basis": "whitespace_normalized_code",
+          "found_in": [
+            "Additional Examples"
+          ],
+          "fidelity": null,
+          "fingerprint": [],
+          "survived": []
+        }
+      },
+      {
+        "kind": "code",
+        "unit_id": "c0009",
+        "label": "[QA Report Package] aspose-font qa-report Roboto-VariableFont_wdth,wght.ttf --preset latin",
+        "disposition": "merged_verbatim",
+        "target_section": "Additional Examples",
+        "verification_status": "verified_against_source",
+        "excluded_reason": null,
+        "verdict": {
+          "status": "verbatim",
+          "basis": "whitespace_normalized_code",
+          "found_in": [
+            "Additional Examples"
+          ],
+          "fidelity": null,
+          "fingerprint": [
+            "aspose-font qa-report"
+          ],
+          "survived": [
+            "aspose-font qa-report"
+          ]
+        }
+      },
+      {
+        "kind": "code",
+        "unit_id": "c0010",
+        "label": "[Variable Instance Review] font = FontLoader.open(\"Roboto-VariableFont_wdth,wght.ttf\")",
+        "disposition": "merged_verbatim",
+        "target_section": "Additional Examples",
+        "verification_status": "verified_against_source",
+        "excluded_reason": null,
+        "verdict": {
+          "status": "verbatim",
+          "basis": "whitespace_normalized_code",
+          "found_in": [
+            "Additional Examples"
+          ],
+          "fidelity": null,
+          "fingerprint": [
+            "FontLoader.open",
+            "font.smart_instancer.build_family_review_board",
+            "board.write_to"
+          ],
+          "survived": [
+            "FontLoader.open",
+            "font.smart_instancer.build_family_review_board",
+            "board.write_to"
+          ]
+        }
+      },
+      {
+        "kind": "code",
+        "unit_id": "c0011",
+        "label": "[Axis Grid Proof] font = FontLoader.open(\"Roboto-VariableFont_wdth,wght.ttf\")",
+        "disposition": "merged_verbatim",
+        "target_section": "Additional Examples",
+        "verification_status": "verified_against_source",
+        "excluded_reason": null,
+        "verdict": {
+          "status": "verbatim",
+          "basis": "whitespace_normalized_code",
+          "found_in": [
+            "Additional Examples"
+          ],
+          "fidelity": null,
+          "fingerprint": [
+            "FontLoader.open",
+            "font.smart_instancer.build_axis_grid_sheet",
+            "grid.write_to"
+          ],
+          "survived": [
+            "FontLoader.open",
+            "font.smart_instancer.build_axis_grid_sheet",
+            "grid.write_to"
+          ]
+        }
+      },
+      {
+        "kind": "code",
+        "unit_id": "c0012",
+        "label": "[Delta and Compatibility Evidence] font = FontLoader.open(\"Roboto-VariableFont_wdth,wght.t",
+        "disposition": "merged_verbatim",
+        "target_section": "Additional Examples",
+        "verification_status": "verified_against_source",
+        "excluded_reason": null,
+        "verdict": {
+          "status": "verbatim",
+          "basis": "whitespace_normalized_code",
+          "found_in": [
+            "Additional Examples"
+          ],
+          "fidelity": null,
+          "fingerprint": [
+            "FontLoader.open",
+            "font.smart_instancer.compare_delta_glyph",
+            "ord"
+          ],
+          "survived": [
+            "FontLoader.open",
+            "font.smart_instancer.compare_delta_glyph",
+            "ord"
+          ]
+        }
+      },
+      {
+        "kind": "code",
+        "unit_id": "c0013",
+        "label": "[Delta and Compatibility Evidence] is_comparable = True",
+        "disposition": "merged_verbatim",
+        "target_section": "Additional Examples",
+        "verification_status": "verified_against_source",
+        "excluded_reason": null,
+        "verdict": {
+          "status": "verbatim",
+          "basis": "whitespace_normalized_code",
+          "found_in": [
+            "Additional Examples"
+          ],
+          "fidelity": null,
+          "fingerprint": [],
+          "survived": []
+        }
+      },
+      {
+        "kind": "code",
+        "unit_id": "c0014",
+        "label": "[Animation and Showcase Assets] aspose-font preview-animation Roboto-VariableFont_wdth,wgh",
+        "disposition": "merged_verbatim",
+        "target_section": "Additional Examples",
+        "verification_status": "verified_against_source",
+        "excluded_reason": null,
+        "verdict": {
+          "status": "verbatim",
+          "basis": "whitespace_normalized_code",
+          "found_in": [
+            "Additional Examples"
+          ],
+          "fidelity": null,
+          "fingerprint": [
+            "aspose-font preview-animation",
+            "aspose-font preview-animation-path-showcase"
+          ],
+          "survived": [
+            "aspose-font preview-animation",
+            "aspose-font preview-animation-path-showcase"
+          ]
+        }
+      },
+      {
+        "kind": "code",
+        "unit_id": "c0015",
+        "label": "[Variable Font Discovery] font = FontLoader.open(\"Roboto-VariableFont_wdth,wght.ttf\")",
+        "disposition": "merged_verbatim",
+        "target_section": "Additional Examples",
+        "verification_status": "verified_against_source",
+        "excluded_reason": null,
+        "verdict": {
+          "status": "verbatim",
+          "basis": "whitespace_normalized_code",
+          "found_in": [
+            "Additional Examples"
+          ],
+          "fidelity": null,
+          "fingerprint": [
+            "FontLoader.open",
+            "font.get_axis",
+            "get_preset",
+            "font.smart_instancer.resolve",
+            "font.smart_instancer.suggest_axis_values",
+            "name",
+            "font.get_named_instance",
+            "format_coordinates",
+            "localized_labels",
+            "font.variable_presentation"
+          ],
+          "survived": [
+            "FontLoader.open",
+            "font.get_axis",
+            "get_preset",
+            "font.smart_instancer.resolve",
+            "font.smart_instancer.suggest_axis_values",
+            "name",
+            "font.get_named_instance",
+            "format_coordinates",
+            "localized_labels",
+            "font.variable_presentation"
+          ]
+        }
+      },
+      {
+        "kind": "code",
+        "unit_id": "c0016",
+        "label": "[Variable Font Discovery] is_variable = True",
+        "disposition": "merged_verbatim",
+        "target_section": "Additional Examples",
+        "verification_status": "verified_against_source",
+        "excluded_reason": null,
+        "verdict": {
+          "status": "verbatim",
+          "basis": "whitespace_normalized_code",
+          "found_in": [
+            "Additional Examples"
+          ],
+          "fidelity": null,
+          "fingerprint": [
+            "Regular",
+            "Condensed",
+            "Bold"
+          ],
+          "survived": [
+            "Regular",
+            "Condensed",
+            "Bold"
+          ]
+        }
+      },
+      {
+        "kind": "code",
+        "unit_id": "c0017a",
+        "label": "[Python API Highlights] from aspose_font import FontLoader, FontPreviewBuilder, FontQaRepo",
+        "disposition": "merged_reframed",
+        "target_section": "Additional Examples",
+        "verification_status": "verified_against_source",
+        "excluded_reason": null,
+        "verdict": {
+          "status": "reframed",
+          "basis": "no_api_calls_to_track",
+          "found_in": [],
+          "fidelity": null,
+          "fingerprint": [],
+          "survived": []
+        }
+      },
+      {
+        "kind": "code",
+        "unit_id": "c0017b",
+        "label": "[Python API Highlights] font = FontLoader.open(\"Roboto-VariableFont_wdth,wght.ttf\")",
+        "disposition": "merged_verbatim",
+        "target_section": "Additional Examples",
+        "verification_status": "verified_against_source",
+        "excluded_reason": null,
+        "verdict": {
+          "status": "verbatim",
+          "basis": "whitespace_normalized_code",
+          "found_in": [
+            "Additional Examples"
+          ],
+          "fidelity": null,
+          "fingerprint": [
+            "FontLoader.open"
+          ],
+          "survived": [
+            "FontLoader.open"
+          ]
+        }
+      },
+      {
+        "kind": "code",
+        "unit_id": "c0017c",
+        "label": "[Python API Highlights] subset_result = FontSubsetter.subset_for_web_with_coverage(",
+        "disposition": "merged_verbatim",
+        "target_section": "Additional Examples",
+        "verification_status": "verified_against_source",
+        "excluded_reason": null,
+        "verdict": {
+          "status": "verbatim",
+          "basis": "whitespace_normalized_code",
+          "found_in": [
+            "Additional Examples"
+          ],
+          "fidelity": null,
+          "fingerprint": [
+            "FontSubsetter.subset_for_web_with_coverage"
+          ],
+          "survived": [
+            "FontSubsetter.subset_for_web_with_coverage"
+          ]
+        }
+      },
+      {
+        "kind": "code",
+        "unit_id": "c0017d",
+        "label": "[Python API Highlights] preview = FontPreviewBuilder.build(font, instance_name=\"Bold\", tex",
+        "disposition": "merged_verbatim",
+        "target_section": "Additional Examples",
+        "verification_status": "verified_against_source",
+        "excluded_reason": null,
+        "verdict": {
+          "status": "verbatim",
+          "basis": "whitespace_normalized_code",
+          "found_in": [
+            "Additional Examples"
+          ],
+          "fidelity": null,
+          "fingerprint": [
+            "FontPreviewBuilder.build",
+            "preview.write_to"
+          ],
+          "survived": [
+            "FontPreviewBuilder.build",
+            "preview.write_to"
+          ]
+        }
+      },
+      {
+        "kind": "code",
+        "unit_id": "c0017e",
+        "label": "[Python API Highlights] svg_preview = FontPreviewBuilder.build(",
+        "disposition": "merged_verbatim",
+        "target_section": "Additional Examples",
+        "verification_status": "verified_against_source",
+        "excluded_reason": null,
+        "verdict": {
+          "status": "verbatim",
+          "basis": "whitespace_normalized_code",
+          "found_in": [
+            "Additional Examples"
+          ],
+          "fidelity": null,
+          "fingerprint": [
+            "FontPreviewBuilder.build",
+            "svg_preview.write_to"
+          ],
+          "survived": [
+            "FontPreviewBuilder.build",
+            "svg_preview.write_to"
+          ]
+        }
+      },
+      {
+        "kind": "code",
+        "unit_id": "c0017f",
+        "label": "[Python API Highlights] instanced = font.smart_instancer.instantiate(",
+        "disposition": "merged_verbatim",
+        "target_section": "Additional Examples",
+        "verification_status": "verified_against_source",
+        "excluded_reason": null,
+        "verdict": {
+          "status": "verbatim",
+          "basis": "whitespace_normalized_code",
+          "found_in": [
+            "Additional Examples"
+          ],
+          "fidelity": null,
+          "fingerprint": [
+            "font.smart_instancer.instantiate",
+            "instanced.ttf_tables.name.get"
+          ],
+          "survived": [
+            "font.smart_instancer.instantiate",
+            "instanced.ttf_tables.name.get"
+          ]
+        }
+      },
+      {
+        "kind": "code",
+        "unit_id": "c0017g",
+        "label": "[Python API Highlights] menu_named = font.instantiate(",
+        "disposition": "merged_reframed",
+        "target_section": "Additional Examples",
+        "verification_status": "verified_against_source",
+        "excluded_reason": null,
+        "verdict": {
+          "status": "api_survived",
+          "basis": "live_fingerprint",
+          "found_in": [
+            "Additional Examples"
+          ],
+          "fidelity": null,
+          "fingerprint": [
+            "font.instantiate",
+            "menu_named.ttf_tables.name.get"
+          ],
+          "survived": [
+            "font.instantiate",
+            "menu_named.ttf_tables.name.get"
+          ]
+        }
+      },
+      {
+        "kind": "code",
+        "unit_id": "c0017h",
+        "label": "[Python API Highlights] preview = font.preview_naming_policy(",
+        "disposition": "merged_verbatim",
+        "target_section": "Additional Examples",
+        "verification_status": "verified_against_source",
+        "excluded_reason": null,
+        "verdict": {
+          "status": "verbatim",
+          "basis": "whitespace_normalized_code",
+          "found_in": [
+            "Additional Examples"
+          ],
+          "fidelity": null,
+          "fingerprint": [
+            "font.preview_naming_policy"
+          ],
+          "survived": [
+            "font.preview_naming_policy"
+          ]
+        }
+      },
+      {
+        "kind": "code",
+        "unit_id": "c0017i",
+        "label": "[Python API Highlights] cleaned = FontCleaner.clean_for_web(font)",
+        "disposition": "merged_reframed",
+        "target_section": "Quick Start",
+        "verification_status": "verified_against_source",
+        "excluded_reason": null,
+        "verdict": {
+          "status": "api_survived",
+          "basis": "live_fingerprint",
+          "found_in": [
+            "Quick Start",
+            "Additional Examples"
+          ],
+          "fidelity": null,
+          "fingerprint": [
+            "FontCleaner.clean_for_web"
+          ],
+          "survived": [
+            "FontCleaner.clean_for_web"
+          ]
+        }
+      },
+      {
+        "kind": "code",
+        "unit_id": "c0017j",
+        "label": "[Python API Highlights] compat = font.smart_instancer.check_compatibility(",
+        "disposition": "merged_verbatim",
+        "target_section": "Additional Examples",
+        "verification_status": "verified_against_source",
+        "excluded_reason": null,
+        "verdict": {
+          "status": "verbatim",
+          "basis": "whitespace_normalized_code",
+          "found_in": [
+            "Additional Examples"
+          ],
+          "fidelity": null,
+          "fingerprint": [
+            "font.smart_instancer.check_compatibility"
+          ],
+          "survived": [
+            "font.smart_instancer.check_compatibility"
+          ]
+        }
+      },
+      {
+        "kind": "code",
+        "unit_id": "c0017k",
+        "label": "[Python API Highlights] delta = font.smart_instancer.inspect_deltas(",
+        "disposition": "merged_verbatim",
+        "target_section": "Additional Examples",
+        "verification_status": "verified_against_source",
+        "excluded_reason": null,
+        "verdict": {
+          "status": "verbatim",
+          "basis": "whitespace_normalized_code",
+          "found_in": [
+            "Additional Examples"
+          ],
+          "fidelity": null,
+          "fingerprint": [
+            "font.smart_instancer.inspect_deltas",
+            "ord"
+          ],
+          "survived": [
+            "font.smart_instancer.inspect_deltas",
+            "ord"
+          ]
+        }
+      },
+      {
+        "kind": "code",
+        "unit_id": "c0017l",
+        "label": "[Python API Highlights] text_compare = font.smart_instancer.compare_delta_text(",
+        "disposition": "merged_verbatim",
+        "target_section": "Additional Examples",
+        "verification_status": "verified_against_source",
+        "excluded_reason": null,
+        "verdict": {
+          "status": "verbatim",
+          "basis": "whitespace_normalized_code",
+          "found_in": [
+            "Additional Examples"
+          ],
+          "fidelity": null,
+          "fingerprint": [
+            "font.smart_instancer.compare_delta_text"
+          ],
+          "survived": [
+            "font.smart_instancer.compare_delta_text"
+          ]
+        }
+      },
+      {
+        "kind": "code",
+        "unit_id": "c0017m",
+        "label": "[Python API Highlights] qa_report = FontQaReporter.build(",
+        "disposition": "merged_verbatim",
+        "target_section": "Additional Examples",
+        "verification_status": "verified_against_source",
+        "excluded_reason": null,
+        "verdict": {
+          "status": "verbatim",
+          "basis": "whitespace_normalized_code",
+          "found_in": [
+            "Additional Examples"
+          ],
+          "fidelity": null,
+          "fingerprint": [
+            "FontQaReporter.build",
+            "qa_report.write_html"
+          ],
+          "survived": [
+            "FontQaReporter.build",
+            "qa_report.write_html"
+          ]
+        }
+      },
+      {
+        "kind": "code",
+        "unit_id": "c0017n",
+        "label": "[Python API Highlights] bundle = font.smart_instancer.build_web_bundle(",
+        "disposition": "merged_verbatim",
+        "target_section": "Additional Examples",
+        "verification_status": "verified_against_source",
+        "excluded_reason": null,
+        "verdict": {
+          "status": "verbatim",
+          "basis": "whitespace_normalized_code",
+          "found_in": [
+            "Additional Examples"
+          ],
+          "fidelity": null,
+          "fingerprint": [
+            "font.smart_instancer.build_web_bundle",
+            "bundle.write_to"
+          ],
+          "survived": [
+            "font.smart_instancer.build_web_bundle",
+            "bundle.write_to"
+          ]
+        }
+      },
+      {
+        "kind": "code",
+        "unit_id": "c0017o",
+        "label": "[Python API Highlights] subset_bundle = WebFontBuilder.build(",
+        "disposition": "merged_verbatim",
+        "target_section": "Additional Examples",
+        "verification_status": "verified_against_source",
+        "excluded_reason": null,
+        "verdict": {
+          "status": "verbatim",
+          "basis": "whitespace_normalized_code",
+          "found_in": [
+            "Additional Examples"
+          ],
+          "fidelity": null,
+          "fingerprint": [
+            "WebFontBuilder.build"
+          ],
+          "survived": [
+            "WebFontBuilder.build"
+          ]
+        }
+      },
+      {
+        "kind": "code",
+        "unit_id": "c0017p",
+        "label": "[Python API Highlights] live_bundle = WebFontBuilder.build(",
+        "disposition": "merged_verbatim",
+        "target_section": "Additional Examples",
+        "verification_status": "verified_against_source",
+        "excluded_reason": null,
+        "verdict": {
+          "status": "verbatim",
+          "basis": "whitespace_normalized_code",
+          "found_in": [
+            "Additional Examples"
+          ],
+          "fidelity": null,
+          "fingerprint": [
+            "WebFontBuilder.build"
+          ],
+          "survived": [
+            "WebFontBuilder.build"
+          ]
+        }
+      },
+      {
+        "kind": "code",
+        "unit_id": "c0017q",
+        "label": "[Python API Highlights] static_stat_bundle = WebFontBuilder.build(",
+        "disposition": "merged_verbatim",
+        "target_section": "Additional Examples",
+        "verification_status": "verified_against_source",
+        "excluded_reason": null,
+        "verdict": {
+          "status": "verbatim",
+          "basis": "whitespace_normalized_code",
+          "found_in": [
+            "Additional Examples"
+          ],
+          "fidelity": null,
+          "fingerprint": [
+            "WebFontBuilder.build"
+          ],
+          "survived": [
+            "WebFontBuilder.build"
+          ]
+        }
+      },
+      {
+        "kind": "code",
+        "unit_id": "c0017r",
+        "label": "[Python API Highlights] grid_package = font.smart_instancer.build_axis_grid_web_family_pac",
+        "disposition": "merged_verbatim",
+        "target_section": "Additional Examples",
+        "verification_status": "verified_against_source",
+        "excluded_reason": null,
+        "verdict": {
+          "status": "verbatim",
+          "basis": "whitespace_normalized_code",
+          "found_in": [
+            "Additional Examples"
+          ],
+          "fidelity": null,
+          "fingerprint": [
+            "font.smart_instancer.build_axis_grid_web_family_package",
+            "grid_package.write_to"
+          ],
+          "survived": [
+            "font.smart_instancer.build_axis_grid_web_family_package",
+            "grid_package.write_to"
+          ]
+        }
+      },
+      {
+        "kind": "code",
+        "unit_id": "c0018a",
+        "label": "[CLI Highlights] aspose-font info Roboto.ttf",
+        "disposition": "merged_verbatim",
+        "target_section": "Additional Examples",
+        "verification_status": "verified_against_source",
+        "excluded_reason": null,
+        "verdict": {
+          "status": "verbatim",
+          "basis": "whitespace_normalized_code",
+          "found_in": [
+            "Additional Examples"
+          ],
+          "fidelity": null,
+          "fingerprint": [
+            "aspose-font info",
+            "aspose-font convert",
+            "aspose-font meta-clean"
+          ],
+          "survived": [
+            "aspose-font info",
+            "aspose-font convert",
+            "aspose-font meta-clean"
+          ]
+        }
+      },
+      {
+        "kind": "code",
+        "unit_id": "c0018b",
+        "label": "[CLI Highlights] aspose-font preview Roboto-VariableFont_wdth,wght.ttf preview.svg --insta",
+        "disposition": "merged_verbatim",
+        "target_section": "Additional Examples",
+        "verification_status": "verified_against_source",
+        "excluded_reason": null,
+        "verdict": {
+          "status": "verbatim",
+          "basis": "whitespace_normalized_code",
+          "found_in": [
+            "Additional Examples"
+          ],
+          "fidelity": null,
+          "fingerprint": [
+            "aspose-font preview",
+            "aspose-font var-instance",
+            "aspose-font var-naming-preview",
+            "aspose-font var-info",
+            "aspose-font preview-grid-sheet",
+            "aspose-font preview-compare",
+            "aspose-font preview-waterfall",
+            "aspose-font preview-matrix",
+            "aspose-font preview-family-board",
+            "aspose-font preview-family-export",
+            "aspose-font web-grid-family"
+          ],
+          "survived": [
+            "aspose-font preview",
+            "aspose-font var-instance",
+            "aspose-font var-naming-preview",
+            "aspose-font var-info",
+            "aspose-font preview-grid-sheet",
+            "aspose-font preview-compare",
+            "aspose-font preview-waterfall",
+            "aspose-font preview-matrix",
+            "aspose-font preview-family-board",
+            "aspose-font preview-family-export",
+            "aspose-font web-grid-family"
+          ]
+        }
+      },
+      {
+        "kind": "code",
+        "unit_id": "c0018c",
+        "label": "[CLI Highlights] aspose-font qa-report Roboto-VariableFont_wdth,wght.ttf --preset latin --",
+        "disposition": "merged_verbatim",
+        "target_section": "Additional Examples",
+        "verification_status": "verified_against_source",
+        "excluded_reason": null,
+        "verdict": {
+          "status": "verbatim",
+          "basis": "whitespace_normalized_code",
+          "found_in": [
+            "Additional Examples"
+          ],
+          "fidelity": null,
+          "fingerprint": [
+            "aspose-font qa-report",
+            "aspose-font var-compat",
+            "aspose-font var-delta",
+            "aspose-font var-delta-text",
+            "aspose-font var-delta-text-compare",
+            "aspose-font var-delta-text-compare-board",
+            "aspose-font var-delta-compare"
+          ],
+          "survived": [
+            "aspose-font qa-report",
+            "aspose-font var-compat",
+            "aspose-font var-delta",
+            "aspose-font var-delta-text",
+            "aspose-font var-delta-text-compare",
+            "aspose-font var-delta-text-compare-board",
+            "aspose-font var-delta-compare"
+          ]
+        }
+      },
+      {
+        "kind": "code",
+        "unit_id": "c0018d",
+        "label": "[CLI Highlights] aspose-font web-build Roboto-VariableFont_wdth,wght.ttf web-out --instanc",
+        "disposition": "merged_verbatim",
+        "target_section": "Additional Examples",
+        "verification_status": "verified_against_source",
+        "excluded_reason": null,
+        "verdict": {
+          "status": "verbatim",
+          "basis": "whitespace_normalized_code",
+          "found_in": [
+            "Additional Examples"
+          ],
+          "fidelity": null,
+          "fingerprint": [
+            "aspose-font web-build",
+            "aspose-font web-family",
+            "aspose-font web-grid",
+            "aspose-font web-grid-family"
+          ],
+          "survived": [
+            "aspose-font web-build",
+            "aspose-font web-family",
+            "aspose-font web-grid",
+            "aspose-font web-grid-family"
+          ]
+        }
+      },
+      {
+        "kind": "code",
+        "unit_id": "c0019",
+        "label": "[MCP Server] pip install \"aspose-font[mcp]\"",
+        "disposition": "corrected",
+        "target_section": "Additional Examples",
+        "verification_status": "verified_against_source",
+        "excluded_reason": null,
+        "verdict": {
+          "status": "api_survived",
+          "basis": "live_fingerprint",
+          "found_in": [
+            "Installation",
+            "Additional Examples",
+            "Development and Testing"
+          ],
+          "fidelity": null,
+          "fingerprint": [
+            "pip install"
+          ],
+          "survived": [
+            "pip install"
+          ]
+        }
+      },
+      {
+        "kind": "code",
+        "unit_id": "c0020",
+        "label": "[Development] uv run python -m pytest tests/ -q",
+        "disposition": "merged_reframed",
+        "target_section": "Development and Testing",
+        "verification_status": "verified_against_source",
+        "excluded_reason": null,
+        "verdict": {
+          "status": "api_survived",
+          "basis": "live_fingerprint",
+          "found_in": [
+            "Development and Testing"
+          ],
+          "fidelity": null,
+          "fingerprint": [
+            "uv run"
+          ],
+          "survived": [
+            "uv run"
+          ]
+        }
+      },
+      {
+        "kind": "heading",
+        "unit_id": "h0001",
+        "label": "# aspose-font",
+        "disposition": null,
+        "target_section": null,
+        "verification_status": null,
+        "excluded_reason": null,
+        "verdict": {
+          "status": "absorbed",
+          "basis": "normalized_heading_or_substring",
+          "found_in": [],
+          "fidelity": null
+        }
+      },
+      {
+        "kind": "heading",
+        "unit_id": "h0002",
+        "label": "## What You Get",
+        "disposition": null,
+        "target_section": null,
+        "verification_status": null,
+        "excluded_reason": null,
+        "verdict": {
+          "status": "absent",
+          "basis": "normalized_heading_or_substring",
+          "found_in": [],
+          "fidelity": null
+        }
+      },
+      {
+        "kind": "heading",
+        "unit_id": "h0003",
+        "label": "## Why Teams Use It",
+        "disposition": null,
+        "target_section": null,
+        "verification_status": null,
+        "excluded_reason": null,
+        "verdict": {
+          "status": "absent",
+          "basis": "normalized_heading_or_substring",
+          "found_in": [],
+          "fidelity": null
+        }
+      },
+      {
+        "kind": "heading",
+        "unit_id": "h0004",
+        "label": "## Install",
+        "disposition": null,
+        "target_section": null,
+        "verification_status": null,
+        "excluded_reason": null,
+        "verdict": {
+          "status": "absorbed",
+          "basis": "normalized_heading_or_substring",
+          "found_in": [],
+          "fidelity": null
+        }
+      },
+      {
+        "kind": "heading",
+        "unit_id": "h0005",
+        "label": "## Quick Start",
+        "disposition": null,
+        "target_section": null,
+        "verification_status": null,
+        "excluded_reason": null,
+        "verdict": {
+          "status": "present",
+          "basis": "normalized_heading_or_substring",
+          "found_in": [],
+          "fidelity": null
+        }
+      },
+      {
+        "kind": "heading",
+        "unit_id": "h0006",
+        "label": "## Real Outputs",
+        "disposition": null,
+        "target_section": null,
+        "verification_status": null,
+        "excluded_reason": null,
+        "verdict": {
+          "status": "absorbed",
+          "basis": "normalized_heading_or_substring",
+          "found_in": [],
+          "fidelity": null
+        }
+      },
+      {
+        "kind": "heading",
+        "unit_id": "h0007",
+        "label": "### Web Package Handoff",
+        "disposition": null,
+        "target_section": null,
+        "verification_status": null,
+        "excluded_reason": null,
+        "verdict": {
+          "status": "absorbed",
+          "basis": "normalized_heading_or_substring",
+          "found_in": [],
+          "fidelity": null
+        }
+      },
+      {
+        "kind": "heading",
+        "unit_id": "h0008",
+        "label": "### QA Report Package",
+        "disposition": null,
+        "target_section": null,
+        "verification_status": null,
+        "excluded_reason": null,
+        "verdict": {
+          "status": "absorbed",
+          "basis": "normalized_heading_or_substring",
+          "found_in": [],
+          "fidelity": null
+        }
+      },
+      {
+        "kind": "heading",
+        "unit_id": "h0009",
+        "label": "### Variable Instance Review",
+        "disposition": null,
+        "target_section": null,
+        "verification_status": null,
+        "excluded_reason": null,
+        "verdict": {
+          "status": "absorbed",
+          "basis": "normalized_heading_or_substring",
+          "found_in": [],
+          "fidelity": null
+        }
+      },
+      {
+        "kind": "heading",
+        "unit_id": "h0010",
+        "label": "### Axis Grid Proof",
+        "disposition": null,
+        "target_section": null,
+        "verification_status": null,
+        "excluded_reason": null,
+        "verdict": {
+          "status": "absorbed",
+          "basis": "normalized_heading_or_substring",
+          "found_in": [],
+          "fidelity": null
+        }
+      },
+      {
+        "kind": "heading",
+        "unit_id": "h0011",
+        "label": "### Delta and Compatibility Evidence",
+        "disposition": null,
+        "target_section": null,
+        "verification_status": null,
+        "excluded_reason": null,
+        "verdict": {
+          "status": "absorbed",
+          "basis": "normalized_heading_or_substring",
+          "found_in": [],
+          "fidelity": null
+        }
+      },
+      {
+        "kind": "heading",
+        "unit_id": "h0012",
+        "label": "### Animation and Showcase Assets",
+        "disposition": null,
+        "target_section": null,
+        "verification_status": null,
+        "excluded_reason": null,
+        "verdict": {
+          "status": "absorbed",
+          "basis": "normalized_heading_or_substring",
+          "found_in": [],
+          "fidelity": null
+        }
+      },
+      {
+        "kind": "heading",
+        "unit_id": "h0013",
+        "label": "## Capability Snapshot",
+        "disposition": null,
+        "target_section": null,
+        "verification_status": null,
+        "excluded_reason": null,
+        "verdict": {
+          "status": "absent",
+          "basis": "normalized_heading_or_substring",
+          "found_in": [],
+          "fidelity": null
+        }
+      },
+      {
+        "kind": "heading",
+        "unit_id": "h0014",
+        "label": "## Variable-Font-First Workflows",
+        "disposition": null,
+        "target_section": null,
+        "verification_status": null,
+        "excluded_reason": null,
+        "verdict": {
+          "status": "absent",
+          "basis": "normalized_heading_or_substring",
+          "found_in": [],
+          "fidelity": null
+        }
+      },
+      {
+        "kind": "heading",
+        "unit_id": "h0015",
+        "label": "## Variable Font Discovery",
+        "disposition": "structural_unit",
+        "target_section": "s0001",
+        "verification_status": null,
+        "excluded_reason": null,
+        "verdict": {
+          "status": "absorbed",
+          "basis": "normalized_heading_or_substring",
+          "found_in": [],
+          "fidelity": null
+        }
+      },
+      {
+        "kind": "heading",
+        "unit_id": "h0016",
+        "label": "## Python API Highlights",
+        "disposition": null,
+        "target_section": null,
+        "verification_status": null,
+        "excluded_reason": null,
+        "verdict": {
+          "status": "absent",
+          "basis": "normalized_heading_or_substring",
+          "found_in": [],
+          "fidelity": null
+        }
+      },
+      {
+        "kind": "heading",
+        "unit_id": "h0017",
+        "label": "## CLI Highlights",
+        "disposition": "structural_unit",
+        "target_section": "s0002",
+        "verification_status": null,
+        "excluded_reason": null,
+        "verdict": {
+          "status": "absent",
+          "basis": "normalized_heading_or_substring",
+          "found_in": [],
+          "fidelity": null
+        }
+      },
+      {
+        "kind": "heading",
+        "unit_id": "h0018",
+        "label": "## MCP Server",
+        "disposition": null,
+        "target_section": null,
+        "verification_status": null,
+        "excluded_reason": null,
+        "verdict": {
+          "status": "absorbed",
+          "basis": "normalized_heading_or_substring",
+          "found_in": [],
+          "fidelity": null
+        }
+      },
+      {
+        "kind": "heading",
+        "unit_id": "h0019",
+        "label": "## Development",
+        "disposition": null,
+        "target_section": null,
+        "verification_status": null,
+        "excluded_reason": null,
+        "verdict": {
+          "status": "absorbed",
+          "basis": "normalized_heading_or_substring",
+          "found_in": [],
+          "fidelity": null
+        }
+      },
+      {
+        "kind": "heading",
+        "unit_id": "h0020",
+        "label": "## License",
+        "disposition": null,
+        "target_section": null,
+        "verification_status": null,
+        "excluded_reason": null,
+        "verdict": {
+          "status": "present",
+          "basis": "normalized_heading_or_substring",
+          "found_in": [],
+          "fidelity": null
+        }
+      }
+    ],
+    "summary": {
+      "content": {
+        "reframed": 38,
+        "excluded": 5,
+        "verbatim": 6,
+        "corrected": 1
+      },
+      "structural": {
+        "verbatim": 2
+      },
+      "code": {
+        "verbatim": 33,
+        "api_survived": 6,
+        "reframed": 1
+      },
+      "heading": {
+        "absorbed": 12,
+        "absent": 6,
+        "present": 2
+      }
+    },
+    "needs_attention": [
+      "heading:h0002",
+      "heading:h0003",
+      "heading:h0013",
+      "heading:h0014",
+      "heading:h0016",
+      "heading:h0017"
+    ]
+  }
+}

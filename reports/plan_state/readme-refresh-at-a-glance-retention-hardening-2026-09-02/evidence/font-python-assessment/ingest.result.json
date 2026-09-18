@@ -1,0 +1,2323 @@
+{
+  "required_sections": {
+    "hard_gate": true,
+    "findings": []
+  },
+  "banner_present": {
+    "hard_gate": true,
+    "findings": []
+  },
+  "banner_links_to_homepage": {
+    "hard_gate": true,
+    "findings": []
+  },
+  "banner_asset_exists": {
+    "hard_gate": true,
+    "findings": []
+  },
+  "no_excluded_domain_links": {
+    "hard_gate": true,
+    "findings": []
+  },
+  "license_link_target": {
+    "hard_gate": true,
+    "findings": []
+  },
+  "license_section_matches_template": {
+    "hard_gate": true,
+    "findings": []
+  },
+  "enterprise_edition_link_resolves": {
+    "hard_gate": true,
+    "findings": []
+  },
+  "enterprise_edition_anchor_matches_relationship": {
+    "hard_gate": true,
+    "findings": []
+  },
+  "no_implementation_bridge_disclosure": {
+    "hard_gate": true,
+    "findings": []
+  },
+  "diagram_shape": {
+    "hard_gate": true,
+    "findings": []
+  },
+  "at_a_glance_section_shape": {
+    "hard_gate": true,
+    "findings": []
+  },
+  "diagram_column_balance": {
+    "hard_gate": true,
+    "findings": []
+  },
+  "diagram_label_token_length": {
+    "hard_gate": false,
+    "findings": []
+  },
+  "diagram_label_geometry": {
+    "hard_gate": true,
+    "findings": []
+  },
+  "diagram_starting_points_presence": {
+    "hard_gate": true,
+    "findings": []
+  },
+  "diagram_matches_capability_dependencies": {
+    "hard_gate": true,
+    "findings": []
+  },
+  "diagram_hybrid_reverification": {
+    "hard_gate": true,
+    "findings": []
+  },
+  "diagram_verified_format_claims": {
+    "hard_gate": true,
+    "findings": []
+  },
+  "diagram_starting_points_format_purity": {
+    "hard_gate": true,
+    "findings": []
+  },
+  "diagram_outputs_format_purity": {
+    "hard_gate": true,
+    "findings": []
+  },
+  "diagram_format_completeness_hint": {
+    "hard_gate": false,
+    "findings": [
+      {
+        "format": "TEXT",
+        "container": "outputs",
+        "reason": "formats.md marks TEXT Export=Yes but it is not named in the Outputs container"
+      }
+    ]
+  },
+  "format_name_casing": {
+    "hard_gate": true,
+    "findings": []
+  },
+  "no_cross_product_citation": {
+    "hard_gate": true,
+    "findings": []
+  },
+  "examples_table_collapsed": {
+    "hard_gate": true,
+    "findings": []
+  },
+  "api_reference_detail_collapsed": {
+    "hard_gate": true,
+    "findings": []
+  },
+  "heading_title_case": {
+    "hard_gate": true,
+    "findings": []
+  },
+  "no_undisclosed_blocking_commands": {
+    "hard_gate": true,
+    "findings": []
+  },
+  "installation_matches_package_registry": {
+    "hard_gate": false,
+    "findings": []
+  },
+  "installation_matches_manifest_version": {
+    "hard_gate": false,
+    "findings": []
+  },
+  "no_upstream_issue_leaked": {
+    "hard_gate": true,
+    "findings": []
+  },
+  "no_upstream_issue_leaked_install_quickstart": {
+    "hard_gate": true,
+    "findings": []
+  },
+  "key_capabilities_quality": {
+    "hard_gate": false,
+    "findings": []
+  },
+  "key_capabilities_structural_variety": {
+    "hard_gate": false,
+    "findings": []
+  },
+  "key_capabilities_formatting": {
+    "hard_gate": false,
+    "findings": []
+  },
+  "section_intro_no_meta_narration": {
+    "hard_gate": true,
+    "findings": []
+  },
+  "capability_scope_contradiction": {
+    "hard_gate": false,
+    "findings": [
+      {
+        "capability_bullet": "Read font metadata, metrics, encodings, glyph outlines, and kerning through the shared `Font`",
+        "matched_keyword": "Font",
+        "scope_bullet": "Calling `font.to_bytes()` with no arguments raises `NotImplementedError` unless the concrete",
+        "reason": "'Font' is named as a working capability here, but a Scope and Limitations bullet documents related functionality as not-implemented/stub -- verify this isn't a fabricated-capability contradiction"
+      },
+      {
+        "capability_bullet": "Convert between formats with the `font.convert(target)` instance method, or the equivalent",
+        "matched_keyword": "font",
+        "scope_bullet": "Calling `font.to_bytes()` with no arguments raises `NotImplementedError` unless the concrete",
+        "reason": "'font' is named as a working capability here, but a Scope and Limitations bullet documents related functionality as not-implemented/stub -- verify this isn't a fabricated-capability contradiction"
+      },
+      {
+        "capability_bullet": "Explore and instantiate variable fonts through `font.axes`, `font.named_instances`, and",
+        "matched_keyword": "font",
+        "scope_bullet": "Calling `font.to_bytes()` with no arguments raises `NotImplementedError` unless the concrete",
+        "reason": "'font' is named as a working capability here, but a Scope and Limitations bullet documents related functionality as not-implemented/stub -- verify this isn't a fabricated-capability contradiction"
+      }
+    ]
+  },
+  "diagram_from_scratch_capability_labeled": {
+    "hard_gate": false,
+    "findings": []
+  },
+  "scope_limitations_format": {
+    "hard_gate": true,
+    "findings": []
+  },
+  "dev_test_artifacts_linked": {
+    "hard_gate": true,
+    "findings": []
+  },
+  "development_testing_collapse": {
+    "hard_gate": false,
+    "findings": []
+  },
+  "readme_already_published": {
+    "hard_gate": false,
+    "findings": [],
+    "detail": {
+      "published": false
+    }
+  },
+  "published_readme_current": {
+    "hard_gate": false,
+    "findings": []
+  },
+  "dropped_content": {
+    "hard_gate": true,
+    "findings": [],
+    "detail": {
+      "dropped_links": [
+        "./LICENSE.txt"
+      ],
+      "dropped_headings": [
+        "CLI Highlights",
+        "Capability Snapshot",
+        "Python API Highlights",
+        "Variable-Font-First Workflows",
+        "What You Get",
+        "Why Teams Use It"
+      ],
+      "internal_labels": []
+    }
+  },
+  "dropped_content_uncorrelated": {
+    "hard_gate": false,
+    "findings": [
+      "./LICENSE.txt",
+      "CLI Highlights",
+      "Capability Snapshot",
+      "Python API Highlights",
+      "Variable-Font-First Workflows",
+      "What You Get",
+      "Why Teams Use It"
+    ],
+    "detail": {
+      "note": "downgraded from hard-gate to advisory: a content-dispositions.json exists for this product (TC-HARDEN-04) -- confirm it accounts for each of these before treating this candidate as clean, but do not block on literal string non-match alone",
+      "dropped_links": [
+        "./LICENSE.txt"
+      ],
+      "dropped_headings": [
+        "CLI Highlights",
+        "Capability Snapshot",
+        "Python API Highlights",
+        "Variable-Font-First Workflows",
+        "What You Get",
+        "Why Teams Use It"
+      ],
+      "internal_labels": []
+    }
+  },
+  "content_unit_disposition_coverage": {
+    "hard_gate": true,
+    "findings": [
+      {
+        "unit_id": "u0051",
+        "reason": "disposition references a unit_id not present in the current old-README extraction"
+      },
+      {
+        "unit_id": "u0052",
+        "reason": "disposition references a unit_id not present in the current old-README extraction"
+      },
+      {
+        "unit_id": "u0053",
+        "reason": "disposition references a unit_id not present in the current old-README extraction"
+      },
+      {
+        "unit_id": "u0054",
+        "reason": "disposition references a unit_id not present in the current old-README extraction"
+      },
+      {
+        "unit_id": "u0055",
+        "reason": "disposition references a unit_id not present in the current old-README extraction"
+      },
+      {
+        "unit_id": "u0056",
+        "reason": "disposition references a unit_id not present in the current old-README extraction"
+      },
+      {
+        "unit_id": "u0057",
+        "reason": "disposition references a unit_id not present in the current old-README extraction"
+      },
+      {
+        "unit_id": "u0058",
+        "reason": "disposition references a unit_id not present in the current old-README extraction"
+      },
+      {
+        "unit_id": "u0059",
+        "reason": "disposition references a unit_id not present in the current old-README extraction"
+      },
+      {
+        "unit_id": "u0060",
+        "reason": "disposition references a unit_id not present in the current old-README extraction"
+      },
+      {
+        "unit_id": "u0061",
+        "reason": "disposition references a unit_id not present in the current old-README extraction"
+      },
+      {
+        "unit_id": "u0062",
+        "reason": "disposition references a unit_id not present in the current old-README extraction"
+      },
+      {
+        "unit_id": "u0063",
+        "reason": "disposition references a unit_id not present in the current old-README extraction"
+      },
+      {
+        "unit_id": "u0064",
+        "reason": "disposition references a unit_id not present in the current old-README extraction"
+      },
+      {
+        "unit_id": "u0065",
+        "reason": "disposition references a unit_id not present in the current old-README extraction"
+      },
+      {
+        "unit_id": "u0066",
+        "reason": "disposition references a unit_id not present in the current old-README extraction"
+      },
+      {
+        "unit_id": "u0067",
+        "reason": "disposition references a unit_id not present in the current old-README extraction"
+      },
+      {
+        "unit_id": "u0068",
+        "reason": "disposition references a unit_id not present in the current old-README extraction"
+      },
+      {
+        "unit_id": "u0069",
+        "reason": "disposition references a unit_id not present in the current old-README extraction"
+      },
+      {
+        "unit_id": "u0070",
+        "reason": "disposition references a unit_id not present in the current old-README extraction"
+      },
+      {
+        "unit_id": "u0071",
+        "reason": "disposition references a unit_id not present in the current old-README extraction"
+      },
+      {
+        "unit_id": "u0072",
+        "reason": "disposition references a unit_id not present in the current old-README extraction"
+      },
+      {
+        "unit_id": "u0073",
+        "reason": "disposition references a unit_id not present in the current old-README extraction"
+      },
+      {
+        "unit_id": "u0074",
+        "reason": "disposition references a unit_id not present in the current old-README extraction"
+      },
+      {
+        "unit_id": "u0075",
+        "reason": "disposition references a unit_id not present in the current old-README extraction"
+      },
+      {
+        "unit_id": "u0076",
+        "reason": "disposition references a unit_id not present in the current old-README extraction"
+      },
+      {
+        "unit_id": "u0077",
+        "reason": "disposition references a unit_id not present in the current old-README extraction"
+      },
+      {
+        "unit_id": "u0078",
+        "reason": "disposition references a unit_id not present in the current old-README extraction"
+      },
+      {
+        "unit_id": "u0079",
+        "reason": "disposition references a unit_id not present in the current old-README extraction"
+      },
+      {
+        "unit_id": "u0080",
+        "reason": "disposition references a unit_id not present in the current old-README extraction"
+      },
+      {
+        "unit_id": "u0081",
+        "reason": "disposition references a unit_id not present in the current old-README extraction"
+      },
+      {
+        "unit_id": "u0082",
+        "reason": "disposition references a unit_id not present in the current old-README extraction"
+      },
+      {
+        "unit_id": "u0083",
+        "reason": "disposition references a unit_id not present in the current old-README extraction"
+      },
+      {
+        "unit_id": "u0084",
+        "reason": "disposition references a unit_id not present in the current old-README extraction"
+      },
+      {
+        "unit_id": "u0085",
+        "reason": "disposition references a unit_id not present in the current old-README extraction"
+      },
+      {
+        "unit_id": "u0086",
+        "reason": "disposition references a unit_id not present in the current old-README extraction"
+      },
+      {
+        "unit_id": "u0087",
+        "reason": "disposition references a unit_id not present in the current old-README extraction"
+      },
+      {
+        "unit_id": "u0088",
+        "reason": "disposition references a unit_id not present in the current old-README extraction"
+      },
+      {
+        "unit_id": "u0089",
+        "reason": "disposition references a unit_id not present in the current old-README extraction"
+      },
+      {
+        "unit_id": "u0090",
+        "reason": "disposition references a unit_id not present in the current old-README extraction"
+      },
+      {
+        "unit_id": "u0091",
+        "reason": "disposition references a unit_id not present in the current old-README extraction"
+      },
+      {
+        "unit_id": "u0092",
+        "reason": "disposition references a unit_id not present in the current old-README extraction"
+      },
+      {
+        "unit_id": "u0093",
+        "reason": "disposition references a unit_id not present in the current old-README extraction"
+      },
+      {
+        "unit_id": "u0094",
+        "reason": "disposition references a unit_id not present in the current old-README extraction"
+      },
+      {
+        "unit_id": "u0095",
+        "reason": "disposition references a unit_id not present in the current old-README extraction"
+      },
+      {
+        "unit_id": "u0096",
+        "reason": "disposition references a unit_id not present in the current old-README extraction"
+      },
+      {
+        "unit_id": "u0097",
+        "reason": "disposition references a unit_id not present in the current old-README extraction"
+      },
+      {
+        "unit_id": "u0098",
+        "reason": "disposition references a unit_id not present in the current old-README extraction"
+      },
+      {
+        "unit_id": "u0099",
+        "reason": "disposition references a unit_id not present in the current old-README extraction"
+      },
+      {
+        "unit_id": "u0100",
+        "reason": "disposition references a unit_id not present in the current old-README extraction"
+      },
+      {
+        "unit_id": "u0101",
+        "reason": "disposition references a unit_id not present in the current old-README extraction"
+      },
+      {
+        "unit_id": "u0102",
+        "reason": "disposition references a unit_id not present in the current old-README extraction"
+      },
+      {
+        "unit_id": "u0103",
+        "reason": "disposition references a unit_id not present in the current old-README extraction"
+      },
+      {
+        "unit_id": "u0104",
+        "reason": "disposition references a unit_id not present in the current old-README extraction"
+      },
+      {
+        "unit_id": "u0105",
+        "reason": "disposition references a unit_id not present in the current old-README extraction"
+      },
+      {
+        "unit_id": "u0106",
+        "reason": "disposition references a unit_id not present in the current old-README extraction"
+      },
+      {
+        "unit_id": "u0107",
+        "reason": "disposition references a unit_id not present in the current old-README extraction"
+      },
+      {
+        "unit_id": "u0108",
+        "reason": "disposition references a unit_id not present in the current old-README extraction"
+      },
+      {
+        "unit_id": "u0109",
+        "reason": "disposition references a unit_id not present in the current old-README extraction"
+      },
+      {
+        "unit_id": "u0110",
+        "reason": "disposition references a unit_id not present in the current old-README extraction"
+      },
+      {
+        "unit_id": "u0111",
+        "reason": "disposition references a unit_id not present in the current old-README extraction"
+      },
+      {
+        "unit_id": "u0112",
+        "reason": "disposition references a unit_id not present in the current old-README extraction"
+      },
+      {
+        "unit_id": "u0113",
+        "reason": "disposition references a unit_id not present in the current old-README extraction"
+      },
+      {
+        "unit_id": "u0114",
+        "reason": "disposition references a unit_id not present in the current old-README extraction"
+      },
+      {
+        "unit_id": "u0115",
+        "reason": "disposition references a unit_id not present in the current old-README extraction"
+      },
+      {
+        "unit_id": "u0116",
+        "reason": "disposition references a unit_id not present in the current old-README extraction"
+      },
+      {
+        "unit_id": "u0117",
+        "reason": "disposition references a unit_id not present in the current old-README extraction"
+      },
+      {
+        "unit_id": "u0118",
+        "reason": "disposition references a unit_id not present in the current old-README extraction"
+      },
+      {
+        "unit_id": "u0119",
+        "reason": "disposition references a unit_id not present in the current old-README extraction"
+      },
+      {
+        "unit_id": "u0120",
+        "reason": "disposition references a unit_id not present in the current old-README extraction"
+      },
+      {
+        "unit_id": "u0121",
+        "reason": "disposition references a unit_id not present in the current old-README extraction"
+      },
+      {
+        "unit_id": "u0122",
+        "reason": "disposition references a unit_id not present in the current old-README extraction"
+      },
+      {
+        "unit_id": "u0123",
+        "reason": "disposition references a unit_id not present in the current old-README extraction"
+      },
+      {
+        "unit_id": "u0124",
+        "reason": "disposition references a unit_id not present in the current old-README extraction"
+      },
+      {
+        "unit_id": "u0125",
+        "reason": "disposition references a unit_id not present in the current old-README extraction"
+      },
+      {
+        "unit_id": "u0126",
+        "reason": "disposition references a unit_id not present in the current old-README extraction"
+      },
+      {
+        "unit_id": "u0127",
+        "reason": "disposition references a unit_id not present in the current old-README extraction"
+      },
+      {
+        "unit_id": "u0128",
+        "reason": "disposition references a unit_id not present in the current old-README extraction"
+      },
+      {
+        "unit_id": "u0129",
+        "reason": "disposition references a unit_id not present in the current old-README extraction"
+      },
+      {
+        "unit_id": "u0130",
+        "reason": "disposition references a unit_id not present in the current old-README extraction"
+      },
+      {
+        "unit_id": "u0131",
+        "reason": "disposition references a unit_id not present in the current old-README extraction"
+      }
+    ]
+  },
+  "content_unit_excerpt_matches_extraction": {
+    "hard_gate": true,
+    "findings": [
+      {
+        "unit_id": "u0001",
+        "stored_excerpt": "Aspose.Font FOSS for Python is a free, open-source, pure-Python library for loading, inspecting,\nconverting, and subsetting TrueType (TTF), OpenType (OTF), CFF,",
+        "live_excerpt": "Pure-Python font workflow automation for teams that need to prepare, review, package, and explain fonts without native runtime dependencies.",
+        "reason": "disposition's own stored excerpt no longer matches the live extractor's excerpt for this unit_id -- likely position-based unit_id drift (an upstream README edit or an extractor fix shifted later ids), or the old README genuinely changed under this id; re-verify this disposition against the CURRENT excerpt before trusting its classification/verification"
+      },
+      {
+        "unit_id": "u0002",
+        "stored_excerpt": "- [At a Glance](#at-a-glance)",
+        "live_excerpt": "Use it when you need deployable web-font packages, visual review assets, variable-font instances, and QA evidence from scripts, CI, or local CLI workflows.",
+        "reason": "disposition's own stored excerpt no longer matches the live extractor's excerpt for this unit_id -- likely position-based unit_id drift (an upstream README edit or an extractor fix shifted later ids), or the old README genuinely changed under this id; re-verify this disposition against the CURRENT excerpt before trusting its classification/verification"
+      },
+      {
+        "unit_id": "u0003",
+        "stored_excerpt": "- [Key Capabilities](#key-capabilities)",
+        "live_excerpt": "Public GitHub repository: [aspose-font-foss/Aspose.Font-FOSS-for-Python](https://github.com/aspose-font-foss/Aspose.Font-FOSS-for-Python)",
+        "reason": "disposition's own stored excerpt no longer matches the live extractor's excerpt for this unit_id -- likely position-based unit_id drift (an upstream README edit or an extractor fix shifted later ids), or the old README genuinely changed under this id; re-verify this disposition against the CURRENT excerpt before trusting its classification/verification"
+      },
+      {
+        "unit_id": "u0004",
+        "stored_excerpt": "- [Installation](#installation)",
+        "live_excerpt": "| Workflow | Output |\n| --- | --- |\n| Optimize fonts for the web | WOFF2/WOFF files, CSS, specimen HTML, JSON manifests, coverage diagnostics, variable-font exp",
+        "reason": "disposition's own stored excerpt no longer matches the live extractor's excerpt for this unit_id -- likely position-based unit_id drift (an upstream README edit or an extractor fix shifted later ids), or the old README genuinely changed under this id; re-verify this disposition against the CURRENT excerpt before trusting its classification/verification"
+      },
+      {
+        "unit_id": "u0005",
+        "stored_excerpt": "- [Dependencies](#dependencies)",
+        "live_excerpt": "- Pure Python: no native font-tooling runtime dependency for local scripts or CI.",
+        "reason": "disposition's own stored excerpt no longer matches the live extractor's excerpt for this unit_id -- likely position-based unit_id drift (an upstream README edit or an extractor fix shifted later ids), or the old README genuinely changed under this id; re-verify this disposition against the CURRENT excerpt before trusting its classification/verification"
+      },
+      {
+        "unit_id": "u0006",
+        "stored_excerpt": "- [Quick Start](#quick-start)",
+        "live_excerpt": "- Business artifacts first: packages, reports, manifests, previews, and review boards.",
+        "reason": "disposition's own stored excerpt no longer matches the live extractor's excerpt for this unit_id -- likely position-based unit_id drift (an upstream README edit or an extractor fix shifted later ids), or the old README genuinely changed under this id; re-verify this disposition against the CURRENT excerpt before trusting its classification/verification"
+      },
+      {
+        "unit_id": "u0007",
+        "stored_excerpt": "- [Additional Examples](#additional-examples)",
+        "live_excerpt": "- Variable-font aware: axes, named instances, static/live web modes, naming policies, and QA diagnostics.",
+        "reason": "disposition's own stored excerpt no longer matches the live extractor's excerpt for this unit_id -- likely position-based unit_id drift (an upstream README edit or an extractor fix shifted later ids), or the old README genuinely changed under this id; re-verify this disposition against the CURRENT excerpt before trusting its classification/verification"
+      },
+      {
+        "unit_id": "u0008",
+        "stored_excerpt": "- [API Reference](#api-reference)",
+        "live_excerpt": "- Broad format coverage: TrueType, OpenType, CFF, Type 1, WOFF, WOFF2, and EOT.",
+        "reason": "disposition's own stored excerpt no longer matches the live extractor's excerpt for this unit_id -- likely position-based unit_id drift (an upstream README edit or an extractor fix shifted later ids), or the old README genuinely changed under this id; re-verify this disposition against the CURRENT excerpt before trusting its classification/verification"
+      },
+      {
+        "unit_id": "u0009",
+        "stored_excerpt": "- [Documentation & Resources](#documentation--resources)",
+        "live_excerpt": "- Built for automation: Python, CLI, and optional MCP surfaces share the same capabilities.",
+        "reason": "disposition's own stored excerpt no longer matches the live extractor's excerpt for this unit_id -- likely position-based unit_id drift (an upstream README edit or an extractor fix shifted later ids), or the old README genuinely changed under this id; re-verify this disposition against the CURRENT excerpt before trusting its classification/verification"
+      },
+      {
+        "unit_id": "u0010",
+        "stored_excerpt": "- [Scope and Limitations](#scope-and-limitations)",
+        "live_excerpt": "Install MCP support only when you want the built-in server surface:",
+        "reason": "disposition's own stored excerpt no longer matches the live extractor's excerpt for this unit_id -- likely position-based unit_id drift (an upstream README edit or an extractor fix shifted later ids), or the old README genuinely changed under this id; re-verify this disposition against the CURRENT excerpt before trusting its classification/verification"
+      },
+      {
+        "unit_id": "u0011",
+        "stored_excerpt": "- [Development and Testing](#development-and-testing)",
+        "live_excerpt": "Build a web handoff package:",
+        "reason": "disposition's own stored excerpt no longer matches the live extractor's excerpt for this unit_id -- likely position-based unit_id drift (an upstream README edit or an extractor fix shifted later ids), or the old README genuinely changed under this id; re-verify this disposition against the CURRENT excerpt before trusting its classification/verification"
+      },
+      {
+        "unit_id": "u0012",
+        "stored_excerpt": "- [License](#license)",
+        "live_excerpt": "Generate QA evidence:",
+        "reason": "disposition's own stored excerpt no longer matches the live extractor's excerpt for this unit_id -- likely position-based unit_id drift (an upstream README edit or an extractor fix shifted later ids), or the old README genuinely changed under this id; re-verify this disposition against the CURRENT excerpt before trusting its classification/verification"
+      },
+      {
+        "unit_id": "u0013",
+        "stored_excerpt": "- Load, auto-detect, and inspect TrueType (TTF), OpenType (OTF), CFF, Type 1, WOFF, WOFF2, and\n  EOT fonts from a file path, raw bytes, or a stream with `FontLo",
+        "live_excerpt": "Create a release-safe static instance:",
+        "reason": "disposition's own stored excerpt no longer matches the live extractor's excerpt for this unit_id -- likely position-based unit_id drift (an upstream README edit or an extractor fix shifted later ids), or the old README genuinely changed under this id; re-verify this disposition against the CURRENT excerpt before trusting its classification/verification"
+      },
+      {
+        "unit_id": "u0014",
+        "stored_excerpt": "- Read font metadata, metrics, encodings, glyph outlines, and kerning through the shared `Font`\n  base class and its collaborators (`font_name`, `font_family`, ",
+        "live_excerpt": "These fixture-backed examples mirror the generated demo site and show the kinds of artifacts the library produces.",
+        "reason": "disposition's own stored excerpt no longer matches the live extractor's excerpt for this unit_id -- likely position-based unit_id drift (an upstream README edit or an extractor fix shifted later ids), or the old README genuinely changed under this id; re-verify this disposition against the CURRENT excerpt before trusting its classification/verification"
+      },
+      {
+        "unit_id": "u0015",
+        "stored_excerpt": "- Convert between formats with the `font.convert(target)` instance method, or the equivalent\n  `FontConverter.convert(font, target)` (`from aspose_font.converte",
+        "live_excerpt": "`WebFontBuilder` and the `web-build` CLI produce browser-ready files plus machine-readable evidence:",
+        "reason": "disposition's own stored excerpt no longer matches the live extractor's excerpt for this unit_id -- likely position-based unit_id drift (an upstream README edit or an extractor fix shifted later ids), or the old README genuinely changed under this id; re-verify this disposition against the CURRENT excerpt before trusting its classification/verification"
+      },
+      {
+        "unit_id": "u0016",
+        "stored_excerpt": "- Strip legacy sfnt metadata and old Mac `name` records for web delivery with\n  `FontCleaner.clean_for_web()`, with independent opt-outs for Mac names, legacy t",
+        "live_excerpt": "The manifest records export mode, source/output variable status, coverage diagnostics, naming choices, and STAT policy guidance when applicable.",
+        "reason": "disposition's own stored excerpt no longer matches the live extractor's excerpt for this unit_id -- likely position-based unit_id drift (an upstream README edit or an extractor fix shifted later ids), or the old README genuinely changed under this id; re-verify this disposition against the CURRENT excerpt before trusting its classification/verification"
+      },
+      {
+        "unit_id": "u0017",
+        "stored_excerpt": "- Subset fonts by Unicode text, glyph ID, or codepoint list with `FontSubsetter`, including\n  web-oriented preset groups (Latin, Cyrillic, Greek, Hebrew, Arabic",
+        "live_excerpt": "`FontQaReporter.build_package(...)` and `qa-report --package-output` produce a review folder with JSON, HTML, and a preview PNG:",
+        "reason": "disposition's own stored excerpt no longer matches the live extractor's excerpt for this unit_id -- likely position-based unit_id drift (an upstream README edit or an extractor fix shifted later ids), or the old README genuinely changed under this id; re-verify this disposition against the CURRENT excerpt before trusting its classification/verification"
+      },
+      {
+        "unit_id": "u0018",
+        "stored_excerpt": "- Explore and instantiate variable fonts through `font.axes`, `font.named_instances`, and\n  `font.smart_instancer` (`SmartInstancer`) — resolve named-instance c",
+        "live_excerpt": "![Font QA Report summary](./website/generated/roboto-qa-report-summary.svg)",
+        "reason": "disposition's own stored excerpt no longer matches the live extractor's excerpt for this unit_id -- likely position-based unit_id drift (an upstream README edit or an extractor fix shifted later ids), or the old README genuinely changed under this id; re-verify this disposition against the CURRENT excerpt before trusting its classification/verification"
+      },
+      {
+        "unit_id": "u0019",
+        "stored_excerpt": "- Render PNG and SVG previews and APNG animation sweeps with `FontPreviewBuilder`, and package\n  browser-ready web-font bundles (WOFF2/WOFF, CSS, HTML, JSON man",
+        "live_excerpt": "Generate approval-ready boards for selected named instances:",
+        "reason": "disposition's own stored excerpt no longer matches the live extractor's excerpt for this unit_id -- likely position-based unit_id drift (an upstream README edit or an extractor fix shifted later ids), or the old README genuinely changed under this id; re-verify this disposition against the CURRENT excerpt before trusting its classification/verification"
+      },
+      {
+        "unit_id": "u0020",
+        "stored_excerpt": "- Generate Font QA Reports, variable-font compatibility checks, and glyph delta/interpolation\n  diagnostics — including active `gvar` tuple-variation changes an",
+        "live_excerpt": "![Family review board](./website/generated/roboto-family-review-board.png)",
+        "reason": "disposition's own stored excerpt no longer matches the live extractor's excerpt for this unit_id -- likely position-based unit_id drift (an upstream README edit or an extractor fix shifted later ids), or the old README genuinely changed under this id; re-verify this disposition against the CURRENT excerpt before trusting its classification/verification"
+      },
+      {
+        "unit_id": "u0021",
+        "stored_excerpt": "- Automate any of the above from the command line with the bundled `aspose-font` CLI, suited to\n  local scripts or CI pipelines, or expose the same library to A",
+        "live_excerpt": "Show how a variable font behaves across weight and width:",
+        "reason": "disposition's own stored excerpt no longer matches the live extractor's excerpt for this unit_id -- likely position-based unit_id drift (an upstream README edit or an extractor fix shifted later ids), or the old README genuinely changed under this id; re-verify this disposition against the CURRENT excerpt before trusting its classification/verification"
+      },
+      {
+        "unit_id": "u0022",
+        "stored_excerpt": "Aspose.Font FOSS for Python has not yet been published to a package registry. Install it directly\nfrom a checkout of the repository for now:",
+        "live_excerpt": "![Axis grid preview](./website/generated/roboto-axis-grid.png)",
+        "reason": "disposition's own stored excerpt no longer matches the live extractor's excerpt for this unit_id -- likely position-based unit_id drift (an upstream README edit or an extractor fix shifted later ids), or the old README genuinely changed under this id; re-verify this disposition against the CURRENT excerpt before trusting its classification/verification"
+      },
+      {
+        "unit_id": "u0023",
+        "stored_excerpt": "The distribution name is `aspose-font` (declared in `pyproject.toml`); once published this will\nbecome `pip install aspose-font`. It requires Python 3.10 or lat",
+        "live_excerpt": "Inspect how outlines change between variable-font instances:",
+        "reason": "disposition's own stored excerpt no longer matches the live extractor's excerpt for this unit_id -- likely position-based unit_id drift (an upstream README edit or an extractor fix shifted later ids), or the old README genuinely changed under this id; re-verify this disposition against the CURRENT excerpt before trusting its classification/verification"
+      },
+      {
+        "unit_id": "u0024",
+        "stored_excerpt": "Verify the install:",
+        "live_excerpt": "![Delta comparison board](./website/generated/roboto-delta-compare.png)",
+        "reason": "disposition's own stored excerpt no longer matches the live extractor's excerpt for this unit_id -- likely position-based unit_id drift (an upstream README edit or an extractor fix shifted later ids), or the old README genuinely changed under this id; re-verify this disposition against the CURRENT excerpt before trusting its classification/verification"
+      },
+      {
+        "unit_id": "u0025",
+        "stored_excerpt": "Install MCP server support only if you want the built-in [Model Context\nProtocol](https://modelcontextprotocol.io/) server surface. Pin to `mcp<2.0` — the real,",
+        "live_excerpt": "Create APNG sweeps, scripted paths, frame packages, review bundles, and showcase folders:",
+        "reason": "disposition's own stored excerpt no longer matches the live extractor's excerpt for this unit_id -- likely position-based unit_id drift (an upstream README edit or an extractor fix shifted later ids), or the old README genuinely changed under this id; re-verify this disposition against the CURRENT excerpt before trusting its classification/verification"
+      },
+      {
+        "unit_id": "u0026",
+        "stored_excerpt": "No required third-party package dependencies.",
+        "live_excerpt": "![Variable font animation sweep](./website/generated/roboto-animation-sweep.png)",
+        "reason": "disposition's own stored excerpt no longer matches the live extractor's excerpt for this unit_id -- likely position-based unit_id drift (an upstream README edit or an extractor fix shifted later ids), or the old README genuinely changed under this id; re-verify this disposition against the CURRENT excerpt before trusting its classification/verification"
+      },
+      {
+        "unit_id": "u0027",
+        "stored_excerpt": "- `mcp` (`>=1.0`) — the optional `mcp` extra that enables the built-in MCP server surface; see\n  [Installation](#installation) above for how to enable it and th",
+        "live_excerpt": "| Area | What You Can Do Now |\n| --- | --- |\n| Load and inspect | Open TTF, OTF, CFF, Type 1, WOFF, WOFF2, and EOT fonts from paths, bytes, or streams; inspect ",
+        "reason": "disposition's own stored excerpt no longer matches the live extractor's excerpt for this unit_id -- likely position-based unit_id drift (an upstream README edit or an extractor fix shifted later ids), or the old README genuinely changed under this id; re-verify this disposition against the CURRENT excerpt before trusting its classification/verification"
+      },
+      {
+        "unit_id": "u0028",
+        "stored_excerpt": "- Requires Python 3.10 or later (`pyproject.toml`'s `requires-python`).",
+        "live_excerpt": "The current roadmap is centered on variable fonts. The strongest surface area today is the combination of:",
+        "reason": "disposition's own stored excerpt no longer matches the live extractor's excerpt for this unit_id -- likely position-based unit_id drift (an upstream README edit or an extractor fix shifted later ids), or the old README genuinely changed under this id; re-verify this disposition against the CURRENT excerpt before trusting its classification/verification"
+      },
+      {
+        "unit_id": "u0029",
+        "stored_excerpt": "- No native system libraries: WOFF2's Brotli compression is handled by a vendored,\n  pure-Python codec (`aspose_font._brotli`), not an external C library or OS-",
+        "live_excerpt": "- `font.axes`, `font.named_instances`, and `font.smart_instancer`",
+        "reason": "disposition's own stored excerpt no longer matches the live extractor's excerpt for this unit_id -- likely position-based unit_id drift (an upstream README edit or an extractor fix shifted later ids), or the old README genuinely changed under this id; re-verify this disposition against the CURRENT excerpt before trusting its classification/verification"
+      },
+      {
+        "unit_id": "u0030",
+        "stored_excerpt": "- `pytest` `>=7.4` — test suite runner (`pip install -e \".[dev]\"`; `uv`'s own\n  `dependency-groups.dev` pins `pytest>=9.0.2` for `uv run`/`uv sync` workflows).",
+        "live_excerpt": "- `font.variable_axes` with labels, presets, and presentation metadata for common axes",
+        "reason": "disposition's own stored excerpt no longer matches the live extractor's excerpt for this unit_id -- likely position-based unit_id drift (an upstream README edit or an extractor fix shifted later ids), or the old README genuinely changed under this id; re-verify this disposition against the CURRENT excerpt before trusting its classification/verification"
+      },
+      {
+        "unit_id": "u0031",
+        "stored_excerpt": "- `ruff` `>=0.4` — linter.",
+        "live_excerpt": "- additive axis summaries such as `axis.range_summary`, `axis.default_ratio`, and preset-aware `axis.describe_value(...)`",
+        "reason": "disposition's own stored excerpt no longer matches the live extractor's excerpt for this unit_id -- likely position-based unit_id drift (an upstream README edit or an extractor fix shifted later ids), or the old README genuinely changed under this id; re-verify this disposition against the CURRENT excerpt before trusting its classification/verification"
+      },
+      {
+        "unit_id": "u0032",
+        "stored_excerpt": "- `build` `>=1.2` — builds the wheel/sdist for release.",
+        "live_excerpt": "- locale-aware axis and named-instance labels through `axis.name(...)`, `instance.name(...)`, and `var-info --language`",
+        "reason": "disposition's own stored excerpt no longer matches the live extractor's excerpt for this unit_id -- likely position-based unit_id drift (an upstream README edit or an extractor fix shifted later ids), or the old README genuinely changed under this id; re-verify this disposition against the CURRENT excerpt before trusting its classification/verification"
+      },
+      {
+        "unit_id": "u0033",
+        "stored_excerpt": "Load a font and inspect its metadata:",
+        "live_excerpt": "- ordered localization inventory through `axis.localized_labels(...)`, `instance.localized_labels(...)`, and broader common `name`-table locale coverage",
+        "reason": "disposition's own stored excerpt no longer matches the live extractor's excerpt for this unit_id -- likely position-based unit_id drift (an upstream README edit or an extractor fix shifted later ids), or the old README genuinely changed under this id; re-verify this disposition against the CURRENT excerpt before trusting its classification/verification"
+      },
+      {
+        "unit_id": "u0034",
+        "stored_excerpt": "Clean it for the web and convert it to WOFF2:",
+        "live_excerpt": "- display-ready requested-language profile payloads through `axis.language_profiles(...)`, `instance.language_profiles(...)`, and `font.variable_presentation(..",
+        "reason": "disposition's own stored excerpt no longer matches the live extractor's excerpt for this unit_id -- likely position-based unit_id drift (an upstream README edit or an extractor fix shifted later ids), or the old README genuinely changed under this id; re-verify this disposition against the CURRENT excerpt before trusting its classification/verification"
+      },
+      {
+        "unit_id": "u0035",
+        "stored_excerpt": "These real outputs mirror the fixture-backed examples generated for the demo site, starting with\na web package handoff and continuing through QA, review, and an",
+        "live_excerpt": "- axis-aware named-instance coordinate labels through `instance.format_coordinates(...)` and richer `var-info` output",
+        "reason": "disposition's own stored excerpt no longer matches the live extractor's excerpt for this unit_id -- likely position-based unit_id drift (an upstream README edit or an extractor fix shifted later ids), or the old README genuinely changed under this id; re-verify this disposition against the CURRENT excerpt before trusting its classification/verification"
+      },
+      {
+        "unit_id": "u0036",
+        "stored_excerpt": "Build a browser-ready web-font package with `WebFontBuilder`, including CSS, an HTML specimen\npage, and a JSON manifest:",
+        "live_excerpt": "- JSON-ready Axes Explorer snapshots through `axis.to_presentation(...)`, `instance.to_presentation(...)`, `font.variable_presentation(...)`, and `var-info --js",
+        "reason": "disposition's own stored excerpt no longer matches the live extractor's excerpt for this unit_id -- likely position-based unit_id drift (an upstream README edit or an extractor fix shifted later ids), or the old README genuinely changed under this id; re-verify this disposition against the CURRENT excerpt before trusting its classification/verification"
+      },
+      {
+        "unit_id": "u0037",
+        "stored_excerpt": "The manifest records the resolved export mode, source/output variable status, Unicode-coverage\ndiagnostics, naming choices, and STAT-policy guidance when applic",
+        "live_excerpt": "- preset-aware coordinate selection such as `wght=\"Bold\"` or `wdth=\"Condensed\"`",
+        "reason": "disposition's own stored excerpt no longer matches the live extractor's excerpt for this unit_id -- likely position-based unit_id drift (an upstream README edit or an extractor fix shifted later ids), or the old README genuinely changed under this id; re-verify this disposition against the CURRENT excerpt before trusting its classification/verification"
+      },
+      {
+        "unit_id": "u0038",
+        "stored_excerpt": "<details>\n<summary>View Additional Examples</summary>",
+        "live_excerpt": "- guided axis-grid suggestions through `SmartInstancer.suggest_axis_values(...)` and preset-driven grid exports",
+        "reason": "disposition's own stored excerpt no longer matches the live extractor's excerpt for this unit_id -- likely position-based unit_id drift (an upstream README edit or an extractor fix shifted later ids), or the old README genuinely changed under this id; re-verify this disposition against the CURRENT excerpt before trusting its classification/verification"
+      },
+      {
+        "unit_id": "u0039",
+        "stored_excerpt": "`FontQaReporter.build_package(...)` produces a review folder with JSON, HTML, and a preview PNG:",
+        "live_excerpt": "- `HVAR`-aware static instancing so exported widths can follow horizontal metric variation data",
+        "reason": "disposition's own stored excerpt no longer matches the live extractor's excerpt for this unit_id -- likely position-based unit_id drift (an upstream README edit or an extractor fix shifted later ids), or the old README genuinely changed under this id; re-verify this disposition against the CURRENT excerpt before trusting its classification/verification"
+      },
+      {
+        "unit_id": "u0040",
+        "stored_excerpt": "![Font QA Report summary](./website/generated/roboto-qa-report-summary.svg)",
+        "live_excerpt": "- configurable naming strategies for generated static instances and web handoff packages, including `menu-safe` and `ribbi-safe` policies plus optional custom f",
+        "reason": "disposition's own stored excerpt no longer matches the live extractor's excerpt for this unit_id -- likely position-based unit_id drift (an upstream README edit or an extractor fix shifted later ids), or the old README genuinely changed under this id; re-verify this disposition against the CURRENT excerpt before trusting its classification/verification"
+      },
+      {
+        "unit_id": "u0041",
+        "stored_excerpt": "`font.instantiate(...)` (a `SmartInstancer` convenience) resolves named coordinates into a static\n`TtfFont`, with `HVAR`-aware widths and configurable naming po",
+        "live_excerpt": "- high-level previews through `FontPreviewBuilder`",
+        "reason": "disposition's own stored excerpt no longer matches the live extractor's excerpt for this unit_id -- likely position-based unit_id drift (an upstream README edit or an extractor fix shifted later ids), or the old README genuinely changed under this id; re-verify this disposition against the CURRENT excerpt before trusting its classification/verification"
+      },
+      {
+        "unit_id": "u0042",
+        "stored_excerpt": "Generate an approval-ready board comparing several named instances side by side:",
+        "live_excerpt": "- web handoff packaging through `WebFontBuilder`, `SmartInstancer.build_web_bundle(...)`, axis-grid web bundles, and coordinate-aware shared grid-family package",
+        "reason": "disposition's own stored excerpt no longer matches the live extractor's excerpt for this unit_id -- likely position-based unit_id drift (an upstream README edit or an extractor fix shifted later ids), or the old README genuinely changed under this id; re-verify this disposition against the CURRENT excerpt before trusting its classification/verification"
+      },
+      {
+        "unit_id": "u0043",
+        "stored_excerpt": "![Family review board](./website/generated/roboto-family-review-board.png)",
+        "live_excerpt": "- QA reporting through `FontQaReporter`, `CompatibilityChecker`, and `DeltaInspector`",
+        "reason": "disposition's own stored excerpt no longer matches the live extractor's excerpt for this unit_id -- likely position-based unit_id drift (an upstream README edit or an extractor fix shifted later ids), or the old README genuinely changed under this id; re-verify this disposition against the CURRENT excerpt before trusting its classification/verification"
+      },
+      {
+        "unit_id": "u0044",
+        "stored_excerpt": "See how a variable font behaves across weight and width in one sheet:",
+        "live_excerpt": "- deeper compatibility issue notes for segment mix, control points, contour closure, and endpoint movement",
+        "reason": "disposition's own stored excerpt no longer matches the live extractor's excerpt for this unit_id -- likely position-based unit_id drift (an upstream README edit or an extractor fix shifted later ids), or the old README genuinely changed under this id; re-verify this disposition against the CURRENT excerpt before trusting its classification/verification"
+      },
+      {
+        "unit_id": "u0045",
+        "stored_excerpt": "![Axis grid preview](./website/generated/roboto-axis-grid.png)",
+        "live_excerpt": "- additive interpolation diagnostics for active `gvar` tuple changes between compared instance states",
+        "reason": "disposition's own stored excerpt no longer matches the live extractor's excerpt for this unit_id -- likely position-based unit_id drift (an upstream README edit or an extractor fix shifted later ids), or the old README genuinely changed under this id; re-verify this disposition against the CURRENT excerpt before trusting its classification/verification"
+      },
+      {
+        "unit_id": "u0046",
+        "stored_excerpt": "Inspect how outlines change between two variable-font instances, and how compatible they are:",
+        "live_excerpt": "The generated grid-family package links back to the demo-site direction: `family.html` shows\ncoordinate labels like `wdth=100 wght=700`, while `family-manifest.",
+        "reason": "disposition's own stored excerpt no longer matches the live extractor's excerpt for this unit_id -- likely position-based unit_id drift (an upstream README edit or an extractor fix shifted later ids), or the old README genuinely changed under this id; re-verify this disposition against the CURRENT excerpt before trusting its classification/verification"
+      },
+      {
+        "unit_id": "u0047",
+        "stored_excerpt": "![Delta comparison board](./website/generated/roboto-delta-compare.png)",
+        "live_excerpt": "Expose the library to AI clients and local toolchains:",
+        "reason": "disposition's own stored excerpt no longer matches the live extractor's excerpt for this unit_id -- likely position-based unit_id drift (an upstream README edit or an extractor fix shifted later ids), or the old README genuinely changed under this id; re-verify this disposition against the CURRENT excerpt before trusting its classification/verification"
+      },
+      {
+        "unit_id": "u0048",
+        "stored_excerpt": "Create an animated APNG that sweeps a variable-font axis from a start to an end value:",
+        "live_excerpt": "The MCP server now covers low-level inspection tools, machine-readable variable-font compatibility\nreports through `var_compat`, and high-level web export workf",
+        "reason": "disposition's own stored excerpt no longer matches the live extractor's excerpt for this unit_id -- likely position-based unit_id drift (an upstream README edit or an extractor fix shifted later ids), or the old README genuinely changed under this id; re-verify this disposition against the CURRENT excerpt before trusting its classification/verification"
+      },
+      {
+        "unit_id": "u0049",
+        "stored_excerpt": "Equivalent CLI, plus a scripted multi-state path variant:",
+        "live_excerpt": "These verification flows also refresh the generated demo site content.",
+        "reason": "disposition's own stored excerpt no longer matches the live extractor's excerpt for this unit_id -- likely position-based unit_id drift (an upstream README edit or an extractor fix shifted later ids), or the old README genuinely changed under this id; re-verify this disposition against the CURRENT excerpt before trusting its classification/verification"
+      },
+      {
+        "unit_id": "u0050",
+        "stored_excerpt": "![Variable font animation sweep](./website/generated/roboto-animation-sweep.png)",
+        "live_excerpt": "[MIT](./LICENSE.txt)",
+        "reason": "disposition's own stored excerpt no longer matches the live extractor's excerpt for this unit_id -- likely position-based unit_id drift (an upstream README edit or an extractor fix shifted later ids), or the old README genuinely changed under this id; re-verify this disposition against the CURRENT excerpt before trusting its classification/verification"
+      }
+    ]
+  },
+  "content_unit_evidence_resolves": {
+    "hard_gate": true,
+    "findings": []
+  },
+  "content_unit_evidence_supports_claim": {
+    "hard_gate": false,
+    "findings": [
+      {
+        "unit_id": "u0001",
+        "support_check": "supported",
+        "matched_token": "Font"
+      },
+      {
+        "unit_id": "u0013",
+        "support_check": "supported",
+        "matched_token": "FontLoader.load()"
+      },
+      {
+        "unit_id": "u0014",
+        "support_check": "supported",
+        "matched_token": "Font"
+      },
+      {
+        "unit_id": "u0015",
+        "support_check": "supported",
+        "matched_token": "FontConverter.convert(font, target)"
+      },
+      {
+        "unit_id": "u0016",
+        "support_check": "supported",
+        "matched_token": "name"
+      },
+      {
+        "unit_id": "u0017",
+        "support_check": "supported",
+        "matched_token": "FontSubsetter"
+      },
+      {
+        "unit_id": "u0018",
+        "support_check": "supported",
+        "matched_token": "SmartInstancer"
+      },
+      {
+        "unit_id": "u0019",
+        "support_check": "supported",
+        "matched_token": "FontPreviewBuilder"
+      },
+      {
+        "unit_id": "u0020",
+        "support_check": "supported",
+        "matched_token": "FontQaReporter"
+      },
+      {
+        "unit_id": "u0021",
+        "support_check": "supported",
+        "matched_token": "aspose-font"
+      },
+      {
+        "unit_id": "u0022",
+        "support_check": "supported",
+        "matched_token": "FOSS"
+      },
+      {
+        "unit_id": "u0023",
+        "support_check": "supported",
+        "matched_token": "aspose-font"
+      },
+      {
+        "unit_id": "u0025",
+        "support_check": "supported",
+        "matched_token": "mcp"
+      },
+      {
+        "unit_id": "u0026",
+        "support_check": "no_literal_tokens",
+        "reason": "excerpt has no backtick/CamelCase-ALLCAPS/version/link-target-shaped token -- nothing literal to test"
+      },
+      {
+        "unit_id": "u0027",
+        "support_check": "supported",
+        "matched_token": "mcp"
+      },
+      {
+        "unit_id": "u0028",
+        "support_check": "supported",
+        "matched_token": "requires-python"
+      },
+      {
+        "unit_id": "u0029",
+        "support_check": "supported",
+        "matched_token": "aspose_font._brotli"
+      },
+      {
+        "unit_id": "u0030",
+        "support_check": "supported",
+        "matched_token": "pytest"
+      },
+      {
+        "unit_id": "u0031",
+        "support_check": "supported",
+        "matched_token": "ruff"
+      },
+      {
+        "unit_id": "u0032",
+        "support_check": "supported",
+        "matched_token": "build"
+      },
+      {
+        "unit_id": "u0036",
+        "support_check": "supported",
+        "matched_token": "WebFontBuilder"
+      },
+      {
+        "unit_id": "u0037",
+        "support_check": "supported",
+        "matched_token": "STAT"
+      },
+      {
+        "unit_id": "u0039",
+        "support_check": "supported",
+        "matched_token": "FontQaReporter"
+      },
+      {
+        "unit_id": "u0041",
+        "support_check": "supported",
+        "matched_token": "font.instantiate(...)"
+      },
+      {
+        "unit_id": "u0051",
+        "support_check": "supported",
+        "matched_token": "FontSubsetter.subset_for_web_with_coverage(...)"
+      },
+      {
+        "unit_id": "u0052",
+        "support_check": "supported",
+        "matched_token": "STAT"
+      },
+      {
+        "unit_id": "u0053",
+        "support_check": "supported",
+        "matched_token": "WebFontBuilder.build(..., variable_mode=...)"
+      },
+      {
+        "unit_id": "u0054",
+        "support_check": "supported",
+        "matched_token": "legacy_family_name"
+      },
+      {
+        "unit_id": "u0056",
+        "support_check": "unsupported",
+        "evidence_ref": "src/aspose_font/instancing.py",
+        "checked_tokens": [
+          "font.smart_instancer.build_axis_grid_web_family_package(...)"
+        ],
+        "reason": "none of this unit's literal_tokens (font.smart_instancer.build_axis_grid_web_family_package(...)) -- nor any light call-signature/Maven-coordinate normalization of them -- appear anywhere in the cited evidence file 'src/aspose_font/instancing.py''s real content"
+      },
+      {
+        "unit_id": "u0057",
+        "support_check": "supported",
+        "matched_token": "review_label"
+      },
+      {
+        "unit_id": "u0058",
+        "support_check": "supported",
+        "matched_token": "QA"
+      },
+      {
+        "unit_id": "u0060",
+        "support_check": "supported",
+        "matched_token": "FontLoader"
+      },
+      {
+        "unit_id": "u0062",
+        "support_check": "supported",
+        "matched_token": "ActiveTupleSummary"
+      },
+      {
+        "unit_id": "u0063",
+        "support_check": "supported",
+        "matched_token": "FontType"
+      },
+      {
+        "unit_id": "u0064",
+        "support_check": "supported",
+        "matched_token": "CffCharset"
+      },
+      {
+        "unit_id": "u0065",
+        "support_check": "supported",
+        "matched_token": "EotFont"
+      },
+      {
+        "unit_id": "u0066",
+        "support_check": "supported",
+        "matched_token": "AxisRecord"
+      },
+      {
+        "unit_id": "u0067",
+        "support_check": "supported",
+        "matched_token": "AfmData"
+      },
+      {
+        "unit_id": "u0068",
+        "support_check": "supported",
+        "matched_token": "Woff2Font"
+      },
+      {
+        "unit_id": "u0069",
+        "support_check": "supported",
+        "matched_token": "FontLoader"
+      },
+      {
+        "unit_id": "u0070",
+        "support_check": "supported",
+        "matched_token": "open(source, font_type=None, *, collection_index=None) -> Font"
+      },
+      {
+        "unit_id": "u0071",
+        "support_check": "supported",
+        "matched_token": "load(source, font_type=None, *, collection_index=None) -> LoadedFont"
+      },
+      {
+        "unit_id": "u0072",
+        "support_check": "supported",
+        "matched_token": "Font"
+      },
+      {
+        "unit_id": "u0073",
+        "support_check": "supported",
+        "matched_token": "font_name"
+      },
+      {
+        "unit_id": "u0074",
+        "support_check": "supported",
+        "matched_token": "encoding -> FontEncoding"
+      },
+      {
+        "unit_id": "u0075",
+        "support_check": "supported",
+        "matched_token": "FontConverter"
+      },
+      {
+        "unit_id": "u0076",
+        "support_check": "supported",
+        "matched_token": "convert(font, target: FontType) -> Font"
+      },
+      {
+        "unit_id": "u0077",
+        "support_check": "supported",
+        "matched_token": "FontCleaner"
+      },
+      {
+        "unit_id": "u0078",
+        "support_check": "supported",
+        "matched_token": "clean_for_web(font, *, drop_mac_names=True, drop_legacy_tables=True, drop_metadata_tables=True) -> Font"
+      },
+      {
+        "unit_id": "u0079",
+        "support_check": "supported",
+        "matched_token": "FontSubsetter"
+      },
+      {
+        "unit_id": "u0080",
+        "support_check": "supported",
+        "matched_token": "subset_by_text(font, text) -> Font"
+      },
+      {
+        "unit_id": "u0081",
+        "support_check": "supported",
+        "matched_token": "subset_for_web(font, presets, ...) -> Font"
+      },
+      {
+        "unit_id": "u0082",
+        "support_check": "supported",
+        "matched_token": "available_presets() -> tuple[str, ...]"
+      },
+      {
+        "unit_id": "u0083",
+        "support_check": "supported",
+        "matched_token": "SmartInstancer"
+      },
+      {
+        "unit_id": "u0084",
+        "support_check": "supported",
+        "matched_token": "instantiate(coordinates, instance_name=None, naming_strategy=None, family_suffix=None, legacy_family_name=None, typographic_family_name=None, legacy_style_name=None, typographic_style_name=None, stat_policy=None) -> TtfFont"
+      },
+      {
+        "unit_id": "u0085",
+        "support_check": "supported",
+        "matched_token": "resolve(coordinates) -> ResolvedInstance"
+      },
+      {
+        "unit_id": "u0086",
+        "support_check": "supported",
+        "matched_token": "build_web_bundle(instance_name, family_suffix=None, include_woff=True, preview_text=...) -> WebFontBundle"
+      },
+      {
+        "unit_id": "u0087",
+        "support_check": "supported",
+        "matched_token": "build_family_review_board(instance_names, include_default=False, text=..., family_name=...) -> PreviewImage"
+      },
+      {
+        "unit_id": "u0088",
+        "support_check": "supported",
+        "matched_token": "build_axis_grid_sheet(axis_tag, secondary_axis_tag=None, use_axis_presets=False, use_secondary_axis_presets=False, text=..., size=..., file_stem=...) -> PreviewImage"
+      },
+      {
+        "unit_id": "u0089",
+        "support_check": "supported",
+        "matched_token": "build_axis_grid_web_family_package(axis_tag, values, family_name=..., include_woff=True, preview_text=..., naming_strategy=None) -> WebFontFamilyPackage"
+      },
+      {
+        "unit_id": "u0090",
+        "support_check": "supported",
+        "matched_token": "check_compatibility(before_instance_name, after_instance_name, text=...) -> CompatibilityReport"
+      },
+      {
+        "unit_id": "u0091",
+        "support_check": "supported",
+        "matched_token": "compare_delta_glyph(codepoint, before_instance_name, after_instance_name) -> GlyphDeltaComparisonReport"
+      },
+      {
+        "unit_id": "u0092",
+        "support_check": "supported",
+        "matched_token": "compare_delta_text(text, before_instance_name, after_instance_name) -> TextDeltaComparisonReport"
+      },
+      {
+        "unit_id": "u0093",
+        "support_check": "supported",
+        "matched_token": "inspect_deltas(instance_name, codepoint) -> GlyphDeltaReport"
+      },
+      {
+        "unit_id": "u0094",
+        "support_check": "supported",
+        "matched_token": "FontPreviewBuilder"
+      },
+      {
+        "unit_id": "u0095",
+        "support_check": "supported",
+        "matched_token": "build(font, text, size=..., color=..., background=..., padding=..., antialias=..., file_stem=..., instance_coordinates=..., instance_name=..., output_format=\"png\"|\"svg\") -> PreviewImage"
+      },
+      {
+        "unit_id": "u0096",
+        "support_check": "supported",
+        "matched_token": "WebFontBuilder"
+      },
+      {
+        "unit_id": "u0097",
+        "support_check": "supported",
+        "matched_token": "build(font, presets=(), text=..., variable_mode=\"auto\"|\"live\"|\"static\", instance_name=None, stat_policy=None, include_woff=True) -> WebFontBundle"
+      },
+      {
+        "unit_id": "u0098",
+        "support_check": "supported",
+        "matched_token": "WebFontOptimizer"
+      },
+      {
+        "unit_id": "u0099",
+        "support_check": "supported",
+        "matched_token": "build(font, *, source_path=None, file_stem=None, include_woff=True, ...) -> WebFontOptimizerPackage"
+      },
+      {
+        "unit_id": "u0100",
+        "support_check": "supported",
+        "matched_token": "FontQaReporter"
+      },
+      {
+        "unit_id": "u0101",
+        "support_check": "supported",
+        "matched_token": "build(font, presets=(), text=...) -> FontQaReport"
+      },
+      {
+        "unit_id": "u0102",
+        "support_check": "supported",
+        "matched_token": "build_package(font, output_dir, presets=(), text=..., preview_instance_name=None) -> FontQaPackage"
+      },
+      {
+        "unit_id": "u0103",
+        "support_check": "supported",
+        "matched_token": "CompatibilityChecker"
+      },
+      {
+        "unit_id": "u0104",
+        "support_check": "supported",
+        "matched_token": "compare_fonts(before, after, before_label=..., after_label=..., codepoints=..., text=...) -> CompatibilityReport"
+      },
+      {
+        "unit_id": "u0105",
+        "support_check": "supported",
+        "matched_token": "DeltaInspector"
+      },
+      {
+        "unit_id": "u0106",
+        "support_check": "supported",
+        "matched_token": "GlyphDeltaReport"
+      },
+      {
+        "unit_id": "u0107",
+        "support_check": "supported",
+        "matched_token": "AnimationPreviewBuilder"
+      },
+      {
+        "unit_id": "u0108",
+        "support_check": "supported",
+        "matched_token": "build_axis_sweep(font, axis_tag, start_val, end_val, frames, fps=..., text=..., size=..., bounce=False) -> AnimationAsset"
+      },
+      {
+        "unit_id": "u0109",
+        "support_check": "supported",
+        "matched_token": "build_path(font, steps: list[AnimationStep], text=..., frames_per_segment=..., fps=..., preset=..., easing=None, caption_mode=None) -> AnimationAsset"
+      },
+      {
+        "unit_id": "u0110",
+        "support_check": "supported",
+        "matched_token": "build_path_package(...) -> AnimationFramePackage"
+      },
+      {
+        "unit_id": "u0118",
+        "support_check": "not_applicable_limitation_claim",
+        "reason": "target_section is Scope and Limitations -- a limitation claim's own cited evidence typically proves ABSENCE of a capability, not its presence; literal-token-found would be the wrong signal here"
+      },
+      {
+        "unit_id": "u0119",
+        "support_check": "not_applicable_limitation_claim",
+        "reason": "target_section is Scope and Limitations -- a limitation claim's own cited evidence typically proves ABSENCE of a capability, not its presence; literal-token-found would be the wrong signal here"
+      },
+      {
+        "unit_id": "u0120",
+        "support_check": "not_applicable_limitation_claim",
+        "reason": "target_section is Scope and Limitations -- a limitation claim's own cited evidence typically proves ABSENCE of a capability, not its presence; literal-token-found would be the wrong signal here"
+      },
+      {
+        "unit_id": "u0121",
+        "support_check": "not_applicable_limitation_claim",
+        "reason": "target_section is Scope and Limitations -- a limitation claim's own cited evidence typically proves ABSENCE of a capability, not its presence; literal-token-found would be the wrong signal here"
+      },
+      {
+        "unit_id": "u0125",
+        "support_check": "supported",
+        "matched_token": "YEAR.MONTH.ITERATION"
+      },
+      {
+        "unit_id": "u0129",
+        "support_check": "supported",
+        "matched_token": "[dev]"
+      },
+      {
+        "unit_id": "u0131",
+        "support_check": "supported",
+        "matched_token": "MIT"
+      }
+    ]
+  },
+  "content_unit_merged_into_target_section": {
+    "hard_gate": true,
+    "findings": []
+  },
+  "content_unit_disposition_text_diff": {
+    "hard_gate": false,
+    "findings": [
+      {
+        "unit_id": "u0001",
+        "target_section": "Intro",
+        "excerpt": "Pure-Python font workflow automation for teams that need to prepare, review, package, and explain fonts without native runtime dependencies.",
+        "reason": "disposition claims merged_verbatim but this unit's old prose (normalized for case/whitespace/dash/quote/marker variance only) is not present anywhere in the candidate -- if the wording genuinely changed, the correct disposition is 'merged_reframed', not 'merged_verbatim'"
+      },
+      {
+        "unit_id": "u0002",
+        "target_section": "Navigation",
+        "excerpt": "Use it when you need deployable web-font packages, visual review assets, variable-font instances, and QA evidence from scripts, CI, or local CLI workflows.",
+        "reason": "disposition claims merged_verbatim but this unit's old prose (normalized for case/whitespace/dash/quote/marker variance only) is not present anywhere in the candidate -- if the wording genuinely changed, the correct disposition is 'merged_reframed', not 'merged_verbatim'"
+      },
+      {
+        "unit_id": "u0003",
+        "target_section": "Navigation",
+        "excerpt": "Public GitHub repository: [aspose-font-foss/Aspose.Font-FOSS-for-Python](https://github.com/aspose-font-foss/Aspose.Font-FOSS-for-Python)",
+        "reason": "disposition claims merged_verbatim but this unit's old prose (normalized for case/whitespace/dash/quote/marker variance only) is not present anywhere in the candidate -- if the wording genuinely changed, the correct disposition is 'merged_reframed', not 'merged_verbatim'"
+      },
+      {
+        "unit_id": "u0004",
+        "target_section": "Navigation",
+        "excerpt": "| Workflow | Output |\n| --- | --- |\n| Optimize fonts for the web | WOFF2/WOFF files, CSS, specimen HTML, JSON manifests, coverage diagnostics, variable-font exp",
+        "reason": "disposition claims merged_verbatim but this unit's old prose (normalized for case/whitespace/dash/quote/marker variance only) is not present anywhere in the candidate -- if the wording genuinely changed, the correct disposition is 'merged_reframed', not 'merged_verbatim'"
+      },
+      {
+        "unit_id": "u0005",
+        "target_section": "Navigation",
+        "excerpt": "- Pure Python: no native font-tooling runtime dependency for local scripts or CI.",
+        "reason": "disposition claims merged_verbatim but this unit's old prose (normalized for case/whitespace/dash/quote/marker variance only) is not present anywhere in the candidate -- if the wording genuinely changed, the correct disposition is 'merged_reframed', not 'merged_verbatim'"
+      },
+      {
+        "unit_id": "u0006",
+        "target_section": "Navigation",
+        "excerpt": "- Business artifacts first: packages, reports, manifests, previews, and review boards.",
+        "reason": "disposition claims merged_verbatim but this unit's old prose (normalized for case/whitespace/dash/quote/marker variance only) is not present anywhere in the candidate -- if the wording genuinely changed, the correct disposition is 'merged_reframed', not 'merged_verbatim'"
+      },
+      {
+        "unit_id": "u0007",
+        "target_section": "Navigation",
+        "excerpt": "- Variable-font aware: axes, named instances, static/live web modes, naming policies, and QA diagnostics.",
+        "reason": "disposition claims merged_verbatim but this unit's old prose (normalized for case/whitespace/dash/quote/marker variance only) is not present anywhere in the candidate -- if the wording genuinely changed, the correct disposition is 'merged_reframed', not 'merged_verbatim'"
+      },
+      {
+        "unit_id": "u0008",
+        "target_section": "Navigation",
+        "excerpt": "- Broad format coverage: TrueType, OpenType, CFF, Type 1, WOFF, WOFF2, and EOT.",
+        "reason": "disposition claims merged_verbatim but this unit's old prose (normalized for case/whitespace/dash/quote/marker variance only) is not present anywhere in the candidate -- if the wording genuinely changed, the correct disposition is 'merged_reframed', not 'merged_verbatim'"
+      },
+      {
+        "unit_id": "u0009",
+        "target_section": "Navigation",
+        "excerpt": "- Built for automation: Python, CLI, and optional MCP surfaces share the same capabilities.",
+        "reason": "disposition claims merged_verbatim but this unit's old prose (normalized for case/whitespace/dash/quote/marker variance only) is not present anywhere in the candidate -- if the wording genuinely changed, the correct disposition is 'merged_reframed', not 'merged_verbatim'"
+      },
+      {
+        "unit_id": "u0010",
+        "target_section": "Navigation",
+        "excerpt": "Install MCP support only when you want the built-in server surface:",
+        "reason": "disposition claims merged_verbatim but this unit's old prose (normalized for case/whitespace/dash/quote/marker variance only) is not present anywhere in the candidate -- if the wording genuinely changed, the correct disposition is 'merged_reframed', not 'merged_verbatim'"
+      },
+      {
+        "unit_id": "u0011",
+        "target_section": "Navigation",
+        "excerpt": "Build a web handoff package:",
+        "reason": "disposition claims merged_verbatim but this unit's old prose (normalized for case/whitespace/dash/quote/marker variance only) is not present anywhere in the candidate -- if the wording genuinely changed, the correct disposition is 'merged_reframed', not 'merged_verbatim'"
+      },
+      {
+        "unit_id": "u0012",
+        "target_section": "Navigation",
+        "excerpt": "Generate QA evidence:",
+        "reason": "disposition claims merged_verbatim but this unit's old prose (normalized for case/whitespace/dash/quote/marker variance only) is not present anywhere in the candidate -- if the wording genuinely changed, the correct disposition is 'merged_reframed', not 'merged_verbatim'"
+      },
+      {
+        "unit_id": "u0013",
+        "target_section": "Key Capabilities",
+        "excerpt": "Create a release-safe static instance:",
+        "reason": "disposition claims merged_verbatim but this unit's old prose (normalized for case/whitespace/dash/quote/marker variance only) is not present anywhere in the candidate -- if the wording genuinely changed, the correct disposition is 'merged_reframed', not 'merged_verbatim'"
+      },
+      {
+        "unit_id": "u0014",
+        "target_section": "Key Capabilities",
+        "excerpt": "These fixture-backed examples mirror the generated demo site and show the kinds of artifacts the library produces.",
+        "reason": "disposition claims merged_verbatim but this unit's old prose (normalized for case/whitespace/dash/quote/marker variance only) is not present anywhere in the candidate -- if the wording genuinely changed, the correct disposition is 'merged_reframed', not 'merged_verbatim'"
+      },
+      {
+        "unit_id": "u0015",
+        "target_section": "Key Capabilities",
+        "excerpt": "`WebFontBuilder` and the `web-build` CLI produce browser-ready files plus machine-readable evidence:",
+        "reason": "disposition claims merged_verbatim but this unit's old prose (normalized for case/whitespace/dash/quote/marker variance only) is not present anywhere in the candidate -- if the wording genuinely changed, the correct disposition is 'merged_reframed', not 'merged_verbatim'"
+      },
+      {
+        "unit_id": "u0016",
+        "target_section": "Key Capabilities",
+        "excerpt": "The manifest records export mode, source/output variable status, coverage diagnostics, naming choices, and STAT policy guidance when applicable.",
+        "reason": "disposition claims merged_verbatim but this unit's old prose (normalized for case/whitespace/dash/quote/marker variance only) is not present anywhere in the candidate -- if the wording genuinely changed, the correct disposition is 'merged_reframed', not 'merged_verbatim'"
+      },
+      {
+        "unit_id": "u0017",
+        "target_section": "Key Capabilities",
+        "excerpt": "`FontQaReporter.build_package(...)` and `qa-report --package-output` produce a review folder with JSON, HTML, and a preview PNG:",
+        "reason": "disposition claims merged_verbatim but this unit's old prose (normalized for case/whitespace/dash/quote/marker variance only) is not present anywhere in the candidate -- if the wording genuinely changed, the correct disposition is 'merged_reframed', not 'merged_verbatim'"
+      },
+      {
+        "unit_id": "u0019",
+        "target_section": "Key Capabilities",
+        "excerpt": "Generate approval-ready boards for selected named instances:",
+        "reason": "disposition claims merged_verbatim but this unit's old prose (normalized for case/whitespace/dash/quote/marker variance only) is not present anywhere in the candidate -- if the wording genuinely changed, the correct disposition is 'merged_reframed', not 'merged_verbatim'"
+      },
+      {
+        "unit_id": "u0021",
+        "target_section": "Key Capabilities",
+        "excerpt": "Show how a variable font behaves across weight and width:",
+        "reason": "disposition claims merged_verbatim but this unit's old prose (normalized for case/whitespace/dash/quote/marker variance only) is not present anywhere in the candidate -- if the wording genuinely changed, the correct disposition is 'merged_reframed', not 'merged_verbatim'"
+      },
+      {
+        "unit_id": "u0023",
+        "target_section": "Installation",
+        "excerpt": "Inspect how outlines change between variable-font instances:",
+        "reason": "disposition claims merged_verbatim but this unit's old prose (normalized for case/whitespace/dash/quote/marker variance only) is not present anywhere in the candidate -- if the wording genuinely changed, the correct disposition is 'merged_reframed', not 'merged_verbatim'"
+      },
+      {
+        "unit_id": "u0025",
+        "target_section": "Installation",
+        "excerpt": "Create APNG sweeps, scripted paths, frame packages, review bundles, and showcase folders:",
+        "reason": "disposition claims merged_verbatim but this unit's old prose (normalized for case/whitespace/dash/quote/marker variance only) is not present anywhere in the candidate -- if the wording genuinely changed, the correct disposition is 'merged_reframed', not 'merged_verbatim'"
+      },
+      {
+        "unit_id": "u0027",
+        "target_section": "Dependencies",
+        "excerpt": "| Area | What You Can Do Now |\n| --- | --- |\n| Load and inspect | Open TTF, OTF, CFF, Type 1, WOFF, WOFF2, and EOT fonts from paths, bytes, or streams; inspect ",
+        "reason": "disposition claims merged_verbatim but this unit's old prose (normalized for case/whitespace/dash/quote/marker variance only) is not present anywhere in the candidate -- if the wording genuinely changed, the correct disposition is 'merged_reframed', not 'merged_verbatim'"
+      },
+      {
+        "unit_id": "u0028",
+        "target_section": "Dependencies",
+        "excerpt": "The current roadmap is centered on variable fonts. The strongest surface area today is the combination of:",
+        "reason": "disposition claims merged_verbatim but this unit's old prose (normalized for case/whitespace/dash/quote/marker variance only) is not present anywhere in the candidate -- if the wording genuinely changed, the correct disposition is 'merged_reframed', not 'merged_verbatim'"
+      },
+      {
+        "unit_id": "u0030",
+        "target_section": "Dependencies",
+        "excerpt": "- `font.variable_axes` with labels, presets, and presentation metadata for common axes",
+        "reason": "disposition claims merged_verbatim but this unit's old prose (normalized for case/whitespace/dash/quote/marker variance only) is not present anywhere in the candidate -- if the wording genuinely changed, the correct disposition is 'merged_reframed', not 'merged_verbatim'"
+      },
+      {
+        "unit_id": "u0031",
+        "target_section": "Dependencies",
+        "excerpt": "- additive axis summaries such as `axis.range_summary`, `axis.default_ratio`, and preset-aware `axis.describe_value(...)`",
+        "reason": "disposition claims merged_verbatim but this unit's old prose (normalized for case/whitespace/dash/quote/marker variance only) is not present anywhere in the candidate -- if the wording genuinely changed, the correct disposition is 'merged_reframed', not 'merged_verbatim'"
+      },
+      {
+        "unit_id": "u0032",
+        "target_section": "Dependencies",
+        "excerpt": "- locale-aware axis and named-instance labels through `axis.name(...)`, `instance.name(...)`, and `var-info --language`",
+        "reason": "disposition claims merged_verbatim but this unit's old prose (normalized for case/whitespace/dash/quote/marker variance only) is not present anywhere in the candidate -- if the wording genuinely changed, the correct disposition is 'merged_reframed', not 'merged_verbatim'"
+      },
+      {
+        "unit_id": "u0033",
+        "target_section": "Quick Start",
+        "excerpt": "- ordered localization inventory through `axis.localized_labels(...)`, `instance.localized_labels(...)`, and broader common `name`-table locale coverage",
+        "reason": "disposition claims merged_verbatim but this unit's old prose (normalized for case/whitespace/dash/quote/marker variance only) is not present anywhere in the candidate -- if the wording genuinely changed, the correct disposition is 'merged_reframed', not 'merged_verbatim'"
+      },
+      {
+        "unit_id": "u0034",
+        "target_section": "Quick Start",
+        "excerpt": "- display-ready requested-language profile payloads through `axis.language_profiles(...)`, `instance.language_profiles(...)`, and `font.variable_presentation(..",
+        "reason": "disposition claims merged_verbatim but this unit's old prose (normalized for case/whitespace/dash/quote/marker variance only) is not present anywhere in the candidate -- if the wording genuinely changed, the correct disposition is 'merged_reframed', not 'merged_verbatim'"
+      },
+      {
+        "unit_id": "u0035",
+        "target_section": "Additional Examples",
+        "excerpt": "- axis-aware named-instance coordinate labels through `instance.format_coordinates(...)` and richer `var-info` output",
+        "reason": "disposition claims merged_verbatim but this unit's old prose (normalized for case/whitespace/dash/quote/marker variance only) is not present anywhere in the candidate -- if the wording genuinely changed, the correct disposition is 'merged_reframed', not 'merged_verbatim'"
+      },
+      {
+        "unit_id": "u0036",
+        "target_section": "Additional Examples",
+        "excerpt": "- JSON-ready Axes Explorer snapshots through `axis.to_presentation(...)`, `instance.to_presentation(...)`, `font.variable_presentation(...)`, and `var-info --js",
+        "reason": "disposition claims merged_verbatim but this unit's old prose (normalized for case/whitespace/dash/quote/marker variance only) is not present anywhere in the candidate -- if the wording genuinely changed, the correct disposition is 'merged_reframed', not 'merged_verbatim'"
+      },
+      {
+        "unit_id": "u0037",
+        "target_section": "Additional Examples",
+        "excerpt": "- preset-aware coordinate selection such as `wght=\"Bold\"` or `wdth=\"Condensed\"`",
+        "reason": "disposition claims merged_verbatim but this unit's old prose (normalized for case/whitespace/dash/quote/marker variance only) is not present anywhere in the candidate -- if the wording genuinely changed, the correct disposition is 'merged_reframed', not 'merged_verbatim'"
+      },
+      {
+        "unit_id": "u0038",
+        "target_section": "Additional Examples",
+        "excerpt": "- guided axis-grid suggestions through `SmartInstancer.suggest_axis_values(...)` and preset-driven grid exports",
+        "reason": "disposition claims merged_verbatim but this unit's old prose (normalized for case/whitespace/dash/quote/marker variance only) is not present anywhere in the candidate -- if the wording genuinely changed, the correct disposition is 'merged_reframed', not 'merged_verbatim'"
+      },
+      {
+        "unit_id": "u0039",
+        "target_section": "Additional Examples",
+        "excerpt": "- `HVAR`-aware static instancing so exported widths can follow horizontal metric variation data",
+        "reason": "disposition claims merged_verbatim but this unit's old prose (normalized for case/whitespace/dash/quote/marker variance only) is not present anywhere in the candidate -- if the wording genuinely changed, the correct disposition is 'merged_reframed', not 'merged_verbatim'"
+      },
+      {
+        "unit_id": "u0040",
+        "target_section": "Additional Examples",
+        "excerpt": "- configurable naming strategies for generated static instances and web handoff packages, including `menu-safe` and `ribbi-safe` policies plus optional custom f",
+        "reason": "disposition claims merged_verbatim but this unit's old prose (normalized for case/whitespace/dash/quote/marker variance only) is not present anywhere in the candidate -- if the wording genuinely changed, the correct disposition is 'merged_reframed', not 'merged_verbatim'"
+      },
+      {
+        "unit_id": "u0041",
+        "target_section": "Additional Examples",
+        "excerpt": "- high-level previews through `FontPreviewBuilder`",
+        "reason": "disposition claims merged_verbatim but this unit's old prose (normalized for case/whitespace/dash/quote/marker variance only) is not present anywhere in the candidate -- if the wording genuinely changed, the correct disposition is 'merged_reframed', not 'merged_verbatim'"
+      },
+      {
+        "unit_id": "u0042",
+        "target_section": "Additional Examples",
+        "excerpt": "- web handoff packaging through `WebFontBuilder`, `SmartInstancer.build_web_bundle(...)`, axis-grid web bundles, and coordinate-aware shared grid-family package",
+        "reason": "disposition claims merged_verbatim but this unit's old prose (normalized for case/whitespace/dash/quote/marker variance only) is not present anywhere in the candidate -- if the wording genuinely changed, the correct disposition is 'merged_reframed', not 'merged_verbatim'"
+      },
+      {
+        "unit_id": "u0043",
+        "target_section": "Additional Examples",
+        "excerpt": "- QA reporting through `FontQaReporter`, `CompatibilityChecker`, and `DeltaInspector`",
+        "reason": "disposition claims merged_verbatim but this unit's old prose (normalized for case/whitespace/dash/quote/marker variance only) is not present anywhere in the candidate -- if the wording genuinely changed, the correct disposition is 'merged_reframed', not 'merged_verbatim'"
+      },
+      {
+        "unit_id": "u0044",
+        "target_section": "Additional Examples",
+        "excerpt": "- deeper compatibility issue notes for segment mix, control points, contour closure, and endpoint movement",
+        "reason": "disposition claims merged_verbatim but this unit's old prose (normalized for case/whitespace/dash/quote/marker variance only) is not present anywhere in the candidate -- if the wording genuinely changed, the correct disposition is 'merged_reframed', not 'merged_verbatim'"
+      },
+      {
+        "unit_id": "u0045",
+        "target_section": "Additional Examples",
+        "excerpt": "- additive interpolation diagnostics for active `gvar` tuple changes between compared instance states",
+        "reason": "disposition claims merged_verbatim but this unit's old prose (normalized for case/whitespace/dash/quote/marker variance only) is not present anywhere in the candidate -- if the wording genuinely changed, the correct disposition is 'merged_reframed', not 'merged_verbatim'"
+      },
+      {
+        "unit_id": "u0046",
+        "target_section": "Additional Examples",
+        "excerpt": "The generated grid-family package links back to the demo-site direction: `family.html` shows\ncoordinate labels like `wdth=100 wght=700`, while `family-manifest.",
+        "reason": "disposition claims merged_verbatim but this unit's old prose (normalized for case/whitespace/dash/quote/marker variance only) is not present anywhere in the candidate -- if the wording genuinely changed, the correct disposition is 'merged_reframed', not 'merged_verbatim'"
+      },
+      {
+        "unit_id": "u0047",
+        "target_section": "Additional Examples",
+        "excerpt": "Expose the library to AI clients and local toolchains:",
+        "reason": "disposition claims merged_verbatim but this unit's old prose (normalized for case/whitespace/dash/quote/marker variance only) is not present anywhere in the candidate -- if the wording genuinely changed, the correct disposition is 'merged_reframed', not 'merged_verbatim'"
+      },
+      {
+        "unit_id": "u0048",
+        "target_section": "Additional Examples",
+        "excerpt": "The MCP server now covers low-level inspection tools, machine-readable variable-font compatibility\nreports through `var_compat`, and high-level web export workf",
+        "reason": "disposition claims merged_verbatim but this unit's old prose (normalized for case/whitespace/dash/quote/marker variance only) is not present anywhere in the candidate -- if the wording genuinely changed, the correct disposition is 'merged_reframed', not 'merged_verbatim'"
+      },
+      {
+        "unit_id": "u0049",
+        "target_section": "Additional Examples",
+        "excerpt": "These verification flows also refresh the generated demo site content.",
+        "reason": "disposition claims merged_verbatim but this unit's old prose (normalized for case/whitespace/dash/quote/marker variance only) is not present anywhere in the candidate -- if the wording genuinely changed, the correct disposition is 'merged_reframed', not 'merged_verbatim'"
+      },
+      {
+        "unit_id": "u0050",
+        "target_section": "Additional Examples",
+        "excerpt": "[MIT](./LICENSE.txt)",
+        "reason": "disposition claims merged_verbatim but this unit's old prose (normalized for case/whitespace/dash/quote/marker variance only) is not present anywhere in the candidate -- if the wording genuinely changed, the correct disposition is 'merged_reframed', not 'merged_verbatim'"
+      }
+    ]
+  },
+  "content_unit_no_exact_duplicate_merge": {
+    "hard_gate": true,
+    "findings": []
+  },
+  "content_unit_redundant_claim_verifiable": {
+    "hard_gate": false,
+    "findings": []
+  },
+  "content_unit_classification_plausibility": {
+    "hard_gate": false,
+    "findings": [
+      {
+        "unit_id": "u0024",
+        "reason": "classified as narrative/CTA but the prefilter found no tone signal -- confirm this genuinely has nothing checkable/reusable in it"
+      },
+      {
+        "unit_id": "u0033",
+        "reason": "classified as narrative/CTA but the prefilter found no tone signal -- confirm this genuinely has nothing checkable/reusable in it"
+      },
+      {
+        "unit_id": "u0034",
+        "reason": "classified as narrative/CTA but the prefilter found no tone signal -- confirm this genuinely has nothing checkable/reusable in it"
+      },
+      {
+        "unit_id": "u0035",
+        "reason": "classified as narrative/CTA but the prefilter found no tone signal -- confirm this genuinely has nothing checkable/reusable in it"
+      },
+      {
+        "unit_id": "u0038",
+        "reason": "classified as narrative/CTA but the prefilter found no tone signal -- confirm this genuinely has nothing checkable/reusable in it"
+      },
+      {
+        "unit_id": "u0040",
+        "reason": "classified as narrative/CTA but the prefilter found no tone signal -- confirm this genuinely has nothing checkable/reusable in it"
+      },
+      {
+        "unit_id": "u0042",
+        "reason": "classified as narrative/CTA but the prefilter found no tone signal -- confirm this genuinely has nothing checkable/reusable in it"
+      },
+      {
+        "unit_id": "u0043",
+        "reason": "classified as narrative/CTA but the prefilter found no tone signal -- confirm this genuinely has nothing checkable/reusable in it"
+      },
+      {
+        "unit_id": "u0044",
+        "reason": "classified as narrative/CTA but the prefilter found no tone signal -- confirm this genuinely has nothing checkable/reusable in it"
+      },
+      {
+        "unit_id": "u0045",
+        "reason": "classified as narrative/CTA but the prefilter found no tone signal -- confirm this genuinely has nothing checkable/reusable in it"
+      },
+      {
+        "unit_id": "u0046",
+        "reason": "classified as narrative/CTA but the prefilter found no tone signal -- confirm this genuinely has nothing checkable/reusable in it"
+      },
+      {
+        "unit_id": "u0047",
+        "reason": "classified as narrative/CTA but the prefilter found no tone signal -- confirm this genuinely has nothing checkable/reusable in it"
+      },
+      {
+        "unit_id": "u0048",
+        "reason": "classified as narrative/CTA but the prefilter found no tone signal -- confirm this genuinely has nothing checkable/reusable in it"
+      },
+      {
+        "unit_id": "u0049",
+        "reason": "classified as narrative/CTA but the prefilter found no tone signal -- confirm this genuinely has nothing checkable/reusable in it"
+      },
+      {
+        "unit_id": "u0050",
+        "reason": "classified as narrative/CTA but the prefilter found no tone signal -- confirm this genuinely has nothing checkable/reusable in it"
+      }
+    ]
+  },
+  "content_unit_probable_duplicate": {
+    "hard_gate": false,
+    "findings": []
+  },
+  "content_unit_embedded_actionable_fact": {
+    "hard_gate": false,
+    "findings": []
+  },
+  "image_content_unit_excluded_reason_verified": {
+    "hard_gate": false,
+    "findings": []
+  },
+  "structural_unit_disposition_coverage": {
+    "hard_gate": true,
+    "findings": [
+      {
+        "unit_id": "s0003",
+        "reason": "disposition references a unit_id not present in the current old-README structural extraction"
+      }
+    ]
+  },
+  "structural_unit_evidence_resolves": {
+    "hard_gate": true,
+    "findings": []
+  },
+  "structural_unit_merged_into_target_section": {
+    "hard_gate": true,
+    "findings": []
+  },
+  "structural_unit_no_exact_duplicate_merge": {
+    "hard_gate": true,
+    "findings": []
+  },
+  "structural_unit_disposition_text_diff": {
+    "hard_gate": true,
+    "findings": [
+      {
+        "unit_id": "s0002",
+        "reason": "disposition claims merged_verbatim but this unit's exact old fenced-block text is not present anywhere in the candidate -- if the content was genuinely changed (even partially, e.g. dropped calls), the correct disposition is 'merged_reframed', not 'merged_verbatim'"
+      }
+    ]
+  },
+  "structural_unit_tree_paths_plausible": {
+    "hard_gate": false,
+    "findings": []
+  },
+  "candidate_section_disposition_traceability": {
+    "hard_gate": false,
+    "findings": []
+  },
+  "code_example_disposition_coverage": {
+    "hard_gate": true,
+    "findings": [
+      {
+        "unit_id": "c0017",
+        "reason": "disposition references a unit_id not present in the current old-README code-unit extraction"
+      },
+      {
+        "unit_id": "c0018",
+        "reason": "disposition references a unit_id not present in the current old-README code-unit extraction"
+      },
+      {
+        "unit_id": "c0021a",
+        "reason": "disposition references a unit_id not present in the current old-README code-unit extraction"
+      },
+      {
+        "unit_id": "c0021b",
+        "reason": "disposition references a unit_id not present in the current old-README code-unit extraction"
+      },
+      {
+        "unit_id": "c0021c",
+        "reason": "disposition references a unit_id not present in the current old-README code-unit extraction"
+      },
+      {
+        "unit_id": "c0021d",
+        "reason": "disposition references a unit_id not present in the current old-README code-unit extraction"
+      },
+      {
+        "unit_id": "c0022",
+        "reason": "disposition references a unit_id not present in the current old-README code-unit extraction"
+      },
+      {
+        "unit_id": "c0023",
+        "reason": "disposition references a unit_id not present in the current old-README code-unit extraction"
+      },
+      {
+        "unit_id": "c0024",
+        "reason": "disposition references a unit_id not present in the current old-README code-unit extraction"
+      },
+      {
+        "unit_id": "c0025",
+        "reason": "disposition references a unit_id not present in the current old-README code-unit extraction"
+      },
+      {
+        "unit_id": "c0026",
+        "reason": "disposition references a unit_id not present in the current old-README code-unit extraction"
+      },
+      {
+        "unit_id": "c0027",
+        "reason": "disposition references a unit_id not present in the current old-README code-unit extraction"
+      },
+      {
+        "unit_id": "c0028",
+        "reason": "disposition references a unit_id not present in the current old-README code-unit extraction"
+      },
+      {
+        "unit_id": "c0029",
+        "reason": "disposition references a unit_id not present in the current old-README code-unit extraction"
+      },
+      {
+        "unit_id": "c0018c",
+        "reason": "no disposition entry -- every extracted code unit needs one"
+      },
+      {
+        "unit_id": "c0017d",
+        "reason": "no disposition entry -- every extracted code unit needs one"
+      },
+      {
+        "unit_id": "c0017m",
+        "reason": "no disposition entry -- every extracted code unit needs one"
+      },
+      {
+        "unit_id": "c0017i",
+        "reason": "no disposition entry -- every extracted code unit needs one"
+      },
+      {
+        "unit_id": "c0017f",
+        "reason": "no disposition entry -- every extracted code unit needs one"
+      },
+      {
+        "unit_id": "c0017g",
+        "reason": "no disposition entry -- every extracted code unit needs one"
+      },
+      {
+        "unit_id": "c0018a",
+        "reason": "no disposition entry -- every extracted code unit needs one"
+      },
+      {
+        "unit_id": "c0017l",
+        "reason": "no disposition entry -- every extracted code unit needs one"
+      },
+      {
+        "unit_id": "c0017o",
+        "reason": "no disposition entry -- every extracted code unit needs one"
+      },
+      {
+        "unit_id": "c0017p",
+        "reason": "no disposition entry -- every extracted code unit needs one"
+      },
+      {
+        "unit_id": "c0017q",
+        "reason": "no disposition entry -- every extracted code unit needs one"
+      },
+      {
+        "unit_id": "c0018b",
+        "reason": "no disposition entry -- every extracted code unit needs one"
+      },
+      {
+        "unit_id": "c0017a",
+        "reason": "no disposition entry -- every extracted code unit needs one"
+      },
+      {
+        "unit_id": "c0017j",
+        "reason": "no disposition entry -- every extracted code unit needs one"
+      },
+      {
+        "unit_id": "c0017h",
+        "reason": "no disposition entry -- every extracted code unit needs one"
+      },
+      {
+        "unit_id": "c0017n",
+        "reason": "no disposition entry -- every extracted code unit needs one"
+      },
+      {
+        "unit_id": "c0018d",
+        "reason": "no disposition entry -- every extracted code unit needs one"
+      },
+      {
+        "unit_id": "c0017c",
+        "reason": "no disposition entry -- every extracted code unit needs one"
+      },
+      {
+        "unit_id": "c0017b",
+        "reason": "no disposition entry -- every extracted code unit needs one"
+      },
+      {
+        "unit_id": "c0017r",
+        "reason": "no disposition entry -- every extracted code unit needs one"
+      },
+      {
+        "unit_id": "c0017e",
+        "reason": "no disposition entry -- every extracted code unit needs one"
+      },
+      {
+        "unit_id": "c0017k",
+        "reason": "no disposition entry -- every extracted code unit needs one"
+      }
+    ]
+  },
+  "code_example_evidence_resolves": {
+    "hard_gate": true,
+    "findings": []
+  },
+  "code_example_no_exact_duplicate_merge": {
+    "hard_gate": true,
+    "findings": []
+  },
+  "code_example_disposition_text_diff": {
+    "hard_gate": true,
+    "findings": [
+      {
+        "unit_id": "c0002",
+        "reason": "disposition claims merged_verbatim but this unit's exact old code text is not present anywhere in the candidate -- if the content was genuinely changed, the correct disposition is 'corrected' or 'merged_reframed', not 'merged_verbatim'"
+      },
+      {
+        "unit_id": "c0004",
+        "reason": "disposition claims merged_verbatim but this unit's exact old code text is not present anywhere in the candidate -- if the content was genuinely changed, the correct disposition is 'corrected' or 'merged_reframed', not 'merged_verbatim'"
+      },
+      {
+        "unit_id": "c0006",
+        "reason": "disposition claims merged_verbatim but this unit's exact old code text is not present anywhere in the candidate -- if the content was genuinely changed, the correct disposition is 'corrected' or 'merged_reframed', not 'merged_verbatim'"
+      },
+      {
+        "unit_id": "c0008",
+        "reason": "disposition claims merged_verbatim but this unit's exact old code text is not present anywhere in the candidate -- if the content was genuinely changed, the correct disposition is 'corrected' or 'merged_reframed', not 'merged_verbatim'"
+      },
+      {
+        "unit_id": "c0009",
+        "reason": "disposition claims merged_verbatim but this unit's exact old code text is not present anywhere in the candidate -- if the content was genuinely changed, the correct disposition is 'corrected' or 'merged_reframed', not 'merged_verbatim'"
+      },
+      {
+        "unit_id": "c0013",
+        "reason": "disposition claims merged_verbatim but this unit's exact old code text is not present anywhere in the candidate -- if the content was genuinely changed, the correct disposition is 'corrected' or 'merged_reframed', not 'merged_verbatim'"
+      },
+      {
+        "unit_id": "c0015",
+        "reason": "disposition claims merged_verbatim but this unit's exact old code text is not present anywhere in the candidate -- if the content was genuinely changed, the correct disposition is 'corrected' or 'merged_reframed', not 'merged_verbatim'"
+      },
+      {
+        "unit_id": "c0016",
+        "reason": "disposition claims merged_verbatim but this unit's exact old code text is not present anywhere in the candidate -- if the content was genuinely changed, the correct disposition is 'corrected' or 'merged_reframed', not 'merged_verbatim'"
+      },
+      {
+        "unit_id": "c0019",
+        "reason": "disposition claims merged_verbatim but this unit's exact old code text is not present anywhere in the candidate -- if the content was genuinely changed, the correct disposition is 'corrected' or 'merged_reframed', not 'merged_verbatim'"
+      },
+      {
+        "unit_id": "c0020",
+        "reason": "disposition claims merged_verbatim but this unit's exact old code text is not present anywhere in the candidate -- if the content was genuinely changed, the correct disposition is 'corrected' or 'merged_reframed', not 'merged_verbatim'"
+      }
+    ]
+  },
+  "code_example_api_coverage_survives": {
+    "hard_gate": true,
+    "findings": []
+  },
+  "code_example_excluded_reason_citation_too_narrow": {
+    "hard_gate": false,
+    "findings": []
+  },
+  "cli_category_representation": {
+    "hard_gate": false,
+    "findings": []
+  },
+  "badge_disposition_coverage": {
+    "hard_gate": true,
+    "findings": [
+      {
+        "unit_id": "b0001",
+        "reason": "disposition action 'preserved' claims a badge carried forward from the old README, but the old README has zero real badges -- this disposition describes something that never existed"
+      },
+      {
+        "unit_id": "b0002",
+        "reason": "disposition action 'preserved' claims a badge carried forward from the old README, but the old README has zero real badges -- this disposition describes something that never existed"
+      },
+      {
+        "unit_id": "b0003",
+        "reason": "disposition action 'preserved' claims a badge carried forward from the old README, but the old README has zero real badges -- this disposition describes something that never existed"
+      }
+    ]
+  },
+  "badge_evidence_resolves": {
+    "hard_gate": true,
+    "findings": []
+  },
+  "badge_preserved_or_credited_in_candidate": {
+    "hard_gate": true,
+    "findings": []
+  },
+  "badge_probable_duplicate_disposition": {
+    "hard_gate": false,
+    "findings": []
+  },
+  "project_structure_canonical_tree_format": {
+    "hard_gate": true,
+    "findings": []
+  },
+  "badge_static_claims_dynamic_fact": {
+    "hard_gate": false,
+    "findings": []
+  },
+  "no_duplicate_badges_in_candidate": {
+    "hard_gate": true,
+    "findings": []
+  },
+  "badge_row_meets_verified_floor": {
+    "hard_gate": true,
+    "findings": []
+  },
+  "badge_available_fact_not_shown": {
+    "hard_gate": false,
+    "findings": []
+  },
+  "diagram_known_subgraph_ids": {
+    "hard_gate": false,
+    "findings": []
+  },
+  "section_job_distinctness": {
+    "hard_gate": false,
+    "findings": [
+      {
+        "intro_sentence": "Beyond format conversion, it adds\nvariable-font instancing, visual previews, web-font packaging, and QA/compatibility reporting —\nall built on the same `Font` object returned by `FontLoader.open()` — and is usable from Python,\nthe bundled `aspose-font` command-line tool, or an optional MCP server for AI tooling.",
+        "overlapping_bullet": "Automate any of the above from the command line with the bundled `aspose-font` CLI, suited to",
+        "similarity": 0.6
+      }
+    ]
+  },
+  "diagram_no_mechanism_duplicate_output": {
+    "hard_gate": false,
+    "findings": []
+  },
+  "diagram_container_duplicates_capability": {
+    "hard_gate": false,
+    "findings": []
+  },
+  "process_narration_smells": {
+    "hard_gate": false,
+    "findings": []
+  },
+  "enterprise_edition_naming": {
+    "hard_gate": false,
+    "findings": []
+  },
+  "api_reference_classes_exist": {
+    "hard_gate": true,
+    "findings": []
+  },
+  "api_reference_class_internal_only": {
+    "hard_gate": false,
+    "findings": [
+      {
+        "class_name": "AvarAxisMap",
+        "reason": "'AvarAxisMap' has zero internal fan-in (no other real source file references it) and is absent from the top-level package __init__.py exports -- possible internal-only class; verify before shipping (record a confirmed internal class in data/api_reference_class_exclusions.json to suppress this prompt permanently, once genuinely confirmed)"
+      },
+      {
+        "class_name": "CurveAdapter",
+        "reason": "'CurveAdapter' has zero internal fan-in (no other real source file references it) and is absent from the top-level package __init__.py exports -- possible internal-only class; verify before shipping (record a confirmed internal class in data/api_reference_class_exclusions.json to suppress this prompt permanently, once genuinely confirmed)"
+      },
+      {
+        "class_name": "DeltaSetIndex",
+        "reason": "'DeltaSetIndex' has zero internal fan-in (no other real source file references it) and is absent from the top-level package __init__.py exports -- possible internal-only class; verify before shipping (record a confirmed internal class in data/api_reference_class_exclusions.json to suppress this prompt permanently, once genuinely confirmed)"
+      },
+      {
+        "class_name": "DeltaSetIndexMap",
+        "reason": "'DeltaSetIndexMap' has zero internal fan-in (no other real source file references it) and is absent from the top-level package __init__.py exports -- possible internal-only class; verify before shipping (record a confirmed internal class in data/api_reference_class_exclusions.json to suppress this prompt permanently, once genuinely confirmed)"
+      },
+      {
+        "class_name": "EotHeader",
+        "reason": "'EotHeader' has zero internal fan-in (no other real source file references it) and is absent from the top-level package __init__.py exports -- possible internal-only class; verify before shipping (record a confirmed internal class in data/api_reference_class_exclusions.json to suppress this prompt permanently, once genuinely confirmed)"
+      },
+      {
+        "class_name": "ItemVariationData",
+        "reason": "'ItemVariationData' has zero internal fan-in (no other real source file references it) and is absent from the top-level package __init__.py exports -- possible internal-only class; verify before shipping (record a confirmed internal class in data/api_reference_class_exclusions.json to suppress this prompt permanently, once genuinely confirmed)"
+      },
+      {
+        "class_name": "ItemVariationStore",
+        "reason": "'ItemVariationStore' has zero internal fan-in (no other real source file references it) and is absent from the top-level package __init__.py exports -- possible internal-only class; verify before shipping (record a confirmed internal class in data/api_reference_class_exclusions.json to suppress this prompt permanently, once genuinely confirmed)"
+      },
+      {
+        "class_name": "TtcFaceRecord",
+        "reason": "'TtcFaceRecord' has zero internal fan-in (no other real source file references it) and is absent from the top-level package __init__.py exports -- possible internal-only class; verify before shipping (record a confirmed internal class in data/api_reference_class_exclusions.json to suppress this prompt permanently, once genuinely confirmed)"
+      },
+      {
+        "class_name": "VariationRegion",
+        "reason": "'VariationRegion' has zero internal fan-in (no other real source file references it) and is absent from the top-level package __init__.py exports -- possible internal-only class; verify before shipping (record a confirmed internal class in data/api_reference_class_exclusions.json to suppress this prompt permanently, once genuinely confirmed)"
+      },
+      {
+        "class_name": "VariationRegionAxis",
+        "reason": "'VariationRegionAxis' has zero internal fan-in (no other real source file references it) and is absent from the top-level package __init__.py exports -- possible internal-only class; verify before shipping (record a confirmed internal class in data/api_reference_class_exclusions.json to suppress this prompt permanently, once genuinely confirmed)"
+      }
+    ]
+  },
+  "no_leaked_docstring_artifacts": {
+    "hard_gate": false,
+    "findings": []
+  },
+  "named_member_accuracy": {
+    "hard_gate": false,
+    "findings": []
+  },
+  "code_example_imports_match_source": {
+    "hard_gate": true,
+    "findings": []
+  },
+  "api_reference_table_completeness": {
+    "hard_gate": true,
+    "findings": []
+  },
+  "reference_index_source_dirty": {
+    "hard_gate": false,
+    "findings": []
+  },
+  "api_reference_table_no_duplicate_rows": {
+    "hard_gate": true,
+    "findings": []
+  },
+  "api_reference_public_type_count_matches_table": {
+    "hard_gate": true,
+    "findings": [
+      {
+        "claimed_count": 139,
+        "actual_table_count": 136,
+        "reason": "prose claims 139 public types, but the README's own API Reference table lists 136 distinct classes -- these two candidate-authored numbers must agree with each other"
+      }
+    ]
+  },
+  "api_reference_generic_description": {
+    "hard_gate": false,
+    "findings": []
+  },
+  "api_reference_truncated_description": {
+    "hard_gate": false,
+    "findings": []
+  },
+  "api_reference_stripped_example": {
+    "hard_gate": false,
+    "findings": []
+  },
+  "dependency_snapshot_completeness": {
+    "hard_gate": true,
+    "findings": []
+  },
+  "unqualified_dependency_claims": {
+    "hard_gate": true,
+    "findings": []
+  },
+  "dependency_section_manifest_corroboration": {
+    "hard_gate": false,
+    "findings": []
+  },
+  "dependency_direct_transitive_confusion": {
+    "hard_gate": true,
+    "findings": []
+  },
+  "dependency_optional_presented_as_required": {
+    "hard_gate": true,
+    "findings": []
+  },
+  "dependency_dev_only_presented_as_runtime": {
+    "hard_gate": true,
+    "findings": []
+  },
+  "dependency_development_claim_not_in_manifest": {
+    "hard_gate": true,
+    "findings": []
+  },
+  "dependency_scope_claim_matches_evidence": {
+    "hard_gate": false,
+    "findings": []
+  },
+  "dependencies_scope_limitations_contradiction": {
+    "hard_gate": false,
+    "findings": []
+  },
+  "dependencies_intro_contradiction": {
+    "hard_gate": true,
+    "findings": []
+  },
+  "dependency_version_pin_freshness": {
+    "hard_gate": false,
+    "findings": []
+  },
+  "dependency_native_system_scope_limitations_placement": {
+    "hard_gate": true,
+    "findings": []
+  },
+  "dependency_disposition_reconciliation": {
+    "hard_gate": true,
+    "findings": []
+  },
+  "dependency_section_subheadings_present": {
+    "hard_gate": true,
+    "findings": []
+  },
+  "seo_keyword_plan_usage": {
+    "hard_gate": false,
+    "findings": []
+  },
+  "additional_example_headings": {
+    "hard_gate": true,
+    "findings": []
+  },
+  "navigation_toc_matches_headings": {
+    "hard_gate": true,
+    "findings": []
+  },
+  "candidate_drift_since_last_verified": {
+    "hard_gate": false,
+    "findings": []
+  },
+  "verification_currency": {
+    "hard_gate": false,
+    "findings": []
+  },
+  "dependency_verification_matrix": {
+    "rows": [
+      {
+        "name": "mcp",
+        "ecosystem": "pypi",
+        "version": ">=1.0",
+        "category": "optional",
+        "dev_only": false,
+        "role": "runtime",
+        "bucket": "optional",
+        "in_dependency_snapshot": true,
+        "in_readme_dependencies_section": false,
+        "in_readme_prose_elsewhere": true,
+        "in_claims_json": false,
+        "corroboration_score": 1,
+        "status": "NEEDS_REVIEW"
+      },
+      {
+        "name": "requires-python",
+        "ecosystem": "pypi",
+        "version": ">=3.10",
+        "category": "native-system",
+        "dev_only": false,
+        "role": "runtime",
+        "bucket": "native_system",
+        "in_dependency_snapshot": true,
+        "in_readme_dependencies_section": false,
+        "in_readme_prose_elsewhere": false,
+        "in_claims_json": false,
+        "corroboration_score": 0,
+        "status": "NEEDS_REVIEW"
+      },
+      {
+        "name": "pytest",
+        "ecosystem": "pypi",
+        "version": ">=7.4",
+        "category": "required",
+        "dev_only": true,
+        "role": "runtime",
+        "bucket": "development",
+        "in_dependency_snapshot": true,
+        "in_readme_dependencies_section": false,
+        "in_readme_prose_elsewhere": true,
+        "in_claims_json": false,
+        "corroboration_score": 1,
+        "status": "NEEDS_REVIEW"
+      },
+      {
+        "name": "ruff",
+        "ecosystem": "pypi",
+        "version": ">=0.4",
+        "category": "required",
+        "dev_only": true,
+        "role": "runtime",
+        "bucket": "development",
+        "in_dependency_snapshot": true,
+        "in_readme_dependencies_section": false,
+        "in_readme_prose_elsewhere": false,
+        "in_claims_json": false,
+        "corroboration_score": 0,
+        "status": "NEEDS_REVIEW"
+      },
+      {
+        "name": "build",
+        "ecosystem": "pypi",
+        "version": ">=1.2",
+        "category": "required",
+        "dev_only": true,
+        "role": "runtime",
+        "bucket": "development",
+        "in_dependency_snapshot": true,
+        "in_readme_dependencies_section": false,
+        "in_readme_prose_elsewhere": true,
+        "in_claims_json": false,
+        "corroboration_score": 1,
+        "status": "NEEDS_REVIEW"
+      },
+      {
+        "name": "build",
+        "ecosystem": "pypi",
+        "version": ">=1.2",
+        "category": "required",
+        "dev_only": true,
+        "role": "runtime",
+        "bucket": "development",
+        "in_dependency_snapshot": true,
+        "in_readme_dependencies_section": false,
+        "in_readme_prose_elsewhere": true,
+        "in_claims_json": false,
+        "corroboration_score": 1,
+        "status": "NEEDS_REVIEW"
+      },
+      {
+        "name": "pytest",
+        "ecosystem": "pypi",
+        "version": ">=9.0.2",
+        "category": "required",
+        "dev_only": true,
+        "role": "runtime",
+        "bucket": "development",
+        "in_dependency_snapshot": true,
+        "in_readme_dependencies_section": false,
+        "in_readme_prose_elsewhere": true,
+        "in_claims_json": false,
+        "corroboration_score": 1,
+        "status": "NEEDS_REVIEW"
+      },
+      {
+        "name": "ruff",
+        "ecosystem": "pypi",
+        "version": ">=0.4",
+        "category": "required",
+        "dev_only": true,
+        "role": "runtime",
+        "bucket": "development",
+        "in_dependency_snapshot": true,
+        "in_readme_dependencies_section": false,
+        "in_readme_prose_elsewhere": false,
+        "in_claims_json": false,
+        "corroboration_score": 0,
+        "status": "NEEDS_REVIEW"
+      }
+    ],
+    "scoped_claims": []
+  },
+  "candidate_store_integrity": {
+    "hard_gate": true,
+    "findings": []
+  }
+}

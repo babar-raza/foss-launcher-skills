@@ -1,0 +1,29 @@
+Promote: pdf/net
+  Scout: 7797 claims, 881 api_surface entries
+  WARNING: enriched_claims.json is stale — generated from api_surface SHA '1213d21dd19f0857', current is '2bf70406ebc5b554'.
+  Run /knowledge-enrich pdf net to regenerate. Ignoring stale enriched claims for this promotion.
+  Enriched: 0 claims (from enrich.py)
+  Total claims: 7797
+  WARNING: 62 duplicate CLM claim_id(s) (identical text, safe to dedupe) — deduplicating (80 excess removed)
+    CLM-pdf-64646a: 4 occurrences
+    CLM-pdf-8a767f: 4 occurrences
+    CLM-pdf-d1c2ee: 4 occurrences
+    CLM-pdf-3aec83: 4 occurrences
+    CLM-pdf-8158d2: 4 occurrences
+  Semantic dedup: skipped (use --semantic-dedup to enable)
+  GoDoc fallback: 1125 method(s) inferred from name patterns (doc_source: name_inference)
+  API surface: 881 entries (881 classes)
+  Snippets: 100 (from scout)
+  api_surface.md: 881 classes, 489151 bytes
+  Forbidden claims: 2
+  All artifacts written to knowledge\pdf\net\merged.staging.59a814f7-9f0e-44ee-8ca2-01ca9fce2084
+  Format-claims reconciliation: PASS (28 formats checked)
+  Artifact validation: PASS
+
+  WARNING: enriched_claims.json exists in scout/ but contributed 0 claims.
+  This usually means enrich.py ran AFTER promote.py.
+  Correct order: scout -> enrich -> promote
+  Re-run: python scripts/pipeline/commands/knowledge/promote.py pdf net
+PROMOTE_ATOMIC: bundle 59a814f7-9f0e-44ee-8ca2-01ca9fce2084 promoted for pdf/net
+
+PROMOTE: PASS

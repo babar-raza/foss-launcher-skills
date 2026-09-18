@@ -1,0 +1,116 @@
+mission_authority:
+  mission_id: concurrent-toasting-biscuit
+  mission_summary: Backlog sweep of 19 queued defects from backlog/BACKLOG.md, root-cause
+    fixes only (no patches/symptom suppression), per explicit operator instruction.
+    Spans content defects (slides/java locale fence corruption -- one uk-unique bug
+    plus a systemic duplicate-fence pattern across all 35 locale files, folded in
+    with operator approval; a pdf/net docs consumer_usefulness gap), content_eval/evaluator
+    bugs (api_completeness.py namespace-suffix mismatch on pdf/net; format_completeness.py
+    false-positive table-header detection on pdf/net troubleshooting tables), knowledge-extraction
+    bugs (package_manifest.py dotnet conditional-PropertyGroup/MSBuild-property gap;
+    promote.py substring-match false positive; site_planner.py candidate_class_count
+    curation mismatch; site_planner.py cluster-detection visibility-filter gap on
+    pdf/cpp; formats.py Go/Python method-name-idiom detection gap shared by cells/go
+    and pdf/python), and governance/CI gaps (advisory_lock.py liveness-probe rate-limit
+    init bug -- root cause of a flaky pytest concurrency test; check_skill_run_records.py
+    commit-SHA precedence; publish_watcher.py missing PUBLISHING.md check; check_metrics_docs_propagation.py
+    missing clauses; a new new-extraction-language skill to codify the Rust-onboarding
+    C1-C4 procedure; a readiness_scorecard.py sweep of 12 previously-unverified products).
+    Plan mode's first draft was rejected and put through a full forensic audit against
+    this repo's own Planning review checklist and Taskcard readiness checklist (docs/reference/planning-execution-state-machine.md)
+    before being accepted -- the audit trail is preserved in the plan file itself.
+    Two backlog rows (G-36, SLIDES-STALETEST-001) were found already resolved by unrelated
+    prior work during investigation and are closed as bookkeeping only, no code/content
+    change. RUST-LLMKEY-001 is formally recorded BLOCKED_EXTERNAL (credential-owner
+    action required, not repo-fixable) rather than silently dropped.
+  governing_plan_path: <local-plan-cache>/concurrent-toasting-biscuit.md
+  current_phase: 'Phase 0 bootstrap: root contract authored, about to open + seed
+    taskcards.jsonl'
+  in_scope_outcomes:
+  - 'TC-CTB-UKFENCE-UNIQUE: uk-locale-unique malformed fence + orphaned <dependency>
+    block fixed'
+  - 'TC-CTB-LOCALE-DUPFENCE-CODEMOD: systemic duplicate-mid-line-fence defect fixed
+    across all 35 slides/java locale pages'
+  - 'TC-CTB-G19-QUICKSTART: quickstart.md US-2 (code-without-context) findings fixed'
+  - 'TC-CTB-G07-SCORECARD: readiness_scorecard.py verdicts recorded for the 12 previously-unverified
+    products'
+  - 'TC-CTB-G22-CACHESTATS: LLM output cache hit/miss counters persisted into enrichment
+    reports'
+  - 'TC-CTB-G23-CANDCOUNT: candidate_class_count aligned with index.py''s curated
+    public-API filter, full-corpus flip review'
+  - 'TC-CTB-G24-DOTNETMANIFEST: _parse_dotnet_manifest() handles conditional PropertyGroups
+    + MSBuild $(Property) resolution'
+  - 'TC-CTB-G25-SUBSTRMATCH: _reconcile_formats_claims word-boundary fix (was naive
+    substring match)'
+  - 'TC-CTB-G35-NSFIX: api_completeness.py namespace-suffix candidate-matching fixed,
+    8 pdf/net pages re-verified 0 FAIL with no content authored'
+  - 'TC-CTB-G36-CLOSE: backlog row closed, no code/content change (already resolved,
+    verified live) -- DEFERRED, backlog/BACKLOG.md held by a concurrent session''s
+    active skill-context lock (S-99, MT019)'
+  - 'TC-CTB-G37-TABLEHDR: format_completeness.py false-positive table-header detection
+    fixed'
+  - 'TC-CTB-G38-LOCKPROBE: advisory_lock.py liveness-probe rate-limit init bug fixed
+    (flaky test_baseline_ledger.py root cause)'
+  - 'TC-CTB-RUSTLLMKEY-EXTERNAL: formal BLOCKED_EXTERNAL record for RUST-LLMKEY-001
+    (no code change)'
+  - 'TC-CTB-RUSTSKILL-NEWLANG: new-extraction-language skill authored from the C1-C4
+    Rust-onboarding procedure'
+  - 'TC-CTB-CELLSGO-FORMATS: formats.py additive Go/Python method-name-idiom detection
+    pass, cells/go + pdf/python re-extracted, full-corpus additive-only regression
+    sweep'
+  - 'TC-CTB-PDFCPP-CLUSTER: site_planner.py cluster detection consults visibility
+    field instead of underscore-only path patterns'
+  - 'TC-CTB-FILE-REFFILTER-GAP: new backlog row filed for the adjacent lib/reference_filter.py
+    gap found during PDFCPP-CLUSTER investigation -- DEFERRED, same backlog/BACKLOG.md
+    lock as TC-CTB-G36-CLOSE'
+  - 'TC-CTB-AT16-DOCPROP: missing METRICS-PLAN-001 clauses added to planning-methodology.md
+    and new-kb-faq.md'
+  - 'TC-CTB-SLIDESSTALE-CLOSE: backlog row closed, no code change (already resolved
+    by unrelated TC-MT015-14 migration) -- DEFERRED, same backlog/BACKLOG.md lock'
+  - 'TC-CTB-MT010-CKREC: check_skill_run_records.py commit-SHA recency-ordering fix'
+  - 'TC-CTB-MT014-PUBMD: publish_watcher.py PUBLISHING.md presence check added'
+  out_of_scope_items:
+  - RUST-LLMKEY-001's actual root-cause resolution -- credential rotation/scoping
+    is owned by whoever manages PROFESSIONALIZE_API_KEY outside this repo, not resolvable
+    from repo code (see TC-CTB-RUSTLLMKEY-EXTERNAL)
+  - lib/reference_filter.py's own fix -- filed only (TC-CTB-FILE-REFFILTER-GAP), not
+    fixed; its 'intentional no-path-filter' framing needs its own dedicated investigation
+    before any change
+  - docs/workflows/evaluator-changes.md's broken AGENTS.md section-9a link -- pre-existing,
+    unrelated, logged in the plan file's Findings log (F13) but not this mission's
+    scope to fix
+  mandatory_acceptance_criteria:
+  - All 19 taskcards in reports/plan_state/concurrent-toasting-biscuit/taskcards.jsonl
+    reach CLOSED, except TC-CTB-RUSTLLMKEY-EXTERNAL which may remain BLOCKED_EXTERNAL
+    (explicitly scoped exception)
+  - backlog/BACKLOG.md reflects every taskcard's disposition once the concurrent S-99/MT019
+    lock on that file clears
+  - Full pytest scripts/pipeline/tests/ green as of the final commit in the sequence
+  - TC-CTB-CELLSGO-FORMATS's additive-only regression sweep is on record with zero
+    unexplained diffs on non-target products
+  - mission_authority.py close --mission-id concurrent-toasting-biscuit run against
+    the archived snapshot
+  conflicts_found:
+  - 'Prior root-slot occupant (MT014-2026-07-29-PDF-GO-REDO) confirmed CLOSED before
+    takeover: mission_authority.py list shows [closed] MT014-2026-07-29-PDF-GO-REDO,
+    its archived snapshot at reports/plan_state/MT014-2026-07-29-PDF-GO-REDO/mission_authority.yaml
+    shows _archive_status: closed, _closed_at: 2026-07-31T19:16:03Z. The root file''s
+    stale MT014 prose is expected tool behavior (mission_authority.py close only updates
+    the archive, never the root projection), not a live conflict -- verified via mission_authority.py
+    status/list at execution-session start (2026-08-02), not assumed from an earlier
+    planning-session snapshot.'
+  - 'LIVE CONFLICT, not yet resolved: mission_authority.py status shows an ACTIVE
+    (not stale) skill-context lock, session bb1b9464-c771-4ea7-b9ad-45dbd578d650,
+    skill S-99, last touched 7.3 minutes before this mission opened, scoped to plans/master-plan.md,
+    plans/missions/MT019-2026-08-01-PRODUCTION-CONCURRENCY-AND-STALE-FILE-GUARD.md,
+    .supervisor/state/MT019-.../*, reports/plan_state/MT019-.../*, and backlog/BACKLOG.md.
+    That mission (MT019) has not been archived via mission_authority.py open yet,
+    so it does not appear in mission_authority.py list, but its live lock is real.
+    This mission (concurrent-toasting-biscuit) does NOT touch MT019''s other scoped
+    paths, but 3 of its 19 taskcards (TC-CTB-G36-CLOSE, TC-CTB-SLIDESSTALE-CLOSE,
+    TC-CTB-FILE-REFFILTER-GAP) need to write backlog/BACKLOG.md and are explicitly
+    DEFERRED until that lock clears -- not bypassed, not silently worked around. Re-check
+    mission_authority.py status before attempting any of those 3 cards.'
+  mission_locked: false
+  _archive_status: open
+  _archived_at: '2026-08-01T19:44:32Z'

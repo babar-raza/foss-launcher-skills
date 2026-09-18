@@ -1,0 +1,177 @@
+## Identity
+
+Four artifacts were sought; all four were obtained.
+
+| Artifact | Path / Source | Hash (sha256) | Notes |
+|---|---|---|---|
+| Candidate | `reports/repo-presenter-regen-full/email/python/readme.md` | `52f65e97186d592e73a03ea8adbd3ebf77a572289849e88b8584e510d6693cb3` | 412 lines, LF. Matches `last-verified.json`'s `readme_sha256` exactly. |
+| Current upstream (clone cache) | `runs/.clone_cache/aspose_email_python/README.md` | `652668380a37fd114a5d706ffc7fe2440c558657ba9d9cefd07e80cb1bf53490` | 411 lines, CRLF. HEAD = `10a906b48c0c11005c4d93b524e4431901c9717c` ("docs: refresh README with verified content, structure, and examples", author Babar Raza, 2026-08-15, `Co-Authored-By: Claude Sonnet 5`). |
+| Published (live GitHub) | `gh api repos/aspose-email-foss/Aspose.Email-FOSS-for-Python/contents/README.md` | `5c81ffa6954ec89f6b6872dd6d6429e13dbe45aafe1b8717eda332629ad7dfad` (LF-decoded) | Byte-identical to clone-cache "current upstream" after CRLF stripping (`diff -u --strip-trailing-cr` → empty). Confirms clone cache is not stale relative to the real repo. |
+| Original-at-generation-time | Claimed in `upstream-issues.md:3` to be repo SHA `c336fa7c1d6b90c6155ecf25a261477640c2b1b6` | n/a | **This claim is false.** `git -C runs/.clone_cache/aspose_email_python show c336fa7:README.md` returns a 133-line, structurally unrelated early README (no badges beyond none, no Navigation, no At-a-Glance diagram, no API Reference tables). The candidate's actual content is instead ~99.5% identical to the 10a906b tree (see Content-Preservation Ledger). The true "original used at generation time" was the already-refreshed 10a906b README, not c336fa7. |
+
+Git history command run: `git -C runs/.clone_cache/aspose_email_python log --oneline -- README.md` → `10a906b docs: refresh README with verified content, structure, and examples` / `c336fa7 Update README.md`. Only two commits ever touched README.md in this repo, and the upstream repo has *not* moved since 10a906b (clone cache HEAD == live GitHub content, confirmed above).
+
+## Factual Accuracy
+
+Spot-checked every checkable factual claim against the real clone-cache source tree (at HEAD 10a906b):
+
+- "Python 3.10 or later" / "Requires Python 3.10 or later, per `pyproject.toml`'s `requires-python` constraint" → confirmed, `pyproject.toml:10` `requires-python = ">=3.10"`.
+- "No required third-party package dependencies" → confirmed, `pyproject.toml` `[project]` table has no `dependencies` key.
+- "CI runs the test suite on Python 3.10 through 3.13" → confirmed, `.github/workflows/ci.yml:22-26` matrix lists exactly `3.10`, `3.11`, `3.12`, `3.13`.
+- "validates packaging on every push and pull request to `master`" → confirmed, `.github/workflows/ci.yml:4-9` (`push`/`pull_request` on branch `master`).
+- "Releases are tagged `vYY.M`... published to PyPI automatically by the `Release` GitHub Actions workflow" → confirmed, `.github/workflows/release.yml:3-6` (`on.push.tags: "v*"`), `pyproject.toml:7` `version = "26.3"` matches the example `v26.3`.
+- "the complete, browsable reference for all 30 public types" → confirmed exactly: `knowledge/email/python/merged/api_surface.json` has 30 `"kind": "class_definition"` entries, and `content/reference.aspose.org/en/email/python/` has exactly 30 non-index `.md` files whose names match all 30 class names 1:1.
+- `MsgReader.top_level_header` gap noted in `upstream-issues.md:13-22` → confirmed real: `aspose/email_foss/msg/reader.py:69` assigns it, `examples/msg_reader.py:48` reads it, and it is absent from `PUBLIC_API.md`'s "Low-Level MSG API" section (only the return type is named there).
+- License claim (MIT, permits commercial use) → confirmed against `pyproject.toml:11` and the real `LICENSE` file.
+
+No factually false claim was found in the candidate.
+
+## Content-Preservation Ledger
+
+Disposition files hold 110 content units (`content-dispositions.json`), 2 structure units (`structure-dispositions.json`), 10 code-example units (`code-example-dispositions.json`) and 5 badge units (`badge-dispositions.json`) — 127 total, almost all `merged_verbatim` from target=10a906b's README into the candidate. I read the full candidate and cross-checked every `target_section` group against it.
+
+| Original unit(s) | Disposition claimed | Verified in candidate? |
+|---|---|---|
+| u0001 (intro paragraph) | merged_reframed → Intro | PRESERVED verbatim (candidate lines 7-12 match u0001's excerpt word-for-word). "reframed" label is inaccurate but harmless — text is identical. |
+| u0002-u0012 (11 Navigation bullets) | merged_verbatim → Navigation | PRESERVED — all 11 ToC entries present at candidate lines 16-26, in order. |
+| u0013-u0020 (8 Key Capabilities bullets) | merged_verbatim | PRESERVED verbatim, lines 58-79. |
+| u0021-u0025 (Installation/Dependencies) | merged_verbatim | PRESERVED verbatim, lines 83-103. |
+| u0026-u0027 (Quick Start intro lines) | merged_verbatim | PRESERVED verbatim. |
+| u0028-u0032 (Additional Examples) | merged_verbatim | PRESERVED verbatim, lines 136-205. |
+| u0033-u0091 (API Reference: tables, member reference, exceptions) | merged_reframed/merged_verbatim | PRESERVED — all 30 classes/enums named, all method signatures identical to u0039-u0090's excerpts. |
+| u0092-u0101 (10 Documentation & Resources bullets) | merged_verbatim | 10 of 10 PRESERVED verbatim (lines 357-367). **However the candidate has an 11th bullet (line 361, "Runnable examples") with no corresponding unit_id anywhere in `content-dispositions.json` — see Verdict finding 3.** |
+| u0102-u0106 (Scope and Limitations) | merged_verbatim | PRESERVED verbatim, lines 371-385. |
+| u0107-u0109 (Development and Testing) | merged_verbatim | PRESERVED verbatim, lines 389-406. |
+| u0110 (License paragraph) | merged_verbatim | PRESERVED verbatim, lines 410-412. |
+| s0001 "At a Glance" (structure) | merged_reframed | TRANSFORMED — section preserved overall, but node `c5` inside the mermaid diagram was edited (see Verdict finding 2); the disposition's evidence (`mapi_message.py`) does not address or justify this specific text edit. |
+| s0002 "Convert EML to MSG" (structure) | merged_verbatim | PRESERVED, heading present at line 154. |
+| c0001-c0010 (10 code blocks) | merged_verbatim, "verified_against_source" | PRESERVED verbatim; independently re-verified every referenced API call against real source signatures (see Example Verification / API Accuracy below) — all real. |
+| b0001-b0005 (5 badges) | preserved | PRESERVED — exact 5-badge row at candidate line 3, in the same order (PyPI version, Python versions, Build, License, Contributors). |
+
+No unit was DROPPED-SILENTLY, DROPPED-WITH-REASON, or INCORRECTLY-EXCLUDED. One net-new unit (the "Runnable examples" Documentation & Resources bullet) exists in the candidate with **no disposition record at all** — it is not a disposition of an original unit, it is unsourced/untracked new content, which falls outside all six disposition categories the ledger's own schema provides for.
+
+## Usability
+
+Structure is sound: badge row → banner → intro → Navigation ToC → At-a-Glance diagram → Key Capabilities → Installation → Dependencies → Quick Start → Additional Examples (collapsible) → API Reference (collapsible) → Documentation & Resources → Scope and Limitations → Development and Testing → License. All 11 Navigation anchors (lines 16-26) resolve to real `##` headings present later in the file (verified by reading the whole document — headings at lines 28, 56, 81, 93, 105, 134, 207, 355, 369, 387, 408). Long reference material (API Reference detail, second-tier examples) is behind `<details>` disclosures, keeping the page scannable. No usability defects found.
+
+## Presentation/SEO
+
+Not applicable in the traditional sense — this is a GitHub `README.md`, not a Hugo page, so there is no frontmatter/meta-description to audit. Presentation quality is otherwise good (badges, banner, ToC, tables). One presentation defect: the "At a Glance" mermaid diagram's `c5` node (candidate line 45) is the only node among `c1`-`c5` styled with inline backticks around `EmailMessage` and `from_email_message` — inconsistent with sibling nodes `c1`-`c4` (line 41-44) and with the diagram's own previously-published form (see Verdict finding 2).
+
+## Dependency Accuracy
+
+All dependency claims verified true against `pyproject.toml`:
+- "No required third-party package dependencies" (candidate line 97) — `pyproject.toml`'s `[project]` table has no `dependencies` field.
+- "Requires Python 3.10 or later" (candidate line 101) — `pyproject.toml:10` `requires-python = ">=3.10"`.
+- "Ships as pure Python source with no compiled extensions... no native/system libraries" (candidate lines 102-103) — confirmed by the package layout (`aspose.email_foss` pure-Python tree, `pyproject.toml` build-system is plain `setuptools`/`wheel`, no `cffi`/native-extension build steps).
+
+No dependency-accuracy defects found.
+
+## Example Verification
+
+All 10 code examples (Quick Start ×2, Additional Examples ×4, mermaid diagram, pip/build/twine commands ×2, plus the mermaid block) were checked against real source:
+
+- `msg.MapiMessage.from_file("sample.msg")` used in a `with` block (candidate line 112) → `MapiMessage.from_file` exists (`mapi_message.py:567`), and `__enter__`/`__exit__` are defined (`mapi_message.py:997,1000`), so context-manager usage is valid.
+- `msg.MapiMessage.create("Hello", "Body")`, `.set_property(...)`, `.add_recipient(...)`, `.add_attachment(...)`, `.save(...)` (lines 121-126) → all confirmed present with compatible signatures: `create` (`mapi_message.py:716`), `set_property` (`:784`), `add_recipient` (`:869`), `add_attachment` (`:881`), `save` (`:902`).
+- `loaded.to_email_message()` / `EmailMessage.as_bytes()` (lines 129-131) → `to_email_message` confirmed at `mapi_message.py:908`.
+- EML→MSG example's `MapiMessage.from_email_message(email_message)` (line 165) → confirmed at `mapi_message.py:619`.
+- CFB round-trip example (`CFBStorage`, `CFBStream`, `CFBWriter.to_bytes`, `CFBReader`, `.resolve_path`, `.get_stream_data`) (lines 194-202) → all confirmed in `cfb/writer.py` and `cfb/reader.py`; `DirectoryEntry.stream_id` field confirmed at `cfb/reader.py:79`.
+- `pip install -e .` / `python -m unittest discover -s tests -v` (lines 392-393) → `tests/` directory confirmed to contain `test_cfb_formats.py` and `test_msg_formats.py`.
+- `python -m build` / `python -m twine check --strict dist/*` (lines 399-400) → consistent with the plain-setuptools `pyproject.toml` build-system declaration.
+
+No broken or fabricated example found.
+
+## API Accuracy
+
+All 30 class/enum names in the two API Reference tables (CFB Format, MSG Format) match exactly the 30 `class_definition` entries in `knowledge/email/python/merged/api_surface.json` (cross-checked by full-list diff — identical sets). Detailed Member Reference signatures (e.g. `create(subject, body, unicode_strings) -> "MapiMessage"`, `from_file(path, strict) -> "MapiMessage"`) match the real signatures read directly from `mapi_message.py`.
+
+One consistency defect found: the class-summary table row for `MapiPropertyCollection` (candidate line 250) reads "`MapiPropertyCollection.set` adds or replaces a MapiProperty in the collection and returns it." — this describes one *method's* behavior, not the class. Every other row in both tables describes the class itself (e.g. "Mutable recipient object."). Root cause confirmed: `MapiPropertyCollection` has **no class docstring** in source (`mapi_message.py:189`, confirmed empty `"doc": ""` in `api_surface.json`), so the composer substituted a description of the `.set()` method (`mapi_message.py:193-195`, which does exactly what's stated) rather than a class description. The substituted text is factually accurate about what `.set()` does, but structurally inconsistent with the table's own convention.
+
+## Link/Rendering
+
+- Internal repo-relative links (`LICENSE`, `PUBLIC_API.md`, `AGENTS.md`, `CONTRIBUTING.md`, `SECURITY.md`, `CHANGELOG.md`, `examples/`, `examples/README.md`, `.github/workflows/release.yml`) — all confirmed present in `runs/.clone_cache/aspose_email_python/`.
+- Cross-subdomain links: `docs.aspose.org/email/python/`, `kb.aspose.org/email/python/`, `reference.aspose.org/email/python/` — all confirmed to have live content (`content/docs.aspose.org/en/email/python/_index.md`, `content/kb.aspose.org/en/email/python/_index.md`, and 30 real reference pages under `content/reference.aspose.org/en/email/python/`).
+- Banner image `https://products.aspose.org/media/email/python/banner-readme.png` — source file confirmed at `static/media/email/python/banner-readme.png`.
+- Mermaid "At a Glance" diagram (lines 30-54): syntactically balanced (subgraphs/brackets/quotes all close correctly). One node (`c5`, line 45) contains literal backtick characters inside a plain double-quoted label — not the special backtick-wrapped Mermaid markdown-string syntax — so these characters are very likely to render as literal backtick glyphs in the diagram box rather than as styled inline code, unlike sibling nodes `c1`-`c4` which use plain prose with no such markup. This is the only such occurrence across all 30 products' candidate mermaid diagrams in this batch (checked via `grep` across `reports/repo-presenter-regen-full/*/*/readme.md` for backticks inside mermaid fences — only `email/python` matched).
+
+## Verdict
+
+No BLOCKER-level defect was found. Two MAJOR provenance/tracking defects, one MINOR presentation defect, one MINOR ledger-completeness gap, and one NIT consistency issue were found.
+
+1. **[MAJOR, likely systemic]** `upstream-issues.md:3` records the verification SHA as `c336fa7c1d6b90c6155ecf25a261477640c2b1b6`, but this is not the tree the candidate was actually generated from. Evidence: `git -C runs/.clone_cache/aspose_email_python show c336fa7:README.md` returns a 133-line README structurally unrelated to the candidate (no badges beyond version pill, no Navigation, no At-a-Glance diagram, no API Reference tables), whereas `knowledge/email/python/merged/model.yaml:20` correctly records `repo_sha: 10a906b48c0c11005c4d93b524e4431901c9717c` — the commit whose README the candidate is ~99.5% identical to. I confirmed the same pattern recurs in `reports/repo-presenter-regen-full/pdf/cpp/upstream-issues.md` (records SHA `40858b60e9babbab4865180e00e2db39f2ba27f8`, one commit behind the clone cache's actual HEAD `888700a8e361d32df21d0810c2eb939345e0603e`, itself another "docs: refresh README..." commit) — in both of the only 2 products (of 30) where `upstream-issues.md` records a specific SHA at all, that SHA is stale by exactly one "docs: refresh README" commit. Because I independently re-verified the substantive factual/API claims directly against the current tree and found them accurate, this is a provenance/audit-trail defect rather than a live content-correctness failure — but it means the verification record cannot itself be trusted to say what was actually checked.
+
+2. **[MAJOR, likely systemic]** `email/python` has a real, already-live upstream README refresh (`runs/.clone_cache/aspose_email_python` commit `10a906b`, dated 2026-08-15, authored by the real user with `Co-Authored-By: Claude Sonnet 5`, and confirmed byte-identical, modulo CRLF, to the live GitHub content via `gh api repos/aspose-email-foss/Aspose.Email-FOSS-for-Python/contents/README.md`) — yet this product has **zero entries** in `data/readme_published_state.json` (grep for "email" in the file's `products` array, lines 5-15, returns nothing) and **zero entries** in `reports/repo_presenter_actions.jsonl` (2-line file, both entries for `note/python` and `cells/rust`, none for `email/python`). This is a governance gap: the directly analogous case `pdf/cpp` (also carries a prior "docs: refresh README" commit) *is* correctly tracked in `data/readme_published_state.json:10` ("candidate byte-identical to live upstream README... MT053 published-state bypass fires for it"), so `email/python`'s absence looks like a missed product from the MT056 seeding sweep rather than an intentional omission.
+
+3. **[MINOR, product-specific]** Candidate line 45, mermaid node `c5`, reads `c5["Import a Python \`EmailMessage\` (\`from_email_message\`)"]` — the only node in the diagram using literal backticks inside a plain double-quoted label (siblings `c1`-`c4`, lines 41-44, use plain prose), and it also drops the "into a MapiMessage" clarification present in the already-published version (confirmed via `gh api` fetch: the live/published `c5` reads `"Import a Python EmailMessage into a MapiMessage (from_email_message)"`). The backticks are very likely to render as literal characters rather than styled code in GitHub's Mermaid renderer. `structure-dispositions.json`'s `s0001` unit claims `verified_against_source` (evidence: `mapi_message.py`) for the whole "At a Glance" section but this specific edit is unrelated to and unjustified by that evidence. Confirmed product-specific: `grep` across all 30 products' candidate mermaid blocks in `reports/repo-presenter-regen-full/` found backticks inside a mermaid node only in `email/python`.
+
+4. **[MINOR, systemic-by-design]** Candidate line 361 adds "- **[Runnable examples](examples/)** — full scripts beyond Quick Start, with a task-to-script index in [`examples/README.md`](examples/README.md)." to Documentation & Resources. The claim is factually accurate (`examples/README.md` exists in the clone cache), but there is no corresponding unit anywhere in `content-dispositions.json` — units `u0092`-`u0101` account for exactly the other 10 bullets in that section and no more. This is a genuine, if content-accurate, addition that the disposition schema has no category to record (its six dispositions — PRESERVED/TRANSFORMED/MERGED/DROPPED-WITH-REASON/DROPPED-SILENTLY/INCORRECTLY-EXCLUDED — all describe what happens to an *original* unit; none covers net-new composer-introduced content), so this is likely a structural gap in the ledger schema rather than a one-off, though I only directly confirmed one instance (and one other product, `html/python`, has the identical bullet pattern, suggestic it isn't unique to this product).
+
+5. **[NIT, unclear if systemic]** Candidate line 250, the `MapiPropertyCollection` row in the API Reference class-summary table, describes the `.set()` method's behavior ("adds or replaces a MapiProperty in the collection and returns it") rather than the class itself, breaking the table's own convention (every other row is a class-level description). Root cause confirmed: `MapiPropertyCollection` has no class docstring in source (`aspose/email_foss/msg/mapi_message.py:189`, empty `"doc"` field in `api_surface.json`). The substituted description is behaviorally accurate.
+
+No content was found to be dropped, silently or otherwise, and no fabricated (factually false) claim was found anywhere in the candidate.
+
+## Stage B: Source Cross-Check
+
+**Method**: All checks below were performed by directly reading `runs/.clone_cache/aspose_email_python/` source/config files, `knowledge/email/python/merged/` artifacts, `data/package_registry.json`, and the disposition/report JSON files myself — independent of Stage A's citations. Line numbers are my own `grep -n`/`sed -n` output, not copied from Stage A.
+
+### Factual Accuracy
+
+| Claim | Verdict | My evidence |
+|---|---|---|
+| "Python 3.10 or later" / `requires-python` constraint | **CONFIRMED** | `runs/.clone_cache/aspose_email_python/pyproject.toml:10` → `requires-python = ">=3.10"` (read full raw file myself). |
+| "No required third-party package dependencies" | **CONFIRMED** | Read full `[project]` table in `pyproject.toml` (lines 5–27); no `dependencies` key present anywhere in the file. |
+| "CI runs the test suite on Python 3.10 through 3.13" | **CONFIRMED** | `.github/workflows/ci.yml` `tests` job matrix (lines ~20–24 of the file as read) lists exactly `"3.10"`, `"3.11"`, `"3.12"`, `"3.13"`. |
+| "validates packaging on every push and pull request to `master`" | **CONFIRMED** | `.github/workflows/ci.yml` top-level `on:` block triggers `push`/`pull_request` on `branches: [master]`; the `packaging` job (build + `twine check --strict`) runs under that same workflow with no job-level trigger override. |
+| Releases tagged `vYY.M`, published to PyPI by `Release` workflow | **CONFIRMED** | `.github/workflows/release.yml`: `name: Release`, `on.push.tags: ["v*"]`, `publish` job runs `pypa/gh-action-pypi-publish@release/v1`. `pyproject.toml:7` → `version = "26.3"`, consistent with example tag `v26.3`. |
+| "30 public types," complete reference | **CONFIRMED** | `knowledge/email/python/merged/api_surface.json` parsed directly: 32 total entries, exactly 30 with `"kind": "class_definition"`. Listed all 30 names and diffed against `ls content/reference.aspose.org/en/email/python/*.md` (excluding `_index`) — the two 30-name sets are identical, sorted. |
+| `MsgReader.top_level_header` undocumented-attribute gap | **CONFIRMED** | `grep -n top_level_header` across the clone cache: assigned at `aspose/email_foss/msg/reader.py:69`; read at `examples/msg_reader.py:48`; also used internally at `reader.py:236/239/244` and asserted in `tests/test_msg_formats.py:99-100`. `PUBLIC_API.md:92-96` ("Related public types" under "Low-Level MSG API") lists `PropertyStreamHeaderTopLevel` (the return type) but the string `top_level_header` does not appear anywhere in `PUBLIC_API.md`. |
+| MIT license, permits commercial use | **CONFIRMED** | `pyproject.toml:11` `license = "MIT"`; `LICENSE` file head reads "MIT License / Copyright (c) 2026 Aspose.Email FOSS Contributors" with the standard permissive grant text. |
+
+No factually false claim found — matches Stage A's conclusion.
+
+### Dependency Accuracy
+
+All three dependency claims **CONFIRMED** independently:
+- No `dependencies` field anywhere in `pyproject.toml`'s `[project]` table (full file read).
+- `requires-python = ">=3.10"` at line 10.
+- Pure-Python, no native build: `[build-system]` → `requires = ["setuptools>=69", "wheel"]`, `build-backend = "setuptools.build_meta"` — no `cffi`, no native-extension build step anywhere in the file; package layout under `aspose/email_foss/` contains only `.py` files (confirmed via directory listing).
+
+### API Accuracy
+
+- **30-class match**: independently confirmed exact 1:1 set match between `api_surface.json`'s 30 `class_definition` names and the 30 reference `.md` filenames (see table above) — same method, same result as Stage A, computed from scratch.
+- **Method signatures** (`create`, `set_property`, `add_recipient`, `add_attachment`, `save`, `from_file`, `to_email_message`, `from_email_message`, `__enter__`/`__exit__`) — **CONFIRMED**, with my own `grep -n` producing these exact line numbers in `aspose/email_foss/msg/mapi_message.py`: `class MapiPropertyCollection` L189, `.set()` L193, `from_file` L567, `from_email_message` L619, `create` L716, `set_property` (MapiMessage's) L784, `add_recipient` L869, `add_attachment` L881, `save` L902, `to_email_message` L908, `__enter__` L997, `__exit__` L1000. Every one of these matches Stage A's cited line number exactly, and I independently confirmed the code bodies are consistent with how the candidate README uses them (`msg.MapiMessage.from_file(...)` in a `with` block is valid because `__enter__`/`__exit__` exist at 997/1000; `create(subject, body, unicode_strings)` signature matches the README's `create("Hello", "Body")` call).
+- **CFB API** (`CFBReader`, `CFBWriter.to_bytes`, `CFBStorage`, `CFBStream`, `resolve_path`, `get_stream_data`, `DirectoryEntry.stream_id`) — **CONFIRMED** via my own grep of `aspose/email_foss/cfb/reader.py` and `cfb/writer.py`: `DirectoryEntry` class L75 with `stream_id: StreamId` field at L79; `CFBReader` class L121; `get_stream_data` L236; `resolve_path` L279; `CFBWriter.to_bytes` at `writer.py:127`. The candidate's round-trip example (readme lines ~200-210: `CFBStorage(ROOT_ENTRY_NAME)`, `.add_stream(CFBStream(...))`, `CFBWriter.to_bytes(...)`, `reader.resolve_path([...])`, `reader.get_stream_data(entry.stream_id)`) matches these real signatures.
+- **`MapiPropertyCollection` table-row anomaly (NIT finding 5)** — **CONFIRMED**, independently: `api_surface.json`'s `MapiPropertyCollection` entry has `"doc": ""` (empty class docstring, confirmed by printing the parsed JSON object directly), and its `set` method entry is also `"doc": ""` in the JSON but the *method itself* (`mapi_message.py:193-195`) does exactly "adds or replaces ... and returns it." The candidate's table row at **line 250** (my own `grep -n`, exact match to Stage A's citation) reads: `` `MapiPropertyCollection` | MapiPropertyCollection.set adds or replaces a MapiProperty in the collection and returns it. `` — confirmed as the only class-summary row describing a method rather than the class.
+
+### Cross-checks on Verdict findings (not just the three requested sections)
+
+- **Finding 1 (SHA provenance)**: **CONFIRMED**, own evidence. `upstream-issues.md:3` (my own read) states `repo SHA c336fa7c1d6b90c6155ecf25a261477640c2b1b6`. `git -C runs/.clone_cache/aspose_email_python log --oneline` shows only two commits total in this repo's history: `10a906b` (HEAD) → parent `c336fa7`. `knowledge/email/python/merged/model.yaml:repo_sha` = `10a906b48c0c11005c4d93b524e4431901c9717c` (current HEAD, correct). `git show c336fa7:README.md | wc -l` → 133 lines; reading its content directly shows a materially different, shorter README (Features/Installation/Quick Start only — no Navigation, no At-a-Glance, no API Reference tables; my own `grep -i "navigation\|at a glance\|api reference"` against that blob returned zero matches). I also independently re-ran the pdf/cpp comparison: `reports/repo-presenter-regen-full/pdf/cpp/upstream-issues.md` records SHA `40858b6...`, which **matches** `knowledge/pdf/cpp/merged/model.yaml:7` (both agree, unlike email/python) — but `git -C runs/.clone_cache/aspose_pdf_cpp log --oneline` shows the true HEAD is `888700a` ("docs: refresh README with fuller capability coverage and correct links"), one commit ahead of `40858b6`. So the "stale by exactly one docs-refresh commit" pattern is confirmed for both, though the *mechanism* differs slightly (email/python: model.yaml is current but upstream-issues.md is stale; pdf/cpp: both model.yaml and upstream-issues.md are stale together). I also independently confirmed via `grep -lE "repo SHA|pinned at repo SHA"` that exactly **2 files** among all `upstream-issues.md` records a specific SHA — but the total population is **31 files** (14 families), not "30" as Stage A stated; this is a trivial imprecision in Stage A's count, not a substantive error.
+
+- **Finding 2 (governance gap)**: **CONFIRMED**. My own read of `data/readme_published_state.json` shows exactly 11 entries in the `products` array (lines 5-15), none for `email`/`python`; line 10 is the `pdf`/`cpp` entry and its `evidence` string is verbatim `"MT054: candidate byte-identical to live upstream README in both trees (clone rev 888700a8e3, live-verified); MT053 published-state bypass fires for it"` — an exact match to Stage A's quoted text. `reports/repo_presenter_actions.jsonl` (read in full) has exactly 2 lines, for `note`/`python` and `cells`/`rust` only. I also independently confirmed via `sha256sum` and a CRLF-stripped `diff` that `runs/.clone_cache/aspose_email_python/README.md` (HEAD `10a906b48c0c11005c4d93b524e4431901c9717c`) is byte-identical to the live `gh api repos/aspose-email-foss/Aspose.Email-FOSS-for-Python/contents/README.md` content after CRLF normalization — clone-hash `652668380a37fd114a5d706ffc7fe2440c558657ba9d9cefd07e80cb1bf53490` vs. decoded-live-hash `5c81ffa6954ec89f6b6872dd6d6429e13dbe45aafe1b8717eda332629ad7dfad`, both matching Stage A's table exactly, with `diff` producing zero output. This independently reproduces the premise that `email/python` is analogous to the tracked `pdf/cpp` case yet is absent from the tracking file.
+
+- **Finding 3 (mermaid `c5` node)**: **CONFIRMED**, with the exact live text pulled myself via `gh api ... contents/README.md`, base64-decoded: the live/published node reads `c5["Import a Python EmailMessage into a MapiMessage (from_email_message)"]` (no backticks, includes "into a MapiMessage"), while the candidate at **line 45** (my own `grep -n`) reads `` c5["Import a Python `EmailMessage` (`from_email_message`)"] `` — backticked, and missing the "into a MapiMessage" clause. Confirmed sibling nodes `c1`-`c4` (candidate lines 41-44) use plain prose with no backticks. I also independently ran a batch scan (`awk` over every mermaid fence in `reports/repo-presenter-regen-full/*/*/readme.md`, grep for a backtick) and found `email/python` is the **only** product/file in the entire batch with a literal backtick inside a mermaid node.
+
+- **Finding 4 (untracked "Runnable examples" bullet)**: **CONFIRMED**. My own read of the candidate shows the Documentation & Resources section (lines 355-367) has 11 bullets; the "Runnable examples" bullet is at **line 361** exactly (`grep -n` match). Parsing `content-dispositions.json` directly: it contains exactly units `u0001`-`u0110` (110 total, no gaps), and a full-text search for "Runnable"/"examples/README"/"task-to-script" across every unit found only `u0028` (a different sentence, targeting the "Additional Examples" section, not Documentation & Resources) — confirming no disposition unit covers the line-361 bullet. I also independently checked the `html/python` product Stage A cited as carrying the "identical bullet pattern": it does have an analogous "Runnable examples" bullet (line 568) with a differently-worded disposition unit `u0029` present — so in `html/python`'s case the pattern *does* have tracking, which is a partial, minor qualifier to Stage A's "identical bullet pattern" claim (Stage A itself hedged this as unconfirmed beyond one instance, and that hedge holds up).
+
+- **Finding 5**: see API Accuracy section above — independently CONFIRMED, same line (250), same root cause (empty class docstring in `api_surface.json`).
+
+### Unflagged items checked, no new defects found
+- Line counts/hashes of all four artifacts in Stage A's Identity table were independently recomputed via `sha256sum`/`wc -l` and matched exactly (candidate 412 lines/LF/`52f65e97...`, matching `last-verified.json:readme_sha256` verbatim; clone-cache 411 lines/CRLF).
+- Disposition-file unit totals recomputed from scratch by parsing JSON: content=110, structure=2, code-example=10, badge=5 → 127, matching Stage A's total.
+- Badge row, License text, and CI/Release workflow file names/triggers all independently read and consistent with candidate claims.
+
+**Overall Stage B conclusion**: Every claim in Stage A's Factual Accuracy, Dependency Accuracy, and API Accuracy sections is **CONFIRMED** by my own independent reading of the source, with identical or corroborating line numbers/hashes obtained via separate commands. No REFUTED or UNVERIFIABLE claims were found. All five Verdict findings were independently reproduced from primary sources rather than taken on trust. The only correction surfaced by this pass is cosmetic: Stage A's "2 products (of 30)" should read "2 files (of 31 upstream-issues.md files across 14 families)" — a wording imprecision, not a factual error affecting any conclusion.
+
+## Stage C: Adversarial Verification
+
+1. **[MAJOR, likely systemic] SHA provenance defect** — **CONFIRMED**. Independently reproduced: `upstream-issues.md:3` reads `c336fa7...`; `git show c336fa7:README.md` is 133 lines with zero matches for "navigation|at a glance|api reference"; `model.yaml:20` correctly holds `10a906b...` (current HEAD). pdf/cpp cross-check also reproduced exactly: its `upstream-issues.md`/`model.yaml` agree on `40858b6`, but clone-cache HEAD is `888700a` ("docs: refresh README..."), one commit ahead. One correction: the "31 files across 14 families" recount is itself wrong — I count 31 `upstream-issues.md` files but only **12** distinct families (3d, barcode, cells, email, font, html, note, page, pdf, slides, tex, words), not 14. Doesn't affect the substantive finding.
+
+2. **[MAJOR, likely systemic] Governance-tracking gap** — **CONFIRMED**, byte-for-byte. Re-fetched live GitHub content via `gh api`, decoded, hashed: `5c81ffa6...` — matches the review's table exactly, and CRLF-stripped diff against clone-cache `README.md` is empty. `data/readme_published_state.json` has exactly 11 product entries, none for `email`/`python`; `pdf/cpp` entry is at line 10 with the exact quoted evidence string. `reports/repo_presenter_actions.jsonl` has exactly 2 lines (`note/python`, `cells/rust`), neither for `email/python`. All claims reproduce exactly.
+
+3. **[MINOR, product-specific] Mermaid `c5` node edit** — **CONFIRMED**. Live `c5` (fetched fresh): `"Import a Python EmailMessage into a MapiMessage (from_email_message)"` — no backticks. Candidate line 45: `` c5["Import a Python `EmailMessage` (`from_email_message`)"] `` — backticked, clause dropped. Sibling `c1`-`c4` are byte-identical between live and candidate (no backticks). A full scan of every mermaid fence across all candidate READMEs found the backtick anomaly only in `email/python`. Minor correction: the actual population is **31** products, not "30" as stated (repeats the same off-by-one seen in Finding 1).
+
+4. **[MINOR, systemic-by-design] Untracked "Runnable examples" bullet** — **CONFIRMED for email/python**, and the systemic tag is **actually understated, not overstated**. Line 361 is real and exactly as quoted; `content-dispositions.json` has no gaps in u0001-u0110, and the only textual hit for "Runnable/examples/README/task-to-script" is `u0028`, whose `target_section` is "Additional Examples" and whose content lands verbatim at candidate lines 136-137 — a genuinely different line, not line 361. However, Stage B's own qualifier is **wrong**: it claims html/python's analogous bullet (line 568, Documentation & Resources) "does have tracking" via `u0029` — but I checked `u0029` directly and it targets "Additional Examples" too, landing verbatim at html/python line 146, not line 568. html/python's Documentation & Resources "Runnable examples" bullet is therefore **also untracked**, exactly parallel to email/python. This is a real verification error in Stage B, and it means two confirmed instances of the schema gap exist, not one-confirmed-plus-a-hedge — the "systemic" framing survives despite Stage B's own flawed side-check.
+
+5. **[NIT] `MapiPropertyCollection` table-row anomaly** — **CONFIRMED** exactly. `mapi_message.py:189` (`class MapiPropertyCollection:`) has no docstring, immediately followed by `__init__`; `.set()` at line 193 does exactly "adds or replaces ... and returns it"; `api_surface.json`'s entry shows `"doc": ""` at line 189. Candidate line 250 matches verbatim, and it is confirmed the sole class-describing-a-method row against 15 other rows in both tables, all of which describe the class itself.
+
+**Additional corroboration not in either prior stage**: a full-file diff of the candidate against the 10a906b base tree (CRLF-stripped) produces exactly **two** line-level differences — the Finding-3 `c5` edit and the Finding-4 inserted bullet — and nothing else. This independently upper-bounds the candidate's deviation from upstream and corroborates that Stage A/B's sweep did not miss any other content divergence.

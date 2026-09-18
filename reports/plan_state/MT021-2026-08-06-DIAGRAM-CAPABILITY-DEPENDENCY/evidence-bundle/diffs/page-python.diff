@@ -1,0 +1,12 @@
+--- reports/plan_state/MT021-2026-08-06-DIAGRAM-CAPABILITY-DEPENDENCY/snapshots/page-python-readme.md.orig	2026-08-06 17:21:40.918060200 +0500
++++ reports/repo-presenter/page/python/readme.md	2026-08-06 17:21:48.706675400 +0500
+@@ -54,8 +54,8 @@
+   PRODUCT --- C1
+   PRODUCT --- C2
+   PRODUCT --- C3
+-  PRODUCT --- C4
+   PRODUCT --- C5
++  C3 --- C4
+   C1 --- O1
+   C2 --- O1
+   C3 --- O1

@@ -1,0 +1,26 @@
+docs(skills): S-63 code-smoke.md -- document C4's new flags, RC22 fix, and lib/example_verification/ relationship
+
+Updates skills/code-smoke.md (+ its 3 provider mirrors, synced via
+sync_providers.py in this same commit per this repo's Step 33
+skill-mirror-parity gate) to reflect what taskcard C4 actually built:
+
+- Go added to the supported-languages list (registry.py already declared
+  it; this doc hadn't caught up).
+- New --max-tier {1,2} and --json flags documented.
+- The RC22 auto-detection fix documented explicitly: this doc's own
+  "Integration with eval-page" section already claimed a bare --files
+  invocation checks "multi-language: Python, C#, Java, C++, TypeScript" --
+  that claim is now actually true (it previously was not; the underlying
+  code hardcoded Python-only for that exact call shape).
+- New "Relationship to lib/example_verification/" section: the tree-sitter
+  loader and platform/language declarations are no longer independent
+  copies in this script -- both derive from the shared package S-63 now
+  owns (no new skill ID minted for it, per this mission's Decision 4). A
+  real execution tier exists in that package's runners but is not yet
+  dispatched from this CLI -- documented honestly as future work, not
+  claimed as already wired.
+
+Mission: MT065-2026-09-06-EXAMPLE-VERIFICATION-CENTRALIZATION
+Taskcards: C4 (checkpoint, not closed)
+
+Co-Authored-By: Claude Sonnet 5 <noreply@anthropic.com>

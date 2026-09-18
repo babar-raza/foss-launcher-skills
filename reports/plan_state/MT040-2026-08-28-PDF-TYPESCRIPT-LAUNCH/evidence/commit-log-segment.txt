@@ -1,0 +1,98 @@
+Pushed refs (chronological) in this session's segment (3d/typescript Phase I: TC-52..TC-58 continuation, TC-34 closeout):
+--- ref 0d981cfb87 ---
+0d981cfb8762828b2bac992968ca494d4d6c9761 fix(3d/typescript): correct npm-publish-claim wording (IR) and FBX support table (S-90)
+Babar Raza Mon Aug 31 10:31:10 2026 +0500
+
+ .../3d-typescript-gltf-fbx-convert/index.md        |  52 ++---
+ .../3d-typescript-keyframe-scene/index.md          |  50 ++---
+ .../index.md                                       |  52 ++---
+ .../index.md                                       |  52 ++---
+ .../en/3d/typescript/developer-guide/_index.md     |  16 +-
+
+--- ref d1e1429ecb ---
+d1e1429ecb60d22b01688dca07b1f98a1868111e chore(backlog): file ST-142 (3d/typescript formats.json missing 3MF/ThreeMf)
+Babar Raza Mon Aug 31 10:35:15 2026 +0500
+
+ backlog/inbox.md | 11 +++++++++++
+ 1 file changed, 11 insertions(+)
+
+--- ref 210fb7a474 ---
+210fb7a47416190768b366eefc443626ac6f4e73 fix(3d/typescript): correct license.md's false GitHub LICENSE-file claim (H-05)
+Babar Raza Mon Aug 31 10:39:21 2026 +0500
+
+ .../docs.aspose.org/en/3d/typescript/getting-started/license.md  | 9 +++++----
+ 1 file changed, 5 insertions(+), 4 deletions(-)
+
+--- ref 8c3b6168df ---
+8c3b6168df2ac06b5210e44fca3b0d83039ca22f fix(pipeline): cross_platform_audit.py loses directions on multi-entry formats (G-07)
+Babar Raza Mon Aug 31 10:52:06 2026 +0500
+
+ backlog/inbox.md                                   |  3 ++
+ .../commands/content/cross_platform_audit.py       | 34 ++++++++++++--
+ .../pipeline/tests/test_cross_platform_unittest.py | 52 ++++++++++++++++++++++
+ 3 files changed, 85 insertions(+), 4 deletions(-)
+
+--- ref 1ace625a02 ---
+1ace625a02c505578d1b9e818e48960eebb5cdb4 content(3d/typescript): commit refresh_run body-refresh + reference rebuild (rf-20260831T033305Z)
+Babar Raza Mon Aug 31 11:51:37 2026 +0500
+
+ content/blog.aspose.org/3d/typescript/_index.md    |   11 +-
+ .../convert-obj-gltf-fbx-typescript/index.md       |   40 +-
+ .../working-with-3d-formats-in-typescript/index.md |   42 +-
+ content/docs.aspose.org/en/3d/typescript/_index.md |    4 +-
+ .../en/3d/typescript/developer-guide/animation.md  |   10 +-
+
+--- ref 48ac9c2832 ---
+48ac9c28322378216a056fa8801ebf425ddf40db fix(pipeline): bind_commit rejects a decision row satisfied by an earlier commit (ST-150)
+Babar Raza Mon Aug 31 12:08:39 2026 +0500
+
+ scripts/pipeline/commands/ops/refresh_run.py |  44 ++++++++
+ scripts/pipeline/tests/test_refresh_run.py   | 161 +++++++++++++++++++++++++++
+ 2 files changed, 205 insertions(+)
+
+--- ref c95f9fd588 ---
+c95f9fd588551b3e59a2d0fd3f7164d02f6dd555 fix(pipeline): extend the CRLF/--filters normalization to bind_commit's hash_mismatches fallback (ST-150 follow-up)
+Babar Raza Mon Aug 31 12:20:37 2026 +0500
+
+ scripts/pipeline/commands/ops/refresh_run.py | 107 +++++++++++++++------------
+ scripts/pipeline/tests/test_refresh_run.py   | 102 +++++++++++++++++++++++++
+ 2 files changed, 160 insertions(+), 49 deletions(-)
+
+--- ref 069204d5a7 ---
+069204d5a79f4e7033c3a1abed7025bd59bc5e52 chore(backlog): update ST-150 with the CRLF/--filters follow-up fix and successful bind-commit outcome
+Babar Raza Mon Aug 31 12:23:12 2026 +0500
+
+ backlog/inbox.md | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+--- ref 4fd2db2acd ---
+4fd2db2acd6c7b23a725911072ff979c84bf84d7 chore(backlog): file ST-151 (53 stale-orphaned locale files) + ST-152 (pre-existing product-wide RG-004 topology drift)
+Babar Raza Mon Aug 31 12:41:34 2026 +0500
+
+ backlog/inbox.md | 2 ++
+ 1 file changed, 2 insertions(+)
+
+--- ref 302c45ed66 ---
+302c45ed66470d03319f7ae21fd5d5c063a50831 chore(backlog): file ST-153 (check_translation_regression R3 has no scoped override for a verified-correct fence removal)
+Babar Raza Mon Aug 31 13:01:36 2026 +0500
+
+ backlog/inbox.md | 9 +++++----
+ 1 file changed, 5 insertions(+), 4 deletions(-)
+
+--- ref ebb73b26321 ---
+ebb73b26321f1080bf8d1e05a36b8392b13f47da content(locale): 3d/typescript locale handoff (R-4, TC-MT040-57)
+Babar Raza Mon Aug 31 13:48:19 2026 +0500
+
+ .../3d/typescript/developer-guide/scene-graph.md   | 143 +++-
+ .../bg/3d/typescript/developer-guide/features.md   | 462 +++++++++++-
+ .../3d/typescript/developer-guide/scene-graph.md   | 143 +++-
+ .../ca/3d/typescript/developer-guide/features.md   | 463 +++++++++++-
+ .../3d/typescript/developer-guide/scene-graph.md   | 143 +++-
+
+--- ref 2ebd8492b23 ---
+2ebd8492b2370917fbe068eb2b8185574e69e9cb chore(backlog): close PDF-TYPESCRIPT-001, update MT033-FANOUT-001 for 3d/typescript completion (TC-MT040-58)
+Harness Mon Aug 31 13:52:43 2026 +0500
+
+ backlog/BACKLOG.md | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+

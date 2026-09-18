@@ -1,0 +1,21 @@
+=== FINAL RE-VERIFICATION OF ALL MANDATORY_ACCEPTANCE_CRITERIA ===
+
+1. git fsck --no-progress prints no broken-link warning:
+  PASS - clean
+
+2. tree 06efd189 not in --reflog reachability:
+  PASS - empty
+
+3. other 4 worktrees reflog scope (mechanical proof, not byte-identity - see TC-02 correction):
+3 .git/worktrees/blog-url-frontmatter-fix/logs/HEAD
+1 .git/worktrees/format-denominator-hardening/logs/HEAD
+1 .git/worktrees/feather-colt/logs/HEAD
+  (baseline: 3, 1, 1 lines respectively - compare above)
+4. git status tracked-file drift check (excluding known-independent concurrent activity):
+  (see evidence/04-gc-run/git-status-diff.txt for full attribution - all changes traced to the independent concurrent media-icon session)
+
+5. loose object count vs baseline (target: >=1 order of magnitude drop):
+  baseline: 38322, now: 15
+
+6. all mandatory taskcards CLOSED:
+---latest status per task_id---

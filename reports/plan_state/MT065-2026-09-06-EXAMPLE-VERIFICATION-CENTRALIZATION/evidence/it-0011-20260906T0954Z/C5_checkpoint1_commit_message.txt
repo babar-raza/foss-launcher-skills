@@ -1,0 +1,64 @@
+feat(example-verification): C5 checkpoint 1/N -- extract Go helpers to runners/go.py, fix 2 real module-resolution bugs
+
+Partial, checkpointed progress on taskcard C5 ("Go runner from
+check_go_code_blocks.py + generalize pre-commit Step 18 + tier 3"). This
+iteration moves the module/import-resolution helpers
+check_go_code_blocks.py already used for its existing tier-2 (go vet)
+gate into new scripts/pipeline/lib/example_verification/runners/go.py --
+_wrap_fragment, _infer_imports, _has_top_level_main, _resolve_go_module
+(the plan's own named move list), plus _find_module_replace_path (not in
+that list, but explicitly named for its own bug fix at the plan's cited
+line range). check_go_code_blocks.py now imports and RE-EXPORTS all of
+them (mirroring smoke_test.py's own sys.path-insertion pattern for
+reaching lib/), so every existing caller -- including
+test_ci_go_code_blocks.py -- keeps working with zero changes on their end.
+
+Two real bugs fixed while moving, both explicitly named in the plan's C5
+consumer-wiring row:
+
+1. _resolve_go_module now checks merged/model.yaml before the gitignored
+   scout/model.yaml (a fresh checkout/CI box never has scout/). Honest
+   limit disclosed in this iteration's evidence: merged/model.yaml doesn't
+   actually carry canonical_import/package_name in the real portfolio
+   today (that needs a promote.py change, outside this taskcard's
+   allowed_paths) -- forward-compatible today, not yet a full fix for the
+   fresh-checkout gap.
+2. _find_module_replace_path now resolves the caller's own product's
+   clone directly via clone_cache_path(family, "go") (the same helper
+   runners/python.py's acquire step already relies on) when family is
+   known, verifying that clone's own go.mod actually contains the module
+   path before trusting it, and falling back to the old full-directory-
+   scan behavior otherwise. family threaded through check_content_dir ->
+   _vet_block -> _find_module_replace_path.
+
+Tests: 18 pre-existing test_ci_go_code_blocks.py tests pass unchanged
+(confirmed both before and after the move) + 5 new tests covering both
+bug fixes directly. 23/23 green. check_monkeypatch_lint.py: 0 violations.
+
+Real pilot: ran the actual CLI against both real Go products' content
+(content/docs.aspose.org/en/pdf/go, en/cells/go -- the only two, per a
+live MT011/MT059 mission-authority check, neither with an active claim
+right now), read-only, for both the OLD (committed) and NEW code.
+Methodology correction disclosed in evidence: a first attempt running the
+OLD code from a copied file computed the wrong REPO_ROOT and produced 17
+spurious failures that looked like real pre-existing bugs -- caught
+before recording it, re-ran OLD via git stash (in place, not a copy),
+confirmed PASS/0 failures for both products with the real committed code
+too. OLD and NEW now agree: PASS for both products, zero-diff error sets
+-- this stage's actual promotion gate.
+
+Deliberately deferred (disclosed in full in C5_promotion_gate_decision.md):
+the GoRunner LanguageRunner protocol implementation (tier-3 real `go run`
+execution) -- the first-ever concrete implementation of runners/base.py's
+protocol, deserving its own iteration rather than a rush alongside this
+extraction; pre-commit Step 18 generalization (pre-commit-audit.sh and the
+smoke_test.py flags it would call are both outside this taskcard's
+allowed_paths, and those flags don't exist yet regardless); flipping
+max_tier/precommit_blocking in registry.py + platform_capabilities.yaml
+(neither file is in allowed_paths, and flipping them without a real
+tier-3 runner behind them would be premature).
+
+Mission: MT065-2026-09-06-EXAMPLE-VERIFICATION-CENTRALIZATION
+Taskcards: C5 (checkpoint, IN_PROGRESS -- not closed)
+
+Co-Authored-By: Claude Sonnet 5 <noreply@anthropic.com>

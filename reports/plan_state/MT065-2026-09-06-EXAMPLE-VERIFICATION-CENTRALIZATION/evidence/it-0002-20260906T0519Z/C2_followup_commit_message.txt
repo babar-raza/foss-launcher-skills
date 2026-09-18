@@ -1,0 +1,25 @@
+fix(example-verification): C2 fast-follow -- correct result.py's REASONS vocabulary
+
+Independent review of the C2 commit (cbd4e93a01e2) found a real defect:
+result.py's REASONS set claimed "S-120's nine reasons verbatim" but two of
+the nine were wrong. Confirmed by grepping every reason literal in
+readme_refresh_run.py directly: the real 9 are TOOLCHAIN-UNAVAILABLE,
+RUNTIME-ERROR, UPSTREAM-BROKEN, TYPE-CHECK-FAILED, DEPENDS-ON-FAILED-BLOCK,
+ACQUIRE-FAILED, TIMEOUT, FIXTURE-UNAVAILABLE, NOT-A-PRODUCT-COMMAND. The
+prior draft substituted NO-CLONE-CACHE and BUDGET-EXHAUSTED for the last
+two -- those are real, but they're this package's own additions (Round 2/3
+design), not S-120 originals; neither ever appears in readme_refresh_run.py
+or its test suite today. Left uncaught, this would have raised ValueError
+the moment C3 wires a real S-120 runner onto this schema and hits a real
+FIXTURE-UNAVAILABLE/NOT-A-PRODUCT-COMMAND result -- directly threatening
+C3's own promotion gate ("100% of existing python/ts tests green").
+
+Also classifies NOT-A-PRODUCT-COMMAND as cacheable (a property of the
+block's own content) and FIXTURE-UNAVAILABLE as not (a property of the
+acquire-time workspace, same class as NO-CLONE-CACHE) in
+DETERMINISTIC_REASONS_FOR_CACHE, with 4 new regression tests.
+
+Mission: MT065-2026-09-06-EXAMPLE-VERIFICATION-CENTRALIZATION
+Taskcards: C2
+
+Co-Authored-By: Claude Sonnet 5 <noreply@anthropic.com>

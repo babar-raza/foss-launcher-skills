@@ -1,0 +1,59 @@
+........................................................................ [  6%]
+........................................................................ [ 13%]
+........................................................................ [ 20%]
+........................................................................ [ 27%]
+........................................................................ [ 34%]
+........................................................................ [ 41%]
+........................................................................ [ 48%]
+........................................................................ [ 55%]
+........................................................................ [ 62%]
+........................................................................ [ 69%]
+........................................................................ [ 76%]
+........................................................................ [ 83%]
+................................................F....................... [ 90%]
+........................................................................ [ 97%]
+..........................                                               [100%]
+================================== FAILURES ===================================
+__ test_preservation_tracking_keys_tuple_matches_else_branch_both_directions __
+
+tmp_path = WindowsPath('C:/Users/prora/AppData/Local/Temp/pytest-of-prora/pytest-3968/test_preservation_tracking_key0')
+
+    def test_preservation_tracking_keys_tuple_matches_else_branch_both_directions(tmp_path):
+        """Every key the unpublished `else` branch produces from old_readme_text + a ledger is in
+        the tuple (so the published bypass skips it with the disclosed shape), and every tuple key
+        is really produced by the `else` branch (no phantom keys). The three keys that had drifted
+        before TC-08 are asserted by name as the regression anchor."""
+        repo_root, _ = _make_scratch_repo(tmp_path)
+        rr.configure(repo_root=repo_root)
+        clone_cache = rr._product_clone_cache("testfam", "testplat")
+        _write_candidate(repo_root, _GOOD_CANDIDATE)
+        unpublished = rr._run_deterministic_checks("testfam", "testplat", _GOOD_CANDIDATE, clone_cache)
+        assert unpublished["readme_already_published"]["detail"]["published"] is False
+    
+        (clone_cache / "README.md").write_text(_GOOD_CANDIDATE, encoding="utf-8")
+        _write_candidate(
+            repo_root, _GOOD_CANDIDATE, dispositions=[], structure_dispositions=[],
+            badge_dispositions=[], code_example_dispositions=[],
+        )
+        published = rr._run_deterministic_checks("testfam", "testplat", _GOOD_CANDIDATE, clone_cache)
+        assert published["readme_already_published"]["detail"]["published"] is True
+    
+        else_only_keys = {k for k in unpublished if k not in published or published[k].get("skipped")}
+        skipped_keys = {k for k, v in published.items() if v.get("skipped")}
+        tuple_keys = set(_MT053_PRESERVATION_TRACKING_KEYS)
+        assert skipped_keys == tuple_keys, "published bypass must skip exactly the tuple's keys"
+>       assert else_only_keys == tuple_keys, (
+            f"drift: keys produced only by the else branch but not in the tuple: "
+            f"{sorted(else_only_keys - tuple_keys)}; tuple keys never produced: {sorted(tuple_keys - else_only_keys)}"
+        )
+E       AssertionError: drift: keys produced only by the else branch but not in the tuple: ['content_unit_reframe_fidelity']; tuple keys never produced: []
+E       assert {'badge_dispo...ntation', ...} == {'badge_dispo...ntation', ...}
+E         
+E         Extra items in the left set:
+E         'content_unit_reframe_fidelity'
+E         Use -v to get more diff
+
+scripts\pipeline\tests\test_readme_refresh_run.py:2527: AssertionError
+=========================== short test summary info ===========================
+FAILED scripts/pipeline/tests/test_readme_refresh_run.py::test_preservation_tracking_keys_tuple_matches_else_branch_both_directions
+1 failed, 1033 passed in 230.96s (0:03:50)

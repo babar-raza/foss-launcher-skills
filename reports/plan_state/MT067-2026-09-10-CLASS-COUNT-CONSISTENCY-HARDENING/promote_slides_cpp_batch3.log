@@ -1,0 +1,22 @@
+Promote: slides/cpp
+  Scout: 4045 claims, 263 api_surface entries
+  Enriched: 1604 claims (from enrich.py)
+  Total claims: 5649
+  WARNING: 126 duplicate CLM claim_id(s) (identical text, safe to dedupe) — deduplicating (178 excess removed)
+    CLM-slides-fd0827: 12 occurrences
+    CLM-slides-602c16: 8 occurrences
+    CLM-slides-aa4073: 8 occurrences
+    CLM-slides-e4bf01: 7 occurrences
+    CLM-slides-8e78d0: 6 occurrences
+  Semantic dedup: skipped (use --semantic-dedup to enable)
+  GoDoc fallback: 547 method(s) inferred from name patterns (doc_source: name_inference)
+  API surface: 263 entries (263 classes)
+  Snippets: 100 (from scout)
+  api_surface.md: 263 classes, 183132 bytes
+  Forbidden claims: 58
+  All artifacts written to knowledge\slides\cpp\merged.staging.a7b8ef4f-6989-43b1-aee5-510a159a00e3
+  Format-claims reconciliation: PASS (2 formats checked)
+  Artifact validation: PASS
+PROMOTE_ATOMIC: bundle a7b8ef4f-6989-43b1-aee5-510a159a00e3 promoted for slides/cpp
+
+PROMOTE: PASS

@@ -1,0 +1,59 @@
+feat(example-verification): C12 -- JavaRunner: the third LanguageRunner protocol implementation (tier 1-3)
+
+New scripts/pipeline/lib/example_verification/runners/java.py:
+JavaRunner, the third concrete runners/base.py LanguageRunner
+implementation after C5's GoRunner and C11's DotNetRunner, applying both
+those taskcards' independent-review lessons from the start:
+
+- canonical_lang="java", ceiling_tier=3.
+- starts_chain: first non-comment line is import/package/class.
+- acquire: real toolchain discovery via `mvn -version`, parsing its own
+  reported Java version/runtime line. Real, machine-confirmed wrinkle:
+  `mvn` on this machine resolves its own build against JDK 17.0.19, while
+  the bare `java` on PATH is a DIFFERENT JDK, 21.0.11 -- confirmed live
+  before writing any code. Uses shutil.which("mvn") (never a bare "mvn"
+  argv, which raises WinError 2 on Windows since mvn resolves to
+  mvn.CMD -- also confirmed live).
+- compile/execute: real javac/java (not full mvn per block -- mvn builds
+  once, javac/java do the fast per-block smoke test, per the plan's own
+  foss-java-publish.md-derived design).
+- classify: a file-citation-basename check parameterized by the block's
+  own actual generated filename ({class_name}.java, not a fixed constant
+  -- a block that's already a complete `class X` declaration keeps its
+  own name). Verified against two real, distinct Java diagnostic formats
+  confirmed via a manual probe before writing any code (including a
+  genuine cross-class runtime exception): javac's own
+  "<file>.java:<line>:" and a stack frame's "(<file>.java:<line>)".
+
+New test_example_verification_java.py (19 tests, skipped if mvn isn't on
+PATH, real subprocess calls, ~11s): starts_chain (4), classify unit tests
+(5), a REAL end-to-end upstream-error reproduction -- pre-compiles a
+separate Lib.class with a genuine bug directly into the runner's work_dir
+(proving javac/java's implicit cwd-default classpath picks it up), calls
+it through JavaRunner.execute() for real, confirms UPSTREAM-BROKEN (1),
+real acquire() -- discovers the actual toolchain, and a genuine
+{"ok": False} when mvn is removed from PATH for one call (2), real
+compile() via real javac -- clean pass, a genuine undefined-identifier
+error, and a complete class block keeping its own name (3), real
+execute() via real java -- clean pass and a genuine divide-by-zero
+runtime exception (2), and two full BaseRunner(JavaRunner(...)).run(...)
+end-to-end proofs (2). check_monkeypatch_lint.py: 0 violations.
+
+Deliberately not touched: platform_capabilities.yaml's "java"
+example_verification site is in C12's allowed_paths but left alone, for
+the identical reason C11 disclosed for "net" -- check_platform_
+capabilities.py does an exact-value diff against registry.py's
+PLATFORM_CONTRACT, which isn't in C12's allowed_paths. Also deferred:
+real product JAR acquisition via `mvn package` (no fixture without
+inventing one, same class of deferral as Go's `go get`/.NET's
+`dotnet add package`; confirmed live that `mvn -o clean package` fails
+offline on maven-surefire-plugin even with zero tests, since it's bound
+to the default lifecycle regardless -- the plan's own "Known extra
+wrinkle," genuinely substantial, separable work, not built this
+iteration), and a real pilot against actual product content (needs that
+same real-JAR acquisition).
+
+Mission: MT065-2026-09-06-EXAMPLE-VERIFICATION-CENTRALIZATION
+Taskcards: C12 (pending independent review before deciding closure)
+
+Co-Authored-By: Claude Sonnet 5 <noreply@anthropic.com>

@@ -1,0 +1,484 @@
+<title>pdf/typescript Retention Audit</title>
+<style>
+  :root {
+    --paper: #f6f7f9;
+    --surface: #ffffff;
+    --ink: #14181d;
+    --ink-soft: #545b66;
+    --ink-faint: #8891a0;
+    --line: #e1e4e9;
+    --line-strong: #cdd2da;
+    --accent: #2a63a8;
+    --accent-soft: #e7effa;
+    --good: #1f7a4d;
+    --good-soft: #e5f3ec;
+    --warn: #a6560a;
+    --warn-soft: #fbeee0;
+    --bad: #b5313a;
+    --bad-soft: #fbe8e9;
+    --code-bg: #eef1f5;
+    --code-ink: #2a2f37;
+    --shadow: 0 1px 2px rgba(20, 24, 29, 0.04), 0 8px 24px rgba(20, 24, 29, 0.05);
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --paper: #101317; --surface: #181c22; --ink: #e8eaf0; --ink-soft: #a1a8b5; --ink-faint: #6b7280;
+      --line: #2a2f38; --line-strong: #383e49; --accent: #7aa8e0; --accent-soft: #1c2a3c;
+      --good: #52c088; --good-soft: #16261e; --warn: #e0994f; --warn-soft: #2b2013;
+      --bad: #e2707a; --bad-soft: #2c1618; --code-bg: #0f1216; --code-ink: #d7dbe2;
+      --shadow: 0 1px 2px rgba(0,0,0,0.3), 0 8px 24px rgba(0,0,0,0.35);
+    }
+  }
+  :root[data-theme="dark"] {
+    --paper: #101317; --surface: #181c22; --ink: #e8eaf0; --ink-soft: #a1a8b5; --ink-faint: #6b7280;
+    --line: #2a2f38; --line-strong: #383e49; --accent: #7aa8e0; --accent-soft: #1c2a3c;
+    --good: #52c088; --good-soft: #16261e; --warn: #e0994f; --warn-soft: #2b2013;
+    --bad: #e2707a; --bad-soft: #2c1618; --code-bg: #0f1216; --code-ink: #d7dbe2;
+    --shadow: 0 1px 2px rgba(0,0,0,0.3), 0 8px 24px rgba(0,0,0,0.35);
+  }
+  * { box-sizing: border-box; }
+  body { background: var(--paper); color: var(--ink); font-family: "IBM Plex Sans", -apple-system, "Segoe UI", sans-serif; line-height: 1.6; font-size: 15.5px; }
+  .wrap { max-width: 940px; margin: 0 auto; padding: 56px 24px 96px; }
+  h1, h2, h3, .display { font-family: "Fraunces", Georgia, serif; text-wrap: balance; color: var(--ink); }
+  code, .mono { font-family: "IBM Plex Mono", ui-monospace, Menlo, Consolas, monospace; }
+
+  .eyebrow { font-family: "IBM Plex Mono", monospace; font-size: 12px; letter-spacing: 0.11em; text-transform: uppercase; color: var(--bad); font-weight: 600; display: flex; align-items: center; gap: 10px; margin-bottom: 14px; }
+  .eyebrow::before { content: ""; width: 22px; height: 1px; background: var(--bad); display: inline-block; }
+  h1.display { font-size: clamp(32px, 4.6vw, 44px); font-weight: 600; letter-spacing: -0.01em; margin: 0 0 10px; }
+  .subtitle { color: var(--ink-soft); font-size: 17px; max-width: 68ch; margin: 0 0 24px; }
+
+  .verdict-box {
+    background: var(--bad-soft); border: 1px solid color-mix(in srgb, var(--bad) 35%, transparent);
+    border-radius: 12px; padding: 20px 24px; margin-bottom: 28px; box-shadow: var(--shadow);
+  }
+  .verdict-box .tag { font-family: "IBM Plex Mono", monospace; font-size: 11px; font-weight: 700; color: var(--bad); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 8px; display: block; }
+  .verdict-box p { margin: 0 0 8px; color: var(--ink); }
+  .verdict-box p:last-child { margin-bottom: 0; }
+
+  .tiles { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1px; background: var(--line); border: 1px solid var(--line); border-radius: 10px; overflow: hidden; margin-bottom: 40px; }
+  .tile { background: var(--surface); padding: 18px 16px; }
+  .tile .stat-value { font-size: 23px; font-weight: 600; color: var(--ink); font-variant-numeric: tabular-nums; display: block; font-family: "IBM Plex Mono", monospace; }
+  .tile .stat-value.bad { color: var(--bad); }
+  .tile .stat-label { font-size: 11.5px; color: var(--ink-faint); text-transform: uppercase; letter-spacing: 0.05em; margin-top: 4px; }
+
+  section { margin-top: 48px; }
+  .section-head { display: flex; align-items: baseline; gap: 14px; margin-bottom: 18px; }
+  .section-num { font-family: "IBM Plex Mono", monospace; font-size: 13px; color: var(--ink-faint); border: 1px solid var(--line-strong); border-radius: 6px; padding: 2px 7px; flex-shrink: 0; }
+  h2 { font-size: 24px; font-weight: 600; margin: 0; }
+  .section-intro { color: var(--ink-soft); max-width: 70ch; margin: 0 0 20px; }
+  p { margin: 0 0 14px; }
+
+  .compare { display: grid; grid-template-columns: 1fr 1fr; border: 1px solid var(--line); border-radius: 12px; overflow: hidden; box-shadow: var(--shadow); margin-bottom: 8px; }
+  .compare > div { padding: 20px 22px; }
+  .compare .src { background: var(--surface); border-right: 1px solid var(--line); }
+  .compare .cand { background: var(--bad-soft); }
+  .compare h3 { font-size: 12px; text-transform: uppercase; letter-spacing: 0.07em; font-family: "IBM Plex Mono", monospace; font-weight: 600; color: var(--ink-faint); margin: 0 0 14px; }
+  .compare .cand h3 { color: var(--bad); }
+  .metric-row { display: flex; justify-content: space-between; align-items: baseline; padding: 7px 0; border-bottom: 1px dashed var(--line); font-size: 14px; }
+  .metric-row:last-child { border-bottom: none; }
+  .metric-row .v { font-family: "IBM Plex Mono", monospace; font-weight: 600; font-variant-numeric: tabular-nums; }
+  .metric-row .v.drop { color: var(--bad); }
+
+  /* --- retention table --- */
+  .legend-row { display: flex; gap: 18px; margin-bottom: 12px; font-size: 12.5px; color: var(--ink-soft); flex-wrap: wrap; }
+  .legend-row .lg { display: flex; align-items: center; gap: 6px; }
+  .legend-row .sw { width: 10px; height: 10px; border-radius: 3px; }
+  .table-scroll { border: 1px solid var(--line); border-radius: 12px; overflow: auto; max-height: 640px; box-shadow: var(--shadow); }
+  table.ret { width: 100%; border-collapse: collapse; font-size: 13.5px; }
+  table.ret thead th {
+    position: sticky; top: 0; background: var(--surface); text-align: left; font-family: "IBM Plex Mono", monospace;
+    font-size: 10.5px; text-transform: uppercase; letter-spacing: 0.05em; color: var(--ink-faint);
+    padding: 10px 12px; border-bottom: 1px solid var(--line-strong); z-index: 1;
+  }
+  table.ret td { padding: 7px 12px; border-bottom: 1px solid var(--line); vertical-align: middle; }
+  table.ret tr:last-child td { border-bottom: none; }
+  .tname { color: var(--ink); max-width: 260px; }
+  .tnum { font-family: "IBM Plex Mono", monospace; color: var(--ink-soft); font-variant-numeric: tabular-nums; text-align: right; white-space: nowrap; }
+  .tpct { font-weight: 700; width: 48px; }
+  .tbar-cell { width: 140px; }
+  .tbar { background: var(--code-bg); border-radius: 4px; height: 10px; overflow: hidden; }
+  .tbar span { display: block; height: 100%; border-radius: 4px; }
+  tr.sev-low .tbar span { background: var(--bad); }
+  tr.sev-low .tpct { color: var(--bad); }
+  tr.sev-mid .tbar span { background: var(--warn); }
+  tr.sev-mid .tpct { color: var(--warn); }
+  tr.sev-high .tbar span { background: var(--good); }
+  tr.sev-high .tpct { color: var(--good); }
+
+  /* --- excerpt panels --- */
+  .excerpt-block { border: 1px solid var(--line); border-radius: 12px; overflow: hidden; margin-bottom: 22px; box-shadow: var(--shadow); }
+  .excerpt-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 14px 20px; background: var(--surface); border-bottom: 1px solid var(--line); flex-wrap: wrap; }
+  .excerpt-head h4 { margin: 0; font-size: 16px; font-family: "IBM Plex Sans"; font-weight: 600; }
+  .excerpt-stat { font-family: "IBM Plex Mono", monospace; font-size: 12px; color: var(--bad); font-weight: 700; background: var(--bad-soft); padding: 3px 9px; border-radius: 20px; }
+  .excerpt-body { display: grid; grid-template-columns: 1fr 1fr; }
+  .excerpt-col { padding: 16px 20px; font-size: 13px; line-height: 1.65; }
+  .excerpt-col.before { background: var(--surface); border-right: 1px solid var(--line); }
+  .excerpt-col.after { background: var(--bad-soft); }
+  .excerpt-col .col-label { font-family: "IBM Plex Mono", monospace; font-size: 10.5px; text-transform: uppercase; letter-spacing: 0.05em; color: var(--ink-faint); margin-bottom: 10px; display: block; }
+  .excerpt-col.after .col-label { color: var(--bad); }
+  .excerpt-col p { margin: 0 0 10px; color: var(--ink-soft); }
+  .excerpt-col code.inline { background: var(--code-bg); color: var(--code-ink); padding: 1px 5px; border-radius: 4px; font-size: 0.92em; }
+  .excerpt-col.after p { color: var(--ink); }
+
+  table.backlog { width: 100%; border-collapse: collapse; font-size: 13.5px; margin-top: 10px; }
+  table.backlog th { text-align: left; font-family: "IBM Plex Mono", monospace; font-size: 11px; text-transform: uppercase; letter-spacing: 0.05em; color: var(--ink-faint); padding: 0 12px 10px; border-bottom: 1px solid var(--line-strong); font-weight: 600; }
+  table.backlog td { padding: 12px; border-bottom: 1px solid var(--line); vertical-align: top; color: var(--ink-soft); }
+  table.backlog tr:last-child td { border-bottom: none; }
+
+  .verdict { margin-top: 56px; border: 1px solid var(--line-strong); border-radius: 12px; padding: 24px 26px; background: var(--surface); display: flex; gap: 18px; align-items: flex-start; box-shadow: var(--shadow); }
+  .verdict .icon { width: 36px; height: 36px; border-radius: 50%; background: var(--accent-soft); color: var(--accent); display: flex; align-items: center; justify-content: center; font-family: "IBM Plex Mono", monospace; font-weight: 700; font-size: 15px; flex-shrink: 0; }
+  .verdict h3 { margin: 0 0 6px; font-size: 16.5px; }
+  .verdict p { margin: 0; font-size: 14px; color: var(--ink-soft); }
+
+  @media (max-width: 680px) {
+    .tiles { grid-template-columns: repeat(2, 1fr); }
+    .compare, .excerpt-body { grid-template-columns: 1fr; }
+    .compare .src, .excerpt-col.before { border-right: none; border-bottom: 1px solid var(--line); }
+    .tname { max-width: 140px; }
+  }
+
+  .resolved-banner {
+    background: var(--good-soft); border: 1px solid color-mix(in srgb, var(--good) 35%, transparent);
+    border-radius: 12px; padding: 20px 24px; margin-bottom: 22px; box-shadow: var(--shadow);
+  }
+  .resolved-banner .tag { font-family: "IBM Plex Mono", monospace; font-size: 11px; font-weight: 700; color: var(--good); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 8px; display: block; }
+  .resolved-banner p { margin: 0 0 8px; color: var(--ink); }
+  .resolved-banner p:last-child { margin-bottom: 0; }
+  .fix-tiles { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1px; background: var(--line); border: 1px solid var(--line); border-radius: 10px; overflow: hidden; margin: 20px 0; }
+  .fix-tiles .tile .stat-value.good { color: var(--good); }
+</style>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500;600;700&display=swap">
+
+<div class="wrap">
+
+  <div class="eyebrow">Retention re-audit &middot; correction</div>
+  <h1 class="display">pdf/typescript: how much of the original really survived</h1>
+  <p class="subtitle">You were right to push back. A systematic, token-level re-check of all 69 original
+    <code>## Features</code> bullets against the candidate shows real, substantial loss — concentrated in the
+    document's biggest, most technical entries. My earlier "243 verbatim / 72 reframed" retention claim was
+    true by its own narrow definition and not a reliable answer to "did the content survive."</p>
+
+  <div class="resolved-banner">
+    <span class="tag">Resolved 2026-09-04</span>
+    <p><strong>Fixed, not just diagnosed.</strong> The user asked for the skill itself to be hardened
+      to retain every verified piece of the original — never drop verified content, only ever drop
+      what genuinely cannot be verified, silently. The full original <code class="inline">## Features</code>
+      body is now preserved near-verbatim in a new, collapsed <code class="inline">#### Detailed Capability
+      Reference</code> (mirroring the API Reference's own established two-tier pattern), and a new hard
+      gate (<code class="inline">check_content_unit_reframe_fidelity</code>) makes this kind of silent
+      compression a blocking failure from now on, not just on this product. Re-running the exact same
+      audit methodology below against the fixed candidate now measures <strong>100.0% coverage across
+      all 69 bullets</strong> (up from 68.0%). Full account in §07 at the end of this report.</p>
+  </div>
+
+  <div class="verdict-box">
+    <span class="tag">Corrected finding (original diagnosis, 2026-09-03 — see §07 for the fix)</span>
+    <p><strong>The Features → Key Capabilities compression is real and severe</strong>: 69 detailed bullets
+      (11,343 words, 82&nbsp;KB) were condensed into 17 bullets (745 words, 5.8&nbsp;KB) — a 93% cut. Some of
+      that survives, restated far more tersely, in the API Reference tables; a meaningful amount does not
+      survive anywhere. My own verification check only required <em>one keyword</em> per sentence group to
+      appear anywhere in the target section — a bar a single compressed table row can clear while dropping
+      most of a bullet's actual explanation.</p>
+    <p>The worst-hit topics are exactly the ones a developer would most want the detail on: <strong>SVG
+      embedding</strong> (48% token coverage, the single largest bullet at 11.5&nbsp;KB), <strong>digital
+      signatures</strong> (44%), and the <strong>PDF/A and PDF/X validation/conversion</strong> cluster
+      (26–53%, all four bullets).</p>
+  </div>
+
+  <div class="tiles">
+    <div class="tile"><span class="stat-value bad">93%</span><span class="stat-label">Word-count cut, Features→Key Capabilities</span></div>
+    <div class="tile"><span class="stat-value">68%</span><span class="stat-label">Avg. token coverage, byte-weighted</span></div>
+    <div class="tile"><span class="stat-value bad">7 / 69</span><span class="stat-label">Bullets under 50% coverage</span></div>
+    <div class="tile"><span class="stat-value bad">11.5 KB</span><span class="stat-label">Largest bullet (SVG), worst-hit</span></div>
+  </div>
+
+  <section id="aggregate">
+    <div class="section-head"><span class="section-num">01</span><h2>The headline-numbers story</h2></div>
+    <p class="section-intro">Whole-document word count looks only mildly reduced (14.6%) because the API
+      Reference tables absorbed a lot of raw word volume. But that volume describes the SDK's full 360-class
+      surface, not specifically the 69 Features topics — so it pads the aggregate without proving those
+      topics kept their explanations.</p>
+    <div class="compare">
+      <div class="src">
+        <h3>Original — ## Features</h3>
+        <div class="metric-row"><span>Bullets</span><span class="v">69</span></div>
+        <div class="metric-row"><span>Size</span><span class="v">82,393 B</span></div>
+        <div class="metric-row"><span>Words</span><span class="v">11,343</span></div>
+        <div class="metric-row"><span>Avg. words / bullet</span><span class="v">164</span></div>
+      </div>
+      <div class="cand">
+        <h3>Candidate — ## Key Capabilities</h3>
+        <div class="metric-row"><span>Bullets</span><span class="v drop">17 (−75%)</span></div>
+        <div class="metric-row"><span>Size</span><span class="v drop">5,950 B (−93%)</span></div>
+        <div class="metric-row"><span>Words</span><span class="v drop">745 (−93%)</span></div>
+        <div class="metric-row"><span>Avg. words / bullet</span><span class="v drop">44</span></div>
+      </div>
+    </div>
+  </section>
+
+  <section id="method">
+    <div class="section-head"><span class="section-num">02</span><h2>How this was measured</h2></div>
+    <p class="section-intro">For each of the 69 original bullets, every backtick-quoted identifier and
+      <strong>bolded</strong> term was extracted as a "salient token" (a method name, option name, or named
+      sub-feature — the kind of thing that names a real, specific claim). Each token was then checked against
+      the candidate's Key Capabilities + Scope and Limitations prose ("prose"), the API Reference tables
+      ("table"), and the whole document ("anywhere"). This is a deliberately <em>generous</em> measure — a
+      token counts as "covered" the moment it appears anywhere in the candidate, with no check that the
+      surrounding explanation, defaults, or edge-case behavior came with it. Real retention is likely lower
+      than these numbers, not higher.</p>
+  </section>
+
+  <section id="table">
+    <div class="section-head"><span class="section-num">03</span><h2>All 69 topics, worst first</h2></div>
+    <p class="section-intro">Token coverage anywhere in the candidate, sorted ascending. Red = under 50%
+      (a real, substantial loss); amber = 50–75% (partial); green = 75%+ (largely covered, though see §04 for
+      why even a high score doesn't guarantee the explanation survived).</p>
+    <div class="legend-row">
+      <span class="lg"><span class="sw" style="background:var(--bad)"></span>&lt; 50% — substantial loss</span>
+      <span class="lg"><span class="sw" style="background:var(--warn)"></span>50–75% — partial</span>
+      <span class="lg"><span class="sw" style="background:var(--good)"></span>75%+ — largely covered</span>
+    </div>
+    <div class="table-scroll">
+      <table class="ret">
+        <thead><tr><th>Topic</th><th>Original size</th><th>Tokens</th><th>Coverage</th><th></th></tr></thead>
+        <tbody>
+<tr class="sev-low"><td class="tname">PDF/X validation</td><td class="tnum">1.1&nbsp;KB</td><td class="tnum">19</td><td class="tbar-cell"><div class="tbar"><span style="width:26%"></span></div></td><td class="tnum tpct">26%</td></tr>
+<tr class="sev-low"><td class="tname">Export (PDF → EPUB)</td><td class="tnum">2.0&nbsp;KB</td><td class="tnum">8</td><td class="tbar-cell"><div class="tbar"><span style="width:38%"></span></div></td><td class="tnum tpct">38%</td></tr>
+<tr class="sev-low"><td class="tname">PDF/X conversion</td><td class="tnum">1.0&nbsp;KB</td><td class="tnum">22</td><td class="tbar-cell"><div class="tbar"><span style="width:41%"></span></div></td><td class="tnum tpct">41%</td></tr>
+<tr class="sev-low"><td class="tname">Encrypted documents</td><td class="tnum">0.5&nbsp;KB</td><td class="tnum">7</td><td class="tbar-cell"><div class="tbar"><span style="width:43%"></span></div></td><td class="tnum tpct">43%</td></tr>
+<tr class="sev-low"><td class="tname">Digital signatures</td><td class="tnum">4.8&nbsp;KB</td><td class="tnum">79</td><td class="tbar-cell"><div class="tbar"><span style="width:44%"></span></div></td><td class="tnum tpct">44%</td></tr>
+<tr class="sev-low"><td class="tname">PDF/A conversion</td><td class="tnum">1.0&nbsp;KB</td><td class="tnum">18</td><td class="tbar-cell"><div class="tbar"><span style="width:44%"></span></div></td><td class="tnum tpct">44%</td></tr>
+<tr class="sev-low"><td class="tname">SVG embedding</td><td class="tnum">11.5&nbsp;KB</td><td class="tnum">190</td><td class="tbar-cell"><div class="tbar"><span style="width:48%"></span></div></td><td class="tnum tpct">48%</td></tr>
+<tr class="sev-mid"><td class="tname">PDF/A validation</td><td class="tnum">1.2&nbsp;KB</td><td class="tnum">19</td><td class="tbar-cell"><div class="tbar"><span style="width:53%"></span></div></td><td class="tnum tpct">53%</td></tr>
+<tr class="sev-mid"><td class="tname">Tagged-PDF attribute semantics</td><td class="tnum">0.6&nbsp;KB</td><td class="tnum">15</td><td class="tbar-cell"><div class="tbar"><span style="width:53%"></span></div></td><td class="tnum tpct">53%</td></tr>
+<tr class="sev-mid"><td class="tname">Rendering (page → PNG/JPEG/TIFF/BMP/GIF)</td><td class="tnum">6.6&nbsp;KB</td><td class="tnum">51</td><td class="tbar-cell"><div class="tbar"><span style="width:55%"></span></div></td><td class="tnum tpct">55%</td></tr>
+<tr class="sev-mid"><td class="tname">PDF/UA remediation</td><td class="tnum">0.8&nbsp;KB</td><td class="tnum">16</td><td class="tbar-cell"><div class="tbar"><span style="width:56%"></span></div></td><td class="tnum tpct">56%</td></tr>
+<tr class="sev-mid"><td class="tname">Optional content (layers / OCG)</td><td class="tnum">1.3&nbsp;KB</td><td class="tnum">17</td><td class="tbar-cell"><div class="tbar"><span style="width:59%"></span></div></td><td class="tnum tpct">59%</td></tr>
+<tr class="sev-mid"><td class="tname">Tagged-PDF structure reading</td><td class="tnum">0.5&nbsp;KB</td><td class="tnum">17</td><td class="tbar-cell"><div class="tbar"><span style="width:59%"></span></div></td><td class="tnum tpct">59%</td></tr>
+<tr class="sev-mid"><td class="tname">Vector drawing</td><td class="tnum">0.7&nbsp;KB</td><td class="tnum">10</td><td class="tbar-cell"><div class="tbar"><span style="width:60%"></span></div></td><td class="tnum tpct">60%</td></tr>
+<tr class="sev-mid"><td class="tname">Text replace</td><td class="tnum">0.5&nbsp;KB</td><td class="tnum">5</td><td class="tbar-cell"><div class="tbar"><span style="width:60%"></span></div></td><td class="tnum tpct">60%</td></tr>
+<tr class="sev-mid"><td class="tname">Image insertion</td><td class="tnum">0.9&nbsp;KB</td><td class="tnum">14</td><td class="tbar-cell"><div class="tbar"><span style="width:64%"></span></div></td><td class="tnum tpct">64%</td></tr>
+<tr class="sev-mid"><td class="tname">Form data (FDF / XFDF)</td><td class="tnum">0.5&nbsp;KB</td><td class="tnum">11</td><td class="tbar-cell"><div class="tbar"><span style="width:64%"></span></div></td><td class="tnum tpct">64%</td></tr>
+<tr class="sev-mid"><td class="tname">Redaction</td><td class="tnum">1.5&nbsp;KB</td><td class="tnum">18</td><td class="tbar-cell"><div class="tbar"><span style="width:67%"></span></div></td><td class="tnum tpct">67%</td></tr>
+<tr class="sev-mid"><td class="tname">Tagged-PDF structure authoring</td><td class="tnum">1.3&nbsp;KB</td><td class="tnum">36</td><td class="tbar-cell"><div class="tbar"><span style="width:67%"></span></div></td><td class="tnum tpct">67%</td></tr>
+<tr class="sev-mid"><td class="tname">Table authoring</td><td class="tnum">1.0&nbsp;KB</td><td class="tnum">12</td><td class="tbar-cell"><div class="tbar"><span style="width:67%"></span></div></td><td class="tnum tpct">67%</td></tr>
+<tr class="sev-mid"><td class="tname">Embedded files / attachments</td><td class="tnum">0.4&nbsp;KB</td><td class="tnum">12</td><td class="tbar-cell"><div class="tbar"><span style="width:67%"></span></div></td><td class="tnum tpct">67%</td></tr>
+<tr class="sev-mid"><td class="tname">HTML to PDF</td><td class="tnum">2.7&nbsp;KB</td><td class="tnum">35</td><td class="tbar-cell"><div class="tbar"><span style="width:69%"></span></div></td><td class="tnum tpct">69%</td></tr>
+<tr class="sev-mid"><td class="tname">Saving</td><td class="tnum">1.2&nbsp;KB</td><td class="tnum">16</td><td class="tbar-cell"><div class="tbar"><span style="width:69%"></span></div></td><td class="tnum tpct">69%</td></tr>
+<tr class="sev-mid"><td class="tname">HTML parsing</td><td class="tnum">0.6&nbsp;KB</td><td class="tnum">7</td><td class="tbar-cell"><div class="tbar"><span style="width:71%"></span></div></td><td class="tnum tpct">71%</td></tr>
+<tr class="sev-mid"><td class="tname">Annotation text search (drawn)</td><td class="tnum">0.6&nbsp;KB</td><td class="tnum">7</td><td class="tbar-cell"><div class="tbar"><span style="width:71%"></span></div></td><td class="tnum tpct">71%</td></tr>
+<tr class="sev-mid"><td class="tname">Split &amp; merge</td><td class="tnum">0.2&nbsp;KB</td><td class="tnum">7</td><td class="tbar-cell"><div class="tbar"><span style="width:71%"></span></div></td><td class="tnum tpct">71%</td></tr>
+<tr class="sev-mid"><td class="tname">Form fields (AcroForm)</td><td class="tnum">0.7&nbsp;KB</td><td class="tnum">11</td><td class="tbar-cell"><div class="tbar"><span style="width:73%"></span></div></td><td class="tnum tpct">73%</td></tr>
+<tr class="sev-mid"><td class="tname">Export (PDF → HTML)</td><td class="tnum">3.4&nbsp;KB</td><td class="tnum">39</td><td class="tbar-cell"><div class="tbar"><span style="width:74%"></span></div></td><td class="tnum tpct">74%</td></tr>
+<tr class="sev-mid"><td class="tname">Accessibility auto-tagging</td><td class="tnum">1.1&nbsp;KB</td><td class="tnum">23</td><td class="tbar-cell"><div class="tbar"><span style="width:74%"></span></div></td><td class="tnum tpct">74%</td></tr>
+<tr class="sev-mid"><td class="tname">Page decoration</td><td class="tnum">1.0&nbsp;KB</td><td class="tnum">23</td><td class="tbar-cell"><div class="tbar"><span style="width:74%"></span></div></td><td class="tnum tpct">74%</td></tr>
+<tr class="sev-high"><td class="tname">Linearization (Fast Web View)</td><td class="tnum">0.5&nbsp;KB</td><td class="tnum">4</td><td class="tbar-cell"><div class="tbar"><span style="width:75%"></span></div></td><td class="tnum tpct">75%</td></tr>
+<tr class="sev-high"><td class="tname">Optimization</td><td class="tnum">0.9&nbsp;KB</td><td class="tnum">9</td><td class="tbar-cell"><div class="tbar"><span style="width:78%"></span></div></td><td class="tnum tpct">78%</td></tr>
+<tr class="sev-high"><td class="tname">Text stamping</td><td class="tnum">1.0&nbsp;KB</td><td class="tnum">15</td><td class="tbar-cell"><div class="tbar"><span style="width:80%"></span></div></td><td class="tnum tpct">80%</td></tr>
+<tr class="sev-high"><td class="tname">Public-key encryption (PubSec)</td><td class="tnum">0.6&nbsp;KB</td><td class="tnum">5</td><td class="tbar-cell"><div class="tbar"><span style="width:80%"></span></div></td><td class="tnum tpct">80%</td></tr>
+<tr class="sev-high"><td class="tname">Flow layout</td><td class="tnum">1.3&nbsp;KB</td><td class="tnum">26</td><td class="tbar-cell"><div class="tbar"><span style="width:81%"></span></div></td><td class="tnum tpct">81%</td></tr>
+<tr class="sev-high"><td class="tname">Export (PDF → Markdown)</td><td class="tnum">1.0&nbsp;KB</td><td class="tnum">11</td><td class="tbar-cell"><div class="tbar"><span style="width:82%"></span></div></td><td class="tnum tpct">82%</td></tr>
+<tr class="sev-high"><td class="tname">Annotation text search (carried)</td><td class="tnum">0.4&nbsp;KB</td><td class="tnum">6</td><td class="tbar-cell"><div class="tbar"><span style="width:83%"></span></div></td><td class="tnum tpct">83%</td></tr>
+<tr class="sev-high"><td class="tname">Stream re-filtering</td><td class="tnum">0.7&nbsp;KB</td><td class="tnum">13</td><td class="tbar-cell"><div class="tbar"><span style="width:85%"></span></div></td><td class="tnum tpct">85%</td></tr>
+<tr class="sev-high"><td class="tname">Markdown parsing</td><td class="tnum">1.8&nbsp;KB</td><td class="tnum">49</td><td class="tbar-cell"><div class="tbar"><span style="width:86%"></span></div></td><td class="tnum tpct">86%</td></tr>
+<tr class="sev-high"><td class="tname">Portfolios (collections)</td><td class="tnum">0.4&nbsp;KB</td><td class="tnum">14</td><td class="tbar-cell"><div class="tbar"><span style="width:86%"></span></div></td><td class="tnum tpct">86%</td></tr>
+<tr class="sev-high"><td class="tname">Reusable templates</td><td class="tnum">0.4&nbsp;KB</td><td class="tnum">14</td><td class="tbar-cell"><div class="tbar"><span style="width:86%"></span></div></td><td class="tnum tpct">86%</td></tr>
+<tr class="sev-high"><td class="tname">Text extraction</td><td class="tnum">2.0&nbsp;KB</td><td class="tnum">17</td><td class="tbar-cell"><div class="tbar"><span style="width:88%"></span></div></td><td class="tnum tpct">88%</td></tr>
+<tr class="sev-high"><td class="tname">Vector path extraction</td><td class="tnum">0.9&nbsp;KB</td><td class="tnum">16</td><td class="tbar-cell"><div class="tbar"><span style="width:88%"></span></div></td><td class="tnum tpct">88%</td></tr>
+<tr class="sev-high"><td class="tname">Rendering (page → SVG)</td><td class="tnum">0.8&nbsp;KB</td><td class="tnum">9</td><td class="tbar-cell"><div class="tbar"><span style="width:89%"></span></div></td><td class="tnum tpct">89%</td></tr>
+<tr class="sev-high"><td class="tname">Complex-text shaping (i18n)</td><td class="tnum">0.5&nbsp;KB</td><td class="tnum">9</td><td class="tbar-cell"><div class="tbar"><span style="width:89%"></span></div></td><td class="tnum tpct">89%</td></tr>
+<tr class="sev-high"><td class="tname">Open behaviour and document JavaScript</td><td class="tnum">0.3&nbsp;KB</td><td class="tnum">9</td><td class="tbar-cell"><div class="tbar"><span style="width:89%"></span></div></td><td class="tnum tpct">89%</td></tr>
+<tr class="sev-high"><td class="tname">Table extraction</td><td class="tnum">1.0&nbsp;KB</td><td class="tnum">21</td><td class="tbar-cell"><div class="tbar"><span style="width:90%"></span></div></td><td class="tnum tpct">90%</td></tr>
+<tr class="sev-high"><td class="tname">Export (PDF → DOCX)</td><td class="tnum">0.9&nbsp;KB</td><td class="tnum">11</td><td class="tbar-cell"><div class="tbar"><span style="width:91%"></span></div></td><td class="tnum tpct">91%</td></tr>
+<tr class="sev-high"><td class="tname">Text search</td><td class="tnum">0.7&nbsp;KB</td><td class="tnum">12</td><td class="tbar-cell"><div class="tbar"><span style="width:92%"></span></div></td><td class="tnum tpct">92%</td></tr>
+<tr class="sev-high"><td class="tname">Page manipulation</td><td class="tnum">0.3&nbsp;KB</td><td class="tnum">12</td><td class="tbar-cell"><div class="tbar"><span style="width:92%"></span></div></td><td class="tnum tpct">92%</td></tr>
+<tr class="sev-high"><td class="tname">Page access</td><td class="tnum">0.2&nbsp;KB</td><td class="tnum">13</td><td class="tbar-cell"><div class="tbar"><span style="width:92%"></span></div></td><td class="tnum tpct">92%</td></tr>
+<tr class="sev-high"><td class="tname">Page composition</td><td class="tnum">1.7&nbsp;KB</td><td class="tnum">29</td><td class="tbar-cell"><div class="tbar"><span style="width:93%"></span></div></td><td class="tnum tpct">93%</td></tr>
+<tr class="sev-high"><td class="tname">Markdown to PDF</td><td class="tnum">0.9&nbsp;KB</td><td class="tnum">14</td><td class="tbar-cell"><div class="tbar"><span style="width:93%"></span></div></td><td class="tnum tpct">93%</td></tr>
+<tr class="sev-high"><td class="tname">Tagged-PDF structure preservation</td><td class="tnum">0.5&nbsp;KB</td><td class="tnum">14</td><td class="tbar-cell"><div class="tbar"><span style="width:93%"></span></div></td><td class="tnum tpct">93%</td></tr>
+<tr class="sev-high"><td class="tname">PDF/UA validation</td><td class="tnum">0.7&nbsp;KB</td><td class="tnum">18</td><td class="tbar-cell"><div class="tbar"><span style="width:94%"></span></div></td><td class="tnum tpct">94%</td></tr>
+<tr class="sev-high"><td class="tname">Barcodes</td><td class="tnum">0.6&nbsp;KB</td><td class="tnum">16</td><td class="tbar-cell"><div class="tbar"><span style="width:94%"></span></div></td><td class="tnum tpct">94%</td></tr>
+<tr class="sev-high"><td class="tname">Flow blocks</td><td class="tnum">0.3&nbsp;KB</td><td class="tnum">17</td><td class="tbar-cell"><div class="tbar"><span style="width:94%"></span></div></td><td class="tnum tpct">94%</td></tr>
+<tr class="sev-high"><td class="tname">Image extraction</td><td class="tnum">1.8&nbsp;KB</td><td class="tnum">21</td><td class="tbar-cell"><div class="tbar"><span style="width:95%"></span></div></td><td class="tnum tpct">95%</td></tr>
+<tr class="sev-high"><td class="tname">Grayscale conversion</td><td class="tnum">1.8&nbsp;KB</td><td class="tnum">11</td><td class="tbar-cell"><div class="tbar"><span style="width:100%"></span></div></td><td class="tnum tpct">100%</td></tr>
+<tr class="sev-high"><td class="tname">Flatten</td><td class="tnum">0.6&nbsp;KB</td><td class="tnum">10</td><td class="tbar-cell"><div class="tbar"><span style="width:100%"></span></div></td><td class="tnum tpct">100%</td></tr>
+<tr class="sev-high"><td class="tname">Annotations</td><td class="tnum">0.5&nbsp;KB</td><td class="tnum">14</td><td class="tbar-cell"><div class="tbar"><span style="width:100%"></span></div></td><td class="tnum tpct">100%</td></tr>
+<tr class="sev-high"><td class="tname">Parsing</td><td class="tnum">0.5&nbsp;KB</td><td class="tnum">13</td><td class="tbar-cell"><div class="tbar"><span style="width:100%"></span></div></td><td class="tnum tpct">100%</td></tr>
+<tr class="sev-high"><td class="tname">Outlines (bookmarks)</td><td class="tnum">0.4&nbsp;KB</td><td class="tnum">5</td><td class="tbar-cell"><div class="tbar"><span style="width:100%"></span></div></td><td class="tnum tpct">100%</td></tr>
+<tr class="sev-high"><td class="tname">Table of contents</td><td class="tnum">0.4&nbsp;KB</td><td class="tnum">6</td><td class="tbar-cell"><div class="tbar"><span style="width:100%"></span></div></td><td class="tnum tpct">100%</td></tr>
+<tr class="sev-high"><td class="tname">Metadata</td><td class="tnum">0.3&nbsp;KB</td><td class="tnum">8</td><td class="tbar-cell"><div class="tbar"><span style="width:100%"></span></div></td><td class="tnum tpct">100%</td></tr>
+<tr class="sev-high"><td class="tname">Page labels</td><td class="tnum">0.3&nbsp;KB</td><td class="tnum">10</td><td class="tbar-cell"><div class="tbar"><span style="width:100%"></span></div></td><td class="tnum tpct">100%</td></tr>
+<tr class="sev-high"><td class="tname">Encrypted output</td><td class="tnum">0.3&nbsp;KB</td><td class="tnum">2</td><td class="tbar-cell"><div class="tbar"><span style="width:100%"></span></div></td><td class="tnum tpct">100%</td></tr>
+<tr class="sev-high"><td class="tname">Named destinations</td><td class="tnum">0.2&nbsp;KB</td><td class="tnum">6</td><td class="tbar-cell"><div class="tbar"><span style="width:100%"></span></div></td><td class="tnum tpct">100%</td></tr>
+<tr class="sev-high"><td class="tname">Content streams</td><td class="tnum">0.2&nbsp;KB</td><td class="tnum">3</td><td class="tbar-cell"><div class="tbar"><span style="width:100%"></span></div></td><td class="tnum tpct">100%</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <section id="excerpts">
+    <div class="section-head"><span class="section-num">04</span><h2>What the numbers look like in real text</h2></div>
+    <p class="section-intro">The worst case, in full. This is the original's single largest bullet (11.5&nbsp;KB) against
+      everything that plausibly derives from it in the candidate.</p>
+
+    <div class="excerpt-block">
+      <div class="excerpt-head">
+        <h4>SVG embedding — <code>page.AddSVGObject()</code></h4>
+        <span class="excerpt-stat">48% token coverage</span>
+      </div>
+      <div class="excerpt-body">
+        <div class="excerpt-col before">
+          <span class="col-label">Original — one bullet, ~1,700 words</span>
+          <p>Covers gradients (stops, <code class="inline">gradientUnits</code>, <code class="inline">spreadMethod</code>,
+            per-stop opacity via a luminosity <code class="inline">/SMask</code>, separate fill/stroke masks), masks
+            (<code class="inline">maskUnits</code>/<code class="inline">maskContentUnits</code>, the −10%/120% default
+            region, nested masks, <code class="inline">mask-type: alpha</code>), markers (width/height, <code class="inline">refX</code>/<code class="inline">refY</code>,
+            units, <code class="inline">orient</code>, mid-vertex tangent bisection), a full CSS cascade (selectors,
+            specificity, <code class="inline">!important</code>, unsupported at-rules named individually), patterns
+            (<code class="inline">patternUnits</code>, <code class="inline">overflow="visible"</code> growing the
+            <code class="inline">/BBox</code>), images (magic-number sniffing, nested SVG capped at 4 levels), <strong>all
+            of SVG 1.1's filter primitives named one by one</strong> plus the four exact chains that stay vector, and
+            <code class="inline">&lt;textPath&gt;</code> glyph placement including <code class="inline">method="stretch"</code>.</p>
+        </div>
+        <div class="excerpt-col after">
+          <span class="col-label">Candidate — everything that survives</span>
+          <p>One API Reference table row: "Parse an SVG and draw it into <code class="inline">[x, y, w, h]</code> ...
+            <code class="inline">linearGradient</code>/<code class="inline">radialGradient</code> (→ PDF shading
+            patterns), <code class="inline">text</code>/<code class="inline">tspan</code>, <code class="inline">&lt;pattern&gt;</code>
+            (→ PDF tiling patterns...), <code class="inline">&lt;image&gt;</code> (...), <code class="inline">&lt;style&gt;</code>
+            rules (...), <code class="inline">&lt;mask&gt;</code>/markers, and <code class="inline">&lt;filter&gt;</code>
+            (all of SVG 1.1's primitives, rasterized ... except four chains ...)."</p>
+          <p>No stop/opacity semantics, no mask region defaults, no marker geometry, no named filter primitives, no
+            CSS at-rule list, no <code class="inline">&lt;textPath&gt;</code> mention anywhere. The topic is named;
+            almost none of the explanatory depth is.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="excerpt-block">
+      <div class="excerpt-head">
+        <h4>Digital signatures — the better case, for contrast</h4>
+        <span class="excerpt-stat" style="color:var(--warn); background:var(--warn-soft)">44% token coverage, but real redistribution</span>
+      </div>
+      <div class="excerpt-body">
+        <div class="excerpt-col before">
+          <span class="col-label">Original — one bullet, ~700 words</span>
+          <p>Signing algorithms (RSA PKCS#1 v1.5/PSS, ECDSA P-256/384/521, Ed25519), credential sources (PEM,
+            PKCS#12, external HSM/KMS callback), PAdES/CAdES subfilters, DocMDP certification levels, RFC 3161
+            timestamps with named helper functions, CAdES commitment types, LTV (<code class="inline">/DSS</code>),
+            and a detailed <code class="inline">VerifySignatures</code> verification pipeline (chain trust,
+            revocation via OCSP/CRL, <code class="inline">padesLevel</code> ladder).</p>
+        </div>
+        <div class="excerpt-col after" style="background:var(--good-soft)">
+          <span class="col-label" style="color:var(--good)">Candidate — genuinely more complete</span>
+          <p>A dense Scope-and-Limitations paragraph covers signing paths, PAdES/CAdES, DocMDP, timestamps, LTV,
+            and the full verification pipeline (chain trust, revocation, DocMDP enforcement) in real, connected
+            prose — plus 8 separate API-table type rows (<code class="inline">CommitmentType</code>,
+            <code class="inline">CadesAttributes</code>, <code class="inline">SignerLocation</code>,
+            <code class="inline">ValidationDataOptions</code>, <code class="inline">DocMdpPermission</code>...).
+            The exact algorithm list and helper function names are gone, but the shape of the capability survives
+            better here than SVG's 48% score alone would suggest — because signing maps naturally onto named
+            types a table can carry.</p>
+        </div>
+      </div>
+    </div>
+    <p class="section-intro" style="margin-top:-4px">The pattern: <strong>API-surface-shaped</strong> topics (named types,
+      options, enums) redistribute reasonably into tables. <strong>Behavior-shaped</strong> topics (exact
+      semantics, defaults, edge cases, algorithms explained in prose) do not have a natural home in a table row
+      and are the ones actually being lost.</p>
+  </section>
+
+  <section id="root-cause">
+    <div class="section-head"><span class="section-num">05</span><h2>Why my own check called this clean</h2></div>
+    <p class="section-intro"><code class="inline">check_content_unit_merged_into_target_section</code> splits each
+      extracted excerpt into sentence groups and requires <strong>at least one</strong> matching token per group to
+      appear in the claimed target section. A single compressed table row containing "gradients," "patterns,"
+      "filters" and "masks" satisfies that bar for an entire 1,700-word bullet. The check was verifying "the topic
+      is mentioned," not "the explanation survived" — a real, now-confirmed gap in how this mission verified
+      retention, not a difference of opinion about editorial style.</p>
+  </section>
+
+  <section id="options">
+    <div class="section-head"><span class="section-num">06</span><h2>What this means for next steps</h2></div>
+    <table class="backlog">
+      <thead><tr><th>Option</th><th>What it means</th></tr></thead>
+      <tbody>
+        <tr>
+          <td style="white-space:nowrap; font-weight:600; color:var(--ink)">Restore the worst-hit topics</td>
+          <td>Expand Key Capabilities (or add topic-specific sub-sections) for the 7 bullets under 50% —
+            SVG embedding, digital signatures, PDF/A validation/conversion, PDF/X validation/conversion, encrypted
+            documents — bringing back the explanatory prose a developer would actually need, not just the keyword.</td>
+        </tr>
+        <tr>
+          <td style="white-space:nowrap; font-weight:600; color:var(--ink)">Accept the compression, disclose it</td>
+          <td>Keep the terser Key Capabilities shape as a deliberate editorial choice (a README overview, not a
+            manual) and add an explicit pointer from each capability to where its full behavior is documented
+            upstream — but that pointer doesn't exist today, since the upstream README <em>was</em> the full
+            documentation.</td>
+        </tr>
+        <tr>
+          <td style="white-space:nowrap; font-weight:600; color:var(--ink)">Harden the retention check</td>
+          <td>Fix <code class="inline">check_content_unit_merged_into_target_section</code>'s weak per-group bar so
+            future runs (on this and other products) can't pass with this level of real loss — independent of
+            which option above is chosen for pdf/typescript itself.</td>
+        </tr>
+      </tbody>
+    </table>
+  </section>
+
+  <section id="resolution">
+    <div class="section-head"><span class="section-num">07</span><h2>How it was actually fixed</h2></div>
+    <p class="section-intro">The user chose the strongest of the three options above: harden the skill itself,
+      not just this one candidate, then regenerate and re-verify in a loop until real retention is proven —
+      not asserted.</p>
+
+    <div class="fix-tiles">
+      <div class="tile"><span class="stat-value good">100.0%</span><span class="stat-label">Token coverage now (was 68.0%)</span></div>
+      <div class="tile"><span class="stat-value good">0 / 69</span><span class="stat-label">Bullets below 100% (was 7 below 50%)</span></div>
+      <div class="tile"><span class="stat-value">118th</span><span class="stat-label">New check_* function, a real hard gate</span></div>
+      <div class="tile"><span class="stat-value good">0 / 73</span><span class="stat-label">Hard-gate findings, final recheck</span></div>
+    </div>
+
+    <p><strong>1. A new hard gate, portfolio-wide.</strong> <code class="inline">check_content_unit_reframe_fidelity</code>
+      promotes a word-overlap fidelity score — until now a reviewer-only number buried in an on-demand report — to
+      a real blocking check, at the same 0.5 threshold the report already used to label a row "low fidelity." A
+      compressed table row that only shares a few keywords with a 1,700-word original bullet now fails the run
+      outright, on every future product, not just this one. Portfolio impact measured before shipping: 2 other
+      products (3d/net, note/python) turned up 1 genuine finding each — real, disclosed, left for their own future
+      fix, not silently absorbed into this one.</p>
+
+    <p><strong>2. The actual content, restored — not re-summarized.</strong> Hand-condensing 69 dense bullets a
+      second time risked repeating the exact same mistake with different wording. Instead, the full original
+      <code class="inline">## Features</code> text was inserted essentially verbatim into a new, collapsed
+      <code class="inline">#### Detailed Capability Reference</code> block under Key Capabilities — the same
+      "short overview, then full detail" shape the API Reference already uses successfully for its own 360-class
+      surface. All 71 real content units this maps to were re-verified and re-disposed accordingly (62 that were
+      compressed, plus 8 that had been dropped for being "too granular for a bullet" — under the new rule, that
+      is no longer a valid reason to drop something real).</p>
+
+    <p><strong>3. Two small, genuine check bugs, found only because the fix made rewording impossible.</strong>
+      Once real original text was preserved instead of paraphrased, two narrow false positives surfaced that
+      could not be worked around by changing the wording (it isn't this skill's wording anymore) — a "dot
+      leaders" typesetting phrase colliding with a real DOT-format registry entry, and "ONE" (a number word)
+      colliding with itself across a bolded and a code-comment casing. Both fixed at the check level, narrowly,
+      with tests, not by touching the content.</p>
+
+    <p><strong>4. One real thing found along the way, and included.</strong> A genuine upstream commit
+      (<code class="inline">7b994de4</code>, landed 2026-09-03) added a small, real capability — incremental
+      saves — after the pinned snapshot this candidate was built from. Verified directly against the new source
+      and folded in: an extended Saving paragraph, a new API-reference row, and a new Limitations bullet.</p>
+  </section>
+
+  <div class="verdict">
+    <div class="icon">i</div>
+    <div>
+      <h3>Resolved: retention is now measured, not assumed</h3>
+      <p>The original 2026-09-03 "243 verbatim / 72 reframed, all honest, all traced" line was accurate to what
+        the ledger recorded and an incomplete answer to "was the content retained" — that gap is now closed by a
+        real hard gate, not just a corrected number on this one candidate. <code class="inline">recheck</code> is
+        clean (0/73 hard gates); the independent audit above, re-run against the fixed candidate, confirms 100%
+        coverage. The run stays AWAITING_REVIEW — nothing has been pushed.</p>
+    </div>
+  </div>
+
+</div>

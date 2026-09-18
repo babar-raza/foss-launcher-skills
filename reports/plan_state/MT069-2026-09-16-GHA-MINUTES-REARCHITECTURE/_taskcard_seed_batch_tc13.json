@@ -1,0 +1,9 @@
+[
+  {
+    "task_id": "MT069-TC-13-RECURRING-COST-TELEMETRY-PROPOSAL",
+    "status": "TODO",
+    "title": "Recurring cost-telemetry + circuit-breaker capability proposal (root-cause fix)",
+    "description": "Added 2026-09-16 (production-grade deep pass). The real root cause of this whole mission is that zero recurring GitHub Actions cost observability exists anywhere in this repo -- confirmed absent by a fresh targeted search. Design a WorkflowUsageEvent/WorkflowUsageRow telemetry capability reusing the generic event->ledger->aggregate->gated-submit mechanics already proven in scripts/pipeline/commands/ops/metrics_event_ledger.py/run_metrics.py/metrics_submitter.py (new schema/taxonomy, NOT a reuse of the LLM-specific MetricsRow), fed by a weekly read+report collector reusing TC-04's proxy-minutes method. Pair with a magnitude-cap circuit breaker modeled on the LIVE scripts/pipeline/lib/install_change_budget.py / publish_watcher.py --max-auto-apply pattern (static cap + rolling-baseline anomaly check) -- NOT a failure-count trigger like the deleted scripts/translator/backends/circuit_state.py (wrong trigger type for a cost problem). Action when tripped: alert only (reuse the aspose-com-targets-watch.yml issue-creation pattern), never auto-disable -- auto-disabling was the blunt instrument that caused this mission to exist. File a NEW gap-escalation report reclassifying this specific slice as recurring-candidate (Phase A's existing 2026-09-16 gap report explicitly deferred this exact question to a future pass -- this is that pass) and, if MEDIUM+ complexity confirmed, propose a real skill ID per the S-93 repo-patrol shape. This is design/proposal work (Phase A), not implementation -- no telemetry code is built or deployed by this taskcard.",
+    "dependencies": ["MT069-TC-07-DESTINATION-DECISION-MATRIX"]
+  }
+]

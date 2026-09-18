@@ -1,0 +1,18 @@
+Promote: cells/net
+  Scout: 695 claims, 98 api_surface entries
+  Enriched: 642 claims (from enrich.py)
+  Total claims: 1337
+  WARNING: 1 duplicate CLM claim_id(s) (identical text, safe to dedupe) — deduplicating (5 excess removed)
+    CLM-cells-7fa289: 6 occurrences
+  Semantic dedup: skipped (use --semantic-dedup to enable)
+  GoDoc fallback: 29 method(s) inferred from name patterns (doc_source: name_inference)
+  API surface: 98 entries (98 classes)
+  Snippets: 9 (from scout)
+  api_surface.md: 98 classes, 31677 bytes
+  Forbidden claims: 0
+  All artifacts written to knowledge\cells\net\merged.staging.9de2fc7f-7a4d-4ce2-80a3-8678b5020612
+  Format-claims reconciliation: PASS (3 formats checked)
+  Artifact validation: PASS
+PROMOTE_ATOMIC: bundle 9de2fc7f-7a4d-4ce2-80a3-8678b5020612 promoted for cells/net
+
+PROMOTE: PASS

@@ -1,0 +1,24 @@
+Promote: cells/go
+  Scout: 113 claims, 31 api_surface entries
+  WARNING: enriched_claims.json is stale — generated from api_surface SHA '06abb03cfb4c03b4', current is '38f98bfd321db4fd'.
+  Run /knowledge-enrich cells go to regenerate. Ignoring stale enriched claims for this promotion.
+  Enriched: 0 claims (from enrich.py)
+  Total claims: 113
+  Claim ID uniqueness: PASS (113 unique IDs)
+  Semantic dedup: skipped (use --semantic-dedup to enable)
+  GoDoc fallback: 56 method(s) inferred from name patterns (doc_source: name_inference)
+  API surface: 31 entries (14 classes)
+  Snippets: 20 (from scout)
+  api_surface.md: 14 classes, 4003 bytes
+  Forbidden claims: 0
+  All artifacts written to knowledge\cells\go\merged.staging.94fd86df-7266-4e90-9dc4-a60f16252f81
+  Format-claims reconciliation: PASS (0 formats checked)
+  Artifact validation: PASS
+
+  WARNING: enriched_claims.json exists in scout/ but contributed 0 claims.
+  This usually means enrich.py ran AFTER promote.py.
+  Correct order: scout -> enrich -> promote
+  Re-run: python scripts/pipeline/commands/knowledge/promote.py cells go
+PROMOTE_ATOMIC: bundle 94fd86df-7266-4e90-9dc4-a60f16252f81 promoted for cells/go
+
+PROMOTE: PASS

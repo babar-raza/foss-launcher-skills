@@ -1,0 +1,90 @@
+[
+  {
+    "task_id": "TC-MT070-01",
+    "mission_id": "MT070-2026-09-16-IMAGING-NET-FORENSIC-HARDEN",
+    "status": "TODO",
+    "recorded_at": "2026-09-16T13:05:00Z",
+    "recorded_by": "session-503e95f0",
+    "evidence_refs": [],
+    "title": "Build-based independent verification: dotnet build + reflection API dump vs api_surface.json",
+    "layer": "script",
+    "priority": "P1"
+  },
+  {
+    "task_id": "TC-MT070-02",
+    "mission_id": "MT070-2026-09-16-IMAGING-NET-FORENSIC-HARDEN",
+    "status": "TODO",
+    "recorded_at": "2026-09-16T13:05:00Z",
+    "recorded_by": "session-503e95f0",
+    "evidence_refs": [],
+    "title": "Fix ST-195: reports/truth-audit/ report-path collision (structural vs semantic checker, false PUBLISH verdict)",
+    "layer": "script",
+    "priority": "P2"
+  },
+  {
+    "task_id": "TC-MT070-03",
+    "mission_id": "MT070-2026-09-16-IMAGING-NET-FORENSIC-HARDEN",
+    "status": "TODO",
+    "recorded_at": "2026-09-16T13:05:00Z",
+    "recorded_by": "session-503e95f0",
+    "evidence_refs": [],
+    "title": "Fix IMAGING-NET-BATCHREF-HARNESS-001 direction (a): correct S-62 batch-reference SKILL.md first-launch doc",
+    "layer": "script",
+    "priority": "P2"
+  },
+  {
+    "task_id": "TC-MT070-04",
+    "mission_id": "MT070-2026-09-16-IMAGING-NET-FORENSIC-HARDEN",
+    "status": "TODO",
+    "recorded_at": "2026-09-16T13:05:00Z",
+    "recorded_by": "session-503e95f0",
+    "evidence_refs": [],
+    "title": "Fix IMAGING-NET-SCORECARD-UNICODE-001: readiness_scorecard.py Windows cp1252 crash",
+    "layer": "script",
+    "priority": "P3"
+  },
+  {
+    "task_id": "TC-MT070-05",
+    "mission_id": "MT070-2026-09-16-IMAGING-NET-FORENSIC-HARDEN",
+    "status": "TODO",
+    "recorded_at": "2026-09-16T13:05:00Z",
+    "recorded_by": "session-503e95f0",
+    "evidence_refs": [],
+    "title": "Close backlog IMAGING-NET-REFIDX-001 with this mission's independent reconfirmation",
+    "layer": "governance_doc",
+    "priority": "P4"
+  },
+  {
+    "task_id": "TC-MT070-06",
+    "mission_id": "MT070-2026-09-16-IMAGING-NET-FORENSIC-HARDEN",
+    "status": "TODO",
+    "recorded_at": "2026-09-16T13:05:00Z",
+    "recorded_by": "session-503e95f0",
+    "evidence_refs": [],
+    "title": "Targeted cross-surface semantic spot-check: products/docs/kb/blog imaging/net pages vs pinned source",
+    "layer": "content",
+    "priority": "P2"
+  },
+  {
+    "task_id": "TC-MT070-07",
+    "mission_id": "MT070-2026-09-16-IMAGING-NET-FORENSIC-HARDEN",
+    "status": "TODO",
+    "recorded_at": "2026-09-16T13:05:00Z",
+    "recorded_by": "session-503e95f0",
+    "evidence_refs": [],
+    "title": "Determinism/no-op proof: isolated scout re-run against pinned SHA, diff vs tracked api_surface.json",
+    "layer": "script",
+    "priority": "P2"
+  },
+  {
+    "task_id": "TC-MT070-08",
+    "mission_id": "MT070-2026-09-16-IMAGING-NET-FORENSIC-HARDEN",
+    "status": "TODO",
+    "recorded_at": "2026-09-16T13:05:00Z",
+    "recorded_by": "session-503e95f0",
+    "evidence_refs": [],
+    "title": "Final report + evidence bundle, mission close",
+    "layer": "governance_doc",
+    "priority": "P2"
+  }
+]

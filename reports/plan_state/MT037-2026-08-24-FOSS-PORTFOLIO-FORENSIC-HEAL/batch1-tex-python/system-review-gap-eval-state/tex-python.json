@@ -1,0 +1,299 @@
+{
+  "family": "tex",
+  "platform": "python",
+  "last_run_sha": "2f4bfab3863e66ef32868f5464685eb4c2d36911",
+  "last_run_date": "2026-08-25",
+  "verdict": "PUBLICATION READY",
+  "llm_tier_used": "professionalize",
+  "findings": [
+    {
+      "id": "F-tex-python-miss-5255007e",
+      "type": "missing-page",
+      "severity": "low",
+      "tier_resolved_by": 1,
+      "file": "content/docs.aspose.org/en/tex/python/getting-started/license.md",
+      "line": 0,
+      "old_value": "",
+      "correct_value": null,
+      "description": "Expected page not found: content/docs.aspose.org/en/tex/python/getting-started/license.md",
+      "wave": 3,
+      "strategy": "page-generation",
+      "section": "docs",
+      "mandatory": false,
+      "status": "open"
+    },
+    {
+      "id": "F-tex-python-miss-778928a1",
+      "type": "missing-page",
+      "severity": "low",
+      "tier_resolved_by": 1,
+      "file": "content/docs.aspose.org/en/tex/python/developer-guide/presentation.md",
+      "line": 0,
+      "old_value": "",
+      "correct_value": null,
+      "description": "Expected page not found: content/docs.aspose.org/en/tex/python/developer-guide/presentation.md",
+      "wave": 3,
+      "strategy": "page-generation",
+      "section": "docs",
+      "mandatory": false,
+      "status": "open"
+    },
+    {
+      "id": "F-tex-python-miss-4f36ad3e",
+      "type": "missing-page",
+      "severity": "low",
+      "tier_resolved_by": 1,
+      "file": "content/docs.aspose.org/en/tex/python/developer-guide/fonts.md",
+      "line": 0,
+      "old_value": "",
+      "correct_value": null,
+      "description": "Expected page not found: content/docs.aspose.org/en/tex/python/developer-guide/fonts.md",
+      "wave": 3,
+      "strategy": "page-generation",
+      "section": "docs",
+      "mandatory": false,
+      "status": "open"
+    },
+    {
+      "id": "F-tex-python-miss-09d96708",
+      "type": "missing-page",
+      "severity": "low",
+      "tier_resolved_by": 1,
+      "file": "content/kb.aspose.org/en/tex/python/how-to-work-with-presentation-python.md",
+      "line": 0,
+      "old_value": "",
+      "correct_value": null,
+      "description": "Expected page not found: content/kb.aspose.org/en/tex/python/how-to-work-with-presentation-python.md",
+      "wave": 3,
+      "strategy": "page-generation",
+      "section": "kb",
+      "mandatory": false,
+      "status": "open"
+    },
+    {
+      "id": "F-tex-python-miss-c0054c4f",
+      "type": "missing-page",
+      "severity": "low",
+      "tier_resolved_by": 1,
+      "file": "content/kb.aspose.org/en/tex/python/how-to-work-with-fonts-python.md",
+      "line": 0,
+      "old_value": "",
+      "correct_value": null,
+      "description": "Expected page not found: content/kb.aspose.org/en/tex/python/how-to-work-with-fonts-python.md",
+      "wave": 3,
+      "strategy": "page-generation",
+      "section": "kb",
+      "mandatory": false,
+      "status": "open"
+    },
+    {
+      "id": "F-tex-python-miss-311f0a26",
+      "type": "missing-page",
+      "severity": "low",
+      "tier_resolved_by": 1,
+      "file": "content/kb.aspose.org/en/tex/python/troubleshooting.md",
+      "line": 0,
+      "old_value": "",
+      "correct_value": null,
+      "description": "Expected page not found: content/kb.aspose.org/en/tex/python/troubleshooting.md",
+      "wave": 3,
+      "strategy": "page-generation",
+      "section": "kb",
+      "mandatory": false,
+      "status": "open"
+    },
+    {
+      "id": "F-tex-python-miss-f9f2661f",
+      "type": "missing-page",
+      "severity": "low",
+      "tier_resolved_by": 1,
+      "file": "content/kb.aspose.org/en/tex/python/use-cases.md",
+      "line": 0,
+      "old_value": "",
+      "correct_value": null,
+      "description": "Expected page not found: content/kb.aspose.org/en/tex/python/use-cases.md",
+      "wave": 3,
+      "strategy": "page-generation",
+      "section": "kb",
+      "mandatory": false,
+      "status": "open"
+    }
+  ],
+  "tier3_cache": {
+    "cb57d1b8eacc9a42": {
+      "file_path": "D:/onedrive/Documents/GitHub/aspose.org/content/products.aspose.org/en/tex/python/_index.md",
+      "cached_at": "2026-08-25",
+      "profile_sha": "no-profile",
+      "clone_sha": "2f4bfab3863e66ef32868f5464685eb4c2d36911",
+      "findings": []
+    },
+    "d879c16a55f9a176": {
+      "file_path": "D:/onedrive/Documents/GitHub/aspose.org/content/products.aspose.org/en/tex/_index.md",
+      "cached_at": "2026-08-25",
+      "profile_sha": "no-profile",
+      "clone_sha": "2f4bfab3863e66ef32868f5464685eb4c2d36911",
+      "findings": []
+    },
+    "b02a25affce00b48": {
+      "file_path": "D:/onedrive/Documents/GitHub/aspose.org/content/docs.aspose.org/en/tex/python/developer-guide/engine.md",
+      "cached_at": "2026-08-25",
+      "profile_sha": "no-profile",
+      "clone_sha": "2f4bfab3863e66ef32868f5464685eb4c2d36911",
+      "findings": []
+    },
+    "a2a1002dc54314e1": {
+      "file_path": "D:/onedrive/Documents/GitHub/aspose.org/content/docs.aspose.org/en/tex/python/developer-guide/features.md",
+      "cached_at": "2026-08-25",
+      "profile_sha": "no-profile",
+      "clone_sha": "2f4bfab3863e66ef32868f5464685eb4c2d36911",
+      "findings": []
+    },
+    "762b0f4b4a99c36d": {
+      "file_path": "D:/onedrive/Documents/GitHub/aspose.org/content/docs.aspose.org/en/tex/python/developer-guide/input.md",
+      "cached_at": "2026-08-25",
+      "profile_sha": "no-profile",
+      "clone_sha": "2f4bfab3863e66ef32868f5464685eb4c2d36911",
+      "findings": []
+    },
+    "fbef7be9df117c02": {
+      "file_path": "D:/onedrive/Documents/GitHub/aspose.org/content/docs.aspose.org/en/tex/python/developer-guide/output.md",
+      "cached_at": "2026-08-25",
+      "profile_sha": "no-profile",
+      "clone_sha": "2f4bfab3863e66ef32868f5464685eb4c2d36911",
+      "findings": []
+    },
+    "336cd476b5c30696": {
+      "file_path": "D:/onedrive/Documents/GitHub/aspose.org/content/docs.aspose.org/en/tex/python/getting-started/installation.md",
+      "cached_at": "2026-08-25",
+      "profile_sha": "no-profile",
+      "clone_sha": "2f4bfab3863e66ef32868f5464685eb4c2d36911",
+      "findings": []
+    },
+    "b89a42cd02436630": {
+      "file_path": "D:/onedrive/Documents/GitHub/aspose.org/content/docs.aspose.org/en/tex/python/getting-started/quickstart.md",
+      "cached_at": "2026-08-25",
+      "profile_sha": "no-profile",
+      "clone_sha": "2f4bfab3863e66ef32868f5464685eb4c2d36911",
+      "findings": []
+    },
+    "21ba77fbe36cf645": {
+      "file_path": "D:/onedrive/Documents/GitHub/aspose.org/content/blog.aspose.org/tex/python/introducing-tex-foss-python/index.md",
+      "cached_at": "2026-08-25",
+      "profile_sha": "no-profile",
+      "clone_sha": "2f4bfab3863e66ef32868f5464685eb4c2d36911",
+      "findings": []
+    },
+    "1cbe64bd3f028f25": {
+      "file_path": "D:/onedrive/Documents/GitHub/aspose.org/content/blog.aspose.org/tex/python/tex-engine-python/index.md",
+      "cached_at": "2026-08-25",
+      "profile_sha": "no-profile",
+      "clone_sha": "2f4bfab3863e66ef32868f5464685eb4c2d36911",
+      "findings": []
+    },
+    "747c0c5d8a62e609": {
+      "file_path": "D:/onedrive/Documents/GitHub/aspose.org/content/kb.aspose.org/en/tex/python/faq.md",
+      "cached_at": "2026-08-25",
+      "profile_sha": "no-profile",
+      "clone_sha": "2f4bfab3863e66ef32868f5464685eb4c2d36911",
+      "findings": []
+    },
+    "be4c7142ea95c6b1": {
+      "file_path": "D:/onedrive/Documents/GitHub/aspose.org/content/kb.aspose.org/en/tex/python/how-to-use-input-sources-python.md",
+      "cached_at": "2026-08-25",
+      "profile_sha": "no-profile",
+      "clone_sha": "2f4bfab3863e66ef32868f5464685eb4c2d36911",
+      "findings": []
+    },
+    "2f78cb00e91351c6": {
+      "file_path": "D:/onedrive/Documents/GitHub/aspose.org/content/kb.aspose.org/en/tex/python/how-to-use-output-formats-python.md",
+      "cached_at": "2026-08-25",
+      "profile_sha": "no-profile",
+      "clone_sha": "2f4bfab3863e66ef32868f5464685eb4c2d36911",
+      "findings": []
+    },
+    "a5b30cf35571c930": {
+      "file_path": "D:/onedrive/Documents/GitHub/aspose.org/content/kb.aspose.org/en/tex/python/how-to-use-tex-engine-python.md",
+      "cached_at": "2026-08-25",
+      "profile_sha": "no-profile",
+      "clone_sha": "2f4bfab3863e66ef32868f5464685eb4c2d36911",
+      "findings": []
+    },
+    "b170e229afece3a5": {
+      "file_path": "D:/onedrive/Documents/GitHub/aspose.org/content/reference.aspose.org/en/tex/python/AsposeTeXError.md",
+      "cached_at": "2026-08-25",
+      "profile_sha": "no-profile",
+      "clone_sha": "2f4bfab3863e66ef32868f5464685eb4c2d36911",
+      "findings": []
+    },
+    "a276056519e58051": {
+      "file_path": "D:/onedrive/Documents/GitHub/aspose.org/content/reference.aspose.org/en/tex/python/DviDevice.md",
+      "cached_at": "2026-08-25",
+      "profile_sha": "no-profile",
+      "clone_sha": "2f4bfab3863e66ef32868f5464685eb4c2d36911",
+      "findings": []
+    },
+    "8de5c5a5db1c1cd0": {
+      "file_path": "D:/onedrive/Documents/GitHub/aspose.org/content/reference.aspose.org/en/tex/python/EngineError.md",
+      "cached_at": "2026-08-25",
+      "profile_sha": "no-profile",
+      "clone_sha": "2f4bfab3863e66ef32868f5464685eb4c2d36911",
+      "findings": []
+    },
+    "ce8256dfea71cbef": {
+      "file_path": "D:/onedrive/Documents/GitHub/aspose.org/content/reference.aspose.org/en/tex/python/FontError.md",
+      "cached_at": "2026-08-25",
+      "profile_sha": "no-profile",
+      "clone_sha": "2f4bfab3863e66ef32868f5464685eb4c2d36911",
+      "findings": []
+    },
+    "630999d2af4de453": {
+      "file_path": "D:/onedrive/Documents/GitHub/aspose.org/content/reference.aspose.org/en/tex/python/InputError.md",
+      "cached_at": "2026-08-25",
+      "profile_sha": "no-profile",
+      "clone_sha": "2f4bfab3863e66ef32868f5464685eb4c2d36911",
+      "findings": []
+    },
+    "d8f9cc4eac1748f1": {
+      "file_path": "D:/onedrive/Documents/GitHub/aspose.org/content/reference.aspose.org/en/tex/python/OutputDevice.md",
+      "cached_at": "2026-08-25",
+      "profile_sha": "no-profile",
+      "clone_sha": "2f4bfab3863e66ef32868f5464685eb4c2d36911",
+      "findings": []
+    },
+    "b3a9ac1bada9895f": {
+      "file_path": "D:/onedrive/Documents/GitHub/aspose.org/content/reference.aspose.org/en/tex/python/OutputFormat.md",
+      "cached_at": "2026-08-25",
+      "profile_sha": "no-profile",
+      "clone_sha": "2f4bfab3863e66ef32868f5464685eb4c2d36911",
+      "findings": []
+    },
+    "db1db6f505741877": {
+      "file_path": "D:/onedrive/Documents/GitHub/aspose.org/content/reference.aspose.org/en/tex/python/PdfDevice.md",
+      "cached_at": "2026-08-25",
+      "profile_sha": "no-profile",
+      "clone_sha": "2f4bfab3863e66ef32868f5464685eb4c2d36911",
+      "findings": []
+    },
+    "c3dcacd37d99309e": {
+      "file_path": "D:/onedrive/Documents/GitHub/aspose.org/content/reference.aspose.org/en/tex/python/SvgDevice.md",
+      "cached_at": "2026-08-25",
+      "profile_sha": "no-profile",
+      "clone_sha": "2f4bfab3863e66ef32868f5464685eb4c2d36911",
+      "findings": []
+    },
+    "7d780722725a21a6": {
+      "file_path": "D:/onedrive/Documents/GitHub/aspose.org/content/reference.aspose.org/en/tex/python/TeXJob.md",
+      "cached_at": "2026-08-25",
+      "profile_sha": "no-profile",
+      "clone_sha": "2f4bfab3863e66ef32868f5464685eb4c2d36911",
+      "findings": []
+    },
+    "cc2939561f75ebc2": {
+      "file_path": "D:/onedrive/Documents/GitHub/aspose.org/content/reference.aspose.org/en/tex/python/TeXOptions.md",
+      "cached_at": "2026-08-25",
+      "profile_sha": "no-profile",
+      "clone_sha": "2f4bfab3863e66ef32868f5464685eb4c2d36911",
+      "findings": []
+    }
+  }
+}

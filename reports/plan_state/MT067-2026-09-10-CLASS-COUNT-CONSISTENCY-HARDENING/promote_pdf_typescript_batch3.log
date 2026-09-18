@@ -1,0 +1,31 @@
+Promote: pdf/typescript
+  Scout: 8776 claims, 3604 api_surface entries
+  Enriched: 46 claims (from enrich.py)
+  Total claims: 8822
+  WARNING: 2 claim_id hash COLLISION(s) between DIFFERENT claim texts — re-hashing with more context so both survive under distinct ids (never silently dropping real data):
+    CLM-pdf-9cc0f3:
+      - Function converterFor(space, n, resolve, inflate) -> ColorConverter
+      - Function visibleCount(children) -> number
+    CLM-pdf-cfe165:
+      - Function addMarkup(doc, page, subtype, opts, draw) -> MarkupAnnotation
+      - STANDARD_TABLE_COUNT constant of type unknown
+    re-hashed CLM-pdf-cfe165 -> CLM-pdf-d1013a47: STANDARD_TABLE_COUNT constant of type unknown
+    re-hashed CLM-pdf-9cc0f3 -> CLM-pdf-9dcf41cc: Function visibleCount(children) -> number
+  WARNING: 190 duplicate CLM claim_id(s) (identical text, safe to dedupe) — deduplicating (481 excess removed)
+    CLM-pdf-44012e: 36 occurrences
+    CLM-pdf-edc4a6: 20 occurrences
+    CLM-pdf-fa5bdd: 19 occurrences
+    CLM-pdf-f94532: 19 occurrences
+    CLM-pdf-c242f7: 15 occurrences
+  Semantic dedup: skipped (use --semantic-dedup to enable)
+  GoDoc fallback: 2780 method(s) inferred from name patterns (doc_source: name_inference)
+  API surface: 3604 entries (1055 classes)
+  Snippets: 100 (from scout)
+  api_surface.md: 1055 classes, 241600 bytes
+  Forbidden claims: 0
+  All artifacts written to knowledge\pdf\typescript\merged.staging.30476600-de7e-4df2-8104-e8a23d789241
+  Format-claims reconciliation: PASS (20 formats checked)
+  Artifact validation: PASS
+PROMOTE_ATOMIC: bundle 30476600-de7e-4df2-8104-e8a23d789241 promoted for pdf/typescript
+
+PROMOTE: PASS

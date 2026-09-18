@@ -1,0 +1,313 @@
+{
+  "_notes": {
+    "compiled_by": "independent adversarial reviewer (reviewer-session-id 12faa457-a5cf-41e7-84e3-86c391d6823d), 2026-08-24",
+    "curation_decision": "TC-MT028-CONSTRAINT-NOTE (an operator-constraint annotation row in taskcards.jsonl, layer=governance_doc, status=CLOSED, no root_cause_id/allowed_paths/verification_commands/rollback fields at all) is deliberately EXCLUDED from every 'taskcards' evidence array below. It is not a real S-123-governed taskcard -- it never went through blind-spot-audit's fix-plan/taskcard-bind and has none of the schema-5f fields the probes expect. Including it would make A-06 and A-07 fail on a record that was never meant to carry that schema. All 4 real taskcards (TC-BSA-...-01..04) are included using their latest recorded status as of 2026-08-24 (PILOT_PROVEN).",
+    "independent_reverification_performed": [
+      "grep -rn private-import statements in content/{docs,kb}.aspose.org/en/font/python -- reproduced live, matches reverify-20260824.md claim exactly",
+      "pytest scripts/pipeline/tests/test_api_surface_package_init_exports.py -- reproduced live: 13 passed in 0.30s",
+      "audit.py --files <3 TC-03 files> -- reproduced live: FAIL 0 / WARN 0",
+      "attach_evidence.py --files vendor.md --dry-run -- reproduced live: SKIP (draft)",
+      "git log for commits 3fe99aa038, c2ae68524b, d21d35c62b -- all exist, all touch the claimed files/messages",
+      "git show --stat d21d35c62b -- confirms 24 files, TC-01+TC-03 combined, matches commit message claims",
+      "sha256 of git blob content/kb.aspose.org/en/font/python/faq.md at 3fe99aa038 vs HEAD -- exactly reproduces TC-01's recorded before/after hash pair",
+      "sha256 of git blob content/docs.aspose.org/en/font/python/_index.md at 3fe99aa038 vs HEAD -- exactly reproduces TC-03's recorded before/after hash pair",
+      "cross-checked all 24 files changed by d21d35c62b against reports/manual-edits/2026-08-09-*.json and reports/skill-runs/20260809-*.json -- full attribution, no hand-patched/unrecorded file found",
+      "re-ran forensic_heal_sprint_run.py pilot-check live against all 4 pilot-chain-tc0N.json files -- all 4 resolve all 7 links true"
+    ],
+    "independent_finding_not_covered_by_any_probe": "SFND-font-python-005 (issue_type=unknown_class_stdlib, content/kb.aspose.org/en/font/python/faq.md, classified SYSTEM_ONLY in evidence-blind-spots.json) was surfaced by the original 2026-08-09 blind-spot audit but never received a root cause (root-cause phase's own 'warnings' array flags it: \"1 finding(s) have no root cause assigned yet: ['SFND-font-python-005']\"), never appeared in any fix-plan item, and was never bound to a taskcard. It is not an 'orphan' under A-03's definition (it IS classified in the blind-spots matrix), so no probe here catches it, but it is a real, disclosed coverage gap in MT028's original work that this reconciliation does not resolve."
+  },
+  "A-01": {
+    "products_scoped": ["font/python"],
+    "products_with_unaided_repo_summary": ["font/python"],
+    "products_with_unaided_content_findings": ["font/python"],
+    "_basis": "manifest.json products=['font/python']. evidence-unaided-repo.json/evidence-unaided-content.json are phase-completion stubs with no per-product field, but coverage is independently corroborated: RC-font-python-02's evidence cites a direct read of runs/.clone_cache/aspose_font_python/src/aspose_font/__init__.py (repo layer), and evidence-unaided-audit.json's L3 ledger explicitly tracked that exact subtree's mtime across the unaided window; FND-font-python-001/002/003 (content-layer findings) appear in evidence-blind-spots.json's UNAIDED_ONLY rows, tagged font/python."
+  },
+  "A-02": {
+    "unaided_first_verdict": "VIOLATED",
+    "override_present": true,
+    "_basis": "manifest.json: unaided_first_verdict=VIOLATED, unaided_first_override.reason present and dated 2026-08-09T10:17:51Z. Cross-checked against evidence-unaided-audit.json: the 2 cited L3 violations (runs/.clone_cache/aspose_font_python/src; knowledge/cells/python/merged) match the override's explanation exactly (own-process __pycache__ side effect; unrelated concurrent-session product)."
+  },
+  "A-03": {
+    "orphan_finding_ids": [],
+    "_basis": "evidence-blind-spots.json top-level 'orphan_finding_ids' field, verified empty. Note: 'unclassified_issue_types' in that same file lists 4 findings not sorted into BOTH/UNAIDED_ONLY/SYSTEM_ONLY/CONTRADICTORY, but they ARE accounted for (each appears with a finding_id and page) -- not orphaned, just not matrix-classified."
+  },
+  "A-04": {
+    "root_causes": [
+      {
+        "root_cause_id": "RC-font-python-01",
+        "layer": "prompt",
+        "file_ref": "skills/new-docs-page.md:149",
+        "_also": "skills/new-kb-howto.md:151",
+        "_basis": "grep -n for the 'internal API -- may change between releases' prompt-constraint text landed by commit 3fe99aa038; independently located at these exact lines today, not taken from the original (line-less) blind-spot-audit root-cause record."
+      },
+      {
+        "root_cause_id": "RC-font-python-02",
+        "layer": "script",
+        "file_ref": "scripts/pipeline/extraction/api_surface.py:2057",
+        "_basis": "grep -n for the __all__-resolution fix comment ('resolves names -- the previous name-only-in-__all__ regex match is the bug'); independently located today."
+      },
+      {
+        "root_cause_id": "RC-font-python-03",
+        "layer": "script",
+        "file_ref": "scripts/pipeline/content_eval/evaluators/install_recipe.py:330",
+        "_basis": "def _verify_install_accuracy, the install_recipe evaluator's check that flags a hand-written unpublished-package pip-install command; independently located today (this is the actual check whose FAIL is what SFND-font-python-001/002/003 recurred against, per audit.py's FAIL-message defect-class naming)."
+      },
+      {
+        "root_cause_id": "RC-font-python-04",
+        "layer": "data",
+        "file_ref": "scripts/pipeline/evidence/runner.py:265",
+        "_basis": "if fm.get('draft') is True: ... return 'SKIP (draft)' -- the exact line that makes vendor.md's stale-evidence flag a non-defect; independently located today, matches reports/manual-edits/2026-08-09-vendor-md-tc04-investigation.json's cited 'line 242-246' region (265 is the precise conditional within that region)."
+      }
+    ]
+  },
+  "A-05": {
+    "fix_plan_items": [
+      {
+        "root_cause_id": "RC-font-python-01",
+        "options": [
+          {
+            "correctness": "high: directly closes the root cause for all future generation, not just font/python",
+            "scope": "narrow: prompt/template files only",
+            "maintainability": "good: matches v2's own already-attempted fix pattern",
+            "risk": "medium: must confirm the existing 'private imports' constraint text is actually being applied, or diagnose why it wasn't",
+            "repeatability": "high: benefits every future product, not just this regen",
+            "verification_cost": "medium: needs a fresh full-corpus grep sweep post-regen",
+            "selected": true
+          },
+          {
+            "correctness": "medium: fixes only the ~20 already-known pages, does nothing for future regens",
+            "scope": "narrow: hand-edit the ~20 files directly",
+            "maintainability": "poor: a manual patch that will need repeating for every future product hitting the same pattern",
+            "risk": "low: no prompt-behavior risk",
+            "repeatability": "none: does not prevent recurrence",
+            "verification_cost": "low: just the same grep, no regen needed",
+            "selected": false
+          }
+        ]
+      },
+      {
+        "root_cause_id": "RC-font-python-02",
+        "options": [
+          {
+            "correctness": "high: catches the real defect class (an __all__ entry with no binding) generically, for any product",
+            "scope": "moderate: touches the shared knowledge-extraction script, affects all products' next extraction",
+            "maintainability": "good: one shared check, not per-product",
+            "risk": "medium: needs a real import attempt per class, which has the same __pycache__-side-effect consideration this run hit",
+            "repeatability": "high",
+            "verification_cost": "medium",
+            "selected": true
+          },
+          {
+            "correctness": "low: only fixes font/python's one page, leaves the systemic gap in promote.py for every other product with the same upstream issue",
+            "scope": "narrow: hand-edit the one reference page's apis: list",
+            "maintainability": "poor",
+            "risk": "low",
+            "repeatability": "none",
+            "verification_cost": "low",
+            "selected": false
+          }
+        ]
+      },
+      {
+        "root_cause_id": "RC-font-python-03",
+        "options": [
+          {
+            "correctness": "high: a P0 audit-blocking FAIL, already has a known-correct fix pattern from 3D-NET-REFRESH-002",
+            "scope": "narrow: 3 files, shortcode substitution only",
+            "maintainability": "good: uses the existing {{< package-install >}} shortcode mechanism",
+            "risk": "low",
+            "repeatability": "high once the coverage gap is understood",
+            "verification_cost": "low: audit.py re-run is deterministic",
+            "selected": true
+          },
+          {
+            "correctness": "medium: could instead update data/package_registry.json if font/python IS actually published now and the registry is what's stale",
+            "scope": "requires external verification (PyPI check) before it's safe",
+            "maintainability": "n/a until verified",
+            "risk": "medium: could mask a real not-yet-published state if wrong",
+            "repeatability": "n/a",
+            "verification_cost": "medium: needs a live PyPI check first",
+            "selected": false
+          }
+        ]
+      },
+      {
+        "root_cause_id": "RC-font-python-04",
+        "options": [
+          {
+            "correctness": "high: attach_evidence.py is the deterministic, sanctioned tool for exactly this",
+            "scope": "single file",
+            "maintainability": "good",
+            "risk": "low",
+            "repeatability": "high",
+            "verification_cost": "low",
+            "selected": true
+          },
+          {
+            "correctness": "high but manual",
+            "scope": "single file",
+            "maintainability": "poor: hand-editing the evidence block risks a typo'd SHA",
+            "risk": "low",
+            "repeatability": "low",
+            "verification_cost": "low",
+            "selected": false
+          }
+        ]
+      }
+    ]
+  },
+  "A-06": {
+    "taskcards": [
+      {
+        "task_id": "TC-BSA-bsa-mt028-font-python-20260809T100802Z-01",
+        "allowed_paths": ["skills/new-docs-page.md", "skills/new-kb-howto.md", "scripts/pipeline/commands/content/batch_reference.py"],
+        "verification_commands": ["grep -rn \"from aspose_font\\.\" content/docs.aspose.org/en/font/python content/kb.aspose.org/en/font/python | grep -v \"from aspose_font import\""],
+        "rollback": "git checkout HEAD -- skills/new-docs-page.md skills/new-kb-howto.md scripts/pipeline/commands/content/batch_reference.py"
+      },
+      {
+        "task_id": "TC-BSA-bsa-mt028-font-python-20260809T100802Z-02",
+        "allowed_paths": ["scripts/pipeline/commands/knowledge/promote.py"],
+        "verification_commands": ["pytest scripts/pipeline/tests/test_promote.py -k all_entries_resolve"],
+        "rollback": "git checkout HEAD -- scripts/pipeline/commands/knowledge/promote.py"
+      },
+      {
+        "task_id": "TC-BSA-bsa-mt028-font-python-20260809T100802Z-03",
+        "allowed_paths": ["content/docs.aspose.org/en/font/python/_index.md", "content/kb.aspose.org/en/font/python/_index.md", "content/kb.aspose.org/en/font/python/faq.md"],
+        "verification_commands": ["PYTHONPATH=scripts/pipeline .venv/Scripts/python scripts/pipeline/commands/content/audit.py --files content/docs.aspose.org/en/font/python/_index.md content/kb.aspose.org/en/font/python/_index.md content/kb.aspose.org/en/font/python/faq.md"],
+        "rollback": "git checkout HEAD -- content/docs.aspose.org/en/font/python/_index.md content/kb.aspose.org/en/font/python/_index.md content/kb.aspose.org/en/font/python/faq.md"
+      },
+      {
+        "task_id": "TC-BSA-bsa-mt028-font-python-20260809T100802Z-04",
+        "allowed_paths": ["content/docs.aspose.org/en/font/python/developer-guide/vendor.md"],
+        "verification_commands": ["PYTHONPATH=scripts/pipeline .venv/Scripts/python scripts/pipeline/commands/healing/attach_evidence.py --files content/docs.aspose.org/en/font/python/developer-guide/vendor.md"],
+        "rollback": "git checkout HEAD -- content/docs.aspose.org/en/font/python/developer-guide/vendor.md"
+      }
+    ],
+    "_note": "verification_commands for TC-01 and TC-02 are known-stale per reverify-20260824.md (TC-01's grep is coarser than the real shipped rule; TC-02's pytest -k target file never existed, real test is test_api_surface_package_init_exports.py) -- flagged there as a backlog item, not corrected retroactively in the taskcard record itself. A-06 only requires the fields be NON-EMPTY, which they are; it does not check the commands still resolve, so this staleness does not trip A-06 mechanically, but is worth restating here rather than hiding it."
+  },
+  "A-07": {
+    "root_cause_ids": ["RC-font-python-01", "RC-font-python-02", "RC-font-python-03", "RC-font-python-04"],
+    "taskcards": [
+      {"task_id": "TC-BSA-bsa-mt028-font-python-20260809T100802Z-01", "status": "PILOT_PROVEN", "root_cause_id": "RC-font-python-01"},
+      {"task_id": "TC-BSA-bsa-mt028-font-python-20260809T100802Z-02", "status": "PILOT_PROVEN", "root_cause_id": "RC-font-python-02"},
+      {"task_id": "TC-BSA-bsa-mt028-font-python-20260809T100802Z-03", "status": "PILOT_PROVEN", "root_cause_id": "RC-font-python-03"},
+      {"task_id": "TC-BSA-bsa-mt028-font-python-20260809T100802Z-04", "status": "PILOT_PROVEN", "root_cause_id": "RC-font-python-04"}
+    ],
+    "_note": "None of the 4 real taskcards are literally status=CLOSED yet (latest recorded status per taskcards.jsonl is PILOT_PROVEN as of 2026-08-24T17:07Z -- CLOSED is expected to happen only after this adversarial-review + compute-verdict + close chain completes). A-07's filter is status=='CLOSED', so this probe passes VACUOUSLY here (zero CLOSED cards to check), not because closure-time root-cause-fidelity was actually exercised. This is expected given where MT028 sits in the S-123 lifecycle, not a defect -- but it means A-07 passing today is not yet meaningful proof of anything beyond 'we have not yet closed a taskcard with a bad root cause'."
+  },
+  "A-08": {
+    "changed_content_paths": [
+      "content/docs.aspose.org/en/font/python/_index.md",
+      "content/docs.aspose.org/en/font/python/developer-guide/brotli.md",
+      "content/docs.aspose.org/en/font/python/developer-guide/cff.md",
+      "content/docs.aspose.org/en/font/python/developer-guide/core-management.md",
+      "content/docs.aspose.org/en/font/python/developer-guide/eot.md",
+      "content/docs.aspose.org/en/font/python/developer-guide/features.md",
+      "content/docs.aspose.org/en/font/python/developer-guide/tables.md",
+      "content/docs.aspose.org/en/font/python/developer-guide/ttf.md",
+      "content/docs.aspose.org/en/font/python/developer-guide/type1.md",
+      "content/docs.aspose.org/en/font/python/developer-guide/woff.md",
+      "content/docs.aspose.org/en/font/python/getting-started/installation.md",
+      "content/kb.aspose.org/en/font/python/_index.md",
+      "content/kb.aspose.org/en/font/python/faq.md",
+      "content/kb.aspose.org/en/font/python/how-to-work-with-brotli-python.md",
+      "content/kb.aspose.org/en/font/python/how-to-work-with-cff-python.md",
+      "content/kb.aspose.org/en/font/python/how-to-work-with-eot-python.md",
+      "content/kb.aspose.org/en/font/python/how-to-work-with-font-management-python.md",
+      "content/kb.aspose.org/en/font/python/how-to-work-with-tables-python.md",
+      "content/kb.aspose.org/en/font/python/how-to-work-with-ttf-python.md",
+      "content/kb.aspose.org/en/font/python/how-to-work-with-type1-python.md",
+      "content/kb.aspose.org/en/font/python/how-to-work-with-vendor-python.md",
+      "content/kb.aspose.org/en/font/python/how-to-work-with-woff-python.md",
+      "content/kb.aspose.org/en/font/python/troubleshooting.md",
+      "content/kb.aspose.org/en/font/python/use-cases.md"
+    ],
+    "attributed_content_paths": [
+      "content/docs.aspose.org/en/font/python/_index.md",
+      "content/docs.aspose.org/en/font/python/developer-guide/brotli.md",
+      "content/docs.aspose.org/en/font/python/developer-guide/cff.md",
+      "content/docs.aspose.org/en/font/python/developer-guide/core-management.md",
+      "content/docs.aspose.org/en/font/python/developer-guide/eot.md",
+      "content/docs.aspose.org/en/font/python/developer-guide/features.md",
+      "content/docs.aspose.org/en/font/python/developer-guide/tables.md",
+      "content/docs.aspose.org/en/font/python/developer-guide/ttf.md",
+      "content/docs.aspose.org/en/font/python/developer-guide/type1.md",
+      "content/docs.aspose.org/en/font/python/developer-guide/woff.md",
+      "content/docs.aspose.org/en/font/python/getting-started/installation.md",
+      "content/kb.aspose.org/en/font/python/_index.md",
+      "content/kb.aspose.org/en/font/python/faq.md",
+      "content/kb.aspose.org/en/font/python/how-to-work-with-brotli-python.md",
+      "content/kb.aspose.org/en/font/python/how-to-work-with-cff-python.md",
+      "content/kb.aspose.org/en/font/python/how-to-work-with-eot-python.md",
+      "content/kb.aspose.org/en/font/python/how-to-work-with-font-management-python.md",
+      "content/kb.aspose.org/en/font/python/how-to-work-with-tables-python.md",
+      "content/kb.aspose.org/en/font/python/how-to-work-with-ttf-python.md",
+      "content/kb.aspose.org/en/font/python/how-to-work-with-type1-python.md",
+      "content/kb.aspose.org/en/font/python/how-to-work-with-vendor-python.md",
+      "content/kb.aspose.org/en/font/python/how-to-work-with-woff-python.md",
+      "content/kb.aspose.org/en/font/python/troubleshooting.md",
+      "content/kb.aspose.org/en/font/python/use-cases.md"
+    ],
+    "_basis": "changed_content_paths = exact file list from `git show --stat d21d35c62b` (24 files, the single commit combining TC-01+TC-03's content work; vendor.md/TC-04 was investigated but never modified, so it is correctly excluded from 'changed'). attributed_content_paths cross-checked file-by-file against reports/skill-runs/20260809-112601-s73.json (12 kb.aspose.org files_written), reports/skill-runs/20260809-113448-s73.json (developer-guide/cff.md), reports/skill-runs/20260809-113353-s73.json (docs/_index.md, kb/_index.md, kb/faq.md TC-03 pass), and reports/manual-edits/2026-08-09-font-python-{brotli-loading-woff2,brotli-saving-woff2,cff-sections,core-management-sections,eot-sections,features-font-loading,installation-step3,tables-sections,ttf-sections,type1-sections,woff-sections}.json -- every one of the 24 files has a matching S-73 record. Two retroactive skill-run records (retroactive-20260809-163511-s122-s123.json -> commit 3fe99aa038, retroactive-20260809-163618-s122-s123.json -> commit d21d35c62b) additionally tie the whole commit to the S-122/S-123 skill chain."
+  },
+  "A-09": {
+    "taskcards": [
+      {
+        "task_id": "TC-BSA-bsa-mt028-font-python-20260809T100802Z-01",
+        "regeneration_required": true,
+        "system_heal_evidence_at": "2026-08-09T16:29:09Z",
+        "content_regen_evidence_at": "2026-08-09T16:30:25Z",
+        "_basis": "system_heal = commit 3fe99aa038 (skills/new-docs-page.md + new-kb-howto.md fix), git commit date 2026-08-09T21:29:09+05:00 = 16:29:09Z. content_regen = commit d21d35c62b (git commit date 2026-08-09T21:30:25+05:00 = 16:30:25Z), whose git parent IS 3fe99aa038 (linear, adjacent commits, independently confirmed via `git log --format=%P -1 d21d35c62b`)."
+      },
+      {
+        "task_id": "TC-BSA-bsa-mt028-font-python-20260809T100802Z-02",
+        "regeneration_required": false
+      },
+      {
+        "task_id": "TC-BSA-bsa-mt028-font-python-20260809T100802Z-03",
+        "regeneration_required": true,
+        "system_heal_evidence_at": "2026-08-01T06:42:17Z",
+        "content_regen_evidence_at": "2026-08-09T16:30:25Z",
+        "_basis": "TC-03's fix reuses an ALREADY-healed system mechanism (the {{< package-install >}} shortcode) rather than landing a new system fix in this mission -- per fix-plan evidence: 'MT026 RC-W1-003 ... established the pattern'. system_heal_evidence_at = commit 68e6a36c1ff4f1e8ae129dc4cca924303e21c216 ('feat(pipeline): generic package-install shortcode + audit gate (TC-MT015-05)'), git commit date 2026-08-01T11:42:17+05:00 = 06:42:17Z -- independently confirmed via `git log --diff-filter=A -- layouts/shortcodes/package-install.html`. content_regen_evidence_at = same commit d21d35c62b as TC-01 (both landed together)."
+      },
+      {
+        "task_id": "TC-BSA-bsa-mt028-font-python-20260809T100802Z-04",
+        "regeneration_required": false
+      }
+    ]
+  },
+  "A-10": {
+    "taskcards": [
+      {
+        "task_id": "TC-BSA-bsa-mt028-font-python-20260809T100802Z-01",
+        "regeneration_required": true,
+        "before_hash": "06d6763d51503f18f6f7df64d1cab004b1829fbacff819603246af545b9cd854",
+        "after_hash": "2f99c35b313b29ae3f55cf401a1549970788bcbd98a9c2ef1b03181f340c3422",
+        "_basis": "Independently reproduced: sha256(git show 3fe99aa038:content/kb.aspose.org/en/font/python/faq.md) == before_hash exactly; sha256(git show HEAD:content/kb.aspose.org/en/font/python/faq.md) == after_hash exactly. Both are real git-blob hashes of one representative TC-01-affected file (faq.md), not fabricated numbers -- though note this is a single-file sample, not a hash over the full ~20-page affected set."
+      },
+      {
+        "task_id": "TC-BSA-bsa-mt028-font-python-20260809T100802Z-02",
+        "regeneration_required": false
+      },
+      {
+        "task_id": "TC-BSA-bsa-mt028-font-python-20260809T100802Z-03",
+        "regeneration_required": true,
+        "before_hash": "4a18ad789cdc456b3b26cffabae549b878b0fed8b1271a046cb51daf7b112cbd",
+        "after_hash": "b1b30c75ccbe9b3bfc041defae40ea6a957b01982cd677f82a569047c8196117",
+        "_basis": "Independently reproduced: sha256(git show 3fe99aa038:content/docs.aspose.org/en/font/python/_index.md) == before_hash exactly; sha256(git show HEAD:content/docs.aspose.org/en/font/python/_index.md) == after_hash exactly. Real git-blob hashes of TC-03's own primary affected file."
+      },
+      {
+        "task_id": "TC-BSA-bsa-mt028-font-python-20260809T100802Z-04",
+        "regeneration_required": false
+      }
+    ]
+  },
+  "A-11": {
+    "hardening_items": [],
+    "_basis": "MT028 did not run a separate hardening phase (no hardening-item claims exist anywhere in taskcards.jsonl, the blind-spot-audit evidence files, or reverify-20260824.md). Reporting an empty list honestly rather than fabricating a hardening claim with no synthetic-regression-fixture proof behind it."
+  },
+  "A-12": {
+    "pilot_chain_links": [true, true, true, true, true, true, true],
+    "_basis": "Live re-run of `forensic_heal_sprint_run.py pilot-check --chain-file .../pilot-chain-tc0N.json` for N=1..4 today (not trusting the JSON files' own prior claims). All 4 chains independently resolved all 7 links (unaided_finding, root_cause, taskcard, system_fix_diff, regen_command, verification_artifact_pair, agentic_consumption_recheck) as true. Caveat: TC-02 and TC-04's verification_artifact_pair link is satisfied by non-empty, differing PROSE strings (not real content hashes), since both are regeneration_required=false script/investigation-only fixes with no content diff to hash -- mechanically resolved per pilot_chain.py's own definition, but weaker evidence than TC-01/TC-03's real git-blob hash pairs."
+  }
+}

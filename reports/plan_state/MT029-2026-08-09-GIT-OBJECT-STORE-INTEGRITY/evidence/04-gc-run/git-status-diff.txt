@@ -1,0 +1,46 @@
+386a387,388
+>  M static/media/3d/typescript/icon.png
+>  M static/media/3d/typescript/icon.webp
+391,392d392
+<  M static/media/cells/cpp/icon.png
+<  M static/media/cells/cpp/icon.webp
+406,407d405
+<  M static/media/cells/rust/icon.png
+<  M static/media/cells/rust/icon.webp
+410,411d407
+<  M static/media/email/cpp/icon.png
+<  M static/media/email/cpp/icon.webp
+421a418
+>  M static/media/html/cpp/banner.png
+422a420,422
+>  M static/media/html/net/banner.png
+>  M static/media/html/net/icon.png
+>  M static/media/html/net/icon.webp
+423a424,425
+>  M static/media/html/python/banner.png
+>  M static/media/html/python/banner.webp
+430,431c432
+<  M static/media/page/cpp/icon.png
+<  M static/media/page/cpp/icon.webp
+---
+>  M static/media/page/cpp/banner.png
+432a434
+>  M static/media/page/net/banner.png
+435a438
+>  M static/media/page/python/banner.png
+439,440d441
+<  M static/media/pdf/cpp/icon.png
+<  M static/media/pdf/cpp/icon.webp
+450a452,453
+>  M static/media/pdf/python/banner.png
+>  M static/media/pdf/python/banner.webp
+454,455d456
+<  M static/media/slides/cpp/icon.png
+<  M static/media/slides/cpp/icon.webp
+481a483
+> ?? scripts/pipeline/tests/test_api_surface_reachability.py
+483,486d484
+< ?? static/media/html/cpp/icon.png
+< ?? static/media/html/cpp/icon.webp
+< ?? static/media/html/net/icon.png
+< ?? static/media/html/net/icon.webp

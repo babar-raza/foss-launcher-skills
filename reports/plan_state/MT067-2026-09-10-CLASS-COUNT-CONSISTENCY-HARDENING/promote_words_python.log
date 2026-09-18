@@ -1,0 +1,17 @@
+Promote: words/python
+  Scout: 1268 claims, 324 api_surface entries
+  Enriched: 773 claims (from enrich.py)
+  Total claims: 2041
+  Claim ID uniqueness: PASS (2041 unique IDs)
+  Semantic dedup: skipped (use --semantic-dedup to enable)
+  GoDoc fallback: 864 method(s) inferred from name patterns (doc_source: name_inference)
+  API surface: 324 entries (189 classes)
+  Snippets: 39 (from scout)
+  api_surface.md: 189 classes, 63792 bytes
+  Forbidden claims: 1
+  All artifacts written to knowledge\words\python\merged.staging.06732407-240b-4729-bbd5-64a1ffdc912b
+  Format-claims reconciliation: PASS (16 formats checked)
+  Artifact validation: PASS
+PROMOTE_ATOMIC: bundle 06732407-240b-4729-bbd5-64a1ffdc912b promoted for words/python
+
+PROMOTE: PASS

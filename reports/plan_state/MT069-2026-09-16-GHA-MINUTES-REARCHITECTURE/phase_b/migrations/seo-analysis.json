@@ -1,0 +1,26 @@
+{
+  "workflow_name": "seo-analysis.yml (private) -> seo-weekly-analysis.yml (public, renamed)",
+  "state": "CANARY_CONFIRMED",
+  "state_history": [
+    {"state": "TEMPLATE_BUILT", "at": "2026-09-17T16:58:00Z", "note": "Local template built at scripts/ci/deployed-workflows/seo-weekly-analysis.yml -- renamed from the private filename because Aspose/aspose.org-workflows already has an unrelated seo-analysis.yml template (different pipeline: keyword/content-inventory analysis)."},
+    {"state": "CANARY_DEPLOYED", "at": "2026-09-17T16:59:30Z", "note": "Pushed to Aspose/aspose.org-workflows main via isolated-temp-index plumbing, fetch-first. Local clone's working tree/index/main ref confirmed untouched before and after.", "deployed_commit_sha": "9142da5786941833008960756e70a46940a05ad6", "deployed_commit_parent": "4e4d883bf8cf3c8215a459c26446ed0e06cc3f28", "public_template_sha256": "93d8b6a5ef350dbd9d5390369d05d13afdf3a2f6d935c79a0dcd05583f946823", "verified_byte_identical_to_local_template": true},
+    {"state": "CANARY_OBSERVING", "at": "2026-09-17T16:59:53Z", "note": "Manually dispatched for a real end-to-end proof run.", "run_id": 35249990313, "run_url": "https://github.com/Aspose/aspose.org-workflows/actions/runs/35249990313"},
+    {"state": "CANARY_CONFIRMED", "at": "2026-09-17T17:02:32Z", "note": "Run completed in 2m38s. The analysis script itself exited 1 by design (its own findings-gate: 26 new duplicate-title groups since baseline -- a real, expected-shape content finding given the mass-disable's backlog accumulation, not a migration defect). This is actually a MORE thorough proof than the other two canaries: it validates the failure-routing code path, not just the clean-pass path. Confirmed the resulting issue (#98) landed correctly on the private Aspose/aspose.org repo (gh issue list), not the public repo -- proving the explicit owner/repo override in the github-script step works correctly under a real failure, not just in the happy path."}
+  ],
+  "reconciliation": {
+    "public_run_landed": true,
+    "issue_correctly_routed_to_private_repo": true,
+    "issue_number": 98,
+    "no_new_private_run_since_migration": "implicitly true going forward -- private trigger flipped to workflow_dispatch-only in this same session",
+    "billing_trend": "not yet observable this billing cycle -- too soon after migration"
+  },
+  "private_original": {
+    "path": ".github/workflows/seo-analysis.yml",
+    "action_taken": "trigger flipped from schedule(weekly Monday 09:00 UTC) to workflow_dispatch-only",
+    "not_deleted": true,
+    "not_enabled_or_disabled_via_api": true,
+    "committed": false,
+    "note": "UNCOMMITTED as of this record, same open-precondition pattern flagged for the other private-side edits this mission."
+  },
+  "follow_up_needed": "Issue #98 (26 new duplicate-title groups) is a real content finding now visible to the maintainer -- not this mission's job to fix, flagged for awareness only."
+}

@@ -1,0 +1,58 @@
+{
+  "schema_version": 1,
+  "manifest_id": "mt029-git-object-store-integrity",
+  "mission_id": "MT029-2026-08-09-GIT-OBJECT-STORE-INTEGRITY",
+  "source": {
+    "repository": "Aspose/aspose.org",
+    "branch": "main",
+    "revision_before": "583ec6d54773254a0569cb0521c223b7a9911784",
+    "revision_after": "046f91c0bfa88a617f2eeb789cb8dca926bc3502",
+    "note": "revision_before is the session-start HEAD captured in the initial gitStatus context; main advanced by unrelated concurrent-session commits during this mission (expected and confirmed non-overlapping with this mission's allowed_paths) before this mission's own commit landed on top."
+  },
+  "taskcards": {
+    "path": "reports/plan_state/MT029-2026-08-09-GIT-OBJECT-STORE-INTEGRITY/taskcards.jsonl",
+    "closed": ["TC-MT029-01","TC-MT029-02","TC-MT029-03","TC-MT029-04","TC-MT029-05","TC-MT029-06","TC-MT029-07","TC-MT029-08","TC-MT029-09"],
+    "out_of_scope": ["TC-MT029-11"],
+    "corrections_recorded": [
+      "TC-MT029-02 REOPENED then re-CLOSED: safety-net ref design flaw found and repaired",
+      "TC-MT029-06 CLOSED transition initially missed, caught and backfilled by TC-MT029-10's own verification pass"
+    ]
+  },
+  "execution": {
+    "commands": [
+      {"command_id": "reflog-expire", "command": "git -C aspose.org-pilot-zero-defect-v2 reflog expire --expire=now HEAD", "exit_code": 0},
+      {"command_id": "gc-auto-disable", "command": "git config --local gc.auto 0", "exit_code": 0},
+      {"command_id": "gc-attempt-1-failed", "command": "git gc", "exit_code": 128, "note": "fatal: unable to read ce1665371f678e8089442d8fc8bc5f35c2d48955 / fatal: failed to run repack"},
+      {"command_id": "prune-real", "command": "git prune -v", "exit_code": 0},
+      {"command_id": "gc-attempt-2-succeeded", "command": "git gc", "exit_code": 0},
+      {"command_id": "commit", "command": "git_plumb_commit.py --files scripts/maintenance/git_repo_health_check.py scripts/maintenance/registry.yaml --skills S-99", "exit_code": 0, "result_sha": "046f91c0bfa88a617f2eeb789cb8dca926bc3502"}
+    ]
+  },
+  "artifacts": [
+    {"path": "scripts/maintenance/git_repo_health_check.py", "sha256": "1fc70a34bc837479234c12059799d97d2449a2e968869321a3ecdbcab5af009f"},
+    {"path": "scripts/maintenance/registry.yaml", "sha256": "e1be28fd1b3a250255645439fe8121633d54702942ecaca4b275341e3304debf"}
+  ],
+  "verification": {
+    "fsck_broken_link_before": true,
+    "fsck_broken_link_after": false,
+    "loose_object_count_before": 38322,
+    "loose_object_count_after": 15,
+    "loose_object_reduction_factor": "~2555x",
+    "other_worktrees_reflog_unchanged": true,
+    "tracked_file_drift_attributable_to_this_mission": "none (all git-status diff traced to independent concurrent media-icon-generation session)",
+    "commit_diff_stat_matches_declared_allowed_paths": true,
+    "skill_run_record": "reports/skill-runs/retroactive-20260809-124534-s99.json",
+    "remote_push_confirmed_via_independent_ls_remote": true
+  },
+  "effects": {
+    "permission_class": "repository_write",
+    "prohibited_effects_observed": false,
+    "git_internal_only_operations": ["reflog expire (scoped)", "gc.auto config", "git prune", "git gc"],
+    "tracked_repo_effects": ["scripts/maintenance/git_repo_health_check.py (new)", "scripts/maintenance/registry.yaml (entry added)"]
+  },
+  "redaction": {
+    "policy_version": 1,
+    "secrets_detected": 0,
+    "note": "GH_TOKEN was read for push auth and never logged/persisted in any evidence file"
+  }
+}

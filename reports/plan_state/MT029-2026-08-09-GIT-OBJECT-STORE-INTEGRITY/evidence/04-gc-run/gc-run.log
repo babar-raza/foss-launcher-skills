@@ -1,0 +1,5 @@
+starting git gc (default settings) at Sun, Aug  9, 2026  5:28:13 PM
+fatal: unable to read ce1665371f678e8089442d8fc8bc5f35c2d48955
+fatal: failed to run repack
+exit: 128
+finished at Sun, Aug  9, 2026  5:29:10 PM

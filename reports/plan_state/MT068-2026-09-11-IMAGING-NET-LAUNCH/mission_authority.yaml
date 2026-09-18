@@ -1,0 +1,75 @@
+mission_authority:
+  mission_id: MT068-2026-09-11-IMAGING-NET-LAUNCH
+  mission_summary: 'Launch imaging/net (Aspose.Imaging.Foss, https://github.com/aspose-imaging-foss/Aspose.Imaging.Foss)
+    as a new FOSS-backed product platform. User asked this session to publish a newly
+    discovered product without naming one; a fresh S-93 /repo-patrol scan (26/26 orgs
+    OK) plus S-95 /discovery-triage routing found the first-ever repo in aspose-imaging-foss
+    (org previously watched at 0 repos, INV-017), live-verified LAUNCHABLE this session
+    (MIT license, real C# source across 17 classes -- ImageProbe/ImageInfo/ImageFormat
+    plus 11 Formats/*Handler classes plus 3 Internal/ helpers, 4 real test files,
+    CI+release GitHub Actions, 3 commits by 2 human authors over 4 days). Filed as
+    backlog/inbox.md INV-019 and backlog/BACKLOG.md IMAGING-NET-001. User confirmed:
+    start the launch chain now. Capability scope is narrower than the imaging family''s
+    existing commercial messaging -- this repo is explicitly format-detection/header-probing
+    only (dimensions, bit depth, frame count from the file header for 11 formats),
+    not a decode/edit/convert library, and its own README explicitly disclaims the
+    broader scope and links to the commercial Aspose.Imaging product for it. All generated
+    content must state that narrower scope truthfully per AGENTS.md Section 11.'
+  governing_plan_path: plans/from_backlog/2026-09-11-mt068-imaging-net-launch.md
+  in_scope_outcomes:
+  - imaging/net registered in data/products.json via /update-registry
+  - 'Knowledge bootstrap: knowledge/imaging/net/merged/{model.yaml,claims.json,api_surface.md,formats.json}
+    built via /repo-scout (S-34) against the real clone, finalized via truth-merge'
+  - AGENTS.md Section 7d knowledge quality gate passes (class_count>=5, total_claims>=20,
+    snippet_count>=3, enrichment_status ok) before any content generation begins
+  - 'Full 5-subdomain English-language launch via /launch-product imaging net (S-49):
+    docs, kb, blog, products, reference'
+  - S-90 /publish-readiness-review scoped to imaging/net (Tier 1/2 content) before
+    the mission is declared complete
+  out_of_scope_items:
+  - Locale translation fan-out (/ht-translate) -- follows this repo's normal cadence
+    of English-first launch, translation in a later session
+  - Any content implying decode/edit/convert image-processing capability -- the real
+    repo does not have this; format-detection/header-probing only
+  - NuGet publication-status tracking or disclosure -- package is not yet published;
+    follow the existing no-publication-disclosure precedent
+  - Building new platform-pipeline capability -- unlike the TypeScript pilot (MT040),
+    C#/.NET is an already-mature generation target (cells/net, pdf/net, words/net,
+    slides/net, 3d/net, font/net all launched); real gaps found get filed as G-xx
+    findings through the skill system, not patched inline outside it
+  mandatory_acceptance_criteria:
+  - /update-registry --reconcile shows imaging/net with all expected knowledge/content
+    signals present, zero registered-but-never-launched gaps introduced
+  - Knowledge quality gate (Section 7d) passes with real, non-fabricated numbers from
+    the actual scout output -- not lowered thresholds, not an override
+  - Every generated page passes S-23 content-check
+  - S-90 publish-readiness review returns a clean verdict (or documented, closed follow-ups)
+    for Tier 1/2 content
+  - No content page overstates capability beyond format-detection/header-probing
+  human_authority_boundaries:
+  - Any decision to widen scope beyond format-detection/header-probing content claims
+  - Approving locale fan-out as part of this mission versus a separate session
+  conflicts_found:
+  - 'Checked live at mission open (2026-09-11, this session): mission_authority.py
+    list shows the root slot''s most recent archived snapshot as MT066-2026-09-09-PACKAGE-INSTALL-RECONCILIATION
+    with mission_locked: true in the root file and 87 taskcards (16 IN_PROGRESS, 22
+    TODO, only 5 CLOSED) -- genuinely active, unlike prior ''safe to take over'' precedents
+    where the incumbent was unlocked or closed.'
+  - 'Proceeding anyway because: (a) mission_authority.py''s own docstring describes
+    the root file as a single mutable *narrative pointer*, not a system-wide execution
+    lock; (b) mission_authority.py list already shows many missions simultaneously
+    [open] (MT028, MT037, MT058, MT059, MT062, MT064, MT066 itself, plus several readme-refresh
+    missions) with no apparent contention from that coexistence; (c) MT066''s full
+    state was already durably archived to reports/plan_state/MT066-2026-09-09-PACKAGE-INSTALL-RECONCILIATION/mission_authority.yaml
+    at ITS OWN open time, so overwriting the root pointer does not erase or interrupt
+    MT066''s taskcard store, session ledger, or any other session''s ability to continue
+    working it; (d) this mission''s paths (data/products.json''s imaging rows, knowledge/imaging/net/,
+    content/*/imaging/net/) are disjoint from MT066''s (data/package_registry.json,
+    install-instruction content sweep, aspose.org-workflows deploy-trigger fix) --
+    no file-overlap risk identified. Full reasoning recorded in the governing plan
+    file''s ''Mission-authority root-slot note'' section.'
+  - Mission-ID collision avoided using the sanctioned allocator (ST-157, mission_authority.py
+    allocate --track main --slug IMAGING-NET-LAUNCH) -- returned MT068-2026-09-11-IMAGING-NET-LAUNCH.
+  mission_locked: false
+  _archive_status: open
+  _archived_at: '2026-09-11T07:22:42Z'

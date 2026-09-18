@@ -1,0 +1,77 @@
+{
+  "schema_version": 1,
+  "run_id": "rr-20260903T072250Z-3a82d15feb0f",
+  "family": "pdf",
+  "platform": "typescript",
+  "repo_full_name": "aspose-pdf-foss/Aspose.PDF-FOSS-for-TypeScript",
+  "repo_url": "https://github.com/aspose-pdf-foss/Aspose.PDF-FOSS-for-TypeScript",
+  "clone_url": "https://github.com/aspose-pdf-foss/Aspose.PDF-FOSS-for-TypeScript.git",
+  "candidate_tree": "repo-presenter-regen-full",
+  "state": "AWAITING_REVIEW",
+  "session_owner": "9d8aa2aa-a458-4688-acc4-4048b8aa9955",
+  "created_at": "2026-09-03T07:22:52.026253Z",
+  "updated_at": "2026-09-03T09:22:56.872445Z",
+  "pinned_inputs": {
+    "clone_cache_head": "197de2705faaf2b7459b81c30373b72e9a74442f",
+    "preflight": {
+      "archived": false,
+      "default_branch": "main",
+      "disabled": false,
+      "permissions": {
+        "admin": true,
+        "maintain": true,
+        "pull": true,
+        "push": true,
+        "triage": true
+      }
+    },
+    "full_manifest": {
+      "clone_cache": {
+        "commit": "197de2705faaf2b7459b81c30373b72e9a74442f",
+        "tree": "38356ff4d1dd7a671350d9ff3e699c89f2c7c7d9"
+      },
+      "enterprise_edition_target": {
+        "entry": {
+          "url": "https://products.aspose.com/pdf/typescript/",
+          "http_status": 404,
+          "redirect_chain": [],
+          "inventory_completeness": "manually-verified",
+          "last_verified": "2026-08-31T17:23:36Z"
+        },
+        "entry_sha256": "d3ac79b95842390344397cf1cbb2f8e756cb59ae5c06abf8850b5933e4fcb227"
+      },
+      "manifest_version": {
+        "version": "0.1.0",
+        "source_path": "package.json",
+        "source_field": "version"
+      },
+      "manifest_hash": "4c0875aa0cbe458ff98cf31adbcff4fb1ecdedb33ba8451ee126f25956bfdede"
+    },
+    "publication": {
+      "effective_published": false,
+      "latest_version": null,
+      "source": "live_probe",
+      "probed_at": "2026-09-03T07:22:58.639363Z"
+    }
+  },
+  "stage_checkpoints": {
+    "inputs_pinned": {
+      "state": "INPUTS_PINNED",
+      "completed_at": "2026-09-03T07:22:52.028705Z"
+    },
+    "planned": {
+      "state": "PLANNED",
+      "completed_at": "2026-09-03T07:22:58.940750Z"
+    },
+    "ingested": {
+      "state": "VERIFYING_EXAMPLES",
+      "completed_at": "2026-09-03T08:06:02.673552Z"
+    },
+    "verified": {
+      "state": "AWAITING_REVIEW",
+      "completed_at": "2026-09-03T08:21:34.437471Z"
+    }
+  },
+  "publication_line": "PUBLICATION: NOT PUBLISHED @asposefoss/pdf on npm -- live probe https://registry.npmjs.org/%40asposefoss%2Fpdf (404)",
+  "last_reverified_at": "2026-09-03T09:22:56.872434Z"
+}

@@ -1,0 +1,1 @@
+PASS: reports/repo-presenter/pdf/net/readme.md -- no orphaned capability nodes

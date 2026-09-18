@@ -1,0 +1,738 @@
+{
+  "3d/java": {
+    "returncode": 0,
+    "elapsed_s": 1.6,
+    "parsed": {
+      "products": [
+        {
+          "family": "3d",
+          "platform": "java",
+          "clean": true,
+          "hard_gate_findings": {},
+          "published": false,
+          "candidate_drift": [],
+          "disposition_tracking": "verified"
+        }
+      ],
+      "disposition_verified_count": 1,
+      "clean_count": 1,
+      "dirty_count": 0,
+      "total": 1,
+      "skipped": [],
+      "candidate_tree": "repo-presenter-regen-full",
+      "non_canonical": null
+    },
+    "stdout_raw": null,
+    "stderr_tail": ""
+  },
+  "3d/net": {
+    "returncode": 0,
+    "elapsed_s": 0.8,
+    "parsed": {
+      "products": [
+        {
+          "family": "3d",
+          "platform": "net",
+          "clean": true,
+          "hard_gate_findings": {},
+          "published": false,
+          "candidate_drift": [],
+          "disposition_tracking": "verified"
+        }
+      ],
+      "disposition_verified_count": 1,
+      "clean_count": 1,
+      "dirty_count": 0,
+      "total": 1,
+      "skipped": [],
+      "candidate_tree": "repo-presenter-regen-full",
+      "non_canonical": null
+    },
+    "stdout_raw": null,
+    "stderr_tail": ""
+  },
+  "3d/python": {
+    "returncode": null,
+    "elapsed_s": 120.0,
+    "parsed": null,
+    "error": "TIMEOUT"
+  },
+  "3d/typescript": {
+    "returncode": 0,
+    "elapsed_s": 0.5,
+    "parsed": {
+      "products": [
+        {
+          "family": "3d",
+          "platform": "typescript",
+          "clean": true,
+          "hard_gate_findings": {},
+          "published": false,
+          "candidate_drift": [],
+          "disposition_tracking": "verified"
+        }
+      ],
+      "disposition_verified_count": 1,
+      "clean_count": 1,
+      "dirty_count": 0,
+      "total": 1,
+      "skipped": [],
+      "candidate_tree": "repo-presenter-regen-full",
+      "non_canonical": null
+    },
+    "stdout_raw": null,
+    "stderr_tail": ""
+  },
+  "barcode/python": {
+    "returncode": 0,
+    "elapsed_s": 4.1,
+    "parsed": {
+      "products": [
+        {
+          "family": "barcode",
+          "platform": "python",
+          "clean": true,
+          "hard_gate_findings": {},
+          "published": false,
+          "candidate_drift": [],
+          "disposition_tracking": "verified"
+        }
+      ],
+      "disposition_verified_count": 1,
+      "clean_count": 1,
+      "dirty_count": 0,
+      "total": 1,
+      "skipped": [],
+      "candidate_tree": "repo-presenter-regen-full",
+      "non_canonical": null
+    },
+    "stdout_raw": null,
+    "stderr_tail": ""
+  },
+  "cells/cpp": {
+    "returncode": 0,
+    "elapsed_s": 1.8,
+    "parsed": {
+      "products": [
+        {
+          "family": "cells",
+          "platform": "cpp",
+          "clean": true,
+          "hard_gate_findings": {},
+          "published": false,
+          "candidate_drift": [],
+          "disposition_tracking": "verified"
+        }
+      ],
+      "disposition_verified_count": 1,
+      "clean_count": 1,
+      "dirty_count": 0,
+      "total": 1,
+      "skipped": [],
+      "candidate_tree": "repo-presenter-regen-full",
+      "non_canonical": null
+    },
+    "stdout_raw": null,
+    "stderr_tail": ""
+  },
+  "cells/go": {
+    "returncode": 0,
+    "elapsed_s": 0.5,
+    "parsed": {
+      "products": [
+        {
+          "family": "cells",
+          "platform": "go",
+          "clean": true,
+          "hard_gate_findings": {},
+          "published": false,
+          "candidate_drift": [],
+          "disposition_tracking": "verified"
+        }
+      ],
+      "disposition_verified_count": 1,
+      "clean_count": 1,
+      "dirty_count": 0,
+      "total": 1,
+      "skipped": [],
+      "candidate_tree": "repo-presenter-regen-full",
+      "non_canonical": null
+    },
+    "stdout_raw": null,
+    "stderr_tail": ""
+  },
+  "cells/java": {
+    "returncode": 0,
+    "elapsed_s": 2.0,
+    "parsed": {
+      "products": [
+        {
+          "family": "cells",
+          "platform": "java",
+          "clean": true,
+          "hard_gate_findings": {},
+          "published": false,
+          "candidate_drift": [],
+          "disposition_tracking": "verified"
+        }
+      ],
+      "disposition_verified_count": 1,
+      "clean_count": 1,
+      "dirty_count": 0,
+      "total": 1,
+      "skipped": [],
+      "candidate_tree": "repo-presenter-regen-full",
+      "non_canonical": null
+    },
+    "stdout_raw": null,
+    "stderr_tail": ""
+  },
+  "cells/net": {
+    "returncode": 0,
+    "elapsed_s": 2.2,
+    "parsed": {
+      "products": [
+        {
+          "family": "cells",
+          "platform": "net",
+          "clean": true,
+          "hard_gate_findings": {},
+          "published": false,
+          "candidate_drift": [],
+          "disposition_tracking": "verified"
+        }
+      ],
+      "disposition_verified_count": 1,
+      "clean_count": 1,
+      "dirty_count": 0,
+      "total": 1,
+      "skipped": [],
+      "candidate_tree": "repo-presenter-regen-full",
+      "non_canonical": null
+    },
+    "stdout_raw": null,
+    "stderr_tail": ""
+  },
+  "cells/python": {
+    "returncode": 0,
+    "elapsed_s": 35.2,
+    "parsed": {
+      "products": [
+        {
+          "family": "cells",
+          "platform": "python",
+          "clean": true,
+          "hard_gate_findings": {},
+          "published": false,
+          "candidate_drift": [],
+          "disposition_tracking": "verified"
+        }
+      ],
+      "disposition_verified_count": 1,
+      "clean_count": 1,
+      "dirty_count": 0,
+      "total": 1,
+      "skipped": [],
+      "candidate_tree": "repo-presenter-regen-full",
+      "non_canonical": null
+    },
+    "stdout_raw": null,
+    "stderr_tail": ""
+  },
+  "cells/rust": {
+    "returncode": 0,
+    "elapsed_s": 1.4,
+    "parsed": {
+      "products": [
+        {
+          "family": "cells",
+          "platform": "rust",
+          "clean": true,
+          "hard_gate_findings": {},
+          "published": true,
+          "candidate_drift": [],
+          "disposition_tracking": "skipped_published"
+        }
+      ],
+      "disposition_verified_count": 0,
+      "clean_count": 1,
+      "dirty_count": 0,
+      "total": 1,
+      "skipped": [],
+      "candidate_tree": "repo-presenter-regen-full",
+      "non_canonical": null
+    },
+    "stdout_raw": null,
+    "stderr_tail": ""
+  },
+  "cells/typescript": {
+    "returncode": 0,
+    "elapsed_s": 0.3,
+    "parsed": {
+      "products": [],
+      "disposition_verified_count": 0,
+      "clean_count": 0,
+      "dirty_count": 0,
+      "total": 0,
+      "skipped": [],
+      "candidate_tree": "repo-presenter-regen-full",
+      "non_canonical": null
+    },
+    "stdout_raw": null,
+    "stderr_tail": ""
+  },
+  "email/cpp": {
+    "returncode": 0,
+    "elapsed_s": 0.8,
+    "parsed": {
+      "products": [
+        {
+          "family": "email",
+          "platform": "cpp",
+          "clean": true,
+          "hard_gate_findings": {},
+          "published": true,
+          "candidate_drift": [],
+          "disposition_tracking": "skipped_published"
+        }
+      ],
+      "disposition_verified_count": 0,
+      "clean_count": 1,
+      "dirty_count": 0,
+      "total": 1,
+      "skipped": [],
+      "candidate_tree": "repo-presenter-regen-full",
+      "non_canonical": null
+    },
+    "stdout_raw": null,
+    "stderr_tail": ""
+  },
+  "email/net": {
+    "returncode": 0,
+    "elapsed_s": 0.7,
+    "parsed": {
+      "products": [
+        {
+          "family": "email",
+          "platform": "net",
+          "clean": true,
+          "hard_gate_findings": {},
+          "published": true,
+          "candidate_drift": [],
+          "disposition_tracking": "skipped_published"
+        }
+      ],
+      "disposition_verified_count": 0,
+      "clean_count": 1,
+      "dirty_count": 0,
+      "total": 1,
+      "skipped": [],
+      "candidate_tree": "repo-presenter-regen-full",
+      "non_canonical": null
+    },
+    "stdout_raw": null,
+    "stderr_tail": ""
+  },
+  "email/python": {
+    "returncode": 0,
+    "elapsed_s": 2.1,
+    "parsed": {
+      "products": [
+        {
+          "family": "email",
+          "platform": "python",
+          "clean": true,
+          "hard_gate_findings": {},
+          "published": false,
+          "candidate_drift": [],
+          "disposition_tracking": "verified"
+        }
+      ],
+      "disposition_verified_count": 1,
+      "clean_count": 1,
+      "dirty_count": 0,
+      "total": 1,
+      "skipped": [],
+      "candidate_tree": "repo-presenter-regen-full",
+      "non_canonical": null
+    },
+    "stdout_raw": null,
+    "stderr_tail": ""
+  },
+  "font/python": {
+    "returncode": 0,
+    "elapsed_s": 59.4,
+    "parsed": {
+      "products": [
+        {
+          "family": "font",
+          "platform": "python",
+          "clean": true,
+          "hard_gate_findings": {},
+          "published": false,
+          "candidate_drift": [],
+          "disposition_tracking": "verified"
+        }
+      ],
+      "disposition_verified_count": 1,
+      "clean_count": 1,
+      "dirty_count": 0,
+      "total": 1,
+      "skipped": [],
+      "candidate_tree": "repo-presenter-regen-full",
+      "non_canonical": null
+    },
+    "stdout_raw": null,
+    "stderr_tail": ""
+  },
+  "html/python": {
+    "returncode": null,
+    "elapsed_s": 120.1,
+    "parsed": null,
+    "error": "TIMEOUT"
+  },
+  "note/python": {
+    "returncode": 0,
+    "elapsed_s": 4.6,
+    "parsed": {
+      "products": [
+        {
+          "family": "note",
+          "platform": "python",
+          "clean": true,
+          "hard_gate_findings": {},
+          "published": false,
+          "candidate_drift": [],
+          "disposition_tracking": "verified"
+        }
+      ],
+      "disposition_verified_count": 1,
+      "clean_count": 1,
+      "dirty_count": 0,
+      "total": 1,
+      "skipped": [],
+      "candidate_tree": "repo-presenter-regen-full",
+      "non_canonical": null
+    },
+    "stdout_raw": null,
+    "stderr_tail": ""
+  },
+  "page/python": {
+    "returncode": 0,
+    "elapsed_s": 105.4,
+    "parsed": {
+      "products": [
+        {
+          "family": "page",
+          "platform": "python",
+          "clean": false,
+          "hard_gate_findings": {
+            "enterprise_edition_link_resolves": 1,
+            "enterprise_edition_anchor_matches_relationship": 1,
+            "diagram_hybrid_reverification": 1
+          },
+          "published": false,
+          "candidate_drift": [],
+          "disposition_tracking": "checked_dirty"
+        }
+      ],
+      "disposition_verified_count": 0,
+      "clean_count": 0,
+      "dirty_count": 1,
+      "total": 1,
+      "skipped": [],
+      "candidate_tree": "repo-presenter-regen-full",
+      "non_canonical": null
+    },
+    "stdout_raw": null,
+    "stderr_tail": ""
+  },
+  "pdf/cpp": {
+    "returncode": 0,
+    "elapsed_s": 1.4,
+    "parsed": {
+      "products": [
+        {
+          "family": "pdf",
+          "platform": "cpp",
+          "clean": false,
+          "hard_gate_findings": {
+            "diagram_hybrid_reverification": 1
+          },
+          "published": false,
+          "candidate_drift": [],
+          "disposition_tracking": "checked_dirty"
+        }
+      ],
+      "disposition_verified_count": 0,
+      "clean_count": 0,
+      "dirty_count": 1,
+      "total": 1,
+      "skipped": [],
+      "candidate_tree": "repo-presenter-regen-full",
+      "non_canonical": null
+    },
+    "stdout_raw": null,
+    "stderr_tail": ""
+  },
+  "pdf/go": {
+    "returncode": 0,
+    "elapsed_s": 1.2,
+    "parsed": {
+      "products": [
+        {
+          "family": "pdf",
+          "platform": "go",
+          "clean": false,
+          "hard_gate_findings": {
+            "diagram_hybrid_reverification": 1
+          },
+          "published": false,
+          "candidate_drift": [],
+          "disposition_tracking": "checked_dirty"
+        }
+      ],
+      "disposition_verified_count": 0,
+      "clean_count": 0,
+      "dirty_count": 1,
+      "total": 1,
+      "skipped": [],
+      "candidate_tree": "repo-presenter-regen-full",
+      "non_canonical": null
+    },
+    "stdout_raw": null,
+    "stderr_tail": ""
+  },
+  "pdf/java": {
+    "returncode": 0,
+    "elapsed_s": 25.4,
+    "parsed": {
+      "products": [
+        {
+          "family": "pdf",
+          "platform": "java",
+          "clean": false,
+          "hard_gate_findings": {
+            "dev_test_artifacts_linked": 11
+          },
+          "published": false,
+          "candidate_drift": [],
+          "disposition_tracking": "checked_dirty"
+        }
+      ],
+      "disposition_verified_count": 0,
+      "clean_count": 0,
+      "dirty_count": 1,
+      "total": 1,
+      "skipped": [],
+      "candidate_tree": "repo-presenter-regen-full",
+      "non_canonical": null
+    },
+    "stdout_raw": null,
+    "stderr_tail": ""
+  },
+  "pdf/net": {
+    "returncode": 0,
+    "elapsed_s": 6.6,
+    "parsed": {
+      "products": [
+        {
+          "family": "pdf",
+          "platform": "net",
+          "clean": false,
+          "hard_gate_findings": {
+            "dev_test_artifacts_linked": 1,
+            "content_unit_disposition_coverage": 2,
+            "content_unit_excerpt_matches_extraction": 167,
+            "structural_unit_disposition_coverage": 1,
+            "code_example_disposition_coverage": 1,
+            "badge_disposition_coverage": 1
+          },
+          "published": false,
+          "candidate_drift": [],
+          "disposition_tracking": "checked_dirty"
+        }
+      ],
+      "disposition_verified_count": 0,
+      "clean_count": 0,
+      "dirty_count": 1,
+      "total": 1,
+      "skipped": [],
+      "candidate_tree": "repo-presenter-regen-full",
+      "non_canonical": null
+    },
+    "stdout_raw": null,
+    "stderr_tail": ""
+  },
+  "pdf/python": {
+    "returncode": null,
+    "elapsed_s": 120.0,
+    "parsed": null,
+    "error": "TIMEOUT"
+  },
+  "slides/cpp": {
+    "returncode": 0,
+    "elapsed_s": 2.0,
+    "parsed": {
+      "products": [
+        {
+          "family": "slides",
+          "platform": "cpp",
+          "clean": true,
+          "hard_gate_findings": {},
+          "published": false,
+          "candidate_drift": [],
+          "disposition_tracking": "verified"
+        }
+      ],
+      "disposition_verified_count": 1,
+      "clean_count": 1,
+      "dirty_count": 0,
+      "total": 1,
+      "skipped": [],
+      "candidate_tree": "repo-presenter-regen-full",
+      "non_canonical": null
+    },
+    "stdout_raw": null,
+    "stderr_tail": ""
+  },
+  "slides/java": {
+    "returncode": 0,
+    "elapsed_s": 2.4,
+    "parsed": {
+      "products": [
+        {
+          "family": "slides",
+          "platform": "java",
+          "clean": true,
+          "hard_gate_findings": {},
+          "published": false,
+          "candidate_drift": [],
+          "disposition_tracking": "verified"
+        }
+      ],
+      "disposition_verified_count": 1,
+      "clean_count": 1,
+      "dirty_count": 0,
+      "total": 1,
+      "skipped": [],
+      "candidate_tree": "repo-presenter-regen-full",
+      "non_canonical": null
+    },
+    "stdout_raw": null,
+    "stderr_tail": ""
+  },
+  "slides/net": {
+    "returncode": 0,
+    "elapsed_s": 1.8,
+    "parsed": {
+      "products": [
+        {
+          "family": "slides",
+          "platform": "net",
+          "clean": true,
+          "hard_gate_findings": {},
+          "published": false,
+          "candidate_drift": [],
+          "disposition_tracking": "verified"
+        }
+      ],
+      "disposition_verified_count": 1,
+      "clean_count": 1,
+      "dirty_count": 0,
+      "total": 1,
+      "skipped": [],
+      "candidate_tree": "repo-presenter-regen-full",
+      "non_canonical": null
+    },
+    "stdout_raw": null,
+    "stderr_tail": ""
+  },
+  "slides/python": {
+    "returncode": null,
+    "elapsed_s": 120.0,
+    "parsed": null,
+    "error": "TIMEOUT"
+  },
+  "tex/python": {
+    "returncode": 0,
+    "elapsed_s": 4.4,
+    "parsed": {
+      "products": [
+        {
+          "family": "tex",
+          "platform": "python",
+          "clean": false,
+          "hard_gate_findings": {
+            "enterprise_edition_link_resolves": 1,
+            "enterprise_edition_anchor_matches_relationship": 1
+          },
+          "published": false,
+          "candidate_drift": [],
+          "disposition_tracking": "checked_dirty"
+        }
+      ],
+      "disposition_verified_count": 0,
+      "clean_count": 0,
+      "dirty_count": 1,
+      "total": 1,
+      "skipped": [],
+      "candidate_tree": "repo-presenter-regen-full",
+      "non_canonical": null
+    },
+    "stdout_raw": null,
+    "stderr_tail": ""
+  },
+  "words/net": {
+    "returncode": 0,
+    "elapsed_s": 29.9,
+    "parsed": {
+      "products": [
+        {
+          "family": "words",
+          "platform": "net",
+          "clean": true,
+          "hard_gate_findings": {},
+          "published": true,
+          "candidate_drift": [],
+          "disposition_tracking": "skipped_published"
+        }
+      ],
+      "disposition_verified_count": 0,
+      "clean_count": 1,
+      "dirty_count": 0,
+      "total": 1,
+      "skipped": [],
+      "candidate_tree": "repo-presenter-regen-full",
+      "non_canonical": null
+    },
+    "stdout_raw": null,
+    "stderr_tail": ""
+  },
+  "words/python": {
+    "returncode": 0,
+    "elapsed_s": 61.1,
+    "parsed": {
+      "products": [
+        {
+          "family": "words",
+          "platform": "python",
+          "clean": true,
+          "hard_gate_findings": {},
+          "published": false,
+          "candidate_drift": [],
+          "disposition_tracking": "verified"
+        }
+      ],
+      "disposition_verified_count": 1,
+      "clean_count": 1,
+      "dirty_count": 0,
+      "total": 1,
+      "skipped": [],
+      "candidate_tree": "repo-presenter-regen-full",
+      "non_canonical": null
+    },
+    "stdout_raw": null,
+    "stderr_tail": ""
+  }
+}

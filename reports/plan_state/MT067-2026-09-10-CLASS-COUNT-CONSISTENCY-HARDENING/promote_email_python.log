@@ -1,0 +1,17 @@
+Promote: email/python
+  Scout: 303 claims, 32 api_surface entries
+  Enriched: 302 claims (from enrich.py)
+  Total claims: 605
+  Claim ID uniqueness: PASS (605 unique IDs)
+  Semantic dedup: skipped (use --semantic-dedup to enable)
+  GoDoc fallback: 188 method(s) inferred from name patterns (doc_source: name_inference)
+  API surface: 32 entries (30 classes)
+  Snippets: 24 (from scout)
+  api_surface.md: 30 classes, 15866 bytes
+  Forbidden claims: 0
+  All artifacts written to knowledge\email\python\merged.staging.48eacf03-b648-44c2-973c-b55ecd5f5d26
+  Format-claims reconciliation: PASS (4 formats checked)
+  Artifact validation: PASS
+PROMOTE_ATOMIC: bundle 48eacf03-b648-44c2-973c-b55ecd5f5d26 promoted for email/python
+
+PROMOTE: PASS

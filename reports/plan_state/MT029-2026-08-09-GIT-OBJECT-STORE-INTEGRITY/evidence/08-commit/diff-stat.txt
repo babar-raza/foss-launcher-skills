@@ -1,0 +1,4 @@
+=== diff-stat: exactly which files changed ===
+ scripts/maintenance/git_repo_health_check.py | 76 ++++++++++++++++++++++++++++
+ scripts/maintenance/registry.yaml            |  6 +++
+ 2 files changed, 82 insertions(+)

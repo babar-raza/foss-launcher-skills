@@ -1,0 +1,249 @@
+........................................................................ [  7%]
+........................................................................ [ 14%]
+........................................................................ [ 21%]
+........................................................................ [ 28%]
+........................................................................ [ 35%]
+........................................................................ [ 42%]
+........................................................................ [ 49%]
+........................................................................ [ 56%]
+........................................................................ [ 64%]
+........................................................................ [ 71%]
+........................................................................ [ 78%]
+........................................................................ [ 85%]
+........................................................................ [ 92%]
+FFF..................................................................... [ 99%]
+....                                                                     [100%]
+================================== FAILURES ===================================
+_ test_ingest_hard_blocks_a_not_yet_published_section_when_the_live_probe_says_published _
+
+tmp_path = WindowsPath('C:/Users/prora/AppData/Local/Temp/pytest-of-prora/pytest-3732/test_ingest_hard_blocks_a_not_0')
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x0000022B3A062660>
+
+    def test_ingest_hard_blocks_a_not_yet_published_section_when_the_live_probe_says_published(tmp_path, monkeypatch):
+        monkeypatch.delenv("README_REFRESH_OFFLINE", raising=False)
+        repo_root, _ = _make_scratch_repo(tmp_path)
+        _write_registry_entry(repo_root, published=False)
+        rr.configure(repo_root=repo_root, command_runner=_fake_gh_command_runner(), publication_prober=_stub_prober(True))
+        manifest = rr.start_run("testfam", "testplat")
+        run_id = manifest["run_id"]
+        rr.plan_run("testfam", "testplat", run_id)
+        _write_candidate(repo_root, _GOOD_CANDIDATE)  # "A PyPI package has not been published yet."
+        with pytest.raises(rr.ReadmeRefreshRunError, match=r"hard-gate checks: \['installation_matches_live_publication'\]"):
+            rr.ingest_candidate("testfam", "testplat", run_id)
+        result = json.loads((rr._run_root("testfam", "testplat", run_id) / "checks" / "result.json").read_text(encoding="utf-8"))
+        reasons = sorted(f["reason"] for f in result["installation_matches_live_publication"]["findings"])
+        assert reasons == ["published_with_unpublished_disclosure", "published_without_registry_install_command"]
+        assert result["installation_matches_live_publication"]["hard_gate"] is True
+        assert result["published_version_matches_manifest"]["hard_gate"] is False
+        # The same candidate under a live-unpublished probe is clean on this gate.
+        rr.configure(repo_root=repo_root, command_runner=_fake_gh_command_runner(), publication_prober=_stub_prober(False))
+>       rr.ingest_candidate("testfam", "testplat", run_id)
+
+scripts\pipeline\tests\test_readme_refresh_run.py:3083: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+family = 'testfam', platform = 'testplat'
+run_id = 'rr-20260903T135732Z-857e9213733c', session_id = None
+declared_file_set = None
+
+    def ingest_candidate(
+        family: str, platform: str, run_id: str, *, session_id: "str | None" = None,
+        declared_file_set: "list[str] | None" = None,
+    ) -> dict:
+        """PLANNED -> VERIFYING_EXAMPLES: run the real deterministic checks module against the
+        agent-authored candidate. A hard-gate failure blocks the transition (raises, does not
+        silently proceed)."""
+        owner = _session_id(session_id)
+        with _product_guard(family, platform):
+            manifest = _load_manifest(family, platform, run_id)
+            if manifest["session_owner"] != owner:
+                raise ReadmeRefreshRunError(f"Run is owned by {manifest['session_owner']!r}, not {owner!r}")
+    
+            _check_manifest_candidate_tree(manifest)
+            candidate_path = _candidate_readme_path(family, platform)
+            if not candidate_path.is_file():
+                raise ReadmeRefreshRunError(f"No candidate found at {candidate_path}")
+            text = candidate_path.read_text(encoding="utf-8")
+            clone_cache = _product_clone_cache(family, platform)
+    
+            result = _run_deterministic_checks(family, platform, text, clone_cache)
+            # MT056: fail-closed scope/store/frozen-block enforcement, applied at ingest as well as
+            # recheck -- an out-of-scope candidate never transitions, even on its first ingest.
+            _apply_scope_enforcement(result, family, platform, run_id, text)
+            # TC-M56-09: record that this exact content was just verified, regardless of hard-gate
+            # outcome -- "we looked at it" is the marker's semantic, not "it passed".
+            _write_candidate_verification_marker(family, platform, text, run_id=run_id)
+            run_root = _run_root(family, platform, run_id)
+            (run_root / "checks").mkdir(parents=True, exist_ok=True)
+            _write_json(run_root / "checks" / "result.json", result)
+            # TC-06: the per-unit retention table is per-run evidence, written on every ingest
+            # (pass or fail) beside result.json -- "0 hard-gate findings" is a verdict, this is the
+            # reviewer's proof of what was actually retained.
+            _write_retention_report(family, platform, run_id)
+            # TC-HARDEN-12 (MT033): establish checkpoint 0 for recheck()'s change-isolation gates
+            # (check_only_mermaid_block_changed / check_only_sections_changed) -- written even when
+            # this candidate fails hard gates below, so the fix-and-recheck cycle that follows can
+            # still prove its own fix stayed within the declared section(s).
+            _write_checks_snapshot(family, platform, run_id, text)
+    
+            hard_gate_failures = [name for name, r in result.items() if r.get("hard_gate") and r.get("findings")]
+            if hard_gate_failures:
+                _event(family, platform, run_id, "INGEST_CANDIDATE_FAILED", failed_checks=hard_gate_failures)
+>               raise ReadmeRefreshRunError(
+                    f"ingest-candidate failed hard-gate checks: {hard_gate_failures} -- see checks/result.json"
+                )
+E               readme_refresh_run.ReadmeRefreshRunError: ingest-candidate failed hard-gate checks: ['installation_matches_live_publication'] -- see checks/result.json
+
+scripts\pipeline\commands\foss\readme_refresh_run.py:2302: ReadmeRefreshRunError
+_____ test_approve_treats_a_publication_change_since_plan_as_input_drift ______
+
+tmp_path = WindowsPath('C:/Users/prora/AppData/Local/Temp/pytest-of-prora/pytest-3732/test_approve_treats_a_publicat0')
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x0000022B3A818210>
+
+    def test_approve_treats_a_publication_change_since_plan_as_input_drift(tmp_path, monkeypatch):
+        monkeypatch.delenv("README_REFRESH_OFFLINE", raising=False)
+        repo_root, _ = _make_scratch_repo(tmp_path)
+        _write_registry_entry(repo_root, published=False)
+        rr.configure(repo_root=repo_root, command_runner=_fake_gh_command_runner(),
+                     verification_runner=lambda p, f: {"runner": "stub", "all_named": True, "blocks": []},
+                     publication_prober=_stub_prober(False))
+        manifest = rr.start_run("testfam", "testplat")
+        run_id = manifest["run_id"]
+        rr.plan_run("testfam", "testplat", run_id)
+        _write_candidate(repo_root, _GOOD_CANDIDATE)
+>       rr.ingest_candidate("testfam", "testplat", run_id)
+
+scripts\pipeline\tests\test_readme_refresh_run.py:3099: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+family = 'testfam', platform = 'testplat'
+run_id = 'rr-20260903T135734Z-503430454143', session_id = None
+declared_file_set = None
+
+    def ingest_candidate(
+        family: str, platform: str, run_id: str, *, session_id: "str | None" = None,
+        declared_file_set: "list[str] | None" = None,
+    ) -> dict:
+        """PLANNED -> VERIFYING_EXAMPLES: run the real deterministic checks module against the
+        agent-authored candidate. A hard-gate failure blocks the transition (raises, does not
+        silently proceed)."""
+        owner = _session_id(session_id)
+        with _product_guard(family, platform):
+            manifest = _load_manifest(family, platform, run_id)
+            if manifest["session_owner"] != owner:
+                raise ReadmeRefreshRunError(f"Run is owned by {manifest['session_owner']!r}, not {owner!r}")
+    
+            _check_manifest_candidate_tree(manifest)
+            candidate_path = _candidate_readme_path(family, platform)
+            if not candidate_path.is_file():
+                raise ReadmeRefreshRunError(f"No candidate found at {candidate_path}")
+            text = candidate_path.read_text(encoding="utf-8")
+            clone_cache = _product_clone_cache(family, platform)
+    
+            result = _run_deterministic_checks(family, platform, text, clone_cache)
+            # MT056: fail-closed scope/store/frozen-block enforcement, applied at ingest as well as
+            # recheck -- an out-of-scope candidate never transitions, even on its first ingest.
+            _apply_scope_enforcement(result, family, platform, run_id, text)
+            # TC-M56-09: record that this exact content was just verified, regardless of hard-gate
+            # outcome -- "we looked at it" is the marker's semantic, not "it passed".
+            _write_candidate_verification_marker(family, platform, text, run_id=run_id)
+            run_root = _run_root(family, platform, run_id)
+            (run_root / "checks").mkdir(parents=True, exist_ok=True)
+            _write_json(run_root / "checks" / "result.json", result)
+            # TC-06: the per-unit retention table is per-run evidence, written on every ingest
+            # (pass or fail) beside result.json -- "0 hard-gate findings" is a verdict, this is the
+            # reviewer's proof of what was actually retained.
+            _write_retention_report(family, platform, run_id)
+            # TC-HARDEN-12 (MT033): establish checkpoint 0 for recheck()'s change-isolation gates
+            # (check_only_mermaid_block_changed / check_only_sections_changed) -- written even when
+            # this candidate fails hard gates below, so the fix-and-recheck cycle that follows can
+            # still prove its own fix stayed within the declared section(s).
+            _write_checks_snapshot(family, platform, run_id, text)
+    
+            hard_gate_failures = [name for name, r in result.items() if r.get("hard_gate") and r.get("findings")]
+            if hard_gate_failures:
+                _event(family, platform, run_id, "INGEST_CANDIDATE_FAILED", failed_checks=hard_gate_failures)
+>               raise ReadmeRefreshRunError(
+                    f"ingest-candidate failed hard-gate checks: {hard_gate_failures} -- see checks/result.json"
+                )
+E               readme_refresh_run.ReadmeRefreshRunError: ingest-candidate failed hard-gate checks: ['installation_matches_live_publication'] -- see checks/result.json
+
+scripts\pipeline\commands\foss\readme_refresh_run.py:2302: ReadmeRefreshRunError
+__________________ test_approve_ignores_an_ambiguous_reprobe __________________
+
+tmp_path = WindowsPath('C:/Users/prora/AppData/Local/Temp/pytest-of-prora/pytest-3732/test_approve_ignores_an_ambigu0')
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x0000022B3A818280>
+
+    def test_approve_ignores_an_ambiguous_reprobe(tmp_path, monkeypatch):
+        monkeypatch.delenv("README_REFRESH_OFFLINE", raising=False)
+        repo_root, _ = _make_scratch_repo(tmp_path)
+        _write_registry_entry(repo_root, published=False)
+        stub = lambda p, f: {"runner": "stub", "all_named": True, "blocks": []}
+        rr.configure(repo_root=repo_root, command_runner=_fake_gh_command_runner(), verification_runner=stub,
+                     publication_prober=_stub_prober(False))
+        run_id = rr.start_run("testfam", "testplat")["run_id"]
+        rr.plan_run("testfam", "testplat", run_id)
+        _write_candidate(repo_root, _GOOD_CANDIDATE)
+>       rr.ingest_candidate("testfam", "testplat", run_id)
+
+scripts\pipeline\tests\test_readme_refresh_run.py:3134: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+family = 'testfam', platform = 'testplat'
+run_id = 'rr-20260903T135735Z-b1c52e7cfde2', session_id = None
+declared_file_set = None
+
+    def ingest_candidate(
+        family: str, platform: str, run_id: str, *, session_id: "str | None" = None,
+        declared_file_set: "list[str] | None" = None,
+    ) -> dict:
+        """PLANNED -> VERIFYING_EXAMPLES: run the real deterministic checks module against the
+        agent-authored candidate. A hard-gate failure blocks the transition (raises, does not
+        silently proceed)."""
+        owner = _session_id(session_id)
+        with _product_guard(family, platform):
+            manifest = _load_manifest(family, platform, run_id)
+            if manifest["session_owner"] != owner:
+                raise ReadmeRefreshRunError(f"Run is owned by {manifest['session_owner']!r}, not {owner!r}")
+    
+            _check_manifest_candidate_tree(manifest)
+            candidate_path = _candidate_readme_path(family, platform)
+            if not candidate_path.is_file():
+                raise ReadmeRefreshRunError(f"No candidate found at {candidate_path}")
+            text = candidate_path.read_text(encoding="utf-8")
+            clone_cache = _product_clone_cache(family, platform)
+    
+            result = _run_deterministic_checks(family, platform, text, clone_cache)
+            # MT056: fail-closed scope/store/frozen-block enforcement, applied at ingest as well as
+            # recheck -- an out-of-scope candidate never transitions, even on its first ingest.
+            _apply_scope_enforcement(result, family, platform, run_id, text)
+            # TC-M56-09: record that this exact content was just verified, regardless of hard-gate
+            # outcome -- "we looked at it" is the marker's semantic, not "it passed".
+            _write_candidate_verification_marker(family, platform, text, run_id=run_id)
+            run_root = _run_root(family, platform, run_id)
+            (run_root / "checks").mkdir(parents=True, exist_ok=True)
+            _write_json(run_root / "checks" / "result.json", result)
+            # TC-06: the per-unit retention table is per-run evidence, written on every ingest
+            # (pass or fail) beside result.json -- "0 hard-gate findings" is a verdict, this is the
+            # reviewer's proof of what was actually retained.
+            _write_retention_report(family, platform, run_id)
+            # TC-HARDEN-12 (MT033): establish checkpoint 0 for recheck()'s change-isolation gates
+            # (check_only_mermaid_block_changed / check_only_sections_changed) -- written even when
+            # this candidate fails hard gates below, so the fix-and-recheck cycle that follows can
+            # still prove its own fix stayed within the declared section(s).
+            _write_checks_snapshot(family, platform, run_id, text)
+    
+            hard_gate_failures = [name for name, r in result.items() if r.get("hard_gate") and r.get("findings")]
+            if hard_gate_failures:
+                _event(family, platform, run_id, "INGEST_CANDIDATE_FAILED", failed_checks=hard_gate_failures)
+>               raise ReadmeRefreshRunError(
+                    f"ingest-candidate failed hard-gate checks: {hard_gate_failures} -- see checks/result.json"
+                )
+E               readme_refresh_run.ReadmeRefreshRunError: ingest-candidate failed hard-gate checks: ['installation_matches_live_publication'] -- see checks/result.json
+
+scripts\pipeline\commands\foss\readme_refresh_run.py:2302: ReadmeRefreshRunError
+=========================== short test summary info ===========================
+FAILED scripts/pipeline/tests/test_readme_refresh_run.py::test_ingest_hard_blocks_a_not_yet_published_section_when_the_live_probe_says_published
+FAILED scripts/pipeline/tests/test_readme_refresh_run.py::test_approve_treats_a_publication_change_since_plan_as_input_drift
+FAILED scripts/pipeline/tests/test_readme_refresh_run.py::test_approve_ignores_an_ambiguous_reprobe
+3 failed, 1009 passed in 184.68s (0:03:04)

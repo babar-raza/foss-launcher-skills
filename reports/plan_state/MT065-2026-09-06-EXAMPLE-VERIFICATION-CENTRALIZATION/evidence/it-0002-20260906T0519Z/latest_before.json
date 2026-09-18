@@ -1,0 +1,309 @@
+{
+  "C1": {
+    "allowed_paths": [
+      "scripts/pipeline/lib/example_verification/**",
+      "scripts/pipeline/content_eval/models.py",
+      "scripts/pipeline/core/markdown.py",
+      "scripts/pipeline/tests/test_example_verification_code_fences.py",
+      ".github/workflows/example-verification-tests.yml"
+    ],
+    "claim_expires_at": "2026-09-06T06:12:33.077502Z",
+    "claim_id": "it-0001-20260906T0441Z",
+    "claimed_at": "2026-09-06T04:42:33.077532Z",
+    "dependencies": [],
+    "evidence_refs": [
+      "commit:345bf68d17119a08c05ea33158aa6758c9f350f6",
+      "reports/plan_state/MT065-2026-09-06-EXAMPLE-VERIFICATION-CENTRALIZATION/evidence/it-0001-20260906T0441Z/"
+    ],
+    "mission_id": "MT065-2026-09-06-EXAMPLE-VERIFICATION-CENTRALIZATION",
+    "priority": "P1",
+    "recorded_at": "2026-09-06T05:16:50.271559Z",
+    "recorded_by": "7dea1a8c-44c8-4a1e-a08c-8a8de0875004",
+    "stage_limit_minutes": 25,
+    "status": "CLOSED",
+    "task_id": "C1",
+    "title": "Canonical CommonMark fence tokenizer + CI workflow",
+    "wave": 1,
+    "worker_id": "7dea1a8c-44c8-4a1e-a08c-8a8de0875004"
+  },
+  "C10": {
+    "allowed_paths": [
+      "scripts/pipeline/commands/content/body_refresh.py",
+      "scripts/pipeline/tests/content/test_body_refresh.py"
+    ],
+    "dependencies": [
+      "C6"
+    ],
+    "evidence_refs": [],
+    "mission_id": "MT065-2026-09-06-EXAMPLE-VERIFICATION-CENTRALIZATION",
+    "priority": "P2",
+    "recorded_at": "2026-09-06T04:41:11.539087Z",
+    "recorded_by": "7dea1a8c-44c8-4a1e-a08c-8a8de0875004",
+    "stage_limit_minutes": 25,
+    "status": "TODO",
+    "task_id": "C10",
+    "title": "body_refresh verified-snippet selection fix",
+    "wave": 6
+  },
+  "C11": {
+    "allowed_paths": [
+      "scripts/pipeline/lib/example_verification/runners/dotnet.py",
+      "scripts/pipeline/config/platform_capabilities.yaml",
+      "scripts/pipeline/tests/test_example_verification_dotnet.py"
+    ],
+    "dependencies": [
+      "C3",
+      "C4"
+    ],
+    "evidence_refs": [],
+    "mission_id": "MT065-2026-09-06-EXAMPLE-VERIFICATION-CENTRALIZATION",
+    "priority": "P2",
+    "recorded_at": "2026-09-06T04:41:11.533794Z",
+    "recorded_by": "7dea1a8c-44c8-4a1e-a08c-8a8de0875004",
+    "stage_limit_minutes": 25,
+    "status": "TODO",
+    "task_id": "C11",
+    "title": ".NET runner",
+    "wave": 5
+  },
+  "C12": {
+    "allowed_paths": [
+      "scripts/pipeline/lib/example_verification/runners/java.py",
+      "scripts/pipeline/config/platform_capabilities.yaml",
+      "scripts/pipeline/tests/test_example_verification_java.py",
+      "scripts/pipeline/tests/fixtures/example_verification/java_offline_mirror/**"
+    ],
+    "dependencies": [
+      "C3",
+      "C4"
+    ],
+    "evidence_refs": [],
+    "mission_id": "MT065-2026-09-06-EXAMPLE-VERIFICATION-CENTRALIZATION",
+    "priority": "P2",
+    "recorded_at": "2026-09-06T04:41:11.534961Z",
+    "recorded_by": "7dea1a8c-44c8-4a1e-a08c-8a8de0875004",
+    "stage_limit_minutes": 25,
+    "status": "TODO",
+    "task_id": "C12",
+    "title": "Java runner",
+    "wave": 5
+  },
+  "C13": {
+    "allowed_paths": [
+      "scripts/pipeline/lib/example_verification/runners/rust.py",
+      "scripts/pipeline/config/platform_capabilities.yaml",
+      "scripts/pipeline/tests/test_example_verification_rust.py"
+    ],
+    "dependencies": [
+      "C3",
+      "C4"
+    ],
+    "evidence_refs": [],
+    "mission_id": "MT065-2026-09-06-EXAMPLE-VERIFICATION-CENTRALIZATION",
+    "priority": "P3",
+    "recorded_at": "2026-09-06T04:41:11.536014Z",
+    "recorded_by": "7dea1a8c-44c8-4a1e-a08c-8a8de0875004",
+    "stage_limit_minutes": 25,
+    "status": "TODO",
+    "task_id": "C13",
+    "title": "Rust runner (rustup not installed here \u2014 honest stub above tier 1)",
+    "wave": 5
+  },
+  "C14": {
+    "allowed_paths": [
+      "scripts/pipeline/lib/example_verification/runners/cpp.py",
+      "scripts/pipeline/config/platform_capabilities.yaml",
+      "scripts/pipeline/tests/test_example_verification_cpp.py"
+    ],
+    "dependencies": [
+      "C3",
+      "C4"
+    ],
+    "evidence_refs": [],
+    "mission_id": "MT065-2026-09-06-EXAMPLE-VERIFICATION-CENTRALIZATION",
+    "priority": "P3",
+    "recorded_at": "2026-09-06T04:41:11.537065Z",
+    "recorded_by": "7dea1a8c-44c8-4a1e-a08c-8a8de0875004",
+    "stage_limit_minutes": 25,
+    "status": "TODO",
+    "task_id": "C14",
+    "title": "C++ runner (CMake subset, BUILD-VERIFIED-ONLY floor)",
+    "wave": 5
+  },
+  "C2": {
+    "allowed_paths": [
+      "scripts/pipeline/lib/example_verification/**",
+      "scripts/pipeline/content_eval/evaluators/code_syntax_check.py",
+      "scripts/pipeline/commands/diagnostics/smoke_test.py",
+      "scripts/pipeline/tests/test_example_verification_*.py"
+    ],
+    "dependencies": [
+      "C1"
+    ],
+    "evidence_refs": [],
+    "mission_id": "MT065-2026-09-06-EXAMPLE-VERIFICATION-CENTRALIZATION",
+    "priority": "P1",
+    "recorded_at": "2026-09-06T04:41:11.526566Z",
+    "recorded_by": "7dea1a8c-44c8-4a1e-a08c-8a8de0875004",
+    "stage_limit_minutes": 25,
+    "status": "TODO",
+    "task_id": "C2",
+    "title": "result/policy/registry/syntax/cache schema + shared tree-sitter loader fix",
+    "wave": 2
+  },
+  "C3": {
+    "allowed_paths": [
+      "scripts/pipeline/lib/example_verification/**",
+      "scripts/pipeline/commands/foss/readme_refresh_run.py",
+      "scripts/pipeline/tests/test_readme_refresh_run.py"
+    ],
+    "dependencies": [
+      "C2"
+    ],
+    "evidence_refs": [],
+    "mission_id": "MT065-2026-09-06-EXAMPLE-VERIFICATION-CENTRALIZATION",
+    "priority": "P1",
+    "recorded_at": "2026-09-06T04:41:11.527859Z",
+    "recorded_by": "7dea1a8c-44c8-4a1e-a08c-8a8de0875004",
+    "stage_limit_minutes": 25,
+    "status": "TODO",
+    "task_id": "C3",
+    "title": "Extract toolchain/acquire/runners-base/python/typescript from S-120 behind parity",
+    "wave": 3
+  },
+  "C4": {
+    "allowed_paths": [
+      "scripts/pipeline/lib/example_verification/**",
+      "scripts/pipeline/commands/diagnostics/smoke_test.py",
+      "scripts/pipeline/config/platform_capabilities.yaml",
+      "scripts/ci/checks/check_platform_capabilities.py",
+      "scripts/pipeline/tests/test_smoke_test.py",
+      "scripts/pipeline/tests/test_platform_capability_matrix.py",
+      "skills/code-smoke.md",
+      ".claude/commands/code-smoke.md",
+      ".agents/skills/code-smoke/SKILL.md",
+      ".kilocode/skills/code-smoke/SKILL.md",
+      "skills/registry.json",
+      "docs/registries/skills.md",
+      "scripts/pipeline/config/registry.yaml"
+    ],
+    "dependencies": [
+      "C3"
+    ],
+    "evidence_refs": [],
+    "mission_id": "MT065-2026-09-06-EXAMPLE-VERIFICATION-CENTRALIZATION",
+    "priority": "P1",
+    "recorded_at": "2026-09-06T04:41:11.528888Z",
+    "recorded_by": "7dea1a8c-44c8-4a1e-a08c-8a8de0875004",
+    "stage_limit_minutes": 25,
+    "status": "TODO",
+    "task_id": "C4",
+    "title": "Rebuild S-63 code-smoke CLI over the package + capability site",
+    "wave": 4
+  },
+  "C5": {
+    "allowed_paths": [
+      "scripts/pipeline/lib/example_verification/runners/go.py",
+      "scripts/ci/checks/check_go_code_blocks.py",
+      "scripts/ci/tests/test_ci_go_code_blocks.py"
+    ],
+    "dependencies": [
+      "C3"
+    ],
+    "evidence_refs": [],
+    "mission_id": "MT065-2026-09-06-EXAMPLE-VERIFICATION-CENTRALIZATION",
+    "note": "pre-commit-audit.sh itself needs an override token (path_guard DENY); read cells/go + pdf/go only",
+    "priority": "P2",
+    "recorded_at": "2026-09-06T04:41:11.529859Z",
+    "recorded_by": "7dea1a8c-44c8-4a1e-a08c-8a8de0875004",
+    "stage_limit_minutes": 25,
+    "status": "TODO",
+    "task_id": "C5",
+    "title": "Go runner from check_go_code_blocks.py + generalize pre-commit Step 18",
+    "wave": 4
+  },
+  "C6": {
+    "allowed_paths": [
+      "scripts/pipeline/commands/knowledge/promote.py",
+      "scripts/pipeline/commands/knowledge/refresh_knowledge.py",
+      "scripts/pipeline/audit/snippets.py",
+      "scripts/pipeline/audit/runner.py",
+      "scripts/pipeline/commands/launch/launch_gate.py",
+      "scripts/pipeline/tests/test_promote_*.py"
+    ],
+    "dependencies": [
+      "C4"
+    ],
+    "evidence_refs": [],
+    "mission_id": "MT065-2026-09-06-EXAMPLE-VERIFICATION-CENTRALIZATION",
+    "priority": "P1",
+    "recorded_at": "2026-09-06T04:41:11.531888Z",
+    "recorded_by": "7dea1a8c-44c8-4a1e-a08c-8a8de0875004",
+    "stage_limit_minutes": 25,
+    "status": "TODO",
+    "task_id": "C6",
+    "title": "Snippet code_sha256 + post-promote proof sweep + provenance enforcement",
+    "wave": 5
+  },
+  "C7": {
+    "allowed_paths": [
+      "scripts/pipeline/commands/foss/readme_refresh_run.py",
+      "scripts/pipeline/tests/test_readme_refresh_run.py",
+      "docs/readme-refresh/current-operational-reference.md"
+    ],
+    "dependencies": [
+      "C3"
+    ],
+    "evidence_refs": [],
+    "mission_id": "MT065-2026-09-06-EXAMPLE-VERIFICATION-CENTRALIZATION",
+    "priority": "P1",
+    "recorded_at": "2026-09-06T04:41:11.530927Z",
+    "recorded_by": "7dea1a8c-44c8-4a1e-a08c-8a8de0875004",
+    "stage_limit_minutes": 25,
+    "status": "TODO",
+    "task_id": "C7",
+    "title": "Wire S-120 dispatch/gate/report to the package",
+    "wave": 4
+  },
+  "C8": {
+    "allowed_paths": [
+      "scripts/pipeline/content_eval/evaluators/example_execution.py",
+      "scripts/pipeline/content_eval/evaluators/__init__.py",
+      "scripts/pipeline/content_eval/config.py",
+      "scripts/pipeline/content_eval/__init__.py",
+      "scripts/pipeline/tests/content_eval/test_example_execution.py"
+    ],
+    "dependencies": [
+      "C6"
+    ],
+    "evidence_refs": [],
+    "mission_id": "MT065-2026-09-06-EXAMPLE-VERIFICATION-CENTRALIZATION",
+    "priority": "P2",
+    "recorded_at": "2026-09-06T04:41:11.538025Z",
+    "recorded_by": "7dea1a8c-44c8-4a1e-a08c-8a8de0875004",
+    "stage_limit_minutes": 25,
+    "status": "TODO",
+    "task_id": "C8",
+    "title": "example_execution content_eval evaluator (EXPERIMENTAL+DEFAULT)",
+    "wave": 6
+  },
+  "C9": {
+    "allowed_paths": [
+      "scripts/pipeline/commands/ops/refresh_run.py",
+      "scripts/pipeline/tests/test_refresh_run.py"
+    ],
+    "dependencies": [
+      "C4"
+    ],
+    "evidence_refs": [],
+    "mission_id": "MT065-2026-09-06-EXAMPLE-VERIFICATION-CENTRALIZATION",
+    "priority": "P2",
+    "recorded_at": "2026-09-06T04:41:11.532851Z",
+    "recorded_by": "7dea1a8c-44c8-4a1e-a08c-8a8de0875004",
+    "stage_limit_minutes": 25,
+    "status": "TODO",
+    "task_id": "C9",
+    "title": "refresh_run advisory validation field",
+    "wave": 5
+  }
+}

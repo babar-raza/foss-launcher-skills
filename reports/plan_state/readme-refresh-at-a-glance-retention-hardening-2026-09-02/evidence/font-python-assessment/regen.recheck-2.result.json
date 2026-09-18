@@ -1,0 +1,1052 @@
+{
+  "required_sections": {
+    "hard_gate": true,
+    "findings": []
+  },
+  "banner_present": {
+    "hard_gate": true,
+    "findings": []
+  },
+  "banner_links_to_homepage": {
+    "hard_gate": true,
+    "findings": []
+  },
+  "banner_asset_exists": {
+    "hard_gate": true,
+    "findings": []
+  },
+  "no_excluded_domain_links": {
+    "hard_gate": true,
+    "findings": []
+  },
+  "license_link_target": {
+    "hard_gate": true,
+    "findings": []
+  },
+  "license_section_matches_template": {
+    "hard_gate": true,
+    "findings": []
+  },
+  "enterprise_edition_link_resolves": {
+    "hard_gate": true,
+    "findings": []
+  },
+  "enterprise_edition_anchor_matches_relationship": {
+    "hard_gate": true,
+    "findings": []
+  },
+  "no_implementation_bridge_disclosure": {
+    "hard_gate": true,
+    "findings": []
+  },
+  "diagram_shape": {
+    "hard_gate": true,
+    "findings": []
+  },
+  "at_a_glance_section_shape": {
+    "hard_gate": true,
+    "findings": []
+  },
+  "diagram_column_balance": {
+    "hard_gate": true,
+    "findings": []
+  },
+  "diagram_label_token_length": {
+    "hard_gate": false,
+    "findings": []
+  },
+  "diagram_label_geometry": {
+    "hard_gate": true,
+    "findings": []
+  },
+  "diagram_starting_points_presence": {
+    "hard_gate": true,
+    "findings": []
+  },
+  "diagram_matches_capability_dependencies": {
+    "hard_gate": true,
+    "findings": []
+  },
+  "diagram_hybrid_reverification": {
+    "hard_gate": true,
+    "findings": []
+  },
+  "diagram_verified_format_claims": {
+    "hard_gate": true,
+    "findings": []
+  },
+  "diagram_starting_points_format_purity": {
+    "hard_gate": true,
+    "findings": []
+  },
+  "diagram_outputs_format_purity": {
+    "hard_gate": true,
+    "findings": []
+  },
+  "diagram_format_completeness_hint": {
+    "hard_gate": false,
+    "findings": [
+      {
+        "format": "TEXT",
+        "container": "outputs",
+        "reason": "formats.md marks TEXT Export=Yes but it is not named in the Outputs container"
+      }
+    ]
+  },
+  "format_name_casing": {
+    "hard_gate": true,
+    "findings": []
+  },
+  "no_cross_product_citation": {
+    "hard_gate": true,
+    "findings": []
+  },
+  "examples_table_collapsed": {
+    "hard_gate": true,
+    "findings": []
+  },
+  "api_reference_detail_collapsed": {
+    "hard_gate": true,
+    "findings": []
+  },
+  "heading_title_case": {
+    "hard_gate": true,
+    "findings": []
+  },
+  "no_undisclosed_blocking_commands": {
+    "hard_gate": true,
+    "findings": []
+  },
+  "installation_matches_package_registry": {
+    "hard_gate": false,
+    "findings": []
+  },
+  "installation_matches_manifest_version": {
+    "hard_gate": false,
+    "findings": []
+  },
+  "no_upstream_issue_leaked": {
+    "hard_gate": true,
+    "findings": []
+  },
+  "no_upstream_issue_leaked_install_quickstart": {
+    "hard_gate": true,
+    "findings": []
+  },
+  "key_capabilities_quality": {
+    "hard_gate": false,
+    "findings": []
+  },
+  "key_capabilities_structural_variety": {
+    "hard_gate": false,
+    "findings": []
+  },
+  "key_capabilities_formatting": {
+    "hard_gate": false,
+    "findings": []
+  },
+  "section_intro_no_meta_narration": {
+    "hard_gate": true,
+    "findings": []
+  },
+  "capability_scope_contradiction": {
+    "hard_gate": false,
+    "findings": [
+      {
+        "capability_bullet": "Read font metadata, metrics, encodings, glyph outlines, and kerning through the shared `Font`",
+        "matched_keyword": "Font",
+        "scope_bullet": "Calling `font.to_bytes()` with no arguments raises `NotImplementedError` unless the concrete",
+        "reason": "'Font' is named as a working capability here, but a Scope and Limitations bullet documents related functionality as not-implemented/stub -- verify this isn't a fabricated-capability contradiction"
+      },
+      {
+        "capability_bullet": "Convert between formats with the `font.convert(target)` instance method, or the equivalent",
+        "matched_keyword": "font",
+        "scope_bullet": "Calling `font.to_bytes()` with no arguments raises `NotImplementedError` unless the concrete",
+        "reason": "'font' is named as a working capability here, but a Scope and Limitations bullet documents related functionality as not-implemented/stub -- verify this isn't a fabricated-capability contradiction"
+      },
+      {
+        "capability_bullet": "Explore and instantiate variable fonts through `font.axes`, `font.named_instances`, and",
+        "matched_keyword": "font",
+        "scope_bullet": "Calling `font.to_bytes()` with no arguments raises `NotImplementedError` unless the concrete",
+        "reason": "'font' is named as a working capability here, but a Scope and Limitations bullet documents related functionality as not-implemented/stub -- verify this isn't a fabricated-capability contradiction"
+      }
+    ]
+  },
+  "diagram_from_scratch_capability_labeled": {
+    "hard_gate": false,
+    "findings": []
+  },
+  "scope_limitations_format": {
+    "hard_gate": true,
+    "findings": []
+  },
+  "dev_test_artifacts_linked": {
+    "hard_gate": true,
+    "findings": []
+  },
+  "development_testing_collapse": {
+    "hard_gate": false,
+    "findings": []
+  },
+  "readme_already_published": {
+    "hard_gate": false,
+    "findings": [],
+    "detail": {
+      "published": false
+    }
+  },
+  "published_readme_current": {
+    "hard_gate": false,
+    "findings": []
+  },
+  "dropped_content": {
+    "hard_gate": true,
+    "findings": [],
+    "detail": {
+      "dropped_links": [],
+      "dropped_headings": [
+        "CLI Highlights",
+        "Capability Snapshot",
+        "Python API Highlights",
+        "Variable-Font-First Workflows",
+        "What You Get",
+        "Why Teams Use It"
+      ],
+      "internal_labels": []
+    }
+  },
+  "dropped_content_uncorrelated": {
+    "hard_gate": false,
+    "findings": [
+      "CLI Highlights",
+      "Capability Snapshot",
+      "Python API Highlights",
+      "Variable-Font-First Workflows",
+      "What You Get",
+      "Why Teams Use It"
+    ],
+    "detail": {
+      "note": "downgraded from hard-gate to advisory: a content-dispositions.json exists for this product (TC-HARDEN-04) -- confirm it accounts for each of these before treating this candidate as clean, but do not block on literal string non-match alone",
+      "dropped_links": [],
+      "dropped_headings": [
+        "CLI Highlights",
+        "Capability Snapshot",
+        "Python API Highlights",
+        "Variable-Font-First Workflows",
+        "What You Get",
+        "Why Teams Use It"
+      ],
+      "internal_labels": []
+    }
+  },
+  "content_unit_disposition_coverage": {
+    "hard_gate": true,
+    "findings": []
+  },
+  "content_unit_excerpt_matches_extraction": {
+    "hard_gate": true,
+    "findings": []
+  },
+  "content_unit_evidence_resolves": {
+    "hard_gate": true,
+    "findings": []
+  },
+  "content_unit_evidence_supports_claim": {
+    "hard_gate": false,
+    "findings": [
+      {
+        "unit_id": "u0001",
+        "support_check": "no_literal_tokens",
+        "reason": "excerpt has no backtick/CamelCase-ALLCAPS/version/link-target-shaped token -- nothing literal to test"
+      },
+      {
+        "unit_id": "u0002",
+        "support_check": "supported",
+        "matched_token": "QA"
+      },
+      {
+        "unit_id": "u0004",
+        "support_check": "supported",
+        "matched_token": "WOFF2"
+      },
+      {
+        "unit_id": "u0005",
+        "support_check": "supported",
+        "matched_token": "CI"
+      },
+      {
+        "unit_id": "u0006",
+        "support_check": "no_literal_tokens",
+        "reason": "excerpt has no backtick/CamelCase-ALLCAPS/version/link-target-shaped token -- nothing literal to test"
+      },
+      {
+        "unit_id": "u0007",
+        "support_check": "supported",
+        "matched_token": "QA"
+      },
+      {
+        "unit_id": "u0008",
+        "support_check": "supported",
+        "matched_token": "TrueType"
+      },
+      {
+        "unit_id": "u0009",
+        "support_check": "supported",
+        "matched_token": "MCP"
+      },
+      {
+        "unit_id": "u0010",
+        "support_check": "supported",
+        "matched_token": "MCP"
+      },
+      {
+        "unit_id": "u0014",
+        "support_check": "no_literal_tokens",
+        "reason": "excerpt has no backtick/CamelCase-ALLCAPS/version/link-target-shaped token -- nothing literal to test"
+      },
+      {
+        "unit_id": "u0015",
+        "support_check": "supported",
+        "matched_token": "WebFontBuilder"
+      },
+      {
+        "unit_id": "u0016",
+        "support_check": "supported",
+        "matched_token": "STAT"
+      },
+      {
+        "unit_id": "u0017",
+        "support_check": "supported",
+        "matched_token": "FontQaReporter"
+      },
+      {
+        "unit_id": "u0018",
+        "support_check": "supported",
+        "matched_token": "QA"
+      },
+      {
+        "unit_id": "u0019",
+        "support_check": "no_literal_tokens",
+        "reason": "excerpt has no backtick/CamelCase-ALLCAPS/version/link-target-shaped token -- nothing literal to test"
+      },
+      {
+        "unit_id": "u0020",
+        "support_check": "no_literal_tokens",
+        "reason": "excerpt has no backtick/CamelCase-ALLCAPS/version/link-target-shaped token -- nothing literal to test"
+      },
+      {
+        "unit_id": "u0021",
+        "support_check": "no_literal_tokens",
+        "reason": "excerpt has no backtick/CamelCase-ALLCAPS/version/link-target-shaped token -- nothing literal to test"
+      },
+      {
+        "unit_id": "u0022",
+        "support_check": "no_literal_tokens",
+        "reason": "excerpt has no backtick/CamelCase-ALLCAPS/version/link-target-shaped token -- nothing literal to test"
+      },
+      {
+        "unit_id": "u0023",
+        "support_check": "no_literal_tokens",
+        "reason": "excerpt has no backtick/CamelCase-ALLCAPS/version/link-target-shaped token -- nothing literal to test"
+      },
+      {
+        "unit_id": "u0024",
+        "support_check": "no_literal_tokens",
+        "reason": "excerpt has no backtick/CamelCase-ALLCAPS/version/link-target-shaped token -- nothing literal to test"
+      },
+      {
+        "unit_id": "u0025",
+        "support_check": "supported",
+        "matched_token": "APNG"
+      },
+      {
+        "unit_id": "u0026",
+        "support_check": "no_literal_tokens",
+        "reason": "excerpt has no backtick/CamelCase-ALLCAPS/version/link-target-shaped token -- nothing literal to test"
+      },
+      {
+        "unit_id": "u0027",
+        "support_check": "supported",
+        "matched_token": "name"
+      },
+      {
+        "unit_id": "u0029",
+        "support_check": "unsupported",
+        "evidence_ref": "src/aspose_font/ttf/font.py",
+        "checked_tokens": [
+          "font.axes",
+          "font.named_instances",
+          "font.smart_instancer"
+        ],
+        "reason": "none of this unit's literal_tokens (font.axes, font.named_instances, font.smart_instancer) -- nor any light call-signature/Maven-coordinate normalization of them -- appear anywhere in the cited evidence file 'src/aspose_font/ttf/font.py''s real content"
+      },
+      {
+        "unit_id": "u0030",
+        "support_check": "unsupported",
+        "evidence_ref": "src/aspose_font/ttf/font.py",
+        "checked_tokens": [
+          "font.variable_axes"
+        ],
+        "reason": "none of this unit's literal_tokens (font.variable_axes) -- nor any light call-signature/Maven-coordinate normalization of them -- appear anywhere in the cited evidence file 'src/aspose_font/ttf/font.py''s real content"
+      },
+      {
+        "unit_id": "u0031",
+        "support_check": "supported",
+        "matched_token": "axis.describe_value(...)"
+      },
+      {
+        "unit_id": "u0032",
+        "support_check": "supported",
+        "matched_token": "axis.name(...)"
+      },
+      {
+        "unit_id": "u0033",
+        "support_check": "supported",
+        "matched_token": "name"
+      },
+      {
+        "unit_id": "u0034",
+        "support_check": "unsupported",
+        "evidence_ref": "src/aspose_font/variation.py",
+        "checked_tokens": [
+          "axis.language_profiles(...)",
+          "instance.language_profiles(...)",
+          "font.variable_presentation(...)"
+        ],
+        "reason": "none of this unit's literal_tokens (axis.language_profiles(...), instance.language_profiles(...), font.variable_presentation(...)) -- nor any light call-signature/Maven-coordinate normalization of them -- appear anywhere in the cited evidence file 'src/aspose_font/variation.py''s real content"
+      },
+      {
+        "unit_id": "u0035",
+        "support_check": "unsupported",
+        "evidence_ref": "src/aspose_font/variation.py",
+        "checked_tokens": [
+          "instance.format_coordinates(...)",
+          "var-info"
+        ],
+        "reason": "none of this unit's literal_tokens (instance.format_coordinates(...), var-info) -- nor any light call-signature/Maven-coordinate normalization of them -- appear anywhere in the cited evidence file 'src/aspose_font/variation.py''s real content"
+      },
+      {
+        "unit_id": "u0037",
+        "support_check": "unsupported",
+        "evidence_ref": "src/aspose_font/instancing.py",
+        "checked_tokens": [
+          "wght=\"Bold\"",
+          "wdth=\"Condensed\""
+        ],
+        "reason": "none of this unit's literal_tokens (wght=\"Bold\", wdth=\"Condensed\") -- nor any light call-signature/Maven-coordinate normalization of them -- appear anywhere in the cited evidence file 'src/aspose_font/instancing.py''s real content"
+      },
+      {
+        "unit_id": "u0038",
+        "support_check": "supported",
+        "matched_token": "SmartInstancer"
+      },
+      {
+        "unit_id": "u0039",
+        "support_check": "supported",
+        "matched_token": "HVAR"
+      },
+      {
+        "unit_id": "u0040",
+        "support_check": "supported",
+        "matched_token": "menu-safe"
+      },
+      {
+        "unit_id": "u0041",
+        "support_check": "supported",
+        "matched_token": "FontPreviewBuilder"
+      },
+      {
+        "unit_id": "u0042",
+        "support_check": "supported",
+        "matched_token": "WebFontBuilder"
+      },
+      {
+        "unit_id": "u0043",
+        "support_check": "supported",
+        "matched_token": "FontQaReporter"
+      },
+      {
+        "unit_id": "u0044",
+        "support_check": "no_literal_tokens",
+        "reason": "excerpt has no backtick/CamelCase-ALLCAPS/version/link-target-shaped token -- nothing literal to test"
+      },
+      {
+        "unit_id": "u0045",
+        "support_check": "supported",
+        "matched_token": "gvar"
+      },
+      {
+        "unit_id": "u0046",
+        "support_check": "supported",
+        "matched_token": "review_label"
+      },
+      {
+        "unit_id": "u0047",
+        "support_check": "supported",
+        "matched_token": "AI"
+      },
+      {
+        "unit_id": "u0048",
+        "support_check": "supported",
+        "matched_token": "var_compat"
+      },
+      {
+        "unit_id": "u0049",
+        "support_check": "no_literal_tokens",
+        "reason": "excerpt has no backtick/CamelCase-ALLCAPS/version/link-target-shaped token -- nothing literal to test"
+      },
+      {
+        "unit_id": "u0050",
+        "support_check": "supported",
+        "matched_token": "MIT"
+      }
+    ]
+  },
+  "content_unit_merged_into_target_section": {
+    "hard_gate": true,
+    "findings": []
+  },
+  "content_unit_disposition_text_diff": {
+    "hard_gate": false,
+    "findings": []
+  },
+  "content_unit_no_exact_duplicate_merge": {
+    "hard_gate": true,
+    "findings": []
+  },
+  "content_unit_redundant_claim_verifiable": {
+    "hard_gate": false,
+    "findings": []
+  },
+  "content_unit_classification_plausibility": {
+    "hard_gate": false,
+    "findings": [
+      {
+        "unit_id": "u0028",
+        "reason": "classified as narrative/CTA but the prefilter found no tone signal -- confirm this genuinely has nothing checkable/reusable in it"
+      }
+    ]
+  },
+  "content_unit_probable_duplicate": {
+    "hard_gate": false,
+    "findings": [
+      {
+        "unit_ids": [
+          "u0004",
+          "u0008"
+        ],
+        "target_section": "Key Capabilities",
+        "shared_tokens": [
+          "woff",
+          "woff2"
+        ],
+        "reason": "two different content units share 2+ salient tokens merged into the same section -- likely restating the same fact twice"
+      },
+      {
+        "unit_ids": [
+          "u0004",
+          "u0009"
+        ],
+        "target_section": "Key Capabilities",
+        "shared_tokens": [
+          "cli",
+          "mcp"
+        ],
+        "reason": "two different content units share 2+ salient tokens merged into the same section -- likely restating the same fact twice"
+      },
+      {
+        "unit_ids": [
+          "u0004",
+          "u0027"
+        ],
+        "target_section": "Key Capabilities",
+        "shared_tokens": [
+          "apng",
+          "cli",
+          "css",
+          "html",
+          "json",
+          "mcp",
+          "png",
+          "qa",
+          "stat",
+          "svg",
+          "woff",
+          "woff2"
+        ],
+        "reason": "two different content units share 2+ salient tokens merged into the same section -- likely restating the same fact twice"
+      },
+      {
+        "unit_ids": [
+          "u0008",
+          "u0027"
+        ],
+        "target_section": "Key Capabilities",
+        "shared_tokens": [
+          "cff",
+          "eot",
+          "woff",
+          "woff2"
+        ],
+        "reason": "two different content units share 2+ salient tokens merged into the same section -- likely restating the same fact twice"
+      },
+      {
+        "unit_ids": [
+          "u0009",
+          "u0027"
+        ],
+        "target_section": "Key Capabilities",
+        "shared_tokens": [
+          "cli",
+          "mcp"
+        ],
+        "reason": "two different content units share 2+ salient tokens merged into the same section -- likely restating the same fact twice"
+      }
+    ]
+  },
+  "content_unit_embedded_actionable_fact": {
+    "hard_gate": false,
+    "findings": []
+  },
+  "image_content_unit_excluded_reason_verified": {
+    "hard_gate": false,
+    "findings": []
+  },
+  "structural_unit_disposition_coverage": {
+    "hard_gate": true,
+    "findings": []
+  },
+  "structural_unit_evidence_resolves": {
+    "hard_gate": true,
+    "findings": []
+  },
+  "structural_unit_merged_into_target_section": {
+    "hard_gate": true,
+    "findings": []
+  },
+  "structural_unit_no_exact_duplicate_merge": {
+    "hard_gate": true,
+    "findings": []
+  },
+  "structural_unit_disposition_text_diff": {
+    "hard_gate": true,
+    "findings": []
+  },
+  "structural_unit_tree_paths_plausible": {
+    "hard_gate": false,
+    "findings": []
+  },
+  "candidate_section_disposition_traceability": {
+    "hard_gate": false,
+    "findings": [
+      {
+        "heading": "At a Glance",
+        "reason": "'At a Glance' has real candidate content but zero disposition entries (content or structural) target it -- may be candidate-authored new content with no traceability to the old README, or may be legitimately sourced from and verified by a different mechanism entirely (package registry, reference.aspose.org); advisory only -- verify which case this is before treating it as a defect"
+      },
+      {
+        "heading": "Quick Start",
+        "reason": "'Quick Start' has real candidate content but zero disposition entries (content or structural) target it -- may be candidate-authored new content with no traceability to the old README, or may be legitimately sourced from and verified by a different mechanism entirely (package registry, reference.aspose.org); advisory only -- verify which case this is before treating it as a defect"
+      },
+      {
+        "heading": "API Reference",
+        "reason": "'API Reference' has real candidate content but zero disposition entries (content or structural) target it -- may be candidate-authored new content with no traceability to the old README, or may be legitimately sourced from and verified by a different mechanism entirely (package registry, reference.aspose.org); advisory only -- verify which case this is before treating it as a defect"
+      },
+      {
+        "heading": "Documentation & Resources",
+        "reason": "'Documentation & Resources' has real candidate content but zero disposition entries (content or structural) target it -- may be candidate-authored new content with no traceability to the old README, or may be legitimately sourced from and verified by a different mechanism entirely (package registry, reference.aspose.org); advisory only -- verify which case this is before treating it as a defect"
+      },
+      {
+        "heading": "Scope and Limitations",
+        "reason": "'Scope and Limitations' has real candidate content but zero disposition entries (content or structural) target it -- may be candidate-authored new content with no traceability to the old README, or may be legitimately sourced from and verified by a different mechanism entirely (package registry, reference.aspose.org); advisory only -- verify which case this is before treating it as a defect"
+      }
+    ]
+  },
+  "code_example_disposition_coverage": {
+    "hard_gate": true,
+    "findings": []
+  },
+  "code_example_evidence_resolves": {
+    "hard_gate": true,
+    "findings": []
+  },
+  "code_example_no_exact_duplicate_merge": {
+    "hard_gate": true,
+    "findings": []
+  },
+  "code_example_disposition_text_diff": {
+    "hard_gate": true,
+    "findings": []
+  },
+  "code_example_api_coverage_survives": {
+    "hard_gate": true,
+    "findings": []
+  },
+  "code_example_excluded_reason_citation_too_narrow": {
+    "hard_gate": false,
+    "findings": []
+  },
+  "cli_category_representation": {
+    "hard_gate": false,
+    "findings": []
+  },
+  "badge_disposition_coverage": {
+    "hard_gate": true,
+    "findings": []
+  },
+  "badge_evidence_resolves": {
+    "hard_gate": true,
+    "findings": []
+  },
+  "badge_preserved_or_credited_in_candidate": {
+    "hard_gate": true,
+    "findings": []
+  },
+  "badge_probable_duplicate_disposition": {
+    "hard_gate": false,
+    "findings": []
+  },
+  "project_structure_canonical_tree_format": {
+    "hard_gate": true,
+    "findings": []
+  },
+  "badge_static_claims_dynamic_fact": {
+    "hard_gate": false,
+    "findings": []
+  },
+  "no_duplicate_badges_in_candidate": {
+    "hard_gate": true,
+    "findings": []
+  },
+  "badge_row_meets_verified_floor": {
+    "hard_gate": true,
+    "findings": []
+  },
+  "badge_available_fact_not_shown": {
+    "hard_gate": false,
+    "findings": []
+  },
+  "diagram_known_subgraph_ids": {
+    "hard_gate": false,
+    "findings": []
+  },
+  "section_job_distinctness": {
+    "hard_gate": false,
+    "findings": [
+      {
+        "intro_sentence": "Beyond format conversion, it adds variable-font instancing, visual previews, web-font packaging,\nand QA/compatibility reporting — all built on the same `Font` object returned by\n`FontLoader.open()` — and is usable from Python, the bundled `aspose-font` command-line tool, or\nan optional MCP server for AI tooling.",
+        "overlapping_bullet": "Automate any of the above from the command line with the bundled `aspose-font` CLI, suited to",
+        "similarity": 0.6
+      }
+    ]
+  },
+  "diagram_no_mechanism_duplicate_output": {
+    "hard_gate": false,
+    "findings": []
+  },
+  "diagram_container_duplicates_capability": {
+    "hard_gate": false,
+    "findings": []
+  },
+  "process_narration_smells": {
+    "hard_gate": false,
+    "findings": []
+  },
+  "enterprise_edition_naming": {
+    "hard_gate": false,
+    "findings": []
+  },
+  "api_reference_classes_exist": {
+    "hard_gate": true,
+    "findings": []
+  },
+  "api_reference_class_internal_only": {
+    "hard_gate": false,
+    "findings": [
+      {
+        "class_name": "AvarAxisMap",
+        "reason": "'AvarAxisMap' has zero internal fan-in (no other real source file references it) and is absent from the top-level package __init__.py exports -- possible internal-only class; verify before shipping (record a confirmed internal class in data/api_reference_class_exclusions.json to suppress this prompt permanently, once genuinely confirmed)"
+      },
+      {
+        "class_name": "CurveAdapter",
+        "reason": "'CurveAdapter' has zero internal fan-in (no other real source file references it) and is absent from the top-level package __init__.py exports -- possible internal-only class; verify before shipping (record a confirmed internal class in data/api_reference_class_exclusions.json to suppress this prompt permanently, once genuinely confirmed)"
+      },
+      {
+        "class_name": "DeltaSetIndex",
+        "reason": "'DeltaSetIndex' has zero internal fan-in (no other real source file references it) and is absent from the top-level package __init__.py exports -- possible internal-only class; verify before shipping (record a confirmed internal class in data/api_reference_class_exclusions.json to suppress this prompt permanently, once genuinely confirmed)"
+      },
+      {
+        "class_name": "DeltaSetIndexMap",
+        "reason": "'DeltaSetIndexMap' has zero internal fan-in (no other real source file references it) and is absent from the top-level package __init__.py exports -- possible internal-only class; verify before shipping (record a confirmed internal class in data/api_reference_class_exclusions.json to suppress this prompt permanently, once genuinely confirmed)"
+      },
+      {
+        "class_name": "EotHeader",
+        "reason": "'EotHeader' has zero internal fan-in (no other real source file references it) and is absent from the top-level package __init__.py exports -- possible internal-only class; verify before shipping (record a confirmed internal class in data/api_reference_class_exclusions.json to suppress this prompt permanently, once genuinely confirmed)"
+      },
+      {
+        "class_name": "ItemVariationData",
+        "reason": "'ItemVariationData' has zero internal fan-in (no other real source file references it) and is absent from the top-level package __init__.py exports -- possible internal-only class; verify before shipping (record a confirmed internal class in data/api_reference_class_exclusions.json to suppress this prompt permanently, once genuinely confirmed)"
+      },
+      {
+        "class_name": "ItemVariationStore",
+        "reason": "'ItemVariationStore' has zero internal fan-in (no other real source file references it) and is absent from the top-level package __init__.py exports -- possible internal-only class; verify before shipping (record a confirmed internal class in data/api_reference_class_exclusions.json to suppress this prompt permanently, once genuinely confirmed)"
+      },
+      {
+        "class_name": "TtcFaceRecord",
+        "reason": "'TtcFaceRecord' has zero internal fan-in (no other real source file references it) and is absent from the top-level package __init__.py exports -- possible internal-only class; verify before shipping (record a confirmed internal class in data/api_reference_class_exclusions.json to suppress this prompt permanently, once genuinely confirmed)"
+      },
+      {
+        "class_name": "VariationRegion",
+        "reason": "'VariationRegion' has zero internal fan-in (no other real source file references it) and is absent from the top-level package __init__.py exports -- possible internal-only class; verify before shipping (record a confirmed internal class in data/api_reference_class_exclusions.json to suppress this prompt permanently, once genuinely confirmed)"
+      },
+      {
+        "class_name": "VariationRegionAxis",
+        "reason": "'VariationRegionAxis' has zero internal fan-in (no other real source file references it) and is absent from the top-level package __init__.py exports -- possible internal-only class; verify before shipping (record a confirmed internal class in data/api_reference_class_exclusions.json to suppress this prompt permanently, once genuinely confirmed)"
+      }
+    ]
+  },
+  "no_leaked_docstring_artifacts": {
+    "hard_gate": false,
+    "findings": []
+  },
+  "named_member_accuracy": {
+    "hard_gate": false,
+    "findings": []
+  },
+  "code_example_imports_match_source": {
+    "hard_gate": true,
+    "findings": []
+  },
+  "api_reference_table_completeness": {
+    "hard_gate": true,
+    "findings": []
+  },
+  "reference_index_source_dirty": {
+    "hard_gate": false,
+    "findings": []
+  },
+  "api_reference_table_no_duplicate_rows": {
+    "hard_gate": true,
+    "findings": []
+  },
+  "api_reference_public_type_count_matches_table": {
+    "hard_gate": true,
+    "findings": []
+  },
+  "api_reference_generic_description": {
+    "hard_gate": false,
+    "findings": []
+  },
+  "api_reference_truncated_description": {
+    "hard_gate": false,
+    "findings": []
+  },
+  "api_reference_stripped_example": {
+    "hard_gate": false,
+    "findings": []
+  },
+  "dependency_snapshot_completeness": {
+    "hard_gate": true,
+    "findings": []
+  },
+  "unqualified_dependency_claims": {
+    "hard_gate": true,
+    "findings": []
+  },
+  "dependency_section_manifest_corroboration": {
+    "hard_gate": false,
+    "findings": []
+  },
+  "dependency_direct_transitive_confusion": {
+    "hard_gate": true,
+    "findings": []
+  },
+  "dependency_optional_presented_as_required": {
+    "hard_gate": true,
+    "findings": []
+  },
+  "dependency_dev_only_presented_as_runtime": {
+    "hard_gate": true,
+    "findings": []
+  },
+  "dependency_development_claim_not_in_manifest": {
+    "hard_gate": true,
+    "findings": []
+  },
+  "dependency_scope_claim_matches_evidence": {
+    "hard_gate": false,
+    "findings": []
+  },
+  "dependencies_scope_limitations_contradiction": {
+    "hard_gate": false,
+    "findings": []
+  },
+  "dependencies_intro_contradiction": {
+    "hard_gate": true,
+    "findings": []
+  },
+  "dependency_version_pin_freshness": {
+    "hard_gate": false,
+    "findings": []
+  },
+  "dependency_native_system_scope_limitations_placement": {
+    "hard_gate": true,
+    "findings": []
+  },
+  "dependency_disposition_reconciliation": {
+    "hard_gate": true,
+    "findings": []
+  },
+  "dependency_section_subheadings_present": {
+    "hard_gate": true,
+    "findings": []
+  },
+  "seo_keyword_plan_usage": {
+    "hard_gate": false,
+    "findings": []
+  },
+  "additional_example_headings": {
+    "hard_gate": true,
+    "findings": []
+  },
+  "navigation_toc_matches_headings": {
+    "hard_gate": true,
+    "findings": []
+  },
+  "candidate_drift_since_last_verified": {
+    "hard_gate": false,
+    "findings": []
+  },
+  "verification_currency": {
+    "hard_gate": false,
+    "findings": []
+  },
+  "dependency_verification_matrix": {
+    "rows": [
+      {
+        "name": "mcp",
+        "ecosystem": "pypi",
+        "version": ">=1.0",
+        "category": "optional",
+        "dev_only": false,
+        "role": "runtime",
+        "bucket": "optional",
+        "in_dependency_snapshot": true,
+        "in_readme_dependencies_section": false,
+        "in_readme_prose_elsewhere": true,
+        "in_claims_json": false,
+        "corroboration_score": 1,
+        "status": "NEEDS_REVIEW"
+      },
+      {
+        "name": "requires-python",
+        "ecosystem": "pypi",
+        "version": ">=3.10",
+        "category": "native-system",
+        "dev_only": false,
+        "role": "runtime",
+        "bucket": "native_system",
+        "in_dependency_snapshot": true,
+        "in_readme_dependencies_section": false,
+        "in_readme_prose_elsewhere": false,
+        "in_claims_json": false,
+        "corroboration_score": 0,
+        "status": "NEEDS_REVIEW"
+      },
+      {
+        "name": "pytest",
+        "ecosystem": "pypi",
+        "version": ">=7.4",
+        "category": "required",
+        "dev_only": true,
+        "role": "runtime",
+        "bucket": "development",
+        "in_dependency_snapshot": true,
+        "in_readme_dependencies_section": false,
+        "in_readme_prose_elsewhere": true,
+        "in_claims_json": false,
+        "corroboration_score": 1,
+        "status": "NEEDS_REVIEW"
+      },
+      {
+        "name": "ruff",
+        "ecosystem": "pypi",
+        "version": ">=0.4",
+        "category": "required",
+        "dev_only": true,
+        "role": "runtime",
+        "bucket": "development",
+        "in_dependency_snapshot": true,
+        "in_readme_dependencies_section": false,
+        "in_readme_prose_elsewhere": false,
+        "in_claims_json": false,
+        "corroboration_score": 0,
+        "status": "NEEDS_REVIEW"
+      },
+      {
+        "name": "build",
+        "ecosystem": "pypi",
+        "version": ">=1.2",
+        "category": "required",
+        "dev_only": true,
+        "role": "runtime",
+        "bucket": "development",
+        "in_dependency_snapshot": true,
+        "in_readme_dependencies_section": false,
+        "in_readme_prose_elsewhere": true,
+        "in_claims_json": false,
+        "corroboration_score": 1,
+        "status": "NEEDS_REVIEW"
+      },
+      {
+        "name": "build",
+        "ecosystem": "pypi",
+        "version": ">=1.2",
+        "category": "required",
+        "dev_only": true,
+        "role": "runtime",
+        "bucket": "development",
+        "in_dependency_snapshot": true,
+        "in_readme_dependencies_section": false,
+        "in_readme_prose_elsewhere": true,
+        "in_claims_json": false,
+        "corroboration_score": 1,
+        "status": "NEEDS_REVIEW"
+      },
+      {
+        "name": "pytest",
+        "ecosystem": "pypi",
+        "version": ">=9.0.2",
+        "category": "required",
+        "dev_only": true,
+        "role": "runtime",
+        "bucket": "development",
+        "in_dependency_snapshot": true,
+        "in_readme_dependencies_section": false,
+        "in_readme_prose_elsewhere": true,
+        "in_claims_json": false,
+        "corroboration_score": 1,
+        "status": "NEEDS_REVIEW"
+      },
+      {
+        "name": "ruff",
+        "ecosystem": "pypi",
+        "version": ">=0.4",
+        "category": "required",
+        "dev_only": true,
+        "role": "runtime",
+        "bucket": "development",
+        "in_dependency_snapshot": true,
+        "in_readme_dependencies_section": false,
+        "in_readme_prose_elsewhere": false,
+        "in_claims_json": false,
+        "corroboration_score": 0,
+        "status": "NEEDS_REVIEW"
+      }
+    ],
+    "scoped_claims": []
+  },
+  "candidate_store_integrity": {
+    "hard_gate": true,
+    "findings": []
+  }
+}

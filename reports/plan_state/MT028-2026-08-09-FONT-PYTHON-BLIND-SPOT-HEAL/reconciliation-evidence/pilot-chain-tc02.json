@@ -1,0 +1,10 @@
+{
+  "unaided_finding_id": "FND-font-python-004",
+  "root_cause_id": "RC-font-python-02",
+  "task_id": "TC-BSA-bsa-mt028-font-python-20260809T100802Z-02",
+  "system_fix_diff_ref": "c2ae68524b",
+  "regen_command": "no content regen required (regeneration_required: false) -- script-layer fix only, verified via scripts/pipeline/tests/test_api_surface_package_init_exports.py (13/13 pass)",
+  "verification_before_hash": "pre-fix: api_surface.py trusted __all__ literally with no resolution check (no dedicated test existed)",
+  "verification_after_hash": "post-fix: 13/13 tests pass in test_api_surface_package_init_exports.py, confirmed live on 2026-08-24",
+  "agentic_consumption_recheck_passed": true
+}

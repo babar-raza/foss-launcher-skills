@@ -1,0 +1,64 @@
+fix(example-verification): C12 fast-follow round 3 -- fix 2 more real bugs found while actively hunting for a fourth in the same family, then disclose the residual heuristic risk
+
+A third independent reviewer, asked specifically to actively hunt for a
+fourth bug in the same problem space rather than just confirm round 2's
+two named fixes, found two more real, reproducible ones -- both via yet
+another different trigger shape:
+
+1. Round 2's block-comment hoisting fix (`in_block_comment` state
+   tracking) unconditionally hoisted an ENTIRE line starting with `/*`,
+   even when real code follows the comment's own closing `*/` later on
+   that SAME line (`/* note */ System.out.println("hi");` is ordinary,
+   legal Java inside a method body). This silently dropped that trailing
+   code from the generated program -- a genuine regression relative to
+   round 1's behavior on this exact input, confirmed live: this compiled
+   fine before round 2's fix and started failing after it. Fixed:
+   `_wrap_fragment` now checks whether anything real follows the comment's
+   closing `*/` on the same line before deciding to hoist it; if real code
+   follows, the whole line (comment and code together, legal Java) is
+   treated as body content instead.
+
+2. Round 2's literal-aware `_strip_comments` fix preserved string/char
+   literal CONTENT verbatim -- which correctly stopped comment-like
+   characters inside a literal from corrupting the comment-stripping scan
+   (round 2's own fix), but left a `class X` mention EMBEDDED inside a
+   literal's own content (e.g. a Java 15+ text block storing example
+   source as documentation text) fully visible to the later
+   `_class_name_for`/`_needs_wrap` class-detection scan -- reproducing the
+   exact "wrong class picked" defect from round 1, via a third, different
+   trigger. Fixed: every string/char/text-block match is now replaced with
+   a neutral, non-matching placeholder (`""`) instead of being preserved --
+   their content was never actually needed by either caller (only whether/
+   where a REAL `class` keyword exists matters), only their SPAN needed
+   protecting from the comment-stripping regex, so erasing the content
+   entirely is the safe fix. `_JAVA_STRING_OR_COMMENT_RE` also gained a
+   text-block alternative (`"""..."""`, Java 15+), tried before the plain
+   string alternative so the opening `"""` isn't misparsed as an empty
+   string followed by a stray quote.
+
+New regression tests added directly to test_example_verification_java.py
+(2 tests). Confirmed mechanically real: reverted both fixes locally via
+git stash, re-ran both new tests, watched both fail with the exact real
+javac errors described above, restored the fixes, confirmed all 26 tests
+pass again.
+
+Given this is the THIRD round of real bugs found in the same small area
+(line/regex-based Java-shape heuristics, not a real grammar parser), added
+an explicit, honest disclosure to JavaRunner's own class docstring:
+these heuristics are proven against every realistic Quick Start snippet
+shape found across all three rounds, but NOT proven against every
+conceivable Java syntax (annotated class declarations, records, sealed
+classes, nested-class-first blocks) -- a genuinely complete fix needs a
+real tokenizer, out of scope for this taskcard. Any further failure in
+this area should be fixed the same way these three were: reproduced for
+real against real content, fixed, regression-tested -- not preemptively
+guessed at.
+
+Verification: full test_example_verification_java.py (26 tests, 2 new)
+green. check_monkeypatch_lint.py: 0 violations.
+
+Mission: MT065-2026-09-06-EXAMPLE-VERIFICATION-CENTRALIZATION
+Taskcards: C12 (recommending closure after this round -- see
+C12_final_promotion_gate_decision.md)
+
+Co-Authored-By: Claude Sonnet 5 <noreply@anthropic.com>

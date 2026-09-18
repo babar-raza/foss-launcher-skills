@@ -1,0 +1,68 @@
+mission_authority:
+  mission_id: MT028-2026-08-09-FONT-PYTHON-BLIND-SPOT-HEAL
+  mission_summary: "Wave 6 of MT025-2026-08-08-FORENSIC-BLIND-SPOT-HEAL-SKILLS: the first
+    real production run of S-122 blind-spot-audit and S-123 forensic-heal-sprint against
+    real content, targeting font/python per the operator's choice to resume the
+    2026-06-17 ungoverned hand-run's own deferred backlog (font/python's RC-001 fix landed
+    in that run but the product itself was never re-regenerated, leaving 134 pre-existing
+    grade C reference pages). Runs the real S-122 state machine (open, intake, scope,
+    unaided-repo, unaided-content, agentic-consumption, seal, system-review, blind-spots,
+    root-cause, fix-plan, bind-taskcards) producing real schema-5f taskcards, then S-123
+    (system-heal, content-regen, verification, hardening, reverification, pilot-check,
+    adversarial-review, close) driving them to a real computed verdict and one real row in
+    the tracked docs/governance/forensic-heal-history.md ledger. A concurrently-running,
+    independent real use of the same two skills (MT026-2026-08-09-BLIND-SPOT-AUDIT-WAVE1,
+    5 different never-audited products) was discovered mid-flight and confirmed to have no
+    scope/path/lock overlap with this mission; left running untouched."
+  governing_plan_path: '<local-plan-cache>/typed-snuggling-peach.md'
+  current_phase: "Mission opened; beginning S-122 real execution against font/python."
+  in_scope_outcomes:
+    - "blind_spot_audit_run.py run reaches TASKCARDS_BOUND for font/python (or
+      BLOCKED_UNAIDED_FIRST with a recorded, honest violation -- not silently forced to
+      CLEAN)"
+    - "Real unaided-first findings (FND-font-python-NNN) covering 100% of docs/kb/blog/
+      products pages, 100% of reference index pages, and a targeted+stratified sample of
+      reference class/method pages"
+    - "Real system-tooling findings (SFND-NNN) via the real content-check/content-eval/
+      truth-audit tooling for font/python"
+    - "A real blind-spot comparison matrix with a computed system_recall metric,
+      comparable against the 2026-06-17 run's own 6 findings for font/python"
+    - "Root-caused findings with fix-plan items (>=2 scored options each) and schema-5f
+      taskcards bound into this mission's own taskcards.jsonl"
+    - "forensic_heal_sprint_run.py drives every bound taskcard to CLOSED (or an explicit
+      exception status), with a real computed final verdict and one real row appended to
+      docs/governance/forensic-heal-history.md"
+  out_of_scope_items:
+    - "The remaining v2-backlog items (pdf/net regen, slides/net overload gap, tex/python
+      S-73 finalization, the 17 never-reviewed products) -- deferred to a Wave 6.N follow-up
+      run of the same two skills"
+    - "MT026-2026-08-09-BLIND-SPOT-AUDIT-WAVE1's own scope and taskcards -- untouched,
+      unrelated, confirmed no overlap"
+    - "Any edit to skills/blind-spot-audit.md, skills/forensic-heal-sprint.md, or any file
+      under MT025's own allowed_paths -- this mission only calls the finished CLIs, never
+      edits the skills it is exercising"
+    - "Resuming concurrent-toasting-biscuit's own unfinished work -- unrelated, untouched"
+  mandatory_acceptance_criteria:
+    - "blind_spot_audit_run.py status --run-id <id> shows a terminal state (TASKCARDS_BOUND
+      or BLOCKED_UNAIDED_FIRST/ABANDONED with a recorded reason)"
+    - "If TASKCARDS_BOUND: every emitted taskcard is a real row in this mission's
+      taskcards.jsonl, schema-5f valid, with non-empty allowed/forbidden paths and
+      verification_commands"
+    - "The unaided-first gate verdict is honestly reported, never silently forced to CLEAN"
+    - "forensic_heal_sprint_run.py status --mission-id <id> shows every in-scope taskcard
+      CLOSED (or an explicit, justified exception status) before this mission is itself
+      closed"
+    - "A real row exists in docs/governance/forensic-heal-history.md for this run"
+  conflicts_found:
+    - "Root MISSION_AUTHORITY.yaml still held by concurrent-toasting-biscuit (unrelated,
+      unaffected) -- archive-only path used, same as MT025/MT026."
+    - "MT026-2026-08-09-BLIND-SPOT-AUDIT-WAVE1 is a live, concurrently-running use of the
+      same two skills against different products (cells/rust, barcode/python, html/python,
+      words/python, cells/net) -- no scope/path/lock overlap confirmed via
+      mission_authority.py status before this mission opened. A live S-99 skill-context
+      session (d0a4bedb-b896-46f0-a8d1-513863007d0b, scoped to
+      scripts/pipeline/commands/foss/readme_refresh_*.py and its tests only) was also
+      confirmed unrelated."
+  mission_locked: false
+  _archive_status: open
+  _archived_at: '2026-08-09T10:06:16Z'

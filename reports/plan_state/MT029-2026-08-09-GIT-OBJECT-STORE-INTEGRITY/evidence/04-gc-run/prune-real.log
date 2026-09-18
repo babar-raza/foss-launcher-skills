@@ -1,0 +1,234 @@
+=== git prune (real run, default 2-week expiry) ===
+00894d23a435175822b05f768ac76a18f4fabab4 tree
+015c3b217c85ba844036948a82515f4cf579bfe5 tree
+06efd189251f5e9d54e574c9b151241f2e38e72e tree
+08ea789a672c023fe518da8ea3b29cfe32315e40 tree
+0af5f863d7eac1ba7903825dc8f3f2d6f42fc91b tree
+0b7519452747fd633287d49a4406a269367d3dc7 tree
+0c9081f84f9510e213819baae496e12f86cdf325 tree
+11d935a02346362a88d08f2a903f36c0029b0c1a tree
+1301f66dc6c52098abe7ae6dc08962f2130a78b0 tree
+13974c1a726317519e79e2b08cc55d111f701731 tree
+1a735ebc38c7eb15d7ed4f57b0267e2b411c2032 blob
+1b93490deb747a64f08da83a0fff65469f1d2b43 tree
+1bf806ce5ec5eac7499aff05b8b69681b35739f3 tree
+1c1dc37782115e75bafbb4e547c570ae002b2a5a tree
+20d9b9466d5d0f71c55d42cc3a97fda781132494 commit
+24af65a1da4778860cc407b7a1c91bfc4e93f133 tree
+27e7176f8945513de0d4331861009edd13cd3b53 tree
+29d7953399768bd48250379e6e603b2f746fc923 tree
+2b7b474a6754ac01051dcb3ff8a9141ce4475070 tree
+2e2ec2f4cd6645f7c9be5d82d1177d3d7b93951b tree
+30d74d258442c7c65512eafab474568dd706c430 blob
+35bd6af944df11b5f9d95c35371622d736e67924 tree
+369bf38418a1b0f9c7554253d80d89d91d4419eb tree
+373376e394df0f814cb43a53ecf4ada013f46fc0 tree
+3980c2bf5feebca1062938d14043ee4a761bed62 blob
+39baa3d07b0ec53c583f6a0caef5d7599336744f tree
+3e42409c92b2b971067cac6a0751d12ffce8eef1 tree
+4272239f58e9c29f791893800299e5e0126d8b37 tree
+446df68e5ebeaa3f49bca0b182dd460d44f74582 tree
+467ec108203f7fdd55eb7c285e47c09230766cb7 tree
+48af1be245d1c4d9894d8c6afea1c8f0296d7a09 tree
+4aa5d83ed9de153d8eb4408d61efc9eaf2a69654 tree
+4aa9c925ae104e645b05e8d0a07325acac822404 tree
+4c5a40095363a1546acc6dedfd82a6b10c35b0ea tree
+4cc95e4e811e8b8162b0e6eaf25cdd69908da7dc tree
+4d377b944d7fff2b7b5b61c533c6ebbfb517c009 blob
+4d4d131c84fba38ff9156532a4daf666f5f2867f tree
+50c59f4ea1e1dd7417204fb941c0fe071d32313f tree
+512687a385d47bcd9bacdadae9c81f5cd1f99151 commit
+5147e5343ff8389156ca64c866e0e9eb3df9c91a tree
+538b6405b6acb91074c1073f4b505901a5d7d028 tree
+5395c158611e095588198563a2859f508ba1caed tree
+545fc814bc24e05bb5a0d8a73dd954c595001284 tree
+55feb43fef25f56d4c27bde3103af478b949364c blob
+5b2913aa93faf05c3c128676231bc935926fd377 blob
+5b562a650bcc534b0e8836904e1f4d183fdbbfe3 commit
+5ce0843bf032d7e3f619ce24eb0e7dd2334e3990 tree
+5e67f8ff0390f293c8503403f6634ba3ece27155 tree
+5e78f112bd2943f670fa40dafd894780291148fb blob
+606a8c9dd71233ac5edcb28f58f9f52ee3b86fe2 tree
+62e110e2aed0cf52c94e1f795e8f6407564e1abb tree
+691d8e4d426e3a23423687b1a30a6aa84d0479a4 tree
+69c40eebf4a61ae085324fa921667cd9e00d4742 blob
+6a072d121541962c9a17873626de6c6e77d1f237 tree
+6dcd915d1d5d1d8707a79a546a9b810eee2299a2 blob
+70cd99a3e23c12fc8e9ece9e2f3dcad021d09220 blob
+734c9ba034ee6af1077549053289db73707fa57a tree
+73656831c725b7263877e67fa46155545620a5ea tree
+789cfce9add012611da0d08bc0c6cae4aad96aec tree
+78b170e206ed67245210975cc2902fa5fcc13020 tree
+7cdc154595c7aa7acc18d1782481cd61a399d010 tree
+7f9e4a678e57d1b8bc150eb956b44d3974ac2183 tree
+8058ceabee25191d78cc02be729ab6e6e10905ec tree
+86382641f91cde76ec1e127904e0ccca8b0ce347 blob
+86a453950b687a3a1d0e4dba7b4ac22d46671fd2 tree
+8ac074e7cd6a34c83d5feef0ba8a9943a64644c1 tree
+8b378f69416c160e61f928c0049c19c0891c4c26 tree
+8f0ffaad46d988c62b05baebfa8512a584c91336 tree
+92a44d23eb8cc42689a3df8daa40bc0d136b2d37 blob
+98779f70c762636c518c533201d9565f49bc5667 tree
+98f3c01bd2761ca836e30eb26311d883bade07b1 blob
+9c96bd9d8c74ae7c593fbf096cd854cee5b4130d commit
+9d197870a1b360fdcde81a29f9ff6ffd42911f5f blob
+9d9c86a6b9cc6bd569e831af4dfd5ba4a6678d3e blob
+9ff9a37dfc963763b03a8b3e3a1b6a59d4bcde20 tree
+a51eed68f52c50e4203d699ed32d43ebf41b6add tree
+a52933cabd93416b6ea881e83f6ba2e67049ee8b tree
+a6f10dd0e84e3ef855a1c9b6db82f8d4a0848100 tree
+a9aa926481d52843d7f9e516ce86fea3bf0b1871 blob
+a9cc610c94b4fdaeec738f457b5f58d52fe74ebe tree
+baace21227bfb5c1669b029744c2e43100a2e9d4 tree
+badbafb6fe56010275c6bd8905296f30c7f8d157 commit
+bdd7f350f554d1d3879ba5ad44190ef7723ad7cb tree
+bf12fea0f711661ac214a6b7579f2b695f99d19f tree
+bfb8cbd00b2a5ed83eafd0328aa65232cc2599df tree
+c02fe3c4a3601b03dbcb0ab3c8e567d16a10c7a0 tree
+c380711b03b2f929af885a3e446eb7b3375a3bcf tree
+c491e523caf2109b298c77ec9793725b87a7569e tree
+c536ec742b3d34c328c77872b7a8a5e2c619a9e2 blob
+cc4a59eabc18b9aa736720aa62150c012fc509e2 blob
+cc7d14a5683ad84974144ea93f1d0bd07d74beb3 tree
+ce428f8a0a8c1ce78b6cefc1693b75407cf9f6d8 tree
+ce7591955277ba1a27ae7620affd357a96493ecf tree
+cf6b588b249f9f0feda416115734297ed2acb9f4 blob
+cf767187ab398a1b9e96061036949735d3a6402b tree
+d1410ebbd5f09d26515beeffed64d24799effebd tree
+d482156b23804449e7b4691fa727d01a69a3f74c blob
+d50e341173247aaa3727529c6bc5cf021c3ed66e tree
+d55725b646b57b3c0c535c04ac04ef074e1d93e5 tree
+d5a4428adb86ca97092fc1af3e8e2e494a7f4861 tree
+df47b31f45ee88eff41b99d3ea14026ce0be1440 tree
+dfd70d0b34dcb64c6c3737a8a71ad9c1bb8a19ec commit
+e090b48e9280c5742bf615b802165872e91c788a tree
+e26a77b4e24ddb64d6e809142e31d3a473f606bb commit
+e57ce7e9fe141cf0ecd104671f5d45e9efd3feba tree
+e69d2ad18fa25b832cd372a7d9ea7c966708a10d tree
+e75d6f0fd492811a1ab0272b71e1a11781f61b7a tree
+eca7949c2ec389b250bc034ed6ae2fbe7e9712a3 tree
+ed07e6216c582476ea439c06e5b20610fe36e22f tree
+f5f42455fe0aba424a2e64afb213b4bcc3c15c28 tree
+f8d0290982970e1f62d2dd967121eb6c31d74126 tree
+Removing stale temporary file .git/objects/pack/tmp_pack_1V8I9U
+Removing stale temporary file .git/objects/pack/tmp_pack_2TNJKd
+Removing stale temporary file .git/objects/pack/tmp_pack_2tWO4F
+Removing stale temporary file .git/objects/pack/tmp_pack_3DeraE
+Removing stale temporary file .git/objects/pack/tmp_pack_3GRkIt
+Removing stale temporary file .git/objects/pack/tmp_pack_3lj2Zx
+Removing stale temporary file .git/objects/pack/tmp_pack_3rJZoA
+Removing stale temporary file .git/objects/pack/tmp_pack_7WgaQs
+Removing stale temporary file .git/objects/pack/tmp_pack_8dFSYB
+Removing stale temporary file .git/objects/pack/tmp_pack_8MUJCj
+Removing stale temporary file .git/objects/pack/tmp_pack_9jZI91
+Removing stale temporary file .git/objects/pack/tmp_pack_9R4Mee
+Removing stale temporary file .git/objects/pack/tmp_pack_A2do61
+Removing stale temporary file .git/objects/pack/tmp_pack_a7Ny2Y
+Removing stale temporary file .git/objects/pack/tmp_pack_aCiwTm
+Removing stale temporary file .git/objects/pack/tmp_pack_aGq4Bg
+Removing stale temporary file .git/objects/pack/tmp_pack_BDjo3E
+Removing stale temporary file .git/objects/pack/tmp_pack_bQSji7
+Removing stale temporary file .git/objects/pack/tmp_pack_bVQDy6
+Removing stale temporary file .git/objects/pack/tmp_pack_CcqAka
+Removing stale temporary file .git/objects/pack/tmp_pack_cqx8II
+Removing stale temporary file .git/objects/pack/tmp_pack_CShOtk
+Removing stale temporary file .git/objects/pack/tmp_pack_Cx9rLR
+Removing stale temporary file .git/objects/pack/tmp_pack_dC4vhG
+Removing stale temporary file .git/objects/pack/tmp_pack_ebbMSj
+Removing stale temporary file .git/objects/pack/tmp_pack_ENHS0P
+Removing stale temporary file .git/objects/pack/tmp_pack_enXmSE
+Removing stale temporary file .git/objects/pack/tmp_pack_EOjXFu
+Removing stale temporary file .git/objects/pack/tmp_pack_EYV87l
+Removing stale temporary file .git/objects/pack/tmp_pack_fdqvsx
+Removing stale temporary file .git/objects/pack/tmp_pack_FHxPXj
+Removing stale temporary file .git/objects/pack/tmp_pack_FluMsE
+Removing stale temporary file .git/objects/pack/tmp_pack_fnGEgX
+Removing stale temporary file .git/objects/pack/tmp_pack_fZHXHm
+Removing stale temporary file .git/objects/pack/tmp_pack_GDLHhr
+Removing stale temporary file .git/objects/pack/tmp_pack_GjqFfn
+Removing stale temporary file .git/objects/pack/tmp_pack_gLApRU
+Removing stale temporary file .git/objects/pack/tmp_pack_gni3Wl
+Removing stale temporary file .git/objects/pack/tmp_pack_gvV9Yh
+Removing stale temporary file .git/objects/pack/tmp_pack_HmOMob
+Removing stale temporary file .git/objects/pack/tmp_pack_i4M092
+Removing stale temporary file .git/objects/pack/tmp_pack_I6t2Um
+Removing stale temporary file .git/objects/pack/tmp_pack_iIlHHu
+Removing stale temporary file .git/objects/pack/tmp_pack_IlYWnT
+Removing stale temporary file .git/objects/pack/tmp_pack_IpFPss
+Removing stale temporary file .git/objects/pack/tmp_pack_J0Gyrn
+Removing stale temporary file .git/objects/pack/tmp_pack_JHYI8j
+Removing stale temporary file .git/objects/pack/tmp_pack_kKDw9V
+Removing stale temporary file .git/objects/pack/tmp_pack_Knmlnz
+Removing stale temporary file .git/objects/pack/tmp_pack_kPmddW
+Removing stale temporary file .git/objects/pack/tmp_pack_l5VLt0
+Removing stale temporary file .git/objects/pack/tmp_pack_L6Kg8o
+Removing stale temporary file .git/objects/pack/tmp_pack_ljxrKr
+Removing stale temporary file .git/objects/pack/tmp_pack_LKhj82
+Removing stale temporary file .git/objects/pack/tmp_pack_LZqX5d
+Removing stale temporary file .git/objects/pack/tmp_pack_m8zZ3e
+Removing stale temporary file .git/objects/pack/tmp_pack_mGHZ1N
+Removing stale temporary file .git/objects/pack/tmp_pack_mLkbgC
+Removing stale temporary file .git/objects/pack/tmp_pack_mmUBlA
+Removing stale temporary file .git/objects/pack/tmp_pack_mOoejt
+Removing stale temporary file .git/objects/pack/tmp_pack_MVRmzr
+Removing stale temporary file .git/objects/pack/tmp_pack_nADMsm
+Removing stale temporary file .git/objects/pack/tmp_pack_oFhPKJ
+Removing stale temporary file .git/objects/pack/tmp_pack_oVUPzH
+Removing stale temporary file .git/objects/pack/tmp_pack_p2GgPd
+Removing stale temporary file .git/objects/pack/tmp_pack_P2zytF
+Removing stale temporary file .git/objects/pack/tmp_pack_PFxI67
+Removing stale temporary file .git/objects/pack/tmp_pack_PkQnho
+Removing stale temporary file .git/objects/pack/tmp_pack_pswJhn
+Removing stale temporary file .git/objects/pack/tmp_pack_pZfydV
+Removing stale temporary file .git/objects/pack/tmp_pack_pzgJQs
+Removing stale temporary file .git/objects/pack/tmp_pack_q4lZnk
+Removing stale temporary file .git/objects/pack/tmp_pack_Q73CIq
+Removing stale temporary file .git/objects/pack/tmp_pack_qzmABa
+Removing stale temporary file .git/objects/pack/tmp_pack_rgcwhO
+Removing stale temporary file .git/objects/pack/tmp_pack_RMfLOu
+Removing stale temporary file .git/objects/pack/tmp_pack_rMi73A
+Removing stale temporary file .git/objects/pack/tmp_pack_rNcGIk
+Removing stale temporary file .git/objects/pack/tmp_pack_rRHJdo
+Removing stale temporary file .git/objects/pack/tmp_pack_Rs5ylt
+Removing stale temporary file .git/objects/pack/tmp_pack_RsOFvZ
+Removing stale temporary file .git/objects/pack/tmp_pack_RzyFhl
+Removing stale temporary file .git/objects/pack/tmp_pack_rzzk8n
+Removing stale temporary file .git/objects/pack/tmp_pack_S9SgOr
+Removing stale temporary file .git/objects/pack/tmp_pack_sIfzIE
+Removing stale temporary file .git/objects/pack/tmp_pack_SplQSX
+Removing stale temporary file .git/objects/pack/tmp_pack_T279QI
+Removing stale temporary file .git/objects/pack/tmp_pack_t7YkVL
+Removing stale temporary file .git/objects/pack/tmp_pack_TjupzF
+Removing stale temporary file .git/objects/pack/tmp_pack_tTZR3H
+Removing stale temporary file .git/objects/pack/tmp_pack_U4AR2z
+Removing stale temporary file .git/objects/pack/tmp_pack_u5Cdrc
+Removing stale temporary file .git/objects/pack/tmp_pack_UcrzW3
+Removing stale temporary file .git/objects/pack/tmp_pack_ugktKt
+Removing stale temporary file .git/objects/pack/tmp_pack_uiUZc8
+Removing stale temporary file .git/objects/pack/tmp_pack_unJpYA
+Removing stale temporary file .git/objects/pack/tmp_pack_uOsKH5
+Removing stale temporary file .git/objects/pack/tmp_pack_uuRt2G
+Removing stale temporary file .git/objects/pack/tmp_pack_uz4yCQ
+Removing stale temporary file .git/objects/pack/tmp_pack_UzK9sB
+Removing stale temporary file .git/objects/pack/tmp_pack_v2jRSZ
+Removing stale temporary file .git/objects/pack/tmp_pack_vgaWqG
+Removing stale temporary file .git/objects/pack/tmp_pack_VGXALH
+Removing stale temporary file .git/objects/pack/tmp_pack_WbCmR6
+Removing stale temporary file .git/objects/pack/tmp_pack_wkTqEj
+Removing stale temporary file .git/objects/pack/tmp_pack_Ws8Zjm
+Removing stale temporary file .git/objects/pack/tmp_pack_x5VCO3
+Removing stale temporary file .git/objects/pack/tmp_pack_xd46ka
+Removing stale temporary file .git/objects/pack/tmp_pack_XeUfdZ
+Removing stale temporary file .git/objects/pack/tmp_pack_xxp8sA
+Removing stale temporary file .git/objects/pack/tmp_pack_Y1DcqK
+Removing stale temporary file .git/objects/pack/tmp_pack_YDiSEJ
+Removing stale temporary file .git/objects/pack/tmp_pack_YqrVsh
+Removing stale temporary file .git/objects/pack/tmp_pack_YT3If1
+Removing stale temporary file .git/objects/pack/tmp_pack_Z04lYO
+Removing stale temporary file .git/objects/pack/tmp_pack_zmVhIY
+Removing stale temporary file .git/objects/pack/tmp_pack_ZNbDtB
+Removing stale temporary file .git/objects/pack/tmp_pack_zoh9wp
+Removing stale temporary file .git/objects/pack/tmp_pack_ZQ0Z0y
+Removing stale temporary file .git/objects/pack/tmp_pack_ZqLA4Y
+Removing stale temporary file .git/objects/pack/tmp_pack_zrizWE
+exit: 0

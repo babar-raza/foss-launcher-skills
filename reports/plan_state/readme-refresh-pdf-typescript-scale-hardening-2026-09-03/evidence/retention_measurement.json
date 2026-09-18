@@ -1,0 +1,623 @@
+[
+  {
+    "i": 13,
+    "title": "SVG embedding",
+    "bytes": 11787,
+    "n_tokens": 190,
+    "prose_pct": 42,
+    "table_pct": 37,
+    "anywhere_pct": 48
+  },
+  {
+    "i": 56,
+    "title": "Rendering (page → PNG/JPEG/TIFF/BMP/GIF)",
+    "bytes": 6733,
+    "n_tokens": 51,
+    "prose_pct": 39,
+    "table_pct": 29,
+    "anywhere_pct": 55
+  },
+  {
+    "i": 66,
+    "title": "Digital signatures",
+    "bytes": 4896,
+    "n_tokens": 79,
+    "prose_pct": 32,
+    "table_pct": 27,
+    "anywhere_pct": 44
+  },
+  {
+    "i": 57,
+    "title": "Export (PDF → HTML)",
+    "bytes": 3506,
+    "n_tokens": 39,
+    "prose_pct": 62,
+    "table_pct": 49,
+    "anywhere_pct": 74
+  },
+  {
+    "i": 18,
+    "title": "HTML to PDF",
+    "bytes": 2761,
+    "n_tokens": 35,
+    "prose_pct": 54,
+    "table_pct": 49,
+    "anywhere_pct": 69
+  },
+  {
+    "i": 60,
+    "title": "Export (PDF → EPUB)",
+    "bytes": 2070,
+    "n_tokens": 8,
+    "prose_pct": 38,
+    "table_pct": 25,
+    "anywhere_pct": 38
+  },
+  {
+    "i": 23,
+    "title": "Text extraction",
+    "bytes": 2056,
+    "n_tokens": 17,
+    "prose_pct": 29,
+    "table_pct": 65,
+    "anywhere_pct": 88
+  },
+  {
+    "i": 68,
+    "title": "Grayscale conversion",
+    "bytes": 1858,
+    "n_tokens": 11,
+    "prose_pct": 55,
+    "table_pct": 64,
+    "anywhere_pct": 100
+  },
+  {
+    "i": 30,
+    "title": "Image extraction",
+    "bytes": 1853,
+    "n_tokens": 21,
+    "prose_pct": 81,
+    "table_pct": 52,
+    "anywhere_pct": 95
+  },
+  {
+    "i": 69,
+    "title": "Markdown parsing",
+    "bytes": 1802,
+    "n_tokens": 49,
+    "prose_pct": 47,
+    "table_pct": 73,
+    "anywhere_pct": 86
+  },
+  {
+    "i": 21,
+    "title": "Page composition",
+    "bytes": 1744,
+    "n_tokens": 29,
+    "prose_pct": 45,
+    "table_pct": 90,
+    "anywhere_pct": 93
+  },
+  {
+    "i": 31,
+    "title": "Redaction",
+    "bytes": 1534,
+    "n_tokens": 18,
+    "prose_pct": 22,
+    "table_pct": 50,
+    "anywhere_pct": 67
+  },
+  {
+    "i": 16,
+    "title": "Flow layout",
+    "bytes": 1358,
+    "n_tokens": 26,
+    "prose_pct": 27,
+    "table_pct": 46,
+    "anywhere_pct": 81
+  },
+  {
+    "i": 35,
+    "title": "Optional content (layers / OCG)",
+    "bytes": 1347,
+    "n_tokens": 17,
+    "prose_pct": 29,
+    "table_pct": 12,
+    "anywhere_pct": 59
+  },
+  {
+    "i": 46,
+    "title": "Tagged-PDF structure authoring",
+    "bytes": 1340,
+    "n_tokens": 36,
+    "prose_pct": 53,
+    "table_pct": 42,
+    "anywhere_pct": 67
+  },
+  {
+    "i": 61,
+    "title": "Saving",
+    "bytes": 1239,
+    "n_tokens": 16,
+    "prose_pct": 69,
+    "table_pct": 50,
+    "anywhere_pct": 69
+  },
+  {
+    "i": 50,
+    "title": "PDF/A validation",
+    "bytes": 1223,
+    "n_tokens": 19,
+    "prose_pct": 42,
+    "table_pct": 32,
+    "anywhere_pct": 53
+  },
+  {
+    "i": 52,
+    "title": "PDF/X validation",
+    "bytes": 1162,
+    "n_tokens": 19,
+    "prose_pct": 16,
+    "table_pct": 5,
+    "anywhere_pct": 26
+  },
+  {
+    "i": 47,
+    "title": "Accessibility auto-tagging",
+    "bytes": 1079,
+    "n_tokens": 23,
+    "prose_pct": 52,
+    "table_pct": 57,
+    "anywhere_pct": 74
+  },
+  {
+    "i": 58,
+    "title": "Export (PDF → Markdown)",
+    "bytes": 1063,
+    "n_tokens": 11,
+    "prose_pct": 64,
+    "table_pct": 82,
+    "anywhere_pct": 82
+  },
+  {
+    "i": 51,
+    "title": "PDF/A conversion",
+    "bytes": 1051,
+    "n_tokens": 18,
+    "prose_pct": 44,
+    "table_pct": 17,
+    "anywhere_pct": 44
+  },
+  {
+    "i": 8,
+    "title": "Text stamping",
+    "bytes": 1039,
+    "n_tokens": 15,
+    "prose_pct": 53,
+    "table_pct": 67,
+    "anywhere_pct": 80
+  },
+  {
+    "i": 14,
+    "title": "Table authoring",
+    "bytes": 1036,
+    "n_tokens": 12,
+    "prose_pct": 33,
+    "table_pct": 58,
+    "anywhere_pct": 67
+  },
+  {
+    "i": 22,
+    "title": "Page decoration",
+    "bytes": 1020,
+    "n_tokens": 23,
+    "prose_pct": 57,
+    "table_pct": 70,
+    "anywhere_pct": 74
+  },
+  {
+    "i": 24,
+    "title": "Table extraction",
+    "bytes": 1007,
+    "n_tokens": 21,
+    "prose_pct": 67,
+    "table_pct": 76,
+    "anywhere_pct": 90
+  },
+  {
+    "i": 53,
+    "title": "PDF/X conversion",
+    "bytes": 982,
+    "n_tokens": 22,
+    "prose_pct": 32,
+    "table_pct": 18,
+    "anywhere_pct": 41
+  },
+  {
+    "i": 12,
+    "title": "Image insertion",
+    "bytes": 944,
+    "n_tokens": 14,
+    "prose_pct": 50,
+    "table_pct": 7,
+    "anywhere_pct": 64
+  },
+  {
+    "i": 25,
+    "title": "Vector path extraction",
+    "bytes": 895,
+    "n_tokens": 16,
+    "prose_pct": 31,
+    "table_pct": 38,
+    "anywhere_pct": 88
+  },
+  {
+    "i": 17,
+    "title": "Markdown to PDF",
+    "bytes": 886,
+    "n_tokens": 14,
+    "prose_pct": 57,
+    "table_pct": 71,
+    "anywhere_pct": 93
+  },
+  {
+    "i": 67,
+    "title": "Optimization",
+    "bytes": 886,
+    "n_tokens": 9,
+    "prose_pct": 44,
+    "table_pct": 44,
+    "anywhere_pct": 78
+  },
+  {
+    "i": 59,
+    "title": "Export (PDF → DOCX)",
+    "bytes": 883,
+    "n_tokens": 11,
+    "prose_pct": 36,
+    "table_pct": 91,
+    "anywhere_pct": 91
+  },
+  {
+    "i": 54,
+    "title": "PDF/UA remediation",
+    "bytes": 835,
+    "n_tokens": 16,
+    "prose_pct": 50,
+    "table_pct": 38,
+    "anywhere_pct": 56
+  },
+  {
+    "i": 55,
+    "title": "Rendering (page → SVG)",
+    "bytes": 808,
+    "n_tokens": 9,
+    "prose_pct": 44,
+    "table_pct": 67,
+    "anywhere_pct": 89
+  },
+  {
+    "i": 65,
+    "title": "Stream re-filtering",
+    "bytes": 761,
+    "n_tokens": 13,
+    "prose_pct": 85,
+    "table_pct": 23,
+    "anywhere_pct": 85
+  },
+  {
+    "i": 26,
+    "title": "Text search",
+    "bytes": 739,
+    "n_tokens": 12,
+    "prose_pct": 50,
+    "table_pct": 83,
+    "anywhere_pct": 92
+  },
+  {
+    "i": 10,
+    "title": "Vector drawing",
+    "bytes": 699,
+    "n_tokens": 10,
+    "prose_pct": 30,
+    "table_pct": 50,
+    "anywhere_pct": 60
+  },
+  {
+    "i": 49,
+    "title": "PDF/UA validation",
+    "bytes": 676,
+    "n_tokens": 18,
+    "prose_pct": 61,
+    "table_pct": 67,
+    "anywhere_pct": 94
+  },
+  {
+    "i": 33,
+    "title": "Form fields (AcroForm)",
+    "bytes": 671,
+    "n_tokens": 11,
+    "prose_pct": 55,
+    "table_pct": 55,
+    "anywhere_pct": 73
+  },
+  {
+    "i": 7,
+    "title": "HTML parsing",
+    "bytes": 657,
+    "n_tokens": 7,
+    "prose_pct": 0,
+    "table_pct": 71,
+    "anywhere_pct": 71
+  },
+  {
+    "i": 20,
+    "title": "Barcodes",
+    "bytes": 619,
+    "n_tokens": 16,
+    "prose_pct": 44,
+    "table_pct": 44,
+    "anywhere_pct": 94
+  },
+  {
+    "i": 28,
+    "title": "Annotation text search (drawn)",
+    "bytes": 602,
+    "n_tokens": 7,
+    "prose_pct": 29,
+    "table_pct": 71,
+    "anywhere_pct": 71
+  },
+  {
+    "i": 48,
+    "title": "Tagged-PDF attribute semantics",
+    "bytes": 598,
+    "n_tokens": 15,
+    "prose_pct": 40,
+    "table_pct": 53,
+    "anywhere_pct": 53
+  },
+  {
+    "i": 32,
+    "title": "Flatten",
+    "bytes": 580,
+    "n_tokens": 10,
+    "prose_pct": 30,
+    "table_pct": 100,
+    "anywhere_pct": 100
+  },
+  {
+    "i": 64,
+    "title": "Public-key encryption (PubSec)",
+    "bytes": 565,
+    "n_tokens": 5,
+    "prose_pct": 80,
+    "table_pct": 40,
+    "anywhere_pct": 80
+  },
+  {
+    "i": 29,
+    "title": "Text replace",
+    "bytes": 563,
+    "n_tokens": 5,
+    "prose_pct": 40,
+    "table_pct": 20,
+    "anywhere_pct": 60
+  },
+  {
+    "i": 34,
+    "title": "Form data (FDF / XFDF)",
+    "bytes": 543,
+    "n_tokens": 11,
+    "prose_pct": 36,
+    "table_pct": 45,
+    "anywhere_pct": 64
+  },
+  {
+    "i": 42,
+    "title": "Annotations",
+    "bytes": 524,
+    "n_tokens": 14,
+    "prose_pct": 36,
+    "table_pct": 93,
+    "anywhere_pct": 100
+  },
+  {
+    "i": 44,
+    "title": "Tagged-PDF structure reading",
+    "bytes": 523,
+    "n_tokens": 17,
+    "prose_pct": 41,
+    "table_pct": 24,
+    "anywhere_pct": 59
+  },
+  {
+    "i": 45,
+    "title": "Tagged-PDF structure preservation",
+    "bytes": 514,
+    "n_tokens": 14,
+    "prose_pct": 71,
+    "table_pct": 57,
+    "anywhere_pct": 93
+  },
+  {
+    "i": 9,
+    "title": "Complex-text shaping (i18n)",
+    "bytes": 509,
+    "n_tokens": 9,
+    "prose_pct": 44,
+    "table_pct": 56,
+    "anywhere_pct": 89
+  },
+  {
+    "i": 62,
+    "title": "Linearization (Fast Web View)",
+    "bytes": 495,
+    "n_tokens": 4,
+    "prose_pct": 0,
+    "table_pct": 75,
+    "anywhere_pct": 75
+  },
+  {
+    "i": 2,
+    "title": "Encrypted documents",
+    "bytes": 474,
+    "n_tokens": 7,
+    "prose_pct": 14,
+    "table_pct": 29,
+    "anywhere_pct": 43
+  },
+  {
+    "i": 1,
+    "title": "Parsing",
+    "bytes": 461,
+    "n_tokens": 13,
+    "prose_pct": 92,
+    "table_pct": 8,
+    "anywhere_pct": 100
+  },
+  {
+    "i": 27,
+    "title": "Annotation text search (carried)",
+    "bytes": 457,
+    "n_tokens": 6,
+    "prose_pct": 17,
+    "table_pct": 83,
+    "anywhere_pct": 83
+  },
+  {
+    "i": 40,
+    "title": "Embedded files / attachments",
+    "bytes": 438,
+    "n_tokens": 12,
+    "prose_pct": 17,
+    "table_pct": 50,
+    "anywhere_pct": 67
+  },
+  {
+    "i": 41,
+    "title": "Portfolios (collections)",
+    "bytes": 436,
+    "n_tokens": 14,
+    "prose_pct": 57,
+    "table_pct": 86,
+    "anywhere_pct": 86
+  },
+  {
+    "i": 36,
+    "title": "Outlines (bookmarks)",
+    "bytes": 396,
+    "n_tokens": 5,
+    "prose_pct": 40,
+    "table_pct": 40,
+    "anywhere_pct": 100
+  },
+  {
+    "i": 11,
+    "title": "Reusable templates",
+    "bytes": 387,
+    "n_tokens": 14,
+    "prose_pct": 79,
+    "table_pct": 79,
+    "anywhere_pct": 86
+  },
+  {
+    "i": 15,
+    "title": "Table of contents",
+    "bytes": 387,
+    "n_tokens": 6,
+    "prose_pct": 33,
+    "table_pct": 83,
+    "anywhere_pct": 100
+  },
+  {
+    "i": 4,
+    "title": "Page manipulation",
+    "bytes": 354,
+    "n_tokens": 12,
+    "prose_pct": 42,
+    "table_pct": 50,
+    "anywhere_pct": 92
+  },
+  {
+    "i": 39,
+    "title": "Open behaviour and document JavaScript",
+    "bytes": 349,
+    "n_tokens": 9,
+    "prose_pct": 0,
+    "table_pct": 89,
+    "anywhere_pct": 89
+  },
+  {
+    "i": 43,
+    "title": "Metadata",
+    "bytes": 327,
+    "n_tokens": 8,
+    "prose_pct": 62,
+    "table_pct": 100,
+    "anywhere_pct": 100
+  },
+  {
+    "i": 37,
+    "title": "Page labels",
+    "bytes": 295,
+    "n_tokens": 10,
+    "prose_pct": 40,
+    "table_pct": 70,
+    "anywhere_pct": 100
+  },
+  {
+    "i": 19,
+    "title": "Flow blocks",
+    "bytes": 282,
+    "n_tokens": 17,
+    "prose_pct": 59,
+    "table_pct": 94,
+    "anywhere_pct": 94
+  },
+  {
+    "i": 63,
+    "title": "Encrypted output",
+    "bytes": 278,
+    "n_tokens": 2,
+    "prose_pct": 50,
+    "table_pct": 50,
+    "anywhere_pct": 100
+  },
+  {
+    "i": 38,
+    "title": "Named destinations",
+    "bytes": 245,
+    "n_tokens": 6,
+    "prose_pct": 17,
+    "table_pct": 67,
+    "anywhere_pct": 100
+  },
+  {
+    "i": 3,
+    "title": "Page access",
+    "bytes": 244,
+    "n_tokens": 13,
+    "prose_pct": 54,
+    "table_pct": 85,
+    "anywhere_pct": 92
+  },
+  {
+    "i": 5,
+    "title": "Split & merge",
+    "bytes": 221,
+    "n_tokens": 7,
+    "prose_pct": 29,
+    "table_pct": 57,
+    "anywhere_pct": 71
+  },
+  {
+    "i": 6,
+    "title": "Content streams",
+    "bytes": 169,
+    "n_tokens": 3,
+    "prose_pct": 33,
+    "table_pct": 67,
+    "anywhere_pct": 100
+  }
+]
