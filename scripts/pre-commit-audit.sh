@@ -1971,4 +1971,52 @@ else
 fi
 _pc_step_end "PASS"
 
+# ---------------------------------------------------------------------------
+# Step 44 (TC-15, MT069-2026-09-16-GHA-MINUTES-REARCHITECTURE, 2026-09-17):
+# evaluator-version-bump gate. check_evaluator_version_bump.py
+# (PKGINSTALL-VERSION-BUMP-AND-LINT) had ZERO presence in this script, in
+# git_plumb_commit.py's manual pre-flight re-checks, or in
+# scripts/ci/hooks/simulate_pr_checks.sh -- it existed only inside
+# content-governance-checks.yml, a push-triggered CI workflow. Since this
+# repo cannot get GitHub branch protection (private repo, plan-tier limit,
+# same structural reason as Step 43 above) and has no PR gate at all, a
+# CI-only check can only ever fire AFTER a non-compliant commit has already
+# landed on main -- exactly what a 49% failure rate on that workflow turned
+# out to mean (3 different evaluators sampled across 3 real failed runs, TC-05
+# / MT069, 2026-09-17). Scoped to ONLY staged evaluator files, same design as
+# Steps 33/42/43. `git_plumb_commit.py` needs no separate re-implementation
+# of this step: it already re-runs this entire script (Tier 1) against an
+# isolated temp index for every plumbed commit, so this step covers both
+# commit paths by construction once it lives here.
+#
+# FOLLOWUP (independent review, 2026-09-17): the original version of this step
+# read __init__.py from the WORKING TREE to decide whether EVALUATOR_VERSIONS
+# had been bumped -- a real fail-open gap, not just the EXEMPT-marker
+# limitation once documented here. A developer who bumped the version on disk
+# but forgot `git add scripts/pipeline/content_eval/__init__.py` would have
+# this gate incorrectly PASS, even though the commit being created would not
+# actually contain the bump. `--staged` (added same day) makes this step judge
+# the git INDEX instead -- what will actually be committed -- for both the
+# version-bump comparison and the EXEMPT-marker escape hatch.
+# ---------------------------------------------------------------------------
+staged_evaluator_files=$(git diff --cached --name-only --diff-filter=ACMR 2>/dev/null | grep -E \
+    '^scripts/pipeline/content_eval/evaluators/[a-z0-9_]+\.py$' || true)
+if [ -n "$staged_evaluator_files" ]; then
+    if [ -n "$_HOOK_PYTHON" ] && [ -f "scripts/ci/checks/check_evaluator_version_bump.py" ]; then
+        _evb_out=$(PYTHONPATH=scripts/pipeline "$_HOOK_PYTHON" \
+            scripts/ci/checks/check_evaluator_version_bump.py --base HEAD --staged --files $staged_evaluator_files 2>&1)
+        _evb_exit=$?
+        echo "$_evb_out" | sed 's/^/[Step 44] /'
+        if [ $_evb_exit -ne 0 ]; then
+            _pc_step_end "FAIL"
+            _pc_exit 1
+        fi
+    else
+        echo "[Step 44] SKIP: .venv not found or check_evaluator_version_bump.py missing." >&2
+    fi
+else
+    echo "[Step 44] No staged content_eval evaluator files — skipping."
+fi
+_pc_step_end "PASS"
+
 _pc_exit 0

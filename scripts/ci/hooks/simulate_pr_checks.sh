@@ -176,6 +176,14 @@ fi
 run_step "Check evaluator freeze (FREEZE-04, landing state)" "advisory" \
     env PYTHONPATH=scripts/pipeline "$PYTHON" scripts/ci/checks/check_evaluator_freeze.py
 
+# TC-15, MT069 (2026-09-17): sync gap closed. check_evaluator_version_bump.py is a
+# real, BLOCKING step in content-governance-checks.yml (unlike its advisory sibling
+# above) but had zero presence in this mirror script -- a confirmed instance of the
+# exact "checks added to CI but never synced here" drift this file's own header
+# warns against. Matches CI's real behavior: blocking, --base "$BASE_BRANCH".
+run_step "Check evaluator version bump (PKGINSTALL-VERSION-BUMP-AND-LINT)" "blocking" \
+    env PYTHONPATH=scripts/pipeline "$PYTHON" scripts/ci/checks/check_evaluator_version_bump.py --base "$BASE_BRANCH"
+
 run_step "Check skill documentation coverage" "blocking" \
     "$PYTHON" scripts/ci/checks/check_skill_readme_coverage.py
 

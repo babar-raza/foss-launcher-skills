@@ -429,9 +429,17 @@ def check_example_verification(caps: dict, platforms: list) -> list[dict]:
     # Every platform registry.py declares must also appear in the YAML --
     # a platform added to PLATFORM_CONTRACT but never mirrored here would
     # otherwise pass silently (the loop above only iterates the YAML's own
-    # `platforms` list).
+    # `platforms` list). Deliberately checks against caps["platforms"] (every
+    # platform the YAML declares), not the `platforms` parameter -- the
+    # latter is the caller's checkable_platforms subset (declared-AND-active
+    # intersection, see check_all()), which made this loop compare the full,
+    # never-fixture-mocked registry against a narrower set than the YAML
+    # actually declares. That mismatch produced 6 false-positive findings on
+    # every real CI run from 2026-09-06 onward, and made a synthetic,
+    # single-platform test fixture fail permanently (TC-14, MT069, found via
+    # a real cost-driven failure-rate investigation, 2026-09-17).
     for platform in registry.PLATFORM_CONTRACT:
-        if platform not in platforms:
+        if platform not in caps["platforms"]:
             findings.append(_finding(
                 "value_mismatch", platform, "example_verification",
                 "registry.PLATFORM_CONTRACT declares this platform but it has no row in platform_capabilities.yaml",

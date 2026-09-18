@@ -61,6 +61,14 @@ from typing import Callable
 _DEFAULT_REPO_ROOT = Path(__file__).resolve().parents[3]
 REPO_ROOT = _DEFAULT_REPO_ROOT
 WORKFLOWS_DIR = REPO_ROOT / "scripts" / "seo" / "workflows"
+# MT069 PHB-05 (2026-09-17): a second source directory for non-SEO workflows
+# migrated to the public repo (first tenant: aspose-com-targets-watch.yml).
+# Both directories deploy into the SAME .github/workflows/ prefix in
+# Aspose/aspose.org-workflows, so results stay keyed by filename alone --
+# no per-directory namespacing needed, matching how GitHub itself has no
+# concept of subdirectories under .github/workflows/.
+DEPLOYED_WORKFLOWS_DIR = REPO_ROOT / "scripts" / "ci" / "deployed-workflows"
+SOURCE_DIRS = (WORKFLOWS_DIR, DEPLOYED_WORKFLOWS_DIR)
 BASELINES_PATH = REPO_ROOT / "data" / "workflow_deploy_baselines.json"
 
 DEPLOYED_REPO = "Aspose/aspose.org-workflows"
@@ -73,9 +81,11 @@ DIVERGED = "DIVERGED"
 
 def configure(*, repo_root: "Path | str | None" = None) -> None:
     """Override module-level path constants for testing."""
-    global REPO_ROOT, WORKFLOWS_DIR, BASELINES_PATH
+    global REPO_ROOT, WORKFLOWS_DIR, DEPLOYED_WORKFLOWS_DIR, SOURCE_DIRS, BASELINES_PATH
     REPO_ROOT = Path(repo_root) if repo_root is not None else _DEFAULT_REPO_ROOT
     WORKFLOWS_DIR = REPO_ROOT / "scripts" / "seo" / "workflows"
+    DEPLOYED_WORKFLOWS_DIR = REPO_ROOT / "scripts" / "ci" / "deployed-workflows"
+    SOURCE_DIRS = (WORKFLOWS_DIR, DEPLOYED_WORKFLOWS_DIR)
     BASELINES_PATH = REPO_ROOT / "data" / "workflow_deploy_baselines.json"
 
 
@@ -134,11 +144,19 @@ def classify(local_sha: str, deployed_sha: "str | None", baseline_sha: "str | No
 
 def check_workflow_drift(
     *,
-    workflows_dir: "Path | None" = None,
+    workflows_dir: "Path | list[Path] | tuple[Path, ...] | None" = None,
     fetch_fn: "Callable[[str], str | None] | None" = None,
     seed_missing_baselines: bool = True,
 ) -> dict:
     """Run the drift check across every *.yml in `workflows_dir`.
+
+    `workflows_dir` accepts a single directory (kept for backward
+    compatibility -- e.g. a test isolating one source), a list/tuple of
+    directories, or None (defaults to SOURCE_DIRS, i.e. every known template
+    source -- currently `scripts/seo/workflows/` and
+    `scripts/ci/deployed-workflows/`, both deployed into the same
+    `.github/workflows/` prefix, so results are keyed by filename alone
+    across all of them).
 
     Returns {"results": {filename: {status, local_sha256, deployed_sha256,
     approved_baseline_sha256}}, "baselines": <baselines dict, updated in
@@ -149,51 +167,63 @@ def check_workflow_drift(
     `fetch_fn` (defaults to a real `gh api` call) for the deployed side,
     never writes anything itself.
     """
-    workflows_dir = workflows_dir or WORKFLOWS_DIR
+    if workflows_dir is None:
+        dirs: "tuple[Path, ...]" = SOURCE_DIRS
+    elif isinstance(workflows_dir, (list, tuple)):
+        dirs = tuple(workflows_dir)
+    else:
+        dirs = (workflows_dir,)
     fetch_fn = fetch_fn or (lambda deployed_path: fetch_deployed_content(deployed_path))
     baselines = load_baselines()
 
     results: dict = {}
-    for yml_path in sorted(workflows_dir.glob("*.yml")):
-        name = yml_path.name
-        local_text = yml_path.read_text(encoding="utf-8")
-        local_sha = sha256_text(local_text)
+    for source_dir in dirs:
+        if not source_dir.is_dir():
+            continue
+        for yml_path in sorted(source_dir.glob("*.yml")):
+            name = yml_path.name
+            local_text = yml_path.read_text(encoding="utf-8")
+            local_sha = sha256_text(local_text)
 
-        deployed_path = f"{DEPLOYED_PREFIX}/{name}"
-        deployed_text = fetch_fn(deployed_path)
-        deployed_sha = sha256_text(deployed_text) if deployed_text is not None else None
+            deployed_path = f"{DEPLOYED_PREFIX}/{name}"
+            deployed_text = fetch_fn(deployed_path)
+            deployed_sha = sha256_text(deployed_text) if deployed_text is not None else None
 
-        entry = baselines.get(name, {})
-        baseline_sha = entry.get("approved_baseline_sha256")
+            entry = baselines.get(name, {})
+            baseline_sha = entry.get("approved_baseline_sha256")
 
-        if baseline_sha is None and seed_missing_baselines and deployed_sha is not None:
-            baseline_sha = deployed_sha
-            baselines[name] = {
-                "deployed_repo": DEPLOYED_REPO,
-                "deployed_path": deployed_path,
+            if baseline_sha is None and seed_missing_baselines and deployed_sha is not None:
+                baseline_sha = deployed_sha
+                baselines[name] = {
+                    "deployed_repo": DEPLOYED_REPO,
+                    "deployed_path": deployed_path,
+                    "approved_baseline_sha256": baseline_sha,
+                    "baseline_source": "seeded_from_deployed",
+                    "baseline_recorded_at": datetime.now(timezone.utc).isoformat().replace("+00:00", "Z"),
+                }
+
+            results[name] = {
+                "status": classify(local_sha, deployed_sha, baseline_sha),
+                "local_sha256": local_sha,
+                "deployed_sha256": deployed_sha,
                 "approved_baseline_sha256": baseline_sha,
-                "baseline_source": "seeded_from_deployed",
-                "baseline_recorded_at": datetime.now(timezone.utc).isoformat().replace("+00:00", "Z"),
             }
-
-        results[name] = {
-            "status": classify(local_sha, deployed_sha, baseline_sha),
-            "local_sha256": local_sha,
-            "deployed_sha256": deployed_sha,
-            "approved_baseline_sha256": baseline_sha,
-        }
 
     return {"results": results, "baselines": baselines}
 
 
 def main(argv: "list[str] | None" = None) -> int:
-    parser = argparse.ArgumentParser(description="Three-way drift check for scripts/seo/workflows/*.yml")
+    parser = argparse.ArgumentParser(
+        description="Three-way drift check for scripts/seo/workflows/*.yml and "
+                     "scripts/ci/deployed-workflows/*.yml"
+    )
     parser.add_argument("--no-seed", action="store_true",
                          help="Do not seed a missing baseline from today's deployed content")
     args = parser.parse_args(argv)
 
-    if not WORKFLOWS_DIR.is_dir():
-        print(f"ERROR: {WORKFLOWS_DIR} not found", file=sys.stderr)
+    existing_dirs = [d for d in SOURCE_DIRS if d.is_dir()]
+    if not existing_dirs:
+        print(f"ERROR: none of {list(SOURCE_DIRS)} exist", file=sys.stderr)
         return 2
 
     try:

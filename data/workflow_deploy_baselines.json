@@ -1,4 +1,60 @@
 {
+  "aspose-com-targets-watch.yml": {
+    "approved_baseline_sha256": "8dd0bb9be08c902274a0daeda83865169f31816b22850867149bb2febe1775f0",
+    "baseline_recorded_at": "2026-09-17T15:50:58.879103Z",
+    "baseline_source": "seeded_from_deployed",
+    "deployed_path": ".github/workflows/aspose-com-targets-watch.yml",
+    "deployed_repo": "Aspose/aspose.org-workflows"
+  },
+  "backlink-compliance-watch.yml": {
+    "approved_baseline_sha256": "362043763cae5327d198815fbb018001352b316ddea652cb611cbd1cc1761f56",
+    "baseline_recorded_at": "2026-09-17T17:03:55.195572Z",
+    "baseline_source": "seeded_from_deployed",
+    "deployed_path": ".github/workflows/backlink-compliance-watch.yml",
+    "deployed_repo": "Aspose/aspose.org-workflows"
+  },
+  "ci-onboarding-integrity-weekly.yml": {
+    "approved_baseline_sha256": "6f6ad7782262f34b200a3e5c36897a3ef2be8756d848a303346d8538461c3356",
+    "baseline_recorded_at": "2026-09-18T04:41:46.381160Z",
+    "baseline_source": "seeded_from_deployed",
+    "deployed_path": ".github/workflows/ci-onboarding-integrity-weekly.yml",
+    "deployed_repo": "Aspose/aspose.org-workflows"
+  },
+  "install-literal-sweep.yml": {
+    "approved_baseline_sha256": "7c87a2a9a6e5fb18314881e8b5122741f8a4f29c119579584d43ee26e2e2359e",
+    "baseline_recorded_at": "2026-09-17T18:30:09.764907Z",
+    "baseline_source": "seeded_from_deployed",
+    "deployed_path": ".github/workflows/install-literal-sweep.yml",
+    "deployed_repo": "Aspose/aspose.org-workflows"
+  },
+  "launch-dashboard-weekly.yml": {
+    "approved_baseline_sha256": "f95becc431c9faff172b626d6f9571f1d2349517fc5bda76030ddff1a4022503",
+    "baseline_recorded_at": "2026-09-18T04:41:48.134788Z",
+    "baseline_source": "seeded_from_deployed",
+    "deployed_path": ".github/workflows/launch-dashboard-weekly.yml",
+    "deployed_repo": "Aspose/aspose.org-workflows"
+  },
+  "maven-publish-watcher.yml": {
+    "approved_baseline_sha256": "ef135bd64af00879a19cb0016fed0243c00e8927604a378293d13d14312034cd",
+    "baseline_recorded_at": "2026-09-17T18:30:10.812899Z",
+    "baseline_source": "seeded_from_deployed",
+    "deployed_path": ".github/workflows/maven-publish-watcher.yml",
+    "deployed_repo": "Aspose/aspose.org-workflows"
+  },
+  "package-publish-watch.yml": {
+    "approved_baseline_sha256": "b608d7dfb2213567da60d0c4236874df04c1b594d32b4705fc3816a79bec4f39",
+    "baseline_recorded_at": "2026-09-17T18:30:11.919695Z",
+    "baseline_source": "seeded_from_deployed",
+    "deployed_path": ".github/workflows/package-publish-watch.yml",
+    "deployed_repo": "Aspose/aspose.org-workflows"
+  },
+  "selfhosted-runner-smoke-test.yml": {
+    "approved_baseline_sha256": "a6ab33e96752007c06275dc867ff8bede2c552dd50f7fb34aef382ce8faae241",
+    "baseline_recorded_at": "2026-09-17T18:30:13.193679Z",
+    "baseline_source": "seeded_from_deployed",
+    "deployed_path": ".github/workflows/selfhosted-runner-smoke-test.yml",
+    "deployed_repo": "Aspose/aspose.org-workflows"
+  },
   "seo-analysis.yml": {
     "approved_baseline_sha256": "6e68c88c7221b84b5ab4499bb6424c11b9f6317506b0e736e1e5ceff14c3c806",
     "baseline_recorded_at": "2026-09-05T19:29:23.732296Z",
@@ -25,6 +81,27 @@
     "baseline_recorded_at": "2026-09-05T19:29:26.252904Z",
     "baseline_source": "seeded_from_deployed",
     "deployed_path": ".github/workflows/seo-review.yml",
+    "deployed_repo": "Aspose/aspose.org-workflows"
+  },
+  "seo-token-liveness.yml": {
+    "approved_baseline_sha256": "b5f335b3b26d03b7d3bf2ab46d765eb5a826fabd8cb6c92d4470816022396100",
+    "baseline_recorded_at": "2026-09-17T15:50:57.968722Z",
+    "baseline_source": "seeded_from_deployed",
+    "deployed_path": ".github/workflows/seo-token-liveness.yml",
+    "deployed_repo": "Aspose/aspose.org-workflows"
+  },
+  "seo-weekly-analysis.yml": {
+    "approved_baseline_sha256": "93d8b6a5ef350dbd9d5390369d05d13afdf3a2f6d935c79a0dcd05583f946823",
+    "baseline_recorded_at": "2026-09-17T17:03:56.241657Z",
+    "baseline_source": "seeded_from_deployed",
+    "deployed_path": ".github/workflows/seo-weekly-analysis.yml",
+    "deployed_repo": "Aspose/aspose.org-workflows"
+  },
+  "upstream-monitor.yml": {
+    "approved_baseline_sha256": "87fd14f921d210eab9acfd1c47ca2b1ce6e7d5def25b091b637f3f64a9a3b41b",
+    "baseline_recorded_at": "2026-09-17T18:30:15.385480Z",
+    "baseline_source": "seeded_from_deployed",
+    "deployed_path": ".github/workflows/upstream-monitor.yml",
     "deployed_repo": "Aspose/aspose.org-workflows"
   }
 }

@@ -156,15 +156,63 @@ class TestNegativeControlValueMismatch:
 
     def test_same_fixture_passes_once_the_value_is_corrected(self, tmp_path):
         """Sanity companion to the negative control: restoring the real
-        value makes the SAME fixture shape clean again -- proving the
-        finding above was caused by the mutation, not fixture plumbing."""
+        value makes the SAME fixture shape clean again for the class_kinds
+        value under test -- proving the finding above was caused by the
+        mutation, not fixture plumbing.
+
+        Scoped to the typescript/class_kinds finding specifically (TC-14,
+        MT069, 2026-09-17) rather than asserting `findings == []` overall:
+        this fixture deliberately declares only one of the registry's 7
+        example_verification platforms, so check_example_verification()'s
+        reverse-completeness loop correctly reports the other 6 as missing
+        from this fixture's YAML -- that is real, correct, unrelated
+        behavior, not a regression of the value this test is actually
+        checking. See test_completeness_check_uses_declared_platforms_not_active_subset
+        below for the completeness loop's own dedicated regression pin."""
         real_caps = _load_real_caps()
         caps = {"platforms": {"typescript": dict(real_caps["platforms"]["typescript"])}}
         products = [{"family": "pdf", "platform": "typescript", "active": True}]
         repo = _write_repo(tmp_path, caps, products)
         cpc.configure(repo_root=repo)
         findings = cpc.check_all()
-        assert findings == [], findings
+        mismatches = [
+            f for f in findings
+            if f["kind"] == "value_mismatch" and f["platform"] == "typescript" and f["site"] == "class_kinds"
+        ]
+        assert mismatches == [], mismatches
+
+    def test_completeness_check_uses_declared_platforms_not_active_subset(self, tmp_path):
+        """Regression pin for TC-14/MT069 (2026-09-17): check_example_verification's
+        reverse-completeness loop (the 'registry.PLATFORM_CONTRACT declares
+        this platform but it has no row in platform_capabilities.yaml'
+        finding) must compare against every platform the YAML itself
+        declares (caps["platforms"]), not the caller's active-and-declared
+        `checkable_platforms` subset. Conflating the two produced 6
+        false-positive findings on every real CI run from 2026-09-06 onward
+        (skill-governance.yml, 100% failure rate) for platforms that were
+        fully declared in the real YAML but simply not marked `active` in
+        that day's products.json snapshot.
+
+        This fixture reproduces the exact shape: all 7 real platforms keep
+        their real, fully-populated example_verification blocks (nothing is
+        actually missing from the YAML), but only 2 of the 7 are marked
+        active -- so `checkable_platforms` narrows to just those 2 while
+        `caps["platforms"]` still has all 7."""
+        real_caps = _load_real_caps()
+        caps = {"platforms": dict(real_caps["platforms"])}
+        active = ["python", "typescript"]
+        products = [{"family": "demo", "platform": p, "active": p in active} for p in caps["platforms"]]
+        repo = _write_repo(tmp_path, caps, products)
+        cpc.configure(repo_root=repo)
+
+        findings = cpc.check_all()
+
+        completeness_findings = [
+            f for f in findings
+            if f["kind"] == "value_mismatch" and f["site"] == "example_verification"
+            and "no row in platform_capabilities.yaml" in f["detail"]
+        ]
+        assert completeness_findings == [], completeness_findings
 
 
 class TestMainExitCode:

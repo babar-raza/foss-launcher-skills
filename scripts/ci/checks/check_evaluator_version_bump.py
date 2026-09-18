@@ -36,6 +36,7 @@ import re
 import subprocess
 import sys
 from pathlib import Path
+from typing import Callable
 
 if hasattr(sys.stdout, "reconfigure"):
     sys.stdout.reconfigure(encoding="utf-8", errors="replace")
@@ -106,8 +107,15 @@ def _file_at_ref(path_rel: str, ref: str) -> str | None:
     return result.stdout if result.returncode == 0 else None
 
 
-def _diff_added_lines(path_rel: str, base: str) -> list[str]:
-    result = _run_git(["diff", f"{base}...HEAD", "--", path_rel])
+def _diff_added_lines(path_rel: str, base: str, *, staged: bool = False) -> list[str]:
+    # TC-15-followup (independent review, 2026-09-17): `{base}...HEAD` is a real diff
+    # only for an already-committed change (CI usage). For a pre-commit/staged
+    # invocation, HEAD does not yet include the pending change at all, so this
+    # would always return an empty diff regardless of what is staged -- silently
+    # blinding the EXEMPT-marker escape hatch to any staged-but-uncommitted marker.
+    # `--staged` compares the base ref directly against the INDEX instead.
+    args = ["diff", "--cached", base, "--", path_rel] if staged else ["diff", f"{base}...HEAD", "--", path_rel]
+    result = _run_git(args)
     if result.returncode not in (0, 1):
         return []
     return [
@@ -127,9 +135,22 @@ def _exemption_from_lines(diff_lines: list[str]) -> "str | None":
     return None
 
 
-def has_exemption(evaluator_path: str, base: str) -> "str | None":
+def has_exemption(evaluator_path: str, base: str, *, staged: bool = False) -> "str | None":
     """Return the exemption reason if the diff added an EXEMPT marker, else None."""
-    return _exemption_from_lines(_diff_added_lines(evaluator_path, base))
+    return _exemption_from_lines(_diff_added_lines(evaluator_path, base, staged=staged))
+
+
+def _read_init_head_text(staged: bool) -> str:
+    """The real head-text read, switching between the git INDEX (staged) and
+    disk (not staged). Extracted to its own named function so tests can
+    inject a replacement via check()'s read_head_text_fn parameter (a plain
+    keyword argument) instead of monkeypatching _file_at_ref/_INIT_PATH
+    directly -- AGENTS.md 16 classifies patching either as T2 (internal
+    function/constant replacement), banned; an explicit DI seam is the
+    required alternative."""
+    if staged:
+        return _file_at_ref(_INIT_REL_PATH, "") or ""
+    return _INIT_PATH.read_text(encoding="utf-8")
 
 
 def check(
@@ -139,6 +160,8 @@ def check(
     init_head_text: "str | None" = None,
     init_base_text: "str | None" = None,
     exemption_diff_lines: "dict[str, list[str]] | None" = None,
+    staged: bool = False,
+    read_head_text_fn: "Callable[[bool], str] | None" = None,
 ) -> tuple[int, list[tuple[str, "str | None"]]]:
     """Run the check. Returns (exit_code, problems) where problems is a list of
     (evaluator_name, exemption_reason_or_None) for evaluators missing a bump.
@@ -148,13 +171,33 @@ def check(
     exemption_diff_lines, when given, maps evaluator_path -> its diff's added
     lines, letting tests inject a synthetic diff instead of needing a real git
     subprocess; when None (the real/production path), has_exemption() runs a
-    real `git diff` per evaluator."""
+    real `git diff` per evaluator.
+
+    staged (TC-15-followup, independent review, 2026-09-17): a pre-commit
+    invocation must judge the commit that is ABOUT TO BE MADE, i.e. the git
+    INDEX, not the working tree. `_INIT_PATH.read_text()` reads disk, so a
+    version bump made to __init__.py but never `git add`-ed would previously
+    read as "bumped" here and pass, even though the resulting commit would not
+    actually contain it (a real fail-open gap, not hypothetical). When staged
+    is True and init_head_text isn't explicitly injected, head_text instead
+    comes from the index via `git show :path` (empty ref = index in git's own
+    pathspec syntax, reusing _file_at_ref unchanged) -- see
+    _read_init_head_text().
+
+    read_head_text_fn, when given, replaces _read_init_head_text() entirely --
+    the injectable seam for tests exercising the staged-vs-disk branching
+    itself (init_head_text alone can't do this, since providing it skips the
+    branch being tested)."""
     changed = changed_files if changed_files is not None else get_changed_files(base)
     names = changed_evaluator_names(changed)
     if not names:
         return 0, []
 
-    head_text = init_head_text if init_head_text is not None else _INIT_PATH.read_text(encoding="utf-8")
+    if init_head_text is not None:
+        head_text = init_head_text
+    else:
+        reader = read_head_text_fn or _read_init_head_text
+        head_text = reader(staged)
     base_text = init_base_text if init_base_text is not None else (_file_at_ref(_INIT_REL_PATH, base) or "")
     head_versions, head_logic = parse_versions(head_text)
     base_versions, base_logic = parse_versions(base_text)
@@ -171,7 +214,7 @@ def check(
         if exemption_diff_lines is not None:
             exemption = _exemption_from_lines(exemption_diff_lines.get(evaluator_path, []))
         else:
-            exemption = has_exemption(evaluator_path, base)
+            exemption = has_exemption(evaluator_path, base, staged=staged)
         if exemption is not None:
             continue
         problems.append((name, None))
@@ -186,9 +229,16 @@ def main(argv: "list[str] | None" = None) -> int:
     )
     parser.add_argument("--base", default="main", help="Base branch/ref for git diff (default: main)")
     parser.add_argument("--files", nargs="+", help="Explicit list of changed files (overrides git diff)")
+    parser.add_argument(
+        "--staged", action="store_true",
+        help="Judge the git INDEX (about to be committed) instead of the working-tree "
+             "disk copy of __init__.py -- use this for a pre-commit invocation so an "
+             "unstaged version bump on disk cannot pass a check it will not actually "
+             "be part of (TC-15-followup, 2026-09-17).",
+    )
     args = parser.parse_args(argv)
 
-    exit_code, problems = check(args.base, changed_files=args.files)
+    exit_code, problems = check(args.base, changed_files=args.files, staged=args.staged)
 
     if not problems:
         print("OK: every changed content_eval evaluator has a corresponding version bump (or none changed).")
