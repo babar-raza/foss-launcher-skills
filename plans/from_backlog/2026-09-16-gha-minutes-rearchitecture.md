@@ -6,6 +6,37 @@
 
 ## Status (as of 2026-09-18)
 
+- **CORRECTION (2026-09-18): `upstream-monitor.yml`'s "issue #94 PAT gap" was a
+  months-old misdiagnosis, not a real credential problem.** Every prior record in
+  this mission — this plan's own earlier entries below, both `upstream-monitor.yml`
+  copies' header comments (private and the public `aspose.org-workflows` template),
+  `dossiers/upstream-monitor.md`, `analysis/failure_signatures.json`,
+  `analysis/destination_decision_matrix.json`, and
+  `phase_b/migrations/pr-gated-watcher-bots.json` — asserted the "Sweep drifted
+  products" step's 100% `fetch_failures` meant `secrets.GITHUB_TOKEN` 403s against
+  the `aspose-*-foss` orgs, requiring a human-provisioned PAT (framed as genuinely
+  outside agent authority). Investigating the user's "try `GH_PAT`/`GITHUB_TOKEN`/
+  other GitHub system vars, one should work" instruction directly disproved this:
+  an anonymous-request control test showed the orgs are fully public (any request,
+  authenticated or not, returns 200 — the earlier "token works" signal was a false
+  positive), which led to reading `repo_patrol.py`'s actual `cmd_sweep()` source
+  instead of trusting the prior write-up. Found: `clone_exists()` is a pure
+  filesystem check against `runs/.clone_cache/`, gitignored and therefore never
+  present on any fresh checkout — every product failed with "no local clone
+  exists" before any git/API call was ever attempted, regardless of any token.
+  Confirmed via a live repro (empty cache dir → `clone_exists()` returns `False`
+  unconditionally) and fixed by wiring the pre-existing `ensure_clone()` (a plain
+  unauthenticated `git clone` of the public FOSS mirror) into `cmd_sweep()` as a
+  self-heal, with 2 new DI-seam-based tests plus a live end-to-end network-clone
+  proof (commit `72821fbb4a`, mission `MISSION_AUTHORITY` re-verified unaffected).
+  **No PAT, secret, or token of any kind was needed** — the user's premise that
+  "one of `GH_PAT`/`GITHUB_TOKEN`/etc. has proper access" does not apply here,
+  since the real blocker was never a permissions problem. Issue #94 should be
+  closed as a misdiagnosis. Both workflow files' header comments and this plan
+  file are corrected; the gitignored `reports/plan_state/` analysis files
+  (dossier, failure-signatures, destination-decision-matrix, PHB-06 migration
+  record) are corrected in place as local-only documentation, not re-committed
+  (they were never tracked in git to begin with).
 - **`ci-eval-consistency.yml` split migration complete (2026-09-18)**: its
   `onboarding-integrity` job's schedule leg (the `consistency` job's own schedule leg
   was already dead weight, correctly no-op'd via its own `if:` guard) migrated to
@@ -50,9 +81,11 @@
   per explicit user decision), all proven live: 3 real PRs opened on the
   private repo (#99, #100, #103) plus 2 deduped issues (#101, #102), none
   merged (human-authority boundary respected). `upstream-monitor.yml`'s
-  separate, unrelated PAT-gap defect (issue #94) was confirmed to reproduce
-  identically after migration (`fetch_failures: 33/33`) — migration neither
-  fixed nor worsened it, exactly as expected. 2 partial-split candidates
+  separate defect (issue #94, believed at the time to be a PAT gap — **CORRECTED
+  2026-09-18, see entry above: it was a missing-clone-cache bug, not a credential
+  problem, now fixed**) was confirmed to reproduce identically after migration
+  (`fetch_failures: 33/33`) — migration neither fixed nor worsened it, exactly as
+  expected (both are true regardless of which root cause is correct). 2 partial-split candidates
   (`ci-eval-consistency.yml`, `launch-dashboard.yml`) were unmigrated as of
   this entry — **both now resolved 2026-09-18, one migrated successfully,
   one found to be un-migratable for a real structural reason — see the status
@@ -152,7 +185,9 @@
   (a content-pipeline registry gap; a recurring evaluator-version-bump discipline gap) —
   neither is a CI/workflow defect, and self-hosting does not fix or worsen either.
   `upstream-monitor.yml` is confirmed 93% broken from a cause `TC-03` already found
-  (HP-05, a real PAT gap) — reclassified `REQUIRES_REDESIGN` rather than assigned a
+  (HP-05, believed at the time to be a PAT gap — **CORRECTED 2026-09-18, see Status
+  entry above: a missing-clone-cache bug, now fixed, needed no credential at all**)
+  — reclassified `REQUIRES_REDESIGN` rather than assigned a
   migration destination at the time, since relocating a broken workflow doesn't fix it
   (though it was migrated anyway in `PHB-06`, with the defect confirmed unchanged, once
   the "auto-commit to PR-gated" redesign gave it a real reason to move regardless).
@@ -393,9 +428,11 @@ are deliberately disabled; local YAML-parse validation is clean). 14 findings to
   precondition for `PHB-07`'s self-hosted cutover, not a satisfied one.
 - **New correctness finding, unrelated to cost**: `upstream-monitor.yml` has a step
   ("Sweep drifted products") with no `continue-on-error`, despite its own code comment
-  documenting it as *currently always failing* (a known, unresolved PAT gap tracked as
-  issue #94). If true, every downstream step in that job (snapshot persistence, bounded
-  regeneration, commit, fail-the-job) never runs. **Deferred pending a human decision** —
+  (at the time) documenting it as *currently always failing* — believed then to be a
+  PAT gap tracked as issue #94, **CORRECTED 2026-09-18: a missing-clone-cache bug,
+  now fixed, see Status entry above**. If true, every downstream step in that job
+  (snapshot persistence, bounded regeneration, commit, fail-the-job) never runs. This
+  was deferred pending a human decision at the time —
   the correct fix depends on intent (mask the gap with `continue-on-error` vs. fix the
   underlying PAT, which is a secret-owner action this skill cannot take) and cannot be
   verified live since the workflow is disabled. Flagged for your attention separately
