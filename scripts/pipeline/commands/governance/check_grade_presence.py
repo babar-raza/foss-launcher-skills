@@ -17,12 +17,27 @@ if _LIB_DIR not in sys.path:
     sys.path.insert(0, _LIB_DIR)
 
 from grade_writer import read_grade  # noqa: E402
-from content_discovery import LOCALE_RE  # noqa: E402  (R-4: was knowledge_core)
+from content_discovery import LOCALE_CODES, LOCALE_RE  # noqa: E402  (R-4: was knowledge_core)
+
+
+def _in_locale_directory(path: Path) -> bool:
+    """True for a translation kept in a locale DIRECTORY: content/<site>.aspose.org/<code>/...
+
+    Docs/KB/reference/products store translations that way (no `.<code>.md` suffix). Blog uses
+    suffixes only, so a locale-named blog directory is NOT exempted -- the exemption must never
+    reach an English page. `en` is not in LOCALE_CODES, and only the segment directly under the
+    site counts, so `content/docs.aspose.org/en/cells/no/...` stays checked.
+    """
+    parts = path.parts
+    for i, part in enumerate(parts):
+        if part == "content" and len(parts) > i + 2 and parts[i + 1].endswith(".aspose.org"):
+            return parts[i + 1] != "blog.aspose.org" and parts[i + 2] in LOCALE_CODES
+    return False
 
 
 def _is_english_content(path: Path) -> bool:
     """Return True if the file is English content (not a translation)."""
-    return path.suffix == ".md" and not LOCALE_RE.search(path.name)
+    return path.suffix == ".md" and not LOCALE_RE.search(path.name) and not _in_locale_directory(path)
 
 
 def main(argv: list[str] | None = None) -> int:

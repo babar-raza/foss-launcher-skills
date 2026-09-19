@@ -107,6 +107,70 @@ class TestMainDirect:
 
 
 # ---------------------------------------------------------------------------
+# Section 1b — translations that live in a locale DIRECTORY (MT069 HC-20)
+#
+# Docs/KB/reference/products keep translations under content/<site>/<code>/...,
+# not as *.<code>.md. Those files carry provenance.translation_origin and no
+# grade by design. The check used to judge "translation" by filename suffix only
+# and demanded a grade on 141 of them (found by the HC-06 CI-mirror simulation).
+# The English gate must stay exactly as strict as before.
+# ---------------------------------------------------------------------------
+
+class TestLocaleDirectoryTranslations:
+    def setup_method(self):
+        from check_grade_presence import main
+        self._main = main
+
+    @staticmethod
+    def _page(tmp_path: Path, rel: str, *, graded: bool) -> Path:
+        p = tmp_path / rel
+        p.parent.mkdir(parents=True, exist_ok=True)
+        return (_graded_md if graded else _ungraded_md)(p)
+
+    @pytest.mark.parametrize("site", ["docs", "kb", "reference", "products"])
+    def test_ungraded_translation_in_a_locale_directory_passes(self, tmp_path, site):
+        f = self._page(tmp_path, f"content/{site}.aspose.org/fa/3d/python/_index.md", graded=False)
+        assert self._main([str(f)]) == 0
+
+    def test_ungraded_english_page_still_fails(self, tmp_path):
+        """The gate must stay live: 'en' is not a translation."""
+        f = self._page(tmp_path, "content/docs.aspose.org/en/3d/python/_index.md", graded=False)
+        assert self._main([str(f)]) == 1
+
+    def test_graded_english_page_passes(self, tmp_path):
+        f = self._page(tmp_path, "content/docs.aspose.org/en/3d/python/_index.md", graded=True)
+        assert self._main([str(f)]) == 0
+
+    def test_a_locale_code_deeper_in_the_path_does_not_exempt_an_english_page(self, tmp_path):
+        f = self._page(tmp_path, "content/docs.aspose.org/en/cells/no/getting-started/install.md", graded=False)
+        assert self._main([str(f)]) == 1
+
+    def test_a_locale_named_directory_outside_content_is_still_checked(self, tmp_path):
+        f = self._page(tmp_path, "fa/3d/python/_index.md", graded=False)
+        assert self._main([str(f)]) == 1
+
+    def test_blog_uses_suffixes_only_so_a_locale_named_blog_directory_is_still_checked(self, tmp_path):
+        f = self._page(tmp_path, "content/blog.aspose.org/de/python/post/index.md", graded=False)
+        assert self._main([str(f)]) == 1
+
+    def test_a_file_named_like_a_locale_is_not_a_locale_directory(self, tmp_path):
+        f = self._page(tmp_path, "content/docs.aspose.org/fa.md", graded=False)
+        assert self._main([str(f)]) == 1
+
+    def test_only_the_english_file_is_reported_when_both_are_ungraded(self, tmp_path, capsys):
+        tr = self._page(tmp_path, "content/docs.aspose.org/fa/3d/python/_index.md", graded=False)
+        en = self._page(tmp_path, "content/docs.aspose.org/en/3d/python/_index.md", graded=False)
+        assert self._main([str(tr), str(en)]) == 1
+        err = capsys.readouterr().err
+        assert "1 file(s) missing grades" in err
+        assert str(en) in err and str(tr) not in err
+
+    def test_suffix_translations_are_still_exempt(self, tmp_path):
+        f = self._page(tmp_path, "content/blog.aspose.org/words/net/post/index.hi.md", graded=False)
+        assert self._main([str(f)]) == 0
+
+
+# ---------------------------------------------------------------------------
 # Section 2 — CLI subprocess tests (integration)
 # ---------------------------------------------------------------------------
 
