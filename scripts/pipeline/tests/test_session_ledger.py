@@ -1549,6 +1549,75 @@ class TestStaleMissionBlockLines:
 
         assert any("MT-STALE" in ln for ln in lines)
 
+    def test_a_denied_mission_entry_does_not_hide_the_stale_missions_at_session_start(
+        self, tmp_path, monkeypatch, capsys,
+    ):
+        """TC-GOV-02-01-FIX2: an OS-level stat error on ONE mission directory
+        (reproduced with a real deny ACE) used to escape _plan_state_report(), so
+        the whole block collapsed to 'stale-mission check unavailable:
+        PermissionError' and every stale mission was hidden. Now that one mission
+        is named in the unreadable line and the stale list is intact."""
+        _seed_mission(tmp_path, "MT-STALE", days_quiet=30)
+        _write_archive(tmp_path, "MT-DENIED")
+        real_is_file = Path.is_file
+
+        def flaky_is_file(self, *args, **kwargs):
+            if self.name == "mission_authority.yaml" and self.parent.name == "MT-DENIED":
+                raise PermissionError(13, "Access is denied")
+            return real_is_file(self, *args, **kwargs)
+
+        # T3-MOCK: an OS-level stat failure on one directory entry is an external I/O boundary; the real deny-ACE twin lives in test_mission_authority.py
+        monkeypatch.setattr(Path, "is_file", flaky_is_file)
+
+        session_ledger.emit_stale_mission_block(tmp_path)
+
+        out = capsys.readouterr().out
+        assert "unavailable" not in out
+        lines = out.splitlines()
+        assert lines[0].endswith(": 1") and any("MT-STALE" in ln for ln in lines)
+        unreadable = [ln for ln in lines if "nreadable" in ln]
+        assert len(unreadable) == 1 and "MT-DENIED" in unreadable[0]
+
+    def test_an_unlistable_plan_state_directory_is_named_not_swallowed(
+        self, tmp_path, monkeypatch, capsys,
+    ):
+        _seed_mission(tmp_path, "MT-STALE", days_quiet=30)
+        real_iterdir = Path.iterdir
+
+        def flaky_iterdir(self):
+            if self.name == "plan_state":
+                raise PermissionError(13, "Access is denied")
+            return real_iterdir(self)
+
+        # T3-MOCK: an OS-level directory-listing failure is an external I/O boundary; the real deny-ACE twin lives in test_mission_authority.py
+        monkeypatch.setattr(Path, "iterdir", flaky_iterdir)
+
+        session_ledger.emit_stale_mission_block(tmp_path)
+
+        out = capsys.readouterr().out
+        assert "unavailable" not in out
+        assert "Mission ledgers unreadable" in out and "reports/plan_state" in out
+
+    def test_pointer_line_follows_the_stale_rows_and_the_unreadable_line_comes_last(
+        self, tmp_path,
+    ):
+        """TC-GOV-02-01-FIX2 (cosmetic): '... and N more. Full list: ...' used to
+        be the LAST line, so under 'Mission ledgers unreadable' it read as if it
+        referred to the unreadable ledgers. It now directly follows the stale
+        rows it counts; the unreadable line is last."""
+        for i in range(7):
+            _seed_mission(tmp_path, f"MT-S{i}", days_quiet=10 + i)
+        _seed_unreadable_mission(tmp_path, "MT-BROKEN")
+
+        lines = session_ledger.stale_mission_block_lines(tmp_path)
+
+        pointer = next(i for i, ln in enumerate(lines) if "Full list:" in ln)
+        unreadable = next(i for i, ln in enumerate(lines) if "nreadable" in ln)
+        assert "and 2 more" in lines[pointer]
+        assert pointer < unreadable == len(lines) - 1
+        # the pointer sits right under the last listed stale row
+        assert lines[pointer - 1].startswith("  MT-S")
+
 
 class TestEmitStaleMissionBlock:
     def test_prints_nothing_at_all_when_nothing_is_stale(self, tmp_path, capsys):

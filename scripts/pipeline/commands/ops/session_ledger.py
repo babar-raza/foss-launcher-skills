@@ -1141,9 +1141,10 @@ def stale_mission_block_lines(
 
     Shape: one header with the count, at most _STALE_MISSION_MAX_LISTED rows
     (id plus days quiet, oldest first, a mission with no activity signal at all
-    first of all), one line naming the unreadable-ledger missions, and one
-    pointer to the full list. Raises whatever the row source raises --
-    emit_stale_mission_block() is the fail-open caller.
+    first of all), one pointer to the full list directly under those rows, and
+    one line naming the unreadable-ledger missions (when there are none stale
+    that line carries the pointer under it instead). Raises whatever the row
+    source raises -- emit_stale_mission_block() is the fail-open caller.
     """
     root = root if root is not None else _REPO_ROOT
     rows_fn = plan_state_rows_fn or _PLAN_STATE_ROWS_FN or _default_plan_state_rows
@@ -1165,6 +1166,7 @@ def stale_mission_block_lines(
     stale.sort(key=_sort_key)
 
     lines: list[str] = []
+    pointer = f"Full list: {_MISSION_STATUS_COMMAND}"
     if stale:
         lines.append(
             "Stale open missions (informational, no recent taskcard activity): "
@@ -1175,6 +1177,12 @@ def stale_mission_block_lines(
             age = _age(row)
             quiet = "no activity signal" if age is None else f"quiet {int(age)}d"
             lines.append(f"  {name}  {quiet}")
+        # "... and N more" counts the STALE rows, so the pointer sits directly under
+        # them; the unreadable-ledger line (a different list) comes after it and can
+        # never be misread as the thing the pointer's count refers to.
+        hidden = len(stale) - _STALE_MISSION_MAX_LISTED
+        lead = f"  ... and {hidden} more. " if hidden > 0 else "  "
+        lines.append(f"{lead}{pointer}")
     if unreadable:
         names = [
             _ascii_display(row.get("mission_id", "?"), _MISSION_ID_DISPLAY_MAX)
@@ -1186,10 +1194,8 @@ def stale_mission_block_lines(
         lines.append(
             f"Mission ledgers unreadable (staleness unknown): {len(unreadable)} - {shown}"
         )
-    if lines:
-        hidden = len(stale) - _STALE_MISSION_MAX_LISTED
-        lead = f"  ... and {hidden} more. " if hidden > 0 else "  "
-        lines.append(f"{lead}Full list: {_MISSION_STATUS_COMMAND}")
+        if not stale:
+            lines.append(f"  {pointer}")  # nothing above it to hang the pointer on
     return lines
 
 

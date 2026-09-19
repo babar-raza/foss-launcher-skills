@@ -5,6 +5,7 @@ real MISSION_AUTHORITY.yaml or reports/plan_state/ in this repo.
 """
 from __future__ import annotations
 
+import contextlib
 import json
 import os
 import subprocess
@@ -995,6 +996,376 @@ class TestPlanStateLivenessIsolation:
         assert proc.returncode == 0, proc.stderr[-400:]
         out = json.loads(proc.stdout)
         assert _HEALTHY in out["stale_open_missions"]
+
+
+# ---------------------------------------------------------------------------
+# TC-GOV-02-01-FIX2 (review TC-GOV-02-01-FIX-REVIEW, DEFECT-1 / DEFECT-2).
+#
+# The per-mission isolation above covers what happens while one mission's FILES
+# are read. It did not cover an OS-level error while the mission ENTRY is
+# listed or stat-ed (Path.iterdir() / Path.is_file() sat outside the try), so
+# one access-denied mission directory still blinded the detector for every
+# mission and made `status --json` exit 1 with empty stdout. The sibling lock
+# store had the same shape: it caught OSError but not the UnicodeDecodeError of
+# a non-UTF-8 lock file, so `status` / `status --json` crashed there too.
+#
+# Two kinds of test on purpose:
+#   * REAL  -- a genuine OS access denial on a tmp_path directory (icacls deny
+#     ACE on Windows, chmod 000 elsewhere), restored in a `finally`. Self-
+#     checking: if the denial does not really make the syscall fail for this
+#     user (root / an elevated token), the test SKIPS rather than passing
+#     vacuously.
+#   * INJECTED -- the same PermissionError raised from pathlib for exactly one
+#     path, so the guarantee is also pinned on every OS and for every user.
+# Every fixture lives in tmp_path; the real ledgers are never touched.
+# ---------------------------------------------------------------------------
+
+_DENIED = "MT-DENIED"
+_PLAN_STATE_ROOT_ROW = "reports/plan_state"
+
+
+def _require_real_denial(probe) -> None:
+    try:
+        probe()
+    except PermissionError:
+        return
+    pytest.skip("this user/OS cannot produce a real access-denied condition here")
+
+
+@contextlib.contextmanager
+def _really_denied(directory: Path, probe, *, files: tuple = ()):
+    """Deny the current user access to `directory` (and `files`) with the OS's
+    own access control, prove the denial is real by running `probe`, and always
+    restore the original permissions on the way out.
+
+    Windows: the deny ACE is (RD,RA) -- list/read-data plus read-attributes --
+    and deliberately NOT the usual (RX). (RX) includes READ_CONTROL, and pytest's
+    tmp_path tree on Python 3.13 carries an OWNER RIGHTS ACE (os.mkdir 0o700), so
+    with (RX) the user could no longer read or edit the DACL of its own directory:
+    `icacls /remove:d` failed with access denied and the temp directory was left
+    undeletable (seen live). (RD,RA) is enough to make stat()/iterdir() raise and
+    always stays removable. Removal is also retried after `takeown` as a
+    belt-and-braces step, and a residue that survives both is a loud failure."""
+    if os.name == "nt":
+        user = os.environ.get("USERNAME")
+        if not user:
+            pytest.skip("cannot resolve the current Windows user for icacls")
+        domain = os.environ.get("USERDOMAIN")
+        who = f"{domain}\\{user}" if domain else user
+
+        def _run(*cmd: str) -> "subprocess.CompletedProcess[str]":
+            return subprocess.run(
+                list(cmd), capture_output=True, encoding="utf-8", errors="replace", timeout=60,
+            )
+
+        def _restore(target: Path) -> bool:
+            if _run("icacls", str(target), "/remove:d", who).returncode == 0:
+                return True
+            _run("takeown", "/F", str(target))
+            return _run("icacls", str(target), "/remove:d", who).returncode == 0
+
+        applied: list = []
+        try:
+            for target in (directory, *files):
+                result = _run("icacls", str(target), "/deny", f"{who}:(RD,RA)")
+                if result.returncode != 0:
+                    pytest.skip(f"icacls could not apply a deny ACE (exit {result.returncode})")
+                applied.append(target)
+            _require_real_denial(probe)
+            yield
+        finally:
+            # The directory first, then the files inside it; every target is tried.
+            stuck = [target.name for target in applied if not _restore(target)]
+            if stuck:
+                pytest.fail(
+                    f"could not remove the test deny ACE from {stuck}; run `takeown /F <path>` "
+                    f"then `icacls <path> /remove:d {who}` by hand",
+                    pytrace=False,
+                )
+    else:
+        if hasattr(os, "geteuid") and os.geteuid() == 0:
+            pytest.skip("root is not stopped by file permissions")
+        original_mode = directory.stat().st_mode & 0o7777
+        os.chmod(directory, 0o000)
+        try:
+            _require_real_denial(probe)
+            yield
+        finally:
+            os.chmod(directory, original_mode)
+
+
+def _fail_is_file_for_archive_of(monkeypatch, mission_id: str) -> None:
+    """Path.is_file() raises PermissionError for exactly one mission's archive
+    path (what a real stat failure looks like); every other path is answered by
+    the real implementation."""
+    real_is_file = Path.is_file
+
+    def flaky_is_file(self, *args, **kwargs):
+        if self.name == "mission_authority.yaml" and self.parent.name == mission_id:
+            raise PermissionError(13, "Access is denied")
+        return real_is_file(self, *args, **kwargs)
+
+    # T3-MOCK: an OS-level stat failure on one directory entry is an external I/O boundary; the real-denial tests pin the same guarantee on this OS
+    monkeypatch.setattr(Path, "is_file", flaky_is_file)
+
+
+def _fail_iterdir_for_plan_state(monkeypatch) -> None:
+    """Path.iterdir() raises PermissionError for reports/plan_state itself."""
+    real_iterdir = Path.iterdir
+
+    def flaky_iterdir(self):
+        if self.name == "plan_state":
+            raise PermissionError(13, "Access is denied")
+        return real_iterdir(self)
+
+    # T3-MOCK: an OS-level directory-listing failure is an external I/O boundary; the real-denial tests pin the same guarantee on this OS
+    monkeypatch.setattr(Path, "iterdir", flaky_iterdir)
+
+
+class TestPlanStateEntryLevelIsolation:
+    """DEFECT-1: an error while listing/stat-ing ONE mission entry must become an
+    error row for that mission only, and an unlistable plan_state must become
+    exactly one explicit error row -- never a raise out of the report."""
+
+    @staticmethod
+    def _seed(tmp_path: Path) -> Path:
+        _seed_healthy_stale(tmp_path)
+        return _write_mission_archive(tmp_path, _DENIED, archive_status="open")
+
+    # -- one unreadable mission ENTRY ------------------------------------------
+
+    def test_injected_stat_failure_on_one_mission_entry_is_an_error_row_for_that_mission_only(
+        self, tmp_path, monkeypatch,
+    ):
+        self._seed(tmp_path)
+        _fail_is_file_for_archive_of(monkeypatch, _DENIED)
+
+        rows = mission_authority._plan_state_report(tmp_path)
+
+        assert len(rows) == 2
+        _assert_error_row(_row_for(rows, _DENIED), _DENIED, ("PermissionError",))
+        assert _row_for(rows, _HEALTHY)["stale"] is True
+
+    def test_injected_stat_failure_status_json_exits_0_and_lists_the_denied_mission(
+        self, tmp_path, monkeypatch, capsys,
+    ):
+        self._seed(tmp_path)
+        _fail_is_file_for_archive_of(monkeypatch, _DENIED)
+
+        exit_code = mission_authority.main(["--root", str(tmp_path), "status", "--json"])
+
+        assert exit_code == 0
+        out = json.loads(capsys.readouterr().out)
+        assert out["plan_state_errors"] == [_DENIED]
+        assert out["stale_open_missions"] == [_HEALTHY]
+
+    def test_injected_stat_failure_human_status_names_the_denied_mission(
+        self, tmp_path, monkeypatch, capsys,
+    ):
+        self._seed(tmp_path)
+        _fail_is_file_for_archive_of(monkeypatch, _DENIED)
+
+        exit_code = mission_authority.main(["--root", str(tmp_path), "status"])
+
+        assert exit_code == 0
+        out = capsys.readouterr().out
+        assert "Unreadable plan_state missions" in out
+        assert _DENIED in out and "PermissionError" in out
+        assert _HEALTHY in out  # the healthy stale mission is still listed
+
+    def test_real_access_denied_mission_directory_is_an_error_row_for_that_mission_only(
+        self, tmp_path,
+    ):
+        denied_dir = self._seed(tmp_path)
+        archive = denied_dir / "mission_authority.yaml"
+
+        with _really_denied(denied_dir, archive.is_file, files=(archive,)):
+            rows = mission_authority._plan_state_report(tmp_path)
+
+        assert len(rows) == 2
+        _assert_error_row(_row_for(rows, _DENIED), _DENIED, ("PermissionError",))
+        assert _row_for(rows, _HEALTHY)["stale"] is True
+
+    def test_real_access_denied_mission_directory_status_json_exits_0(self, tmp_path, capsys):
+        denied_dir = self._seed(tmp_path)
+        archive = denied_dir / "mission_authority.yaml"
+
+        with _really_denied(denied_dir, archive.is_file, files=(archive,)):
+            exit_code = mission_authority.main(["--root", str(tmp_path), "status", "--json"])
+
+        assert exit_code == 0
+        out = json.loads(capsys.readouterr().out)
+        assert out["plan_state_errors"] == [_DENIED]
+        assert out["stale_open_missions"] == [_HEALTHY]
+
+    # -- plan_state ITSELF cannot be listed ------------------------------------
+
+    def test_injected_listing_failure_returns_one_explicit_error_row(self, tmp_path, monkeypatch):
+        _seed_healthy_stale(tmp_path)
+        _fail_iterdir_for_plan_state(monkeypatch)
+
+        rows = mission_authority._plan_state_report(tmp_path)
+
+        assert len(rows) == 1
+        _assert_error_row(rows[0], _PLAN_STATE_ROOT_ROW, ("PermissionError",))
+
+    def test_injected_listing_failure_status_json_exits_0_with_the_root_error_listed(
+        self, tmp_path, monkeypatch, capsys,
+    ):
+        _seed_healthy_stale(tmp_path)
+        _fail_iterdir_for_plan_state(monkeypatch)
+
+        exit_code = mission_authority.main(["--root", str(tmp_path), "status", "--json"])
+
+        assert exit_code == 0
+        out = json.loads(capsys.readouterr().out)
+        assert out["plan_state_errors"] == [_PLAN_STATE_ROOT_ROW]
+        assert out["stale_open_missions"] == []  # unknown, not "none stale"
+        assert "sessions" in out and "locks" in out  # the other stores are unaffected
+
+    def test_real_unlistable_plan_state_directory_is_one_explicit_error_row(self, tmp_path):
+        _seed_healthy_stale(tmp_path)
+        plan_state = tmp_path / "reports" / "plan_state"
+
+        with _really_denied(plan_state, lambda: list(plan_state.iterdir())):
+            rows = mission_authority._plan_state_report(tmp_path)
+
+        assert len(rows) == 1
+        _assert_error_row(rows[0], _PLAN_STATE_ROOT_ROW, ("PermissionError",))
+
+    # -- guards: behaviour that must NOT change --------------------------------
+
+    def test_entries_that_are_not_mission_directories_are_still_skipped_silently(self, tmp_path):
+        _seed_healthy_stale(tmp_path)
+        plan_state = tmp_path / "reports" / "plan_state"
+        (plan_state / "mission_activation_log.jsonl").write_text("{}\n", encoding="utf-8")
+        (plan_state / "MT-NO-ARCHIVE").mkdir()
+        (plan_state / "MT-ARCHIVE-IS-A-DIR" / "mission_authority.yaml").mkdir(parents=True)
+
+        rows = mission_authority._plan_state_report(tmp_path)
+
+        assert [r["mission_id"] for r in rows] == [_HEALTHY]
+
+    def test_the_error_paths_never_mutate_the_ledger_tree(self, tmp_path, monkeypatch):
+        self._seed(tmp_path)
+        plan_state = tmp_path / "reports" / "plan_state"
+        before = _snapshot_tree(plan_state)
+
+        with monkeypatch.context() as scoped:
+            _fail_is_file_for_archive_of(scoped, _DENIED)
+            mission_authority.build_liveness_report(tmp_path)
+        with monkeypatch.context() as scoped:
+            _fail_iterdir_for_plan_state(scoped)
+            mission_authority.build_liveness_report(tmp_path)
+
+        assert _snapshot_tree(plan_state) == before
+        assert not list(plan_state.rglob("*.lock"))
+
+
+class TestLockReportUndecodable:
+    """DEFECT-2: a lock file that is not valid UTF-8 used to raise
+    UnicodeDecodeError out of _lock_report() (only OSError was caught) and, with
+    it, out of `status` and `status --json` -- so stale_open_missions was not
+    delivered. Real files, no injection."""
+
+    _BAD_BYTES = b"\xff\xfe\x00\x80"  # invalid UTF-8
+
+    def _write_bad_lock(self, tmp_path: Path) -> Path:
+        locks_dir = tmp_path / "reports" / "locks"
+        locks_dir.mkdir(parents=True, exist_ok=True)
+        bad = locks_dir / "bad.lock"
+        bad.write_bytes(self._BAD_BYTES)
+        return bad
+
+    def test_non_utf8_lock_file_becomes_an_error_row_and_neighbours_are_still_reported(
+        self, tmp_path,
+    ):
+        self._write_bad_lock(tmp_path)
+        (tmp_path / "reports" / "locks" / "good.lock").write_text(
+            f"{os.getpid()}:1", encoding="utf-8",
+        )
+
+        report = mission_authority._lock_report(tmp_path)
+
+        by_path = {row["path"]: row for row in report}
+        assert set(by_path) == {"reports/locks/bad.lock", "reports/locks/good.lock"}
+        bad = by_path["reports/locks/bad.lock"]
+        assert bad["error"].startswith("UnicodeDecodeError")
+        assert bad["error"].isascii() and "\n" not in bad["error"]
+        assert "liveness" not in bad  # its liveness is unknowable; it must not claim one
+        assert by_path["reports/locks/good.lock"]["liveness"] == "alive"
+
+    def test_status_json_exits_0_with_a_non_utf8_lock_and_keeps_stale_open_missions(
+        self, tmp_path, capsys,
+    ):
+        _seed_healthy_stale(tmp_path)
+        self._write_bad_lock(tmp_path)
+
+        exit_code = mission_authority.main(["--root", str(tmp_path), "status", "--json"])
+
+        assert exit_code == 0
+        out = json.loads(capsys.readouterr().out)
+        assert out["stale_open_missions"] == [_HEALTHY]
+        assert [row["path"] for row in out["locks"]] == ["reports/locks/bad.lock"]
+        assert "error" in out["locks"][0]
+
+    def test_human_status_exits_0_and_marks_the_lock_unreadable(self, tmp_path, capsys):
+        _seed_healthy_stale(tmp_path)
+        self._write_bad_lock(tmp_path)
+
+        exit_code = mission_authority.main(["--root", str(tmp_path), "status"])
+
+        assert exit_code == 0
+        out = capsys.readouterr().out
+        assert "reports/locks/bad.lock: UNREADABLE (UnicodeDecodeError" in out
+        assert _HEALTHY in out
+
+    def test_real_cli_process_exits_0_with_a_non_utf8_lock(self, tmp_path):
+        _seed_healthy_stale(tmp_path)
+        self._write_bad_lock(tmp_path)
+
+        proc = subprocess.run(
+            [sys.executable, mission_authority.__file__, "--root", str(tmp_path),
+             "status", "--json"],
+            capture_output=True, encoding="utf-8", errors="replace", timeout=120,
+        )
+
+        assert proc.returncode == 0, proc.stderr[-400:]
+        assert _HEALTHY in json.loads(proc.stdout)["stale_open_missions"]
+
+    def test_the_lock_report_never_modifies_or_removes_the_lock_file(self, tmp_path):
+        bad = self._write_bad_lock(tmp_path)
+
+        mission_authority._lock_report(tmp_path)
+
+        assert bad.read_bytes() == self._BAD_BYTES
+
+
+class TestListToleratesANonMappingMissionAuthority:
+    """Optional item of the card: cmd_list() guarded `data["mission_authority"]`
+    but then called ma.get() on whatever it returned, so an archive whose
+    `mission_authority:` is null / a list / a string crashed `list` (exit 1)."""
+
+    @pytest.mark.parametrize(
+        "body",
+        ["mission_authority:\n", "mission_authority:\n  - a\n  - b\n",
+         "mission_authority: just-a-string\n"],
+        ids=["null", "list", "string"],
+    )
+    def test_list_reports_it_as_unreadable_and_still_lists_the_other_missions(
+        self, tmp_path, capsys, body,
+    ):
+        _write_root(tmp_path, VALID_MISSION)
+        mission_authority.main(["--root", str(tmp_path), "open", "--mission-id", "TEST-MISSION-A"])
+        _write_raw_archive(tmp_path, "MT-BAD-MA", body)
+        capsys.readouterr()  # clear prior output
+
+        exit_code = mission_authority.main(["--root", str(tmp_path), "list"])
+
+        assert exit_code == 0
+        out = capsys.readouterr().out
+        assert "TEST-MISSION-A" in out
+        assert "MT-BAD-MA" in out and "UNREADABLE" in out
 
 
 class TestPlanStateLivenessTimestampPolicy:

@@ -237,6 +237,10 @@ def cmd_list(args: argparse.Namespace) -> int:
         try:
             data = yaml.safe_load(archive_path.read_text(encoding="utf-8"))
             ma = data["mission_authority"]
+            if not isinstance(ma, dict):
+                # `mission_authority:` null / a list / a string: ma.get() below used
+                # to raise AttributeError out of the whole listing.
+                raise ValueError("archive must contain a top-level 'mission_authority' mapping")
         except Exception as exc:  # noqa: BLE001
             rows.append((mission_dir.name, "UNREADABLE", str(exc)))
             continue
@@ -349,8 +353,14 @@ def _lock_report(root: Path) -> List[Dict[str, Any]]:
     for f in sorted(locks_dir.rglob("*.lock")):
         try:
             raw = f.read_text(encoding="utf-8").strip()
-        except OSError as exc:
-            out.append({"path": str(f.relative_to(root)), "error": str(exc)})
+        # ValueError covers UnicodeDecodeError: a non-UTF-8 lock file is not an
+        # OSError, and used to escape here and crash `status` / `status --json`
+        # (TC-GOV-02-01-FIX2). Same row shape as the session store.
+        except (ValueError, OSError) as exc:
+            out.append({
+                "path": str(f.relative_to(root)).replace("\\", "/"),
+                "error": _plan_state_error_text(exc),
+            })
             continue
         entry: Dict[str, Any] = {"path": str(f.relative_to(root)).replace("\\", "/")}
         # advisory_lock.py's format: "{pid}:{timestamp}"
@@ -386,6 +396,11 @@ _FUTURE_TIMESTAMP_TOLERANCE = datetime.timedelta(days=1)
 # Upper bound on the message part of a plan_state error row (it is printed to a
 # console and embedded in JSON -- keep it one short line, never a traceback).
 _ERROR_TEXT_MAX_CHARS = 200
+
+# TC-GOV-02-01-FIX2: the `mission_id` of the ONE explicit error row returned when
+# reports/plan_state itself cannot be listed (repo-relative, never an absolute
+# path -- it is printed at session start and embedded in `plan_state_errors`).
+_PLAN_STATE_ROOT_ERROR_ID = "reports/plan_state"
 
 
 def _parse_iso_timestamp(value: Any) -> Optional[datetime.datetime]:
@@ -546,20 +561,31 @@ def _plan_state_report(
     no `stale` key, since its staleness is unknowable -- and every other
     mission is still evaluated. One bad mission can never blind the detector
     for the rest; build_liveness_report() lists those ids as `plan_state_errors`.
+    The isolation covers the mission ENTRY too, not only its file reads
+    (TC-GOV-02-01-FIX2): the stat that decides "is this a mission directory"
+    sits inside the same try, so an access-denied mission directory is that one
+    mission's error row. If reports/plan_state ITSELF cannot be listed, the
+    report is exactly one error row whose mission_id is "reports/plan_state"
+    rather than a raise -- its staleness is unknown for every mission, so it is
+    named, never reported as "nothing stale".
 
     `now` is a test seam (tz-aware); production callers omit it.
     """
     plan_state_root = root / "reports" / "plan_state"
     out: List[Dict[str, Any]] = []
-    if not plan_state_root.is_dir():
-        return out
+    try:
+        if not plan_state_root.is_dir():
+            return out
+        mission_dirs = sorted(plan_state_root.iterdir())
+    except Exception as exc:  # noqa: BLE001 -- plan_state itself cannot be listed
+        return [{"mission_id": _PLAN_STATE_ROOT_ERROR_ID, "error": _plan_state_error_text(exc)}]
     if now is None:
         now = datetime.datetime.now(datetime.timezone.utc)
-    for mission_dir in sorted(plan_state_root.iterdir()):
-        archive_path = mission_dir / "mission_authority.yaml"
-        if not archive_path.is_file():
-            continue  # not a mission directory (e.g. mission_activation_log.jsonl)
+    for mission_dir in mission_dirs:
         try:
+            archive_path = mission_dir / "mission_authority.yaml"
+            if not archive_path.is_file():
+                continue  # not a mission directory (e.g. mission_activation_log.jsonl)
             out.append(_plan_state_mission_row(mission_dir, archive_path, now))
         except Exception as exc:  # noqa: BLE001 -- isolate: one mission must never blind the rest
             out.append({"mission_id": mission_dir.name, "error": _plan_state_error_text(exc)})
