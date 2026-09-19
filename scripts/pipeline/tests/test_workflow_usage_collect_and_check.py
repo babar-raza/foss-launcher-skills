@@ -331,6 +331,12 @@ def test_live_records_the_period_at_the_given_history_file_with_its_length(tmp_p
     assert json.loads(hist.read_text(encoding="utf-8")) == {"period_days": 7, "total_minutes": [13.0]}
 
 
+def test_the_reported_api_call_count_is_the_number_of_gh_calls_actually_made(capsys):
+    router = _Router(_base_routes())
+    assert main(["--repo", _PRIVATE], runner=router, now_fn=lambda: _NOW) == 0
+    assert f"gh API calls made by this run: {len(router.calls)}" in capsys.readouterr().out
+
+
 def test_fetch_workflow_state_returns_a_state_word_and_never_a_404_body():
     ok = _FakeRunner([_FakeCompletedProcess(0, "disabled_manually\n")])
     assert fetch_workflow_state("o/r", "w.yml", runner=ok) == "disabled_manually"

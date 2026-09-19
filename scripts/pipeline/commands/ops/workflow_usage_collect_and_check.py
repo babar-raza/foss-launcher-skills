@@ -260,6 +260,16 @@ def main(argv: "list[str] | None" = None, *, runner=subprocess.run, now_fn=None)
                          help="Workflows to run the CI-health check against: `file.yml` (in --repo) or `owner/repo:file.yml`")
     args = parser.parse_args(argv)
 
+    # `gh api rate_limit` lags (a live run made ~400 calls and it still read 5000 -> 5000), so every
+    # gh invocation is counted here instead: that is the API-cost figure this run reports.
+    gh_calls = 0
+    real_runner = runner
+
+    def runner(*a, **k):
+        nonlocal gh_calls
+        gh_calls += 1
+        return real_runner(*a, **k)
+
     now = (now_fn or (lambda: datetime.now(timezone.utc)))()
     alert_repo = args.alert_repo or args.repo
     if args.history_file:
@@ -337,8 +347,9 @@ def main(argv: "list[str] | None" = None, *, runner=subprocess.run, now_fn=None)
     any_tripped = (not cost_verdict.allowed) or bool(tripped_ci_health)
 
     rate_after = rate_limit_remaining(runner=runner)
-    if rate_before is not None and rate_after is not None:
-        say(f"gh core rate limit: {rate_before} -> {rate_after} remaining ({rate_before - rate_after} call(s) used by this run)")
+    say(f"gh API calls made by this run: {gh_calls}"
+        + (f" (the rate_limit endpoint read {rate_before} -> {rate_after}; it lags, so it is not the measure)"
+           if rate_before is not None and rate_after is not None else ""))
 
     if args.live:
         if volume.total_minutes > 0:
