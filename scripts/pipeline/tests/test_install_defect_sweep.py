@@ -1,7 +1,9 @@
 """Tests for scripts/pipeline/commands/ops/install_defect_sweep.py
 (PKGINSTALL-DEFECT-SWEEP-REDESIGN, MT066 plan section R.3.4).
 """
+import builtins
 import json
+import symtable
 import sys
 from pathlib import Path
 
@@ -300,6 +302,92 @@ class TestEnglishSourceFileRows:
         store = _reco.ReconciliationStore(repo_root=tmp_path)
         written = store.append_batch(rows)
         assert written == len(rows) == 1
+
+
+def _write_registry(tmp_path: Path, registry: dict) -> Path:
+    """Write data/package_registry.json under the tmp repo root -- the exact
+    file sut.configure(repo_root=tmp_path) makes install_literal_sweep._DATA_PATH
+    resolve to, i.e. what the registry=None fallback loads."""
+    p = tmp_path / "data" / "package_registry.json"
+    p.parent.mkdir(parents=True, exist_ok=True)
+    p.write_text(json.dumps(registry), encoding="utf-8")
+    return p
+
+
+# A family that does not exist in the real data/package_registry.json: if the
+# default path ever loaded the real registry (or none) instead of the tmp
+# fixture, this family's row would be absent and the assertions below fail,
+# rather than silently passing on real data.
+_DEFAULT_PATH_REGISTRY = {
+    "defaultpath": {"net": {"registry_type": "nuget", "candidate": {"name": "Aspose.DefaultPath.FOSS"},
+                            "verification": {"published": True}}},
+}
+_DEFAULT_PATH_PAGE = "content/docs.aspose.org/en/defaultpath/net/installation.md"
+
+
+class TestDefaultRegistryPath:
+    """TC-PKG-02-05-FIX2. Every test above passes registry= explicitly, so the
+    `registry if registry is not None else load_registry(...)` fallback in
+    _english_source_file_rows() was never executed by any test. A missing
+    `from package_registry_data import load_registry` therefore shipped
+    (f695945946), passed 61+25 green tests, and only surfaced as a live
+    NameError on a real argument-free sweep (fixed in b61ab346a6). These tests
+    take the exact call shape the CLI uses -- NO registry= argument -- against
+    a tmp repo-root fixture that owns its own data/package_registry.json."""
+
+    def test_english_source_file_rows_loads_registry_from_repo_root_by_default(self, tmp_path):
+        _write_registry(tmp_path, _DEFAULT_PATH_REGISTRY)
+        _write_page(
+            tmp_path, "defaultpath", "net", "installation.md",
+            "dotnet add package Aspose.DefaultPath.FOSS\n",
+        )
+        rows = sut._english_source_file_rows(sweep_run_id="run-default", recorded_at="2026-09-19T00:00:00Z")
+
+        assert [r["path"] for r in rows] == [_DEFAULT_PATH_PAGE]
+        assert rows[0]["family"] == "defaultpath"
+        assert rows[0]["platform"] == "net"
+        assert rows[0]["representation"] == "literal"
+        assert rows[0]["finding_count_literal"] == 1
+
+    def test_run_combined_sweep_default_registry_end_to_end(self, tmp_path):
+        _write_registry(tmp_path, _DEFAULT_PATH_REGISTRY)
+        _write_page(
+            tmp_path, "defaultpath", "net", "installation.md",
+            "dotnet add package Aspose.DefaultPath.FOSS\n",
+        )
+        store = _reco.ReconciliationStore(repo_root=tmp_path)
+        # products={} only keeps install_recipe's real-content scan out of this
+        # test; registry is deliberately NOT passed.
+        result = sut.run_combined_sweep(products={}, store=store)
+
+        assert result["literal_report"]["total_files_checked"] == 1
+        assert result["literal_report"]["total_findings"] == 1
+        assert result["english_source_file_rows_written"] == 1
+        history = store.read_history()
+        assert _DEFAULT_PATH_PAGE in {row["path"] for row in history}
+        assert {row["sweep_run_id"] for row in history} == {result["sweep_run_id"]}
+
+    def test_module_defines_every_global_name_its_functions_reference(self):
+        """Structural companion to the two behavioral tests above: resolves
+        scoping exactly as the compiler does (symtable) and asserts every name
+        a function reads as a global exists in the module or builtins. This
+        catches the whole NameError class (a name reachable only through a
+        rarely-taken branch), not just load_registry."""
+        src = Path(sut.__file__).read_text(encoding="utf-8")
+        defined = set(vars(sut))
+        undefined: set[str] = set()
+
+        def walk(table: symtable.SymbolTable) -> None:
+            for sym in table.get_symbols():
+                name = sym.get_name()
+                if (sym.is_referenced() and sym.is_global()
+                        and name not in defined and not hasattr(builtins, name)):
+                    undefined.add(name)
+            for child in table.get_children():
+                walk(child)
+
+        walk(symtable.symtable(src, str(sut.__file__), "exec"))
+        assert not undefined, f"install_defect_sweep references undefined global name(s): {sorted(undefined)}"
 
 
 class TestDefectClassFindings:
