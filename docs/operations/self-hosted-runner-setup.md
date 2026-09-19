@@ -209,6 +209,27 @@ before installing the service, kill that manual process
 service-managed process which runs with `--startuptype service` appended)
 before running `sudo ./svc.sh install`.
 
+### Both runners go `offline` a short while after the last terminal closes (WSL stopped)
+
+**Observed 2026-09-19 (MT069 HC-05/06):** after a machine restart both runner services came up on their own
+(the unit is `enabled`) and showed `online`. About 25 minutes later, with no terminal open, `wsl -l -v` showed
+the distro `Stopped` and both runners `offline`; `runner-availability-watch.yml` correctly reported "matching
+runners: 1, online: 0". **A systemd service does not keep a WSL instance alive — an open `wsl` session does.**
+Before the restart the runners had stayed online for hours; the likely reason (an inference, not proven) is that
+two long-running background `wsl` sessions happened to be open.
+
+Bring it back and keep it up (session-scoped: no configuration is changed, and it ends at logoff or reboot):
+
+```powershell
+Start-Process wsl.exe -ArgumentList '-d','Ubuntu-22.04','--exec','sleep','infinity' -WindowStyle Hidden
+wsl -l -v          # Ubuntu-22.04 should read Running; the runners reconnect within ~30 s
+```
+
+To make it permanent, a per-user Windows Scheduled Task at logon running the same command is the usual
+answer. That changes what starts with the machine, so it is a decision for the machine's owner and has **not**
+been made. Until it is, expect a `runner-offline` issue on the public repo whenever the machine is off or the
+keepalive is gone; the availability watch closes it itself once the runner is back.
+
 ### Runner shows `offline` and never picks up jobs
 
 Check, in order:
