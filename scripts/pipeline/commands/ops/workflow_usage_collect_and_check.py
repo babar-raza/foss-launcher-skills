@@ -47,6 +47,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import re
 import subprocess
 import sys
 from datetime import datetime, timedelta, timezone
@@ -144,6 +145,17 @@ def fetch_failed_step_names(repo: str, run_id: int, *, runner=subprocess.run) ->
         return json.loads(result.stdout or "[]")
     except json.JSONDecodeError:
         return None
+
+
+def fetch_workflow_state(repo: str, workflow_file: str, *, runner=subprocess.run) -> "str | None":
+    """`active`, `disabled_manually`, ... -- or None when the lookup failed or returned anything
+    that is not a bare state word (a 404's error JSON must never be mistaken for a state)."""
+    result = _run_gh(
+        ["api", f"repos/{repo}/actions/workflows/{workflow_file}", "--jq", ".state"], runner=runner)
+    if result.returncode != 0:
+        return None
+    state = (result.stdout or "").strip()
+    return state if re.fullmatch(r"[a-z_]+", state) else None
 
 
 def _parse_ts(value: "str | None") -> "datetime | None":
@@ -299,6 +311,13 @@ def main(argv: "list[str] | None" = None, *, runner=subprocess.run, now_fn=None)
     tripped_ci_health: "list[breaker.CIHealthVerdict]" = []
     for target in args.ci_health_workflows:
         repo, wf = parse_ci_health_target(target, args.repo)
+        state = fetch_workflow_state(repo, wf, runner=runner)
+        if state is not None and state != "active":
+            # A disabled workflow produces no new signal: its failure history is stale (nothing can clear it),
+            # and alerting on it forever is exactly the noise that hides the next real failure.
+            say(f"CI-health check ({target}): INACTIVE (workflow is {state}: it produces no new runs, "
+                f"so its old failures are not an alert)", detail=True)
+            continue
         steps_for_wf = tuple(by_design.get(wf, ()))
         raw = fetch_recent_runs(repo, wf, runner=runner)
         conclusions, stats = effective_conclusions(
@@ -322,7 +341,10 @@ def main(argv: "list[str] | None" = None, *, runner=subprocess.run, now_fn=None)
         say(f"gh core rate limit: {rate_before} -> {rate_after} remaining ({rate_before - rate_after} call(s) used by this run)")
 
     if args.live:
-        breaker.record_period(volume.total_minutes, period_days=args.period_days)
+        if volume.total_minutes > 0:
+            breaker.record_period(volume.total_minutes, period_days=args.period_days)
+        else:
+            say("0 minutes in this period: not recording it (an idle or disabled period is not a baseline for normal load)")
         if not cost_verdict.allowed:
             body = (
                 f"## GHA Cost Alert — {period_start} to {period_end}\n\n"

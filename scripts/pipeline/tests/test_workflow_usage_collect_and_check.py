@@ -23,6 +23,7 @@ from commands.ops.workflow_usage_collect_and_check import (
     fetch_failed_step_names,
     fetch_recent_conclusions,
     fetch_recent_runs,
+    fetch_workflow_state,
     fetch_runs_and_jobs,
     main,
     open_alert_issue,
@@ -328,6 +329,57 @@ def test_live_records_the_period_at_the_given_history_file_with_its_length(tmp_p
     router = _Router(_base_routes(minutes=13))
     assert main(["--repo", _PRIVATE, "--live", "--history-file", str(hist)], runner=router, now_fn=lambda: _NOW) == 0
     assert json.loads(hist.read_text(encoding="utf-8")) == {"period_days": 7, "total_minutes": [13.0]}
+
+
+def test_fetch_workflow_state_returns_a_state_word_and_never_a_404_body():
+    ok = _FakeRunner([_FakeCompletedProcess(0, "disabled_manually\n")])
+    assert fetch_workflow_state("o/r", "w.yml", runner=ok) == "disabled_manually"
+    failed = _FakeRunner([_FakeCompletedProcess(1, '{"message":"Not Found","status":"404"}')])
+    assert fetch_workflow_state("o/r", "w.yml", runner=failed) is None
+    garbage = _FakeRunner([_FakeCompletedProcess(0, '{"message":"Not Found"}')])   # a 404 body on stdout, rc 0 via --jq
+    assert fetch_workflow_state("o/r", "w.yml", runner=garbage) is None
+
+
+def test_a_disabled_workflow_with_a_stale_failing_history_is_inactive_not_an_alert(capsys):
+    # the real 2026-09-19 case: skill-governance.yml, 28 pre-fix failures, disabled -- nothing can ever clear that history
+    router = _Router(_base_routes() + [
+        ("workflows/skill-governance.yml --jq", _FakeCompletedProcess(0, "disabled_manually\n")),
+        ("workflows/skill-governance.yml/runs", _FakeCompletedProcess(0, _failing_history())),
+    ])
+    rc = main(["--repo", _PRIVATE, "--live", "--ci-health-workflows", "skill-governance.yml"],
+              runner=router, now_fn=lambda: _NOW)
+    out = capsys.readouterr().out
+    assert rc == 0 and "INACTIVE (workflow is disabled_manually" in out
+    assert router.issue_calls() == []
+
+
+def test_an_active_workflow_is_still_checked_and_can_alert():
+    router = _Router(_base_routes() + [
+        ("workflows/skill-governance.yml --jq", _FakeCompletedProcess(0, "active\n")),
+        ("workflows/skill-governance.yml/runs", _FakeCompletedProcess(0, _failing_history())),
+    ])
+    assert main(["--repo", _PRIVATE, "--live", "--ci-health-workflows", "skill-governance.yml"],
+                runner=router, now_fn=lambda: _NOW) == 1
+    assert router.issue_calls()
+
+
+def test_an_unverifiable_workflow_state_never_hides_a_real_failure():
+    router = _Router(_base_routes() + [
+        ("workflows/skill-governance.yml --jq", _FakeCompletedProcess(1, "", "HTTP 502")),
+        ("workflows/skill-governance.yml/runs", _FakeCompletedProcess(0, _failing_history())),
+    ])
+    assert main(["--repo", _PRIVATE, "--ci-health-workflows", "skill-governance.yml"],
+                runner=router, now_fn=lambda: _NOW) == 1
+
+
+def test_live_run_with_zero_minutes_does_not_record_an_idle_period(tmp_path, capsys):
+    # every private workflow is disabled: the period is genuinely 0 minutes and must not become the baseline
+    hist = tmp_path / "restored" / "cost_budget_history.json"
+    router = _Router([("rate_limit", _FakeCompletedProcess(0, "5000\n")),
+                      ("actions/runs?created", _FakeCompletedProcess(0, ""))])
+    assert main(["--repo", _PRIVATE, "--live", "--history-file", str(hist)], runner=router, now_fn=lambda: _NOW) == 0
+    assert not hist.exists()
+    assert "not recording it" in capsys.readouterr().out
 
 
 def test_collection_failure_returns_2(capsys):

@@ -194,6 +194,10 @@ def record_period(total_minutes: float, *, history: "dict | None" = None, period
     never before check_cost_budget() has already evaluated the period, or
     the anomaly check would be trained on its own proposal."""
     history = history if history is not None else load_history()
+    if total_minutes <= 0:
+        # A period with no usage (e.g. every workflow disabled) is not a baseline for normal load.
+        # Recorded, it drags the mean to 0 and the first real week afterwards alerts (mean==0 branch above).
+        return dict(history)
     updated = dict(history)
     recorded = history.get("period_days")
     if period_days and recorded and recorded != period_days:

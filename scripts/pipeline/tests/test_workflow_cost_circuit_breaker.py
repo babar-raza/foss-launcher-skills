@@ -235,3 +235,30 @@ def test_the_real_config_declares_the_new_keys_and_marks_the_caps_provisional():
     assert real["cap_period_days"] == 7 and real["ci_health_window_days"] == 14
     assert "upstream-monitor.yml" in real["ci_health_by_design_failing_steps"]
     assert "PROVISIONAL" in open(breaker.CONFIG_PATH, encoding="utf-8").read()
+
+
+# --- an idle period is not a baseline (found deploying HC-05: every workflow is disabled, so a scheduled
+# --- collector would record only zeros, and the first real week afterwards would alert on a zero mean) ---
+
+def test_record_period_ignores_a_zero_minute_period(tmp_path):
+    breaker.configure(repo_root=tmp_path)
+    try:
+        record_period(0.0, period_days=7)
+        assert not breaker.HISTORY_PATH.exists()          # nothing written for an idle period
+        record_period(120.0, period_days=7)
+        record_period(0.0, period_days=7)                  # ...and it does not enter an existing series either
+        assert load_history()["total_minutes"] == [120.0]
+    finally:
+        breaker.configure(repo_root=None)
+
+
+def test_a_disabled_period_series_never_causes_a_false_alarm_on_the_first_real_week(tmp_path):
+    breaker.configure(repo_root=tmp_path)
+    try:
+        for _ in range(4):                                  # four idle weeks while everything is disabled
+            record_period(0.0, period_days=7)
+        volume = ProposedWorkflowUsageVolume(total_minutes=180.0, minutes_by_workflow={"a.yml": 180.0})
+        status, blocked = breaker.check_anomaly(volume, breaker.load_budgets(), period_days=7)
+        assert not blocked and status.startswith("INACTIVE (warm-up, N=0/")
+    finally:
+        breaker.configure(repo_root=None)
