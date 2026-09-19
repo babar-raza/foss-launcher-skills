@@ -375,6 +375,199 @@ class TestIREscalation:
         assert result["decision"] == DECISION_WARN
 
 
+class TestSafetyOverrideEscalation:
+    """PKGINSTALL-GRADE-SAFETY-OVERRIDE-FIX D3: the WARN -> BLOCK escalation must
+    cover the REAL category names install_recipe's two safety checks emit.
+
+    History: when 30b4199e4d split those two checks out of category "IR" into
+    IR_PUBLISH_CLAIM / IR_UNPUBLISHED_DISCLOSURE, the guard's
+    _BLOCKING_CATEGORIES = {"TA", "IR"} stopped matching them (exact string
+    comparison), so a regeneration that put a false publish claim onto an A page
+    was only WARNed. TestIREscalation above passed throughout because it fakes a
+    finding with the pre-split category "IR". These tests use the real names, and
+    the derivation test below pins the set to content_eval.config so the two
+    cannot drift again.
+    """
+
+    _SAFETY_CATEGORIES = ("IR_PUBLISH_CLAIM", "IR_UNPUBLISHED_DISCLOSURE")
+
+    def test_blocking_set_is_exact_match_not_prefix(self):
+        """Exact-match semantics: a category merely resembling a safety
+        category (a typo, or a future sibling) is not escalated by accident."""
+        import no_downgrade_guard as mod
+
+        assert "IR_PUBLISH_CLAIMS" not in mod._BLOCKING_CATEGORIES
+        assert "IR_UNPUBLISHED" not in mod._BLOCKING_CATEGORIES
+        assert "IR_HYPOTHETICAL" not in mod._BLOCKING_CATEGORIES
+
+    def test_blocking_set_is_derived_from_safety_override_findings(self):
+        """The guard's blocking set must be a superset of every category in
+        content_eval.config.SAFETY_OVERRIDE_FINDINGS, derived rather than
+        hand-copied, so adding a pair there cannot silently leave the guard behind."""
+        import no_downgrade_guard as mod
+        from content_eval.config import SAFETY_OVERRIDE_FINDINGS
+
+        override_categories = {category for _evaluator, category in SAFETY_OVERRIDE_FINDINGS}
+        assert override_categories, "SAFETY_OVERRIDE_FINDINGS must not be empty"
+        assert override_categories <= set(mod._BLOCKING_CATEGORIES)
+        # The two pre-existing correctness categories stay blocking.
+        assert {"TA", "IR"} <= set(mod._BLOCKING_CATEGORIES)
+        # And the literal names this card is about are what the derivation yields.
+        assert set(self._SAFETY_CATEGORIES) <= override_categories
+
+    def test_derivation_follows_a_new_config_pair(self):
+        """Prove the derivation is live, not a frozen copy of today's two names:
+        in a throwaway interpreter, add a pair to the config BEFORE the guard is
+        first imported and see the guard pick it up. (A subprocess keeps the test
+        process's own modules untouched -- no reload, no monkeypatch.)"""
+        import os
+        import subprocess
+        import sys
+
+        code = (
+            "import content_eval.config as cfg\n"
+            "cfg.SAFETY_OVERRIDE_FINDINGS = frozenset("
+            "set(cfg.SAFETY_OVERRIDE_FINDINGS) | {('install_recipe', 'IR_HYPOTHETICAL')})\n"
+            "import no_downgrade_guard as g\n"
+            "print(sorted(g._BLOCKING_CATEGORIES))\n"
+        )
+        env = dict(os.environ)
+        env["PYTHONPATH"] = os.pathsep.join(p for p in sys.path if p)
+        proc = subprocess.run([sys.executable, "-c", code], capture_output=True,
+                              encoding="utf-8", errors="replace", env=env, timeout=120)
+        assert proc.returncode == 0, proc.stderr
+        assert "IR_HYPOTHETICAL" in proc.stdout, proc.stdout
+        # The real categories are still there alongside the hypothetical one.
+        assert "IR_PUBLISH_CLAIM" in proc.stdout and "IR_UNPUBLISHED_DISCLOSURE" in proc.stdout
+
+
+class TestSafetyOverrideRealEvaluators:
+    """PKGINSTALL-GRADE-SAFETY-OVERRIDE-FIX D3, end to end: NO fabricated
+    findings and no monkeypatching. Real InstallRecipeEvaluator (registry injected
+    through its configure() seam, recording the package as unpublished), the real
+    tracked knowledge for barcode/python, real _evaluate_file / compare_content.
+    This is the shape the review reproduced (existing A page + a false PyPI claim
+    -> WARN instead of BLOCK)."""
+
+    _UNPUBLISHED_REGISTRY = {
+        "barcode": {"python": {
+            "registry_type": "pypi",
+            "candidate": {"name": "aspose-barcode-foss"},
+            "candidate_owner": "asposefoss",
+            "verification": {"published": False, "verified_at": "2026-08-01",
+                              "verified_owner": None, "evidence_url": None, "method": None},
+            "owner_match": None,
+        }},
+    }
+
+    _CLEAN_BODY = (
+        "---\ntitle: Installation\n---\n\n"
+        "## Installation\n\n"
+        "Clone the repository and build the package from source.\n"
+    )
+
+    _CLAIM = "\nInstall from PyPI: `pip install aspose-barcode-foss`\n"
+    _DISCLOSURE = "\nThis package is not yet published on any registry.\n"
+
+    @pytest.fixture(autouse=True)
+    def _real_setup(self, tmp_path):
+        import content_eval.evaluators.install_recipe as _ir_mod
+
+        # Only the registry is injected (configure() seam); knowledge is the real,
+        # git-tracked knowledge/barcode/python/merged, so a fresh checkout has it.
+        _ir_mod.configure(registry=self._UNPUBLISHED_REGISTRY)
+
+        page_dir = (tmp_path / "content" / "docs.aspose.org" / "en" / "barcode" / "python"
+                    / "getting-started")
+        page_dir.mkdir(parents=True)
+        self._target = page_dir / "installation.md"
+        self._target.write_text(self._CLEAN_BODY, encoding="utf-8")
+        yield
+        _ir_mod.configure()
+
+    def _compare(self, appended: str, force_regenerate: bool = False) -> dict:
+        return compare_content(self._target, self._CLEAN_BODY + appended,
+                               family="barcode", platform="python",
+                               force_regenerate=force_regenerate)
+
+    def _store_grade_b(self) -> None:
+        """Give the existing page a valid stored grade B (same knowledge version),
+        so compare_content takes its stored-grade fast path -- how a real published
+        page usually reaches the guard."""
+        from knowledge_core import Knowledge
+
+        sha = Knowledge("barcode", "python").repo_sha
+        assert sha, "real barcode/python knowledge must carry a repo_sha"
+        self._target.write_text(
+            "---\ntitle: Installation\ngrade: B\ngraded_model_sha: " + sha + "\n---\n\n"
+            "## Installation\n\nClone the repository and build the package from source.\n",
+            encoding="utf-8",
+        )
+
+    def test_existing_page_is_a_precondition(self):
+        """Non-vacuity: the unchanged page really is grade A and ALLOWed, so a
+        BLOCK below is caused by the appended sentence and nothing else."""
+        result = self._compare("")
+        assert result["existing"]["grade"] == "A"
+        assert result["proposed"]["grade"] == "A"
+        assert result["decision"] == DECISION_ALLOW
+
+    def test_false_pypi_claim_on_an_a_page_blocks(self):
+        result = self._compare(self._CLAIM)
+        categories = {f["category"] for f in result["proposed"]["findings"]}
+        assert "IR_PUBLISH_CLAIM" in categories, result["proposed"]["findings"]
+        assert result["existing"]["grade"] == "A"
+        assert result["proposed"]["grade"] == "C"
+        assert result["decision"] == DECISION_BLOCK, result["reason"]
+        assert "correctness findings" in result["reason"]
+        assert "IR_PUBLISH_CLAIM" in result["reason"]
+
+    def test_unpublished_disclosure_on_an_a_page_blocks(self):
+        result = self._compare(self._DISCLOSURE)
+        categories = {f["category"] for f in result["proposed"]["findings"]}
+        assert "IR_UNPUBLISHED_DISCLOSURE" in categories, result["proposed"]["findings"]
+        assert result["existing"]["grade"] == "A"
+        assert result["decision"] == DECISION_BLOCK, result["reason"]
+        assert "IR_UNPUBLISHED_DISCLOSURE" in result["reason"]
+
+    @pytest.mark.parametrize("appended, category", [
+        (_CLAIM, "IR_PUBLISH_CLAIM"),
+        (_DISCLOSURE, "IR_UNPUBLISHED_DISCLOSURE"),
+    ])
+    def test_stored_grade_b_page_is_blocked_too(self, appended, category):
+        """The stored-grade fast path (B, matching knowledge version) must hit the
+        same escalation as an evaluated A page."""
+        self._store_grade_b()
+        result = self._compare(appended)
+        assert result["existing"]["grade"] == "B"
+        assert result["existing"].get("from_stored") is True
+        assert result["decision"] == DECISION_BLOCK, result["reason"]
+        assert category in result["reason"]
+
+    @pytest.mark.parametrize("appended", [_CLAIM, _DISCLOSURE])
+    def test_force_regenerate_still_bypasses(self, appended):
+        """Operator override semantics are unchanged: --force-regenerate ALLOWs."""
+        result = self._compare(appended, force_regenerate=True)
+        assert result["decision"] == DECISION_ALLOW
+        assert result.get("force_regenerate") is True
+
+    def test_claim_about_a_published_package_is_not_blocked(self):
+        """No false positive: the same sentence on a product the registry records
+        as PUBLISHED is not a contradiction, so nothing is escalated."""
+        import content_eval.evaluators.install_recipe as _ir_mod
+
+        published = {"barcode": {"python": dict(
+            self._UNPUBLISHED_REGISTRY["barcode"]["python"],
+            verification={"published": True, "verified_at": "2026-09-19", "verified_owner": "Aspose",
+                          "evidence_url": None, "method": None},
+        )}}
+        _ir_mod.configure(registry=published)
+        result = self._compare(self._CLAIM)
+        categories = {f["category"] for f in result["proposed"]["findings"]}
+        assert "IR_PUBLISH_CLAIM" not in categories
+        assert result["decision"] == DECISION_ALLOW, result["reason"]
+
+
 # ---------------------------------------------------------------------------
 # TC-26: Integration test — real _evaluate_file path (NOT mocked)
 # ---------------------------------------------------------------------------

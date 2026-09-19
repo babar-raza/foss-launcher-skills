@@ -23,6 +23,7 @@ from content_discovery import infer_product  # noqa: E402  (R-1b: was knowledge_
 from evidence_verifier import verify_evidence  # noqa: E402  (R-3b: was knowledge_core)
 from core.markdown import parse_frontmatter, extract_frontmatter_body  # R-2a: was knowledge_core
 from token_ops import extract_tokens, verify_tokens
+from content_eval.config import SAFETY_OVERRIDE_FINDINGS
 from content_eval.models import compute_grade, Page
 from content_eval.evaluators.type_accuracy import TypeAccuracyEvaluator
 from content_eval.evaluators.install_recipe import InstallRecipeEvaluator
@@ -32,6 +33,25 @@ from grade_writer import read_grade
 DECISION_ALLOW = "ALLOW"
 DECISION_WARN = "WARN"
 DECISION_BLOCK = "BLOCK"
+
+# TC-24 (TA) + TC-MT015-03 (IR): categories whose findings escalate a WARN
+# decision to BLOCK, since the count-based grade proxy alone under-weighs them.
+# IR covers install_recipe.py's H-16 checks (wrong package name / wrong-platform
+# package manager), added after 3D-NET-REFRESH-002 showed this exact defect class
+# shipping undetected because H-16 existed but was never reachable from here.
+#
+# The install_recipe safety checks (a false PyPI/npm/... publish claim, and a
+# disclosure that a package is unpublished) used to emit "IR" too. They were split
+# into IR_PUBLISH_CLAIM / IR_UNPUBLISHED_DISCLOSURE by PKGINSTALL-GRADE-SAFETY-
+# OVERRIDE (30b4199e4d), and this set silently stopped matching them: an A page
+# regenerated with a false publish claim was only WARNed (found by
+# PKGINSTALL-GRADE-SAFETY-OVERRIDE-REVIEW, fixed by ...-FIX D3). The safety
+# categories are therefore DERIVED from content_eval.config.SAFETY_OVERRIDE_FINDINGS
+# -- the same allowlist that makes them grade-affecting -- so the guard cannot
+# drift from the grade mechanism again.
+_BLOCKING_CATEGORIES = frozenset({"TA", "IR"}) | frozenset(
+    category for _evaluator, category in SAFETY_OVERRIDE_FINDINGS
+)
 
 
 def _read_proposed(args) -> str:
@@ -229,14 +249,9 @@ def compare_content(target_path: Path, proposed_text: str, family: str | None = 
             DECISION_BLOCK: "proposed content regresses beyond the allowed quality floor",
         }[decision]
 
-    # TC-24 (TA) + TC-MT015-03 (IR): escalate WARN -> BLOCK when these
-    # deterministic-correctness categories cause the grade regression, since
-    # the grade proxy alone under-weighs them. IR covers install_recipe.py's
-    # H-16 checks (wrong package name / wrong-platform package manager),
-    # added after 3D-NET-REFRESH-002 showed this exact defect class shipping
-    # undetected because H-16 existed but was never reachable from here.
+    # Escalate WARN -> BLOCK when a deterministic-correctness category (see
+    # _BLOCKING_CATEGORIES above) causes the grade regression.
     if decision == DECISION_WARN:
-        _BLOCKING_CATEGORIES = {"TA", "IR"}
         blocking_findings = [
             f for f in proposed["findings"]
             if f.get("category") in _BLOCKING_CATEGORIES
