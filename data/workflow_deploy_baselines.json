@@ -119,9 +119,9 @@
     "deployed_repo": "Aspose/aspose.org-workflows"
   },
   "workflow-cost-telemetry.yml": {
-    "approved_baseline_sha256": "f38c3330405849796061e35ed3f459ee9f6893458edff01c5fc0652dadc2161e",
-    "baseline_recorded_at": "2026-09-19T08:08:16.653343Z",
-    "baseline_source": "seeded_from_deployed",
+    "approved_baseline_sha256": "bd2bb6b84ac365e1e4934475ba32208d8b1c6508bffa600f10c1e003623c7edb",
+    "baseline_recorded_at": "2026-09-19T08:31:34.607928Z",
+    "baseline_source": "approved_after_review: HC-05: scheduled runs live, dispatch stays dry-run; diff reviewed (one env expression + header comment); prior baseline f38c3330 equals the version deployed as cfa6e404",
     "deployed_path": ".github/workflows/workflow-cost-telemetry.yml",
     "deployed_repo": "Aspose/aspose.org-workflows"
   },
