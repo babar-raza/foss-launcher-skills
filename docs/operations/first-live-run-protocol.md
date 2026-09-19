@@ -34,9 +34,10 @@ protocol is a guess about what a command returns.
 | Cost signature | REST `…/actions/runs/<id>/timing` | self-hosted: `"billable": {}`; GitHub-hosted: a populated map (`UBUNTU`/`WINDOWS`…). Empty `billable` is the proof a job cost no Actions minutes |
 | Full-history checkout, `setup-python@v5`, `actions-hugo@v3` host-direct | host probe run `35380303439` | all succeeded (740 commits, `Python 3.13.15`, `hugo v0.154.5 extended`) |
 
-**Not verifiable without enabling a private workflow, therefore untested:** `gh workflow enable/disable`
-on the private repo, and the first run of the two target workflows themselves. The steps that use
-them are marked *(unexercised)*.
+**Not verifiable without enabling a private workflow, therefore untested at the time of writing:** `gh workflow enable/disable`
+on the private repo, and the first run of the two target workflows. **Update 2026-09-19:** steps 2, 3 and 6 were
+exercised for `content-governance-checks.yml` (see "Observed on the first real run" below); `skill-governance.yml`
+is still untested.
 
 ## Preconditions (all must hold before step 2)
 
@@ -84,7 +85,7 @@ git push origin "$SHA:refs/heads/mt069-live-proof-$(date -u +%Y%m%d)"
 
 Neither target workflow's `push` trigger matches a non-`main` branch, so creating it starts nothing.
 
-### 2. Enable exactly one workflow *(unexercised)*
+### 2. Enable exactly one workflow *(exercised 2026-09-19)*
 
 Start with `content-governance-checks.yml` (largest cost driver, no soft-launched sibling job).
 
@@ -95,7 +96,7 @@ gh workflow enable content-governance-checks.yml --repo Aspose/aspose.org
 From this moment a push to `main` matching its path filter also queues a run on the same single-slot
 runner. Keep the window short.
 
-### 3. Dispatch on the proof ref *(unexercised)*
+### 3. Dispatch on the proof ref *(exercised 2026-09-19)*
 
 ```bash
 gh workflow run content-governance-checks.yml --repo Aspose/aspose.org --ref mt069-live-proof-YYYYMMDD
@@ -129,7 +130,7 @@ writes outside the workspace. *(The 15-minute figure is a proposal for the human
 Every classification needs a saved reproduction (§H10). A red run is not automatically a failure of
 the cutover — a *correctly failing* check is the point of the check.
 
-### 6. Roll back / disable *(unexercised)*
+### 6. Roll back / disable *(disable and branch deletion exercised 2026-09-19; `gh run cancel` verified earlier on the public repo)*
 
 ```bash
 gh run cancel <run-id> --repo Aspose/aspose.org           # verified on the public repo
@@ -160,3 +161,22 @@ trigger, and the `governance-tests-windows` job is GitHub-hosted and billed — 
 | Class (b) failure | cancel; disable; fix; re-run from step 3 |
 | Secret exposed in a log | cancel; disable; delete the run's logs; tell the human immediately |
 | Anything surprising | disable first, investigate second |
+
+## Observed on the first real run (2026-09-19, `content-governance-checks.yml`, run `35433173048`)
+
+- **Result:** all 36 steps green on `alienware-m18-wsl2-private` (runner 21), queue latency 3 s, `timing.billable = {}`
+  (no Actions minutes), 1,029 s in total. Enabled 08:52:20Z, disabled 09:09:51Z.
+- **The first run on a cold runner is dominated by `actions/checkout`** (848 s): it fetches the whole history of a
+  ~941 MB repository over this machine's network at ~1.6 MB/s. That is not a hang. Check `.git` growth in the runner's
+  `_work` directory before aborting; the run holds the runner's single slot meanwhile. `_work` persists, so later runs
+  should fetch only new objects (not yet measured).
+- **A `workflow_dispatch` run diffs only `HEAD~1`.** The grade-presence and evaluator-version-bump steps therefore saw
+  "No content files changed" / "none changed". To exercise them, make the proof ref's last commit touch representative
+  content.
+- **Do step 6 (disable) first** once the run is complete, then collect evidence: the workflow's push trigger is live for
+  as long as it is enabled.
+- **What the job touched outside the workspace:** only the two standing tool caches (`~/.cache/pip`, `~/actions_hugo`);
+  `actions/checkout` copies the user's `~/.gitconfig` into a temp directory (a read). No `/mnt/` reference, no secret
+  used.
+- **The runner must stay online for the whole window:** a systemd service does not keep a WSL instance alive — an open
+  `wsl` session does (see the setup guide, Troubleshooting).
