@@ -53298,6 +53298,272 @@
     "provenance": "scout"
   },
   {
+    "claim_id": "CLM-slides-9c4d0d",
+    "kind": "capability_matrix_cell",
+    "text": "For [pugixml](https://github.com/zeux/pugixml), Version is 1.14 (per README.md's Dependency table).",
+    "confidence": 0.75,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "README.md",
+        "line": 346
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-slides-6a1f7a",
+    "kind": "capability_matrix_cell",
+    "text": "For [pugixml](https://github.com/zeux/pugixml), Used for is XML parsing (per README.md's Dependency table).",
+    "confidence": 0.75,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "README.md",
+        "line": 346
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-slides-dd3afe",
+    "kind": "capability_matrix_cell",
+    "text": "For [pugixml](https://github.com/zeux/pugixml), Needed by a consumer is **Yes** — it appears in this library's public headers (per README.md's Dependency table).",
+    "confidence": 0.75,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "README.md",
+        "line": 346
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-slides-02518e",
+    "kind": "capability_matrix_cell",
+    "text": "For [miniz](https://github.com/richgel999/miniz), Version is 3.0.2 (per README.md's Dependency table).",
+    "confidence": 0.75,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "README.md",
+        "line": 346
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-slides-2939f2",
+    "kind": "capability_matrix_cell",
+    "text": "For [miniz](https://github.com/richgel999/miniz), Used for is ZIP archive I/O (per README.md's Dependency table).",
+    "confidence": 0.75,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "README.md",
+        "line": 346
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-slides-286965",
+    "kind": "capability_matrix_cell",
+    "text": "For [miniz](https://github.com/richgel999/miniz), Needed by a consumer is At link time only (per README.md's Dependency table).",
+    "confidence": 0.75,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "README.md",
+        "line": 346
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-slides-2d2275",
+    "kind": "capability_matrix_cell",
+    "text": "For [GoogleTest](https://github.com/google/googletest), Version is 1.15.2 (per README.md's Dependency table).",
+    "confidence": 0.75,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "README.md",
+        "line": 346
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-slides-e8d895",
+    "kind": "capability_matrix_cell",
+    "text": "For [GoogleTest](https://github.com/google/googletest), Used for is The test suite (per README.md's Dependency table).",
+    "confidence": 0.75,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "README.md",
+        "line": 346
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-slides-774234",
+    "kind": "capability_matrix_cell",
+    "text": "For [GoogleTest](https://github.com/google/googletest), Needed by a consumer is No — only fetched when tests are built (per README.md's Dependency table).",
+    "confidence": 0.75,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "README.md",
+        "line": 346
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-slides-d8952f",
+    "kind": "capability_matrix_cell",
+    "text": "For `ASPOSE_SLIDES_FOSS_BUILD_TESTS`, Default is ON at top level (per README.md's Option table).",
+    "confidence": 0.75,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "README.md",
+        "line": 354
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-slides-aa9492",
+    "kind": "capability_matrix_cell",
+    "text": "For `ASPOSE_SLIDES_FOSS_BUILD_TESTS`, Effect is Build the test suite. `OFF`, or `-DBUILD_TESTING=OFF`, means no test framework is downloaded at all. (per README.md's Option table).",
+    "confidence": 0.75,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "README.md",
+        "line": 354
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-slides-a2b96f",
+    "kind": "capability_matrix_cell",
+    "text": "For `ASPOSE_SLIDES_FOSS_INSTALL`, Default is ON at top level (per README.md's Option table).",
+    "confidence": 0.75,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "README.md",
+        "line": 354
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-slides-f9c8a4",
+    "kind": "capability_matrix_cell",
+    "text": "For `ASPOSE_SLIDES_FOSS_INSTALL`, Effect is Generate the install and export rules. (per README.md's Option table).",
+    "confidence": 0.75,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "README.md",
+        "line": 354
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-slides-986539",
+    "kind": "capability_matrix_cell",
+    "text": "For `ASPOSE_SLIDES_FOSS_FETCH_DEPENDENCIES`, Default is ON (per README.md's Option table).",
+    "confidence": 0.75,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "README.md",
+        "line": 354
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-slides-a64e25",
+    "kind": "capability_matrix_cell",
+    "text": "For `ASPOSE_SLIDES_FOSS_FETCH_DEPENDENCIES`, Effect is Allow `FetchContent` to supply a dependency that was not found. Package builds set this `OFF` so a missing dependency fails loudly. (per README.md's Option table).",
+    "confidence": 0.75,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "README.md",
+        "line": 354
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-slides-6094d6",
+    "kind": "capability_matrix_cell",
+    "text": "For `ASPOSE_SLIDES_FOSS_WARNINGS_AS_ERRORS`, Default is OFF (per README.md's Option table).",
+    "confidence": 0.75,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "README.md",
+        "line": 354
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-slides-9cee37",
+    "kind": "capability_matrix_cell",
+    "text": "For `ASPOSE_SLIDES_FOSS_WARNINGS_AS_ERRORS`, Effect is Treat this library's own compiler warnings as errors. (per README.md's Option table).",
+    "confidence": 0.75,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "README.md",
+        "line": 354
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-slides-aac696",
+    "kind": "capability_matrix_cell",
+    "text": "For `ASPOSE_SLIDES_FOSS_SANITIZE_ADDRESS`, Default is OFF (per README.md's Option table).",
+    "confidence": 0.75,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "README.md",
+        "line": 354
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-slides-c64c9c",
+    "kind": "capability_matrix_cell",
+    "text": "For `ASPOSE_SLIDES_FOSS_SANITIZE_ADDRESS`, Effect is Build library and tests with AddressSanitizer. (per README.md's Option table).",
+    "confidence": 0.75,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "README.md",
+        "line": 354
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
     "claim_id": "CLM-slides-d0d41d",
     "kind": "limitation",
     "text": "Unimplemented stub (empty body): BaseCollectionIterator in include/Aspose/Slides/Foss/_internal/base_collection.h:25",
@@ -54119,9 +54385,9 @@
     "provenance": "scout"
   },
   {
-    "claim_id": "CLM-slides-417235",
+    "claim_id": "CLM-slides-d504d2",
     "kind": "install",
-    "text": "Current version is 0.1.0",
+    "text": "Current version is 26.9.0",
     "confidence": 1.0,
     "claim_source": "scout",
     "evidence": [],
@@ -69507,6 +69773,1637 @@
       {
         "source_file": "verified_facts.txt",
         "snippet": "find(name) -> Ptr"
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-slides-cpp-aa8c0c53",
+    "text": "Aspose.Slides FOSS for C++ lets developers create, edit, and save PowerPoint presentations in the .pptx format.",
+    "kind": "feature",
+    "page_role": "product",
+    "confidence": 0.92,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "README.md",
+        "snippet": "The official open-source C++ library by Aspose.Slides for creating, reading, and editing PowerPoint (`.pptx`) presentations."
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-slides-cpp-d04208e9",
+    "text": "When using `AdjustValueCollection` in XML‑backed mode, you must call `init_internal(av_lst_element, slide_part)` with the correct XML element; otherwise added adjustments will not be reflected in the saved file.",
+    "kind": "troubleshoot",
+    "page_role": "kb",
+    "confidence": 0.85,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "verified_facts",
+        "snippet": "Class: AdjustValueCollection ... Methods: init_internal(av_lst_element, slide_part) -> void; ..."
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-slides-cpp-3a3dbc29",
+    "text": "The `Color` class includes predefined static color members (e.g., `alice_blue`); ensure the appropriate header is included to use these constants when setting fill or line colors.",
+    "kind": "troubleshoot",
+    "page_role": "kb",
+    "confidence": 0.85,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "verified_facts",
+        "snippet": "Class: Color ... Properties: alice_blue, antique_white, aqua, ..."
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-slides-cpp-8805c575",
+    "text": "Add a comment author with `pres.comment_authors().add_author(\"Alice\", \"A\");` and then attach a comment to a slide using `author.comments().add_comment(\"Review note\", slide, PointF(2.0f,3.0f), now);`.",
+    "kind": "api",
+    "page_role": "docs",
+    "confidence": 0.94,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "tests/Aspose.Slides.Foss.IntegrationTests/comments_test.cpp",
+        "snippet": "auto& author = pres.comment_authors().add_author(\"Alice\", \"A\");\nauto& comment = author.comments().add_comment(\"Review note\", slide, PointF(2.0f, 3.0f), now);"
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-slides-cpp-a9fd6c9b",
+    "text": "Retrieve the RGB components of a color using `ColorFormat cf; uint8_t r = cf.r();` and modify them with `cf.set_r(255);`.",
+    "kind": "api",
+    "page_role": "docs",
+    "confidence": 0.93,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "verified_facts.txt",
+        "snippet": "r() -> uint8_t; set_r(value) -> void; g() -> uint8_t; set_g(value) -> void; b() -> uint8_t; set_b(value) -> void;"
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-slides-cpp-c614fa70",
+    "text": "Iterate over table columns with `for (auto it = cols.begin(); it != cols.end(); ++it) { Column& col = *it; double w = col.width(); }`.",
+    "kind": "api",
+    "page_role": "docs",
+    "confidence": 0.91,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "verified_facts.txt",
+        "snippet": "begin() -> iterator; end() -> iterator; width() -> double; set_width(value) -> void;"
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-slides-cpp-07a2b823",
+    "text": "If a required header such as `slide.h` is omitted, compilation fails with a \"use of undefined type\" error because the library forward‑declares collection return types.",
+    "kind": "troubleshoot",
+    "page_role": "kb",
+    "confidence": 0.88,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "README.md",
+        "snippet": "It forward-declares the types its collections return, so reaching through `slides()[0].shapes()` needs `slide.h` and `shape_collection.h` as well, and using what a factory hands back needs that type's header too, and a missing one shows up as *use of undefined type* rather than as a missing function.\""
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-slides-cpp-dfec0c79",
+    "text": "Before adding comments to a slide, ensure the slide‑specific comments part exists by calling `CommentsPart::create_for_slide(package, slide_part_name);`; otherwise CRUD methods will not find a target XML file.",
+    "kind": "troubleshoot",
+    "page_role": "kb",
+    "confidence": 0.87,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "verified_facts.txt",
+        "snippet": "Manages a slide comments XML part (`ppt/comments/slideN.xml`). One file exists per slide that has comments. Provides CRUD operations for individual comment elements and static factory/lifecycle method"
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-slides-cpp-8d295a55",
+    "text": "`EffectFormat::blur_effect()` returns an `Effects::Blur` object that can be configured to apply a blur visual effect to a shape.",
+    "kind": "api",
+    "page_role": "reference",
+    "confidence": 0.94,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "verified_facts.txt",
+        "snippet": "blur_effect() -> Effects::Blur;"
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-slides-cpp-0a063cab",
+    "text": "Use ExporterRegistry to query whether a specific format string is supported and retrieve the corresponding exporter factory.",
+    "kind": "api",
+    "page_role": "docs",
+    "confidence": 0.93,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "verified_facts.txt",
+        "snippet": "Class: ExporterRegistry ... Methods: is_format_supported(format_value) -> bool; get_supported_formats() -> std::vector<std::string>; get_exporter_class(format_value) -> std::optional<ExporterFactory>;"
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-slides-cpp-94481a61",
+    "text": "The FillFormat class exposes methods like fill_type(), SimpleColorFormat(), GradientFormat(), PatternFormat(), and PictureFillFormat() to configure the interior appearance of a shape.",
+    "kind": "api",
+    "page_role": "docs",
+    "confidence": 0.94,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "verified_facts.txt",
+        "snippet": "Class: FillFormat ... Methods: FillType() -> FillType; SimpleColorFormat() -> SimpleColorFormat; GradientFormat() -> GradientFormat; PatternFormat() -> PatternFormat; PictureFillFormat() -> PictureFillFormat;"
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-slides-cpp-7c30fff5",
+    "text": "If ExporterRegistry::is_format_supported returns false for a format string, ensure the format value matches one of the strings returned by get_supported_formats(), otherwise register a custom exporter.",
+    "kind": "troubleshoot",
+    "page_role": "kb",
+    "confidence": 0.88,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "verified_facts.txt",
+        "snippet": "Class: ExporterRegistry ... Methods: is_format_supported(format_value) -> bool; get_supported_formats() -> std::vector<std::string>; register_exporter ... (implied by registry description)"
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-slides-cpp-48814bb1",
+    "text": "When a shape's fill is not needed, set FillFormat::FillType to FillType::NO_FILL to avoid generating unnecessary XML elements.",
+    "kind": "troubleshoot",
+    "page_role": "kb",
+    "confidence": 0.87,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "verified_facts.txt",
+        "snippet": "Class: FillType ... Enum values: NOT_DEFINED, NO_FILL, SOLID, GRADIENT, PATTERN, PICTURE, GROUP"
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-slides-cpp-c28d79c3",
+    "text": "IAutoShape lets developers add vector shapes such as rectangles and insert editable text via the add_text_frame method.",
+    "kind": "feature",
+    "page_role": "product",
+    "confidence": 0.92,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "verified_facts.txt",
+        "snippet": "class IAutoShape ... add_text_frame(text) -> TextFrame"
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-slides-cpp-8ff574b3",
+    "text": "Header and footer visibility on slides and handouts can be controlled through IBaseHeaderFooterManager and IBaseHandoutNotesSlideHeaderFooterManager.",
+    "kind": "feature",
+    "page_role": "product",
+    "confidence": 0.9,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "verified_facts.txt",
+        "snippet": "class IBaseHeaderFooterManager ... is_footer_visible() -> bool; set_footer_visibility(is_visible) -> void"
+      },
+      {
+        "source_file": "verified_facts.txt",
+        "snippet": "class IBaseHandoutNotesSlideHeaderFooterManager ... is_header_visible() -> bool; set_header_visibility(is_visible) -> void"
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-slides-cpp-2565d0e9",
+    "text": "To apply a blur effect to any shape, retrieve its IBlur interface and set the radius and grow properties.",
+    "kind": "api",
+    "page_role": "docs",
+    "confidence": 0.93,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "verified_facts.txt",
+        "snippet": "class IBlur ... radius() -> double; set_radius(value) -> void; grow() -> bool; set_grow(value) -> void"
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-slides-cpp-3db7f10c",
+    "text": "If a blur effect does not appear after saving, ensure that set_grow(true) is called so the expanded area is included.",
+    "kind": "troubleshoot",
+    "page_role": "kb",
+    "confidence": 0.85,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "verified_facts.txt",
+        "snippet": "class IBlur ... set_grow(value) -> void"
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-slides-cpp-38302ef9",
+    "text": "IAdjustValue exposes both a raw integer adjustment value and a floating‑point angle value for geometry shape tweaking.",
+    "kind": "api",
+    "page_role": "reference",
+    "confidence": 0.94,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "verified_facts.txt",
+        "snippet": "class IAdjustValue ... raw_value() -> int; angle_value() -> double"
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-slides-cpp-3b73b7ed",
+    "text": "Use IAdjustValueCollection::size() to discover how many adjustment parameters a geometry shape defines.",
+    "kind": "api",
+    "page_role": "docs",
+    "confidence": 0.9,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "verified_facts.txt",
+        "snippet": "class IAdjustValueCollection ... size() -> std::size_t"
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-slides-cpp-26a15b73",
+    "text": "Table structures are built from IColumn and ICell objects, giving precise control over column widths, cell margins, and text anchoring.",
+    "kind": "feature",
+    "page_role": "product",
+    "confidence": 0.91,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "verified_facts.txt",
+        "snippet": "class IColumn ... width() -> double; set_width(value) -> void"
+      },
+      {
+        "source_file": "verified_facts.txt",
+        "snippet": "class ICell ... margin_left() -> double; set_margin_left(value) -> void; text_anchor_type() -> TextAnchorType; set_text_anchor_type(value) -> void"
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-slides-cpp-fe0280da",
+    "text": "IBulletFormat lets you define bullet type, character, font, size, color, and even picture bullets for paragraph lists.",
+    "kind": "api",
+    "page_role": "reference",
+    "confidence": 0.93,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "verified_facts.txt",
+        "snippet": "class IBulletFormat ... type() -> BulletType; set_type(value) -> void; get_char() -> std::string; set_char(value) -> void; font_name() -> std::string; set_font_name(value) -> void; height() -> float; set_height(value) -> void; color() -> IColorFormat; picture() -> ISlidesPicture"
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-slides-cpp-e1efc3eb",
+    "text": "Use IBasePortionFormat to style text portions, including bold/italic flags, underline, and highlight color.",
+    "kind": "api",
+    "page_role": "docs",
+    "confidence": 0.9,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "verified_facts.txt",
+        "snippet": "class IBasePortionFormat ... font_bold() -> NullableBool; set_font_bold(value) -> void; font_italic() -> NullableBool; set_font_italic(value) -> void; underline_line_format() -> LineFormat; highlight_color() -> ColorFormat"
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-slides-cpp-42a50350",
+    "text": "ICamera provides 3D scene rendering parameters such as field‑of‑view angle, zoom level, and rotation (latitude, longitude, revolution).",
+    "kind": "feature",
+    "page_role": "product",
+    "confidence": 0.89,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "verified_facts.txt",
+        "snippet": "class ICamera ... field_of_view_angle() -> float; set_field_of_view_angle(value) -> void; zoom() -> float; set_zoom(value) -> void; set_rotation(latitude, longitude, revolution) -> void; get_rotation() -> std::array<float, 3>"
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-slides-cpp-7fdd53f8",
+    "text": "To add a new comment author, instantiate a `Presentation` and call `comment_authors().add_author(name, initials)`. The returned author object can be used immediately.",
+    "kind": "api",
+    "page_role": "docs",
+    "confidence": 0.95,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "tests/Aspose.Slides.Foss.IntegrationTests/comments_test.cpp",
+        "snippet": "auto& author = pres.comment_authors().add_author(\"Alice\", \"A\");\nEXPECT_EQ(author.name(), \"Alice\");"
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-slides-cpp-413a24f0",
+    "text": "If a comment author seems missing after saving and reopening a presentation, access authors via the collection index (`pres.comment_authors()[0]`) rather than holding onto a stale reference, because objects are re-instantiated on load.",
+    "kind": "troubleshoot",
+    "page_role": "kb",
+    "confidence": 0.85,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "tests/Aspose.Slides.Foss.IntegrationTests/comments_test.cpp",
+        "snippet": "auto pres2 = save_and_reopen(pres);\nASSERT_EQ(pres2.comment_authors().size(), 1);\nEXPECT_EQ(pres2.comment_authors()[0].name(), \"Alice\");"
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-slides-cpp-b2d6e9d5",
+    "text": "`IFillFormat::rotate_with_shape()` returns a `NullableBool`; when the value is null the default rotation behavior applies, so code should check for null before using the flag.",
+    "kind": "troubleshoot",
+    "page_role": "kb",
+    "confidence": 0.85,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "verified_facts.txt",
+        "snippet": "IFillFormat methods: rotate_with_shape() -> NullableBool; set_rotate_with_shape(value) -> void"
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-slides-cpp-23c4d590",
+    "text": "The library provides full support for Office Open XML (.pptx) files, allowing import and export of presentations in this format.",
+    "kind": "format",
+    "page_role": "product",
+    "confidence": 0.94,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "README.md",
+        "snippet": "pres.save(\"new.pptx\", SaveFormat::PPTX);"
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-slides-cpp-76f81d7c",
+    "text": "All visual styling, including fills, lines, shadows, and 3D effects, can be applied through dedicated interfaces such as ILineFormat, IInnerShadow, and ILightRig.",
+    "kind": "feature",
+    "page_role": "product",
+    "confidence": 0.93,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "verified_facts.txt",
+        "snippet": "Class: ILineFormat ... Methods: ...; Class: IInnerShadow ... Methods: ...; Class: ILightRig ... Methods: ..."
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-slides-cpp-324a7459",
+    "text": "Use IImage::save to write an image to a file path or an output stream, supporting both raster and vector formats.",
+    "kind": "api",
+    "page_role": "docs",
+    "confidence": 0.96,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "verified_facts.txt",
+        "snippet": "Class: IImage ... Methods: save(filename) -> void; save(stream) -> void"
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-slides-cpp-283816a9",
+    "text": "Retrieve the dimensions of an image via IImage::width, IImage::height, or IImage::size.",
+    "kind": "api",
+    "page_role": "docs",
+    "confidence": 0.96,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "verified_facts.txt",
+        "snippet": "Class: IImage ... Methods: width() -> int; height() -> int; size() -> Drawing::Size"
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-slides-cpp-7a6e9f0e",
+    "text": "Configure a line's appearance by setting its width, dash style, cap style, and join style through ILineFormat methods.",
+    "kind": "api",
+    "page_role": "docs",
+    "confidence": 0.95,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "verified_facts.txt",
+        "snippet": "Class: ILineFormat ... Methods: width() -> double; set_width(value) -> void; dash_style() -> LineDashStyle; set_dash_style(value) -> void; cap_style() -> LineCapStyle; set_cap_style(value) -> void; join_style() -> LineJoinStyle; set_join_style(value) -> void"
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-slides-cpp-86522bb8",
+    "text": "Apply an inner shadow effect to a shape by accessing IInnerShadow, setting blur radius, direction, distance, and shadow color, then converting it to an IImageTransformOperation.",
+    "kind": "api",
+    "page_role": "docs",
+    "confidence": 0.94,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "verified_facts.txt",
+        "snippet": "Class: IInnerShadow ... Methods: blur_radius() -> double; set_blur_radius(value) -> void; direction() -> double; set_direction(value) -> void; distance() -> double; set_distance(value) -> void; shadow_color() -> IColorFormat; as_i_image_transform_operation() -> IImageTransformOperation"
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-slides-cpp-7544105c",
+    "text": "ILayoutSlideCollection::get_by_type returns the layout slide that matches a specified SlideLayoutType.",
+    "kind": "api",
+    "page_role": "reference",
+    "confidence": 0.97,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "verified_facts.txt",
+        "snippet": "Class: ILayoutSlideCollection ... Methods: get_by_type(type) -> ILayoutSlide"
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-slides-cpp-fda1ed5f",
+    "text": "If a presentation fails to load, verify that the correct ILoadOptions implementation is supplied, as the library uses ILoadOptions to configure loading behavior.",
+    "kind": "troubleshoot",
+    "page_role": "kb",
+    "confidence": 0.9,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "verified_facts.txt",
+        "snippet": "Class: ILoadOptions ... Methods: ~ILoadOptions()"
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-slides-cpp-f3f425b2",
+    "text": "The library provides full support for adding and formatting text, including paragraphs and portions, via IParagraph, IPortion, and related format interfaces.",
+    "kind": "feature",
+    "page_role": "product",
+    "confidence": 0.89,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "verified_facts.txt",
+        "snippet": "Class: IParagraph ... Methods: text() -> std::string; set_text(value) -> void; paragraph_format() -> IParagraphFormat"
+      },
+      {
+        "source_file": "verified_facts.txt",
+        "snippet": "Class: IPortion ... Methods: text() -> std::string; set_text(value) -> void; portion_format() -> IPortionFormat"
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-slides-cpp-20cb8d8b",
+    "text": "Visual effects such as outer shadows, preset shadows, and reflections can be applied to shapes using IOuterShadow, IPresetShadow, and IReflection interfaces.",
+    "kind": "feature",
+    "page_role": "product",
+    "confidence": 0.88,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "verified_facts.txt",
+        "snippet": "Class: IOuterShadow ... Methods: blur_radius() -> double; set_blur_radius(value) -> void; direction() -> double; set_direction(value) -> void"
+      },
+      {
+        "source_file": "verified_facts.txt",
+        "snippet": "Class: IPresetShadow ... Methods: direction() -> double; set_direction(value) -> void; preset() -> PresetShadowType"
+      },
+      {
+        "source_file": "verified_facts.txt",
+        "snippet": "Class: IReflection ... Methods: start_pos_alpha() -> double; set_start_pos_alpha(value) -> void; blur_radius() -> double; set_blur_radius(value) -> void"
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-slides-cpp-b50c4641",
+    "text": "Use IPresentation::slides() to access the SlideCollection and add new slides or shapes to a presentation.",
+    "kind": "api",
+    "page_role": "docs",
+    "confidence": 0.94,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "verified_facts.txt",
+        "snippet": "Class: IPresentation ... Methods: slides() -> SlideCollection; slides() -> SlideCollection"
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-slides-cpp-e00644fa",
+    "text": "Create a picture frame and control its scaling with IPictureFrame::relative_scale_width() and IPictureFrame::relative_scale_height().",
+    "kind": "api",
+    "page_role": "docs",
+    "confidence": 0.91,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "verified_facts.txt",
+        "snippet": "Class: IPictureFrame ... Methods: relative_scale_width() -> double; set_relative_scale_width(value) -> void; relative_scale_height() -> double; set_relative_scale_height(value) -> void"
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-slides-cpp-3f4f39ae",
+    "text": "Adjust the blur radius of an outer shadow on a shape by calling IOuterShadow::set_blur_radius(value).",
+    "kind": "api",
+    "page_role": "docs",
+    "confidence": 0.93,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "verified_facts.txt",
+        "snippet": "Class: IOuterShadow ... Methods: blur_radius() -> double; set_blur_radius(value) -> void"
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-slides-cpp-986fd8d5",
+    "text": "Replace an embedded image in a presentation by retrieving an IPPImage instance and calling replace_image(new_data).",
+    "kind": "api",
+    "page_role": "docs",
+    "confidence": 0.9,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "verified_facts.txt",
+        "snippet": "Class: IPPImage ... Methods: replace_image(new_data) -> void"
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-slides-cpp-c47fa1eb",
+    "text": "If a shape's shadow does not rotate with the shape, ensure IOuterShadow::set_rotate_shadow_with_shape(true) is called; otherwise the shadow remains axis‑aligned.",
+    "kind": "troubleshoot",
+    "page_role": "kb",
+    "confidence": 0.85,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "verified_facts.txt",
+        "snippet": "Class: IOuterShadow ... Methods: rotate_shadow_with_shape() -> bool; set_rotate_shadow_with_shape(value) -> void"
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-slides-cpp-f755b5e1",
+    "text": "When loading a presentation, the constructor will throw if the file path does not point to a valid .pptx package; verify the file exists before creating IPresentation.",
+    "kind": "troubleshoot",
+    "page_role": "kb",
+    "confidence": 0.84,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "README.md",
+        "snippet": "The constructor throws if the file is not there or is not a presentation package.\""
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-slides-cpp-8da67043",
+    "text": "Developers can access and modify individual slides via the ISlide interface, including retrieving the shape collection, setting the slide number, hiding the slide, and managing layout and notes.",
+    "kind": "feature",
+    "page_role": "product",
+    "confidence": 0.9,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "verified_facts.txt",
+        "snippet": "Class: ISlide ... Methods: ... shapes() -> ShapeCollection; slide_number() -> int; set_slide_number(value) -> void; hidden() -> bool; set_hidden(value) -> void; layout_slide() -> ILayoutSlide; set_layout_slide(value) -> void; notes_slide_manager() -> INotesSlideManager; ..."
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-slides-cpp-311fcdce",
+    "text": "Use IShapeCollection::add_auto_shape to create a new AutoShape on a slide by specifying the shape type and its bounding rectangle (x, y, width, height).",
+    "kind": "api",
+    "page_role": "docs",
+    "confidence": 0.9,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "verified_facts.txt",
+        "snippet": "Class: IShapeCollection ... Methods: add_auto_shape(type, x, y, width, height) -> AutoShape; add_auto_shape(type, x, y, width, height, create_from_template) -> AutoShape;"
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-slides-cpp-02e03fea",
+    "text": "Insert a connector between shapes at a specific index using IShapeCollection::insert_connector, providing the connector type and geometry.",
+    "kind": "api",
+    "page_role": "docs",
+    "confidence": 0.9,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "verified_facts.txt",
+        "snippet": "Class: IShapeCollection ... Methods: insert_connector(index, type, x, y, width, height) -> Connector; insert_connector(index, type, x, y, width, height, create_from_template) -> Connector;"
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-slides-cpp-814bb5c1",
+    "text": "The library enables 3‑D styling of shapes through the IThreeDFormat interface, allowing developers to set depth, extrusion height, contour width, bevels, and material presets.",
+    "kind": "feature",
+    "page_role": "product",
+    "confidence": 0.9,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "verified_facts.txt",
+        "snippet": "Class: IThreeDFormat ... Methods: contour_width() -> double; set_contour_width(value) -> void; extrusion_height() -> double; set_extrusion_height(value) -> void; depth() -> double; set_depth(value) -> void; bevel_top() -> ShapeBevel; bevel_bottom() -> ShapeBevel; material() -> MaterialPresetType; set_material(value) -> void;"
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-slides-cpp-01e46d13",
+    "text": "Apply a soft‑edge visual effect to a shape using the ISoftEdge interface, where the radius of the blur can be set via set_radius.",
+    "kind": "feature",
+    "page_role": "product",
+    "confidence": 0.9,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "verified_facts.txt",
+        "snippet": "Class: ISoftEdge ... Methods: radius() -> double; set_radius(value) -> void; as_i_image_transform_operation() -> IImageTransformOperation;"
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-slides-cpp-4f56bea6",
+    "text": "Aspose.Slides for C++ can import and export presentations in PPTX, PPTM, PPSX, PPSM, POTX, and POTM formats.",
+    "kind": "format",
+    "page_role": "product",
+    "confidence": 0.85,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "README.md",
+        "snippet": "Outputs ... A presentation written to a file path as .pptx, .pptm, .ppsx, .ppsm, .potx or .potm"
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-slides-cpp-46d25af0",
+    "text": "IShape::frame() returns a ShapeFrame object that provides the shape's position, size, rotation, and center coordinates.",
+    "kind": "api",
+    "page_role": "reference",
+    "confidence": 0.9,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "verified_facts.txt",
+        "snippet": "Class: IShape ... Methods: frame() -> ShapeFrame; set_frame(value) -> void; ..."
+      },
+      {
+        "source_file": "verified_facts.txt",
+        "snippet": "Class: IShapeFrame ... Methods: x() -> double; y() -> double; width() -> double; height() -> double; rotation() -> double; center_x() -> double; center_y() -> double;"
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-slides-cpp-61053cae",
+    "text": "Calling IShape::set_hidden(true) makes the shape invisible on the slide while preserving its layout.",
+    "kind": "api",
+    "page_role": "reference",
+    "confidence": 0.9,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "verified_facts.txt",
+        "snippet": "Class: IShape ... Methods: hidden() -> bool; set_hidden(value) -> void;"
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-slides-cpp-9af05443",
+    "text": "IShapeBevel lets developers define a shape's bevel type, width, and height using bevel_type, set_bevel_type, width, set_width, height, and set_height methods.",
+    "kind": "api",
+    "page_role": "reference",
+    "confidence": 0.9,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "verified_facts.txt",
+        "snippet": "Class: IShapeBevel ... Methods: bevel_type() -> BevelPresetType; set_bevel_type(value) -> void; width() -> double; set_width(value) -> void; height() -> double; set_height(value) -> void;"
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-slides-cpp-5ed243ab",
+    "text": "ITextFrame::text() retrieves the plain text of a text frame, and set_text replaces its content with a new string.",
+    "kind": "api",
+    "page_role": "reference",
+    "confidence": 0.9,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "verified_facts.txt",
+        "snippet": "Class: ITextFrame ... Methods: text() -> std::string; set_text(value) -> void;"
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-slides-cpp-92b9ae41",
+    "text": "The library supports opening and saving `.pptx` files, allowing round‑trip modifications of presentations, slides, shapes, and comments.",
+    "kind": "format",
+    "page_role": "product",
+    "confidence": 0.88,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "README.md",
+        "snippet": "Presentation I/O — Open, create and save `.pptx` files."
+      },
+      {
+        "source_file": "tests/Aspose.Slides.Foss.IntegrationTests/comments_test.cpp",
+        "snippet": "pres.save(path, SaveFormat::PPTX); return Presentation(path);"
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-slides-cpp-ba00d0fb",
+    "text": "All presentation I/O is performed via the `Presentation` class, which can be constructed from a file path and saved to a path using `SaveFormat::PPTX`.",
+    "kind": "api",
+    "page_role": "product",
+    "confidence": 0.9,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "README.md",
+        "snippet": "Presentation pres; ... pres.save(\"new.pptx\", SaveFormat::PPTX);\nPresentation opened(\"new.pptx\");"
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-slides-cpp-d3a0ead0",
+    "text": "Use `Images::from_file(path)` to load an image from disk into a `std::unique_ptr<Image>` for embedding in a slide.",
+    "kind": "api",
+    "page_role": "docs",
+    "confidence": 0.95,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "verified_facts",
+        "snippet": "from_file(filename) -> std::unique_ptr<Image>"
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-slides-cpp-98217e12",
+    "text": "Create a new in‑memory OPC package with `InMemoryOpcPackage::create_new()` and later persist it with `save(path)` to generate a `.pptx` archive.",
+    "kind": "api",
+    "page_role": "docs",
+    "confidence": 0.94,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "verified_facts",
+        "snippet": "create_new() -> InMemoryOpcPackage; save(path) -> void"
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-slides-cpp-9f542bc4",
+    "text": "Retrieve a layout slide’s shape collection via `LayoutSlide::shapes()` and modify its contents before applying it to a master slide.",
+    "kind": "api",
+    "page_role": "docs",
+    "confidence": 0.9,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "verified_facts",
+        "snippet": "shapes() -> ShapeCollection"
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-slides-cpp-24be002b",
+    "text": "Add an inner shadow effect to a shape by constructing `InnerShadow`, setting `blur_radius`, `direction`, `distance`, and `shadow_color`, then applying the effect through the shape’s effect interface.",
+    "kind": "api",
+    "page_role": "docs",
+    "confidence": 0.88,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "verified_facts",
+        "snippet": "blur_radius() -> double; set_blur_radius(value) -> void; direction() -> double; set_direction(value) -> void; distance() -> double; set_distance(value) -> void; shadow_color() -> SimpleColorFormat"
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-slides-cpp-03a610ce",
+    "text": "`LineFormat::LineFillFormat()` provides access to a `LineFillFormat` object, allowing configuration of solid, gradient, or pattern fills for a line.",
+    "kind": "api",
+    "page_role": "reference",
+    "confidence": 0.93,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "verified_facts",
+        "snippet": "LineFillFormat() -> LineFillFormat"
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-slides-cpp-836bf83e",
+    "text": "When loading a presentation from a non‑existent path, the `Presentation` constructor throws; ensure the file exists before invoking the constructor.",
+    "kind": "troubleshoot",
+    "page_role": "kb",
+    "confidence": 0.85,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "README.md",
+        "snippet": "The constructor throws if the file is not there or is not a presentation package."
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-slides-cpp-ba5e24e7",
+    "text": "`InMemoryOpcPackage::get_part(part_name)` returns `std::nullopt` if the requested part does not exist; check the optional before accessing the byte vector to avoid undefined behavior.",
+    "kind": "troubleshoot",
+    "page_role": "kb",
+    "confidence": 0.9,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "verified_facts",
+        "snippet": "get_part(part_name) -> std::optional<std::vector<uint8_t>>"
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-slides-cpp-fc490962",
+    "text": "The OuterShadow class lets developers apply outer shadow effects to shapes, with configurable blur radius, direction, distance, color, and rectangle alignment.",
+    "kind": "feature",
+    "page_role": "product",
+    "confidence": 0.88,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "verified_facts.txt",
+        "snippet": "Class: OuterShadow ... Methods: blur_radius() -> double; set_blur_radius(value) -> void; direction() -> double; set_direction(value) -> void; shadow_color() -> SimpleColorFormat"
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-slides-cpp-e332febf",
+    "text": "Use Presentation::save(filePath, SaveFormat::PPTX) to export a presentation to any of the supported formats: .pptx, .pptm, .ppsx, .ppsm, .potx, or .potm.",
+    "kind": "format",
+    "page_role": "docs",
+    "confidence": 0.94,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "README.md",
+        "snippet": "A presentation written to a file path as .pptx, .pptm, .ppsx, .ppsm, .potx or .potm"
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-slides-cpp-5c2df01f",
+    "text": "Add a new notes slide to a slide by calling slide.notes_slide_manager().add_notes_slide() and then customize its content via notes_text_frame().add_paragraph(...).",
+    "kind": "api",
+    "page_role": "docs",
+    "confidence": 0.85,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "verified_facts.txt",
+        "snippet": "Class: NotesSlideManager ... Methods: add_notes_slide() -> INotesSlide"
+      },
+      {
+        "source_file": "verified_facts.txt",
+        "snippet": "Class: NotesSlide ... Methods: notes_text_frame() -> TextFrame"
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-slides-cpp-b83f5a4e",
+    "text": "Clone an existing master slide, including its layouts and shapes, by invoking MasterSlideCollection::add_clone(source_master).",
+    "kind": "api",
+    "page_role": "docs",
+    "confidence": 0.88,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "verified_facts.txt",
+        "snippet": "Class: MasterSlideCollection ... Methods: add_clone(source_master) -> MasterSlide"
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-slides-cpp-ceb657ed",
+    "text": "If a required placeholder (e.g., header or footer) is missing in a notes slide, add it first with NotesSlidePart::add_placeholder(type) before setting its text to avoid missing‑placeholder errors.",
+    "kind": "troubleshoot",
+    "page_role": "kb",
+    "confidence": 0.3,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "verified_facts.txt",
+        "snippet": "Class: NotesSlidePart ... Methods: has_placeholder(type) -> bool; add_placeholder(type) -> void; set_placeholder_text(type, text) -> void"
+      }
+    ],
+    "stale_warning": "Source code references 'NotesSlidePart' in non-test files — claim that it is not consumed may be incorrect",
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-slides-cpp-55d66345",
+    "text": "OpcPackage provides low‑level access to the OPC container, allowing retrieval, insertion, existence checks, and deletion of parts via get_part, set_part, has_part, and delete_part methods.",
+    "kind": "api",
+    "page_role": "reference",
+    "confidence": 0.93,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "verified_facts.txt",
+        "snippet": "Class: OpcPackage ... Methods: get_part(part_name) -> std::optional<std::vector<uint8_t>>; set_part(part_name, content) -> void; has_part(part_name) -> bool; delete_part(part_name) -> bool"
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-slides-cpp-3a0949ce",
+    "text": "Aspose.Slides for C++ lets developers create, edit, and save PowerPoint presentations using the Presentation class and the PptxExporter exporter.",
+    "kind": "feature",
+    "page_role": "product",
+    "confidence": 0.92,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "verified_facts.txt",
+        "snippet": "Class: Presentation ... Methods: Presentation() -> Presentation; ... save(...);\nClass: PptxExporter ... Methods: export_to_path(package, path) -> void; export_to_stream(package, stream) -> void;"
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-slides-cpp-e6eb66a6",
+    "text": "The library can export presentations to PPTX, PPTM, PPSX, PPSM, POTX and POTM formats via PptxExporter, and the export direction is always from a Presentation object to a file or stream.",
+    "kind": "format",
+    "page_role": "product",
+    "confidence": 0.88,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "verified_facts.txt",
+        "snippet": "Class: PptxExporter ... Docstring: Exporter for PPTX and related Office Open XML formats. Supports: - PPTX: Standard PowerPoint presentation - PPTM: Macro-enabled presentation - PPSX: PowerPoint show (opens in slideshow mode) - PPSM: M"
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-slides-cpp-71d55c77",
+    "text": "To start a new presentation, instantiate Presentation and add a shape with pres.slides()[0].shapes().add_auto_shape(ShapeType::RECTANGLE, x, y, w, h).",
+    "kind": "api",
+    "page_role": "docs",
+    "confidence": 0.95,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "README.md",
+        "snippet": "Presentation pres;\nauto& shape = pres.slides()[0].shapes().add_auto_shape(\n    ShapeType::RECTANGLE, 50, 50, 300, 100);"
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-slides-cpp-1c8078f5",
+    "text": "Paragraph alignment can be changed by calling ParagraphFormat::set_alignment(value) with a TextAlignment enum value.",
+    "kind": "api",
+    "page_role": "docs",
+    "confidence": 0.9,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "verified_facts.txt",
+        "snippet": "Class: ParagraphFormat ... Methods: alignment() -> TextAlignment; set_alignment(value) -> void;"
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-slides-cpp-b7659a7b",
+    "text": "A shape’s pattern fill is configured via PatternFormat::set_pattern_style(style) and the foreground/background colors via fore_color() and back_color().",
+    "kind": "api",
+    "page_role": "docs",
+    "confidence": 0.89,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "verified_facts.txt",
+        "snippet": "Class: PatternFormat ... Methods: set_pattern_style(value) -> void; fore_color() -> SimpleColorFormat; back_color() -> SimpleColorFormat;"
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-slides-cpp-7227bb78",
+    "text": "To embed an image, create a Picture object through PictureFillFormat::Picture() and assign it to a PictureFrame via picture_format().",
+    "kind": "api",
+    "page_role": "docs",
+    "confidence": 0.87,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "verified_facts.txt",
+        "snippet": "Class: PictureFillFormat ... Methods: Picture() -> Picture; ...\nClass: PictureFrame ... Methods: picture_format() -> PictureFillFormat; ensure_picture_format() -> PictureFillFormat;"
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-slides-cpp-8ad5fbf6",
+    "text": "Before exporting, verify that the target format is supported by calling PptxExporter::is_format_supported(format) to avoid runtime errors.",
+    "kind": "troubleshoot",
+    "page_role": "kb",
+    "confidence": 0.84,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "verified_facts.txt",
+        "snippet": "Class: PptxExporter ... Methods: is_format_supported(format_value) -> bool;"
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-slides-cpp-95feaf06",
+    "text": "PictureFrameLock must be initialized with init_internal(...) to work with XML‑backed lock values; otherwise it uses in‑memory defaults.",
+    "kind": "troubleshoot",
+    "page_role": "kb",
+    "confidence": 0.81,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "verified_facts.txt",
+        "snippet": "Class: PictureFrameLock ... Methods: init_internal(pic_locks_element, slide_part) -> void; grouping_locked() -> bool; ..."
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-slides-cpp-b08faa88",
+    "text": "PortionFormat provides write‑access to text styling and automatically persists changes when initialized from an XML rpr node via init_from_rpr().",
+    "kind": "feature",
+    "page_role": "product",
+    "confidence": 0.85,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "verified_facts.txt",
+        "snippet": "Class: PortionFormat ... Methods: init_from_rpr(r_element, save_callback) -> void; // changes persisted automatically"
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-slides-cpp-174ed334",
+    "text": "PresetShadow lets developers define a shape’s shadow by setting direction, distance, and a preset type with set_direction(), set_distance() and set_preset().",
+    "kind": "api",
+    "page_role": "docs",
+    "confidence": 0.86,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "verified_facts.txt",
+        "snippet": "Class: PresetShadow ... Methods: direction() -> double; set_direction(value) -> void; distance() -> double; set_distance(value) -> void; preset() -> PresetShadowType; set_preset(value) -> void;"
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-slides-cpp-79ae6d55",
+    "text": "PictureFillFormat::dpi() and set_dpi(value) allow control over the resolution of picture fills applied to shapes.",
+    "kind": "api",
+    "page_role": "docs",
+    "confidence": 0.82,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "verified_facts.txt",
+        "snippet": "Class: PictureFillFormat ... Methods: dpi() -> int; set_dpi(value) -> void;"
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-slides-cpp-43e5852f",
+    "text": "Comment handling is available through Presentation::comment_authors(), enabling addition of authors and their comments linked to specific slides.",
+    "kind": "feature",
+    "page_role": "product",
+    "confidence": 0.88,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "comments_test.cpp",
+        "snippet": "auto& author = pres.comment_authors().add_author(\"Alice\", \"A\");\nauto& comment = author.comments().add_comment(\"Review note\", slide, PointF(2.0f, 3.0f), now);"
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-slides-cpp-70144741",
+    "text": "Aspose.Slides FOSS for C++ enables developers to create, edit, and save PowerPoint presentations entirely in C++ code.",
+    "kind": "feature",
+    "page_role": "product",
+    "confidence": 0.92,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "README.md",
+        "snippet": "The official open-source C++ library by Aspose.Slides for creating, reading, and editing PowerPoint (`.pptx`) presentations."
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-slides-cpp-3ac8961b",
+    "text": "The library provides a complete object model for slides, shapes, tables, and visual effects such as reflection, shadows, and 3‑D bevels.",
+    "kind": "feature",
+    "page_role": "product",
+    "confidence": 0.88,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "README.md",
+        "snippet": "c5[\"Visual effects (shadow, glow, blur, reflection)\"]"
+      },
+      {
+        "source_file": "verified_facts.txt",
+        "snippet": "Class: Reflection ... Class: ShapeBevel ... Class: Shape"
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-slides-cpp-344d4f61",
+    "text": "Save a presentation to a file with `pres.save(\"output.pptx\", SaveFormat::PPTX);` which writes the package in the chosen format.",
+    "kind": "api",
+    "page_role": "docs",
+    "confidence": 0.93,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "README.md",
+        "snippet": "pres.save(\"new.pptx\", SaveFormat::PPTX);"
+      },
+      {
+        "source_file": "verified_facts.txt",
+        "snippet": "Class: SaveFormat ... Enum values: PPT, PDF, XPS, PPTX, PPSX, TIFF, ODP, PPTM, PPSM, POTX"
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-slides-cpp-8198c7fe",
+    "text": "Access and modify a shape's fill and line styles via `shape.FillFormat()` and `shape.LineFormat()` methods.",
+    "kind": "api",
+    "page_role": "docs",
+    "confidence": 0.9,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "verified_facts.txt",
+        "snippet": "Class: Shape ... Methods: FillFormat() -> FillFormat; LineFormat() -> LineFormat"
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-slides-cpp-c5cb8ea7",
+    "text": "Apply a reflection effect by constructing a `Reflection` object, setting its properties (e.g., `set_start_pos_alpha(0.5)`), and assigning it through the shape's effect format.",
+    "kind": "api",
+    "page_role": "docs",
+    "confidence": 0.88,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "verified_facts.txt",
+        "snippet": "Class: Reflection ... Methods: start_pos_alpha() -> double; set_start_pos_alpha(value) -> void"
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-slides-cpp-c56a7148",
+    "text": "After adding, removing, or reordering rows in a table, call `RowCollection.rebuild()` to synchronize the in‑memory model with the underlying XML representation.",
+    "kind": "troubleshoot",
+    "page_role": "kb",
+    "confidence": 0.86,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "verified_facts.txt",
+        "snippet": "Class: RowCollection ... Methods: rebuild() -> void"
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-slides-cpp-e349a601",
+    "text": "To delete a relationship from a part, invoke `RelationshipsManager.remove_relationship(rel_id)` and then `save()`; omitting `save()` leaves the .rels file unchanged.",
+    "kind": "troubleshoot",
+    "page_role": "kb",
+    "confidence": 0.84,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "verified_facts.txt",
+        "snippet": "Class: RelationshipsManager ... Methods: remove_relationship(rel_id) -> bool; save() -> void"
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-slides-cpp-759818df",
+    "text": "The library supports creating slide layouts such as title, text, two‑column text, tables, charts, and custom layouts via the SlideLayoutType enumeration.",
+    "kind": "feature",
+    "page_role": "product",
+    "confidence": 0.94,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "verified_facts.txt",
+        "snippet": "Class: SlideLayoutType ... Enum values: CUSTOM, TITLE, TEXT, TWO_COLUMN_TEXT, TABLE, TEXT_AND_CHART, CHART_AND_TEXT, DIAGRAM, CHART, TEXT_AND_CLIP_ART"
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-slides-cpp-507ff0df",
+    "text": "Developers can apply 3D effects, including bevels, cameras, and lighting, to shapes using the ThreeDFormat class.",
+    "kind": "feature",
+    "page_role": "product",
+    "confidence": 0.9,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "verified_facts.txt",
+        "snippet": "Class: ThreeDFormat ... Methods: ShapeBevel(), Camera(), LightRig()"
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-slides-cpp-138170b9",
+    "text": "Soft edge visual effects can be added to shapes through the SoftEdge class, which allows setting a blur radius.",
+    "kind": "feature",
+    "page_role": "product",
+    "confidence": 0.88,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "verified_facts.txt",
+        "snippet": "Class: SoftEdge ... Methods: radius() -> double; set_radius(value) -> void"
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-slides-cpp-c3e51a8e",
+    "text": "Developers can set or retrieve the plain text of a shape's TextFrame using TextFrame::set_text(value) and TextFrame::text().",
+    "kind": "api",
+    "page_role": "docs",
+    "confidence": 0.95,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "verified_facts.txt",
+        "snippet": "Class: TextFrame ... Methods: text() -> std::string; set_text(value) -> void"
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-slides-cpp-9a5e4d2b",
+    "text": "Table structures are built by obtaining RowCollection and ColumnCollection from a Table instance via Table::rows() and Table::columns().",
+    "kind": "api",
+    "page_role": "docs",
+    "confidence": 0.93,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "verified_facts.txt",
+        "snippet": "Class: Table ... Methods: rows() -> RowCollection; columns() -> ColumnCollection"
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-slides-cpp-5a25a8e9",
+    "text": "Table formatting, including fill colors, can be customized through TableFormat::fill_format() which returns a FillFormat object.",
+    "kind": "api",
+    "page_role": "docs",
+    "confidence": 0.91,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "verified_facts.txt",
+        "snippet": "Class: TableFormat ... Methods: fill_format() -> FillFormat"
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-slides-cpp-7175031c",
+    "text": "The TextFrameFormat class allows configuring margins, text wrapping, and vertical alignment of text within a shape using methods like margin_left(), set_margin_left(value), wrap_text(), and anchoring_type().",
+    "kind": "api",
+    "page_role": "docs",
+    "confidence": 0.94,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "verified_facts.txt",
+        "snippet": "Class: TextFrameFormat ... Methods: margin_left() -> double; set_margin_left(value) -> void; wrap_text() -> NullableBool; anchoring_type() -> TextAnchorType"
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-slides-cpp-722749b2",
+    "text": "Supported source file formats for import are PPT, PPTX, and ODP as defined by the SourceFormat enumeration.",
+    "kind": "format",
+    "page_role": "product",
+    "confidence": 0.9,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "verified_facts.txt",
+        "snippet": "Class: SourceFormat ... Enum values: PPT, PPTX, ODP"
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-slides-cpp-6fcbef12",
+    "text": "When saving a presentation, the library currently supports the PPTX format; use SaveFormat::PPTX as shown in the quick‑start example.",
+    "kind": "format",
+    "page_role": "kb",
+    "confidence": 0.89,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "README.md",
+        "snippet": "pres.save(\"new.pptx\", SaveFormat::PPTX);"
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-slides-cpp-1cd7e106",
+    "text": "If a slide's XML part cannot be resolved, use SlidePart::resolve_target(target) to obtain the correct part path, helping avoid missing‑part errors.",
+    "kind": "troubleshoot",
+    "page_role": "kb",
+    "confidence": 0.86,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "verified_facts.txt",
+        "snippet": "Class: SlidePart ... Method: resolve_target(target) -> std::string"
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-slides-cpp-fb058e89",
+    "text": "SlidePart::save() writes any modifications back to the underlying slide XML file within the OPC package.",
+    "kind": "api",
+    "page_role": "reference",
+    "confidence": 0.93,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "verified_facts.txt",
+        "snippet": "Class: SlidePart ... Method: save() -> void"
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-slides-cpp-dc2fd490",
+    "text": "The library supports exporting presentations to the standard Office Open XML formats .pptx, .pptm, .ppsx, .ppsm, .potx and .potm.",
+    "kind": "format",
+    "page_role": "product",
+    "confidence": 0.95,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "README.md",
+        "snippet": "Outputs ... A presentation written to a file path as .pptx, .pptm, .ppsx, .ppsm, .potx or .potm"
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-slides-cpp-60f99e65",
+    "text": "Developers can manipulate OOXML content directly using lightweight in‑memory XML elements provided by the XmlElement class.",
+    "kind": "feature",
+    "page_role": "product",
+    "confidence": 0.94,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "verified_facts.txt",
+        "snippet": "Class: XmlElement\n  Docstring: Lightweight in-memory XML element for OOXML manipulation."
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-slides-cpp-25266abb",
+    "text": "Use TileFlip::FLIP_X or TileFlip::FLIP_Y to specify horizontal or vertical tile flipping when applying visual effects.",
+    "kind": "api",
+    "page_role": "docs",
+    "confidence": 0.93,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "verified_facts.txt",
+        "snippet": "Class: TileFlip\n  Docstring: Defines tile flipping mode.\n  Enum values: NOT_DEFINED, NO_FLIP, FLIP_X, FLIP_Y, FLIP_BOTH"
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-slides-cpp-fe6c79db",
+    "text": "Call XmlElement::set(attr, value) to add or update an attribute on an XML element, and XmlElement::has_attribute(attr) to check its presence.",
+    "kind": "api",
+    "page_role": "docs",
+    "confidence": 0.95,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "verified_facts.txt",
+        "snippet": "Methods: ... set(attr, value) -> void; ... has_attribute(attr) -> bool; ..."
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-slides-cpp-80bbe411",
+    "text": "Retrieve the text content of an XML node with XmlElement::text() and modify it with XmlElement::set_text(value).",
+    "kind": "api",
+    "page_role": "docs",
+    "confidence": 0.95,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "verified_facts.txt",
+        "snippet": "Methods: ... text() -> std::string; set_text(value) -> void; ..."
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-slides-cpp-c8040369",
+    "text": "Build an XML hierarchy by creating child elements via XmlElement::add_sub_element(name) and linking them with XmlElement::append_child(child).",
+    "kind": "api",
+    "page_role": "docs",
+    "confidence": 0.94,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "verified_facts.txt",
+        "snippet": "Methods: ... add_sub_element(name) -> Ptr; ... append_child(child) -> Ptr; ..."
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-slides-cpp-f0758513",
+    "text": "If XmlElement::get(attr, default_val) returns the default, the attribute is missing; use get_optional to distinguish between missing and empty values.",
+    "kind": "troubleshoot",
+    "page_role": "kb",
+    "confidence": 0.92,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "verified_facts.txt",
+        "snippet": "Methods: ... get(attr, default_val) -> std::string; get_optional(attr) -> std::optional<std::string>; ..."
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-slides-cpp-f06ef750",
+    "text": "XmlWriter only writes raw byte data; after writing, retrieve the generated XML string from the result property.",
+    "kind": "troubleshoot",
+    "page_role": "kb",
+    "confidence": 0.91,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "verified_facts.txt",
+        "snippet": "Class: XmlWriter\n  Methods: write(data, size) -> void\n  Properties: result"
+      }
+    ],
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-slides-cpp-6372dbce",
+    "text": "XmlWriter::write(data, size) streams a buffer of XML bytes to the writer, accumulating the output in its result property.",
+    "kind": "api",
+    "page_role": "docs",
+    "confidence": 0.93,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "verified_facts.txt",
+        "snippet": "Methods: write(data, size) -> void\n  Properties: result"
       }
     ],
     "provenance": "enriched"

@@ -1,2 +1,2 @@
-def test_ps_functional_case_arcs07_cusp2_ps_24(self):
-        run_ps_functional_case(Path("testdata/ps/functional/ARCS07/CUSP2.PS"))
+def test_ps_functional_case_arcs07_cusp1_ps_23(self):
+        run_ps_functional_case(Path("testdata/ps/functional/ARCS07/CUSP1.PS"))

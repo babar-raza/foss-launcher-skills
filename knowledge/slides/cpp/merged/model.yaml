@@ -1,37 +1,38 @@
+bundle_generated_at: '2026-09-19T11:56:00.292132+00:00'
+bundle_id: a3a8971f-b3b5-4496-8dce-22ed4fde094f
+config_sha: 58e5766a6f6833a4
+enrichment_status: full
+extractor_hash: eac3c140f21ca3ff
 family: slides
+generator_fingerprint: d9e69393d37ca92e0fd4e67e6f79b40445e6ac4c1de1dad2bdc9699f8b7fb542
+generator_semver: 2.0.0
+has_conflicts: false
+input_hashes:
+  enriched_claims_sha: f1a07d6c96e55ba40a97422651447bb76115104c065d0df6fd45933943177c94
+  extractor_config_sha: 58e5766a6f6833a4
+  products_json_entry_sha: 87b82294edb901491fc8c0b4027d0771dae6c53e4135163597d1c9d98fe2e127
+  scout_api_surface_sha: 461ab7b7fb2e5da6ce1ef6672ab7ea42d8027f02b6dc25130aca29a9e157de93
+  scout_claims_sha: f71e0d5102a9d530c6548c89c16ede6da14c654c972e2c34e1e2032ff6cc46a8
+license: ''
+module_assignment_version: 1
 platform: cpp
 product_name: AsposeSlidesFoss
-version: 0.1.0
-license: ''
+promoted_at: '2026-09-19T11:56:00.536821+00:00'
+repo_sha: 1e347e8e090f593c84a1d187b07b77b403dd219f
 repo_url: https://github.com/aspose-slides-foss/Aspose.Slides-FOSS-for-Cpp.git
-repo_sha: 733de4bf72fa33d16ee153779e8ee924ea1faebe
-config_sha: 58e5766a6f6833a4
-stale_since: null
-promoted_at: '2026-09-10T12:40:33.012935+00:00'
-source: scout_and_enriched
-enrichment_status: full
-has_conflicts: false
 schema_version: 2
-generator_fingerprint: 39b55c0381d862030a39cf289a74386dba0d96ba7bead7439ed295a74ed8206e
-generator_semver: 2.0.0
-bundle_id: 210c92f5-6309-4f7c-bfe8-a8b1daa09eec
-bundle_generated_at: '2026-09-10T12:40:32.733752+00:00'
-module_assignment_version: 1
-input_hashes:
-  extractor_config_sha: 58e5766a6f6833a4
-  scout_claims_sha: d5f5585440db971125e0ce0b05a8526d09bf31ac37c9efa289c32bf5ee4186f9
-  scout_api_surface_sha: 461ab7b7fb2e5da6ce1ef6672ab7ea42d8027f02b6dc25130aca29a9e157de93
-  enriched_claims_sha: a2d9fa846187e8cd9d722c642380249371928d6d392262605a2b869b98323425
-  products_json_entry_sha: 87b82294edb901491fc8c0b4027d0771dae6c53e4135163597d1c9d98fe2e127
+source: scout_and_enriched
+stale_since: null
 stats:
-  scout_claims: 4045
-  enriched_claims: 1604
-  supplemental_claims: 0
-  total_claims: 5471
   class_count: 263
   classes:
-    total_declared: 263
     public_documented: 234
     raw_entries_including_non_class: 263
+    total_declared: 263
+  enriched_claims: 1710
   forbidden_count: 58
+  scout_claims: 4064
   snippet_count: 100
+  supplemental_claims: 0
+  total_claims: 5596
+version: 26.9.0

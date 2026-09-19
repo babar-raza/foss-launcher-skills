@@ -1,5 +1,9 @@
-def test_xps_to_bmp_header(self) -> None:
-        path = os.path.join("testdata", "xps", "integration", "Simple.xps")
-        doc = XpsDocument.from_file(path)
-        data = doc.to_image(ImageSaveOptions(format="bmp", dpi=72))
-        self.assertTrue(data.startswith(b"BM"))
+def test_page_pixel_size_snaps_integer_xps_a4_approximation(self) -> None:
+        self.assertEqual(
+            _page_pixel_size(595.5, 842.25, 300.0 / 72.0, preserve_fractional=True),
+            (2480, 3507),
+        )
+        self.assertEqual(
+            _page_pixel_size(841.68, 595.44, 300.0 / 72.0, preserve_fractional=True),
+            (3506, 2480),
+        )

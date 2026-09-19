@@ -30,7 +30,7 @@
     "enum": "",
     "value": "",
     "file": "src/aspose_pdf/engine/jpeg2000.py",
-    "line": 518,
+    "line": 528,
     "direction": "import"
   },
   {
@@ -54,7 +54,7 @@
     "enum": "",
     "value": "",
     "file": "src/aspose_pdf/html.py",
-    "line": 79,
+    "line": 97,
     "direction": "import"
   },
   {
@@ -98,6 +98,38 @@
     "direction": "export"
   },
   {
+    "format": "PDF",
+    "enum": "DocFormat",
+    "value": "\"PDF\"",
+    "file": "src/aspose_pdf/save_options.py",
+    "line": 13,
+    "direction": "detect"
+  },
+  {
+    "format": "HTML",
+    "enum": "DocFormat",
+    "value": "\"HTML\"",
+    "file": "src/aspose_pdf/save_options.py",
+    "line": 13,
+    "direction": "detect"
+  },
+  {
+    "format": "MARKDOWN",
+    "enum": "DocFormat",
+    "value": "\"MARKDOWN\"",
+    "file": "src/aspose_pdf/save_options.py",
+    "line": 13,
+    "direction": "detect"
+  },
+  {
+    "format": "SVG",
+    "enum": "DocFormat",
+    "value": "\"SVG\"",
+    "file": "src/aspose_pdf/save_options.py",
+    "line": 13,
+    "direction": "detect"
+  },
+  {
     "format": "Svg",
     "enum": "",
     "value": "",
@@ -110,23 +142,31 @@
     "enum": "",
     "value": "",
     "file": "src/aspose_pdf/document.py",
-    "line": 121,
+    "line": 153,
     "direction": "import"
+  },
+  {
+    "format": "html",
+    "enum": "",
+    "value": "",
+    "file": "src/aspose_pdf/_export_files.py",
+    "line": 79,
+    "direction": "export"
+  },
+  {
+    "format": "markdown",
+    "enum": "",
+    "value": "",
+    "file": "src/aspose_pdf/_export_files.py",
+    "line": 96,
+    "direction": "export"
   },
   {
     "format": "tiff",
     "enum": "",
     "value": "",
     "file": "src/aspose_pdf/document.py",
-    "line": 757,
-    "direction": "export"
-  },
-  {
-    "format": "html",
-    "enum": "",
-    "value": "",
-    "file": "src/aspose_pdf/document.py",
-    "line": 851,
+    "line": 1175,
     "direction": "export"
   },
   {
@@ -134,15 +174,7 @@
     "enum": "",
     "value": "",
     "file": "src/aspose_pdf/document.py",
-    "line": 868,
-    "direction": "export"
-  },
-  {
-    "format": "markdown",
-    "enum": "",
-    "value": "",
-    "file": "src/aspose_pdf/document.py",
-    "line": 878,
+    "line": 1294,
     "direction": "export"
   },
   {
@@ -166,7 +198,23 @@
     "enum": "",
     "value": "",
     "file": "src/aspose_pdf/engine/content_stream_parser.py",
-    "line": 1266,
+    "line": 1308,
+    "direction": "export"
+  },
+  {
+    "format": "fdf",
+    "enum": "",
+    "value": "",
+    "file": "src/aspose_pdf/engine/form_data.py",
+    "line": 35,
+    "direction": "export"
+  },
+  {
+    "format": "xfdf",
+    "enum": "",
+    "value": "",
+    "file": "src/aspose_pdf/engine/form_data.py",
+    "line": 35,
     "direction": "export"
   },
   {
@@ -174,7 +222,7 @@
     "enum": "",
     "value": "",
     "file": "src/aspose_pdf/engine/rasterizer.py",
-    "line": 105,
+    "line": 117,
     "direction": "export"
   },
   {
@@ -182,7 +230,7 @@
     "enum": "",
     "value": "",
     "file": "src/aspose_pdf/engine/rasterizer.py",
-    "line": 109,
+    "line": 121,
     "direction": "export"
   },
   {
@@ -190,7 +238,7 @@
     "enum": "",
     "value": "",
     "file": "src/aspose_pdf/engine/rasterizer.py",
-    "line": 185,
+    "line": 197,
     "direction": "export"
   },
   {
@@ -198,7 +246,7 @@
     "enum": "",
     "value": "",
     "file": "src/aspose_pdf/engine/rasterizer.py",
-    "line": 1706,
+    "line": 1916,
     "direction": "export"
   },
   {
@@ -206,7 +254,7 @@
     "enum": "",
     "value": "",
     "file": "src/aspose_pdf/engine/simple_pdf.py",
-    "line": 2860,
+    "line": 3191,
     "direction": "export"
   },
   {
@@ -214,7 +262,7 @@
     "enum": "",
     "value": "",
     "file": "src/aspose_pdf/engine/simple_pdf.py",
-    "line": 13655,
+    "line": 14822,
     "direction": "export"
   },
   {

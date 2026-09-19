@@ -188,6 +188,15 @@
     "functional": false
   },
   {
+    "format": "XML",
+    "enum": "SaveFormat",
+    "value": "",
+    "file": "include/Aspose/Slides/Foss/export/save_format.h",
+    "line": 11,
+    "direction": "enum_only",
+    "functional": false
+  },
+  {
     "format": "PPT",
     "enum": "SourceFormat",
     "value": "",

@@ -1,36 +1,36 @@
 {
   "schema_version": 2,
-  "bundle_id": "210c92f5-6309-4f7c-bfe8-a8b1daa09eec",
+  "bundle_id": "a3a8971f-b3b5-4496-8dce-22ed4fde094f",
   "family": "slides",
   "platform": "cpp",
-  "repo_sha": "733de4bf72fa33d16ee153779e8ee924ea1faebe",
-  "generated_at": "2026-09-10T12:40:32.733752+00:00",
-  "generator_fingerprint": "39b55c0381d862030a39cf289a74386dba0d96ba7bead7439ed295a74ed8206e",
+  "repo_sha": "1e347e8e090f593c84a1d187b07b77b403dd219f",
+  "generated_at": "2026-09-19T11:56:00.292132+00:00",
+  "generator_fingerprint": "d9e69393d37ca92e0fd4e67e6f79b40445e6ac4c1de1dad2bdc9699f8b7fb542",
   "generator_semver": "2.0.0",
   "members": {
     "model.yaml": {
-      "sha256": "01cb0ca82ee6485d416346c805fa62d6aa7042a08c99cb1988ae4922ddeb8027",
-      "bytes": 1357
+      "sha256": "6580afc4ad292fc5ac5ffd56098c70e4a422b59711f7b90135d99bbcd6d41098",
+      "bytes": 1358
     },
     "api_surface.json": {
       "sha256": "772f9b3ecdd4fe5b2848290ea0a3f46100f732593375a395ba8797d84e2910df",
       "bytes": 1465143
     },
     "api_surface.md": {
-      "sha256": "f49ce0b0b7f484ebe4d9df0faea20ef81fe5f566ef056dd2cb5b85ddc3799562",
+      "sha256": "dec8de0bef173e14f413d645f0f6222fefaf565fdf9951b3e764c09074eb2a9c",
       "bytes": 188943
     },
     "formats.json": {
-      "sha256": "d06019cc61bc16175db13356841fdca7452d5e90c49442cd0e38ff3875d20a08",
-      "bytes": 5131
+      "sha256": "56c6e99735d40c2e57156d26864b37ae019508ac1c2ce17fde9e3c15216400e0",
+      "bytes": 5346
     },
     "formats.md": {
-      "sha256": "04bb332e1e51d21c55b073236b9b9f0d3d410cff61d9daa0ed503e932f6cd015",
-      "bytes": 612
+      "sha256": "531bc6ca7b4436776d849fb48321f0654e4e7e69da28f76d8c283aceb72d1bad",
+      "bytes": 629
     },
     "claims.json": {
-      "sha256": "6f2cdf1805380d69e8f765215ca612c0c12ecfe2a9563a9bc08570700048a913",
-      "bytes": 1905845
+      "sha256": "2f8539b647293af611a763d9658818f381facfbcf0aa61b7ed8adf83e68c9c37",
+      "bytes": 1977699
     },
     "limitations.md": {
       "sha256": "f68e02c24340ac2afc9d3ae3180910465863c865bf6911d2bdb8879ade8df6cb",
@@ -41,7 +41,7 @@
       "bytes": 30
     },
     "merge_report.md": {
-      "sha256": "7cdc1dfaf863b60c576325317a62b0a75ce518987187e8a70f0e4edeb351acaa",
+      "sha256": "009f6eab2ba2b27727fed6e911b5407120d57cc863792a778b457f72f1263f9d",
       "bytes": 565
     },
     "snippets/snippet_001.cpp": {
@@ -449,6 +449,6 @@
       "bytes": 68600
     }
   },
-  "promote_run_id": "promote-20260910T124033Z",
+  "promote_run_id": "promote-20260919T115600Z",
   "status": "COMPLETE"
 }

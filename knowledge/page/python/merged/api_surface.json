@@ -25,12 +25,16 @@
         "doc": "Render a document to raster bytes.",
         "line": 17,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "src/aspose/page/image/raster_writer.py"
       }
     ],
     "properties": [],
     "visibility": "conventional",
     "reachable": true,
+    "deprecated": false,
+    "deprecated_reason": "",
     "canonical_namespace": "page.image.raster_writer",
     "class_import": "page.image.raster_writer.RasterWriter",
     "module_key": "image",
@@ -60,12 +64,16 @@
         "doc": "Render a document to raster bytes using the render model.",
         "line": 22,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "src/aspose/page/image/raster_writer.py"
       }
     ],
     "properties": [],
     "visibility": "conventional",
     "reachable": true,
+    "deprecated": false,
+    "deprecated_reason": "",
     "canonical_namespace": "page.image.raster_writer",
     "class_import": "page.image.raster_writer.RenderModelRasterWriter",
     "module_key": "image",
@@ -76,7 +84,7 @@
     "kind": "class_definition",
     "doc": "",
     "file": "src/aspose/page/image/raster_writer.py",
-    "line": 56,
+    "line": 57,
     "bases": [
       "RenderModelRasterWriter"
     ],
@@ -97,12 +105,16 @@
         "doc": "Render a document to raster bytes using the render model.",
         "line": 22,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "src/aspose/page/image/raster_writer.py"
       }
     ],
     "properties": [],
     "visibility": "conventional",
     "reachable": true,
+    "deprecated": false,
+    "deprecated_reason": "",
     "canonical_namespace": "page.image.raster_writer",
     "class_import": "page.image.raster_writer.DefaultRasterWriter",
     "module_key": "image",
@@ -113,7 +125,7 @@
     "kind": "function",
     "doc": "Choose the raster writer based on environment configuration.",
     "file": "src/aspose/page/image/raster_writer.py",
-    "line": 60,
+    "line": 61,
     "bases": [],
     "methods": [],
     "properties": [],
@@ -143,6 +155,8 @@
         "doc": "",
         "line": 49,
         "is_constructor": true,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "src/aspose/page/image/skia_raster_writer.py"
       },
       {
@@ -161,12 +175,16 @@
         "doc": "",
         "line": 54,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "src/aspose/page/image/skia_raster_writer.py"
       }
     ],
     "properties": [],
     "visibility": "public",
     "reachable": true,
+    "deprecated": false,
+    "deprecated_reason": "",
     "canonical_namespace": "page.image.skia_raster_writer",
     "class_import": "page.image.skia_raster_writer.SkiaRasterWriter",
     "module_key": "image",
@@ -253,6 +271,8 @@
     ],
     "visibility": "public",
     "reachable": true,
+    "deprecated": false,
+    "deprecated_reason": "",
     "canonical_namespace": "page.pdf.writer",
     "class_import": "page.pdf.writer.PdfMetadata",
     "exported_via_package_init": true,
@@ -371,6 +391,8 @@
     ],
     "visibility": "public",
     "reachable": true,
+    "deprecated": false,
+    "deprecated_reason": "",
     "canonical_namespace": "page.pdf.writer",
     "class_import": "page.pdf.writer.ImageResource",
     "exported_via_package_init": true,
@@ -410,6 +432,8 @@
         "doc": "",
         "line": 176,
         "is_constructor": true,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "src/aspose/page/pdf/writer.py"
       },
       {
@@ -424,12 +448,16 @@
         "doc": "Serialize a render document to PDF 1.4 bytes.",
         "line": 188,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "src/aspose/page/pdf/writer.py"
       }
     ],
     "properties": [],
     "visibility": "public",
     "reachable": true,
+    "deprecated": false,
+    "deprecated_reason": "",
     "canonical_namespace": "page.pdf.writer",
     "class_import": "page.pdf.writer.PdfWriter",
     "exported_via_package_init": true,
@@ -442,7 +470,7 @@
     "kind": "class_definition",
     "doc": "",
     "file": "src/aspose/page/pdf/writer.py",
-    "line": 1937,
+    "line": 2145,
     "bases": [],
     "methods": [],
     "properties": [
@@ -451,7 +479,7 @@
         "type": "float",
         "writable": false,
         "doc": "Gets the x min.",
-        "line": 1942,
+        "line": 2150,
         "file": "src/aspose/page/pdf/writer.py",
         "doc_source": "name_inference"
       },
@@ -460,7 +488,7 @@
         "type": "float",
         "writable": false,
         "doc": "Gets the y min.",
-        "line": 1946,
+        "line": 2154,
         "file": "src/aspose/page/pdf/writer.py",
         "doc_source": "name_inference"
       },
@@ -469,7 +497,7 @@
         "type": "float",
         "writable": false,
         "doc": "Gets the x max.",
-        "line": 1950,
+        "line": 2158,
         "file": "src/aspose/page/pdf/writer.py",
         "doc_source": "name_inference"
       },
@@ -478,7 +506,7 @@
         "type": "float",
         "writable": false,
         "doc": "Gets the y max.",
-        "line": 1954,
+        "line": 2162,
         "file": "src/aspose/page/pdf/writer.py",
         "doc_source": "name_inference"
       },
@@ -487,7 +515,7 @@
         "type": "float",
         "writable": false,
         "doc": "Gets the width.",
-        "line": 1938,
+        "line": 2146,
         "file": "src/aspose/page/pdf/writer.py",
         "doc_source": "name_inference"
       },
@@ -496,13 +524,15 @@
         "type": "float",
         "writable": false,
         "doc": "Gets the height.",
-        "line": 1939,
+        "line": 2147,
         "file": "src/aspose/page/pdf/writer.py",
         "doc_source": "name_inference"
       }
     ],
     "visibility": "conventional",
     "reachable": true,
+    "deprecated": false,
+    "deprecated_reason": "",
     "canonical_namespace": "page.pdf.writer",
     "class_import": "page.pdf.writer.RectWrapper",
     "module_key": "pdf",
@@ -513,7 +543,7 @@
     "kind": "function",
     "doc": "",
     "file": "src/aspose/page/pdf/writer.py",
-    "line": 642,
+    "line": 659,
     "bases": [],
     "methods": [],
     "properties": [],
@@ -549,6 +579,8 @@
     ],
     "visibility": "conventional",
     "reachable": true,
+    "deprecated": false,
+    "deprecated_reason": "",
     "canonical_namespace": "page.common.color_resources",
     "class_import": "page.common.color_resources.DeviceColorSpace",
     "module_key": "common",
@@ -593,6 +625,8 @@
     ],
     "visibility": "conventional",
     "reachable": true,
+    "deprecated": false,
+    "deprecated_reason": "",
     "canonical_namespace": "page.common.color_resources",
     "class_import": "page.common.color_resources.IndexedColorSpace",
     "module_key": "common",
@@ -637,6 +671,8 @@
     ],
     "visibility": "conventional",
     "reachable": true,
+    "deprecated": false,
+    "deprecated_reason": "",
     "canonical_namespace": "page.common.color_resources",
     "class_import": "page.common.color_resources.SeparationColorSpace",
     "module_key": "common",
@@ -681,6 +717,8 @@
     ],
     "visibility": "conventional",
     "reachable": true,
+    "deprecated": false,
+    "deprecated_reason": "",
     "canonical_namespace": "page.common.color_resources",
     "class_import": "page.common.color_resources.DeviceNColorSpace",
     "module_key": "common",
@@ -725,6 +763,8 @@
     ],
     "visibility": "conventional",
     "reachable": true,
+    "deprecated": false,
+    "deprecated_reason": "",
     "canonical_namespace": "page.common.color_resources",
     "class_import": "page.common.color_resources.CieBasedColorSpace",
     "module_key": "common",
@@ -751,6 +791,8 @@
     ],
     "visibility": "conventional",
     "reachable": true,
+    "deprecated": false,
+    "deprecated_reason": "",
     "canonical_namespace": "page.common.color_resources",
     "class_import": "page.common.color_resources.PatternColorSpace",
     "module_key": "common",
@@ -776,6 +818,8 @@
         "doc": "",
         "line": 71,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "src/aspose/page/common/color_resources.py"
       }
     ],
@@ -855,6 +899,8 @@
     ],
     "visibility": "conventional",
     "reachable": true,
+    "deprecated": false,
+    "deprecated_reason": "",
     "canonical_namespace": "page.common.color_resources",
     "class_import": "page.common.color_resources.SampledFunction",
     "module_key": "common",
@@ -880,6 +926,8 @@
         "doc": "",
         "line": 124,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "src/aspose/page/common/color_resources.py"
       }
     ],
@@ -932,6 +980,8 @@
     ],
     "visibility": "conventional",
     "reachable": true,
+    "deprecated": false,
+    "deprecated_reason": "",
     "canonical_namespace": "page.common.color_resources",
     "class_import": "page.common.color_resources.ExponentialFunction",
     "module_key": "common",
@@ -957,6 +1007,8 @@
         "doc": "",
         "line": 145,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "src/aspose/page/common/color_resources.py"
       }
     ],
@@ -1009,6 +1061,8 @@
     ],
     "visibility": "conventional",
     "reachable": true,
+    "deprecated": false,
+    "deprecated_reason": "",
     "canonical_namespace": "page.common.color_resources",
     "class_import": "page.common.color_resources.StitchingFunction",
     "module_key": "common",
@@ -1071,6 +1125,8 @@
     ],
     "visibility": "conventional",
     "reachable": true,
+    "deprecated": false,
+    "deprecated_reason": "",
     "canonical_namespace": "page.common.color_resources",
     "class_import": "page.common.color_resources.AxialShading",
     "module_key": "common",
@@ -1133,6 +1189,8 @@
     ],
     "visibility": "conventional",
     "reachable": true,
+    "deprecated": false,
+    "deprecated_reason": "",
     "canonical_namespace": "page.common.color_resources",
     "class_import": "page.common.color_resources.RadialShading",
     "module_key": "common",
@@ -1213,6 +1271,8 @@
     ],
     "visibility": "conventional",
     "reachable": true,
+    "deprecated": false,
+    "deprecated_reason": "",
     "canonical_namespace": "page.common.color_resources",
     "class_import": "page.common.color_resources.TilingPattern",
     "module_key": "common",
@@ -1248,6 +1308,8 @@
     ],
     "visibility": "conventional",
     "reachable": true,
+    "deprecated": false,
+    "deprecated_reason": "",
     "canonical_namespace": "page.common.color_resources",
     "class_import": "page.common.color_resources.ShadingPattern",
     "module_key": "common",
@@ -1283,6 +1345,8 @@
     ],
     "visibility": "conventional",
     "reachable": true,
+    "deprecated": false,
+    "deprecated_reason": "",
     "canonical_namespace": "page.common.color_resources",
     "class_import": "page.common.color_resources.ColorSpacePaint",
     "module_key": "common",
@@ -1327,6 +1391,8 @@
     ],
     "visibility": "conventional",
     "reachable": true,
+    "deprecated": false,
+    "deprecated_reason": "",
     "canonical_namespace": "page.common.color_resources",
     "class_import": "page.common.color_resources.PatternPaint",
     "module_key": "common",
@@ -1362,6 +1428,8 @@
     ],
     "visibility": "public",
     "reachable": true,
+    "deprecated": false,
+    "deprecated_reason": "",
     "canonical_namespace": "page.common.render_model",
     "class_import": "page.common.render_model.Point",
     "module_key": "common",
@@ -1382,6 +1450,8 @@
         "doc": "",
         "line": 42,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "src/aspose/page/common/render_model.py"
       }
     ],
@@ -1443,6 +1513,8 @@
     ],
     "visibility": "public",
     "reachable": true,
+    "deprecated": false,
+    "deprecated_reason": "",
     "canonical_namespace": "page.common.render_model",
     "class_import": "page.common.render_model.Matrix",
     "module_key": "common",
@@ -1496,6 +1568,8 @@
     ],
     "visibility": "public",
     "reachable": true,
+    "deprecated": false,
+    "deprecated_reason": "",
     "canonical_namespace": "page.common.render_model",
     "class_import": "page.common.render_model.Rect",
     "module_key": "common",
@@ -1531,6 +1605,8 @@
     ],
     "visibility": "public",
     "reachable": true,
+    "deprecated": false,
+    "deprecated_reason": "",
     "canonical_namespace": "page.common.render_model",
     "class_import": "page.common.render_model.PathSegment",
     "module_key": "common",
@@ -1557,6 +1633,8 @@
     ],
     "visibility": "public",
     "reachable": true,
+    "deprecated": false,
+    "deprecated_reason": "",
     "canonical_namespace": "page.common.render_model",
     "class_import": "page.common.render_model.Path",
     "module_key": "common",
@@ -1628,6 +1706,8 @@
     ],
     "visibility": "public",
     "reachable": true,
+    "deprecated": false,
+    "deprecated_reason": "",
     "canonical_namespace": "page.common.render_model",
     "class_import": "page.common.render_model.StrokeStyle",
     "module_key": "common",
@@ -1663,6 +1743,8 @@
     ],
     "visibility": "public",
     "reachable": true,
+    "deprecated": false,
+    "deprecated_reason": "",
     "canonical_namespace": "page.common.render_model",
     "class_import": "page.common.render_model.Paint",
     "module_key": "common",
@@ -1752,6 +1834,8 @@
     ],
     "visibility": "public",
     "reachable": true,
+    "deprecated": false,
+    "deprecated_reason": "",
     "canonical_namespace": "page.common.render_model",
     "class_import": "page.common.render_model.PathCommand",
     "module_key": "common",
@@ -1841,6 +1925,8 @@
     ],
     "visibility": "public",
     "reachable": true,
+    "deprecated": false,
+    "deprecated_reason": "",
     "canonical_namespace": "page.common.render_model",
     "class_import": "page.common.render_model.TextCommand",
     "module_key": "common",
@@ -1921,6 +2007,8 @@
     ],
     "visibility": "public",
     "reachable": true,
+    "deprecated": false,
+    "deprecated_reason": "",
     "canonical_namespace": "page.common.render_model",
     "class_import": "page.common.render_model.ImageCommand",
     "module_key": "common",
@@ -1956,6 +2044,8 @@
     ],
     "visibility": "public",
     "reachable": true,
+    "deprecated": false,
+    "deprecated_reason": "",
     "canonical_namespace": "page.common.render_model",
     "class_import": "page.common.render_model.ClipCommand",
     "module_key": "common",
@@ -1972,6 +2062,8 @@
     "properties": [],
     "visibility": "public",
     "reachable": true,
+    "deprecated": false,
+    "deprecated_reason": "",
     "canonical_namespace": "page.common.render_model",
     "class_import": "page.common.render_model.StateSaveCommand",
     "module_key": "common",
@@ -1988,6 +2080,8 @@
     "properties": [],
     "visibility": "public",
     "reachable": true,
+    "deprecated": false,
+    "deprecated_reason": "",
     "canonical_namespace": "page.common.render_model",
     "class_import": "page.common.render_model.StateRestoreCommand",
     "module_key": "common",
@@ -2032,6 +2126,8 @@
     ],
     "visibility": "public",
     "reachable": true,
+    "deprecated": false,
+    "deprecated_reason": "",
     "canonical_namespace": "page.common.render_model",
     "class_import": "page.common.render_model.RenderPage",
     "module_key": "common",
@@ -2067,6 +2163,8 @@
     ],
     "visibility": "public",
     "reachable": true,
+    "deprecated": false,
+    "deprecated_reason": "",
     "canonical_namespace": "page.common.render_model",
     "class_import": "page.common.render_model.RenderDocument",
     "module_key": "common",
@@ -2120,6 +2218,8 @@
     ],
     "visibility": "public",
     "reachable": true,
+    "deprecated": false,
+    "deprecated_reason": "",
     "canonical_namespace": "page.common.render_model",
     "class_import": "page.common.render_model.RenderResources",
     "module_key": "common",
@@ -2236,6 +2336,8 @@
     ],
     "visibility": "public",
     "reachable": true,
+    "deprecated": false,
+    "deprecated_reason": "",
     "canonical_namespace": "page.common.render_model",
     "class_import": "page.common.render_model.RenderImageResource",
     "module_key": "common",
@@ -2256,6 +2358,8 @@
         "doc": "",
         "line": 290,
         "is_constructor": true,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "src/aspose/page/common/render_model.py"
       },
       {
@@ -2274,6 +2378,8 @@
         "doc": "Set the default page size for implicit page creation.",
         "line": 298,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "src/aspose/page/common/render_model.py"
       },
       {
@@ -2292,6 +2398,8 @@
         "doc": "Begin a new page with explicit size.",
         "line": 302,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "src/aspose/page/common/render_model.py"
       },
       {
@@ -2301,6 +2409,8 @@
         "doc": "End the current page and append it to the document.",
         "line": 308,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "src/aspose/page/common/render_model.py"
       },
       {
@@ -2343,6 +2453,8 @@
         "doc": "Add a path render command to the current page.",
         "line": 315,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "src/aspose/page/common/render_model.py"
       },
       {
@@ -2385,6 +2497,8 @@
         "doc": "Add a text render command to the current page.",
         "line": 359,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "src/aspose/page/common/render_model.py"
       },
       {
@@ -2419,6 +2533,8 @@
         "doc": "Add an image render command to the current page.",
         "line": 385,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "src/aspose/page/common/render_model.py"
       },
       {
@@ -2437,6 +2553,8 @@
         "doc": "Add a clipping path command to the current page.",
         "line": 407,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "src/aspose/page/common/render_model.py"
       },
       {
@@ -2446,6 +2564,8 @@
         "doc": "Save the current graphics state.",
         "line": 412,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "src/aspose/page/common/render_model.py"
       },
       {
@@ -2455,6 +2575,8 @@
         "doc": "Restore the previous graphics state.",
         "line": 417,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "src/aspose/page/common/render_model.py"
       },
       {
@@ -2464,6 +2586,8 @@
         "doc": "Return the current render document.",
         "line": 422,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "src/aspose/page/common/render_model.py"
       },
       {
@@ -2478,6 +2602,8 @@
         "doc": "Register a color space resource and return its ID.",
         "line": 429,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "src/aspose/page/common/render_model.py"
       },
       {
@@ -2492,6 +2618,8 @@
         "doc": "Register a pattern resource and return its ID.",
         "line": 435,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "src/aspose/page/common/render_model.py"
       },
       {
@@ -2506,12 +2634,16 @@
         "doc": "Register a function resource and return its ID.",
         "line": 439,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "src/aspose/page/common/render_model.py"
       }
     ],
     "properties": [],
     "visibility": "public",
     "reachable": true,
+    "deprecated": false,
+    "deprecated_reason": "",
     "canonical_namespace": "page.common.render_model",
     "class_import": "page.common.render_model.RenderModelBuilder",
     "module_key": "common",
@@ -2677,6 +2809,8 @@
         "doc": "",
         "line": 55,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "src/aspose/page/image/raster_renderer.py"
       },
       {
@@ -2699,6 +2833,8 @@
         "doc": "Sets the pixel value.",
         "line": 59,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "src/aspose/page/image/raster_renderer.py",
         "doc_source": "name_inference"
       },
@@ -2718,6 +2854,8 @@
         "doc": "",
         "line": 68,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "src/aspose/page/image/raster_renderer.py"
       }
     ],
@@ -2761,6 +2899,8 @@
     ],
     "visibility": "public",
     "reachable": true,
+    "deprecated": false,
+    "deprecated_reason": "",
     "canonical_namespace": "page.image.raster_renderer",
     "class_import": "page.image.raster_renderer.RasterSurface",
     "module_key": "image",
@@ -2788,12 +2928,18 @@
           {
             "name": "background",
             "type": "tuple[int, int, int, int]"
+          },
+          {
+            "name": "preserve_fractional_page_size",
+            "type": "bool"
           }
         ],
         "return_type": "None",
         "doc": "",
         "line": 91,
         "is_constructor": true,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "src/aspose/page/image/raster_renderer.py"
       },
       {
@@ -2810,14 +2956,18 @@
         ],
         "return_type": "RasterSurface",
         "doc": "Render a single page from a document.",
-        "line": 106,
+        "line": 108,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "src/aspose/page/image/raster_renderer.py"
       }
     ],
     "properties": [],
     "visibility": "public",
     "reachable": true,
+    "deprecated": false,
+    "deprecated_reason": "",
     "canonical_namespace": "page.image.raster_renderer",
     "class_import": "page.image.raster_renderer.RasterRenderer",
     "module_key": "image",
@@ -2828,7 +2978,7 @@
     "kind": "function",
     "doc": "",
     "file": "src/aspose/page/image/raster_renderer.py",
-    "line": 924,
+    "line": 931,
     "bases": [],
     "methods": [],
     "properties": [],
@@ -2852,7 +3002,7 @@
     "kind": "function",
     "doc": "",
     "file": "src/aspose/page/image/raster_renderer.py",
-    "line": 927,
+    "line": 934,
     "bases": [],
     "methods": [],
     "properties": [],
@@ -2876,7 +3026,7 @@
     "kind": "function",
     "doc": "",
     "file": "src/aspose/page/image/raster_renderer.py",
-    "line": 1860,
+    "line": 1905,
     "bases": [],
     "methods": [],
     "properties": [],
@@ -3100,6 +3250,8 @@
     ],
     "visibility": "public",
     "reachable": true,
+    "deprecated": false,
+    "deprecated_reason": "",
     "canonical_namespace": "page.mcp.types",
     "class_import": "page.mcp.types.McpInput",
     "module_key": "mcp",
@@ -3135,6 +3287,8 @@
     ],
     "visibility": "public",
     "reachable": true,
+    "deprecated": false,
+    "deprecated_reason": "",
     "canonical_namespace": "page.mcp.types",
     "class_import": "page.mcp.types.McpOutput",
     "module_key": "mcp",
@@ -3179,6 +3333,8 @@
     ],
     "visibility": "public",
     "reachable": true,
+    "deprecated": false,
+    "deprecated_reason": "",
     "canonical_namespace": "page.mcp.types",
     "class_import": "page.mcp.types.McpConversionOptions",
     "module_key": "mcp",
@@ -3214,6 +3370,8 @@
     ],
     "visibility": "public",
     "reachable": true,
+    "deprecated": false,
+    "deprecated_reason": "",
     "canonical_namespace": "page.mcp.types",
     "class_import": "page.mcp.types.McpResult",
     "module_key": "mcp",
@@ -3402,6 +3560,8 @@
     ],
     "visibility": "conventional",
     "reachable": true,
+    "deprecated": false,
+    "deprecated_reason": "",
     "canonical_namespace": "page.pdf.fonts",
     "class_import": "page.pdf.fonts.PdfEmbeddedFont",
     "module_key": "pdf",
@@ -3537,6 +3697,8 @@
     ],
     "visibility": "conventional",
     "reachable": true,
+    "deprecated": false,
+    "deprecated_reason": "",
     "canonical_namespace": "page.ps.clipper",
     "class_import": "page.ps.clipper.IntPoint",
     "module_key": "ps",
@@ -3572,6 +3734,8 @@
     ],
     "visibility": "conventional",
     "reachable": true,
+    "deprecated": false,
+    "deprecated_reason": "",
     "canonical_namespace": "page.ps.clipper",
     "class_import": "page.ps.clipper.DoublePoint",
     "module_key": "ps",
@@ -3625,6 +3789,8 @@
     ],
     "visibility": "conventional",
     "reachable": true,
+    "deprecated": false,
+    "deprecated_reason": "",
     "canonical_namespace": "page.ps.clipper",
     "class_import": "page.ps.clipper.IntRect",
     "module_key": "ps",
@@ -3641,6 +3807,8 @@
     "properties": [],
     "visibility": "conventional",
     "reachable": true,
+    "deprecated": false,
+    "deprecated_reason": "",
     "canonical_namespace": "page.ps.clipper",
     "class_import": "page.ps.clipper.ClipType",
     "module_key": "ps",
@@ -3657,6 +3825,8 @@
     "properties": [],
     "visibility": "conventional",
     "reachable": true,
+    "deprecated": false,
+    "deprecated_reason": "",
     "canonical_namespace": "page.ps.clipper",
     "class_import": "page.ps.clipper.PolyType",
     "module_key": "ps",
@@ -3673,6 +3843,8 @@
     "properties": [],
     "visibility": "conventional",
     "reachable": true,
+    "deprecated": false,
+    "deprecated_reason": "",
     "canonical_namespace": "page.ps.clipper",
     "class_import": "page.ps.clipper.PolyFillType",
     "module_key": "ps",
@@ -3689,6 +3861,8 @@
     "properties": [],
     "visibility": "conventional",
     "reachable": true,
+    "deprecated": false,
+    "deprecated_reason": "",
     "canonical_namespace": "page.ps.clipper",
     "class_import": "page.ps.clipper.JoinType",
     "module_key": "ps",
@@ -3705,6 +3879,8 @@
     "properties": [],
     "visibility": "conventional",
     "reachable": true,
+    "deprecated": false,
+    "deprecated_reason": "",
     "canonical_namespace": "page.ps.clipper",
     "class_import": "page.ps.clipper.EndType",
     "module_key": "ps",
@@ -3721,6 +3897,8 @@
     "properties": [],
     "visibility": "conventional",
     "reachable": true,
+    "deprecated": false,
+    "deprecated_reason": "",
     "canonical_namespace": "page.ps.clipper",
     "class_import": "page.ps.clipper.EdgeSide",
     "module_key": "ps",
@@ -3737,6 +3915,8 @@
     "properties": [],
     "visibility": "conventional",
     "reachable": true,
+    "deprecated": false,
+    "deprecated_reason": "",
     "canonical_namespace": "page.ps.clipper",
     "class_import": "page.ps.clipper.Direction",
     "module_key": "ps",
@@ -3755,6 +3935,8 @@
     "properties": [],
     "visibility": "conventional",
     "reachable": true,
+    "deprecated": false,
+    "deprecated_reason": "",
     "canonical_namespace": "page.ps.clipper",
     "class_import": "page.ps.clipper.ClipperException",
     "module_key": "ps",
@@ -3775,6 +3957,8 @@
         "doc": "",
         "line": 77,
         "is_constructor": true,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "src/aspose/page/ps/clipper.py"
       },
       {
@@ -3789,6 +3973,8 @@
         "doc": "",
         "line": 84,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "src/aspose/page/ps/clipper.py"
       }
     ],
@@ -3863,6 +4049,8 @@
     ],
     "visibility": "conventional",
     "reachable": true,
+    "deprecated": false,
+    "deprecated_reason": "",
     "canonical_namespace": "page.ps.clipper",
     "class_import": "page.ps.clipper.PolyNode",
     "module_key": "ps",
@@ -3885,6 +4073,8 @@
         "doc": "",
         "line": 108,
         "is_constructor": true,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "src/aspose/page/ps/clipper.py"
       },
       {
@@ -3894,6 +4084,8 @@
         "doc": "",
         "line": 112,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "src/aspose/page/ps/clipper.py"
       },
       {
@@ -3903,6 +4095,8 @@
         "doc": "Returns the first.",
         "line": 116,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "src/aspose/page/ps/clipper.py",
         "doc_source": "name_inference"
       },
@@ -3918,6 +4112,8 @@
         "doc": "",
         "line": 84,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "src/aspose/page/ps/clipper.py"
       }
     ],
@@ -4009,6 +4205,8 @@
     ],
     "visibility": "conventional",
     "reachable": true,
+    "deprecated": false,
+    "deprecated_reason": "",
     "canonical_namespace": "page.ps.clipper",
     "class_import": "page.ps.clipper.PolyTree",
     "module_key": "ps",
@@ -4029,6 +4227,8 @@
         "doc": "",
         "line": 125,
         "is_constructor": true,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "src/aspose/page/ps/clipper.py"
       }
     ],
@@ -4180,6 +4380,8 @@
     ],
     "visibility": "conventional",
     "reachable": true,
+    "deprecated": false,
+    "deprecated_reason": "",
     "canonical_namespace": "page.ps.clipper",
     "class_import": "page.ps.clipper.TEdge",
     "module_key": "ps",
@@ -4200,6 +4402,8 @@
         "doc": "",
         "line": 147,
         "is_constructor": true,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "src/aspose/page/ps/clipper.py"
       }
     ],
@@ -4239,6 +4443,8 @@
     ],
     "visibility": "conventional",
     "reachable": true,
+    "deprecated": false,
+    "deprecated_reason": "",
     "canonical_namespace": "page.ps.clipper",
     "class_import": "page.ps.clipper.IntersectNode",
     "module_key": "ps",
@@ -4259,6 +4465,8 @@
         "doc": "",
         "line": 155,
         "is_constructor": true,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "src/aspose/page/ps/clipper.py"
       }
     ],
@@ -4298,6 +4506,8 @@
     ],
     "visibility": "conventional",
     "reachable": true,
+    "deprecated": false,
+    "deprecated_reason": "",
     "canonical_namespace": "page.ps.clipper",
     "class_import": "page.ps.clipper.LocalMinima",
     "module_key": "ps",
@@ -4323,6 +4533,8 @@
         "doc": "",
         "line": 163,
         "is_constructor": true,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "src/aspose/page/ps/clipper.py"
       }
     ],
@@ -4346,6 +4558,8 @@
     ],
     "visibility": "conventional",
     "reachable": true,
+    "deprecated": false,
+    "deprecated_reason": "",
     "canonical_namespace": "page.ps.clipper",
     "class_import": "page.ps.clipper.Scanbeam",
     "module_key": "ps",
@@ -4366,6 +4580,8 @@
         "doc": "",
         "line": 169,
         "is_constructor": true,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "src/aspose/page/ps/clipper.py"
       }
     ],
@@ -4429,6 +4645,8 @@
     ],
     "visibility": "conventional",
     "reachable": true,
+    "deprecated": false,
+    "deprecated_reason": "",
     "canonical_namespace": "page.ps.clipper",
     "class_import": "page.ps.clipper.OutRec",
     "module_key": "ps",
@@ -4449,6 +4667,8 @@
         "doc": "",
         "line": 180,
         "is_constructor": true,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "src/aspose/page/ps/clipper.py"
       }
     ],
@@ -4488,6 +4708,8 @@
     ],
     "visibility": "conventional",
     "reachable": true,
+    "deprecated": false,
+    "deprecated_reason": "",
     "canonical_namespace": "page.ps.clipper",
     "class_import": "page.ps.clipper.OutPt",
     "module_key": "ps",
@@ -4508,6 +4730,8 @@
         "doc": "",
         "line": 188,
         "is_constructor": true,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "src/aspose/page/ps/clipper.py"
       }
     ],
@@ -4539,6 +4763,8 @@
     ],
     "visibility": "conventional",
     "reachable": true,
+    "deprecated": false,
+    "deprecated_reason": "",
     "canonical_namespace": "page.ps.clipper",
     "class_import": "page.ps.clipper.Join",
     "module_key": "ps",
@@ -4559,6 +4785,8 @@
         "doc": "",
         "line": 200,
         "is_constructor": true,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "src/aspose/page/ps/clipper.py"
       },
       {
@@ -4573,6 +4801,8 @@
         "doc": "",
         "line": 209,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "src/aspose/page/ps/clipper.py"
       },
       {
@@ -4587,6 +4817,8 @@
         "doc": "",
         "line": 213,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "src/aspose/page/ps/clipper.py"
       },
       {
@@ -4605,6 +4837,8 @@
         "doc": "",
         "line": 216,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "src/aspose/page/ps/clipper.py"
       },
       {
@@ -4627,6 +4861,8 @@
         "doc": "",
         "line": 226,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "src/aspose/page/ps/clipper.py"
       },
       {
@@ -4645,6 +4881,8 @@
         "doc": "",
         "line": 238,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "src/aspose/page/ps/clipper.py"
       },
       {
@@ -4663,6 +4901,8 @@
         "doc": "",
         "line": 248,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "src/aspose/page/ps/clipper.py"
       },
       {
@@ -4681,6 +4921,8 @@
         "doc": "",
         "line": 263,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "src/aspose/page/ps/clipper.py"
       },
       {
@@ -4703,6 +4945,8 @@
         "doc": "",
         "line": 267,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "src/aspose/page/ps/clipper.py"
       },
       {
@@ -4729,6 +4973,8 @@
         "doc": "",
         "line": 271,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "src/aspose/page/ps/clipper.py"
       },
       {
@@ -4738,6 +4984,8 @@
         "doc": "",
         "line": 274,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "src/aspose/page/ps/clipper.py"
       },
       {
@@ -4752,6 +5000,8 @@
         "doc": "",
         "line": 281,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "src/aspose/page/ps/clipper.py"
       },
       {
@@ -4778,6 +5028,8 @@
         "doc": "",
         "line": 284,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "src/aspose/page/ps/clipper.py"
       },
       {
@@ -4796,6 +5048,8 @@
         "doc": "",
         "line": 290,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "src/aspose/page/ps/clipper.py"
       },
       {
@@ -4818,6 +5072,8 @@
         "doc": "",
         "line": 300,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "src/aspose/page/ps/clipper.py"
       },
       {
@@ -4840,6 +5096,8 @@
         "doc": "",
         "line": 386,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "src/aspose/page/ps/clipper.py"
       },
       {
@@ -4862,6 +5120,8 @@
         "doc": "",
         "line": 393,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "src/aspose/page/ps/clipper.py"
       },
       {
@@ -4876,6 +5136,8 @@
         "doc": "",
         "line": 400,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "src/aspose/page/ps/clipper.py"
       },
       {
@@ -4890,6 +5152,8 @@
         "doc": "",
         "line": 407,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "src/aspose/page/ps/clipper.py"
       },
       {
@@ -4904,6 +5168,8 @@
         "doc": "",
         "line": 413,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "src/aspose/page/ps/clipper.py"
       },
       {
@@ -4918,6 +5184,8 @@
         "doc": "",
         "line": 430,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "src/aspose/page/ps/clipper.py"
       },
       {
@@ -4932,6 +5200,8 @@
         "doc": "",
         "line": 450,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "src/aspose/page/ps/clipper.py"
       },
       {
@@ -4946,6 +5216,8 @@
         "doc": "",
         "line": 462,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "src/aspose/page/ps/clipper.py"
       },
       {
@@ -4960,6 +5232,8 @@
         "doc": "",
         "line": 470,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "src/aspose/page/ps/clipper.py"
       },
       {
@@ -4974,6 +5248,8 @@
         "doc": "",
         "line": 479,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "src/aspose/page/ps/clipper.py"
       },
       {
@@ -4988,6 +5264,8 @@
         "doc": "Sets the dx value.",
         "line": 489,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "src/aspose/page/ps/clipper.py",
         "doc_source": "name_inference"
       },
@@ -5011,6 +5289,8 @@
         "doc": "",
         "line": 496,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "src/aspose/page/ps/clipper.py"
       },
       {
@@ -5025,6 +5305,8 @@
         "doc": "",
         "line": 531,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "src/aspose/page/ps/clipper.py"
       },
       {
@@ -5047,6 +5329,8 @@
         "doc": "",
         "line": 563,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "src/aspose/page/ps/clipper.py"
       },
       {
@@ -5065,6 +5349,8 @@
         "doc": "",
         "line": 587,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "src/aspose/page/ps/clipper.py"
       },
       {
@@ -5079,6 +5365,8 @@
         "doc": "",
         "line": 618,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "src/aspose/page/ps/clipper.py"
       },
       {
@@ -5088,6 +5376,8 @@
         "doc": "",
         "line": 632,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "src/aspose/page/ps/clipper.py"
       },
       {
@@ -5102,6 +5392,8 @@
         "doc": "",
         "line": 637,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "src/aspose/page/ps/clipper.py"
       },
       {
@@ -5111,6 +5403,8 @@
         "doc": "",
         "line": 641,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "src/aspose/page/ps/clipper.py"
       },
       {
@@ -5120,6 +5414,8 @@
         "doc": "Returns the bounds.",
         "line": 661,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "src/aspose/page/ps/clipper.py",
         "doc_source": "name_inference"
       }
@@ -5176,6 +5472,8 @@
     ],
     "visibility": "conventional",
     "reachable": true,
+    "deprecated": false,
+    "deprecated_reason": "",
     "canonical_namespace": "page.ps.clipper",
     "class_import": "page.ps.clipper.ClipperBase",
     "module_key": "ps",
@@ -5203,6 +5501,8 @@
         "doc": "",
         "line": 705,
         "is_constructor": true,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "src/aspose/page/ps/clipper.py"
       },
       {
@@ -5212,6 +5512,8 @@
         "doc": "",
         "line": 723,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "src/aspose/page/ps/clipper.py"
       },
       {
@@ -5221,6 +5523,8 @@
         "doc": "",
         "line": 729,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "src/aspose/page/ps/clipper.py"
       },
       {
@@ -5235,6 +5539,8 @@
         "doc": "",
         "line": 740,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "src/aspose/page/ps/clipper.py"
       },
       {
@@ -5261,6 +5567,8 @@
         "doc": "",
         "line": 758,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "src/aspose/page/ps/clipper.py"
       },
       {
@@ -5270,6 +5578,8 @@
         "doc": "",
         "line": 775,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "src/aspose/page/ps/clipper.py"
       },
       {
@@ -5279,6 +5589,8 @@
         "doc": "",
         "line": 808,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "src/aspose/page/ps/clipper.py"
       },
       {
@@ -5288,6 +5600,8 @@
         "doc": "",
         "line": 815,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "src/aspose/page/ps/clipper.py"
       },
       {
@@ -5302,6 +5616,8 @@
         "doc": "",
         "line": 820,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "src/aspose/page/ps/clipper.py"
       },
       {
@@ -5316,6 +5632,8 @@
         "doc": "",
         "line": 826,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "src/aspose/page/ps/clipper.py"
       },
       {
@@ -5338,6 +5656,8 @@
         "doc": "",
         "line": 835,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "src/aspose/page/ps/clipper.py"
       },
       {
@@ -5356,6 +5676,8 @@
         "doc": "",
         "line": 842,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "src/aspose/page/ps/clipper.py"
       },
       {
@@ -5370,6 +5692,8 @@
         "doc": "",
         "line": 848,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "src/aspose/page/ps/clipper.py"
       },
       {
@@ -5388,6 +5712,8 @@
         "doc": "",
         "line": 890,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "src/aspose/page/ps/clipper.py"
       },
       {
@@ -5406,6 +5732,8 @@
         "doc": "",
         "line": 912,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "src/aspose/page/ps/clipper.py"
       },
       {
@@ -5420,6 +5748,8 @@
         "doc": "",
         "line": 919,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "src/aspose/page/ps/clipper.py"
       },
       {
@@ -5434,6 +5764,8 @@
         "doc": "",
         "line": 924,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "src/aspose/page/ps/clipper.py"
       },
       {
@@ -5448,6 +5780,8 @@
         "doc": "",
         "line": 929,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "src/aspose/page/ps/clipper.py"
       },
       {
@@ -5462,6 +5796,8 @@
         "doc": "Sets the winding count value.",
         "line": 982,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "src/aspose/page/ps/clipper.py",
         "doc_source": "name_inference"
       },
@@ -5477,6 +5813,8 @@
         "doc": "",
         "line": 1035,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "src/aspose/page/ps/clipper.py"
       },
       {
@@ -5486,6 +5824,8 @@
         "doc": "",
         "line": 1046,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "src/aspose/page/ps/clipper.py"
       },
       {
@@ -5504,6 +5844,8 @@
         "doc": "",
         "line": 1054,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "src/aspose/page/ps/clipper.py"
       },
       {
@@ -5522,6 +5864,8 @@
         "doc": "",
         "line": 1099,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "src/aspose/page/ps/clipper.py"
       },
       {
@@ -5544,6 +5888,8 @@
         "doc": "",
         "line": 1146,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "src/aspose/page/ps/clipper.py"
       },
       {
@@ -5566,6 +5912,8 @@
         "doc": "",
         "line": 1156,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "src/aspose/page/ps/clipper.py"
       },
       {
@@ -5575,6 +5923,8 @@
         "doc": "",
         "line": 1176,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "src/aspose/page/ps/clipper.py"
       },
       {
@@ -5593,6 +5943,8 @@
         "doc": "",
         "line": 1182,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "src/aspose/page/ps/clipper.py"
       },
       {
@@ -5611,6 +5963,8 @@
         "doc": "",
         "line": 1214,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "src/aspose/page/ps/clipper.py"
       },
       {
@@ -5637,6 +5991,8 @@
         "doc": "",
         "line": 1217,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "src/aspose/page/ps/clipper.py"
       },
       {
@@ -5659,6 +6015,8 @@
         "doc": "",
         "line": 1232,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "src/aspose/page/ps/clipper.py"
       },
       {
@@ -5677,6 +6035,8 @@
         "doc": "Sets the hole state value.",
         "line": 1247,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "src/aspose/page/ps/clipper.py",
         "doc_source": "name_inference"
       },
@@ -5696,6 +6056,8 @@
         "doc": "",
         "line": 1258,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "src/aspose/page/ps/clipper.py"
       },
       {
@@ -5714,6 +6076,8 @@
         "doc": "",
         "line": 1263,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "src/aspose/page/ps/clipper.py"
       },
       {
@@ -5728,6 +6092,8 @@
         "doc": "",
         "line": 1282,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "src/aspose/page/ps/clipper.py"
       },
       {
@@ -5746,6 +6112,8 @@
         "doc": "",
         "line": 1305,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "src/aspose/page/ps/clipper.py"
       },
       {
@@ -5764,6 +6132,8 @@
         "doc": "",
         "line": 1328,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "src/aspose/page/ps/clipper.py"
       },
       {
@@ -5778,6 +6148,8 @@
         "doc": "",
         "line": 1335,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "src/aspose/page/ps/clipper.py"
       },
       {
@@ -5796,6 +6168,8 @@
         "doc": "",
         "line": 1341,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "src/aspose/page/ps/clipper.py"
       },
       {
@@ -5810,6 +6184,8 @@
         "doc": "",
         "line": 1403,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "src/aspose/page/ps/clipper.py"
       },
       {
@@ -5828,6 +6204,8 @@
         "doc": "",
         "line": 1415,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "src/aspose/page/ps/clipper.py"
       },
       {
@@ -5846,6 +6224,8 @@
         "doc": "",
         "line": 1418,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "src/aspose/page/ps/clipper.py"
       },
       {
@@ -5872,6 +6252,8 @@
         "doc": "",
         "line": 1421,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "src/aspose/page/ps/clipper.py"
       },
       {
@@ -5886,6 +6268,8 @@
         "doc": "",
         "line": 1508,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "src/aspose/page/ps/clipper.py"
       },
       {
@@ -5900,6 +6284,8 @@
         "doc": "",
         "line": 1522,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "src/aspose/page/ps/clipper.py"
       },
       {
@@ -5914,6 +6300,8 @@
         "doc": "",
         "line": 1536,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "src/aspose/page/ps/clipper.py"
       },
       {
@@ -5928,6 +6316,8 @@
         "doc": "",
         "line": 1560,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "src/aspose/page/ps/clipper.py"
       },
       {
@@ -5942,6 +6332,8 @@
         "doc": "",
         "line": 1567,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "src/aspose/page/ps/clipper.py"
       },
       {
@@ -5960,6 +6352,8 @@
         "doc": "",
         "line": 1578,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "src/aspose/page/ps/clipper.py"
       },
       {
@@ -5978,6 +6372,8 @@
         "doc": "",
         "line": 1591,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "src/aspose/page/ps/clipper.py"
       },
       {
@@ -5996,6 +6392,8 @@
         "doc": "",
         "line": 1672,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "src/aspose/page/ps/clipper.py"
       },
       {
@@ -6010,6 +6408,8 @@
         "doc": "",
         "line": 1675,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "src/aspose/page/ps/clipper.py"
       },
       {
@@ -6028,6 +6428,8 @@
         "doc": "",
         "line": 1678,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "src/aspose/page/ps/clipper.py"
       },
       {
@@ -6046,6 +6448,8 @@
         "doc": "",
         "line": 1681,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "src/aspose/page/ps/clipper.py"
       },
       {
@@ -6060,6 +6464,8 @@
         "doc": "",
         "line": 1684,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "src/aspose/page/ps/clipper.py"
       },
       {
@@ -6078,6 +6484,8 @@
         "doc": "",
         "line": 1694,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "src/aspose/page/ps/clipper.py"
       },
       {
@@ -6096,6 +6504,8 @@
         "doc": "",
         "line": 1712,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "src/aspose/page/ps/clipper.py"
       },
       {
@@ -6110,6 +6520,8 @@
         "doc": "",
         "line": 1749,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "src/aspose/page/ps/clipper.py"
       },
       {
@@ -6119,6 +6531,8 @@
         "doc": "",
         "line": 1752,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "src/aspose/page/ps/clipper.py"
       },
       {
@@ -6128,6 +6542,8 @@
         "doc": "",
         "line": 1767,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "src/aspose/page/ps/clipper.py"
       },
       {
@@ -6142,6 +6558,8 @@
         "doc": "",
         "line": 1775,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "src/aspose/page/ps/clipper.py"
       },
       {
@@ -6160,6 +6578,8 @@
         "doc": "",
         "line": 1778,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "src/aspose/page/ps/clipper.py"
       },
       {
@@ -6182,6 +6602,8 @@
         "doc": "",
         "line": 1783,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "src/aspose/page/ps/clipper.py"
       },
       {
@@ -6200,6 +6622,8 @@
         "doc": "",
         "line": 1800,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "src/aspose/page/ps/clipper.py"
       },
       {
@@ -6222,6 +6646,8 @@
         "doc": "",
         "line": 1811,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "src/aspose/page/ps/clipper.py"
       },
       {
@@ -6231,6 +6657,8 @@
         "doc": "",
         "line": 1848,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "src/aspose/page/ps/clipper.py"
       },
       {
@@ -6245,6 +6673,8 @@
         "doc": "",
         "line": 1853,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "src/aspose/page/ps/clipper.py"
       },
       {
@@ -6259,6 +6689,8 @@
         "doc": "",
         "line": 1896,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "src/aspose/page/ps/clipper.py"
       },
       {
@@ -6273,6 +6705,8 @@
         "doc": "",
         "line": 1917,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "src/aspose/page/ps/clipper.py"
       },
       {
@@ -6287,6 +6721,8 @@
         "doc": "",
         "line": 1922,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "src/aspose/page/ps/clipper.py"
       },
       {
@@ -6301,6 +6737,8 @@
         "doc": "",
         "line": 1925,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "src/aspose/page/ps/clipper.py"
       },
       {
@@ -6315,6 +6753,8 @@
         "doc": "",
         "line": 1937,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "src/aspose/page/ps/clipper.py"
       },
       {
@@ -6329,6 +6769,8 @@
         "doc": "",
         "line": 1952,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "src/aspose/page/ps/clipper.py"
       },
       {
@@ -6347,6 +6789,8 @@
         "doc": "",
         "line": 1979,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "src/aspose/page/ps/clipper.py"
       },
       {
@@ -6373,6 +6817,8 @@
         "doc": "",
         "line": 1995,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "src/aspose/page/ps/clipper.py"
       },
       {
@@ -6407,6 +6853,8 @@
         "doc": "",
         "line": 2014,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "src/aspose/page/ps/clipper.py"
       },
       {
@@ -6421,6 +6869,8 @@
         "doc": "",
         "line": 2071,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "src/aspose/page/ps/clipper.py"
       },
       {
@@ -6439,6 +6889,8 @@
         "doc": "",
         "line": 2177,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "src/aspose/page/ps/clipper.py"
       },
       {
@@ -6457,6 +6909,8 @@
         "doc": "",
         "line": 2187,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "src/aspose/page/ps/clipper.py"
       },
       {
@@ -6475,6 +6929,8 @@
         "doc": "",
         "line": 2193,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "src/aspose/page/ps/clipper.py"
       },
       {
@@ -6484,6 +6940,8 @@
         "doc": "",
         "line": 2198,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "src/aspose/page/ps/clipper.py"
       },
       {
@@ -6498,6 +6956,8 @@
         "doc": "",
         "line": 2254,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "src/aspose/page/ps/clipper.py"
       },
       {
@@ -6507,6 +6967,8 @@
         "doc": "",
         "line": 2262,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "src/aspose/page/ps/clipper.py"
       },
       {
@@ -6521,6 +6983,8 @@
         "doc": "",
         "line": 2303,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "src/aspose/page/ps/clipper.py"
       },
       {
@@ -6535,6 +6999,8 @@
         "doc": "",
         "line": 2312,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "src/aspose/page/ps/clipper.py"
       },
       {
@@ -6544,6 +7010,8 @@
         "doc": "",
         "line": 200,
         "is_constructor": true,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "src/aspose/page/ps/clipper.py"
       },
       {
@@ -6558,6 +7026,8 @@
         "doc": "",
         "line": 209,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "src/aspose/page/ps/clipper.py"
       },
       {
@@ -6572,6 +7042,8 @@
         "doc": "",
         "line": 213,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "src/aspose/page/ps/clipper.py"
       },
       {
@@ -6590,6 +7062,8 @@
         "doc": "",
         "line": 216,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "src/aspose/page/ps/clipper.py"
       },
       {
@@ -6612,6 +7086,8 @@
         "doc": "",
         "line": 226,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "src/aspose/page/ps/clipper.py"
       },
       {
@@ -6630,6 +7106,8 @@
         "doc": "",
         "line": 238,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "src/aspose/page/ps/clipper.py"
       },
       {
@@ -6648,6 +7126,8 @@
         "doc": "",
         "line": 248,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "src/aspose/page/ps/clipper.py"
       },
       {
@@ -6666,6 +7146,8 @@
         "doc": "",
         "line": 263,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "src/aspose/page/ps/clipper.py"
       },
       {
@@ -6688,6 +7170,8 @@
         "doc": "",
         "line": 267,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "src/aspose/page/ps/clipper.py"
       },
       {
@@ -6714,6 +7198,8 @@
         "doc": "",
         "line": 271,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "src/aspose/page/ps/clipper.py"
       },
       {
@@ -6728,6 +7214,8 @@
         "doc": "",
         "line": 281,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "src/aspose/page/ps/clipper.py"
       },
       {
@@ -6754,6 +7242,8 @@
         "doc": "",
         "line": 284,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "src/aspose/page/ps/clipper.py"
       },
       {
@@ -6772,6 +7262,8 @@
         "doc": "",
         "line": 290,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "src/aspose/page/ps/clipper.py"
       },
       {
@@ -6794,6 +7286,8 @@
         "doc": "",
         "line": 300,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "src/aspose/page/ps/clipper.py"
       },
       {
@@ -6816,6 +7310,8 @@
         "doc": "",
         "line": 386,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "src/aspose/page/ps/clipper.py"
       },
       {
@@ -6838,6 +7334,8 @@
         "doc": "",
         "line": 393,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "src/aspose/page/ps/clipper.py"
       },
       {
@@ -6852,6 +7350,8 @@
         "doc": "",
         "line": 400,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "src/aspose/page/ps/clipper.py"
       },
       {
@@ -6866,6 +7366,8 @@
         "doc": "",
         "line": 407,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "src/aspose/page/ps/clipper.py"
       },
       {
@@ -6880,6 +7382,8 @@
         "doc": "",
         "line": 413,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "src/aspose/page/ps/clipper.py"
       },
       {
@@ -6894,6 +7398,8 @@
         "doc": "",
         "line": 430,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "src/aspose/page/ps/clipper.py"
       },
       {
@@ -6908,6 +7414,8 @@
         "doc": "",
         "line": 450,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "src/aspose/page/ps/clipper.py"
       },
       {
@@ -6922,6 +7430,8 @@
         "doc": "",
         "line": 462,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "src/aspose/page/ps/clipper.py"
       },
       {
@@ -6936,6 +7446,8 @@
         "doc": "",
         "line": 470,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "src/aspose/page/ps/clipper.py"
       },
       {
@@ -6950,6 +7462,8 @@
         "doc": "",
         "line": 479,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "src/aspose/page/ps/clipper.py"
       },
       {
@@ -6964,6 +7478,8 @@
         "doc": "Sets the dx value.",
         "line": 489,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "src/aspose/page/ps/clipper.py",
         "doc_source": "name_inference"
       },
@@ -6987,6 +7503,8 @@
         "doc": "",
         "line": 496,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "src/aspose/page/ps/clipper.py"
       },
       {
@@ -7001,6 +7519,8 @@
         "doc": "",
         "line": 531,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "src/aspose/page/ps/clipper.py"
       },
       {
@@ -7023,6 +7543,8 @@
         "doc": "",
         "line": 563,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "src/aspose/page/ps/clipper.py"
       },
       {
@@ -7041,6 +7563,8 @@
         "doc": "",
         "line": 587,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "src/aspose/page/ps/clipper.py"
       },
       {
@@ -7055,6 +7579,8 @@
         "doc": "",
         "line": 618,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "src/aspose/page/ps/clipper.py"
       },
       {
@@ -7064,6 +7590,8 @@
         "doc": "",
         "line": 632,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "src/aspose/page/ps/clipper.py"
       },
       {
@@ -7078,6 +7606,8 @@
         "doc": "",
         "line": 637,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "src/aspose/page/ps/clipper.py"
       },
       {
@@ -7087,6 +7617,8 @@
         "doc": "Returns the bounds.",
         "line": 661,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "src/aspose/page/ps/clipper.py",
         "doc_source": "name_inference"
       }
@@ -7255,6 +7787,8 @@
     ],
     "visibility": "conventional",
     "reachable": true,
+    "deprecated": false,
+    "deprecated_reason": "",
     "canonical_namespace": "page.ps.clipper",
     "class_import": "page.ps.clipper.Clipper",
     "module_key": "ps",
@@ -7296,6 +7830,8 @@
         "doc": "",
         "line": 2339,
         "is_constructor": true,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "src/aspose/page/ps/clipper.py"
       },
       {
@@ -7310,6 +7846,8 @@
         "doc": "",
         "line": 2386,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "src/aspose/page/ps/clipper.py"
       },
       {
@@ -7332,6 +7870,8 @@
         "doc": "",
         "line": 2389,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "src/aspose/page/ps/clipper.py"
       },
       {
@@ -7358,6 +7898,8 @@
         "doc": "",
         "line": 2395,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "src/aspose/page/ps/clipper.py"
       },
       {
@@ -7380,6 +7922,8 @@
         "doc": "",
         "line": 2400,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "src/aspose/page/ps/clipper.py"
       },
       {
@@ -7402,6 +7946,8 @@
         "doc": "",
         "line": 2413,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "src/aspose/page/ps/clipper.py"
       },
       {
@@ -7411,6 +7957,8 @@
         "doc": "",
         "line": 2437,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "src/aspose/page/ps/clipper.py"
       }
     ],
@@ -7514,6 +8062,8 @@
     ],
     "visibility": "conventional",
     "reachable": true,
+    "deprecated": false,
+    "deprecated_reason": "",
     "canonical_namespace": "page.ps.clipper",
     "class_import": "page.ps.clipper.PolyOffsetBuilder",
     "module_key": "ps",
@@ -7837,6 +8387,8 @@
         "doc": "",
         "line": 64,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "src/aspose/page/ps/context.py"
       }
     ],
@@ -8096,6 +8648,8 @@
     ],
     "visibility": "public",
     "reachable": true,
+    "deprecated": false,
+    "deprecated_reason": "",
     "canonical_namespace": "page.ps.context",
     "class_import": "page.ps.context.GraphicsState",
     "module_key": "ps",
@@ -8239,6 +8793,8 @@
     ],
     "visibility": "public",
     "reachable": true,
+    "deprecated": false,
+    "deprecated_reason": "",
     "canonical_namespace": "page.ps.context",
     "class_import": "page.ps.context.ExecutionContext",
     "module_key": "ps",
@@ -8268,6 +8824,8 @@
         "doc": "Create a new PS/EPS document with a single empty page.",
         "line": 37,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "src/aspose/page/ps/document.py"
       },
       {
@@ -8282,6 +8840,8 @@
         "doc": "Create a document from bytes and detect EPS metadata.",
         "line": 55,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "src/aspose/page/ps/document.py"
       },
       {
@@ -8296,6 +8856,8 @@
         "doc": "Create a document from a file path.",
         "line": 77,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "src/aspose/page/ps/document.py"
       },
       {
@@ -8310,6 +8872,8 @@
         "doc": "Append a new page and return it.",
         "line": 90,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "src/aspose/page/ps/document.py"
       },
       {
@@ -8328,6 +8892,8 @@
         "doc": "Insert a new page at the provided index and return it.",
         "line": 97,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "src/aspose/page/ps/document.py"
       },
       {
@@ -8342,6 +8908,8 @@
         "doc": "Remove the page at the provided index.",
         "line": 106,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "src/aspose/page/ps/document.py"
       },
       {
@@ -8356,6 +8924,8 @@
         "doc": "Return the page at the provided index.",
         "line": 113,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "src/aspose/page/ps/document.py"
       },
       {
@@ -8370,6 +8940,8 @@
         "doc": "Serialize the document to bytes and optionally write to a file.",
         "line": 119,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "src/aspose/page/ps/document.py"
       },
       {
@@ -8379,6 +8951,8 @@
         "doc": "Return the raw document bytes.",
         "line": 140,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "src/aspose/page/ps/document.py"
       },
       {
@@ -8388,6 +8962,8 @@
         "doc": "Return XMP metadata from an EPS document, if present.",
         "line": 153,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "src/aspose/page/ps/document.py"
       },
       {
@@ -8402,6 +8978,8 @@
         "doc": "Set XMP metadata on an EPS document.",
         "line": 160,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "src/aspose/page/ps/document.py"
       },
       {
@@ -8411,6 +8989,8 @@
         "doc": "Remove XMP metadata from an EPS document.",
         "line": 169,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "src/aspose/page/ps/document.py"
       },
       {
@@ -8425,6 +9005,8 @@
         "doc": "Convert the document to PDF bytes.",
         "line": 178,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "src/aspose/page/ps/document.py"
       },
       {
@@ -8439,6 +9021,8 @@
         "doc": "Convert the document to raster image bytes.",
         "line": 184,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "src/aspose/page/ps/document.py"
       }
     ],
@@ -8527,6 +9111,8 @@
     ],
     "visibility": "public",
     "reachable": true,
+    "deprecated": false,
+    "deprecated_reason": "",
     "canonical_namespace": "page.ps.document",
     "class_import": "page.ps.document.PsDocument",
     "exported_via_package_init": true,
@@ -8654,6 +9240,8 @@
     ],
     "visibility": "public",
     "reachable": true,
+    "deprecated": false,
+    "deprecated_reason": "",
     "canonical_namespace": "page.ps.dsc",
     "class_import": "page.ps.dsc.DscMetadata",
     "module_key": "ps",
@@ -8754,6 +9342,8 @@
     ],
     "visibility": "public",
     "reachable": true,
+    "deprecated": false,
+    "deprecated_reason": "",
     "canonical_namespace": "page.ps.editing",
     "class_import": "page.ps.editing.PsImage",
     "module_key": "ps",
@@ -8816,6 +9406,8 @@
     ],
     "visibility": "public",
     "reachable": true,
+    "deprecated": false,
+    "deprecated_reason": "",
     "canonical_namespace": "page.ps.editing",
     "class_import": "page.ps.editing.PsPage",
     "module_key": "ps",
@@ -8841,6 +9433,8 @@
         "doc": "",
         "line": 49,
         "is_constructor": true,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "src/aspose/page/ps/editing.py"
       },
       {
@@ -8859,6 +9453,8 @@
         "doc": "",
         "line": 52,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "src/aspose/page/ps/editing.py"
       },
       {
@@ -8877,6 +9473,8 @@
         "doc": "",
         "line": 55,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "src/aspose/page/ps/editing.py"
       },
       {
@@ -8911,6 +9509,8 @@
         "doc": "",
         "line": 58,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "src/aspose/page/ps/editing.py"
       },
       {
@@ -8920,6 +9520,8 @@
         "doc": "",
         "line": 63,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "src/aspose/page/ps/editing.py"
       },
       {
@@ -8946,6 +9548,8 @@
         "doc": "",
         "line": 66,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "src/aspose/page/ps/editing.py"
       },
       {
@@ -8972,6 +9576,8 @@
         "doc": "",
         "line": 74,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "src/aspose/page/ps/editing.py"
       },
       {
@@ -8981,6 +9587,8 @@
         "doc": "",
         "line": 85,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "src/aspose/page/ps/editing.py"
       },
       {
@@ -8990,6 +9598,8 @@
         "doc": "",
         "line": 88,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "src/aspose/page/ps/editing.py"
       },
       {
@@ -8999,6 +9609,8 @@
         "doc": "",
         "line": 91,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "src/aspose/page/ps/editing.py"
       },
       {
@@ -9013,6 +9625,8 @@
         "doc": "Sets the stroke color value.",
         "line": 97,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "src/aspose/page/ps/editing.py",
         "doc_source": "name_inference"
       },
@@ -9028,6 +9642,8 @@
         "doc": "Sets the fill color value.",
         "line": 100,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "src/aspose/page/ps/editing.py",
         "doc_source": "name_inference"
       },
@@ -9043,6 +9659,8 @@
         "doc": "Sets the line width value.",
         "line": 103,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "src/aspose/page/ps/editing.py",
         "doc_source": "name_inference"
       },
@@ -9058,6 +9676,8 @@
         "doc": "Sets the line cap value.",
         "line": 106,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "src/aspose/page/ps/editing.py",
         "doc_source": "name_inference"
       },
@@ -9073,6 +9693,8 @@
         "doc": "Sets the line join value.",
         "line": 109,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "src/aspose/page/ps/editing.py",
         "doc_source": "name_inference"
       },
@@ -9088,6 +9710,8 @@
         "doc": "Sets the miter limit value.",
         "line": 112,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "src/aspose/page/ps/editing.py",
         "doc_source": "name_inference"
       },
@@ -9103,6 +9727,8 @@
         "doc": "",
         "line": 115,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "src/aspose/page/ps/editing.py"
       },
       {
@@ -9112,6 +9738,8 @@
         "doc": "",
         "line": 121,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "src/aspose/page/ps/editing.py"
       },
       {
@@ -9121,6 +9749,8 @@
         "doc": "",
         "line": 124,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "src/aspose/page/ps/editing.py"
       },
       {
@@ -9130,6 +9760,8 @@
         "doc": "",
         "line": 127,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "src/aspose/page/ps/editing.py"
       },
       {
@@ -9139,6 +9771,8 @@
         "doc": "",
         "line": 131,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "src/aspose/page/ps/editing.py"
       },
       {
@@ -9169,6 +9803,8 @@
         "doc": "",
         "line": 134,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "src/aspose/page/ps/editing.py"
       },
       {
@@ -9199,12 +9835,16 @@
         "doc": "",
         "line": 140,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "src/aspose/page/ps/editing.py"
       }
     ],
     "properties": [],
     "visibility": "public",
     "reachable": true,
+    "deprecated": false,
+    "deprecated_reason": "",
     "canonical_namespace": "page.ps.editing",
     "class_import": "page.ps.editing.PsCanvas",
     "module_key": "ps",
@@ -9236,6 +9876,8 @@
         "doc": "",
         "line": 9,
         "is_constructor": true,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "src/aspose/page/ps/errors.py"
       }
     ],
@@ -9259,6 +9901,8 @@
     ],
     "visibility": "public",
     "reachable": true,
+    "deprecated": false,
+    "deprecated_reason": "",
     "canonical_namespace": "page.ps.errors",
     "class_import": "page.ps.errors.PsError",
     "module_key": "ps",
@@ -9286,6 +9930,8 @@
         "doc": "",
         "line": 16,
         "is_constructor": true,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "src/aspose/page/ps/errors.py"
       },
       {
@@ -9304,6 +9950,8 @@
         "doc": "",
         "line": 9,
         "is_constructor": true,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "src/aspose/page/ps/errors.py"
       }
     ],
@@ -9327,6 +9975,8 @@
     ],
     "visibility": "conventional",
     "reachable": true,
+    "deprecated": false,
+    "deprecated_reason": "",
     "canonical_namespace": "page.ps.errors",
     "class_import": "page.ps.errors.PsSyntaxError",
     "module_key": "ps",
@@ -9354,6 +10004,8 @@
         "doc": "",
         "line": 21,
         "is_constructor": true,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "src/aspose/page/ps/errors.py"
       },
       {
@@ -9372,6 +10024,8 @@
         "doc": "",
         "line": 9,
         "is_constructor": true,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "src/aspose/page/ps/errors.py"
       }
     ],
@@ -9395,6 +10049,8 @@
     ],
     "visibility": "conventional",
     "reachable": true,
+    "deprecated": false,
+    "deprecated_reason": "",
     "canonical_namespace": "page.ps.errors",
     "class_import": "page.ps.errors.PsTypeError",
     "module_key": "ps",
@@ -9422,6 +10078,8 @@
         "doc": "",
         "line": 26,
         "is_constructor": true,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "src/aspose/page/ps/errors.py"
       },
       {
@@ -9440,6 +10098,8 @@
         "doc": "",
         "line": 9,
         "is_constructor": true,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "src/aspose/page/ps/errors.py"
       }
     ],
@@ -9463,6 +10123,8 @@
     ],
     "visibility": "conventional",
     "reachable": true,
+    "deprecated": false,
+    "deprecated_reason": "",
     "canonical_namespace": "page.ps.errors",
     "class_import": "page.ps.errors.PsRangeError",
     "module_key": "ps",
@@ -9490,6 +10152,8 @@
         "doc": "",
         "line": 31,
         "is_constructor": true,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "src/aspose/page/ps/errors.py"
       },
       {
@@ -9508,6 +10172,8 @@
         "doc": "",
         "line": 9,
         "is_constructor": true,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "src/aspose/page/ps/errors.py"
       }
     ],
@@ -9531,6 +10197,8 @@
     ],
     "visibility": "conventional",
     "reachable": true,
+    "deprecated": false,
+    "deprecated_reason": "",
     "canonical_namespace": "page.ps.errors",
     "class_import": "page.ps.errors.PsUndefinedError",
     "module_key": "ps",
@@ -9558,6 +10226,8 @@
         "doc": "",
         "line": 36,
         "is_constructor": true,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "src/aspose/page/ps/errors.py"
       },
       {
@@ -9576,6 +10246,8 @@
         "doc": "",
         "line": 9,
         "is_constructor": true,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "src/aspose/page/ps/errors.py"
       }
     ],
@@ -9599,6 +10271,8 @@
     ],
     "visibility": "conventional",
     "reachable": true,
+    "deprecated": false,
+    "deprecated_reason": "",
     "canonical_namespace": "page.ps.errors",
     "class_import": "page.ps.errors.PsIOError",
     "module_key": "ps",
@@ -9626,6 +10300,8 @@
         "doc": "",
         "line": 41,
         "is_constructor": true,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "src/aspose/page/ps/errors.py"
       },
       {
@@ -9644,6 +10320,8 @@
         "doc": "",
         "line": 9,
         "is_constructor": true,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "src/aspose/page/ps/errors.py"
       }
     ],
@@ -9667,6 +10345,8 @@
     ],
     "visibility": "conventional",
     "reachable": true,
+    "deprecated": false,
+    "deprecated_reason": "",
     "canonical_namespace": "page.ps.errors",
     "class_import": "page.ps.errors.PsLimitCheck",
     "module_key": "ps",
@@ -9694,6 +10374,8 @@
         "doc": "",
         "line": 46,
         "is_constructor": true,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "src/aspose/page/ps/errors.py"
       },
       {
@@ -9712,6 +10394,8 @@
         "doc": "",
         "line": 9,
         "is_constructor": true,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "src/aspose/page/ps/errors.py"
       }
     ],
@@ -9735,6 +10419,8 @@
     ],
     "visibility": "conventional",
     "reachable": true,
+    "deprecated": false,
+    "deprecated_reason": "",
     "canonical_namespace": "page.ps.errors",
     "class_import": "page.ps.errors.PsInvalidAccess",
     "module_key": "ps",
@@ -9753,6 +10439,8 @@
     "properties": [],
     "visibility": "public",
     "reachable": true,
+    "deprecated": false,
+    "deprecated_reason": "",
     "canonical_namespace": "page.ps.errors",
     "class_import": "page.ps.errors.PsQuit",
     "module_key": "ps",
@@ -9797,6 +10485,8 @@
     ],
     "visibility": "public",
     "reachable": true,
+    "deprecated": false,
+    "deprecated_reason": "",
     "canonical_namespace": "page.ps.filters",
     "class_import": "page.ps.filters.FilterResult",
     "module_key": "ps",
@@ -10006,6 +10696,8 @@
     ],
     "visibility": "conventional",
     "reachable": true,
+    "deprecated": false,
+    "deprecated_reason": "",
     "canonical_namespace": "page.ps.font_cache",
     "class_import": "page.ps.font_cache.FontRecord",
     "module_key": "ps",
@@ -10041,6 +10733,8 @@
     ],
     "visibility": "conventional",
     "reachable": true,
+    "deprecated": false,
+    "deprecated_reason": "",
     "canonical_namespace": "page.ps.font_cache",
     "class_import": "page.ps.font_cache.FontMetrics",
     "module_key": "ps",
@@ -10061,6 +10755,8 @@
         "doc": "",
         "line": 31,
         "is_constructor": true,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "src/aspose/page/ps/font_cache.py"
       },
       {
@@ -10075,6 +10771,8 @@
         "doc": "",
         "line": 37,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "src/aspose/page/ps/font_cache.py"
       },
       {
@@ -10093,6 +10791,8 @@
         "doc": "",
         "line": 54,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "src/aspose/page/ps/font_cache.py"
       },
       {
@@ -10107,12 +10807,16 @@
         "doc": "",
         "line": 67,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "src/aspose/page/ps/font_cache.py"
       }
     ],
     "properties": [],
     "visibility": "conventional",
     "reachable": true,
+    "deprecated": false,
+    "deprecated_reason": "",
     "canonical_namespace": "page.ps.font_cache",
     "class_import": "page.ps.font_cache.FontCache",
     "module_key": "ps",
@@ -10349,6 +11053,8 @@
     ],
     "visibility": "public",
     "reachable": true,
+    "deprecated": false,
+    "deprecated_reason": "",
     "canonical_namespace": "page.ps.fonts",
     "class_import": "page.ps.fonts.FontResource",
     "module_key": "ps",
@@ -10393,6 +11099,8 @@
     ],
     "visibility": "conventional",
     "reachable": true,
+    "deprecated": false,
+    "deprecated_reason": "",
     "canonical_namespace": "page.ps.fonts",
     "class_import": "page.ps.fonts.EmbeddedType42",
     "module_key": "ps",
@@ -10422,6 +11130,8 @@
         "doc": "",
         "line": 65,
         "is_constructor": true,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "src/aspose/page/ps/fonts.py"
       },
       {
@@ -10436,6 +11146,8 @@
         "doc": "",
         "line": 96,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "src/aspose/page/ps/fonts.py"
       },
       {
@@ -10450,6 +11162,8 @@
         "doc": "Resolve a TrueType/OpenType path for a font name when available.",
         "line": 172,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "src/aspose/page/ps/fonts.py"
       },
       {
@@ -10464,6 +11178,8 @@
         "doc": "",
         "line": 265,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "src/aspose/page/ps/fonts.py"
       },
       {
@@ -10490,6 +11206,8 @@
         "doc": "",
         "line": 407,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "src/aspose/page/ps/fonts.py"
       },
       {
@@ -10504,6 +11222,8 @@
         "doc": "",
         "line": 420,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "src/aspose/page/ps/fonts.py"
       },
       {
@@ -10522,6 +11242,8 @@
         "doc": "",
         "line": 423,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "src/aspose/page/ps/fonts.py"
       },
       {
@@ -10540,12 +11262,16 @@
         "doc": "",
         "line": 426,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "src/aspose/page/ps/fonts.py"
       }
     ],
     "properties": [],
     "visibility": "public",
     "reachable": true,
+    "deprecated": false,
+    "deprecated_reason": "",
     "canonical_namespace": "page.ps.fonts",
     "class_import": "page.ps.fonts.FontResolver",
     "module_key": "ps",
@@ -10704,8 +11430,58 @@
     ],
     "visibility": "public",
     "reachable": true,
+    "deprecated": false,
+    "deprecated_reason": "",
     "canonical_namespace": "page.ps.image_to_eps",
     "class_import": "page.ps.image_to_eps.ImageInfo",
+    "module_key": "ps",
+    "module_label": "Ps"
+  },
+  {
+    "name": "decode_png",
+    "kind": "function",
+    "doc": "Decode a PNG image into raw RGB pixels.",
+    "file": "src/aspose/page/ps/image_to_eps.py",
+    "line": 22,
+    "bases": [],
+    "methods": [],
+    "properties": [],
+    "params": [
+      {
+        "name": "data",
+        "type": "bytes"
+      }
+    ],
+    "return_type": "ImageInfo",
+    "reachable": true,
+    "_merged_files": [
+      "src/aspose/page/ps/image_to_eps.py",
+      "src/aspose/page/xps/images.py"
+    ],
+    "module_key": "ps",
+    "module_label": "Ps"
+  },
+  {
+    "name": "decode_jpeg",
+    "kind": "function",
+    "doc": "Decode JPEG header and return encoded bytes for EPS embedding.",
+    "file": "src/aspose/page/ps/image_to_eps.py",
+    "line": 71,
+    "bases": [],
+    "methods": [],
+    "properties": [],
+    "params": [
+      {
+        "name": "data",
+        "type": "bytes"
+      }
+    ],
+    "return_type": "ImageInfo",
+    "reachable": true,
+    "_merged_files": [
+      "src/aspose/page/ps/image_to_eps.py",
+      "src/aspose/page/xps/images.py"
+    ],
     "module_key": "ps",
     "module_label": "Ps"
   },
@@ -10715,6 +11491,26 @@
     "doc": "Decode a 24-bit BMP image into raw RGB pixels.",
     "file": "src/aspose/page/ps/image_to_eps.py",
     "line": 103,
+    "bases": [],
+    "methods": [],
+    "properties": [],
+    "params": [
+      {
+        "name": "data",
+        "type": "bytes"
+      }
+    ],
+    "return_type": "ImageInfo",
+    "reachable": true,
+    "module_key": "ps",
+    "module_label": "Ps"
+  },
+  {
+    "name": "decode_tiff",
+    "kind": "function",
+    "doc": "Decode uncompressed or PackBits TIFF into raw pixels.",
+    "file": "src/aspose/page/ps/image_to_eps.py",
+    "line": 167,
     "bases": [],
     "methods": [],
     "properties": [],
@@ -10897,6 +11693,8 @@
     ],
     "visibility": "public",
     "reachable": true,
+    "deprecated": false,
+    "deprecated_reason": "",
     "canonical_namespace": "page.ps.images",
     "class_import": "page.ps.images.PsImageResource",
     "module_key": "ps",
@@ -10917,6 +11715,8 @@
         "doc": "",
         "line": 44,
         "is_constructor": true,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "src/aspose/page/ps/images.py"
       },
       {
@@ -10931,6 +11731,8 @@
         "doc": "",
         "line": 48,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "src/aspose/page/ps/images.py"
       },
       {
@@ -10945,6 +11747,8 @@
         "doc": "",
         "line": 69,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "src/aspose/page/ps/images.py"
       },
       {
@@ -10954,12 +11758,16 @@
         "doc": "",
         "line": 74,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "src/aspose/page/ps/images.py"
       }
     ],
     "properties": [],
     "visibility": "public",
     "reachable": true,
+    "deprecated": false,
+    "deprecated_reason": "",
     "canonical_namespace": "page.ps.images",
     "class_import": "page.ps.images.PsImageStore",
     "module_key": "ps",
@@ -10985,6 +11793,8 @@
         "doc": "",
         "line": 36,
         "is_constructor": true,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "src/aspose/page/ps/interpreter.py"
       },
       {
@@ -11003,6 +11813,8 @@
         "doc": "Parse and execute a PostScript/EPS byte stream.",
         "line": 56,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "src/aspose/page/ps/interpreter.py"
       },
       {
@@ -11021,6 +11833,8 @@
         "doc": "Execute a sequence of already-parsed objects.",
         "line": 93,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "src/aspose/page/ps/interpreter.py"
       },
       {
@@ -11039,6 +11853,8 @@
         "doc": "Execute a single object.",
         "line": 98,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "src/aspose/page/ps/interpreter.py"
       },
       {
@@ -11057,12 +11873,16 @@
         "doc": "Execute a procedure explicitly.",
         "line": 118,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "src/aspose/page/ps/interpreter.py"
       }
     ],
     "properties": [],
     "visibility": "public",
     "reachable": true,
+    "deprecated": false,
+    "deprecated_reason": "",
     "canonical_namespace": "page.ps.interpreter",
     "class_import": "page.ps.interpreter.PsInterpreter",
     "module_key": "ps",
@@ -11098,6 +11918,8 @@
     ],
     "visibility": "conventional",
     "reachable": true,
+    "deprecated": false,
+    "deprecated_reason": "",
     "canonical_namespace": "page.ps.objects",
     "class_import": "page.ps.objects.PsName",
     "module_key": "ps",
@@ -11124,6 +11946,8 @@
     ],
     "visibility": "conventional",
     "reachable": true,
+    "deprecated": false,
+    "deprecated_reason": "",
     "canonical_namespace": "page.ps.objects",
     "class_import": "page.ps.objects.PsOperator",
     "module_key": "ps",
@@ -11168,6 +11992,8 @@
     ],
     "visibility": "conventional",
     "reachable": true,
+    "deprecated": false,
+    "deprecated_reason": "",
     "canonical_namespace": "page.ps.objects",
     "class_import": "page.ps.objects.PsString",
     "module_key": "ps",
@@ -11194,6 +12020,8 @@
     ],
     "visibility": "conventional",
     "reachable": true,
+    "deprecated": false,
+    "deprecated_reason": "",
     "canonical_namespace": "page.ps.objects",
     "class_import": "page.ps.objects.PsArray",
     "module_key": "ps",
@@ -11220,6 +12048,8 @@
     ],
     "visibility": "conventional",
     "reachable": true,
+    "deprecated": false,
+    "deprecated_reason": "",
     "canonical_namespace": "page.ps.objects",
     "class_import": "page.ps.objects.PsDict",
     "module_key": "ps",
@@ -11246,6 +12076,8 @@
     ],
     "visibility": "conventional",
     "reachable": true,
+    "deprecated": false,
+    "deprecated_reason": "",
     "canonical_namespace": "page.ps.objects",
     "class_import": "page.ps.objects.PsProcedure",
     "module_key": "ps",
@@ -11272,6 +12104,8 @@
     ],
     "visibility": "conventional",
     "reachable": true,
+    "deprecated": false,
+    "deprecated_reason": "",
     "canonical_namespace": "page.ps.objects",
     "class_import": "page.ps.objects.PsMark",
     "module_key": "ps",
@@ -11298,6 +12132,8 @@
     ],
     "visibility": "conventional",
     "reachable": true,
+    "deprecated": false,
+    "deprecated_reason": "",
     "canonical_namespace": "page.ps.objects",
     "class_import": "page.ps.objects.PsSave",
     "module_key": "ps",
@@ -11324,6 +12160,8 @@
     ],
     "visibility": "conventional",
     "reachable": true,
+    "deprecated": false,
+    "deprecated_reason": "",
     "canonical_namespace": "page.ps.objects",
     "class_import": "page.ps.objects.PsGState",
     "module_key": "ps",
@@ -11368,6 +12206,8 @@
     ],
     "visibility": "conventional",
     "reachable": true,
+    "deprecated": false,
+    "deprecated_reason": "",
     "canonical_namespace": "page.ps.objects",
     "class_import": "page.ps.objects.PsFile",
     "module_key": "ps",
@@ -11394,6 +12234,8 @@
     ],
     "visibility": "conventional",
     "reachable": true,
+    "deprecated": false,
+    "deprecated_reason": "",
     "canonical_namespace": "page.ps.objects",
     "class_import": "page.ps.objects.PsFontId",
     "module_key": "ps",
@@ -11429,6 +12271,8 @@
     ],
     "visibility": "conventional",
     "reachable": true,
+    "deprecated": false,
+    "deprecated_reason": "",
     "canonical_namespace": "page.ps.objects",
     "class_import": "page.ps.objects.PsPattern",
     "module_key": "ps",
@@ -11482,6 +12326,8 @@
     ],
     "visibility": "public",
     "reachable": true,
+    "deprecated": false,
+    "deprecated_reason": "",
     "canonical_namespace": "page.ps.operators",
     "class_import": "page.ps.operators.OperatorEntry",
     "module_key": "ps",
@@ -11502,6 +12348,8 @@
         "doc": "",
         "line": 31,
         "is_constructor": true,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "src/aspose/page/ps/operators.py"
       },
       {
@@ -11528,6 +12376,8 @@
         "doc": "Register an operator implementation.",
         "line": 34,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "src/aspose/page/ps/operators.py"
       },
       {
@@ -11542,12 +12392,16 @@
         "doc": "Lookup a registered operator entry by name.",
         "line": 54,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "src/aspose/page/ps/operators.py"
       }
     ],
     "properties": [],
     "visibility": "public",
     "reachable": true,
+    "deprecated": false,
+    "deprecated_reason": "",
     "canonical_namespace": "page.ps.operators",
     "class_import": "page.ps.operators.OperatorRegistry",
     "module_key": "ps",
@@ -11583,6 +12437,8 @@
     ],
     "visibility": "conventional",
     "reachable": true,
+    "deprecated": false,
+    "deprecated_reason": "",
     "canonical_namespace": "page.ps.output",
     "class_import": "page.ps.output.PdfSaveOptions",
     "exported_via_package_init": true,
@@ -11656,10 +12512,68 @@
     ],
     "visibility": "conventional",
     "reachable": true,
+    "deprecated": false,
+    "deprecated_reason": "",
     "canonical_namespace": "page.ps.output",
     "class_import": "page.ps.output.ImageSaveOptions",
     "exported_via_package_init": true,
     "public_import_module": "page.ps",
+    "module_key": "ps",
+    "module_label": "Ps"
+  },
+  {
+    "name": "to_pdf",
+    "kind": "function",
+    "doc": "Convert an XPS document to PDF bytes.",
+    "file": "src/aspose/page/ps/output.py",
+    "line": 56,
+    "bases": [],
+    "methods": [],
+    "properties": [],
+    "params": [
+      {
+        "name": "document",
+        "type": "PsDocument"
+      },
+      {
+        "name": "options",
+        "type": "PdfSaveOptions | None"
+      }
+    ],
+    "return_type": "bytes",
+    "reachable": true,
+    "_merged_files": [
+      "src/aspose/page/ps/output.py",
+      "src/aspose/page/xps/output.py"
+    ],
+    "module_key": "ps",
+    "module_label": "Ps"
+  },
+  {
+    "name": "to_image",
+    "kind": "function",
+    "doc": "",
+    "file": "src/aspose/page/ps/output.py",
+    "line": 107,
+    "bases": [],
+    "methods": [],
+    "properties": [],
+    "params": [
+      {
+        "name": "document",
+        "type": "PsDocument"
+      },
+      {
+        "name": "options",
+        "type": "ImageSaveOptions"
+      }
+    ],
+    "return_type": "bytes",
+    "reachable": true,
+    "_merged_files": [
+      "src/aspose/page/ps/output.py",
+      "src/aspose/page/xps/output.py"
+    ],
     "module_key": "ps",
     "module_label": "Ps"
   },
@@ -11723,6 +12637,8 @@
         "doc": "",
         "line": 20,
         "is_constructor": true,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "src/aspose/page/ps/parser.py"
       },
       {
@@ -11732,6 +12648,8 @@
         "doc": "Parse a single PostScript object or return None at EOF.",
         "line": 24,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "src/aspose/page/ps/parser.py"
       },
       {
@@ -11741,12 +12659,16 @@
         "doc": "Parse all remaining objects from the token stream.",
         "line": 56,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "src/aspose/page/ps/parser.py"
       }
     ],
     "properties": [],
     "visibility": "public",
     "reachable": true,
+    "deprecated": false,
+    "deprecated_reason": "",
     "canonical_namespace": "page.ps.parser",
     "class_import": "page.ps.parser.PsParser",
     "module_key": "ps",
@@ -11912,6 +12834,8 @@
         "doc": "",
         "line": 169,
         "is_constructor": true,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "src/aspose/page/ps/pipeline.py"
       },
       {
@@ -11926,12 +12850,16 @@
         "doc": "Parse PS/EPS bytes and return a render document.",
         "line": 183,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "src/aspose/page/ps/pipeline.py"
       }
     ],
     "properties": [],
     "visibility": "public",
     "reachable": true,
+    "deprecated": false,
+    "deprecated_reason": "",
     "canonical_namespace": "page.ps.pipeline",
     "class_import": "page.ps.pipeline.PsConversionPipeline",
     "module_key": "ps",
@@ -12041,6 +12969,8 @@
         "doc": "Push an item onto the stack.",
         "line": 26,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "src/aspose/page/ps/stack.py"
       },
       {
@@ -12050,6 +12980,8 @@
         "doc": "Pop the top item from the stack.",
         "line": 35,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "src/aspose/page/ps/stack.py"
       },
       {
@@ -12059,6 +12991,8 @@
         "doc": "Peek at the top item without removing it.",
         "line": 47,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "src/aspose/page/ps/stack.py"
       },
       {
@@ -12068,6 +13002,8 @@
         "doc": "",
         "line": 59,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "src/aspose/page/ps/stack.py"
       },
       {
@@ -12077,6 +13013,8 @@
         "doc": "",
         "line": 62,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "src/aspose/page/ps/stack.py"
       },
       {
@@ -12086,12 +13024,16 @@
         "doc": "Return a shallow list copy of stack items.",
         "line": 65,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "src/aspose/page/ps/stack.py"
       }
     ],
     "properties": [],
     "visibility": "public",
     "reachable": true,
+    "deprecated": false,
+    "deprecated_reason": "",
     "canonical_namespace": "page.ps.stack",
     "class_import": "page.ps.stack.PsStack",
     "module_key": "ps",
@@ -12155,6 +13097,8 @@
     ],
     "visibility": "public",
     "reachable": true,
+    "deprecated": false,
+    "deprecated_reason": "",
     "canonical_namespace": "page.ps.tokenizer",
     "class_import": "page.ps.tokenizer.PsToken",
     "module_key": "ps",
@@ -12180,6 +13124,8 @@
         "doc": "",
         "line": 36,
         "is_constructor": true,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "src/aspose/page/ps/tokenizer.py"
       },
       {
@@ -12189,6 +13135,8 @@
         "doc": "Return the next token or None when input is exhausted.",
         "line": 42,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "src/aspose/page/ps/tokenizer.py"
       },
       {
@@ -12203,6 +13151,8 @@
         "doc": "",
         "line": 307,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "src/aspose/page/ps/tokenizer.py"
       },
       {
@@ -12217,6 +13167,8 @@
         "doc": "",
         "line": 334,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "src/aspose/page/ps/tokenizer.py"
       },
       {
@@ -12226,6 +13178,8 @@
         "doc": "",
         "line": 353,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "src/aspose/page/ps/tokenizer.py"
       },
       {
@@ -12235,6 +13189,8 @@
         "doc": "",
         "line": 362,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "src/aspose/page/ps/tokenizer.py"
       },
       {
@@ -12249,6 +13205,8 @@
         "doc": "",
         "line": 375,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "src/aspose/page/ps/tokenizer.py"
       },
       {
@@ -12258,12 +13216,16 @@
         "doc": "",
         "line": 383,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "src/aspose/page/ps/tokenizer.py"
       }
     ],
     "properties": [],
     "visibility": "public",
     "reachable": true,
+    "deprecated": false,
+    "deprecated_reason": "",
     "canonical_namespace": "page.ps.tokenizer",
     "class_import": "page.ps.tokenizer.PsTokenizer",
     "module_key": "ps",
@@ -12308,6 +13270,8 @@
     ],
     "visibility": "conventional",
     "reachable": true,
+    "deprecated": false,
+    "deprecated_reason": "",
     "canonical_namespace": "page.ps.ttf_outline",
     "class_import": "page.ps.ttf_outline.GlyphPoint",
     "module_key": "ps",
@@ -12333,6 +13297,8 @@
         "doc": "",
         "line": 20,
         "is_constructor": true,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "src/aspose/page/ps/ttf_outline.py"
       },
       {
@@ -12347,6 +13313,8 @@
         "doc": "",
         "line": 55,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "src/aspose/page/ps/ttf_outline.py"
       },
       {
@@ -12361,6 +13329,8 @@
         "doc": "",
         "line": 70,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "src/aspose/page/ps/ttf_outline.py"
       },
       {
@@ -12375,6 +13345,8 @@
         "doc": "",
         "line": 78,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "src/aspose/page/ps/ttf_outline.py"
       },
       {
@@ -12384,6 +13356,8 @@
         "doc": "",
         "line": 88,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "src/aspose/page/ps/ttf_outline.py"
       },
       {
@@ -12393,6 +13367,8 @@
         "doc": "",
         "line": 93,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "src/aspose/page/ps/ttf_outline.py"
       },
       {
@@ -12407,6 +13383,8 @@
         "doc": "",
         "line": 98,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "src/aspose/page/ps/ttf_outline.py"
       },
       {
@@ -12421,6 +13399,8 @@
         "doc": "",
         "line": 101,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "src/aspose/page/ps/ttf_outline.py"
       },
       {
@@ -12435,6 +13415,8 @@
         "doc": "",
         "line": 113,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "src/aspose/page/ps/ttf_outline.py"
       },
       {
@@ -12449,6 +13431,8 @@
         "doc": "",
         "line": 117,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "src/aspose/page/ps/ttf_outline.py"
       },
       {
@@ -12463,6 +13447,8 @@
         "doc": "",
         "line": 134,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "src/aspose/page/ps/ttf_outline.py"
       },
       {
@@ -12477,6 +13463,8 @@
         "doc": "",
         "line": 147,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "src/aspose/page/ps/ttf_outline.py"
       }
     ],
@@ -12492,6 +13480,8 @@
     ],
     "visibility": "conventional",
     "reachable": true,
+    "deprecated": false,
+    "deprecated_reason": "",
     "canonical_namespace": "page.ps.ttf_outline",
     "class_import": "page.ps.ttf_outline.TrueTypeFont",
     "module_key": "ps",
@@ -12672,6 +13662,8 @@
     ],
     "visibility": "conventional",
     "reachable": true,
+    "deprecated": false,
+    "deprecated_reason": "",
     "canonical_namespace": "page.ps.type1_parser",
     "class_import": "page.ps.type1_parser.Type1Metrics",
     "module_key": "ps",
@@ -12833,6 +13825,8 @@
     ],
     "visibility": "conventional",
     "reachable": true,
+    "deprecated": false,
+    "deprecated_reason": "",
     "canonical_namespace": "page.ps.vm",
     "class_import": "page.ps.vm.PsSaveState",
     "module_key": "ps",
@@ -12966,6 +13960,8 @@
         "doc": "Create a new empty XPS document.",
         "line": 35,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "src/aspose/page/xps/document.py"
       },
       {
@@ -12980,6 +13976,8 @@
         "doc": "Create an XPS document from bytes.",
         "line": 40,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "src/aspose/page/xps/document.py"
       },
       {
@@ -12994,6 +13992,8 @@
         "doc": "Create an XPS document from a file path.",
         "line": 51,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "src/aspose/page/xps/document.py"
       },
       {
@@ -13012,6 +14012,8 @@
         "doc": "Append a new fixed page and return it.",
         "line": 55,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "src/aspose/page/xps/document.py"
       },
       {
@@ -13030,6 +14032,8 @@
         "doc": "Insert a fixed page at the given index.",
         "line": 61,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "src/aspose/page/xps/document.py"
       },
       {
@@ -13044,6 +14048,8 @@
         "doc": "Remove a fixed page at the given index.",
         "line": 66,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "src/aspose/page/xps/document.py"
       },
       {
@@ -13058,6 +14064,8 @@
         "doc": "Serialize the document to bytes and optionally write to a file.",
         "line": 71,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "src/aspose/page/xps/document.py"
       },
       {
@@ -13067,6 +14075,8 @@
         "doc": "Return all print tickets in the document.",
         "line": 100,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "src/aspose/page/xps/document.py"
       },
       {
@@ -13089,6 +14099,8 @@
         "doc": "Add or replace a print ticket at the requested scope.",
         "line": 111,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "src/aspose/page/xps/document.py"
       },
       {
@@ -13107,6 +14119,8 @@
         "doc": "Remove a print ticket at the requested scope.",
         "line": 118,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "src/aspose/page/xps/document.py"
       },
       {
@@ -13115,12 +14129,18 @@
           {
             "name": "options",
             "type": "\"PdfSaveOptions | None\""
+          },
+          {
+            "name": "max_pages",
+            "type": "int | None"
           }
         ],
         "return_type": "bytes",
         "doc": "Convert the document to PDF bytes.",
         "line": 125,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "src/aspose/page/xps/document.py"
       },
       {
@@ -13129,12 +14149,18 @@
           {
             "name": "options",
             "type": "\"ImageSaveOptions\""
+          },
+          {
+            "name": "max_pages",
+            "type": "int | None"
           }
         ],
         "return_type": "bytes",
         "doc": "Convert the document to raster image bytes.",
         "line": 131,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "src/aspose/page/xps/document.py"
       },
       {
@@ -13143,12 +14169,18 @@
           {
             "name": "options",
             "type": "\"ImageSaveOptions\""
+          },
+          {
+            "name": "max_pages",
+            "type": "int | None"
           }
         ],
         "return_type": "list[bytes]",
         "doc": "Convert the document to one raster image per fixed page.",
         "line": 137,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "src/aspose/page/xps/document.py"
       }
     ],
@@ -13174,6 +14206,8 @@
     ],
     "visibility": "public",
     "reachable": true,
+    "deprecated": false,
+    "deprecated_reason": "",
     "canonical_namespace": "page.xps.document",
     "class_import": "page.xps.document.XpsDocument",
     "exported_via_package_init": true,
@@ -13220,6 +14254,8 @@
     ],
     "visibility": "public",
     "reachable": true,
+    "deprecated": false,
+    "deprecated_reason": "",
     "canonical_namespace": "page.xps.editing",
     "class_import": "page.xps.editing.XpsFixedPage",
     "module_key": "xps",
@@ -13264,6 +14300,8 @@
     ],
     "visibility": "public",
     "reachable": true,
+    "deprecated": false,
+    "deprecated_reason": "",
     "canonical_namespace": "page.xps.editing",
     "class_import": "page.xps.editing.XpsCanvas",
     "module_key": "xps",
@@ -13317,6 +14355,8 @@
     ],
     "visibility": "public",
     "reachable": true,
+    "deprecated": false,
+    "deprecated_reason": "",
     "canonical_namespace": "page.xps.editing",
     "class_import": "page.xps.editing.XpsPath",
     "module_key": "xps",
@@ -13388,6 +14428,8 @@
     ],
     "visibility": "public",
     "reachable": true,
+    "deprecated": false,
+    "deprecated_reason": "",
     "canonical_namespace": "page.xps.editing",
     "class_import": "page.xps.editing.XpsGlyphs",
     "module_key": "xps",
@@ -13441,6 +14483,8 @@
     ],
     "visibility": "public",
     "reachable": true,
+    "deprecated": false,
+    "deprecated_reason": "",
     "canonical_namespace": "page.xps.editing",
     "class_import": "page.xps.editing.XpsImage",
     "module_key": "xps",
@@ -13466,6 +14510,8 @@
         "doc": "",
         "line": 75,
         "is_constructor": true,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "src/aspose/page/xps/editing.py"
       },
       {
@@ -13484,6 +14530,8 @@
         "doc": "Append a new fixed page and return it.",
         "line": 79,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "src/aspose/page/xps/editing.py"
       },
       {
@@ -13502,6 +14550,8 @@
         "doc": "Insert a fixed page at the given index.",
         "line": 85,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "src/aspose/page/xps/editing.py"
       },
       {
@@ -13516,6 +14566,8 @@
         "doc": "Remove a fixed page at the given index.",
         "line": 91,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "src/aspose/page/xps/editing.py"
       },
       {
@@ -13525,6 +14577,8 @@
         "doc": "Serialize the current pages into a new XPS package.",
         "line": 97,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "src/aspose/page/xps/editing.py"
       }
     ],
@@ -13548,6 +14602,8 @@
     ],
     "visibility": "public",
     "reachable": true,
+    "deprecated": false,
+    "deprecated_reason": "",
     "canonical_namespace": "page.xps.editing",
     "class_import": "page.xps.editing.XpsDocumentBuilder",
     "module_key": "xps",
@@ -13558,7 +14614,7 @@
     "kind": "class_definition",
     "doc": "Decoded image resource.",
     "file": "src/aspose/page/xps/images.py",
-    "line": 12,
+    "line": 14,
     "bases": [],
     "methods": [],
     "properties": [
@@ -13567,7 +14623,7 @@
         "type": "str",
         "writable": true,
         "doc": "Gets or sets the image id.",
-        "line": 20,
+        "line": 22,
         "file": "src/aspose/page/xps/images.py",
         "doc_source": "name_inference"
       },
@@ -13576,7 +14632,7 @@
         "type": "bytes",
         "writable": true,
         "doc": "Gets or sets the data.",
-        "line": 21,
+        "line": 23,
         "file": "src/aspose/page/xps/images.py",
         "doc_source": "name_inference"
       },
@@ -13585,7 +14641,7 @@
         "type": "int",
         "writable": true,
         "doc": "Gets or sets the width.",
-        "line": 22,
+        "line": 24,
         "file": "src/aspose/page/xps/images.py",
         "doc_source": "name_inference"
       },
@@ -13594,7 +14650,7 @@
         "type": "int",
         "writable": true,
         "doc": "Gets or sets the height.",
-        "line": 23,
+        "line": 25,
         "file": "src/aspose/page/xps/images.py",
         "doc_source": "name_inference"
       },
@@ -13603,7 +14659,7 @@
         "type": "int",
         "writable": true,
         "doc": "Gets or sets the bits per component.",
-        "line": 24,
+        "line": 26,
         "file": "src/aspose/page/xps/images.py",
         "doc_source": "name_inference"
       },
@@ -13612,7 +14668,7 @@
         "type": "str",
         "writable": true,
         "doc": "Gets or sets the color space.",
-        "line": 25,
+        "line": 27,
         "file": "src/aspose/page/xps/images.py",
         "doc_source": "name_inference"
       },
@@ -13621,7 +14677,7 @@
         "type": "str | None",
         "writable": true,
         "doc": "Gets or sets the filter.",
-        "line": 26,
+        "line": 28,
         "file": "src/aspose/page/xps/images.py",
         "doc_source": "name_inference"
       },
@@ -13630,7 +14686,7 @@
         "type": "float",
         "writable": true,
         "doc": "Gets or sets the x dpi.",
-        "line": 27,
+        "line": 29,
         "file": "src/aspose/page/xps/images.py",
         "doc_source": "name_inference"
       },
@@ -13639,7 +14695,7 @@
         "type": "float",
         "writable": true,
         "doc": "Gets or sets the y dpi.",
-        "line": 28,
+        "line": 30,
         "file": "src/aspose/page/xps/images.py",
         "doc_source": "name_inference"
       },
@@ -13648,13 +14704,24 @@
         "type": "bytes | None",
         "writable": true,
         "doc": "Gets or sets the soft mask.",
-        "line": 29,
+        "line": 31,
+        "file": "src/aspose/page/xps/images.py",
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "source_format",
+        "type": "str | None",
+        "writable": true,
+        "doc": "Gets or sets the source format.",
+        "line": 32,
         "file": "src/aspose/page/xps/images.py",
         "doc_source": "name_inference"
       }
     ],
     "visibility": "public",
     "reachable": true,
+    "deprecated": false,
+    "deprecated_reason": "",
     "canonical_namespace": "page.xps.images",
     "class_import": "page.xps.images.XpsImageResource",
     "module_key": "xps",
@@ -13665,7 +14732,7 @@
     "kind": "class_definition",
     "doc": "",
     "file": "src/aspose/page/xps/images.py",
-    "line": 32,
+    "line": 35,
     "bases": [],
     "methods": [
       {
@@ -13673,8 +14740,10 @@
         "params": [],
         "return_type": "None",
         "doc": "",
-        "line": 33,
+        "line": 36,
         "is_constructor": true,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "src/aspose/page/xps/images.py"
       },
       {
@@ -13687,8 +14756,10 @@
         ],
         "return_type": "str",
         "doc": "Register an image resource and return its ID.",
-        "line": 37,
+        "line": 40,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "src/aspose/page/xps/images.py"
       },
       {
@@ -13701,16 +14772,40 @@
         ],
         "return_type": "XpsImageResource",
         "doc": "Return a previously registered image resource.",
-        "line": 57,
+        "line": 61,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "src/aspose/page/xps/images.py"
       }
     ],
     "properties": [],
     "visibility": "conventional",
     "reachable": true,
+    "deprecated": false,
+    "deprecated_reason": "",
     "canonical_namespace": "page.xps.images",
     "class_import": "page.xps.images.XpsImageStore",
+    "module_key": "xps",
+    "module_label": "Xps"
+  },
+  {
+    "name": "decode_jpegxr",
+    "kind": "function",
+    "doc": "Decode a JPEG-XR/WDP image into an RGB(A) image resource.",
+    "file": "src/aspose/page/xps/images.py",
+    "line": 273,
+    "bases": [],
+    "methods": [],
+    "properties": [],
+    "params": [
+      {
+        "name": "data",
+        "type": "bytes"
+      }
+    ],
+    "return_type": "XpsImageResource",
+    "reachable": true,
     "module_key": "xps",
     "module_label": "Xps"
   },
@@ -13719,7 +14814,7 @@
     "kind": "function",
     "doc": "Convert an XPS document to raster image bytes.",
     "file": "src/aspose/page/xps/output.py",
-    "line": 81,
+    "line": 96,
     "bases": [],
     "methods": [],
     "properties": [],
@@ -13731,6 +14826,10 @@
       {
         "name": "options",
         "type": "ImageSaveOptions"
+      },
+      {
+        "name": "max_pages",
+        "type": "int | None"
       }
     ],
     "return_type": "list[bytes]",
@@ -13758,6 +14857,8 @@
         "doc": "Create an XPS package from bytes.",
         "line": 29,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "src/aspose/page/xps/package.py"
       },
       {
@@ -13772,6 +14873,8 @@
         "doc": "Create an XPS package from a file path.",
         "line": 60,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "src/aspose/page/xps/package.py"
       },
       {
@@ -13786,6 +14889,8 @@
         "doc": "Read a package part by name.",
         "line": 66,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "src/aspose/page/xps/package.py"
       },
       {
@@ -13800,6 +14905,8 @@
         "doc": "Check whether a package part exists.",
         "line": 73,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "src/aspose/page/xps/package.py"
       }
     ],
@@ -13816,6 +14923,8 @@
     ],
     "visibility": "public",
     "reachable": true,
+    "deprecated": false,
+    "deprecated_reason": "",
     "canonical_namespace": "page.xps.package",
     "class_import": "page.xps.package.XpsPackage",
     "module_key": "xps",
@@ -13841,6 +14950,8 @@
         "doc": "",
         "line": 23,
         "is_constructor": true,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "src/aspose/page/xps/parser.py"
       },
       {
@@ -13850,12 +14961,16 @@
         "doc": "Return fixed page part names in document order.",
         "line": 26,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "src/aspose/page/xps/parser.py"
       }
     ],
     "properties": [],
     "visibility": "public",
     "reachable": true,
+    "deprecated": false,
+    "deprecated_reason": "",
     "canonical_namespace": "page.xps.parser",
     "class_import": "page.xps.parser.XpsParser",
     "module_key": "xps",
@@ -13875,6 +14990,8 @@
     "properties": [],
     "visibility": "public",
     "reachable": true,
+    "deprecated": false,
+    "deprecated_reason": "",
     "enum_members": [
       {
         "name": "JOB",
@@ -13933,6 +15050,8 @@
     ],
     "visibility": "public",
     "reachable": true,
+    "deprecated": false,
+    "deprecated_reason": "",
     "canonical_namespace": "page.xps.print_tickets",
     "class_import": "page.xps.print_tickets.PrintTicket",
     "module_key": "xps",
@@ -14057,6 +15176,8 @@
     ],
     "visibility": "public",
     "reachable": true,
+    "deprecated": false,
+    "deprecated_reason": "",
     "canonical_namespace": "page.xps.relationships",
     "class_import": "page.xps.relationships.Relationship",
     "module_key": "xps",
@@ -14119,7 +15240,7 @@
     "kind": "class_definition",
     "doc": "Render XPS XML to the shared render model.",
     "file": "src/aspose/page/xps/render.py",
-    "line": 90,
+    "line": 92,
     "bases": [],
     "methods": [
       {
@@ -14140,12 +15261,18 @@
           {
             "name": "rasterize_solid_strokes",
             "type": "bool"
+          },
+          {
+            "name": "spread_gradient_mode",
+            "type": "str"
           }
         ],
         "return_type": "None",
         "doc": "",
-        "line": 100,
+        "line": 102,
         "is_constructor": true,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "src/aspose/page/xps/render.py"
       },
       {
@@ -14158,8 +15285,10 @@
         ],
         "return_type": "None",
         "doc": "Sets the package value.",
-        "line": 118,
+        "line": 123,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "src/aspose/page/xps/render.py",
         "doc_source": "name_inference"
       },
@@ -14173,8 +15302,27 @@
         ],
         "return_type": "None",
         "doc": "Sets the current part value.",
-        "line": 121,
+        "line": 126,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
+        "file": "src/aspose/page/xps/render.py",
+        "doc_source": "name_inference"
+      },
+      {
+        "name": "set_media_fit_size",
+        "params": [
+          {
+            "name": "media_fit_size",
+            "type": "tuple[float, float] | None"
+          }
+        ],
+        "return_type": "None",
+        "doc": "Sets the media fit size value.",
+        "line": 129,
+        "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "src/aspose/page/xps/render.py",
         "doc_source": "name_inference"
       },
@@ -14192,16 +15340,44 @@
         ],
         "return_type": "None",
         "doc": "Render a FixedPage XML payload into the render model.",
-        "line": 124,
+        "line": 132,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "src/aspose/page/xps/render.py"
       }
     ],
     "properties": [],
     "visibility": "public",
     "reachable": true,
+    "deprecated": false,
+    "deprecated_reason": "",
     "canonical_namespace": "page.xps.render",
     "class_import": "page.xps.render.XpsRenderer",
+    "module_key": "xps",
+    "module_label": "Xps"
+  },
+  {
+    "name": "gray",
+    "kind": "function",
+    "doc": "",
+    "file": "src/aspose/page/xps/render.py",
+    "line": 3403,
+    "bases": [],
+    "methods": [],
+    "properties": [],
+    "params": [
+      {
+        "name": "ix",
+        "type": "int"
+      },
+      {
+        "name": "iy",
+        "type": "int"
+      }
+    ],
+    "return_type": "float",
+    "reachable": true,
     "module_key": "xps",
     "module_label": "Xps"
   },
@@ -14210,7 +15386,7 @@
     "kind": "function",
     "doc": "",
     "file": "src/aspose/page/xps/render.py",
-    "line": 3636,
+    "line": 4412,
     "bases": [],
     "methods": [],
     "properties": [],
@@ -14240,6 +15416,8 @@
         "doc": "",
         "line": 21,
         "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
         "file": "src/aspose/page/xps/resources.py"
       }
     ],
@@ -14265,6 +15443,8 @@
     ],
     "visibility": "public",
     "reachable": true,
+    "deprecated": false,
+    "deprecated_reason": "",
     "canonical_namespace": "page.xps.resources",
     "class_import": "page.xps.resources.XpsResourceDictionary",
     "module_key": "xps",

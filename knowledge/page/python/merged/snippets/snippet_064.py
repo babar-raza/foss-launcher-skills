@@ -1,2 +1,2 @@
-def test_ps_functional_case_arcs07_vary5_ps_40(self):
-        run_ps_functional_case(Path("testdata/ps/functional/ARCS07/VARY5.PS"))
+def test_ps_functional_case_arcs07_vary4_ps_39(self):
+        run_ps_functional_case(Path("testdata/ps/functional/ARCS07/VARY4.PS"))

@@ -1,2 +1,2 @@
-def test_ps_functional_case_clippn08_bbox3_ps_3(self):
-        run_ps_functional_case(Path("testdata/ps/functional/CLIPPN08/BBOX3.PS"))
+def test_ps_functional_case_clippn08_bbox2_ps_2(self):
+        run_ps_functional_case(Path("testdata/ps/functional/CLIPPN08/BBOX2.PS"))

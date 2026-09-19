@@ -1,2 +1,2 @@
-def test_ps_functional_case_color13_arrays_ps_1(self):
-        run_ps_functional_case(Path("testdata/ps/functional/COLOR13/ARRAYS.PS"))
+def test_ps_functional_case_clippn08_zstep5_ps_32(self):
+        run_ps_functional_case(Path("testdata/ps/functional/CLIPPN08/ZSTEP5.PS"))

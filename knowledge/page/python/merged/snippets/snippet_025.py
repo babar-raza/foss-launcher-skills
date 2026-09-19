@@ -1,2 +1,17 @@
-def test_ps_functional_case_arcs07_arc_ps_1(self):
-        run_ps_functional_case(Path("testdata/ps/functional/ARCS07/ARC.PS"))
+def test_unicode_text_does_not_crash(self) -> None:
+        builder = RenderModelBuilder()
+        builder.begin_page(100, 100)
+        builder.add_text("Привет 漢字", "Helvetica", 12, Matrix.identity(), None)
+        builder.end_page()
+        doc = builder.document()
+        metadata = PdfMetadata(
+            title="",
+            creator="",
+            producer="Aspose.Page FOSS for Python",
+            creation_date="D:20240101000000",
+            mod_date="D:20240101000000",
+            trapped=False,
+        )
+        writer = PdfWriter(metadata)
+        data = writer.write(doc)
+        self.assertTrue(data.startswith(b"%PDF-1.4"))

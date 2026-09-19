@@ -1,47 +1,47 @@
 {
   "schema_version": 2,
-  "bundle_id": "06100914-c1d0-44d1-96b5-1415d838da39",
+  "bundle_id": "915bf246-716e-4765-8520-2533da8d492b",
   "family": "pdf",
   "platform": "python",
-  "repo_sha": "109e26a10e37541528afb5e3ae6b04516c1c0359",
-  "generated_at": "2026-09-10T12:40:29.688458+00:00",
-  "generator_fingerprint": "39b55c0381d862030a39cf289a74386dba0d96ba7bead7439ed295a74ed8206e",
+  "repo_sha": "ab0b00d76b778ebd0bae5e1715276f600b92d893",
+  "generated_at": "2026-09-19T11:59:59.050114+00:00",
+  "generator_fingerprint": "d9e69393d37ca92e0fd4e67e6f79b40445e6ac4c1de1dad2bdc9699f8b7fb542",
   "generator_semver": "2.0.0",
   "members": {
     "model.yaml": {
-      "sha256": "313e6c39895f2d02e5716d23d0ddd1b62bec4c4f00f17bcae7e7b19bb7fa3d84",
+      "sha256": "57fa1dc2d68bc2d66b64b6feeccb8b6b24667486906905f2f7b1b74e61e31266",
       "bytes": 1361
     },
     "api_surface.json": {
-      "sha256": "35d14905a3177122dd8e7eeb16d2a7746f1e817d98baf2b69fc7ea1a383fd7f0",
-      "bytes": 898639
+      "sha256": "1b617a3afe24292628c2b6c7f00cd217aba82e092747f177039876ba5bbe35f8",
+      "bytes": 958212
     },
     "api_surface.md": {
-      "sha256": "02810d67b655c4395b1f16344569579c15f193b39b8bdc2e87804c811e6f4605",
-      "bytes": 82521
+      "sha256": "707caae39751d66c50445c309cdf4c505f98df6c1c595c19749a03ba6b2aa2e0",
+      "bytes": 85915
     },
     "formats.json": {
-      "sha256": "7cc7ec90fe3c410184615ee364aaddb51ad9af47f70824acd72900d375d66ed7",
-      "bytes": 4616
+      "sha256": "bc8eb0fb36691ce19f3474163bfe03bd73b39eeb7f69d3fe8bf93b5d787b4059",
+      "bytes": 5665
     },
     "formats.md": {
-      "sha256": "2379f948746f22aa4e3a4f15e5976a6972acc987a9f6f42177a7ad265df6c415",
-      "bytes": 697
+      "sha256": "a80d1235dfcb89cdcde6ce6e4be4616842616d23d54dca83a006c0aa558646ea",
+      "bytes": 736
     },
     "claims.json": {
-      "sha256": "71ef6f8bb9980834135813262049e79087ed074ccee7d2804f42439e16946298",
-      "bytes": 1330207
+      "sha256": "068bd38ea57af5bdb8297445bf3717221dcc88b0782294deb618f97880b6f6d1",
+      "bytes": 1506565
     },
     "limitations.md": {
-      "sha256": "41e0faeb17f3a1e9d378492b97c2ff800c90ae1eb373265c1533ce5c256019a2",
-      "bytes": 782
+      "sha256": "9d3ad1997a3af8231e52cf8540e20b1a67d9c501053103c3c72d0363bdbd601a",
+      "bytes": 783
     },
     "install.md": {
       "sha256": "4f0ffc0fc53f9067adb942d3afb5da55f3f97ebf9146d978bbb716c4e6a8afaa",
       "bytes": 174
     },
     "merge_report.md": {
-      "sha256": "208e50449a5b8c6120d491d5e450b356ee1f488d541f0534ca85040d69c776fe",
+      "sha256": "c8981904169793322c86d3e682f46674f6f4aa12032e2ddff48dfb615b847932",
       "bytes": 564
     },
     "snippets/snippet_001.py": {
@@ -445,10 +445,10 @@
       "bytes": 417
     },
     "snippets/snippets_index.json": {
-      "sha256": "79d4d7e0f186b490b40682518a3ba463e665b55688e57509f57c3700c64aa850",
-      "bytes": 57811
+      "sha256": "194a40815d336f063cbe04027f24db74bca0bdba9b96b00b9b0cdd3a809321c8",
+      "bytes": 57959
     }
   },
-  "promote_run_id": "promote-20260910T124030Z",
+  "promote_run_id": "promote-20260919T115959Z",
   "status": "COMPLETE"
 }

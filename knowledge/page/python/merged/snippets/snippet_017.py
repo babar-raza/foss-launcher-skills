@@ -1,6 +1,6 @@
-def test_xps_to_pdf_from_file(self) -> None:
-        path = Path("testdata/xps/integration/Simple.xps")
-        input_payload = McpInput(input_path=str(path), input_bytes_b64=None)
-        output = McpOutput(output_path=None, return_bytes=True)
-        result = xps_to_pdf(input_payload, output)
-        self.assertTrue(base64.b64decode(result.output_bytes_b64).startswith(b"%PDF"))
+def test_eps_metadata_extracts_fields(self) -> None:
+        eps_bytes = b"%!PS-Adobe-3.0 EPSF-3.0\n%%BoundingBox: 0 0 10 20\n%%Title: Sample\n"
+        input_payload = McpInput(input_path=None, input_bytes_b64=base64.b64encode(eps_bytes).decode("ascii"))
+        meta = eps_metadata(input_payload)
+        self.assertEqual(meta.get("bounding_box"), (0, 0, 10, 20))
+        self.assertEqual(meta.get("title"), "Sample")

@@ -89,7 +89,7 @@
       "platform": "java",
       "display_name": "Aspose.Cells for Java",
       "api_confidence": "high",
-      "stale": false,
+      "stale": true,
       "class_count": 182,
       "claim_count": 4876,
       "vectors_current": false,
@@ -211,7 +211,7 @@
       "api_confidence": "low",
       "stale": false,
       "class_count": 3,
-      "claim_count": 35,
+      "claim_count": 68,
       "vectors_current": false,
       "vectors_status": "missing",
       "vectors_generated_at": null
@@ -235,7 +235,7 @@
       "api_confidence": "high",
       "stale": false,
       "class_count": 139,
-      "claim_count": 1200,
+      "claim_count": 1392,
       "vectors_current": false,
       "vectors_status": "stale",
       "vectors_generated_at": "2026-07-25T17:41:50.642756Z"
@@ -294,10 +294,10 @@
       "display_name": "Aspose.Pdf for Python",
       "api_confidence": "high",
       "stale": false,
-      "class_count": 260,
-      "claim_count": 3110,
-      "vectors_current": true,
-      "vectors_status": "current",
+      "class_count": 273,
+      "claim_count": 3468,
+      "vectors_current": false,
+      "vectors_status": "stale",
       "vectors_generated_at": "2026-09-10T13:17:18.651803Z"
     },
     {
@@ -319,7 +319,7 @@
       "api_confidence": "high",
       "stale": false,
       "class_count": 234,
-      "claim_count": 5471,
+      "claim_count": 5596,
       "vectors_current": false,
       "vectors_status": "stale",
       "vectors_generated_at": "2026-07-25T17:47:28.636528Z"
