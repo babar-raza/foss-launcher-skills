@@ -225,10 +225,35 @@ Start-Process wsl.exe -ArgumentList '-d','Ubuntu-22.04','--exec','sleep','infini
 wsl -l -v          # Ubuntu-22.04 should read Running; the runners reconnect within ~30 s
 ```
 
-To make it permanent, a per-user Windows Scheduled Task at logon running the same command is the usual
-answer. That changes what starts with the machine, so it is a decision for the machine's owner and has **not**
-been made. Until it is, expect a `runner-offline` issue on the public repo whenever the machine is off or the
-keepalive is gone; the availability watch closes it itself once the runner is back.
+**To make it permanent** — one per-user Windows Scheduled Task that starts the keepalive at every logon. It needs
+**no administrator rights** (verified 2026-09-19 with a dummy task on this machine, which was deleted). Run once, in
+a normal (non-elevated) PowerShell:
+
+```powershell
+$who      = "$env:USERDOMAIN\$env:USERNAME"
+$action   = New-ScheduledTaskAction -Execute "conhost.exe" -Argument "--headless wsl.exe -d Ubuntu-22.04 --exec sleep infinity"
+$trigger  = New-ScheduledTaskTrigger -AtLogOn -User $who
+$settings = New-ScheduledTaskSettingsSet -AllowStartIfOnBatteries -DontStopIfGoingOnBatteries `
+              -ExecutionTimeLimit ([TimeSpan]::Zero) -StartWhenAvailable -RestartCount 3 -RestartInterval (New-TimeSpan -Minutes 1)
+Register-ScheduledTask -TaskName "WSL keepalive (GitHub runners)" -Action $action -Trigger $trigger -Settings $settings `
+  -RunLevel Limited -User $who -Description "Keeps the Ubuntu-22.04 WSL instance running so the two GitHub Actions runner services stay online."
+Start-ScheduledTask -TaskName "WSL keepalive (GitHub runners)"     # start it now instead of waiting for the next logon
+```
+
+Why each setting matters: `--headless` (Windows 11's `conhost`) keeps a console window from appearing at every logon;
+`-ExecutionTimeLimit 0` is essential, because a task registered from PowerShell otherwise gets a **72-hour limit** and
+would silently kill the keepalive after three days; the two battery switches stop Windows from cancelling it when a
+laptop unplugs; `-RestartCount 3` retries if `wsl.exe` fails to start.
+
+Verify: `Get-ScheduledTask "WSL keepalive (GitHub runners)" | Get-ScheduledTaskInfo` (LastTaskResult `0`),
+`wsl -l -v` reads `Running`, and both runners are `online` in the repo settings. Undo:
+`Unregister-ScheduledTask -TaskName "WSL keepalive (GitHub runners)" -Confirm:$false`.
+
+What this does **not** fix: it starts at *logon*, so after a reboot nothing runs until you sign in (turn on Windows
+auto-login if this machine should recover unattended); and if Windows sleeps or hibernates, everything stops and
+queued jobs wait until it wakes. On AC this machine is set to never sleep; battery is not covered. Until the task
+exists, expect a `runner-offline` issue on the public repo whenever the machine is off or the keepalive is gone; the
+availability watch closes it itself once the runner is back.
 
 ### Runner shows `offline` and never picks up jobs
 

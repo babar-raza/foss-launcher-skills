@@ -20,6 +20,13 @@
     "deployed_path": ".github/workflows/ci-onboarding-integrity-weekly.yml",
     "deployed_repo": "Aspose/aspose.org-workflows"
   },
+  "governance-tests-windows.yml": {
+    "approved_baseline_sha256": "98cad26297283cffed9eb20766eebf32d75fd9716c739db750c528936fda30f0",
+    "baseline_recorded_at": "2026-09-19T12:02:25.918127Z",
+    "baseline_source": "seeded_from_deployed",
+    "deployed_path": ".github/workflows/governance-tests-windows.yml",
+    "deployed_repo": "Aspose/aspose.org-workflows"
+  },
   "install-literal-sweep.yml": {
     "approved_baseline_sha256": "7c87a2a9a6e5fb18314881e8b5122741f8a4f29c119579584d43ee26e2e2359e",
     "baseline_recorded_at": "2026-09-17T18:30:09.764907Z",
@@ -32,6 +39,13 @@
     "baseline_recorded_at": "2026-09-18T04:41:48.134788Z",
     "baseline_source": "seeded_from_deployed",
     "deployed_path": ".github/workflows/launch-dashboard-weekly.yml",
+    "deployed_repo": "Aspose/aspose.org-workflows"
+  },
+  "llms-generation.yml": {
+    "approved_baseline_sha256": "e12d0852be2fcde67145e2cacd01130202f8253045763540ffa8c1231a476b38",
+    "baseline_recorded_at": "2026-09-19T12:02:30.417226Z",
+    "baseline_source": "seeded_from_deployed",
+    "deployed_path": ".github/workflows/llms-generation.yml",
     "deployed_repo": "Aspose/aspose.org-workflows"
   },
   "maven-publish-watcher.yml": {

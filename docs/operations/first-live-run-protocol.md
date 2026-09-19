@@ -46,7 +46,7 @@ is still untested.
 - [ ] HC-06 is done (tool needs proven met on the runner host).
 - [ ] The runner is `online` and idle:
       `gh api repos/Aspose/aspose.org/actions/runners --jq '.runners[] | {name,status,busy,labels: [.labels[].name]}'`
-- [ ] `skill-governance.yml` only: it has a `workflow_dispatch` trigger. (It had none — push and `pull_request` only — until HC-02 prep added one.) Its `governance-tests-windows` job runs on **GitHub-hosted Windows and is billed**; expect a few minutes of Windows time.
+- [ ] `skill-governance.yml` only: it has a `workflow_dispatch` trigger. (It had none — push and `pull_request` only — until HC-02 prep added one.) The soft-launched `governance-tests-windows` leg it used to carry moved to the public repo on 2026-09-19 (HC-21), so this workflow now has a single job on the self-hosted runner and bills no minutes. **Known red:** `test_precommit_audit_step_numbering.py` fails 3 tests on every OS (HC-23) until the hook's step numbering is repaired — classify that as (a), not a runner fault.
 - [ ] Nothing else is queued on the runner (it has one slot).
 
 ## Isolation note
@@ -150,7 +150,7 @@ contain: run URL/ID, workflow file, head SHA it executed, event, conclusion, per
 ### 8. Then repeat for `skill-governance.yml`
 
 Same steps, with the differences in the preconditions: dispatch requires the added `workflow_dispatch`
-trigger, and the `governance-tests-windows` job is GitHub-hosted and billed — record its minutes.
+trigger. (The billed Windows job that used to be here is gone — see the precondition above.)
 
 ## Rollback matrix
 
