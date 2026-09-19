@@ -42,6 +42,12 @@ def test_clean_run_passes_every_applicable_step(full_run_fixture):
     # test was actually re-run against the real script).
     assert "stale file regression" in summary
     assert "subprocess encoding parity" in summary
+    # MT069 HC-23: when _PC_NAMES and _PC_RESULTS drift apart the hook prints an
+    # "INTERNAL ERROR ... desynchronized" banner. An evaluator gate that closed
+    # another step's slot printed it on EVERY full run from 2026-09-17, and this
+    # test kept passing -- so assert its absence, and that the gate has its own row.
+    assert "INTERNAL ERROR" not in result.stderr, result.stderr
+    assert "evaluator version bump" in summary
     # A genuinely complete run reaches deep into the step list -- proves
     # the whole chain executed, not just the first few steps.
     assert summary.count("PASS") + summary.count("SKIP") >= 30
