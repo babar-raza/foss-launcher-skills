@@ -291,3 +291,51 @@ class TestNonKnowledgeInput:
     def test_missing_knowledge_object_produces_no_findings(self, tmp_path):
         page = _make_page(tmp_path, "acme", "python", f"```python\n{PY_CLEAN}```\n")
         assert ExampleExecutionEvaluator().evaluate(page, None) == []
+
+
+class TestRealSweptData:
+    """TC-05 (MT072-2026-09-23-EXAMPLE-VERIFICATION-PRODUCTIONIZATION): the
+    synthetic-fixture tests above already proved this evaluator's
+    _lookup_proof/_stale_component MECHANISM against a hand-built
+    execution_proof dict. This class proves the same mechanism against
+    REAL output from TC-06's real post-promote sweep (knowledge/cells/net's
+    real snippets_index.json on disk, genuinely stamped by
+    `promote.py --verify-snippets` against the real cells/net product) --
+    the actual cross-taskcard integration this mission exists to prove,
+    not just each half in isolation."""
+
+    def test_real_swept_cells_net_snippet_is_inherited_when_content_matches(self):
+        real_knowledge = Knowledge("cells", "net", knowledge_root=Path("knowledge"))
+        assert real_knowledge.snippet_index, (
+            "cells/net's real snippet index should be non-empty and, as of TC-06's "
+            "real sweep this session, should carry execution_proof on every entry"
+        )
+        real_snippet_source = Path("knowledge/cells/net/merged/snippets/snippet_001.cs").read_text(
+            encoding="utf-8")
+
+        import tempfile
+        with tempfile.TemporaryDirectory() as td:
+            tmp_path = Path(td)
+            page = _make_page(tmp_path, "cells", "net", f"```csharp\n{real_snippet_source}```\n")
+            findings = ExampleExecutionEvaluator().evaluate(page, real_knowledge)
+
+        inherited = [f for f in findings if "inherited" in f.message]
+        assert inherited, (
+            f"expected an 'inherited' finding for the real, unmodified snippet_001.cs "
+            f"content; got: {[f.message for f in findings]}"
+        )
+        assert "tier 1" in inherited[0].message  # TC-06's real sweep default is tier-1 offline
+
+    def test_real_swept_data_flows_into_launch_gate_l15_as_a_real_warn(self):
+        """Cross-module proof (not this evaluator's own code, but the same real
+        data): registry.py's now-correct (TC-02) contract tier for net is 3;
+        TC-06's real sweep only reached tier 1 offline -- launch_gate's L-15
+        gate must report this honestly as WARN, never a silent PASS, for the
+        same real product this evaluator test above just exercised."""
+        import sys
+        sys.path.insert(0, "scripts/pipeline")
+        from commands.launch.launch_gate import gate_l15_snippet_syntax
+
+        result = gate_l15_snippet_syntax("cells", "net")
+        assert result.status == "WARN"
+        assert "below contract tier" in result.detail

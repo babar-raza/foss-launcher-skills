@@ -1132,6 +1132,186 @@ def _promote_snippets(scout_dir: Path, merged_dir: Path) -> int:
 
 
 # ---------------------------------------------------------------------------
+# Post-promote execution-proof sweep
+# (MT072-2026-09-23-EXAMPLE-VERIFICATION-PRODUCTIONIZATION/TC-06)
+# ---------------------------------------------------------------------------
+
+# platform -> a fence-tag spelling that is (a) in
+# lib.example_verification.registry.PLATFORM_CONTRACT[platform].fence_tags and
+# (b) canonicalizes to a tag that is ALSO in that same set, so
+# verify_markdown()'s own `own_blocks` filter (api.py: `(b.canonical_lang or
+# b.lang) in own_tags`) accepts the single synthetic block this sweep builds.
+# Kept as an explicit table rather than `sorted(contract.fence_tags)[0]` --
+# alphabetical-first happens to work for all five today (confirmed by hand:
+# "c#" for net, "rs" for rust, "c++" for cpp all canonicalize back into their
+# own fence_tags set) but is an accident of spelling, not a guarantee; a
+# future sixth fence-tag spelling added to registry.py could silently pick a
+# tag api.py's own canonicalizer maps to something outside the set. An
+# explicit table makes that failure mode structurally impossible to hit by
+# accident.
+_SWEEP_FENCE_TAG: dict[str, str] = {
+    "go": "go", "net": "csharp", "java": "java", "rust": "rust", "cpp": "cpp",
+}
+
+
+def sweep_snippet_execution_proof(
+    family: str, platform: str, knowledge_root=None, *, allow_acquire: bool = False,
+) -> dict:
+    """Verify every already-hashed entry in this product's merged
+    snippets_index.json through lib/example_verification and stamp a real
+    ``execution_proof`` onto each entry it can honestly verify -- closing the
+    "post-promote proof sweep" MT065's own C6 taskcard disclosed as "deferred,
+    no sweep mechanism exists yet" (0 of the portfolio's 2,559 snippet-index
+    entries had ``execution_proof`` before this function existed).
+
+    DESIGN DECISION (disclosed, per this taskcard's own instructions): this is
+    a SEPARATE, explicitly-invoked sweep -- ``promote.py --verify-snippets``
+    below -- not wired into the tail of ``_promote_snippets()``/``promote()``
+    itself. Real verification above tier 1 (compile/execute) is slow and
+    toolchain-dependent (a real go/dotnet/java/rust/cpp toolchain, or a real
+    python/typescript package install); ``promote()`` runs on every knowledge
+    regeneration, portfolio-wide, in CI, so folding a slow/flaky acquire step
+    into its default path would make ordinary knowledge promotion slow and
+    non-deterministic. An explicit, opt-in sweep can be run once, on its own
+    schedule, with its own time budget -- the same "opt-in acquire" posture
+    ``Policy.allow_acquire`` already encodes for the rest of this package.
+
+    SCOPE (disclosed limitation, not silently hidden): only the five
+    LanguageRunner-protocol platforms (go/net/java/rust/cpp --
+    ``lib.example_verification.registry.RUNNER_CLASS_NAMES``) are swept here,
+    at tier 1 (syntax-only, ``allow_acquire=False`` by default -- matches
+    every one of those five platforms' ``PLATFORM_CONTRACT.offline_tier``
+    today, so this never silently blocks on a missing toolchain or reaches
+    the network). python/typescript are skipped with an honest note, never a
+    fabricated proof: their runners are whole-candidate S-120-ported
+    functions (``runners/python.py``/``runners/typescript.py``) that read a
+    real file and always attempt to acquire/execute a real environment
+    regardless of ``Policy`` -- ``api.py``'s own ``WHOLE_CANDIDATE_PLATFORMS``
+    docstring already reserves retrofitting those two onto ``BaseRunner``
+    (the change that would let them honor ``allow_acquire=False``) for a
+    later taskcard. Sweeping them today would mean either fabricating a tier
+    for verification never actually performed, or silently installing
+    packages during what this function's own default promises is an offline,
+    syntax-only sweep -- both violate this package's "never fabricate proof"
+    contract (result.py's own status vocabulary has no "unverified but
+    reported as passing" state for exactly this reason), so they are skipped
+    with `skipped_no_runner` and a `note` in the returned summary instead.
+
+    IDEMPOTENT: recomputes the same ``execution_proof`` dict for unchanged
+    inputs (same snippet file content, same knowledge clone_head, same
+    ``RUNNERS_MODULE_VERSION``) and only rewrites the index file when at
+    least one entry's stamped proof actually changed -- running this twice in
+    a row is a guaranteed no-op on disk, never a duplicate or corrupted entry.
+
+    Returns a summary dict: ``{"family", "platform", "total", "swept",
+    "skipped_no_runner", "skipped_no_hash", "note"?, "error"?}``.
+    """
+    from lib.example_verification.api import verify_markdown
+    from lib.example_verification.policy import Policy, ProductContext
+    from lib.example_verification.registry import RUNNER_CLASS_NAMES
+
+    base = (Path(knowledge_root) if knowledge_root else Path("knowledge")) / family / platform
+    index_path = base / "merged" / "snippets" / "snippets_index.json"
+
+    summary: dict = {
+        "family": family, "platform": platform,
+        "total": 0, "swept": 0, "skipped_no_runner": 0, "skipped_no_hash": 0,
+    }
+
+    if not index_path.exists():
+        summary["error"] = f"no snippets_index.json at {index_path}"
+        return summary
+
+    try:
+        entries = json.loads(index_path.read_text(encoding="utf-8"))
+    except (json.JSONDecodeError, OSError) as exc:
+        summary["error"] = f"could not read snippets_index.json: {exc}"
+        return summary
+
+    if not isinstance(entries, list):
+        summary["error"] = "snippets_index.json is not a list"
+        return summary
+
+    summary["total"] = len(entries)
+
+    if platform not in RUNNER_CLASS_NAMES:
+        # python/typescript (whole-candidate) or a platform with no runner at
+        # all -- an honest, disclosed skip, never a fabricated proof. See
+        # this function's own docstring ("SCOPE") for why.
+        summary["skipped_no_runner"] = len(entries)
+        summary["note"] = (
+            f"platform {platform!r} has no LanguageRunner-protocol runner this "
+            "sweep can drive offline (see sweep_snippet_execution_proof's own "
+            "docstring, section SCOPE) -- skipped, not fabricated"
+        )
+        return summary
+
+    fence_tag = _SWEEP_FENCE_TAG.get(platform, platform)
+    policy = Policy.for_platform(platform, allow_acquire=allow_acquire)
+    product = ProductContext.from_knowledge(family, platform)
+    snippets_dir = index_path.parent
+
+    changed = False
+    for entry in entries:
+        if not isinstance(entry, dict):
+            continue
+        code_sha = entry.get("code_sha256")
+        if not isinstance(code_sha, dict) or not code_sha.get("norm"):
+            # Not yet hashed by _promote_snippets (e.g. the scout file was
+            # missing at promote time) -- nothing to verify against.
+            summary["skipped_no_hash"] += 1
+            continue
+
+        src_file = entry.get("file", "")
+        snippet_path = snippets_dir / src_file if src_file else None
+        if snippet_path is None or not snippet_path.is_file():
+            summary["skipped_no_hash"] += 1
+            continue
+        try:
+            content = snippet_path.read_text(encoding="utf-8")
+        except (OSError, UnicodeDecodeError):
+            summary["skipped_no_hash"] += 1
+            continue
+
+        # Wrap the bare snippet source in a synthetic one-block markdown
+        # fence so the shared code_fences.py tokenizer -- and therefore
+        # verify_markdown()'s own fence-tag filtering -- sees exactly the
+        # same content _promote_snippets already hashed into code_sha256.
+        synthetic_md = f"```{fence_tag}\n{content}\n```\n"
+        report = verify_markdown(
+            synthetic_md, family=family, platform=platform, policy=policy, product=product)
+        if not report.blocks:
+            # A snippet file that is empty/whitespace-only, or one whose own
+            # content happens to defeat the fence tokenizer (e.g. an
+            # embedded ``` sequence) -- honest skip, not a fabricated proof.
+            summary["skipped_no_hash"] += 1
+            continue
+        block = report.blocks[0]
+
+        proof: dict = {
+            "tier": block.proof_tier,
+            "status": block.status,
+            "clone_head": report.clone_head,
+            "runner_version": report.runners_module_version,
+        }
+        if block.reason:
+            proof["reason"] = block.reason
+        if block.detail:
+            proof["detail"] = block.detail
+
+        if entry.get("execution_proof") != proof:
+            entry["execution_proof"] = proof
+            changed = True
+        summary["swept"] += 1
+
+    if changed:
+        index_path.write_text(
+            json.dumps(entries, indent=2, ensure_ascii=False), encoding="utf-8")
+
+    return summary
+
+
+# ---------------------------------------------------------------------------
 # Main promote function
 # ---------------------------------------------------------------------------
 
@@ -2282,7 +2462,19 @@ def main() -> None:
                              f"{PROMOTE_ATOMIC_ENV} env var, defaults to on)")
     parser.add_argument("--no-atomic", dest="atomic", action="store_false",
                         help="Force the legacy direct-write promotion path (no staging/swap)")
+    parser.add_argument("--verify-snippets", action="store_true", default=False,
+                        help="Run ONLY the post-promote execution-proof sweep "
+                             "(sweep_snippet_execution_proof, MT072 TC-06) over this "
+                             "product's existing merged snippets_index.json -- skips "
+                             "promotion entirely. Tier-1/offline by default, idempotent, "
+                             "safe to run repeatedly or once across the whole portfolio "
+                             "without re-running promote().")
     args = parser.parse_args()
+
+    if args.verify_snippets:
+        summary = sweep_snippet_execution_proof(args.family, args.platform, args.knowledge_root)
+        print(json.dumps(summary, indent=2))
+        sys.exit(1 if summary.get("error") else 0)
 
     # Thread flags into the promote function via function attributes.
     # This avoids changing the promote() signature (which may be called from tests).

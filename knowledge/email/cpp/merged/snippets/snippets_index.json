@@ -26,6 +26,12 @@
     "code_sha256": {
       "exact": "fe53cb71947935fa4fcb31e6e83f4220ee30a402e561e2a41853b3bbf9489e8b",
       "norm": "fe53cb71947935fa4fcb31e6e83f4220ee30a402e561e2a41853b3bbf9489e8b"
+    },
+    "execution_proof": {
+      "tier": 1,
+      "status": "PASS",
+      "clone_head": "c7252b3e4f6bbec4bbe5e2f50f51eb2a7384eaf2",
+      "runner_version": "1"
     }
   },
   {
@@ -46,6 +52,12 @@
     "code_sha256": {
       "exact": "a57014b57eb7058dc0c226516fc4b9352dd680be94be4b138b6a05dc9d3f9bd8",
       "norm": "a57014b57eb7058dc0c226516fc4b9352dd680be94be4b138b6a05dc9d3f9bd8"
+    },
+    "execution_proof": {
+      "tier": 1,
+      "status": "PASS",
+      "clone_head": "c7252b3e4f6bbec4bbe5e2f50f51eb2a7384eaf2",
+      "runner_version": "1"
     }
   },
   {
@@ -80,6 +92,14 @@
     "code_sha256": {
       "exact": "3a23724ac7224248aedca30184e9c0ff8c7f8d25479ecbd3cdaa34655eaf7b15",
       "norm": "3a23724ac7224248aedca30184e9c0ff8c7f8d25479ecbd3cdaa34655eaf7b15"
+    },
+    "execution_proof": {
+      "tier": 1,
+      "status": "BLOCKED-WITH-REASON",
+      "clone_head": "c7252b3e4f6bbec4bbe5e2f50f51eb2a7384eaf2",
+      "runner_version": "1",
+      "reason": "SYNTAX-ERROR",
+      "detail": "syntax error at line 1 (tree-sitter)"
     }
   },
   {
@@ -101,6 +121,12 @@
     "code_sha256": {
       "exact": "1af4fef29b1e60705829bf6c14c0ae8c8514a2a9d23ae8042f2e1071c729c2bd",
       "norm": "9da2b139d215b5fb9284b8a92de9bb0b2f85b97b604fef217a176e480bd53c3a"
+    },
+    "execution_proof": {
+      "tier": 1,
+      "status": "PASS",
+      "clone_head": "c7252b3e4f6bbec4bbe5e2f50f51eb2a7384eaf2",
+      "runner_version": "1"
     }
   },
   {
@@ -128,6 +154,12 @@
     "code_sha256": {
       "exact": "c576694f56a805ca7ee95c569268f85ac09c09e241deabb83772186ce5303933",
       "norm": "6ae054c69a574ffa48fa9a723e9a355c79444a4d74ee7db66431028549691db4"
+    },
+    "execution_proof": {
+      "tier": 1,
+      "status": "PASS",
+      "clone_head": "c7252b3e4f6bbec4bbe5e2f50f51eb2a7384eaf2",
+      "runner_version": "1"
     }
   }
 ]

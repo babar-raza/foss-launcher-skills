@@ -29,6 +29,12 @@
     "code_sha256": {
       "exact": "96a99f2a6de62cb58f6d7bc22d7bf1a4155a83b13d3ddb15e868420b143d591c",
       "norm": "39b929e5316d16135161b4cbaaff9f840134545529b37e888659af337b1699c5"
+    },
+    "execution_proof": {
+      "tier": 1,
+      "status": "PASS",
+      "clone_head": "941814fd138dc28cf47123d48194f329f283498d",
+      "runner_version": "1"
     }
   },
   {
@@ -56,6 +62,12 @@
     "code_sha256": {
       "exact": "c7d7632099ca03d09ce3ba74fb39f0d9c40a90c6b5c99e75c2719e71f8b59fa0",
       "norm": "6ef4c34478bd9021973011e46a412ff9477f48202d2ceb25a8c2f0e20b393032"
+    },
+    "execution_proof": {
+      "tier": 1,
+      "status": "PASS",
+      "clone_head": "941814fd138dc28cf47123d48194f329f283498d",
+      "runner_version": "1"
     }
   },
   {
@@ -86,6 +98,12 @@
     "code_sha256": {
       "exact": "133f06624ecda9cf755272d33471d9925e4ae1357aa66f97816363408f3f2bde",
       "norm": "73304a46e6d3c683d0b73dc2e90b7dafad0b6af662e94358afe681855578dc5c"
+    },
+    "execution_proof": {
+      "tier": 1,
+      "status": "PASS",
+      "clone_head": "941814fd138dc28cf47123d48194f329f283498d",
+      "runner_version": "1"
     }
   },
   {
@@ -114,6 +132,12 @@
     "code_sha256": {
       "exact": "cdbd91fbb0368f643f98001fc9f660aef7304497814050d374bcf18734c3761b",
       "norm": "0d6f7609437b17a97bc5271231b632900f2278f1d646042f5fb5ae3150055b38"
+    },
+    "execution_proof": {
+      "tier": 1,
+      "status": "PASS",
+      "clone_head": "941814fd138dc28cf47123d48194f329f283498d",
+      "runner_version": "1"
     }
   },
   {
@@ -143,6 +167,12 @@
     "code_sha256": {
       "exact": "cf31b423c24c9462428c4b24540cad61a46309ee760b8fb72e938009c6177750",
       "norm": "78faad84bdb9d9606e447f41150e13673b8a4eaece4e2e58676c75f5a206940a"
+    },
+    "execution_proof": {
+      "tier": 1,
+      "status": "PASS",
+      "clone_head": "941814fd138dc28cf47123d48194f329f283498d",
+      "runner_version": "1"
     }
   },
   {
@@ -177,6 +207,12 @@
     "code_sha256": {
       "exact": "b1270cc65e97bd38d2f91c921184e870c2a5cbf5154c15c9a682568ff8ad8ca4",
       "norm": "11ddda6061af3df9c5e798d3d2adca36da45252d9094a064e629e2ddaaca94f1"
+    },
+    "execution_proof": {
+      "tier": 1,
+      "status": "PASS",
+      "clone_head": "941814fd138dc28cf47123d48194f329f283498d",
+      "runner_version": "1"
     }
   },
   {
@@ -205,6 +241,12 @@
     "code_sha256": {
       "exact": "fe26af059d5022da3d4554c941e132915af0662129340203df2d15e7d76e3383",
       "norm": "e068a9e9f99c4747365d4ae1beacdc3d85211c25f2a590fa8c1a89b56eae3da6"
+    },
+    "execution_proof": {
+      "tier": 1,
+      "status": "PASS",
+      "clone_head": "941814fd138dc28cf47123d48194f329f283498d",
+      "runner_version": "1"
     }
   },
   {
@@ -233,6 +275,12 @@
     "code_sha256": {
       "exact": "3d034b65fafcc30391c3a3cc3cae640b9ccb7a41e377c58f93f470714e586356",
       "norm": "434f43012929f441513f82c3d347e0083ac67ab7650db8324f66c358d9aa061a"
+    },
+    "execution_proof": {
+      "tier": 1,
+      "status": "PASS",
+      "clone_head": "941814fd138dc28cf47123d48194f329f283498d",
+      "runner_version": "1"
     }
   },
   {
@@ -258,6 +306,12 @@
     "code_sha256": {
       "exact": "be7cda32be4fb042e00812c63d96710426a645f9dfd03aa63c34c8a0985d0c11",
       "norm": "eeac9503d8f25e333aea339061fa8eafc26396bced2cd5cda5ec37e6d53ed061"
+    },
+    "execution_proof": {
+      "tier": 1,
+      "status": "PASS",
+      "clone_head": "941814fd138dc28cf47123d48194f329f283498d",
+      "runner_version": "1"
     }
   }
 ]

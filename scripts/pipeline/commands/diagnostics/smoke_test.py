@@ -47,6 +47,26 @@ if str(_LIB_DIR) not in sys.path:
 
 from example_verification import registry as _ev_registry  # noqa: E402
 from example_verification import syntax as _ev_syntax  # noqa: E402
+from example_verification.api import verify_page as _real_verify_page  # noqa: E402
+from example_verification.policy import Policy as _EvPolicy  # noqa: E402
+
+# --- Test seam (configure() pattern; see content_eval/evaluators/
+# module_compilability.py and example_execution.py for the same
+# convention) -- _check_file_tier3() calls _cfg_verify_page(...), never
+# the bare imported `verify_page` name directly, so a test can swap it via
+# configure(verify_page_fn=...) instead of monkeypatch.setattr'ing an
+# internal module reference (T2, banned by AGENTS.md §16 -- confirmed live
+# by pre-commit Step 18 monkeypatch-lint on this exact function). ---
+_cfg_verify_page = _real_verify_page
+
+
+def configure(*, verify_page_fn=None) -> None:
+    """Test seam: override the real api.verify_page() dispatch used by
+    tier-3 checks. Call with no args (or verify_page_fn=None) to restore
+    the real function."""
+    global _cfg_verify_page
+    _cfg_verify_page = verify_page_fn if verify_page_fn is not None else _real_verify_page
+
 
 # ---------------------------------------------------------------------------
 # Constants
@@ -294,12 +314,90 @@ _LANG_DISPLAY: dict[str, str] = {
 }
 
 
+def _check_file_tier3(md_path: Path, platform: str, *, family: str) -> SmokeResult:
+    """Real tier-3 dispatch through the shared example_verification
+    package (TC-03). Calls api.verify_page() once for the whole file and
+    adapts VerificationReport.to_smoke() into this module's own
+    SmokeResult/BlockResult shape, so every existing consumer
+    (print_report/print_json_report, S-84's `--json` scoped command)
+    sees the identical dict shape regardless of which tier ran.
+
+    Disclosed, deliberate scope limit: `allow_acquire=True` is passed
+    with an EMPTY factpack -- this module does not call
+    lib/publication_probe.py to learn whether the product is really
+    published (the way S-120/launch_gate do), so python/typescript
+    always take the unpublished/clone-cache acquire path here. For a
+    genuinely-unpublished product with no local clone cache, this
+    honestly reports ACQUIRE-FAILED rather than crashing or silently
+    downgrading to PASS -- real publication-aware acquisition is
+    S-120/launch_gate's own already-built job (S-49/S-84 taskcards),
+    not duplicated here.
+
+    block_index is assigned by ENUMERATING to_smoke()'s own result
+    order (1-based), never by adjusting `identity.index` directly.
+    Independent-review finding: `identity.index` means two different
+    things depending on which dispatch path produced it -- for go/net/
+    java/rust/cpp (BaseRunner), it's 0-based WITHIN the already
+    same-language-filtered block list (matching tier<=2's own
+    per-language numbering once shifted by one); for python/typescript
+    (the whole-candidate functions), it's the 0-based index over EVERY
+    fence in the WHOLE file, any language -- so a page with a `bash`
+    install block before a `python` block reported that python block as
+    "block 1" at tier 2 but "block 2" at tier 3 under the old `+1`
+    scheme, reproduced live. Enumerating to_smoke()'s already-ordered
+    result list instead gives a clean, tier-independent 1..N sequence
+    every time, regardless of which numbering the underlying tier used
+    internally.
+
+    A real, unexpected failure from the dispatch itself (acquire crash,
+    timeout escaping its own runner, or any other exception the
+    verifier didn't turn into a normal BlockResult) is caught here and
+    reported as ONE WARN block, never left to propagate -- independent-
+    review finding: every tier<=2 helper (_run_py_compile/_run_mypy/
+    _run_ts_parse) already catches its own subprocess exceptions with a
+    safe fallback, so tier<=2's check_file() effectively never raises;
+    tier 3 replaces those with a single call into real subprocess
+    acquire/build/execute, a categorically riskier operation this
+    module never exercised before, and an uncaught exception here would
+    kill an entire multi-file check_product() scan over one bad page.
+    WARN (not FAIL) because a dispatch-level crash is inconclusive, not
+    proof of a real code defect the way a genuine BLOCKED-WITH-REASON
+    result is."""
+    try:
+        policy = _EvPolicy.for_platform(platform, max_tier=3, allow_acquire=True)
+        report = _cfg_verify_page(md_path, family=family, platform=platform, policy=policy)
+        smoke_dict = report.to_smoke()
+    except Exception as exc:  # noqa: BLE001 -- isolate one file's crash from the whole scan
+        return SmokeResult(
+            file=str(md_path), blocks_checked=1, pass_count=0, warn_count=1, fail_count=0,
+            results=[BlockResult(
+                file=str(md_path), block_index=1, start_line=0, status="WARN",
+                message=f"VERIFICATION-ERROR: tier-3 dispatch raised {type(exc).__name__}: {exc}",
+            )],
+        )
+
+    results = [
+        BlockResult(
+            file=str(md_path), block_index=idx,
+            start_line=b["start_line"], status=b["status"], message=b["message"],
+        )
+        for idx, b in enumerate(smoke_dict["results"], start=1)
+    ]
+    return SmokeResult(
+        file=str(md_path), blocks_checked=smoke_dict["blocks_checked"],
+        pass_count=smoke_dict["pass_count"], warn_count=smoke_dict["warn_count"],
+        fail_count=smoke_dict["fail_count"], results=results,
+    )
+
+
 def check_file(
     md_path: Path,
     canonical_import: str = "",
     langs: frozenset[str] | None = None,
     *,
     max_tier: int = 2,
+    family: str = "",
+    platform: str = "",
 ) -> SmokeResult:
     """Check code blocks in a Markdown file.
 
@@ -314,9 +412,23 @@ def check_file(
     type-check. C4's own promotion gate requires max_tier=2 (the default)
     to remain byte-identical to this module's pre-C4 behavior -- confirmed
     by every existing test in test_smoke_test.py passing unchanged.
+
+    3 = real execution via the shared lib/example_verification package
+    (TC-03, MT072-2026-09-23-EXAMPLE-VERIFICATION-PRODUCTIONIZATION) --
+    requires both `family` and `platform` (real product context: clone
+    cache / published-package lookup). This is a SEPARATE dispatch path
+    (_check_file_tier3 below), not a modification of the tier<=2 logic
+    above -- that logic is deliberately left byte-identical to avoid
+    risking regression in proven, already-tested behavior. Falls back to
+    tier 2 (with a stderr warning) if family/platform aren't both given;
+    main() enforces this so a bare `--files` invocation with no platform
+    never silently no-ops on tier 3.
     """
     if langs is None:
         langs = frozenset({"python"})
+
+    if max_tier >= 3 and family and platform:
+        return _check_file_tier3(md_path, platform, family=family)
 
     blocks = _extract_blocks(md_path, langs)
     results: list[BlockResult] = []
@@ -462,7 +574,7 @@ def check_product(family: str, platform: str, *, max_tier: int = 2) -> list[Smok
 
     results = []
     for path in sorted(paths):
-        result = check_file(path, canonical_import, langs, max_tier=max_tier)
+        result = check_file(path, canonical_import, langs, max_tier=max_tier, family=family, platform=platform)
         if result.blocks_checked > 0:
             results.append(result)
 
@@ -609,7 +721,13 @@ def main() -> int:
     )
     parser.add_argument(
         "--files", nargs="+", metavar="FILE",
-        help="Specific Markdown files to check",
+        help=(
+            "Specific Markdown files to check. If combining with the family/platform "
+            "positionals (needed for --max-tier 3), put them BEFORE --files: "
+            "`smoke_test.py {family} {platform} --files f1 f2` -- --files greedily "
+            "consumes any tokens after it, so `--files f1 f2 {family} {platform}` "
+            "silently swallows family/platform as extra file paths instead."
+        ),
     )
     parser.add_argument(
         "--lang", metavar="LANG",
@@ -621,13 +739,14 @@ def main() -> int:
         ),
     )
     parser.add_argument(
-        "--max-tier", choices=("1", "2"), default="2",
+        "--max-tier", choices=("1", "2", "3"), default="2",
         help=(
             "1 = syntax-only (no Python mypy type-check); "
-            "2 (default) = current behavior (syntax + Python mypy type-check). "
-            "Tier 3 (real execution) is not wired into this CLI yet -- "
-            "see lib/example_verification/runners/ for the real per-language "
-            "runners, not yet dispatched from here (a later taskcard's scope)."
+            "2 (default) = current behavior (syntax + Python mypy type-check); "
+            "3 = real execution via lib/example_verification (TC-03) -- "
+            "requires both a family and platform argument (positional, or "
+            "--files with both also given); falls back to 2 with a warning "
+            "otherwise, since tier 3 needs real product context."
         ),
     )
     parser.add_argument(
@@ -636,6 +755,16 @@ def main() -> int:
     )
     args = parser.parse_args()
     max_tier = int(args.max_tier)
+    family = args.family_or_files if args.platform else ""
+    platform = args.platform or ""
+
+    if max_tier >= 3 and not (family and platform):
+        print(
+            "WARNING: --max-tier 3 requires both a family and platform (real product "
+            "context is needed to acquire a real environment) -- falling back to tier 2.",
+            file=sys.stderr,
+        )
+        max_tier = 2
 
     # Resolve language set
     if args.lang:
@@ -651,7 +780,10 @@ def main() -> int:
         canonical_import = ""
         if "python" in langs and args.family_or_files and args.platform:
             canonical_import = _get_canonical_import(args.family_or_files, args.platform)
-        results = [check_file(Path(f), canonical_import, langs, max_tier=max_tier) for f in args.files]
+        results = [
+            check_file(Path(f), canonical_import, langs, max_tier=max_tier, family=family, platform=platform)
+            for f in args.files
+        ]
     elif args.family_or_files and args.platform:
         results = check_product(args.family_or_files, args.platform, max_tier=max_tier)
     else:

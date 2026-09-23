@@ -643,8 +643,9 @@ scripts:
       - scripts/pipeline/tests/test_promote_preserves_history.py
       - scripts/pipeline/tests/test_promote_semantic_dedup.py
       - scripts/pipeline/tests/test_promote_atomic.py
+      - scripts/pipeline/tests/test_promote_snippets.py
     deprecated_since: null
-    notes: "scout → merged knowledge promotion; replaces deleted merge.py. FRESH-001 (2026-08-14): schema v2 provenance fields (generator_fingerprint, bundle_id, input_hashes), formats.md provenance header, and promote_atomic() -- staged-then-swap atomic promotion via an isolated merged.staging.{bundle_id}/ dir, self-verified against bundle_manifest.json before swap. Ships atomic-by-default (PROMOTE_ATOMIC_BUNDLE env var / --no-atomic CLI flag to opt out). See promote_recover.py for the paired recovery tool."
+    notes: "scout → merged knowledge promotion; replaces deleted merge.py. FRESH-001 (2026-08-14): schema v2 provenance fields (generator_fingerprint, bundle_id, input_hashes), formats.md provenance header, and promote_atomic() -- staged-then-swap atomic promotion via an isolated merged.staging.{bundle_id}/ dir, self-verified against bundle_manifest.json before swap. Ships atomic-by-default (PROMOTE_ATOMIC_BUNDLE env var / --no-atomic CLI flag to opt out). See promote_recover.py for the paired recovery tool. test_promote_snippets.py (17 tests covering _promote_snippets/verify_snippet_coverage/gate_l15_snippet_syntax, plus TC-06's MT072-2026-09-23-EXAMPLE-VERIFICATION-PRODUCTIONIZATION sweep_snippet_execution_proof()) was never wired into test_targets despite existing since before this taskcard -- closed here (independent-review finding on TC-06)."
 
   - path: scripts/pipeline/commands/knowledge/refresh_knowledge.py
     kind: entrypoint
@@ -6037,6 +6038,188 @@ scripts:
       install + real tsc + real tsx, byte-identical to the original S-120
       function modulo an inherently-different tempfile.TemporaryDirectory
       name)."
+
+  - path: scripts/pipeline/lib/example_verification_ledger.py
+    kind: library
+    lifecycle: active
+    canonical_impl_path: null
+    public_entrypoint: false
+    cli_contract: none
+    owner_domain: content-quality
+    backing:
+      kind: internal
+      ref: null
+    test_targets:
+      - scripts/pipeline/tests/test_example_verification_ledger.py
+    requires_test: true
+    deprecated_since: null
+    change_impact: null
+    notes: "MT072-2026-09-23-EXAMPLE-VERIFICATION-PRODUCTIONIZATION/TC-07: the
+      durable, git-tracked execution-proof ledger (ExecutionProofLedger),
+      modeled on baseline_ledger.py/taskcard_store.py's proven append-only-
+      JSONL + O(1) head-cache + O_EXCL-lock pattern. Sibling to lib/
+      example_verification/ (not inside it), per the taskcard's own
+      allowed_paths. Storage: reports/example_verification_ledger/
+      {family}_{platform}.jsonl -- git-tracked via a new whole_subtree entry
+      in git_tracking_policy.yaml (added same session as this registration,
+      closing a real gap the taskcard's own build found: the root was
+      swept by the blanket /reports gitignore rule with no un-ignore entry
+      until then). No production consumer wired yet -- that is a later
+      taskcard's scope (e.g. TC-09's portfolio sweep); this module is
+      tested, unwired library code today, matching policy.py's own
+      C2-era precedent for the same reason."
+
+  - path: scripts/pipeline/lib/example_verification/api.py
+    kind: library
+    lifecycle: active
+    canonical_impl_path: null
+    public_entrypoint: true
+    cli_contract: none
+    owner_domain: content-quality
+    backing:
+      kind: internal
+      ref: null
+    test_targets:
+      - scripts/pipeline/tests/test_example_verification_api.py
+    requires_test: true
+    deprecated_since: null
+    change_impact: null
+    notes: "MT072-2026-09-23-EXAMPLE-VERIFICATION-PRODUCTIONIZATION/TC-01:
+      the ONE public entry point (verify_page/verify_markdown) every
+      consumer of this package calls -- closes the gap C4/C5/C6/C7's own
+      promotion-gate notes each disclosed ('assigned to no taskcard in the
+      current C1-C14 rollout'; result.py's own docstring said results are
+      'produced by runners/api.py, landing in later rollout steps'). Pure
+      composition over already-tested modules: dispatches go/net/java/
+      rust/cpp through BaseRunner (fed by code_fences.py), and python/
+      typescript through their existing S-120-ported whole-candidate
+      functions, adapted into the same VerificationReport shape."
+
+  - path: scripts/pipeline/lib/example_verification/cli.py
+    kind: library
+    lifecycle: active
+    canonical_impl_path: null
+    public_entrypoint: true
+    cli_contract: stable
+    owner_domain: content-quality
+    backing:
+      kind: internal
+      ref: null
+    test_targets:
+      - scripts/pipeline/tests/test_example_verification_api.py
+    requires_test: true
+    deprecated_since: null
+    change_impact: null
+    notes: "TC-01: thin argparse CLI over api.py (`verify --file --platform
+      [--family] [--max-tier] [--allow-acquire] [--json]`), following
+      content_eval/cli.py's precedent of a package owning its own cli.py
+      despite living under lib/."
+
+  - path: scripts/pipeline/lib/example_verification/runners/go.py
+    kind: library
+    lifecycle: active
+    canonical_impl_path: null
+    public_entrypoint: false
+    cli_contract: none
+    owner_domain: content-quality
+    backing:
+      kind: internal
+      ref: null
+    test_targets:
+      - scripts/pipeline/tests/test_example_verification_runners_go.py
+    requires_test: true
+    deprecated_since: null
+    change_impact: null
+    notes: "C5: GoRunner (LanguageRunner protocol, tier 1-3, real go vet/go
+      build/go run via a disposable module). Registered late
+      (MT072-2026-09-23-EXAMPLE-VERIFICATION-PRODUCTIONIZATION/TC-01) --
+      this module shipped in C5 but was never added to registry.yaml, a
+      real gap this taskcard closes for all 5 of go/dotnet/java/rust/cpp
+      at once. Only 7 private helper functions were an external consumer
+      (check_go_code_blocks.py) before TC-01 wired api.py to the
+      GoRunner class itself."
+
+  - path: scripts/pipeline/lib/example_verification/runners/dotnet.py
+    kind: library
+    lifecycle: active
+    canonical_impl_path: null
+    public_entrypoint: false
+    cli_contract: none
+    owner_domain: content-quality
+    backing:
+      kind: internal
+      ref: null
+    test_targets:
+      - scripts/pipeline/tests/test_example_verification_dotnet.py
+    requires_test: true
+    deprecated_since: null
+    change_impact: null
+    notes: "C11: DotNetRunner (LanguageRunner protocol, tier 1-3, real
+      dotnet new/build/run against the clone cache's own .csproj).
+      canonical_lang is 'csharp', not 'net' -- registry.py's platform key
+      is 'net' (matching this repo's platform-folder convention), the
+      fence tags are csharp/cs/c#. Registered late, same TC-01 gap as
+      runners/go.py above."
+
+  - path: scripts/pipeline/lib/example_verification/runners/java.py
+    kind: library
+    lifecycle: active
+    canonical_impl_path: null
+    public_entrypoint: false
+    cli_contract: none
+    owner_domain: content-quality
+    backing:
+      kind: internal
+      ref: null
+    test_targets:
+      - scripts/pipeline/tests/test_example_verification_java.py
+    requires_test: true
+    deprecated_since: null
+    change_impact: null
+    notes: "C12: JavaRunner (LanguageRunner protocol, tier 1-3, real
+      javac/java via a Maven-discovered JDK -- ACQUIRE-FAILED when mvn is
+      absent, as it is on this dev machine). Registered late, same TC-01
+      gap as runners/go.py above."
+
+  - path: scripts/pipeline/lib/example_verification/runners/rust.py
+    kind: library
+    lifecycle: active
+    canonical_impl_path: null
+    public_entrypoint: false
+    cli_contract: none
+    owner_domain: content-quality
+    backing:
+      kind: internal
+      ref: null
+    test_targets:
+      - scripts/pipeline/tests/test_example_verification_rust.py
+    requires_test: true
+    deprecated_since: null
+    change_impact: null
+    notes: "C13: RustRunner (LanguageRunner protocol; architectural
+      ceiling_tier=3, but an honest stub above tier 1 on any machine
+      without cargo/rustup, as here). Registered late, same TC-01 gap as
+      runners/go.py above."
+
+  - path: scripts/pipeline/lib/example_verification/runners/cpp.py
+    kind: library
+    lifecycle: active
+    canonical_impl_path: null
+    public_entrypoint: false
+    cli_contract: none
+    owner_domain: content-quality
+    backing:
+      kind: internal
+      ref: null
+    test_targets:
+      - scripts/pipeline/tests/test_example_verification_cpp.py
+    requires_test: true
+    deprecated_since: null
+    change_impact: null
+    notes: "C14: CppRunner (LanguageRunner protocol; ceiling_tier=2,
+      BUILD-VERIFIED-ONLY floor -- a real CMake+Ninja+MSVC library-level
+      build, not a per-block compile). Registered late, same TC-01 gap as
+      runners/go.py above."
 
   - path: scripts/pipeline/lib/example_verification/runners/base.py
     kind: library

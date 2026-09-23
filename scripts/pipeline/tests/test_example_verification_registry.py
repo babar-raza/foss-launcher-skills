@@ -1,10 +1,14 @@
-"""Tests for lib/example_verification/registry.py (rollout step C2)."""
+"""Tests for lib/example_verification/registry.py (rollout step C2;
+TC-02, MT072-2026-09-23-EXAMPLE-VERIFICATION-PRODUCTIONIZATION, made
+PLATFORM_CONTRACT generated from real runner introspection)."""
 from __future__ import annotations
 
+from lib.example_verification import registry as registry_mod
 from lib.example_verification.registry import (
     NON_EXECUTABLE_LANGS,
     PLATFORM_CONTRACT,
     RUNNABLE_LANGS_BY_PLATFORM,
+    RUNNER_CLASS_NAMES,
     PlatformContract,
 )
 
@@ -24,11 +28,37 @@ def test_python_and_typescript_have_real_runners_at_tier_3():
     assert PLATFORM_CONTRACT["typescript"].runner == "typescript"
 
 
-def test_unbuilt_runner_platforms_have_no_runner_and_tier_1_ceiling():
-    for platform in ("go", "net", "java", "rust", "cpp"):
+def test_built_runner_platforms_report_their_real_ceiling_tier():
+    """TC-02: go/net/java/rust/cpp all have real LanguageRunner classes
+    (C5, C11-C14) -- PLATFORM_CONTRACT must reflect their own declared
+    ceiling_tier, not the pre-TC-02 hand-typed max_tier=1/runner=None
+    this exact test used to assert as correct."""
+    expected_ceiling = {"go": 3, "net": 3, "java": 3, "rust": 3, "cpp": 2}
+    for platform, ceiling in expected_ceiling.items():
         contract = PLATFORM_CONTRACT[platform]
-        assert contract.runner is None
-        assert contract.max_tier == 1
+        assert contract.runner is not None, f"{platform} should have a real runner"
+        assert contract.max_tier == ceiling, f"{platform}: expected ceiling {ceiling}, got {contract.max_tier}"
+
+
+def test_platform_contract_runner_matches_a_real_importable_class():
+    """Every non-None `runner` must resolve to a real, importable
+    LanguageRunner class -- catches a typo in RUNNER_CLASS_NAMES or a
+    renamed runner module/class before any real caller hits it."""
+    import importlib
+    for platform, (mod_name, class_name) in RUNNER_CLASS_NAMES.items():
+        contract = PLATFORM_CONTRACT[platform]
+        assert contract.runner == mod_name
+        mod = importlib.import_module(f"example_verification.runners.{mod_name}")
+        cls = getattr(mod, class_name)
+        assert cls.ceiling_tier == contract.max_tier
+
+
+def test_genuinely_unbuilt_runner_falls_back_to_tier_1_no_runner(monkeypatch):
+    """A platform whose runner module/class truly doesn't exist (or fails
+    to introspect) must degrade to the pre-TC-02 honest floor
+    (max_tier=1, runner=None), not crash and not silently claim a tier it
+    can't prove."""
+    assert registry_mod._introspect_ceiling_tier("does_not_exist", "NoSuchRunner") is None
 
 
 def test_go_is_the_only_precommit_blocking_platform_today():

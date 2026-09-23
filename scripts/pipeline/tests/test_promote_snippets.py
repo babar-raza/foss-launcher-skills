@@ -255,3 +255,158 @@ def test_gate_l15_ignores_unproven_entries_mixed_with_proven_ones(tmp_path, _iso
     assert result.status == STATUS_PASS
     assert "1 proven" in result.detail
     assert "1 not yet swept" in result.detail
+
+
+# ---------------------------------------------------------------------------
+# sweep_snippet_execution_proof — MT072-2026-09-23-EXAMPLE-VERIFICATION-
+# PRODUCTIONIZATION/TC-06: the post-promote proof sweep this whole file's
+# module docstring (and audit/snippets.py's own SKIP message, and
+# gate_l15_snippet_syntax's own docstring above) all describe as "not built
+# yet" / "deferred". These tests cover the real writer this taskcard adds.
+# ---------------------------------------------------------------------------
+
+def _build_merged_snippets(tmp_path, family, platform, files: dict):
+    """Build a real merged/snippets/snippets_index.json via the same
+    _promote_snippets() path production uses (so code_sha256 is real, not
+    hand-typed), under tmp_path/knowledge/{family}/{platform}/merged/. `files`
+    maps a scout filename to its source text. Returns the knowledge_root."""
+    knowledge_root = tmp_path / "knowledge"
+    base = knowledge_root / family / platform
+    scout_dir = base / "scout"
+    merged_dir = base / "merged"
+    snip_dir = scout_dir / "snippets"
+    snip_dir.mkdir(parents=True)
+    for fname, text in files.items():
+        (snip_dir / fname).write_text(text, encoding="utf-8")
+    (snip_dir / "snippets_index.json").write_text(
+        json.dumps([{"file": fname} for fname in files]), encoding="utf-8")
+    promote_mod._promote_snippets(scout_dir, merged_dir)
+    return knowledge_root
+
+
+def _read_index(knowledge_root, family, platform):
+    path = knowledge_root / family / platform / "merged" / "snippets" / "snippets_index.json"
+    return json.loads(path.read_text(encoding="utf-8"))
+
+
+def test_sweep_writes_the_correct_execution_proof_shape_for_a_real_pass(tmp_path):
+    """A genuinely valid go snippet gets a real tier-1 PASS -- the exact shape
+    _stale_component/_lookup_proof (content_eval/evaluators/example_execution.py)
+    and gate_l15_snippet_syntax (launch_gate.py) already read: tier/status/
+    clone_head/runner_version."""
+    knowledge_root = _build_merged_snippets(
+        tmp_path, "testfam", "go", {"a.go": "package main\n\nfunc main() {}\n"})
+
+    summary = promote_mod.sweep_snippet_execution_proof(
+        "testfam", "go", knowledge_root=knowledge_root)
+
+    assert summary == {
+        "family": "testfam", "platform": "go",
+        "total": 1, "swept": 1, "skipped_no_runner": 0, "skipped_no_hash": 0,
+    }
+    entry = _read_index(knowledge_root, "testfam", "go")[0]
+    proof = entry["execution_proof"]
+    assert proof["tier"] == 1
+    assert proof["status"] == "PASS"
+    assert proof["runner_version"] == "1"
+    assert "clone_head" in proof
+    assert "reason" not in proof  # no reason key on a clean PASS
+
+
+def test_sweep_never_fabricates_a_pass_on_a_real_syntax_error(tmp_path):
+    """A genuinely broken go snippet must be reported as a real, tier-1
+    SYNTAX-ERROR -- never silently upgraded to PASS just because it has a
+    code_sha256 on file."""
+    broken = "package main\n\nfunc main( {\n"  # missing closing paren
+    knowledge_root = _build_merged_snippets(tmp_path, "testfam", "go", {"a.go": broken})
+
+    summary = promote_mod.sweep_snippet_execution_proof(
+        "testfam", "go", knowledge_root=knowledge_root)
+    assert summary["swept"] == 1
+
+    entry = _read_index(knowledge_root, "testfam", "go")[0]
+    proof = entry["execution_proof"]
+    assert proof["status"] == "BLOCKED-WITH-REASON"
+    assert proof["reason"] == "SYNTAX-ERROR"
+    assert proof["tier"] == 1  # a real parse DID run -- tier 1, not tier 0
+    assert proof["status"] != "PASS"
+
+
+def test_sweep_is_idempotent_across_two_runs(tmp_path):
+    """Running the sweep twice in a row must not duplicate entries, change
+    their count, or produce a different execution_proof (same content, same
+    clone_head, same runner_version in -> same proof out)."""
+    knowledge_root = _build_merged_snippets(
+        tmp_path, "testfam", "go", {
+            "a.go": "package main\n\nfunc main() {}\n",
+            "b.go": "package main\n\nfunc broken( {\n",
+        })
+    index_path = knowledge_root / "testfam" / "go" / "merged" / "snippets" / "snippets_index.json"
+
+    first_summary = promote_mod.sweep_snippet_execution_proof(
+        "testfam", "go", knowledge_root=knowledge_root)
+    first_bytes = index_path.read_bytes()
+    first_index = _read_index(knowledge_root, "testfam", "go")
+
+    second_summary = promote_mod.sweep_snippet_execution_proof(
+        "testfam", "go", knowledge_root=knowledge_root)
+    second_bytes = index_path.read_bytes()
+    second_index = _read_index(knowledge_root, "testfam", "go")
+
+    assert first_summary == second_summary
+    assert len(second_index) == len(first_index) == 2
+    assert second_bytes == first_bytes, "re-running the sweep must be a byte-for-byte no-op"
+    assert [e["execution_proof"] for e in second_index] == [e["execution_proof"] for e in first_index]
+
+
+def test_sweep_honestly_skips_a_language_this_package_cannot_verify_offline(tmp_path):
+    """python/typescript are whole-candidate runners that always attempt a real
+    acquire/execute regardless of Policy (see this function's own docstring) --
+    the sweep must skip them with a disclosed note, never crash, and never
+    stamp a fabricated execution_proof."""
+    knowledge_root = _build_merged_snippets(
+        tmp_path, "testfam", "python", {"a.py": "print('hello')\n"})
+
+    summary = promote_mod.sweep_snippet_execution_proof(
+        "testfam", "python", knowledge_root=knowledge_root)
+
+    assert summary["swept"] == 0
+    assert summary["skipped_no_runner"] == 1
+    assert "note" in summary
+    entry = _read_index(knowledge_root, "testfam", "python")[0]
+    assert "execution_proof" not in entry
+
+
+def test_sweep_skips_an_entry_with_no_code_sha256_without_crashing(tmp_path):
+    """An index entry whose scout file never got hashed (e.g. the file was
+    missing at promote time -- see the sibling _promote_snippets tests above)
+    has nothing to verify against; the sweep must skip it honestly, not crash
+    and not fabricate a proof."""
+    knowledge_root = tmp_path / "knowledge"
+    base = knowledge_root / "testfam" / "go" / "merged" / "snippets"
+    base.mkdir(parents=True)
+    (base / "snippets_index.json").write_text(json.dumps([
+        {"id": "snippet_001", "file": "ghost.go"},  # no code_sha256 at all
+    ]), encoding="utf-8")
+
+    summary = promote_mod.sweep_snippet_execution_proof(
+        "testfam", "go", knowledge_root=knowledge_root)
+
+    assert summary == {
+        "family": "testfam", "platform": "go",
+        "total": 1, "swept": 0, "skipped_no_runner": 0, "skipped_no_hash": 1,
+    }
+    entry = _read_index(knowledge_root, "testfam", "go")[0]
+    assert "execution_proof" not in entry
+
+
+def test_sweep_reports_an_error_for_a_product_with_no_snippet_index(tmp_path):
+    """No snippets_index.json at all (product never promoted, or has no
+    snippets) -- honest error in the summary, not a crash."""
+    knowledge_root = tmp_path / "knowledge"
+
+    summary = promote_mod.sweep_snippet_execution_proof(
+        "testfam", "go", knowledge_root=knowledge_root)
+
+    assert "error" in summary
+    assert summary["swept"] == 0

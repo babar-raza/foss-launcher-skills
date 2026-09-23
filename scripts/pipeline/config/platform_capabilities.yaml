@@ -286,9 +286,9 @@ platforms:
     format_recognizer_style:
       modes: [pascal_verb]
     example_verification:
-      max_tier: 1
+      max_tier: 3
       offline_tier: 1
-      runner_module: null
+      runner_module: dotnet
       precommit_blocking: false
 
   java:
@@ -336,9 +336,9 @@ platforms:
     format_recognizer_style:
       modes: [pascal_verb]
     example_verification:
-      max_tier: 1
+      max_tier: 3
       offline_tier: 1
-      runner_module: null
+      runner_module: java
       precommit_blocking: false
 
   cpp:
@@ -404,9 +404,9 @@ platforms:
     format_recognizer_style:
       modes: [pascal_verb]
     example_verification:
-      max_tier: 1
+      max_tier: 2
       offline_tier: 1
-      runner_module: null
+      runner_module: cpp
       precommit_blocking: false
 
   go:
@@ -478,9 +478,9 @@ platforms:
       modes: [pascal_verb]
       modes_note: "Go is the PRIMARY motivating case named in formats.py's own Pass 1e root-cause comment (Page.AddSVG / Document.LoadSVG)."
     example_verification:
-      max_tier: 1
+      max_tier: 3
       offline_tier: 1
-      runner_module: null
+      runner_module: go
       precommit_blocking: true
       precommit_blocking_note: "The only platform with a real, proven pre-commit compile gate today (check_go_code_blocks.py, Step 18) -- predates this package entirely."
 
@@ -533,9 +533,9 @@ platforms:
       modes: [pascal_verb]
       modes_note: "Pass 1e runs unconditionally but rarely matches snake_case Rust identifiers in practice; no camel_identifier (Pass 1g is TS/JS-gated only)."
     example_verification:
-      max_tier: 1
+      max_tier: 3
       offline_tier: 1
-      runner_module: null
+      runner_module: rust
       precommit_blocking: false
 
   typescript:
