@@ -90,5 +90,5 @@ EVALUATOR_VERSIONS: dict[str, str] = {
     "generic_description_check": "1",  # TC-GDF-001: initial version
     "duplicate_content": "1",  # RC-W1-005: initial version — whole-page duplicate + alias-collision detection
     "example_execution": "1",  # MT065-2026-09-06-EXAMPLE-VERIFICATION-CENTRALIZATION C8: initial version
-    "topic_grounding": "1",  # CE-02 (2026-09-17 healing plan G-03): initial version
+    "topic_grounding": "2",  # CE-02 -> ST-198: shared slug verb parser (synonym-led slugs now parse)
 }
