@@ -44,7 +44,25 @@ name: Publish to Maven Central
 #     Sonatype credentials on every real run; pair with Dependabot's
 #     github-actions ecosystem in the product repo to keep pins current
 #
-# Last validated: 2026-08-21 (MT036 hardening pass)
+# Hardening added (2026-09-23, cells/java stuck-publish incident):
+#   - waitUntil validated -> published (this lives in the product repo's
+#     pom.xml, governed by S-110 Step A5, not here) -- `validated` only
+#     confirms the Portal accepted the upload; publication happens
+#     afterwards and a failure there is never seen by the build. `published`
+#     blocks `mvn deploy` until the Portal reports the version actually
+#     published, so a release that never completes publishing fails the
+#     release job at the source. First proven in aspose-slides-foss.
+#   - The post-deploy check below used to be best-effort: 10 minutes of
+#     polling, ::warning:: (never a failure) if the artifact wasn't yet
+#     visible. Since real Central sync can take up to 4h, this gave no
+#     reliable signal either way -- confirmed live: aspose-cells-foss's
+#     v26.7.0 deploy reported green on 2026-07-22 (autoPublish was still
+#     false there, a separate bug) and the resulting Sonatype deployment
+#     sat validated-but-unpublished, undetected, for two months. Now polls
+#     for up to 4h and actually fails the run (::error::) plus opens/updates
+#     a `stuck-publish` GitHub issue if any artifact never lands.
+#
+# Last validated: 2026-09-23 (cells/java stuck-publish incident hardening)
 
 on:
   push:
@@ -328,6 +346,7 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: write            # required to create the GitHub Release / upload the marker asset
+      issues: write               # required to open/update a stuck-publish incident issue
     concurrency:
       group: maven-central-publish-${{ needs.guard.outputs.version }}
       cancel-in-progress: false  # never kill a run that may be mid-upload to Central Portal
@@ -416,7 +435,7 @@ jobs:
           [ -z "$(git ls-files --others --exclude-standard)" ] \
             || { echo "Untracked files after build"; exit 1; }
 
-      - name: Deploy to Maven Central (autoPublish=true, waitUntil=validated)
+      - name: Deploy to Maven Central (autoPublish=true, waitUntil=published)
         if: needs.guard.outputs.already_published != 'true'
         env:
           MAVEN_CENTRAL_USERNAME: ${{ secrets.MAVEN_CENTRAL_USERNAME }}
@@ -464,24 +483,58 @@ jobs:
         if: needs.guard.outputs.already_published == 'true'
         run: echo "::notice::Publish marker found for ${{ needs.guard.outputs.tag }} — a prior run already deployed this version. Skipping build/sign/deploy."
 
-      - name: Verify artifact available on Maven Central (best-effort, 10 min)
+      - name: Verify artifact actually reached Maven Central
+        id: verify
         if: needs.guard.outputs.already_published != 'true'
         run: |
           AID="{ARTIFACT_ID}"
           VER="${{ needs.guard.outputs.version }}"
-          for SUFFIX in ".jar" ".pom" "-sources.jar"; do
-            URL="https://repo1.maven.org/maven2/org/aspose/${AID}/${VER}/${AID}-${VER}${SUFFIX}"
-            echo "Polling: $URL"
-            for i in $(seq 1 6); do
+          SUFFIXES=(".jar" ".pom" "-sources.jar")
+          for i in $(seq 1 48); do
+            ALL_OK=true
+            for SUFFIX in "${SUFFIXES[@]}"; do
+              URL="https://repo1.maven.org/maven2/org/aspose/${AID}/${VER}/${AID}-${VER}${SUFFIX}"
               STATUS=$(curl -s -o /dev/null -w "%{http_code}" "$URL")
-              if [ "$STATUS" = "200" ]; then
-                echo "  HTTP 200 confirmed"
-                break
-              fi
-              echo "  Attempt $i/6: HTTP $STATUS — waiting 2 min..."
-              [ $i -lt 6 ] && sleep 120
+              [ "$STATUS" = "200" ] || ALL_OK=false
             done
-            [ "$STATUS" = "200" ] \
-              || echo "::warning::${AID}-${VER}${SUFFIX} not yet on Central after 10 min"
+            if [ "$ALL_OK" = true ]; then
+              echo "::notice::All artifacts confirmed on Maven Central for ${AID}:${VER}"
+              exit 0
+            fi
+            echo "Attempt $i/48: not all artifacts live yet -- waiting 5 min"
+            sleep 300
           done
-          echo "::notice::Deployment submitted. Maven Central sync typically takes 30min-4h."
+          echo "::error::org.aspose:${AID}:${VER} did not fully appear on Maven Central after 4h of post-deploy polling. The deploy step reported success, but the artifact is not (fully) live -- check https://central.sonatype.com/publishing/deployments for a deployment stuck awaiting manual publish or failed validation."
+          exit 1
+
+      - name: Open or update incident issue on stuck publish
+        if: failure() && steps.verify.outcome == 'failure'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const version = '${{ needs.guard.outputs.version }}';
+            const title = `Maven Central publish stuck: ${version} never went live`;
+            const runUrl = `${context.serverUrl}/${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId}`;
+            const body = [
+              `The deploy step for **${version}** reported success,`,
+              'but the artifact never appeared (fully) on repo1.maven.org after 4 hours of polling.',
+              '',
+              'Check the deployment status at https://central.sonatype.com/publishing/deployments --',
+              'it likely needs a manual "Publish" click, or investigation of a validation failure.',
+              '',
+              `Workflow run: ${runUrl}`,
+            ].join('\n');
+            const { data: issues } = await github.rest.issues.listForRepo({
+              owner: context.repo.owner, repo: context.repo.repo, state: 'open', labels: 'stuck-publish',
+            });
+            const existing = issues.find((i) => i.title === title);
+            if (existing) {
+              await github.rest.issues.createComment({
+                owner: context.repo.owner, repo: context.repo.repo, issue_number: existing.number,
+                body: `Recurred at ${new Date().toISOString()}.\n\n${body}`,
+              });
+            } else {
+              await github.rest.issues.create({
+                owner: context.repo.owner, repo: context.repo.repo, title, body, labels: ['stuck-publish'],
+              });
+            }
