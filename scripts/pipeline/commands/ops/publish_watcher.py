@@ -67,6 +67,8 @@ _DEFAULT_REPO_ROOT = Path(__file__).resolve().parents[4]
 _DEFAULT_DATA_PATH = _DEFAULT_REPO_ROOT / "data" / "package_registry.json"
 DATA_PATH = _DEFAULT_DATA_PATH
 _LIVE_CHECKER: "Callable[[str, str], str | None] | None" = None
+_GITHUB_RELEASE_CHECKER: "Callable[[str], tuple[str, str] | None] | None" = None
+_REPO_URL_RESOLVER: "Callable[[str, str], str | None] | None" = None
 
 DEFAULT_MAX_AUTO_APPLY = 5
 
@@ -86,12 +88,24 @@ def configure(
     *,
     data_path: "Path | str | None" = None,
     live_checker: "Callable[[str, str], str | None] | None" = None,
+    github_release_checker: "Callable[[str], tuple[str, str] | None] | None" = None,
+    repo_url_resolver: "Callable[[str, str], str | None] | None" = None,
 ) -> None:
     """Override module-level constants for testing (configure() seam, AGENTS.md 16 --
-    used instead of monkeypatch.setattr on module functions directly)."""
-    global DATA_PATH, _LIVE_CHECKER
+    used instead of monkeypatch.setattr on module functions directly).
+
+    `github_release_checker` and `repo_url_resolver` (added 2026-09-23 for
+    check_stuck_releases) follow the same pattern as `live_checker`: without an
+    override, run_stuck_release_watch() falls back to the real network-calling /
+    filesystem-reading defaults, so any test exercising main() end-to-end (e.g.
+    test_cli_exit_code_reflects_findings) MUST configure() these too, or it will
+    silently make a real GitHub API call and read the real repo's knowledge/ tree.
+    """
+    global DATA_PATH, _LIVE_CHECKER, _GITHUB_RELEASE_CHECKER, _REPO_URL_RESOLVER
     DATA_PATH = Path(data_path) if data_path is not None else _DEFAULT_DATA_PATH
     _LIVE_CHECKER = live_checker
+    _GITHUB_RELEASE_CHECKER = github_release_checker
+    _REPO_URL_RESOLVER = repo_url_resolver
 
 
 def default_live_checker(group_id: str, artifact_id: str) -> "str | None":
@@ -263,6 +277,214 @@ def format_version_update_issue_body(proposals: list[dict[str, Any]]) -> str:
             f"recorded `{p['recorded_version']}`, live is `{p['live_version']}` — {p['central_url']}"
         )
     return "\n".join(lines)
+
+
+def _parse_version(v: "str | None") -> "tuple[int, ...] | None":
+    """Parse a dotted numeric version (e.g. "26.7.0", optionally "v"/"V"-prefixed)
+    into a comparable int tuple. Returns None (never raises) for anything that
+    doesn't parse -- callers must treat None as "cannot compare", not as "oldest"."""
+    if not v:
+        return None
+    v = v.strip()
+    if v and v[0] in ("v", "V"):
+        v = v[1:]
+    parts = v.split(".")
+    try:
+        return tuple(int(p) for p in parts)
+    except ValueError:
+        return None
+
+
+def default_github_release_checker(repo_url: str) -> "tuple[str, str] | None":
+    """Query the GitHub API for a FOSS repo's latest non-draft, non-prerelease
+    Release. Returns (version_string, published_at_iso) or None on any failure
+    (network error, no releases, malformed URL) -- never raises. Uses GH_TOKEN
+    from the environment if present (higher rate limit, and this repo's own
+    convention per AGENTS.md 2b) but works unauthenticated too.
+
+    Added 2026-09-23 (cells/java stuck-publish incident, see
+    check_stuck_releases below) -- distinct from default_live_checker, which
+    queries Maven Central, not GitHub.
+    """
+    import re
+    m = re.search(r"github\.com[:/]+([^/]+)/([^/.]+?)(?:\.git)?/?$", repo_url.strip())
+    if not m:
+        return None
+    owner, repo = m.group(1), m.group(2)
+    url = f"https://api.github.com/repos/{owner}/{repo}/releases/latest"
+    headers = {
+        "User-Agent": "Mozilla/5.0 (compatible; aspose-org-publish-watcher/1.0)",
+        "Accept": "application/vnd.github+json",
+    }
+    token = os.environ.get("GH_TOKEN")
+    if token:
+        headers["Authorization"] = f"Bearer {token}"
+    req = urllib.request.Request(url, headers=headers)
+    try:
+        with urllib.request.urlopen(req, timeout=15) as resp:
+            body = resp.read()
+    except (urllib.error.URLError, urllib.error.HTTPError, TimeoutError, ConnectionError):
+        return None
+    try:
+        payload = json.loads(body)
+    except json.JSONDecodeError:
+        return None
+    if payload.get("draft") or payload.get("prerelease"):
+        return None
+    tag = payload.get("tag_name")
+    published_at = payload.get("published_at")
+    if not tag or not published_at:
+        return None
+    return tag, published_at
+
+
+def _read_repo_url(family: str, platform: str, *, repo_root: "Path | None" = None) -> "str | None":
+    """Read repo_url: out of knowledge/{family}/{platform}/merged/model.yaml with a
+    plain line scan (no yaml dependency, matching this module's existing lightweight
+    parsing style) -- returns None (never raises) if the file or field is absent."""
+    root = repo_root or _DEFAULT_REPO_ROOT
+    model_path = root / "knowledge" / family / platform / "merged" / "model.yaml"
+    try:
+        text = model_path.read_text(encoding="utf-8")
+    except OSError:
+        return None
+    for line in text.splitlines():
+        stripped = line.strip()
+        if stripped.startswith("repo_url:"):
+            value = stripped[len("repo_url:"):].strip().strip("'\"")
+            return value or None
+    return None
+
+
+def check_stuck_releases(
+    data: dict[str, Any],
+    github_release_checker: "Callable[[str], tuple[str, str] | None]" = default_github_release_checker,
+    live_checker: Callable[[str, str], "str | None"] = default_live_checker,
+    *,
+    grace_period_hours: int = 48,
+    repo_url_resolver: "Callable[[str, str], str | None]" = _read_repo_url,
+    now: "datetime | None" = None,
+) -> list[dict[str, Any]]:
+    """Return proposed incidents for every Maven-registry entry whose FOSS repo's
+    latest real GitHub Release is NEWER than what's live on Maven Central, and has
+    been sitting that way longer than `grace_period_hours`.
+
+    Added 2026-09-23 (cells/java stuck-publish incident): closes the structural gap
+    that let v26.7.0 sit validated-but-unpublished on Sonatype Central Portal for two
+    months, undetected by this module. check_unpublished_families() and
+    check_published_families_for_new_version() above both compare the LOCAL registry
+    record against LIVE Central -- neither one ever asks "does the upstream FOSS repo
+    have a release that Central doesn't have yet?", so a release whose own GHA publish
+    step silently never completed (reported green, artifact never actually landed --
+    the same waitUtil/autoPublish=false-shaped failure documented in this module's
+    top-level docstring) produced no drift either check could see: the registry's
+    cached version and live Central both stayed in agreement, just both stale.
+
+    Pure detection, same INV-02 discipline as the sibling checks above -- never
+    mutates `data`, only ever acts on the two checkers' own return values. The grace
+    period exists because a fresh release legitimately has NOT reached Central yet
+    for up to ~4h (Sonatype Central Portal sync latency, see maven_central_java.md);
+    48h default leaves ample margin above that before treating silence as an incident
+    rather than a false positive.
+    """
+    proposals: list[dict[str, Any]] = []
+    now = now or datetime.now(timezone.utc)
+    for family, platforms in data.items():
+        if family.startswith("_"):
+            continue
+        for platform, entry in platforms.items():
+            if entry.get("registry_type") != "maven":
+                continue
+            candidate = entry.get("candidate") or {}
+            group_id, artifact_id = candidate.get("group_id"), candidate.get("artifact_id")
+            if not group_id or not artifact_id:
+                continue
+            repo_url = repo_url_resolver(family, platform)
+            if not repo_url:
+                continue
+            release = github_release_checker(repo_url)
+            if not release:
+                continue
+            release_version, published_at = release
+            try:
+                published_dt = datetime.fromisoformat(published_at.replace("Z", "+00:00"))
+            except ValueError:
+                continue
+            hours_since_release = (now - published_dt).total_seconds() / 3600.0
+            if hours_since_release < grace_period_hours:
+                continue
+            live_version = live_checker(group_id, artifact_id)
+            release_parsed = _parse_version(release_version)
+            live_parsed = _parse_version(live_version)
+            if release_parsed is None or live_parsed is None:
+                continue
+            if release_parsed <= live_parsed:
+                continue
+            proposals.append({
+                "family": family,
+                "platform": platform,
+                "group_id": group_id,
+                "artifact_id": artifact_id,
+                "release_version": release_version,
+                "live_version": live_version,
+                "published_at": published_at,
+                "hours_since_release": round(hours_since_release, 1),
+                "repo_url": repo_url,
+                "central_url": f"https://repo1.maven.org/maven2/{group_id.replace('.', '/')}/{artifact_id}/",
+            })
+    return proposals
+
+
+def format_stuck_release_issue_body(proposals: list[dict[str, Any]]) -> str:
+    """Build the GitHub issue body for a batch of stuck-release incidents (a real
+    GitHub Release exists but Maven Central never got it, past the grace period)."""
+    lines = [
+        "## Java-FOSS Package(s) With a Release That Never Reached Maven Central",
+        "",
+        "The scheduled publish-watcher found that one or more Java-FOSS product repos "
+        "have a published GitHub Release newer than what's live on Maven Central, and "
+        "it has been that way longer than the grace period. This is the failure mode "
+        "that stranded cells/java's v26.7.0 for two months (2026-07-22 to 2026-09-23): "
+        "the release workflow can report success while the Sonatype Central Portal "
+        "deployment sits unpublished.",
+        "",
+        "### Action Required",
+        "1. Check `https://central.sonatype.com/publishing/deployments` for the product's "
+        "org account -- look for a deployment stuck awaiting manual publish or failed "
+        "validation.",
+        "2. If a deploymentId is found awaiting manual publish, use the product repo's "
+        "`finish-stuck-publish` workflow_dispatch job (added post-incident to "
+        "aspose-cells-foss; roll out to sibling repos as needed) to finish it, or POST "
+        "directly per `maven_central_java.md`'s \"Publish via REST API\" section.",
+        "3. Once genuinely live, re-run this watcher (or wait for the next scheduled run) "
+        "to confirm the finding clears.",
+        "",
+        "### Findings",
+        "",
+    ]
+    for p in proposals:
+        lines.append(
+            f"- **{p['family']}/{p['platform']}**: `{p['group_id']}:{p['artifact_id']}` release "
+            f"`{p['release_version']}` published {p['published_at']} ({p['hours_since_release']}h ago), "
+            f"Central still has `{p['live_version']}` — {p['central_url']} (repo: {p['repo_url']})"
+        )
+    return "\n".join(lines)
+
+
+def run_stuck_release_watch(
+    *,
+    github_release_checker: "Callable[[str], tuple[str, str] | None] | None" = None,
+    live_checker: "Callable[[str, str], str | None] | None" = None,
+    grace_period_hours: int = 48,
+) -> list[dict[str, Any]]:
+    """Load DATA_PATH, check every Maven entry for a stuck release, return proposals
+    (if any). Sibling of run_watch()/run_version_watch() for the stuck-release case
+    (added 2026-09-23 -- see check_stuck_releases)."""
+    gh_checker = github_release_checker if github_release_checker is not None else (_GITHUB_RELEASE_CHECKER or default_github_release_checker)
+    checker = live_checker if live_checker is not None else (_LIVE_CHECKER or default_live_checker)
+    resolver = _REPO_URL_RESOLVER or _read_repo_url
+    data = json.loads(DATA_PATH.read_text(encoding="utf-8"))
+    return check_stuck_releases(data, gh_checker, checker, grace_period_hours=grace_period_hours, repo_url_resolver=resolver)
 
 
 def apply_proposal(data: dict[str, Any], proposal: dict[str, Any], *, checked_at: "str | None" = None) -> dict[str, Any]:
@@ -462,12 +684,26 @@ def main(argv: "list[str] | None" = None) -> int:
     parser = argparse.ArgumentParser(prog="publish_watcher")
     parser.add_argument("--issue-body-out", metavar="PATH", help="Write the GitHub issue body to this path if any proposals are found")
     parser.add_argument("--version-issue-body-out", metavar="PATH", help="Write the steady-state version-update issue body to this path if any proposals are found")
+    parser.add_argument("--stuck-release-issue-body-out", metavar="PATH", help="Write the stuck-release incident issue body to this path if any proposals are found")
+    parser.add_argument("--stuck-release-grace-hours", type=int, default=48, metavar="N",
+                         help="Hours a GitHub Release may be newer than live Maven Central before it's flagged stuck (default 48)")
     parser.add_argument("--auto-apply", action="store_true",
                          help="Apply eligible proposals and atomically write data/package_registry.json "
                               "instead of only reporting them (Mission MT066-2026-09-09-PACKAGE-INSTALL-RECONCILIATION, Phase 3)")
     parser.add_argument("--max-auto-apply", type=int, default=DEFAULT_MAX_AUTO_APPLY, metavar="N",
                          help=f"Registry-level circuit breaker: at most N proposals applied per run (default {DEFAULT_MAX_AUTO_APPLY})")
     args = parser.parse_args(argv)
+
+    # Stuck-release detection is independent of --auto-apply: there is nothing to
+    # apply to data/package_registry.json for this check (the fix lives in Sonatype/
+    # GHA, not in our data file), so it always runs and always reports, regardless of
+    # which mode the rest of main() takes below.
+    stuck_release_proposals = run_stuck_release_watch(grace_period_hours=args.stuck_release_grace_hours)
+    if stuck_release_proposals:
+        stuck_body = format_stuck_release_issue_body(stuck_release_proposals)
+        print(stuck_body)
+        if args.stuck_release_issue_body_out:
+            Path(args.stuck_release_issue_body_out).write_text(stuck_body, encoding="utf-8")
 
     if args.auto_apply:
         result = run_auto_apply(max_apply=args.max_auto_apply)
@@ -504,17 +740,17 @@ def main(argv: "list[str] | None" = None) -> int:
                 Path(args.version_issue_body_out).write_text(
                     format_version_update_issue_body(remaining_version), encoding="utf-8")
 
-        if not result["applied"] and not remaining_unpublished and not remaining_version:
-            print("publish_watcher: no unpublished family resolves live yet, and no already-published "
-                  "family has a newer live version. Nothing to report.")
+        if not result["applied"] and not remaining_unpublished and not remaining_version and not stuck_release_proposals:
+            print("publish_watcher: no unpublished family resolves live yet, no already-published "
+                  "family has a newer live version, and no release is stuck unpublished. Nothing to report.")
             return 0
         return 1
 
     proposals = run_watch()
     version_proposals = run_version_watch()
 
-    if not proposals and not version_proposals:
-        print("publish_watcher: no unpublished family resolves live yet, and no already-published family has a newer live version. Nothing to report.")
+    if not proposals and not version_proposals and not stuck_release_proposals:
+        print("publish_watcher: no unpublished family resolves live yet, no already-published family has a newer live version, and no release is stuck unpublished. Nothing to report.")
         return 0
 
     if proposals:

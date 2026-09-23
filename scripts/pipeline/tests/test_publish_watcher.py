@@ -402,11 +402,115 @@ class TestRunAutoApply:
 def test_cli_exit_code_reflects_findings(tmp_path, capsys):
     data_path = tmp_path / "package_registry.json"
     data_path.write_text(json.dumps(_fake_data()), encoding="utf-8")
+    # repo_url_resolver returning None makes check_stuck_releases skip every family
+    # (no repo_url to resolve a release against) -- keeps this test isolated from
+    # both the network and the real repo's knowledge/ tree, same discipline as the
+    # live_checker fake below.
     try:
-        sut.configure(data_path=data_path, live_checker=lambda g, a: None)
+        sut.configure(data_path=data_path, live_checker=lambda g, a: None,
+                       repo_url_resolver=lambda f, p: None)
         assert sut.main([]) == 0  # nothing resolves -> exit 0
 
-        sut.configure(data_path=data_path, live_checker=lambda g, a: "3.0.0")
+        sut.configure(data_path=data_path, live_checker=lambda g, a: "3.0.0",
+                       repo_url_resolver=lambda f, p: None)
         assert sut.main([]) == 1  # something resolves -> exit 1 (signals the workflow to open an issue)
     finally:
-        sut.configure(data_path=None, live_checker=None)
+        sut.configure(data_path=None, live_checker=None, github_release_checker=None, repo_url_resolver=None)
+
+
+def _stuck_release_fixture():
+    return {
+        "cells": {"java": {
+            "registry_type": "maven",
+            "candidate": {"group_id": "org.aspose", "artifact_id": "aspose-cells-foss", "version": "26.5.0"},
+            "verification": {"published": True},
+        }},
+    }
+
+
+def test_stuck_release_flagged_past_grace_period():
+    data = _stuck_release_fixture()
+    now = sut.datetime(2026, 9, 23, tzinfo=sut.timezone.utc)
+    published_at = "2026-07-22T14:06:33Z"  # ~63 days before `now` -- well past any grace period
+
+    proposals = sut.check_stuck_releases(
+        data,
+        github_release_checker=lambda repo_url: ("v26.7.0", published_at),
+        live_checker=lambda g, a: "26.5.0",
+        repo_url_resolver=lambda f, p: "https://github.com/aspose-cells-foss/Aspose.Cells-FOSS-for-Java.git",
+        grace_period_hours=48,
+        now=now,
+    )
+    assert len(proposals) == 1
+    p = proposals[0]
+    assert p["family"] == "cells" and p["platform"] == "java"
+    assert p["release_version"] == "v26.7.0"
+    assert p["live_version"] == "26.5.0"
+    assert p["hours_since_release"] > 48
+
+
+def test_stuck_release_not_flagged_within_grace_period():
+    data = _stuck_release_fixture()
+    now = sut.datetime(2026, 7, 22, 15, 0, 0, tzinfo=sut.timezone.utc)  # ~1h after the release
+    published_at = "2026-07-22T14:06:33Z"
+
+    proposals = sut.check_stuck_releases(
+        data,
+        github_release_checker=lambda repo_url: ("v26.7.0", published_at),
+        live_checker=lambda g, a: "26.5.0",
+        repo_url_resolver=lambda f, p: "https://github.com/aspose-cells-foss/Aspose.Cells-FOSS-for-Java.git",
+        grace_period_hours=48,
+        now=now,
+    )
+    assert proposals == []  # fresh release, still well inside the sync-latency grace period
+
+
+def test_stuck_release_not_flagged_when_release_not_newer_than_live():
+    data = _stuck_release_fixture()
+    now = sut.datetime(2026, 9, 23, tzinfo=sut.timezone.utc)
+    published_at = "2026-07-22T14:06:33Z"
+
+    proposals = sut.check_stuck_releases(
+        data,
+        github_release_checker=lambda repo_url: ("v26.5.0", published_at),  # same as live -- nothing stuck
+        live_checker=lambda g, a: "26.5.0",
+        repo_url_resolver=lambda f, p: "https://github.com/aspose-cells-foss/Aspose.Cells-FOSS-for-Java.git",
+        grace_period_hours=48,
+        now=now,
+    )
+    assert proposals == []
+
+
+def test_stuck_release_skips_when_repo_url_unresolvable():
+    data = _stuck_release_fixture()
+    proposals = sut.check_stuck_releases(
+        data,
+        github_release_checker=lambda repo_url: ("v26.7.0", "2026-07-22T14:06:33Z"),
+        live_checker=lambda g, a: "26.5.0",
+        repo_url_resolver=lambda f, p: None,  # unresolvable -- must skip, not crash
+    )
+    assert proposals == []
+
+
+def test_stuck_release_is_pure_never_mutates_data():
+    data = _stuck_release_fixture()
+    before = json.dumps(data, sort_keys=True)
+    sut.check_stuck_releases(
+        data,
+        github_release_checker=lambda repo_url: ("v26.7.0", "2026-07-22T14:06:33Z"),
+        live_checker=lambda g, a: "26.5.0",
+        repo_url_resolver=lambda f, p: "https://github.com/aspose-cells-foss/Aspose.Cells-FOSS-for-Java.git",
+        now=sut.datetime(2026, 9, 23, tzinfo=sut.timezone.utc),
+    )
+    assert json.dumps(data, sort_keys=True) == before
+
+
+@pytest.mark.parametrize("v, expected", [
+    ("26.7.0", (26, 7, 0)),
+    ("v26.5.0", (26, 5, 0)),
+    ("V1.2.3", (1, 2, 3)),
+    (None, None),
+    ("not-a-version", None),
+])
+def test_parse_version(v, expected):
+    assert sut._parse_version(v) == expected
