@@ -1,6 +1,6 @@
 # GRADE_CONTRACT.md — Content Quality Grade System Contract
 
-Version: 1.3
+Version: 1.4
 Effective: 2026-04-24
 Status: FROZEN (schema and canonical model)
 
@@ -68,6 +68,7 @@ may be adjusted within the evaluator change protocol (AGENTS.md section 9a).
 | SG | WARN | C | api_accuracy (signature) |
 | US | WARN | B | consumer_usefulness |
 | EG | WARN | B | evidence_depth (EG_GROUNDING) |
+| EX | FAIL | C | example_execution (SAFETY_OVERRIDE_FINDINGS, §10) |
 
 ---
 
@@ -176,6 +177,25 @@ To modify a frozen item:
 
 ## Changelog
 
+### v1.4 (2026-09-23)
+- Second `SAFETY_OVERRIDE_FINDINGS` entry (MT072-2026-09-23-EXAMPLE-VERIFICATION-
+  PRODUCTIONIZATION, TC-08): `("example_execution", "EX")`. Unlike v1.3's
+  `install_recipe` entries (which force grade F via `critical_categories`), this
+  entry adds `EX` to `grade_config.yaml`'s `category_ceilings` at `ceiling: "C"`
+  — matching `code_syntax_check`'s own `SX` entry, the identical defect class
+  (a real, offline, tree-sitter-detected syntax error in a public code example)
+  now covered for every platform `example_execution` checks, not just Go.
+  `example_execution`'s only other findings (INFO/WARN for execution-proof
+  lookup/staleness/budget) remain grade-invisible, matching FAIL-only per §10's
+  eligibility bar. Real impact measured BEFORE this change (per the eligibility
+  bar's own verification requirement): a full portfolio run found 44 real
+  SYNTAX-ERROR findings across 43 English pages, all already fixed and pushed
+  in the same session (commit `8bc75bdf0106add243b7811585327eb4cd9f278e`) —
+  net effect of activation: 0 real downgrades, pure regression guard from day
+  one. Maintainer sign-off obtained via the explicit "Fix the 43 pages first,
+  then activate" sequencing decision made before any fix began. ELV bumped
+  19->20, `EVALUATOR_FREEZE_VERSION` updated to `"20"`.
+
 ### v1.3 (2026-09-10)
 - New §10 "Safety-Override Findings" (FREEZE-06): a lighter-than-full-graduation
   process for a small, explicit `(evaluator, category)` allowlist
@@ -270,7 +290,9 @@ To modify a frozen item:
 - **Execution:** Add to CANONICAL_EVALUATORS in config.py, update GRADE_CONTRACT.md version, bump ELV
 
 ### Contract Versioning
-- **Current version:** 1.3 (was stale at "1.1" here despite the top-of-file header
+- **Current version:** 1.4 (2026-09-23, second `SAFETY_OVERRIDE_FINDINGS` entry —
+  see Changelog v1.4)
+- **Prior version:** 1.3 (was stale at "1.1" here despite the top-of-file header
   and Changelog already showing 1.2 as of the 2026-08-07 evaluator-graduation entry --
   fixed in the same pass that added §10, PKGINSTALL-GRADE-SAFETY-OVERRIDE, 2026-09-10)
 - **Minor version (1.x):** non-breaking changes (new experimental evaluator, threshold tweak)
@@ -371,6 +393,7 @@ section itself is meant to settle.
 |---|---|---|---|
 | `install_recipe` | `IR_PUBLISH_CLAIM` | 2026-09-10 | Catches a page falsely claiming a package is published when the registry records it isn't (RC-W1-003) -- confirmed 89 real, live findings across 9 products, all previously invisible to grade. |
 | `install_recipe` | `IR_UNPUBLISHED_DISCLOSURE` | 2026-09-10 | Catches a page disclosing internal non-publication status to a public reader, against explicit 2026-09-03/2026-09-10 operator policy (ST-054 TC-14) -- 0 findings at the time of addition (already remediated by TC-16), added for regression protection, not an active defect. |
+| `example_execution` | `EX` | 2026-09-23 | Catches a real, offline, tree-sitter-detected syntax error in a public code example — the only category this evaluator emits, and its FAIL branch is its single deterministic check (WARN/INFO branches for execution-proof lookup never reach FAIL). Confirmed 44 real findings across 43 English pages at the time of addition, all fixed and pushed first (commit `8bc75bdf0106add243b7811585327eb4cd9f278e`) per the explicit "fix first, then activate" sequencing decision — 0 findings remain, so activation is a pure regression guard, not an active downgrade. Ceiling is `"C"` via `category_ceilings` (not `critical_categories` — a syntax error caps quality, it does not force outright failure, matching `code_syntax_check`'s own `SX` precedent). |
 
 ### Verification requirement (this taskcard's own closing gate)
 

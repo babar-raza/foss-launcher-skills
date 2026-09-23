@@ -119,9 +119,19 @@ EXPERIMENTAL_EVALUATORS = frozenset({
 # corpus-validation graduation process for a change that only needs to
 # affect 2 already-tested, FAIL-only, deterministic checks). See
 # GRADE_CONTRACT.md §10 for the full process this override follows instead.
+#
+# ("example_execution", "EX") added 2026-09-23 (MT072-2026-09-23-EXAMPLE-
+# VERIFICATION-PRODUCTIONIZATION, TC-08): "EX" is the only category this
+# evaluator ever emits, and its FAIL branch is the single, deterministic
+# tree-sitter SYNTAX-ERROR check (example_execution.py's WARN/INFO branches
+# never reach FAIL) -- same defect class code_syntax_check's own "SX" entry
+# already covers for Go, now extended to every platform this evaluator
+# checks. See GRADE_CONTRACT.md §10's "Current entries" table for the full
+# eligibility-bar justification.
 SAFETY_OVERRIDE_FINDINGS: frozenset[tuple[str, str]] = frozenset({
     ("install_recipe", "IR_PUBLISH_CLAIM"),
     ("install_recipe", "IR_UNPUBLISHED_DISCLOSURE"),
+    ("example_execution", "EX"),
 })
 
 # Default evaluators (fast, deterministic, production-ready)
