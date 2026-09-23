@@ -42,9 +42,9 @@
     "deployed_repo": "Aspose/aspose.org-workflows"
   },
   "llms-generation.yml": {
-    "approved_baseline_sha256": "e12d0852be2fcde67145e2cacd01130202f8253045763540ffa8c1231a476b38",
-    "baseline_recorded_at": "2026-09-19T12:02:30.417226Z",
-    "baseline_source": "seeded_from_deployed",
+    "approved_baseline_sha256": "6e121aa96b800b2aeb7257a37e9d98febad80a6b61ac157b0426e0471973efdb",
+    "baseline_recorded_at": "2026-09-23T13:29:47.349407Z",
+    "baseline_source": "approved_after_review: HC-12: adds a genuine pre-regeneration cross-run drift check (persisted manifest artifact) and the --manifest-path CLI parameterization it needs; existing post-regen self-consistency check unchanged. Reviewed diff; new machinery soft-launched continue-on-error.",
     "deployed_path": ".github/workflows/llms-generation.yml",
     "deployed_repo": "Aspose/aspose.org-workflows"
   },
@@ -133,9 +133,9 @@
     "deployed_repo": "Aspose/aspose.org-workflows"
   },
   "workflow-cost-telemetry.yml": {
-    "approved_baseline_sha256": "bd2bb6b84ac365e1e4934475ba32208d8b1c6508bffa600f10c1e003623c7edb",
-    "baseline_recorded_at": "2026-09-19T08:31:34.607928Z",
-    "baseline_source": "approved_after_review: HC-05: scheduled runs live, dispatch stays dry-run; diff reviewed (one env expression + header comment); prior baseline f38c3330 equals the version deployed as cfa6e404",
+    "approved_baseline_sha256": "181703a3c7813771bcae16a0b49479f7e67358d8c80791d416aeac5eec7aa039",
+    "baseline_recorded_at": "2026-09-23T14:22:53.467598Z",
+    "baseline_source": "approved_after_review: HC-15: adds the soft-launch deadline watch (data/soft_launch_deadlines.json + check_soft_launch_deadlines.py) as two new steps + an alert issue; existing collector logic unchanged.",
     "deployed_path": ".github/workflows/workflow-cost-telemetry.yml",
     "deployed_repo": "Aspose/aspose.org-workflows"
   },

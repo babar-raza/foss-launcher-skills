@@ -6719,6 +6719,22 @@ scripts:
     deprecated_since: null
     notes: "Thin CLI over TaskcardStore for mission taskcard ledgers (SEO-LOOP-TASKCARD-CLI, MT064 Wave 0, it-0000): latest/ready/seed/claim/advance/release/recover-expired. Registered by SEO-TESTS-CI-WIRING after check_pipeline_registration.py surfaced it as an unregistered pre-existing gap from this same mission's own earlier work."
 
+  - path: scripts/pipeline/commands/governance/taskcard_revalidate.py
+    kind: entrypoint
+    lifecycle: active
+    canonical_impl_path: null
+    public_entrypoint: true
+    cli_contract: stable
+    owner_domain: governance
+    backing:
+      kind: internal
+      ref: null
+    test_targets:
+      - scripts/pipeline/tests/test_taskcard_revalidate.py
+    requires_test: true
+    deprecated_since: null
+    notes: "MT069 HC-15 (2026-09-23), the 're-validation of completed_verified cards' governance-tooling proposal, built. Reads a mission's taskcards.jsonl (via TaskcardStore, no format change) for cards declaring a `revalidate` shell command (set via taskcard_cli.py's existing --field mechanism) and re-runs each, reporting which no longer pass -- never touching the ledger itself. Deliberately not wired into any CI workflow: taskcards.jsonl is per-mission, local, gitignored state that a public-repo workflow cannot see and mission task descriptions should not be made public. Built to close the exact gap a real incident exposed: skill-governance.yml's TC-SG-20 closure (2026-08-31, graded completed_verified) silently went stale 6 days later when commit acd165e07e re-broke the thing it certified, undetected until an unrelated cost investigation found it."
+
   - path: scripts/pipeline/lib/class_stats.py
     kind: library
     lifecycle: active
