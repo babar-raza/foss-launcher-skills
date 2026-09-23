@@ -290,17 +290,40 @@ Windows host here. Fetch the token from a shell where `gh` *is* available
 
 ## Decommissioning a runner
 
-Not yet automated (flagged, not built, as of 2026-09-18 — a real gap once a
-runner becomes load-bearing enough that decommissioning it safely matters).
-Manually, in order: stop and remove the service
-(`sudo ./svc.sh stop && sudo ./svc.sh uninstall`), remove the runner's
-registration from GitHub (`gh api -X DELETE
-repos/<owner>/<repo>/actions/runners/<runner-id>`, id from the verification
+**Automated (MT069 HC-18, 2026-09-23)** — `scripts/ci/decommission-self-hosted-runner.sh --repo
+<owner/repo> --name <runner-name>`. It looks up the runner's id, checks (read-only, no `sudo`)
+whether a systemd service is active for it — if so it prints the exact `sudo` stop/uninstall
+commands and stops, since it cannot supply a password non-interactively — otherwise kills any
+foreground (non-service) listener, deletes the GitHub registration, removes the install
+directory, and verifies both are gone. Refuses to target `alienware-m18-wsl2-private` or
+`alienware-m18-wsl2-test` (this org's two real, load-bearing runners) unless you pass
+`--i-mean-it`.
+
+**Proven live, fresh-machine style (2026-09-23):** registered a temporary third runner
+(`mt069-hc18-freshtest`) against the public repo via `setup-self-hosted-runner.sh`, started it as
+a foreground (non-service) listener, confirmed `online` in the API alongside the two real
+runners (untouched), then ran the decommission script. Its first attempt used `--token`
+(this host has no `gh` inside WSL) with `curl ... --jq` — **a real bug**: curl does not
+understand `--jq`, and wrapped in `|| true` the failure silently read as "runner not found"
+instead of an error, so the script reported success while the runner was still fully registered
+and online. Fixed: this host also has no system `jq` (a separately confirmed gap), so every
+JSON response — from both the `gh` and `curl` transports — is now filtered through Python
+instead of `--jq`/`jq`. Re-run: found the runner, deleted its registration, removed its
+directory, and verified both were gone — confirmed independently afterward via a fresh `gh api`
+call and a directory listing. The foreground listener process itself was found already gone by
+the time of the second run, most likely because a plain `nohup`+`disown`'d process does not
+reliably survive across separate `wsl -e` invocations the way a real `systemd` service does —
+reinforcing why the two real runners are services, not foreground listeners.
+
+Manual fallback if the script is ever unavailable, in order: stop and remove the service
+(`sudo ./svc.sh stop && sudo ./svc.sh uninstall`), remove the runner's registration from GitHub
+(`gh api -X DELETE repos/<owner>/<repo>/actions/runners/<runner-id>`, id from the verification
 API call above), then delete the install directory.
 
 ## Related
 
 - `scripts/ci/setup-self-hosted-runner.sh` — the setup script itself
+- `scripts/ci/decommission-self-hosted-runner.sh` — the decommission script (MT069 HC-18)
 - `scripts/ci/deployed-workflows/selfhosted-runner-smoke-test.yml` — the
   manual-dispatch health-check workflow proven against the public-repo runner
 - [Governance gates reference](../reference/governance-gates.md)
