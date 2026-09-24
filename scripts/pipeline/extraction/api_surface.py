@@ -3757,6 +3757,24 @@ def extract_api_surface(
     # regression test would catch.
     if language in ("typescript", "javascript"):
         scout_report["ts_entry_point"] = _ts_entry_point_rel
+        # TC-TSGAP-07 (2026-09-24): _compute_reachable's own "unknown
+        # collapses to True" contract (RC-W1-004, never fabricate a False)
+        # means every entry's reachable=True is ambiguous on its own -- it
+        # cannot be told apart from "confirmed reachable via a real resolved
+        # barrel" without this signal. Found live on cells/typescript: its
+        # package.json main resolves to a real, existing, but non-exporting
+        # demo index.ts, so _ts_exports is None and every one of 131
+        # entries silently defaulted to reachable=True with zero actual
+        # verification. This field makes that distinction operator-visible
+        # (in scout_report.json, alongside ts_entry_point) without changing
+        # any per-entry reachable value or the fail-safe contract itself.
+        if _ts_exports is not None:
+            _ts_reachability_signal = "confirmed"
+        elif not _ts_entry_point_rel:
+            _ts_reachability_signal = "unknown_no_entry_resolved"
+        else:
+            _ts_reachability_signal = "unknown_entry_resolved_but_unenumerable"
+        scout_report["ts_reachability_signal"] = _ts_reachability_signal
     # Task 16 (§9.11, closes half of G10): stabilize member-claim IDs against
     # a "ClassName.MemberName" anchor instead of the full claim text -- see
     # _stabilize_scout_claim_ids' own docstring for the full rationale and the
