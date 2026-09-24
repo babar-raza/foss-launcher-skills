@@ -93,3 +93,40 @@ categorization taskcard, and disproportionate to attempt inside this same sessio
 
 This mirrors TC-21/ST-215's own disposition: categorization is this taskcard's real,
 complete deliverable; the fix itself needs its own scoped mission.
+
+## CORRECTION (2026-09-24, MT073/TC-01+TC-02): the 88% site-level correlation was an overclaim
+
+MT073's own TC-01 built the block-count-robust matcher this report specified as the
+concrete follow-on (anchor on content similarity via `difflib.SequenceMatcher`, not
+raw index — `lib/example_verification/block_matcher.py`). Running it against the full
+portfolio with this report's own narrow, verified candidate criteria (English tag is
+`NON_EXECUTABLE_LANGS`, locale tag is a real language, locale content is a genuine
+`SYNTAX-ERROR` under that tag) found **exactly 271 candidates — zero more than the
+naive positional check already found**, and every one of the 271 matched via
+`position` (equal block counts), none via the new `content-similarity` fallback.
+
+The matcher itself is verified working (direct tests below confirm it correctly
+re-orders a real 3-vs-4 block-count mismatch case) — it simply found nothing new for
+*this specific defect signature*, because block-count-mismatched reference.aspose.org
+files turn out NOT to be simple tag swaps at all. Direct investigation of the
+"unaccounted" reference.aspose.org errors found a **different, larger mechanism**:
+some locale reference pages (e.g. `3d/typescript/vector2-vector4/_index.md`,
+`3d/java/base-classes/_index.md`) have an English counterpart with as few as **1**
+code block, while the locale copy still has **12** — the English side was
+consolidated/restructured (likely by a later reference-index-structure regeneration
+pass — see `sprint_archive_2026h1.md`'s own "reference grouped-index" work) into a
+different content shape entirely, while the locale side is frozen on the old,
+pre-restructuring layout of many small bare-signature blocks. This is NOT a tag
+mistranslation and a tag-only fix must not be applied to it — it needs the actual
+reference-page-generation pipeline to regenerate the locale side, or a decision that
+these locale pages are simply stale and need re-translation from the current English
+structure. **Retracting this report's own "88% / 6,444 blocks" figure** — that number
+was a plausibility correlation ("reference.aspose.org's shape makes it exposed to this
+mechanism"), not a verified count, and it does not hold up: the real tag-mismatch
+class is 271 blocks/187 files, full stop, portfolio-wide. The remaining reference.aspose.org
+SYNTAX-ERROR blocks (roughly 3,600+, still not fully characterized) are a distinct,
+unresolved structural-divergence class, registered as follow-on investigation (see
+MT073's own taskcard register) rather than left silently folded into a wrong number.
+
+**Real fix applied on the strength of the CORRECT 271-candidate figure**: see MT073
+TC-03's own evidence for the real commit(s).

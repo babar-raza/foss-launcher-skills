@@ -2548,6 +2548,22 @@ scripts:
     deprecated_since: null
     notes: "GOVERNANCE: durable multi-mission archive for MISSION_AUTHORITY.yaml (open/close/list/backfill/status/allocate). Closes a pre-existing registration gap found 2026-07-31 while extending this file with the RC1/RC2 liveness aggregator (status subcommand). ST-157 fix (2026-09-01): new `allocate --track --slug [--date]` verb wired to mission_id_ledger.MissionIdLedger; `archive_mission()` now raises MissionIdCollisionError instead of silently overwriting a pre-existing, differently-contented archive at the same mission_id; `list` flags any MT0NN-shaped mission id absent from the ledger."
 
+  - path: scripts/pipeline/commands/governance/locale_tag_mistranslation_fixer.py
+    kind: entrypoint
+    lifecycle: active
+    canonical_impl_path: null
+    public_entrypoint: true
+    cli_contract: stable
+    owner_domain: content-quality
+    backing:
+      kind: internal
+      ref: null
+    test_targets:
+      - scripts/pipeline/tests/test_locale_tag_mistranslation_fixer.py
+    requires_test: true
+    deprecated_since: null
+    notes: "TC-02/TC-03 (MT073-2026-09-24-LOCALE-CODE-BLOCK-DEFECT-REMEDIATION): dry-run/apply tool for the dominant ST-211 defect class MT072/TC-19 diagnosed -- a fence's language tag silently replaced during locale translation (English tags non-code content NON_EXECUTABLE_LANGS, locale gets a real language tag instead). Tag-only fix, no code content changes. Uses lib/example_verification/block_matcher.py's count-robust English/locale block pairing."
+
   - path: scripts/pipeline/commands/governance/locale_code_block_equivalence.py
     kind: entrypoint
     lifecycle: active
