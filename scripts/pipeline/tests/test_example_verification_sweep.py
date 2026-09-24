@@ -125,11 +125,13 @@ def test_classify_grammar_unavailable():
 def _init_fixture_repo(tmp_path: Path) -> Path:
     """A tiny real git repo (run_sweep() shells out to `git ls-files`, so it
     needs one) with a handful of English + locale content pages spanning
-    the classification buckets, and one products.aspose.org page to prove
-    the disclosed-exclusion counting."""
+    the classification buckets, and two products.aspose.org pages (one
+    with no code, one with a real frontmatter-embedded example) to prove
+    TC-18's extraction path -- real products.aspose.org pages are ONE
+    YAML frontmatter block for the whole file, no separate body."""
     (tmp_path / "content" / "docs.aspose.org" / "en" / "pdf" / "go").mkdir(parents=True)
     (tmp_path / "content" / "docs.aspose.org" / "de" / "pdf" / "go").mkdir(parents=True)
-    (tmp_path / "content" / "products.aspose.org" / "en" / "pdf").mkdir(parents=True)
+    (tmp_path / "content" / "products.aspose.org" / "en" / "pdf" / "go").mkdir(parents=True)
 
     good = tmp_path / "content/docs.aspose.org/en/pdf/go/clean.md"
     good.write_text("---\ntitle: x\n---\n\n```go\npackage main\nfunc main() {}\n```\n", encoding="utf-8")
@@ -149,8 +151,20 @@ def _init_fixture_repo(tmp_path: Path) -> Path:
     locale = tmp_path / "content/docs.aspose.org/de/pdf/go/clean.md"
     locale.write_text("---\ntitle: x\n---\n\n```go\npackage main\nfunc main( {\n```\n", encoding="utf-8")
 
-    products_page = tmp_path / "content/products.aspose.org/en/pdf/_index.md"
-    products_page.write_text("---\ntitle: x\n---\n\nNo fenced blocks here.\n", encoding="utf-8")
+    # Family-root page: no code at all (real products.aspose.org shape --
+    # ONE frontmatter block for the whole file, no separate body).
+    products_root = tmp_path / "content/products.aspose.org/en/pdf/_index.md"
+    products_root.write_text("---\ntitle: x\noverview:\n  content: No fenced blocks here.\n---\n", encoding="utf-8")
+
+    # Platform-level page: a real embedded example inside a YAML block
+    # scalar, the actual shape production pages use.
+    products_platform = tmp_path / "content/products.aspose.org/en/pdf/go/_index.md"
+    products_platform.write_text(
+        "---\ntitle: x\nsingle:\n  block:\n  - title: Example\n    content: |\n"
+        "      ```go\n      package main\n      func main() {}\n      ```\n"
+        "---\n",
+        encoding="utf-8",
+    )
 
     subprocess.run(["git", "init", "-q"], cwd=tmp_path, check=True)
     subprocess.run(["git", "add", "-A"], cwd=tmp_path, check=True)
@@ -167,16 +181,20 @@ def test_run_sweep_classifies_every_block_in_the_fixture(tmp_path):
 
     assert report["unclassified_blocks"] == 0
     # clean.md (1 PASS) + broken.md (1 SYNTAX-ERROR) + mixed.md (1 SHELL-NOT-CHECKED
-    # + 1 NOT-EXECUTABLE-LANG + 1 PASS) = 5 English blocks; the /de/ locale page
-    # and the products.aspose.org page (no fences) never enter the count.
-    assert report["total_blocks_classified"] == 5
-    assert report["status_counts"]["PASS"] == 2
+    # + 1 NOT-EXECUTABLE-LANG + 1 PASS) = 5 English body blocks; the /de/ locale
+    # page never enters the count; products.aspose.org/en/pdf/go's frontmatter-
+    # embedded example adds 1 more real PASS (TC-18) -- products_root has none.
+    assert report["total_blocks_classified"] == 6
+    assert report["status_counts"]["PASS"] == 3
     assert report["status_counts"]["SYNTAX-ERROR"] == 1
     assert report["status_counts"]["SHELL-NOT-CHECKED"] == 1
     assert report["status_counts"]["NOT-EXECUTABLE-LANG"] == 1
     assert report["pages_by_site"]["docs.aspose.org"] == 3  # locale page excluded from this count too
-    assert report["pages_by_site"]["products.aspose.org"] == 1
-    assert report["excluded_products_aspose_org_pages"] == 1
+    assert report["pages_by_site"]["products.aspose.org"] == 2
+    assert report["pages_with_code_by_site"]["products.aspose.org"] == 1
+    assert report["frontmatter_embedded_pages_with_no_code"] == 1
+    assert "products.aspose.org" in report["sites_swept"]
+    assert report["sites_swept_via_frontmatter_extraction"] == ["products.aspose.org"]
 
 
 def test_run_sweep_blank_lang_block_is_its_own_bucket_not_unclassified(tmp_path):
@@ -210,15 +228,17 @@ def test_run_sweep_writes_ledger_eligible_results(tmp_path):
 
     # PASS in clean.md + SYNTAX-ERROR in broken.md + the PASS go block in
     # mixed.md (its bash/json blocks are SHELL-NOT-CHECKED/NOT-EXECUTABLE-LANG,
-    # neither ledger-eligible).
-    assert report["ledger_writes"] == 3
+    # neither ledger-eligible) + the PASS go block frontmatter-embedded in
+    # products.aspose.org/en/pdf/go (TC-18) -- all 4 key on the same
+    # (pdf, go) ledger since every fixture page uses that family/platform.
+    assert report["ledger_writes"] == 4
     assert report["ledger_errors"] == []
 
     ledger = ledger_mod.ExecutionProofLedger("pdf", "go", repo_root=repo)
     history = ledger.read_history()
-    assert len(history) == 3
+    assert len(history) == 4
     statuses = sorted(r["status"] for r in history)
-    assert statuses == ["BLOCKED-WITH-REASON", "PASS", "PASS"]
+    assert statuses == ["BLOCKED-WITH-REASON", "PASS", "PASS", "PASS"]
 
 
 def test_run_sweep_is_idempotent_on_ledger_append_count(tmp_path):
@@ -232,7 +252,7 @@ def test_run_sweep_is_idempotent_on_ledger_append_count(tmp_path):
 
     import example_verification_ledger as ledger_mod
     ledger = ledger_mod.ExecutionProofLedger("pdf", "go", repo_root=repo)
-    assert len(ledger.read_history()) == 6  # 3 ledger-eligible blocks x 2 runs
+    assert len(ledger.read_history()) == 8  # 4 ledger-eligible blocks x 2 runs
 
 
 def test_main_writes_a_dated_report_file(tmp_path, capsys):

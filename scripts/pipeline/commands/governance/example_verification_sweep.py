@@ -6,9 +6,10 @@ CONTRACT: scripts/pipeline/commands/governance/example_verification_sweep.py
   purpose: the first real, full-portfolio proof that "has the verifier run
            on all public examples" can be answered with a dated artifact,
            not an inference. For every block on every English public page
-           (docs/blog/kb/reference; products.aspose.org's frontmatter-
-           embedded blocks are a disclosed, separate scope boundary -- see
-           below), classifies it into exactly one of: PASS, SYNTAX-ERROR,
+           across all 5 public sites (docs/blog/kb/reference/products --
+           products.aspose.org via frontmatter_blocks.py's YAML-aware
+           extractor, TC-18, since that site has no separate body at all),
+           classifies it into exactly one of: PASS, SYNTAX-ERROR,
            GRAMMAR-UNAVAILABLE, NOT-EXECUTABLE-LANG, BLANK-LANG-UNCHECKED,
            SHELL-NOT-CHECKED, EMPTY -- zero blocks left unclassified. Every
            PASS/SYNTAX-ERROR result (the two ledger-eligible, deterministic
@@ -34,14 +35,21 @@ execution has already been separately, directly proven for go/net/python
 later, narrower tier-2/3 sweep is a natural follow-on, not this
 taskcard's own bar (which is completeness of classification, not depth).
 
-Known, disclosed scope boundary: products.aspose.org's code blocks live
-embedded in YAML frontmatter with 4+ space indentation, which
-code_fences.py's CommonMark-conformant tokenizer cannot see by design
-(indented text is a CommonMark indented code block, not a fenced one --
-and frontmatter isn't page BODY at all). These pages are walked and
-counted (so their existence is never silently dropped from the report),
-but their blocks are recorded as `excluded_frontmatter_embedded`, not
-folded into "0 unclassified."
+TC-18 fix (2026-09-24, this same taskcard's own commit): products.aspose.org
+used to be entirely excluded here -- its code blocks live embedded in
+YAML frontmatter with 4+ space indentation, which code_fences.py's
+CommonMark-conformant tokenizer cannot see by design (indented text is a
+CommonMark indented code block, not a fenced one -- and frontmatter isn't
+page BODY at all). That boundary was real and disclosed (never silently
+miscounted as zero), but it meant 0 of this site's real code examples
+were ever actually checked. Now routed through
+`frontmatter_blocks.py::extract_frontmatter_embedded_blocks()`, which
+parses the whole page as YAML and scans every string value for fence
+markers -- once PyYAML has unpacked a block scalar, the embedded
+` ```lang ` markers are just normal text, and the SAME canonical
+tokenizer used everywhere else parses them correctly. Live re-measurement
+(2026-09-24): 88 real code blocks across products.aspose.org, 83 PASS,
+5 GRAMMAR-UNAVAILABLE, 0 SYNTAX-ERROR.
 
 Shell-family fences (bash/sh/shell/powershell/bat/cmd) are excluded from
 the same reasoning `content_eval/evaluators/example_execution.py`'s own
@@ -93,6 +101,7 @@ if str(_LIB_DIR) not in sys.path:
 
 from example_verification import RUNNERS_MODULE_VERSION  # noqa: E402
 from example_verification.code_fences import enumerate_code_blocks  # noqa: E402
+from example_verification.frontmatter_blocks import extract_frontmatter_embedded_blocks  # noqa: E402
 from example_verification.registry import NON_EXECUTABLE_LANGS  # noqa: E402
 from example_verification.syntax import check_syntax  # noqa: E402
 from example_verification_ledger import ExecutionProofLedger, ledger_key, resolve_baseline_component, resolve_toolchain_fp  # noqa: E402
@@ -104,13 +113,21 @@ _REPO_ROOT = _PIPELINE_ROOT.parents[1]
 # this module has no import-time coupling to a content_eval evaluator.
 _SHELL_LANGS: "frozenset[str]" = frozenset({"bash", "sh", "shell", "powershell", "bat", "cmd"})
 
-# The 4 public sites this sweep covers. products.aspose.org is
-# deliberately excluded (see module docstring) -- but still counted
-# separately so its exclusion is a disclosed number, not a silent gap.
+# The 4 sites whose code blocks live in the ordinary markdown BODY,
+# parsed via code_fences.py directly against page text.
 _SWEPT_SITES: "tuple[str, ...]" = (
     "docs.aspose.org", "blog.aspose.org", "kb.aspose.org", "reference.aspose.org",
 )
-_EXCLUDED_SITES: "tuple[str, ...]" = ("products.aspose.org",)
+# products.aspose.org has no separate body at all -- every field, including
+# its code examples, lives inside YAML frontmatter string values. TC-18
+# (2026-09-24) stopped treating this as excluded and instead routes it
+# through frontmatter_blocks.py's own YAML-aware extractor (see that
+# module's docstring) -- kept as a distinct tuple/name (not folded into
+# _SWEPT_SITES) because it takes a structurally different extraction path,
+# not because it's still skipped. Renamed from the old `_EXCLUDED_SITES`
+# (which this really was, pre-TC-18) to stop that name lying about what
+# the code now does.
+_FRONTMATTER_EMBEDDED_SITES: "tuple[str, ...]" = ("products.aspose.org",)
 
 
 _LOCALE_TAG_RE = re.compile(r"^[a-z]{2,3}(-[a-z]{2,4})?$")
@@ -149,7 +166,7 @@ def _is_english_public_page(rel_path: str) -> "str | None":
         if len(parts) > 2 and parts[2] == "en":
             return site
         return None
-    if site in _EXCLUDED_SITES:
+    if site in _FRONTMATTER_EMBEDDED_SITES:
         return site if len(parts) > 2 and parts[2] == "en" else None
     return None
 
@@ -211,7 +228,7 @@ def run_sweep(*, repo_root: "Path | None" = None) -> dict:
     per_site_pages_with_code: "dict[str, int]" = {}
     status_counts: "dict[str, int]" = {}
     lang_status_counts: "dict[str, dict[str, int]]" = {}
-    excluded_products_pages = 0
+    frontmatter_embedded_pages_with_no_code = 0
     ledger_writes = 0
     ledger_errors: "list[str]" = []
     ledgers: "dict[tuple[str, str], ExecutionProofLedger]" = {}
@@ -223,25 +240,37 @@ def run_sweep(*, repo_root: "Path | None" = None) -> dict:
             continue
         per_site_pages[site] = per_site_pages.get(site, 0) + 1
 
-        if site in _EXCLUDED_SITES:
-            excluded_products_pages += 1
-            continue
-
         fam_plat = _family_platform_from_path(site, rel_path)
         family, platform = fam_plat if fam_plat else ("", "")
+        # TC-18 defensive guard: _family_platform_from_path's own
+        # "tail[1]" fallback can return a bogus platform like "_index.md"
+        # for a family-ROOT page with no platform segment at all -- never
+        # observed to actually carry code (verified live across all 26
+        # family-root pages, 2026-09-24), but a ledger write keyed on a
+        # ".md"-suffixed "platform" would be a real, silent data-quality
+        # bug if that ever changes, so it's refused explicitly rather than
+        # trusted implicitly.
+        if platform.endswith((".md", ".markdown")):
+            family, platform = "", ""
 
         abs_path = repo_root / rel_path
         try:
             text = abs_path.read_text(encoding="utf-8", errors="replace")
         except OSError:
             continue
-        if text.startswith("---"):
-            end = text.find("\n---", 3)
-            if end > 0:
-                text = text[end + 4:]
 
-        blocks = enumerate_code_blocks(text)
+        if site in _FRONTMATTER_EMBEDDED_SITES:
+            blocks = extract_frontmatter_embedded_blocks(text)
+        else:
+            if text.startswith("---"):
+                end = text.find("\n---", 3)
+                if end > 0:
+                    text = text[end + 4:]
+            blocks = enumerate_code_blocks(text)
+
         if not blocks:
+            if site in _FRONTMATTER_EMBEDDED_SITES:
+                frontmatter_embedded_pages_with_no_code += 1
             continue
         per_site_pages_with_code[site] = per_site_pages_with_code.get(site, 0) + 1
 
@@ -294,15 +323,16 @@ def run_sweep(*, repo_root: "Path | None" = None) -> dict:
     return {
         "run_id": run_id,
         "generated_at": datetime.now(tz=timezone.utc).isoformat().replace("+00:00", "Z"),
-        "sites_swept": list(_SWEPT_SITES),
-        "sites_excluded": list(_EXCLUDED_SITES),
+        "sites_swept": list(_SWEPT_SITES) + list(_FRONTMATTER_EMBEDDED_SITES),
+        "sites_swept_via_frontmatter_extraction": list(_FRONTMATTER_EMBEDDED_SITES),
         "pages_by_site": per_site_pages,
         "pages_with_code_by_site": per_site_pages_with_code,
-        "excluded_products_aspose_org_pages": excluded_products_pages,
-        "products_aspose_org_excluded_note": (
-            "products.aspose.org's code blocks live embedded in YAML frontmatter with "
-            "4+ space indentation, invisible to the CommonMark-conformant fence tokenizer "
-            "by design -- excluded, not silently miscounted as zero."
+        "frontmatter_embedded_pages_with_no_code": frontmatter_embedded_pages_with_no_code,
+        "frontmatter_embedded_note": (
+            "products.aspose.org's code blocks live embedded in YAML frontmatter string "
+            "values (no separate markdown body). TC-18 (2026-09-24) added "
+            "frontmatter_blocks.py's YAML-aware extractor for this site rather than "
+            "leaving it excluded -- this is now a real, checked site, not a disclosed gap."
         ),
         "total_blocks_classified": total_blocks,
         "status_counts": status_counts,
@@ -335,7 +365,7 @@ def main(argv: "list[str] | None" = None, *, repo_root: "Path | None" = None) ->
     print(f"Sites swept: {report['sites_swept']}")
     print(f"Pages: {report['pages_by_site']}")
     print(f"Pages with code: {report['pages_with_code_by_site']}")
-    print(f"products.aspose.org pages excluded (frontmatter-embedded, disclosed): {report['excluded_products_aspose_org_pages']}")
+    print(f"products.aspose.org pages with no frontmatter-embedded code (real check, not exclusion): {report['frontmatter_embedded_pages_with_no_code']}")
     print(f"Total blocks classified: {report['total_blocks_classified']}")
     print(f"Status counts: {report['status_counts']}")
     print(f"UNCLASSIFIED: {report['unclassified_blocks']}")

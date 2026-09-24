@@ -1,5 +1,4 @@
 {
-  "excluded_products_aspose_org_pages": 60,
   "files": [
     {
       "blocks": [
@@ -28178,6 +28177,758 @@
         {
           "detail": "",
           "lang": "java",
+          "start_line": 5,
+          "status": "PASS"
+        },
+        {
+          "detail": "",
+          "lang": "java",
+          "start_line": 3,
+          "status": "PASS"
+        }
+      ],
+      "family": "3d",
+      "file": "content/products.aspose.org/en/3d/java/_index.md",
+      "platform": "java"
+    },
+    {
+      "blocks": [
+        {
+          "detail": "",
+          "lang": "csharp",
+          "start_line": 5,
+          "status": "PASS"
+        },
+        {
+          "detail": "",
+          "lang": "csharp",
+          "start_line": 3,
+          "status": "PASS"
+        }
+      ],
+      "family": "3d",
+      "file": "content/products.aspose.org/en/3d/net/_index.md",
+      "platform": "net"
+    },
+    {
+      "blocks": [
+        {
+          "detail": "",
+          "lang": "python",
+          "start_line": 5,
+          "status": "PASS"
+        },
+        {
+          "detail": "",
+          "lang": "python",
+          "start_line": 3,
+          "status": "PASS"
+        }
+      ],
+      "family": "3d",
+      "file": "content/products.aspose.org/en/3d/python/_index.md",
+      "platform": "python"
+    },
+    {
+      "blocks": [
+        {
+          "detail": "",
+          "lang": "typescript",
+          "start_line": 5,
+          "status": "PASS"
+        },
+        {
+          "detail": "",
+          "lang": "typescript",
+          "start_line": 3,
+          "status": "PASS"
+        }
+      ],
+      "family": "3d",
+      "file": "content/products.aspose.org/en/3d/typescript/_index.md",
+      "platform": "typescript"
+    },
+    {
+      "blocks": [
+        {
+          "detail": "",
+          "lang": "python",
+          "start_line": 2,
+          "status": "PASS"
+        },
+        {
+          "detail": "",
+          "lang": "python",
+          "start_line": 2,
+          "status": "PASS"
+        },
+        {
+          "detail": "",
+          "lang": "python",
+          "start_line": 2,
+          "status": "PASS"
+        }
+      ],
+      "family": "barcode",
+      "file": "content/products.aspose.org/en/barcode/python/_index.md",
+      "platform": "python"
+    },
+    {
+      "blocks": [
+        {
+          "detail": "",
+          "lang": "cpp",
+          "start_line": 3,
+          "status": "PASS"
+        }
+      ],
+      "family": "cells",
+      "file": "content/products.aspose.org/en/cells/cpp/_index.md",
+      "platform": "cpp"
+    },
+    {
+      "blocks": [
+        {
+          "detail": "",
+          "lang": "go",
+          "start_line": 5,
+          "status": "PASS"
+        },
+        {
+          "detail": "",
+          "lang": "go",
+          "start_line": 3,
+          "status": "PASS"
+        },
+        {
+          "detail": "",
+          "lang": "go",
+          "start_line": 3,
+          "status": "PASS"
+        }
+      ],
+      "family": "cells",
+      "file": "content/products.aspose.org/en/cells/go/_index.md",
+      "platform": "go"
+    },
+    {
+      "blocks": [
+        {
+          "detail": "",
+          "lang": "java",
+          "start_line": 4,
+          "status": "PASS"
+        },
+        {
+          "detail": "",
+          "lang": "java",
+          "start_line": 4,
+          "status": "PASS"
+        },
+        {
+          "detail": "",
+          "lang": "java",
+          "start_line": 4,
+          "status": "PASS"
+        }
+      ],
+      "family": "cells",
+      "file": "content/products.aspose.org/en/cells/java/_index.md",
+      "platform": "java"
+    },
+    {
+      "blocks": [
+        {
+          "detail": "",
+          "lang": "csharp",
+          "start_line": 5,
+          "status": "PASS"
+        },
+        {
+          "detail": "",
+          "lang": "csharp",
+          "start_line": 3,
+          "status": "PASS"
+        },
+        {
+          "detail": "",
+          "lang": "csharp",
+          "start_line": 3,
+          "status": "PASS"
+        }
+      ],
+      "family": "cells",
+      "file": "content/products.aspose.org/en/cells/net/_index.md",
+      "platform": "net"
+    },
+    {
+      "blocks": [
+        {
+          "detail": "",
+          "lang": "python",
+          "start_line": 5,
+          "status": "PASS"
+        },
+        {
+          "detail": "",
+          "lang": "python",
+          "start_line": 3,
+          "status": "PASS"
+        }
+      ],
+      "family": "cells",
+      "file": "content/products.aspose.org/en/cells/python/_index.md",
+      "platform": "python"
+    },
+    {
+      "blocks": [
+        {
+          "detail": "",
+          "lang": "rust",
+          "start_line": 3,
+          "status": "PASS"
+        },
+        {
+          "detail": "",
+          "lang": "rust",
+          "start_line": 3,
+          "status": "PASS"
+        },
+        {
+          "detail": "",
+          "lang": "rust",
+          "start_line": 3,
+          "status": "PASS"
+        }
+      ],
+      "family": "cells",
+      "file": "content/products.aspose.org/en/cells/rust/_index.md",
+      "platform": "rust"
+    },
+    {
+      "blocks": [
+        {
+          "detail": "",
+          "lang": "typescript",
+          "start_line": 3,
+          "status": "PASS"
+        },
+        {
+          "detail": "",
+          "lang": "typescript",
+          "start_line": 3,
+          "status": "PASS"
+        },
+        {
+          "detail": "",
+          "lang": "typescript",
+          "start_line": 3,
+          "status": "PASS"
+        }
+      ],
+      "family": "cells",
+      "file": "content/products.aspose.org/en/cells/typescript/_index.md",
+      "platform": "typescript"
+    },
+    {
+      "blocks": [
+        {
+          "detail": "",
+          "lang": "cpp",
+          "start_line": 3,
+          "status": "PASS"
+        },
+        {
+          "detail": "",
+          "lang": "cpp",
+          "start_line": 3,
+          "status": "PASS"
+        }
+      ],
+      "family": "email",
+      "file": "content/products.aspose.org/en/email/cpp/_index.md",
+      "platform": "cpp"
+    },
+    {
+      "blocks": [
+        {
+          "detail": "",
+          "lang": "csharp",
+          "start_line": 3,
+          "status": "PASS"
+        },
+        {
+          "detail": "",
+          "lang": "csharp",
+          "start_line": 3,
+          "status": "PASS"
+        },
+        {
+          "detail": "",
+          "lang": "csharp",
+          "start_line": 3,
+          "status": "PASS"
+        }
+      ],
+      "family": "email",
+      "file": "content/products.aspose.org/en/email/net/_index.md",
+      "platform": "net"
+    },
+    {
+      "blocks": [
+        {
+          "detail": "",
+          "lang": "python",
+          "start_line": 5,
+          "status": "PASS"
+        },
+        {
+          "detail": "",
+          "lang": "python",
+          "start_line": 3,
+          "status": "PASS"
+        }
+      ],
+      "family": "email",
+      "file": "content/products.aspose.org/en/email/python/_index.md",
+      "platform": "python"
+    },
+    {
+      "blocks": [
+        {
+          "detail": "",
+          "lang": "python",
+          "start_line": 3,
+          "status": "PASS"
+        },
+        {
+          "detail": "",
+          "lang": "python",
+          "start_line": 3,
+          "status": "PASS"
+        },
+        {
+          "detail": "",
+          "lang": "python",
+          "start_line": 3,
+          "status": "PASS"
+        },
+        {
+          "detail": "",
+          "lang": "python",
+          "start_line": 3,
+          "status": "PASS"
+        }
+      ],
+      "family": "font",
+      "file": "content/products.aspose.org/en/font/python/_index.md",
+      "platform": "python"
+    },
+    {
+      "blocks": [
+        {
+          "detail": "",
+          "lang": "python",
+          "start_line": 2,
+          "status": "PASS"
+        },
+        {
+          "detail": "",
+          "lang": "python",
+          "start_line": 2,
+          "status": "PASS"
+        },
+        {
+          "detail": "",
+          "lang": "python",
+          "start_line": 2,
+          "status": "PASS"
+        }
+      ],
+      "family": "html",
+      "file": "content/products.aspose.org/en/html/python/_index.md",
+      "platform": "python"
+    },
+    {
+      "blocks": [
+        {
+          "detail": "",
+          "lang": "csharp",
+          "start_line": 5,
+          "status": "PASS"
+        },
+        {
+          "detail": "",
+          "lang": "csharp",
+          "start_line": 3,
+          "status": "PASS"
+        }
+      ],
+      "family": "imaging",
+      "file": "content/products.aspose.org/en/imaging/net/_index.md",
+      "platform": "net"
+    },
+    {
+      "blocks": [
+        {
+          "detail": "",
+          "lang": "python",
+          "start_line": 5,
+          "status": "PASS"
+        },
+        {
+          "detail": "",
+          "lang": "python",
+          "start_line": 3,
+          "status": "PASS"
+        }
+      ],
+      "family": "note",
+      "file": "content/products.aspose.org/en/note/python/_index.md",
+      "platform": "python"
+    },
+    {
+      "blocks": [
+        {
+          "detail": "",
+          "lang": "python",
+          "start_line": 5,
+          "status": "PASS"
+        },
+        {
+          "detail": "",
+          "lang": "python",
+          "start_line": 3,
+          "status": "PASS"
+        },
+        {
+          "detail": "",
+          "lang": "python",
+          "start_line": 3,
+          "status": "PASS"
+        }
+      ],
+      "family": "page",
+      "file": "content/products.aspose.org/en/page/python/_index.md",
+      "platform": "python"
+    },
+    {
+      "blocks": [
+        {
+          "detail": "no tree-sitter grammar available for 'cmake'",
+          "lang": "cmake",
+          "start_line": 3,
+          "status": "GRAMMAR-UNAVAILABLE"
+        },
+        {
+          "detail": "",
+          "lang": "cpp",
+          "start_line": 8,
+          "status": "PASS"
+        },
+        {
+          "detail": "",
+          "lang": "cpp",
+          "start_line": 3,
+          "status": "PASS"
+        },
+        {
+          "detail": "",
+          "lang": "cpp",
+          "start_line": 3,
+          "status": "PASS"
+        }
+      ],
+      "family": "pdf",
+      "file": "content/products.aspose.org/en/pdf/cpp/_index.md",
+      "platform": "cpp"
+    },
+    {
+      "blocks": [
+        {
+          "detail": "",
+          "lang": "go",
+          "start_line": 5,
+          "status": "PASS"
+        },
+        {
+          "detail": "",
+          "lang": "go",
+          "start_line": 3,
+          "status": "PASS"
+        },
+        {
+          "detail": "",
+          "lang": "go",
+          "start_line": 3,
+          "status": "PASS"
+        },
+        {
+          "detail": "",
+          "lang": "go",
+          "start_line": 3,
+          "status": "PASS"
+        }
+      ],
+      "family": "pdf",
+      "file": "content/products.aspose.org/en/pdf/go/_index.md",
+      "platform": "go"
+    },
+    {
+      "blocks": [
+        {
+          "detail": "",
+          "lang": "java",
+          "start_line": 2,
+          "status": "PASS"
+        },
+        {
+          "detail": "",
+          "lang": "java",
+          "start_line": 2,
+          "status": "PASS"
+        },
+        {
+          "detail": "",
+          "lang": "java",
+          "start_line": 2,
+          "status": "PASS"
+        }
+      ],
+      "family": "pdf",
+      "file": "content/products.aspose.org/en/pdf/java/_index.md",
+      "platform": "java"
+    },
+    {
+      "blocks": [
+        {
+          "detail": "",
+          "lang": "python",
+          "start_line": 5,
+          "status": "PASS"
+        },
+        {
+          "detail": "",
+          "lang": "python",
+          "start_line": 3,
+          "status": "PASS"
+        },
+        {
+          "detail": "",
+          "lang": "python",
+          "start_line": 3,
+          "status": "PASS"
+        },
+        {
+          "detail": "",
+          "lang": "python",
+          "start_line": 3,
+          "status": "PASS"
+        }
+      ],
+      "family": "pdf",
+      "file": "content/products.aspose.org/en/pdf/python/_index.md",
+      "platform": "python"
+    },
+    {
+      "blocks": [
+        {
+          "detail": "",
+          "lang": "typescript",
+          "start_line": 5,
+          "status": "PASS"
+        },
+        {
+          "detail": "",
+          "lang": "typescript",
+          "start_line": 3,
+          "status": "PASS"
+        },
+        {
+          "detail": "",
+          "lang": "typescript",
+          "start_line": 3,
+          "status": "PASS"
+        },
+        {
+          "detail": "",
+          "lang": "typescript",
+          "start_line": 3,
+          "status": "PASS"
+        }
+      ],
+      "family": "pdf",
+      "file": "content/products.aspose.org/en/pdf/typescript/_index.md",
+      "platform": "typescript"
+    },
+    {
+      "blocks": [
+        {
+          "detail": "",
+          "lang": "shell",
+          "start_line": 5,
+          "status": "SHELL-NOT-CHECKED"
+        },
+        {
+          "detail": "no tree-sitter grammar available for 'cmake'",
+          "lang": "cmake",
+          "start_line": 11,
+          "status": "GRAMMAR-UNAVAILABLE"
+        },
+        {
+          "detail": "",
+          "lang": "cpp",
+          "start_line": 21,
+          "status": "PASS"
+        },
+        {
+          "detail": "",
+          "lang": "cpp",
+          "start_line": 3,
+          "status": "PASS"
+        }
+      ],
+      "family": "slides",
+      "file": "content/products.aspose.org/en/slides/cpp/_index.md",
+      "platform": "cpp"
+    },
+    {
+      "blocks": [
+        {
+          "detail": "",
+          "lang": "java",
+          "start_line": 5,
+          "status": "PASS"
+        },
+        {
+          "detail": "",
+          "lang": "java",
+          "start_line": 3,
+          "status": "PASS"
+        }
+      ],
+      "family": "slides",
+      "file": "content/products.aspose.org/en/slides/java/_index.md",
+      "platform": "java"
+    },
+    {
+      "blocks": [
+        {
+          "detail": "",
+          "lang": "shell",
+          "start_line": 3,
+          "status": "SHELL-NOT-CHECKED"
+        },
+        {
+          "detail": "",
+          "lang": "csharp",
+          "start_line": 7,
+          "status": "PASS"
+        },
+        {
+          "detail": "",
+          "lang": "csharp",
+          "start_line": 3,
+          "status": "PASS"
+        }
+      ],
+      "family": "slides",
+      "file": "content/products.aspose.org/en/slides/net/_index.md",
+      "platform": "net"
+    },
+    {
+      "blocks": [
+        {
+          "detail": "",
+          "lang": "python",
+          "start_line": 5,
+          "status": "PASS"
+        },
+        {
+          "detail": "",
+          "lang": "python",
+          "start_line": 3,
+          "status": "PASS"
+        }
+      ],
+      "family": "slides",
+      "file": "content/products.aspose.org/en/slides/python/_index.md",
+      "platform": "python"
+    },
+    {
+      "blocks": [
+        {
+          "detail": "",
+          "lang": "python",
+          "start_line": 3,
+          "status": "PASS"
+        },
+        {
+          "detail": "",
+          "lang": "python",
+          "start_line": 3,
+          "status": "PASS"
+        },
+        {
+          "detail": "",
+          "lang": "python",
+          "start_line": 3,
+          "status": "PASS"
+        }
+      ],
+      "family": "tex",
+      "file": "content/products.aspose.org/en/tex/python/_index.md",
+      "platform": "python"
+    },
+    {
+      "blocks": [
+        {
+          "detail": "",
+          "lang": "bash",
+          "start_line": 3,
+          "status": "SHELL-NOT-CHECKED"
+        },
+        {
+          "detail": "",
+          "lang": "csharp",
+          "start_line": 9,
+          "status": "PASS"
+        }
+      ],
+      "family": "words",
+      "file": "content/products.aspose.org/en/words/net/_index.md",
+      "platform": "net"
+    },
+    {
+      "blocks": [
+        {
+          "detail": "",
+          "lang": "python",
+          "start_line": 3,
+          "status": "PASS"
+        },
+        {
+          "detail": "",
+          "lang": "python",
+          "start_line": 3,
+          "status": "PASS"
+        },
+        {
+          "detail": "",
+          "lang": "python",
+          "start_line": 3,
+          "status": "PASS"
+        }
+      ],
+      "family": "words",
+      "file": "content/products.aspose.org/en/words/python/_index.md",
+      "platform": "python"
+    },
+    {
+      "blocks": [
+        {
+          "detail": "",
+          "lang": "java",
           "start_line": 23,
           "status": "PASS"
         }
@@ -28694,32 +29445,34 @@
       "platform": "python"
     }
   ],
-  "generated_at": "2026-09-24T14:48:22.150381Z",
+  "frontmatter_embedded_note": "products.aspose.org's code blocks live embedded in YAML frontmatter string values (no separate markdown body). TC-18 (2026-09-24) added frontmatter_blocks.py's YAML-aware extractor for this site rather than leaving it excluded -- this is now a real, checked site, not a disclosed gap.",
+  "frontmatter_embedded_pages_with_no_code": 28,
+  "generated_at": "2026-09-24T15:14:56.111155Z",
   "lang_status_counts": {
     "<empty>": {
       "BLANK-LANG-UNCHECKED": 33
     },
     "bash": {
-      "SHELL-NOT-CHECKED": 138
+      "SHELL-NOT-CHECKED": 139
     },
     "cmake": {
-      "GRAMMAR-UNAVAILABLE": 48
+      "GRAMMAR-UNAVAILABLE": 50
     },
     "cpp": {
-      "PASS": 447
+      "PASS": 455
     },
     "csharp": {
       "EMPTY": 1,
-      "PASS": 829
+      "PASS": 842
     },
     "go": {
-      "PASS": 100
+      "PASS": 107
     },
     "groovy": {
       "GRAMMAR-UNAVAILABLE": 2
     },
     "java": {
-      "PASS": 510
+      "PASS": 520
     },
     "json": {
       "NOT-EXECUTABLE-LANG": 10
@@ -28731,25 +29484,29 @@
       "NOT-EXECUTABLE-LANG": 1
     },
     "python": {
-      "PASS": 1344
+      "PASS": 1377
     },
     "rust": {
-      "PASS": 35
+      "PASS": 38
+    },
+    "shell": {
+      "SHELL-NOT-CHECKED": 2
     },
     "text": {
       "NOT-EXECUTABLE-LANG": 25
     },
     "typescript": {
-      "PASS": 333
+      "PASS": 342
     },
     "xml": {
       "NOT-EXECUTABLE-LANG": 1
     }
   },
   "ledger_errors": [
-    "content/blog.aspose.org/font/python/font-cff-in-python/index.md:125: [Errno 22] Invalid argument: 'H:\\\\onedrive\\\\Documents\\\\GitHub\\\\aspose.org\\\\reports\\\\example_verification_ledger\\\\font_python.head.json'"
+    "content/docs.aspose.org/en/cells/python/developer-guide/working-with-cells.md:98: [Errno 22] Invalid argument: 'H:\\\\onedrive\\\\Documents\\\\GitHub\\\\aspose.org\\\\reports\\\\example_verification_ledger\\\\cells_python.head.json'",
+    "content/kb.aspose.org/en/cells/net/how-to-work-with-ooxml-packaging-dotnet.md:74: [Errno 22] Invalid argument: 'H:\\\\onedrive\\\\Documents\\\\GitHub\\\\aspose.org\\\\reports\\\\example_verification_ledger\\\\cells_net.head.json'"
   ],
-  "ledger_writes": 3597,
+  "ledger_writes": 3679,
   "pages_by_site": {
     "blog.aspose.org": 192,
     "docs.aspose.org": 527,
@@ -28761,27 +29518,28 @@
     "blog.aspose.org": 161,
     "docs.aspose.org": 326,
     "kb.aspose.org": 283,
+    "products.aspose.org": 32,
     "reference.aspose.org": 22
   },
-  "products_aspose_org_excluded_note": "products.aspose.org's code blocks live embedded in YAML frontmatter with 4+ space indentation, invisible to the CommonMark-conformant fence tokenizer by design -- excluded, not silently miscounted as zero.",
-  "run_id": "sweep-20260924T144508Z",
-  "sites_excluded": [
-    "products.aspose.org"
-  ],
+  "run_id": "sweep-20260924T151220Z",
   "sites_swept": [
     "docs.aspose.org",
     "blog.aspose.org",
     "kb.aspose.org",
-    "reference.aspose.org"
+    "reference.aspose.org",
+    "products.aspose.org"
+  ],
+  "sites_swept_via_frontmatter_extraction": [
+    "products.aspose.org"
   ],
   "status_counts": {
     "BLANK-LANG-UNCHECKED": 33,
     "EMPTY": 1,
-    "GRAMMAR-UNAVAILABLE": 51,
+    "GRAMMAR-UNAVAILABLE": 53,
     "NOT-EXECUTABLE-LANG": 37,
-    "PASS": 3598,
-    "SHELL-NOT-CHECKED": 138
+    "PASS": 3681,
+    "SHELL-NOT-CHECKED": 141
   },
-  "total_blocks_classified": 3858,
+  "total_blocks_classified": 3946,
   "unclassified_blocks": 0
 }
