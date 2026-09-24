@@ -261,6 +261,16 @@ _EXPORT_DECL_RE = re.compile(
     r"(?:class|interface|enum|function|const|let|var|type|namespace)\s+"
     r"(?P<name>[A-Za-z_$][\w$]*)"
 )
+# Anonymous default exports (`export default function(){}` /
+# `export default class {}` / `export default {...}` / `export default new
+# Foo()` / `export default <any other expression>;`) have no identifier for
+# _EXPORT_DEFAULT_NAME_RE/_EXPORT_DECL_RE to capture -- by construction,
+# fail-safe: no name is fabricated. But without this catch-all, a barrel
+# file whose ONLY export is an anonymous default would register found_any as
+# False, i.e. indistinguishable from a file with NO exports at all (cells/
+# typescript's non-exporting demo index.ts is the real precedent this
+# would be wrongly conflated with) -- found live 2026-09-24, TC-TSGAP-12.
+_EXPORT_DEFAULT_ANY_RE = re.compile(r"\bexport\s+default\b")
 
 _MAX_TS_BARREL_DEPTH = 8
 
@@ -431,6 +441,9 @@ def _collect_file_exports(
     for m in _EXPORT_DECL_RE.finditer(text):
         found_any = True
         names.add(m.group("name"))
+
+    if _EXPORT_DEFAULT_ANY_RE.search(text):
+        found_any = True  # anonymous default export -- no name to add, but real
 
     for m in _EXPORT_STAR_FROM_RE.finditer(text):
         found_any = True

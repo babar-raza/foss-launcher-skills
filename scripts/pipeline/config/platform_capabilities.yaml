@@ -561,6 +561,7 @@ platforms:
       call_signature: "Interface/type call-signature member ((x: number): void), nested inside an already-handled interface_declaration -- not its own declaration."
       catch_clause: "Control flow (try/catch) -- not a declaration."
       construct_signature: "Interface/type construct-signature member (new (x): T), nested inside an already-handled interface_declaration -- not its own declaration."
+      decorator: "`@Component(...)`/`@Input()`-style TC39 decorator syntax. Parse-probe-verified (TC-TSGAP-11, 2026-09-24): occupies its own named tree-sitter field ('decorator'), a SIBLING of the 'declaration' field on export_statement (class-level) or a sibling of the member node inside class_body (property/method-level) -- never wraps or replaces the declaration/member it modifies, so existing class_kinds/func_kinds extraction via child_by_field_name('declaration') is unaffected by its presence. None of the 3 launched TS products use decorators; added here (not as a handled kind) because the decorator node itself carries no declaration-shaped information of its own to extract -- the class/method it annotates is what's real."
       else_clause: "Control flow -- not a declaration."
       extends_clause: "`class X extends Y` sub-clause of an already-handled class_declaration -- not its own declaration."
       extends_type_clause: "`interface X extends Y` sub-clause of an already-handled interface_declaration -- not its own declaration."
