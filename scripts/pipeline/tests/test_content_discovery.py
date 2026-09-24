@@ -12,7 +12,7 @@ from unittest.mock import patch
 import pytest
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
-from content_discovery import discover_content, discover_products, infer_product
+from content_discovery import discover_content, discover_products, infer_product, english_counterpart_path
 import content_discovery as _cd
 
 
@@ -123,6 +123,46 @@ class TestInferProduct:
         result = infer_product(p)
         assert isinstance(result, tuple)
         assert len(result) == 2
+
+
+class TestEnglishCounterpartPath:
+    """ST-214 (2026-09-24): built to let install_recipe.py cross-check a
+    non-English page's finding against its English source instead of
+    reimplementing yet another ad hoc locale path rewrite (ST-155
+    precedent: don't reimplement locale detection a second/third time)."""
+
+    def test_folder_locale_docs_site(self):
+        p = Path("/repo/content/docs.aspose.org/ar/pdf/typescript/file.md")
+        assert english_counterpart_path(p) == Path("/repo/content/docs.aspose.org/en/pdf/typescript/file.md")
+
+    def test_folder_locale_reference_site(self):
+        p = Path("/repo/content/reference.aspose.org/fr/slides/cpp/Api.md")
+        assert english_counterpart_path(p) == Path("/repo/content/reference.aspose.org/en/slides/cpp/Api.md")
+
+    def test_already_english_folder_returns_none(self):
+        p = Path("/repo/content/docs.aspose.org/en/pdf/typescript/file.md")
+        assert english_counterpart_path(p) is None
+
+    def test_blog_filename_suffix_locale(self):
+        """Blog's own English path omits the locale directory entirely
+        (SITE_PATHS above) -- translations use a `.{locale}.md` filename
+        suffix on the same page-bundle `index.md` instead."""
+        p = Path("/repo/content/blog.aspose.org/pdf/typescript/post/index.ar.md")
+        assert english_counterpart_path(p) == Path("/repo/content/blog.aspose.org/pdf/typescript/post/index.md")
+
+    def test_blog_already_english_no_locale_directory_returns_none(self):
+        p = Path("/repo/content/blog.aspose.org/pdf/typescript/post/index.md")
+        assert english_counterpart_path(p) is None
+
+    def test_unknown_site_returns_none(self):
+        p = Path("/some/unrelated/path/file.ar.md")
+        assert english_counterpart_path(p) is None
+
+    def test_non_locale_filename_dot_segment_not_mistaken_for_a_suffix(self):
+        """Regression guard: a filename that merely contains a dot before
+        .md (not a real 2-letter locale code) must not be misdetected."""
+        p = Path("/repo/content/docs.aspose.org/en/pdf/typescript/v2.1.md")
+        assert english_counterpart_path(p) is None
 
 
 # ---------------------------------------------------------------------------

@@ -154,6 +154,47 @@ def infer_product(filepath: Path) -> tuple[str, str] | tuple[None, None]:
     return None, None
 
 
+def english_counterpart_path(filepath: Path) -> "Path | None":
+    """Return the English counterpart of a locale content file, or None when
+    *filepath* already looks like English or doesn't match a known site
+    shape.
+
+    Handles both localization conventions this repo uses: a `{locale}`
+    directory segment (docs/kb/reference/products.aspose.org, e.g.
+    content/docs.aspose.org/ar/pdf/typescript/file.md ->
+    content/docs.aspose.org/en/pdf/typescript/file.md) and a `.{locale}.md`
+    filename suffix (blog.aspose.org's page-bundle translations, e.g.
+    content/blog.aspose.org/pdf/typescript/post/index.ar.md ->
+    .../index.md -- blog's own English path omits the locale directory
+    entirely, per SITE_PATHS above and infer_product()'s own comment).
+
+    Reuses LOCALE_CODES/LOCALE_RE as the single source of truth for what
+    counts as a locale (ST-155 precedent: a second, independent
+    reimplementation of locale detection is exactly the bug class that
+    finding closed in content_eval/models.py -- don't repeat it here).
+
+    TC-TSGAP's ST-214 (2026-09-24) is the motivating case: install_recipe.py
+    needs to cross-check a non-English page's finding against its English
+    source rather than reimplementing yet another ad hoc path rewrite.
+    """
+    parts = filepath.parts
+    for i, p in enumerate(parts):
+        if p in ("products.aspose.org", "reference.aspose.org",
+                  "docs.aspose.org", "blog.aspose.org", "kb.aspose.org"):
+            name = filepath.name
+            if LOCALE_RE.search(name):
+                # Filename-suffix locale: strip the ".{locale}" segment,
+                # keep ".md".
+                return filepath.with_name(LOCALE_RE.sub(".md", name))
+            remaining = parts[i + 1:]
+            if remaining and remaining[0] in LOCALE_CODES:
+                new_parts = list(parts)
+                new_parts[i + 1] = "en"
+                return Path(*new_parts)
+            return None  # already English (an "en" segment, or blog with no locale dir)
+    return None  # not under any known content site
+
+
 def discover_products() -> list[tuple[str, str]]:
     """Find all products with knowledge models (have api_surface.json)."""
     products = []

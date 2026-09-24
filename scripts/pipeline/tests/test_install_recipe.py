@@ -427,6 +427,85 @@ class TestPublishChannelClaimsMatchVerificationPublished:
         assert fails == [], f"honest, line-wrapped not-yet-published prose must not be flagged: {fails}"
 
 
+class TestNonEnglishChannelClaimsCrossCheckedAgainstEnglish:
+    """ST-214 (2026-09-24): _NOT_PUBLISHED_NEGATION_RE is English-only prose
+    (bare "not (yet) published"/"build from source" etc.), so a faithful
+    non-English translation of an already-clean English sentence can trip
+    IR_PUBLISH_CLAIM purely because the negation regex is script-blind, not
+    because the translation says anything different. Real case: 3d/typescript's
+    Arabic developer-guide/features.md, a faithful rendering of English's own
+    accepted "...installed automatically by the npm install step used to
+    build from source" sentence. Fix: for a non-English page, if its English
+    counterpart is itself clean for this exact channel, trust the
+    translation instead of scanning script-blind negation prose."""
+
+    def test_translation_of_clean_english_source_not_flagged(self, tmp_path):
+        _ir_mod.configure(knowledge_root=tmp_path / "knowledge", registry=self._BARCODE_PYTHON_REGISTRY)
+        eng_body = (
+            "---\ntitle: Installation\n---\n\n"
+            "## Installation\n\n"
+            "Aspose.BarCode FOSS for Python has a single runtime dependency, "
+            "fetched automatically by the pip install step used to build from source.\n"
+        )
+        # A faithful non-English rendering of the SAME sentence -- no literal
+        # English negation phrase present, but also no real publish claim.
+        ar_body = (
+            "---\ntitle: Installation\n---\n\n"
+            "## Installation\n\n"
+            "يحتوي Aspose.BarCode FOSS for Python على تبعية تشغيل واحدة، "
+            "يتم تثبيتها تلقائيًا بواسطة pip.\n"
+        )
+        _write_page(tmp_path, "docs.aspose.org/en/barcode/python/getting-started/installation.md", eng_body)
+        ar_path = _write_page(tmp_path, "docs.aspose.org/ar/barcode/python/getting-started/installation.md", ar_body)
+        page = Page.load(ar_path)
+        assert page.locale == "ar"
+        findings = InstallRecipeEvaluator().evaluate(page, None)
+        fails = [f for f in findings if f.category == "IR_PUBLISH_CLAIM"]
+        assert fails == [], f"translation of a clean English source must not be flagged: {fails}"
+
+    def test_translation_still_flagged_when_english_itself_has_the_claim(self, tmp_path):
+        """Negative control: suppression must NOT fire just because a page
+        is non-English -- only when the English counterpart is itself
+        clean. Here English genuinely, wrongly claims PyPI availability, so
+        its translation carrying the same (translated) claim must still FAIL."""
+        _ir_mod.configure(knowledge_root=tmp_path / "knowledge", registry=self._BARCODE_PYTHON_REGISTRY)
+        eng_body = (
+            "---\ntitle: Installation\n---\n\n"
+            "## Installation\n\n"
+            "The simplest way to install is directly from PyPI using pip.\n"
+        )
+        ar_body = (
+            "---\ntitle: Installation\n---\n\n"
+            "## Installation\n\n"
+            "أسهل طريقة للتثبيت هي مباشرة من PyPI باستخدام pip.\n"
+        )
+        _write_page(tmp_path, "docs.aspose.org/en/barcode/python/getting-started/installation.md", eng_body)
+        ar_path = _write_page(tmp_path, "docs.aspose.org/ar/barcode/python/getting-started/installation.md", ar_body)
+        page = Page.load(ar_path)
+        findings = InstallRecipeEvaluator().evaluate(page, None)
+        fails = [f for f in findings if f.category == "IR_PUBLISH_CLAIM"]
+        assert len(fails) >= 1, f"translation of a genuinely-wrong English claim must still FAIL: {findings}"
+
+    def test_falls_back_to_normal_check_when_no_english_counterpart_exists(self, tmp_path):
+        """No English file on disk at all -- must not crash, and must fall
+        back to the page's own (English-regex) scan rather than silently
+        suppressing everything."""
+        _ir_mod.configure(knowledge_root=tmp_path / "knowledge", registry=self._BARCODE_PYTHON_REGISTRY)
+        ar_body = (
+            "---\ntitle: Installation\n---\n\n"
+            "## Installation\n\n"
+            "The simplest way to install is directly from PyPI using pip.\n"
+        )
+        ar_path = _write_page(tmp_path, "docs.aspose.org/ar/barcode/python/getting-started/installation.md", ar_body)
+        page = Page.load(ar_path)
+        findings = InstallRecipeEvaluator().evaluate(page, None)
+        fails = [f for f in findings if f.category == "IR_PUBLISH_CLAIM"]
+        assert len(fails) >= 1, "with no English counterpart to trust, the normal scan must still apply"
+
+    # Reuse the same registry fixture as the sibling class above.
+    _BARCODE_PYTHON_REGISTRY = TestPublishChannelClaimsMatchVerificationPublished._BARCODE_PYTHON_REGISTRY
+
+
 class TestNoUnpublishedDisclosureAllowed:
     """ST-054 TC-14/TC-16 (governing plan §Q.5): the opposite-direction check
     from TestPublishChannelClaimsMatchVerificationPublished above -- a page

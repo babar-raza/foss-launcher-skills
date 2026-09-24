@@ -49,6 +49,7 @@ if _LIB_DIR not in sys.path:
     sys.path.insert(0, _LIB_DIR)
 
 from package_registry_data import load_registry  # noqa: E402
+from content_discovery import english_counterpart_path  # noqa: E402
 
 _DEFAULT_KNOWLEDGE_ROOT = Path("knowledge")
 KNOWLEDGE_ROOT = _DEFAULT_KNOWLEDGE_ROOT
@@ -230,6 +231,29 @@ _NOT_PUBLISHED_NEGATION_RE = re.compile(
     r"not\s+(?:yet\s+)?(?:published|available)|coming\s+soon|build(?:ing)?\s+from\s+source",
     re.IGNORECASE,
 )
+
+
+def _has_unnegated_channel_claim(page: Page, channel: "dict[str, Any]") -> bool:
+    """True if *page* has at least one channel mention/install-command/link
+    not covered by _NOT_PUBLISHED_NEGATION_RE -- i.e. would itself trigger
+    _verify_publish_channel_claims's FAIL. Factored out of that method (ST-214)
+    so it can be run against an English counterpart page too, without
+    duplicating the scan loop or its prev-line-wrap negation handling."""
+    prev_line = ""
+    for _line_no, line in page.prose_lines:
+        if _NOT_PUBLISHED_NEGATION_RE.search(prev_line + " " + line):
+            prev_line = line
+            continue
+        if channel["mention_re"].search(line) or channel["install_cmd_re"].search(line):
+            return True
+        prev_line = line
+    for link in page.links:
+        if _NOT_PUBLISHED_NEGATION_RE.search(link.text):
+            continue
+        url_lower = link.url.lower()
+        if any(domain in url_lower for domain in channel["domains"]):
+            return True
+    return False
 
 # ST-054 TC-14 (governing plan §Q.5): a public page must never disclose that a
 # package isn't yet published (explicit operator policy, 2026-09-03/2026-09-10
@@ -513,6 +537,28 @@ class InstallRecipeEvaluator(BaseEvaluator):
         channel = _CHANNEL_INFO.get(entry.get("registry_type"))
         if channel is None:
             return []
+
+        # ST-214 (2026-09-24): _NOT_PUBLISHED_NEGATION_RE is an English-only
+        # phrase regex (bare "not (yet) published"/"build from source" etc.)
+        # -- structurally blind to a non-English translation of the exact
+        # same, already-clean English sentence. Found live on 3d/typescript's
+        # Arabic developer-guide/features.md: a faithful translation of the
+        # accepted English "...installed automatically by the npm install
+        # step used to build from source" triggered a bare-"npm" mention
+        # match with no way for the negation regex to ever recognize the
+        # Arabic negation context, regardless of what the sentence actually
+        # says. Same mechanism already documented at ST-156. Fix: for a
+        # non-English page, first check whether its English counterpart is
+        # itself clean for this exact channel -- if so, trust the
+        # translation (same "catch up to a clean English source" precedent
+        # ST-153 already established for check_translation_regression.py's
+        # R3 check) rather than scanning script-blind negation prose.
+        if page.locale and page.locale != "en":
+            eng_path = english_counterpart_path(page.filepath)
+            if eng_path is not None and eng_path.is_file():
+                eng_page = Page.load(eng_path)
+                if not _has_unnegated_channel_claim(eng_page, channel):
+                    return []
 
         verified_at = verification.get("verified_at") or "unknown date"
         findings: list[Finding] = []
