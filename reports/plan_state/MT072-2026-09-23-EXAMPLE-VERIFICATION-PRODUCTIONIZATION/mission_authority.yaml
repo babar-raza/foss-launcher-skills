@@ -1,61 +1,67 @@
 mission_authority:
   mission_id: MT072-2026-09-23-EXAMPLE-VERIFICATION-PRODUCTIONIZATION
-  mission_summary: >
-    A read-only, first-principles audit (2026-09-18, re-confirmed unchanged at HEAD
-    2026-09-23) found that MT065-2026-09-06-EXAMPLE-VERIFICATION-CENTRALIZATION closed
-    all 14 of its own taskcards while leaving the shared example-verification package
-    (scripts/pipeline/lib/example_verification/) fully disconnected from production: no
-    api.py/cli.py entry point exists, the only non-test external importer of
-    runners/*.py is check_go_code_blocks.py's helper functions, S-120 still dispatches
-    to its own in-file python/typescript runners, registry.py still declares
-    go/net/java/rust/cpp at max_tier=1/runner=None despite real runners existing for
-    all five, 0 of 2,559 snippet-index entries carry execution_proof, and CI runs only
-    1 of 18 verifier test files. A tier-1 sweep over ~3,862 English public code blocks
-    found 44 real syntax errors on 43 pages plus a separate, never-filed finding of 320
-    files with an orphaned closing code fence. This mission builds the missing
-    integration seam (api.py/cli.py), wires every named consumer (S-63, S-120 across
-    all 7 platforms, S-49/launch_gate, S-84/refresh_run, pre-commit, knowledge
-    promotion) through it, derives the registry from real runner code instead of a
-    hand-mirrored claim, builds a durable execution-proof ledger, runs a full portfolio
-    sweep over every English public page, and fixes the real defects the sweep and the
-    prior audit confirmed -- closing RC1-RC7 named in the governing plan.
+  mission_summary: 'A read-only, first-principles audit (2026-09-18, re-confirmed
+    unchanged at HEAD 2026-09-23) found that MT065-2026-09-06-EXAMPLE-VERIFICATION-CENTRALIZATION
+    closed all 14 of its own taskcards while leaving the shared example-verification
+    package (scripts/pipeline/lib/example_verification/) fully disconnected from production:
+    no api.py/cli.py entry point exists, the only non-test external importer of runners/*.py
+    is check_go_code_blocks.py''s helper functions, S-120 still dispatches to its
+    own in-file python/typescript runners, registry.py still declares go/net/java/rust/cpp
+    at max_tier=1/runner=None despite real runners existing for all five, 0 of 2,559
+    snippet-index entries carry execution_proof, and CI runs only 1 of 18 verifier
+    test files. A tier-1 sweep over ~3,862 English public code blocks found 44 real
+    syntax errors on 43 pages plus a separate, never-filed finding of 320 files with
+    an orphaned closing code fence. This mission builds the missing integration seam
+    (api.py/cli.py), wires every named consumer (S-63, S-120 across all 7 platforms,
+    S-49/launch_gate, S-84/refresh_run, pre-commit, knowledge promotion) through it,
+    derives the registry from real runner code instead of a hand-mirrored claim, builds
+    a durable execution-proof ledger, runs a full portfolio sweep over every English
+    public page, and fixes the real defects the sweep and the prior audit confirmed
+    -- closing RC1-RC7 named in the governing plan.
+
+    '
   governing_plan_path: plans/from_backlog/2026-09-23-example-verification-productionization.md
   in_scope_outcomes:
-  - "lib/example_verification/api.py + cli.py exist as a pure composition over existing
-    modules; check_module_consumption.py is upgraded from a substring heuristic to an
-    AST reverse-import walker"
-  - "registry.py's PLATFORM_CONTRACT is generated from real runner introspection, not
-    hand-mirrored; platform_capabilities.yaml's parity check follows the check-only vs
-    actual-fix split (sync_skills.py/sync_providers.py pattern)"
-  - "S-63, S-120 (all 7 platforms), S-49/launch_gate L-15, S-84/refresh_run, pre-commit,
+  - lib/example_verification/api.py + cli.py exist as a pure composition over existing
+    modules; check_module_consumption.py is upgraded from a substring heuristic to
+    an AST reverse-import walker
+  - registry.py's PLATFORM_CONTRACT is generated from real runner introspection, not
+    hand-mirrored; platform_capabilities.yaml's parity check follows the check-only
+    vs actual-fix split (sync_skills.py/sync_providers.py pattern)
+  - S-63, S-120 (all 7 platforms), S-49/launch_gate L-15, S-84/refresh_run, pre-commit,
     and knowledge promotion each dispatch through api.py, proven by the AST-based
-    consumption check"
-  - "a durable, git-tracked execution-proof ledger exists, modeled on
-    baseline_ledger.py's append-only-JSONL + head-cache + O_EXCL-lock pattern"
-  - "a completed, dated portfolio sweep covers every English public page with a code
-    block (docs/kb/blog/reference/products, all 33 launched products) with 0
-    unclassified blocks"
-  - "every defect the sweep confirms (44 known + 320 orphaned-fence + any new) is
-    either fixed through a governed content skill with a real commit, or filed to
-    backlog with a fresh ST id"
+    consumption check
+  - a durable, git-tracked execution-proof ledger exists, modeled on baseline_ledger.py's
+    append-only-JSONL + head-cache + O_EXCL-lock pattern
+  - a completed, dated portfolio sweep covers every English public page with a code
+    block (docs/kb/blog/reference/products, all 33 launched products) with 0 unclassified
+    blocks
+  - every defect the sweep confirms (44 known + 320 orphaned-fence + any new) is either
+    fixed through a governed content skill with a real commit, or filed to backlog
+    with a fresh ST id
   out_of_scope_items:
-  - "Full re-execution (not equivalence-checking) of the ~124k locale code blocks"
-  - "Rewriting evaluator grading weights beyond the one named GRADE_CONTRACT §10
-    Safety-Override-Findings entry for the shared tier-1 SYNTAX-ERROR finding; full
-    evaluator graduation follows the existing 14-day/corpus/sign-off rule untouched"
-  - "Installing new system-wide toolchains (mvn/cargo/ninja/tsc) without explicit user
-    consent (TC-13)"
+  - Full re-execution (not equivalence-checking) of the ~124k locale code blocks
+  - Rewriting evaluator grading weights beyond the one named GRADE_CONTRACT §10 Safety-Override-Findings
+    entry for the shared tier-1 SYNTAX-ERROR finding; full evaluator graduation follows
+    the existing 14-day/corpus/sign-off rule untouched
+  - Installing new system-wide toolchains (mvn/cargo/ninja/tsc) without explicit user
+    consent (TC-13)
   mandatory_acceptance_criteria:
-  - "Every TC-01..TC-15 taskcard CLOSED with INDEPENDENTLY_REVIEWED evidence, or an
-    explicit BLOCKED_EXTERNAL/OUT_OF_SCOPE disposition with a named reason"
-  - "No taskcard's fix introduces a dirty-set regression on any product outside its
-    own scope"
-  - "TC-15's closing report answers all four original audit questions (thorough /
-    fully wired / run on all public examples / changed something) with dated evidence;
-    any non-YES answer states exactly why and what would make it YES"
+  - Every TC-01..TC-15 taskcard CLOSED with INDEPENDENTLY_REVIEWED evidence, or an
+    explicit BLOCKED_EXTERNAL/OUT_OF_SCOPE disposition with a named reason
+  - No taskcard's fix introduces a dirty-set regression on any product outside its
+    own scope
+  - TC-15's closing report answers all four original audit questions (thorough / fully
+    wired / run on all public examples / changed something) with dated evidence; any
+    non-YES answer states exactly why and what would make it YES
   mission_locked: false
   registered_by_session: c276e507-f9ea-435e-aefb-58f9d0e4878e
-  registration_mode: "archive_path_GOV-02 (root projection held by MT071-2026-09-17-GOVERNANCE-DURABILITY-HARDENING, mission_locked:true, _archive_status:open; that mission's own rule is 'force-taking-over a locked+open root incumbent... escalate, do not auto-force' -- this mission does not force-take-over root, matching the precedent MT065 set while MT058 held root)"
-  mission_id_allocated_via: "mission_authority.py allocate --track main --slug EXAMPLE-VERIFICATION-PRODUCTIONIZATION --date 2026-09-23"
-  _archive_status: open
+  registration_mode: archive_path_GOV-02 (root projection held by MT071-2026-09-17-GOVERNANCE-DURABILITY-HARDENING,
+    mission_locked:true, _archive_status:open; that mission's own rule is 'force-taking-over
+    a locked+open root incumbent... escalate, do not auto-force' -- this mission does
+    not force-take-over root, matching the precedent MT065 set while MT058 held root)
+  mission_id_allocated_via: mission_authority.py allocate --track main --slug EXAMPLE-VERIFICATION-PRODUCTIONIZATION
+    --date 2026-09-23
+  _archive_status: closed
   _archived_at: '2026-09-23T00:00:00Z'
+  _closed_at: '2026-09-24T16:38:33Z'
