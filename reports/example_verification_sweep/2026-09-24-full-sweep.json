@@ -1782,7 +1782,7 @@
           "detail": "",
           "lang": "bash",
           "start_line": 228,
-          "status": "SHELL-NOT-CHECKED"
+          "status": "PASS"
         },
         {
           "detail": "no tree-sitter grammar available for 'cmake'",
@@ -1837,7 +1837,7 @@
           "detail": "",
           "lang": "bash",
           "start_line": 144,
-          "status": "SHELL-NOT-CHECKED"
+          "status": "PASS"
         },
         {
           "detail": "no tree-sitter grammar available for 'cmake'",
@@ -3093,7 +3093,7 @@
           "detail": "",
           "lang": "bash",
           "start_line": 106,
-          "status": "SHELL-NOT-CHECKED"
+          "status": "PASS"
         },
         {
           "detail": "no tree-sitter grammar available for 'cmake'",
@@ -3111,7 +3111,7 @@
           "detail": "",
           "lang": "bash",
           "start_line": 151,
-          "status": "SHELL-NOT-CHECKED"
+          "status": "PASS"
         }
       ],
       "family": "email",
@@ -3197,7 +3197,7 @@
           "detail": "",
           "lang": "bash",
           "start_line": 113,
-          "status": "SHELL-NOT-CHECKED"
+          "status": "PASS"
         },
         {
           "detail": "no tree-sitter grammar available for 'cmake'",
@@ -3215,7 +3215,7 @@
           "detail": "",
           "lang": "bash",
           "start_line": 154,
-          "status": "SHELL-NOT-CHECKED"
+          "status": "PASS"
         }
       ],
       "family": "email",
@@ -5914,7 +5914,7 @@
           "detail": "",
           "lang": "bash",
           "start_line": 114,
-          "status": "SHELL-NOT-CHECKED"
+          "status": "PASS"
         },
         {
           "detail": "",
@@ -6783,7 +6783,7 @@
           "detail": "",
           "lang": "bash",
           "start_line": 64,
-          "status": "SHELL-NOT-CHECKED"
+          "status": "PASS"
         },
         {
           "detail": "",
@@ -6808,7 +6808,7 @@
           "detail": "",
           "lang": "bash",
           "start_line": 64,
-          "status": "SHELL-NOT-CHECKED"
+          "status": "PASS"
         },
         {
           "detail": "",
@@ -6827,7 +6827,7 @@
           "detail": "",
           "lang": "bash",
           "start_line": 49,
-          "status": "SHELL-NOT-CHECKED"
+          "status": "PASS"
         }
       ],
       "family": "words",
@@ -6840,7 +6840,7 @@
           "detail": "",
           "lang": "bash",
           "start_line": 45,
-          "status": "SHELL-NOT-CHECKED"
+          "status": "PASS"
         }
       ],
       "family": "words",
@@ -6853,7 +6853,7 @@
           "detail": "",
           "lang": "bash",
           "start_line": 49,
-          "status": "SHELL-NOT-CHECKED"
+          "status": "PASS"
         }
       ],
       "family": "words",
@@ -7057,7 +7057,7 @@
           "detail": "",
           "lang": "bash",
           "start_line": 41,
-          "status": "SHELL-NOT-CHECKED"
+          "status": "PASS"
         }
       ],
       "family": "3d",
@@ -7070,7 +7070,7 @@
           "detail": "",
           "lang": "bash",
           "start_line": 17,
-          "status": "SHELL-NOT-CHECKED"
+          "status": "PASS"
         },
         {
           "detail": "",
@@ -7169,7 +7169,7 @@
           "detail": "",
           "lang": "bash",
           "start_line": 25,
-          "status": "SHELL-NOT-CHECKED"
+          "status": "PASS"
         },
         {
           "detail": "no tree-sitter grammar available for 'groovy'",
@@ -7181,7 +7181,7 @@
           "detail": "",
           "lang": "bash",
           "start_line": 41,
-          "status": "SHELL-NOT-CHECKED"
+          "status": "PASS"
         },
         {
           "detail": "",
@@ -7200,7 +7200,7 @@
           "detail": "",
           "lang": "bash",
           "start_line": 22,
-          "status": "SHELL-NOT-CHECKED"
+          "status": "PASS"
         }
       ],
       "family": "3d",
@@ -7573,7 +7573,7 @@
           "detail": "",
           "lang": "bash",
           "start_line": 26,
-          "status": "SHELL-NOT-CHECKED"
+          "status": "PASS"
         },
         {
           "detail": "",
@@ -7585,7 +7585,7 @@
           "detail": "",
           "lang": "bash",
           "start_line": 44,
-          "status": "SHELL-NOT-CHECKED"
+          "status": "PASS"
         },
         {
           "detail": "",
@@ -7610,7 +7610,7 @@
           "detail": "",
           "lang": "bash",
           "start_line": 47,
-          "status": "SHELL-NOT-CHECKED"
+          "status": "PASS"
         },
         {
           "detail": "",
@@ -7641,7 +7641,7 @@
           "detail": "",
           "lang": "bash",
           "start_line": 56,
-          "status": "SHELL-NOT-CHECKED"
+          "status": "PASS"
         },
         {
           "detail": "",
@@ -7998,19 +7998,19 @@
           "detail": "",
           "lang": "bash",
           "start_line": 41,
-          "status": "SHELL-NOT-CHECKED"
+          "status": "PASS"
         },
         {
           "detail": "",
           "lang": "bash",
           "start_line": 61,
-          "status": "SHELL-NOT-CHECKED"
+          "status": "PASS"
         },
         {
           "detail": "",
           "lang": "bash",
           "start_line": 67,
-          "status": "SHELL-NOT-CHECKED"
+          "status": "PASS"
         },
         {
           "detail": "",
@@ -8028,7 +8028,7 @@
           "detail": "",
           "lang": "bash",
           "start_line": 99,
-          "status": "SHELL-NOT-CHECKED"
+          "status": "PASS"
         },
         {
           "detail": "",
@@ -8046,7 +8046,7 @@
           "detail": "",
           "lang": "bash",
           "start_line": 166,
-          "status": "SHELL-NOT-CHECKED"
+          "status": "PASS"
         }
       ],
       "family": "3d",
@@ -8408,19 +8408,19 @@
           "detail": "",
           "lang": "bash",
           "start_line": 17,
-          "status": "SHELL-NOT-CHECKED"
+          "status": "PASS"
         },
         {
           "detail": "",
           "lang": "bash",
           "start_line": 29,
-          "status": "SHELL-NOT-CHECKED"
+          "status": "PASS"
         },
         {
           "detail": "",
           "lang": "bash",
           "start_line": 43,
-          "status": "SHELL-NOT-CHECKED"
+          "status": "PASS"
         },
         {
           "detail": "",
@@ -8438,7 +8438,7 @@
           "detail": "",
           "lang": "bash",
           "start_line": 93,
-          "status": "SHELL-NOT-CHECKED"
+          "status": "PASS"
         },
         {
           "detail": "fence has no language info string",
@@ -8450,7 +8450,7 @@
           "detail": "",
           "lang": "bash",
           "start_line": 109,
-          "status": "SHELL-NOT-CHECKED"
+          "status": "PASS"
         },
         {
           "detail": "",
@@ -8462,7 +8462,7 @@
           "detail": "",
           "lang": "bash",
           "start_line": 141,
-          "status": "SHELL-NOT-CHECKED"
+          "status": "PASS"
         },
         {
           "detail": "fence has no language info string",
@@ -8784,13 +8784,13 @@
           "detail": "",
           "lang": "bash",
           "start_line": 41,
-          "status": "SHELL-NOT-CHECKED"
+          "status": "PASS"
         },
         {
           "detail": "",
           "lang": "bash",
           "start_line": 61,
-          "status": "SHELL-NOT-CHECKED"
+          "status": "PASS"
         },
         {
           "detail": "",
@@ -8802,7 +8802,7 @@
           "detail": "",
           "lang": "bash",
           "start_line": 80,
-          "status": "SHELL-NOT-CHECKED"
+          "status": "PASS"
         },
         {
           "detail": "",
@@ -8833,7 +8833,7 @@
           "detail": "",
           "lang": "bash",
           "start_line": 45,
-          "status": "SHELL-NOT-CHECKED"
+          "status": "PASS"
         }
       ],
       "family": "barcode",
@@ -9056,13 +9056,13 @@
           "detail": "",
           "lang": "bash",
           "start_line": 24,
-          "status": "SHELL-NOT-CHECKED"
+          "status": "PASS"
         },
         {
           "detail": "",
           "lang": "bash",
           "start_line": 35,
-          "status": "SHELL-NOT-CHECKED"
+          "status": "PASS"
         },
         {
           "detail": "no tree-sitter grammar available for 'cmake'",
@@ -9093,7 +9093,7 @@
           "detail": "",
           "lang": "bash",
           "start_line": 53,
-          "status": "SHELL-NOT-CHECKED"
+          "status": "PASS"
         }
       ],
       "family": "cells",
@@ -9541,7 +9541,7 @@
           "detail": "",
           "lang": "bash",
           "start_line": 21,
-          "status": "SHELL-NOT-CHECKED"
+          "status": "PASS"
         },
         {
           "detail": "",
@@ -10143,7 +10143,7 @@
           "detail": "",
           "lang": "bash",
           "start_line": 32,
-          "status": "SHELL-NOT-CHECKED"
+          "status": "PASS"
         },
         {
           "detail": "",
@@ -10180,7 +10180,7 @@
           "detail": "",
           "lang": "bash",
           "start_line": 57,
-          "status": "SHELL-NOT-CHECKED"
+          "status": "PASS"
         }
       ],
       "family": "cells",
@@ -10274,7 +10274,7 @@
           "detail": "",
           "lang": "bash",
           "start_line": 35,
-          "status": "SHELL-NOT-CHECKED"
+          "status": "PASS"
         },
         {
           "detail": "",
@@ -10286,7 +10286,7 @@
           "detail": "",
           "lang": "bash",
           "start_line": 73,
-          "status": "SHELL-NOT-CHECKED"
+          "status": "PASS"
         }
       ],
       "family": "cells",
@@ -10305,7 +10305,7 @@
           "detail": "",
           "lang": "bash",
           "start_line": 71,
-          "status": "SHELL-NOT-CHECKED"
+          "status": "PASS"
         }
       ],
       "family": "cells",
@@ -10373,7 +10373,7 @@
           "detail": "",
           "lang": "bash",
           "start_line": 17,
-          "status": "SHELL-NOT-CHECKED"
+          "status": "PASS"
         },
         {
           "detail": "",
@@ -10423,7 +10423,7 @@
           "detail": "",
           "lang": "bash",
           "start_line": 16,
-          "status": "SHELL-NOT-CHECKED"
+          "status": "PASS"
         }
       ],
       "family": "email",
@@ -10516,7 +10516,7 @@
           "detail": "",
           "lang": "bash",
           "start_line": 26,
-          "status": "SHELL-NOT-CHECKED"
+          "status": "PASS"
         },
         {
           "detail": "no tree-sitter grammar available for 'cmake'",
@@ -10547,7 +10547,7 @@
           "detail": "",
           "lang": "bash",
           "start_line": 11,
-          "status": "SHELL-NOT-CHECKED"
+          "status": "PASS"
         },
         {
           "detail": "no tree-sitter grammar available for 'cmake'",
@@ -10565,7 +10565,7 @@
           "detail": "",
           "lang": "bash",
           "start_line": 49,
-          "status": "SHELL-NOT-CHECKED"
+          "status": "PASS"
         },
         {
           "detail": "",
@@ -10609,7 +10609,7 @@
           "detail": "",
           "lang": "bash",
           "start_line": 71,
-          "status": "SHELL-NOT-CHECKED"
+          "status": "PASS"
         },
         {
           "detail": "",
@@ -10971,7 +10971,7 @@
           "detail": "",
           "lang": "bash",
           "start_line": 10,
-          "status": "SHELL-NOT-CHECKED"
+          "status": "PASS"
         },
         {
           "detail": "",
@@ -11113,7 +11113,7 @@
           "detail": "",
           "lang": "bash",
           "start_line": 45,
-          "status": "SHELL-NOT-CHECKED"
+          "status": "PASS"
         },
         {
           "detail": "",
@@ -11464,19 +11464,19 @@
           "detail": "",
           "lang": "bash",
           "start_line": 24,
-          "status": "SHELL-NOT-CHECKED"
+          "status": "PASS"
         },
         {
           "detail": "",
           "lang": "bash",
           "start_line": 30,
-          "status": "SHELL-NOT-CHECKED"
+          "status": "PASS"
         },
         {
           "detail": "",
           "lang": "bash",
           "start_line": 36,
-          "status": "SHELL-NOT-CHECKED"
+          "status": "PASS"
         },
         {
           "detail": "",
@@ -11495,7 +11495,7 @@
           "detail": "",
           "lang": "bash",
           "start_line": 31,
-          "status": "SHELL-NOT-CHECKED"
+          "status": "PASS"
         }
       ],
       "family": "html",
@@ -11986,7 +11986,7 @@
           "detail": "",
           "lang": "bash",
           "start_line": 15,
-          "status": "SHELL-NOT-CHECKED"
+          "status": "PASS"
         },
         {
           "detail": "",
@@ -12182,13 +12182,13 @@
           "detail": "",
           "lang": "bash",
           "start_line": 32,
-          "status": "SHELL-NOT-CHECKED"
+          "status": "PASS"
         },
         {
           "detail": "",
           "lang": "bash",
           "start_line": 51,
-          "status": "SHELL-NOT-CHECKED"
+          "status": "PASS"
         },
         {
           "detail": "",
@@ -12200,7 +12200,7 @@
           "detail": "",
           "lang": "bash",
           "start_line": 76,
-          "status": "SHELL-NOT-CHECKED"
+          "status": "PASS"
         },
         {
           "detail": "",
@@ -12395,7 +12395,7 @@
           "detail": "",
           "lang": "bash",
           "start_line": 28,
-          "status": "SHELL-NOT-CHECKED"
+          "status": "PASS"
         },
         {
           "detail": "",
@@ -12714,13 +12714,13 @@
           "detail": "",
           "lang": "bash",
           "start_line": 39,
-          "status": "SHELL-NOT-CHECKED"
+          "status": "PASS"
         },
         {
           "detail": "",
           "lang": "bash",
           "start_line": 47,
-          "status": "SHELL-NOT-CHECKED"
+          "status": "PASS"
         },
         {
           "detail": "",
@@ -12850,7 +12850,7 @@
           "detail": "",
           "lang": "bash",
           "start_line": 23,
-          "status": "SHELL-NOT-CHECKED"
+          "status": "PASS"
         },
         {
           "detail": "",
@@ -12862,13 +12862,13 @@
           "detail": "",
           "lang": "bash",
           "start_line": 63,
-          "status": "SHELL-NOT-CHECKED"
+          "status": "PASS"
         },
         {
           "detail": "",
           "lang": "bash",
           "start_line": 76,
-          "status": "SHELL-NOT-CHECKED"
+          "status": "PASS"
         }
       ],
       "family": "pdf",
@@ -15359,7 +15359,7 @@
           "detail": "",
           "lang": "bash",
           "start_line": 16,
-          "status": "SHELL-NOT-CHECKED"
+          "status": "PASS"
         }
       ],
       "family": "slides",
@@ -15372,7 +15372,7 @@
           "detail": "",
           "lang": "bash",
           "start_line": 19,
-          "status": "SHELL-NOT-CHECKED"
+          "status": "PASS"
         },
         {
           "detail": "",
@@ -15391,7 +15391,7 @@
           "detail": "",
           "lang": "bash",
           "start_line": 16,
-          "status": "SHELL-NOT-CHECKED"
+          "status": "PASS"
         }
       ],
       "family": "slides",
@@ -15435,7 +15435,7 @@
           "detail": "",
           "lang": "bash",
           "start_line": 62,
-          "status": "SHELL-NOT-CHECKED"
+          "status": "PASS"
         },
         {
           "detail": "no tree-sitter grammar available for 'cmake'",
@@ -15447,7 +15447,7 @@
           "detail": "",
           "lang": "bash",
           "start_line": 79,
-          "status": "SHELL-NOT-CHECKED"
+          "status": "PASS"
         },
         {
           "detail": "",
@@ -15484,7 +15484,7 @@
           "detail": "",
           "lang": "bash",
           "start_line": 45,
-          "status": "SHELL-NOT-CHECKED"
+          "status": "PASS"
         }
       ],
       "family": "slides",
@@ -16331,7 +16331,7 @@
           "detail": "",
           "lang": "bash",
           "start_line": 25,
-          "status": "SHELL-NOT-CHECKED"
+          "status": "PASS"
         },
         {
           "detail": "",
@@ -16748,19 +16748,19 @@
           "detail": "",
           "lang": "bash",
           "start_line": 41,
-          "status": "SHELL-NOT-CHECKED"
+          "status": "PASS"
         },
         {
           "detail": "",
           "lang": "bash",
           "start_line": 61,
-          "status": "SHELL-NOT-CHECKED"
+          "status": "PASS"
         },
         {
           "detail": "",
           "lang": "bash",
           "start_line": 67,
-          "status": "SHELL-NOT-CHECKED"
+          "status": "PASS"
         },
         {
           "detail": "",
@@ -16778,7 +16778,7 @@
           "detail": "",
           "lang": "bash",
           "start_line": 99,
-          "status": "SHELL-NOT-CHECKED"
+          "status": "PASS"
         },
         {
           "detail": "",
@@ -16790,7 +16790,7 @@
           "detail": "",
           "lang": "bash",
           "start_line": 142,
-          "status": "SHELL-NOT-CHECKED"
+          "status": "PASS"
         }
       ],
       "family": "slides",
@@ -16815,7 +16815,7 @@
           "detail": "",
           "lang": "bash",
           "start_line": 56,
-          "status": "SHELL-NOT-CHECKED"
+          "status": "PASS"
         }
       ],
       "family": "slides",
@@ -17054,7 +17054,7 @@
           "detail": "",
           "lang": "bash",
           "start_line": 15,
-          "status": "SHELL-NOT-CHECKED"
+          "status": "PASS"
         }
       ],
       "family": "words",
@@ -17067,13 +17067,13 @@
           "detail": "",
           "lang": "bash",
           "start_line": 31,
-          "status": "SHELL-NOT-CHECKED"
+          "status": "PASS"
         },
         {
           "detail": "",
           "lang": "bash",
           "start_line": 47,
-          "status": "SHELL-NOT-CHECKED"
+          "status": "PASS"
         },
         {
           "detail": "",
@@ -17092,7 +17092,7 @@
           "detail": "",
           "lang": "bash",
           "start_line": 29,
-          "status": "SHELL-NOT-CHECKED"
+          "status": "PASS"
         }
       ],
       "family": "words",
@@ -17396,7 +17396,7 @@
           "detail": "",
           "lang": "bash",
           "start_line": 22,
-          "status": "SHELL-NOT-CHECKED"
+          "status": "PASS"
         },
         {
           "detail": "",
@@ -17538,7 +17538,7 @@
           "detail": "",
           "lang": "bash",
           "start_line": 10,
-          "status": "SHELL-NOT-CHECKED"
+          "status": "PASS"
         }
       ],
       "family": "3d",
@@ -17866,7 +17866,7 @@
           "detail": "",
           "lang": "bash",
           "start_line": 109,
-          "status": "SHELL-NOT-CHECKED"
+          "status": "PASS"
         },
         {
           "detail": "fence has no language info string",
@@ -18512,7 +18512,7 @@
           "detail": "",
           "lang": "bash",
           "start_line": 183,
-          "status": "SHELL-NOT-CHECKED"
+          "status": "PASS"
         }
       ],
       "family": "3d",
@@ -18568,7 +18568,7 @@
           "detail": "",
           "lang": "bash",
           "start_line": 17,
-          "status": "SHELL-NOT-CHECKED"
+          "status": "PASS"
         },
         {
           "detail": "",
@@ -18641,7 +18641,7 @@
           "detail": "",
           "lang": "bash",
           "start_line": 13,
-          "status": "SHELL-NOT-CHECKED"
+          "status": "PASS"
         },
         {
           "detail": "",
@@ -18677,7 +18677,7 @@
           "detail": "",
           "lang": "bash",
           "start_line": 116,
-          "status": "SHELL-NOT-CHECKED"
+          "status": "PASS"
         },
         {
           "detail": "",
@@ -18745,7 +18745,7 @@
           "detail": "",
           "lang": "bash",
           "start_line": 17,
-          "status": "SHELL-NOT-CHECKED"
+          "status": "PASS"
         },
         {
           "detail": "",
@@ -18830,7 +18830,7 @@
           "detail": "",
           "lang": "bash",
           "start_line": 124,
-          "status": "SHELL-NOT-CHECKED"
+          "status": "PASS"
         }
       ],
       "family": "3d",
@@ -18953,13 +18953,13 @@
           "detail": "",
           "lang": "bash",
           "start_line": 48,
-          "status": "SHELL-NOT-CHECKED"
+          "status": "PASS"
         },
         {
           "detail": "",
           "lang": "bash",
           "start_line": 65,
-          "status": "SHELL-NOT-CHECKED"
+          "status": "PASS"
         },
         {
           "detail": "",
@@ -19031,7 +19031,7 @@
           "detail": "",
           "lang": "bash",
           "start_line": 247,
-          "status": "SHELL-NOT-CHECKED"
+          "status": "PASS"
         },
         {
           "detail": "",
@@ -19301,7 +19301,7 @@
           "detail": "",
           "lang": "bash",
           "start_line": 111,
-          "status": "SHELL-NOT-CHECKED"
+          "status": "PASS"
         },
         {
           "detail": "",
@@ -19820,7 +19820,7 @@
           "detail": "",
           "lang": "bash",
           "start_line": 11,
-          "status": "SHELL-NOT-CHECKED"
+          "status": "PASS"
         }
       ],
       "family": "cells",
@@ -19833,7 +19833,7 @@
           "detail": "",
           "lang": "bash",
           "start_line": 31,
-          "status": "SHELL-NOT-CHECKED"
+          "status": "PASS"
         },
         {
           "detail": "",
@@ -19944,7 +19944,7 @@
           "detail": "",
           "lang": "bash",
           "start_line": 15,
-          "status": "SHELL-NOT-CHECKED"
+          "status": "PASS"
         },
         {
           "detail": "",
@@ -20720,7 +20720,7 @@
           "detail": "",
           "lang": "bash",
           "start_line": 20,
-          "status": "SHELL-NOT-CHECKED"
+          "status": "PASS"
         },
         {
           "detail": "",
@@ -20763,7 +20763,7 @@
           "detail": "",
           "lang": "bash",
           "start_line": 21,
-          "status": "SHELL-NOT-CHECKED"
+          "status": "PASS"
         },
         {
           "detail": "",
@@ -20831,7 +20831,7 @@
           "detail": "",
           "lang": "bash",
           "start_line": 24,
-          "status": "SHELL-NOT-CHECKED"
+          "status": "PASS"
         },
         {
           "detail": "no tree-sitter grammar available for 'cmake'",
@@ -20874,7 +20874,7 @@
           "detail": "",
           "lang": "bash",
           "start_line": 9,
-          "status": "SHELL-NOT-CHECKED"
+          "status": "PASS"
         },
         {
           "detail": "no tree-sitter grammar available for 'cmake'",
@@ -20929,7 +20929,7 @@
           "detail": "",
           "lang": "bash",
           "start_line": 10,
-          "status": "SHELL-NOT-CHECKED"
+          "status": "PASS"
         },
         {
           "detail": "no tree-sitter grammar available for 'cmake'",
@@ -21008,7 +21008,7 @@
           "detail": "",
           "lang": "bash",
           "start_line": 11,
-          "status": "SHELL-NOT-CHECKED"
+          "status": "PASS"
         },
         {
           "detail": "no tree-sitter grammar available for 'cmake'",
@@ -21045,7 +21045,7 @@
           "detail": "",
           "lang": "bash",
           "start_line": 21,
-          "status": "SHELL-NOT-CHECKED"
+          "status": "PASS"
         },
         {
           "detail": "",
@@ -21064,7 +21064,7 @@
           "detail": "",
           "lang": "bash",
           "start_line": 12,
-          "status": "SHELL-NOT-CHECKED"
+          "status": "PASS"
         },
         {
           "detail": "no tree-sitter grammar available for 'cmake'",
@@ -21113,7 +21113,7 @@
           "detail": "",
           "lang": "bash",
           "start_line": 11,
-          "status": "SHELL-NOT-CHECKED"
+          "status": "PASS"
         },
         {
           "detail": "no tree-sitter grammar available for 'cmake'",
@@ -22052,7 +22052,7 @@
           "detail": "",
           "lang": "bash",
           "start_line": 17,
-          "status": "SHELL-NOT-CHECKED"
+          "status": "PASS"
         },
         {
           "detail": "",
@@ -22297,7 +22297,7 @@
           "detail": "",
           "lang": "bash",
           "start_line": 22,
-          "status": "SHELL-NOT-CHECKED"
+          "status": "PASS"
         },
         {
           "detail": "",
@@ -22418,7 +22418,7 @@
           "detail": "",
           "lang": "bash",
           "start_line": 160,
-          "status": "SHELL-NOT-CHECKED"
+          "status": "PASS"
         },
         {
           "detail": "",
@@ -22583,7 +22583,7 @@
           "detail": "",
           "lang": "bash",
           "start_line": 145,
-          "status": "SHELL-NOT-CHECKED"
+          "status": "PASS"
         }
       ],
       "family": "note",
@@ -22956,7 +22956,7 @@
           "detail": "",
           "lang": "bash",
           "start_line": 42,
-          "status": "SHELL-NOT-CHECKED"
+          "status": "PASS"
         }
       ],
       "family": "page",
@@ -23073,7 +23073,7 @@
           "detail": "",
           "lang": "bash",
           "start_line": 21,
-          "status": "SHELL-NOT-CHECKED"
+          "status": "PASS"
         },
         {
           "detail": "no tree-sitter grammar available for 'cmake'",
@@ -23085,7 +23085,7 @@
           "detail": "",
           "lang": "bash",
           "start_line": 32,
-          "status": "SHELL-NOT-CHECKED"
+          "status": "PASS"
         },
         {
           "detail": "",
@@ -23201,7 +23201,7 @@
           "detail": "",
           "lang": "bash",
           "start_line": 13,
-          "status": "SHELL-NOT-CHECKED"
+          "status": "PASS"
         },
         {
           "detail": "no tree-sitter grammar available for 'cmake'",
@@ -23213,7 +23213,7 @@
           "detail": "",
           "lang": "bash",
           "start_line": 24,
-          "status": "SHELL-NOT-CHECKED"
+          "status": "PASS"
         },
         {
           "detail": "",
@@ -23347,7 +23347,7 @@
           "detail": "",
           "lang": "bash",
           "start_line": 35,
-          "status": "SHELL-NOT-CHECKED"
+          "status": "PASS"
         },
         {
           "detail": "no tree-sitter grammar available for 'cmake'",
@@ -25221,7 +25221,7 @@
           "detail": "",
           "lang": "bash",
           "start_line": 11,
-          "status": "SHELL-NOT-CHECKED"
+          "status": "PASS"
         },
         {
           "detail": "",
@@ -25270,7 +25270,7 @@
           "detail": "",
           "lang": "bash",
           "start_line": 11,
-          "status": "SHELL-NOT-CHECKED"
+          "status": "PASS"
         },
         {
           "detail": "",
@@ -25319,7 +25319,7 @@
           "detail": "",
           "lang": "bash",
           "start_line": 13,
-          "status": "SHELL-NOT-CHECKED"
+          "status": "PASS"
         },
         {
           "detail": "",
@@ -25374,7 +25374,7 @@
           "detail": "",
           "lang": "bash",
           "start_line": 11,
-          "status": "SHELL-NOT-CHECKED"
+          "status": "PASS"
         },
         {
           "detail": "",
@@ -25429,7 +25429,7 @@
           "detail": "",
           "lang": "bash",
           "start_line": 21,
-          "status": "SHELL-NOT-CHECKED"
+          "status": "PASS"
         },
         {
           "detail": "",
@@ -25448,7 +25448,7 @@
           "detail": "",
           "lang": "bash",
           "start_line": 11,
-          "status": "SHELL-NOT-CHECKED"
+          "status": "PASS"
         },
         {
           "detail": "",
@@ -25558,7 +25558,7 @@
           "detail": "",
           "lang": "bash",
           "start_line": 21,
-          "status": "SHELL-NOT-CHECKED"
+          "status": "PASS"
         },
         {
           "detail": "",
@@ -25577,7 +25577,7 @@
           "detail": "",
           "lang": "bash",
           "start_line": 11,
-          "status": "SHELL-NOT-CHECKED"
+          "status": "PASS"
         },
         {
           "detail": "",
@@ -25681,7 +25681,7 @@
           "detail": "",
           "lang": "bash",
           "start_line": 11,
-          "status": "SHELL-NOT-CHECKED"
+          "status": "PASS"
         },
         {
           "detail": "",
@@ -25730,7 +25730,7 @@
           "detail": "",
           "lang": "bash",
           "start_line": 11,
-          "status": "SHELL-NOT-CHECKED"
+          "status": "PASS"
         },
         {
           "detail": "",
@@ -25779,7 +25779,7 @@
           "detail": "",
           "lang": "bash",
           "start_line": 13,
-          "status": "SHELL-NOT-CHECKED"
+          "status": "PASS"
         },
         {
           "detail": "",
@@ -25834,7 +25834,7 @@
           "detail": "",
           "lang": "bash",
           "start_line": 13,
-          "status": "SHELL-NOT-CHECKED"
+          "status": "PASS"
         }
       ],
       "family": "slides",
@@ -25847,7 +25847,7 @@
           "detail": "",
           "lang": "bash",
           "start_line": 11,
-          "status": "SHELL-NOT-CHECKED"
+          "status": "PASS"
         }
       ],
       "family": "slides",
@@ -26228,7 +26228,7 @@
           "detail": "",
           "lang": "bash",
           "start_line": 18,
-          "status": "SHELL-NOT-CHECKED"
+          "status": "PASS"
         },
         {
           "detail": "",
@@ -26418,7 +26418,7 @@
           "detail": "",
           "lang": "bash",
           "start_line": 11,
-          "status": "SHELL-NOT-CHECKED"
+          "status": "PASS"
         }
       ],
       "family": "slides",
@@ -26868,7 +26868,7 @@
           "detail": "",
           "lang": "bash",
           "start_line": 18,
-          "status": "SHELL-NOT-CHECKED"
+          "status": "PASS"
         },
         {
           "detail": "",
@@ -27810,7 +27810,7 @@
           "detail": "",
           "lang": "bash",
           "start_line": 33,
-          "status": "SHELL-NOT-CHECKED"
+          "status": "PASS"
         },
         {
           "detail": "",
@@ -27842,7 +27842,7 @@
           "detail": "",
           "lang": "bash",
           "start_line": 22,
-          "status": "SHELL-NOT-CHECKED"
+          "status": "PASS"
         },
         {
           "detail": "",
@@ -28128,7 +28128,7 @@
           "detail": "",
           "lang": "bash",
           "start_line": 34,
-          "status": "SHELL-NOT-CHECKED"
+          "status": "PASS"
         }
       ],
       "family": "words",
@@ -28767,7 +28767,7 @@
           "detail": "",
           "lang": "shell",
           "start_line": 5,
-          "status": "SHELL-NOT-CHECKED"
+          "status": "PASS"
         },
         {
           "detail": "no tree-sitter grammar available for 'cmake'",
@@ -28817,7 +28817,7 @@
           "detail": "",
           "lang": "shell",
           "start_line": 3,
-          "status": "SHELL-NOT-CHECKED"
+          "status": "PASS"
         },
         {
           "detail": "",
@@ -28886,7 +28886,7 @@
           "detail": "",
           "lang": "bash",
           "start_line": 3,
-          "status": "SHELL-NOT-CHECKED"
+          "status": "PASS"
         },
         {
           "detail": "",
@@ -29447,13 +29447,13 @@
   ],
   "frontmatter_embedded_note": "products.aspose.org's code blocks live embedded in YAML frontmatter string values (no separate markdown body). TC-18 (2026-09-24) added frontmatter_blocks.py's YAML-aware extractor for this site rather than leaving it excluded -- this is now a real, checked site, not a disclosed gap.",
   "frontmatter_embedded_pages_with_no_code": 28,
-  "generated_at": "2026-09-24T15:14:56.111155Z",
+  "generated_at": "2026-09-24T15:32:49.719901Z",
   "lang_status_counts": {
     "<empty>": {
       "BLANK-LANG-UNCHECKED": 33
     },
     "bash": {
-      "SHELL-NOT-CHECKED": 139
+      "PASS": 139
     },
     "cmake": {
       "GRAMMAR-UNAVAILABLE": 50
@@ -29490,7 +29490,7 @@
       "PASS": 38
     },
     "shell": {
-      "SHELL-NOT-CHECKED": 2
+      "PASS": 2
     },
     "text": {
       "NOT-EXECUTABLE-LANG": 25
@@ -29502,11 +29502,8 @@
       "NOT-EXECUTABLE-LANG": 1
     }
   },
-  "ledger_errors": [
-    "content/docs.aspose.org/en/cells/python/developer-guide/working-with-cells.md:98: [Errno 22] Invalid argument: 'H:\\\\onedrive\\\\Documents\\\\GitHub\\\\aspose.org\\\\reports\\\\example_verification_ledger\\\\cells_python.head.json'",
-    "content/kb.aspose.org/en/cells/net/how-to-work-with-ooxml-packaging-dotnet.md:74: [Errno 22] Invalid argument: 'H:\\\\onedrive\\\\Documents\\\\GitHub\\\\aspose.org\\\\reports\\\\example_verification_ledger\\\\cells_net.head.json'"
-  ],
-  "ledger_writes": 3679,
+  "ledger_errors": [],
+  "ledger_writes": 3822,
   "pages_by_site": {
     "blog.aspose.org": 192,
     "docs.aspose.org": 527,
@@ -29521,7 +29518,7 @@
     "products.aspose.org": 32,
     "reference.aspose.org": 22
   },
-  "run_id": "sweep-20260924T151220Z",
+  "run_id": "sweep-20260924T153023Z",
   "sites_swept": [
     "docs.aspose.org",
     "blog.aspose.org",
@@ -29537,8 +29534,7 @@
     "EMPTY": 1,
     "GRAMMAR-UNAVAILABLE": 53,
     "NOT-EXECUTABLE-LANG": 37,
-    "PASS": 3681,
-    "SHELL-NOT-CHECKED": 141
+    "PASS": 3822
   },
   "total_blocks_classified": 3946,
   "unclassified_blocks": 0

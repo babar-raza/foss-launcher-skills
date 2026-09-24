@@ -51,14 +51,19 @@ tokenizer used everywhere else parses them correctly. Live re-measurement
 (2026-09-24): 88 real code blocks across products.aspose.org, 83 PASS,
 5 GRAMMAR-UNAVAILABLE, 0 SYNTAX-ERROR.
 
-Shell-family fences (bash/sh/shell/powershell/bat/cmd) are excluded from
-the same reasoning `content_eval/evaluators/example_execution.py`'s own
-`_SHELL_LANGS` set already established: `syntax.py`'s tree-sitter loader
-has no grammar for any shell-family language at all, so checking them
-would produce a permanent, predictable GRAMMAR-UNAVAILABLE for every
-install-command block in the portfolio -- not a real signal. Recorded
-as `SHELL-NOT-CHECKED`, a real classification bucket, not silently
-dropped.
+TC-16 fix (2026-09-24): bash/sh/shell/powershell used to be excluded here
+for the same reasoning `content_eval/evaluators/example_execution.py`'s
+own `_SHELL_LANGS` set established -- `syntax.py`'s tree-sitter loader had
+no grammar wired in for any shell-family language, so checking them would
+have produced a permanent, predictable GRAMMAR-UNAVAILABLE for every
+install-command block, not a real signal. That premise turned out to be
+wrong for bash/powershell (real, working grammars exist in
+`tree_sitter_language_pack`, this repo's own already-installed dependency
+-- see syntax.py's own docstring) -- they now flow through `check_syntax()`
+like any other language. `bat`/`cmd` remain in `SHELL-NOT-CHECKED`: the
+language pack's own `batch` grammar is confirmed unreliable (flags valid
+syntax as broken), so it's deliberately not wired in -- still a real,
+disclosed bucket, not silently dropped.
 
 TC-20 fix (ST-212, this same taskcard's own commit): a fence with a
 BLANK info string (`lang == ""`) used to fold silently into
@@ -108,10 +113,15 @@ from example_verification_ledger import ExecutionProofLedger, ledger_key, resolv
 
 _REPO_ROOT = _PIPELINE_ROOT.parents[1]
 
-# Same set example_execution.py's own _SHELL_LANGS establishes, for the
-# same reason (see module docstring) -- kept here rather than imported so
-# this module has no import-time coupling to a content_eval evaluator.
-_SHELL_LANGS: "frozenset[str]" = frozenset({"bash", "sh", "shell", "powershell", "bat", "cmd"})
+# TC-16 (2026-09-24): bash/sh/shell/powershell now have real, working
+# tree-sitter grammars wired into syntax.py -- they flow through
+# check_syntax() like any other language instead of being short-circuited
+# here. bat/cmd stay in this bucket: syntax.py's own docstring documents
+# why (the language pack's "batch" grammar is confirmed unreliable).
+# Kept as its own set (not imported from example_execution.py) for the
+# same reason as before -- no import-time coupling to a content_eval
+# evaluator.
+_SHELL_LANGS: "frozenset[str]" = frozenset({"bat", "cmd"})
 
 # The 4 sites whose code blocks live in the ordinary markdown BODY,
 # parsed via code_fences.py directly against page text.

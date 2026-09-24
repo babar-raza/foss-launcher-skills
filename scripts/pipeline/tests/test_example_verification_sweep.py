@@ -69,8 +69,28 @@ def test_classify_empty_block():
 
 
 def test_classify_shell_not_checked():
-    status, reason, tier, detail = sweep._classify_block("bash", "pip install foo")
+    """bat/cmd stay SHELL-NOT-CHECKED (TC-16: the language pack's own
+    "batch" grammar is confirmed unreliable, so it's deliberately not
+    wired in)."""
+    status, reason, tier, detail = sweep._classify_block("cmd", "echo hello")
     assert status == "SHELL-NOT-CHECKED"
+
+
+def test_classify_bash_is_now_really_checked():
+    """TC-16: bash/sh/shell get a real tree-sitter grammar now."""
+    status, reason, tier, detail = sweep._classify_block("bash", "pip install foo")
+    assert status == "PASS"
+    assert tier == 1
+
+
+def test_classify_bash_syntax_error_is_caught():
+    status, reason, tier, detail = sweep._classify_block("bash", "if [ true; then\n  echo missing fi")
+    assert status == "SYNTAX-ERROR"
+
+
+def test_classify_powershell_is_now_really_checked():
+    status, reason, tier, detail = sweep._classify_block("powershell", "Install-Package Aspose.PDF")
+    assert status == "PASS"
 
 
 def test_classify_non_executable_lang():
@@ -180,14 +200,15 @@ def test_run_sweep_classifies_every_block_in_the_fixture(tmp_path):
     report = sweep.run_sweep(repo_root=repo)
 
     assert report["unclassified_blocks"] == 0
-    # clean.md (1 PASS) + broken.md (1 SYNTAX-ERROR) + mixed.md (1 SHELL-NOT-CHECKED
-    # + 1 NOT-EXECUTABLE-LANG + 1 PASS) = 5 English body blocks; the /de/ locale
-    # page never enters the count; products.aspose.org/en/pdf/go's frontmatter-
-    # embedded example adds 1 more real PASS (TC-18) -- products_root has none.
+    # clean.md (1 PASS) + broken.md (1 SYNTAX-ERROR) + mixed.md (1 PASS bash --
+    # TC-16, "go get example" is real, valid bash syntax -- + 1 NOT-EXECUTABLE-LANG
+    # + 1 PASS go) = 5 English body blocks; the /de/ locale page never enters the
+    # count; products.aspose.org/en/pdf/go's frontmatter-embedded example adds 1
+    # more real PASS (TC-18) -- products_root has none.
     assert report["total_blocks_classified"] == 6
-    assert report["status_counts"]["PASS"] == 3
+    assert report["status_counts"]["PASS"] == 4
     assert report["status_counts"]["SYNTAX-ERROR"] == 1
-    assert report["status_counts"]["SHELL-NOT-CHECKED"] == 1
+    assert "SHELL-NOT-CHECKED" not in report["status_counts"]
     assert report["status_counts"]["NOT-EXECUTABLE-LANG"] == 1
     assert report["pages_by_site"]["docs.aspose.org"] == 3  # locale page excluded from this count too
     assert report["pages_by_site"]["products.aspose.org"] == 2
@@ -226,19 +247,20 @@ def test_run_sweep_writes_ledger_eligible_results(tmp_path):
     repo = _init_fixture_repo(tmp_path)
     report = sweep.run_sweep(repo_root=repo)
 
-    # PASS in clean.md + SYNTAX-ERROR in broken.md + the PASS go block in
-    # mixed.md (its bash/json blocks are SHELL-NOT-CHECKED/NOT-EXECUTABLE-LANG,
-    # neither ledger-eligible) + the PASS go block frontmatter-embedded in
-    # products.aspose.org/en/pdf/go (TC-18) -- all 4 key on the same
-    # (pdf, go) ledger since every fixture page uses that family/platform.
-    assert report["ledger_writes"] == 4
+    # PASS in clean.md + SYNTAX-ERROR in broken.md + mixed.md's PASS bash
+    # block (TC-16, now really checked) + its PASS go block (its json block
+    # is NOT-EXECUTABLE-LANG, not ledger-eligible) + the PASS go block
+    # frontmatter-embedded in products.aspose.org/en/pdf/go (TC-18) -- all
+    # 5 key on the same (pdf, go) ledger since every fixture page uses that
+    # family/platform.
+    assert report["ledger_writes"] == 5
     assert report["ledger_errors"] == []
 
     ledger = ledger_mod.ExecutionProofLedger("pdf", "go", repo_root=repo)
     history = ledger.read_history()
-    assert len(history) == 4
+    assert len(history) == 5
     statuses = sorted(r["status"] for r in history)
-    assert statuses == ["BLOCKED-WITH-REASON", "PASS", "PASS", "PASS"]
+    assert statuses == ["BLOCKED-WITH-REASON", "PASS", "PASS", "PASS", "PASS"]
 
 
 def test_run_sweep_is_idempotent_on_ledger_append_count(tmp_path):
@@ -252,7 +274,7 @@ def test_run_sweep_is_idempotent_on_ledger_append_count(tmp_path):
 
     import example_verification_ledger as ledger_mod
     ledger = ledger_mod.ExecutionProofLedger("pdf", "go", repo_root=repo)
-    assert len(ledger.read_history()) == 8  # 4 ledger-eligible blocks x 2 runs
+    assert len(ledger.read_history()) == 10  # 5 ledger-eligible blocks x 2 runs
 
 
 def test_main_writes_a_dated_report_file(tmp_path, capsys):

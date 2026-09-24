@@ -92,3 +92,61 @@ def test_check_syntax_missing_node_only_still_passes():
     code = "public class Foo {\n    public void bar()"
     result = check_syntax("java", code)
     assert result.status == "PASS"
+
+
+# ---------------------------------------------------------------------------
+# TC-16 (MT072-2026-09-23-EXAMPLE-VERIFICATION-PRODUCTIONIZATION): shell-
+# family languages, added 2026-09-24.
+# ---------------------------------------------------------------------------
+
+def test_canonical_for_shell_aliases_map_to_bash():
+    assert canonical_for("bash") == "bash"
+    assert canonical_for("sh") == "bash"
+    assert canonical_for("shell") == "bash"
+
+
+def test_canonical_for_powershell_aliases():
+    assert canonical_for("powershell") == "powershell"
+    assert canonical_for("ps1") == "powershell"
+
+
+def test_canonical_for_bat_cmd_still_unmapped():
+    """Deliberately NOT wired in -- the language pack's own "batch" grammar
+    is unreliable (see syntax.py's own docstring)."""
+    assert canonical_for("bat") is None
+    assert canonical_for("cmd") is None
+
+
+def test_check_syntax_valid_bash_passes():
+    result = check_syntax("bash", "pip install aspose-pdf-foss\necho done")
+    assert result.status == "PASS"
+    assert result.proof_tier == 1
+
+
+def test_check_syntax_invalid_bash_fails():
+    code = "if [ true; then\n  echo missing fi"
+    result = check_syntax("bash", code)
+    assert result.status == "SYNTAX-ERROR"
+
+
+def test_check_syntax_sh_and_shell_tags_resolve_via_bash_grammar():
+    for tag in ("sh", "shell"):
+        result = check_syntax(tag, "echo hello")
+        assert result.status == "PASS", f"{tag} unexpectedly failed: {result}"
+
+
+def test_check_syntax_valid_powershell_passes():
+    code = '$x = 1\nif ($x -eq 1) { Write-Host "one" }'
+    result = check_syntax("powershell", code)
+    assert result.status == "PASS"
+
+
+def test_check_syntax_invalid_powershell_fails():
+    code = '$x = 1\nif ($x -eq 1 { Write-Host "broken" }'
+    result = check_syntax("powershell", code)
+    assert result.status == "SYNTAX-ERROR"
+
+
+def test_check_syntax_cmd_still_grammar_unavailable():
+    result = check_syntax("cmd", "echo hello")
+    assert result.status == "GRAMMAR-UNAVAILABLE"

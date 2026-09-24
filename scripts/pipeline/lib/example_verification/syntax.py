@@ -24,6 +24,29 @@ smoke_test.py copy this replaces silently reported PASS when no parser was
 available (`smoke_test.py:424-434`, pre-fix) -- a missing grammar and a
 genuinely clean parse must never look the same to a caller deciding whether
 a block has real proof behind it.
+
+TC-16 fix (MT072-2026-09-23-EXAMPLE-VERIFICATION-PRODUCTIONIZATION,
+2026-09-24): shell-family languages used to have NO entry in
+`_CANONICAL_TAGS`/`_LANGUAGE_PACK_NAME` at all -- not because no grammar
+exists, but because neither of the two original loaders this module
+replaced ever tried. Confirmed live: `tree_sitter_language_pack` (already
+this module's own installed fallback dependency, no new toolchain needed)
+ships real, working grammars for `bash` and `powershell`, each verified
+against both a clean and a deliberately broken example (`has_error`
+correctly False/True in both cases). `sh`/`shell` tags are checked against
+the `bash` grammar (close enough for this repo's real content --
+POSIX-vs-bash dialect edge cases are the same tradeoff `shellcheck` itself
+makes by default). Live portfolio re-check before wiring this into the
+sweep: 138 real bash/shell blocks across the English portfolio, 0 syntax
+errors -- a real, safe, zero-regression check, not a theoretical one.
+
+`bat`/`cmd` deliberately NOT added: the language pack's own `batch`
+grammar is unreliable -- confirmed live it flags plain, valid `echo hello`
+as a syntax error (`has_error=True`) while accepting other commands fine.
+Wiring in a grammar that produces false positives would be strictly worse
+than the current disclosed `SHELL-NOT-CHECKED` bucket, so bat/cmd stay in
+that bucket. (No real bat/cmd blocks exist in the current English
+portfolio anyway -- confirmed via the same live re-check.)
 """
 from __future__ import annotations
 
@@ -43,6 +66,13 @@ _CANONICAL_TAGS: dict[str, tuple[str, ...]] = {
     "rust": ("rust", "rs"),
     "go": ("go", "golang"),
     "python": ("python", "py"),
+    # TC-16: sh/shell checked against the bash grammar (see module docstring).
+    # bat/cmd deliberately NOT added -- tree_sitter_language_pack's "batch"
+    # grammar is confirmed unreliable (flags plain `echo hello` as a syntax
+    # error), so wiring it in would trade a disclosed non-check for false
+    # positives, which is worse. Stays SHELL-NOT-CHECKED.
+    "bash": ("bash", "sh", "shell"),
+    "powershell": ("powershell", "ps1"),
 }
 
 # language_pack's own canonical name for each entry above (differs from our
@@ -56,6 +86,8 @@ _LANGUAGE_PACK_NAME: dict[str, str] = {
     "rust": "rust",
     "go": "go",
     "python": "python",
+    "bash": "bash",
+    "powershell": "powershell",
 }
 
 _TAG_TO_CANONICAL: dict[str, str] = {
