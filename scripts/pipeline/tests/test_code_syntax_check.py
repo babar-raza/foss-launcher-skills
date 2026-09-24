@@ -2,10 +2,13 @@
 
 Covers:
   - Python ast.parse (valid, SyntaxError)
-  - Tree-sitter Java / C# / TypeScript / JavaScript / C++ (valid, error)
+  - Shared tree-sitter loader (lib/example_verification/syntax.py, TC-11
+    collapse): Java / C# / TypeScript / JavaScript / C++ (valid, error)
   - Heuristic delimiter fallback (balanced, unbalanced, comment-ignoring)
   - Skip rules (short blocks, noqa, _SKIP_LANGS)
-  - Graceful fallback when tree-sitter packages absent (monkey-patched)
+  - Graceful fallback when a language has no shared grammar at all
+    (kotlin/swift/scala -- a real, permanent GRAMMAR-UNAVAILABLE case,
+    not a monkey-patched simulation of one)
 """
 
 from __future__ import annotations
@@ -14,19 +17,21 @@ import sys
 import textwrap
 import unittest
 from pathlib import Path
-from unittest.mock import patch
 
 # Ensure pipeline root is importable
 _PIPELINE_ROOT = Path(__file__).resolve().parents[1]
 if str(_PIPELINE_ROOT) not in sys.path:
     sys.path.insert(0, str(_PIPELINE_ROOT))
+_LIB_DIR = str(_PIPELINE_ROOT / "lib")
+if _LIB_DIR not in sys.path:
+    sys.path.insert(0, _LIB_DIR)
 
 from content_eval.evaluators.code_syntax_check import (
     CodeSyntaxCheckEvaluator,
-    _TS_PARSER_CACHE,
     _check_balanced_delimiters_for_test,
 )
 from content_eval.models import CodeBlock, Page
+from example_verification.syntax import parser_for as _shared_parser_for
 
 
 # ---------------------------------------------------------------------------
@@ -153,8 +158,7 @@ class TestJavaSyntax(unittest.TestCase):
 
     @classmethod
     def setUpClass(cls):
-        _load_ts_parsers_if_needed()
-        cls.ts_available = "java" in _TS_PARSER_CACHE
+        cls.ts_available = _shared_parser_for("java") is not None
 
     def test_valid_java_no_findings(self):
         code = textwrap.dedent("""\
@@ -212,8 +216,7 @@ class TestCSharpSyntax(unittest.TestCase):
 
     @classmethod
     def setUpClass(cls):
-        _load_ts_parsers_if_needed()
-        cls.ts_available = "csharp" in _TS_PARSER_CACHE
+        cls.ts_available = _shared_parser_for("csharp") is not None
 
     def test_valid_csharp_no_findings(self):
         code = textwrap.dedent("""\
@@ -272,8 +275,7 @@ class TestTypeScriptSyntax(unittest.TestCase):
 
     @classmethod
     def setUpClass(cls):
-        _load_ts_parsers_if_needed()
-        cls.ts_available = "typescript" in _TS_PARSER_CACHE
+        cls.ts_available = _shared_parser_for("typescript") is not None
 
     def test_valid_typescript_no_findings(self):
         code = textwrap.dedent("""\
@@ -328,8 +330,7 @@ class TestCppSyntax(unittest.TestCase):
 
     @classmethod
     def setUpClass(cls):
-        _load_ts_parsers_if_needed()
-        cls.ts_available = "cpp" in _TS_PARSER_CACHE
+        cls.ts_available = _shared_parser_for("cpp") is not None
 
     def test_valid_cpp_no_findings(self):
         code = textwrap.dedent("""\
@@ -463,31 +464,35 @@ class TestHeuristicDelimiters(unittest.TestCase):
 # ---------------------------------------------------------------------------
 
 class TestTreeSitterFallback(unittest.TestCase):
+    """Uses `kotlin` -- a real, permanent GRAMMAR-UNAVAILABLE case (no
+    shared grammar exists for it at all, unlike java/csharp/typescript/cpp/
+    rust/go, which all have one now that TC-13 installed the missing
+    toolchains) -- instead of monkey-patching java's own now-real parser
+    cache away (banned T1/T2 pattern; also no longer possible post-TC-11
+    collapse, since the shared loader owns its own private cache)."""
 
-    def test_falls_back_to_heuristic_when_ts_absent(self):
-        """If tree-sitter parser is unavailable, heuristic checker is used instead."""
+    def test_falls_back_to_heuristic_when_grammar_unavailable(self):
+        """If no shared grammar exists for a language, the heuristic
+        balanced-delimiter checker is used instead."""
         code = textwrap.dedent("""\
-            function foo() {
-                return 1 + 2;
+            fun foo(): Int {
+                return 1 + 2
             }
         """)
-        # Patch the cache to simulate ts-java not installed
-        with patch.dict(_TS_PARSER_CACHE, {}, clear=True):
-            findings = _eval([("java", code, 1)])
-            # Should get no error (balanced code) even without ts
-            self.assertEqual(findings, [])
+        findings = _eval([("kotlin", code, 1)])
+        # Should get no error (balanced code) from the heuristic fallback
+        self.assertEqual(findings, [])
 
-    def test_fallback_catches_unbalanced_without_ts(self):
+    def test_fallback_catches_unbalanced_without_grammar(self):
         """Heuristic fallback still catches obvious imbalances."""
         code = textwrap.dedent("""\
-            function foo() {
-                return (1 + 2;
+            fun foo(): Int {
+                return (1 + 2
             }
         """)
-        with patch.dict(_TS_PARSER_CACHE, {}, clear=True):
-            findings = _eval([("java", code, 1)])
-            self.assertEqual(len(findings), 1)
-            self.assertEqual(findings[0].level, "WARN")
+        findings = _eval([("kotlin", code, 1)])
+        self.assertEqual(len(findings), 1)
+        self.assertEqual(findings[0].level, "WARN")
 
 
 # ---------------------------------------------------------------------------
@@ -518,16 +523,6 @@ class TestMultipleBlocks(unittest.TestCase):
         bad_py = "def bad(:\n    pass\n\nfoo()\n"
         findings = _eval([("python", bad_py, 1)])
         self.assertTrue(all(f.evaluator == "code_syntax_check" for f in findings))
-
-
-# ---------------------------------------------------------------------------
-# Internal helper exposed for tests
-# ---------------------------------------------------------------------------
-
-def _load_ts_parsers_if_needed():
-    """Ensure the lazy loader has run."""
-    from content_eval.evaluators.code_syntax_check import _load_ts_parsers
-    _load_ts_parsers()
 
 
 if __name__ == "__main__":

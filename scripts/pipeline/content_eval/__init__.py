@@ -47,6 +47,16 @@ EVALUATOR_FREEZE_VERSION: str | None = "19"  # PKGINSTALL-GRADE-SAFETY-OVERRIDE 
 # Version history (evaluators bumped at v18):
 #   evidence_depth: 1→2 (TC-SFH-003: graduated to CANONICAL_EVALUATORS; EG_GROUNDING WARN
 #                        now caps grade at B; EG_STALE excluded from ceiling by category key)
+# Version history (bumped out-of-band, ELV unchanged -- 2026-09-23):
+#   code_syntax_check: 2→3 (TC-11, MT072-2026-09-23-EXAMPLE-VERIFICATION-PRODUCTIONIZATION:
+#                        collapsed this evaluator's own independent tree-sitter loader onto
+#                        the shared lib/example_verification/syntax.py one, RC17's fallback-
+#                        coverage gap -- java/csharp/typescript/cpp now get the SAME
+#                        tree_sitter_language_pack fallback rust already had, and "go" (never
+#                        checked here before) now gets a real tree-sitter parse for the first
+#                        time. Real portfolio re-run confirmed 0 FAIL/0 WARN before and after --
+#                        no page's stored grade actually changes, so ELV/corpus re-evaluation
+#                        is not required, matching the install_recipe precedent above)
 # Version history (bumped out-of-band, ELV unchanged -- install_recipe stays EXPERIMENTAL,
 # never affected any stored grade, so no corpus re-evaluation is required for this bump):
 #   install_recipe: 1→2 (PKGINSTALL-VERSION-BUMP-AND-LINT, 2026-09-10: never bumped despite
@@ -78,7 +88,7 @@ EVALUATOR_VERSIONS: dict[str, str] = {
     "type_accuracy": "3",  # v3: Check 6 — C# static class instantiation escalated to FAIL; abstract stays WARN
     "prose_claim_binding": "1",
     "api_completeness": "1",
-    "code_syntax_check": "2",
+    "code_syntax_check": "3",  # v3: collapsed onto the shared syntax.py tree-sitter loader (TC-11)
     "namespace_correctness": "2",  # v2: C# allow-list from api_surface.json canonical_namespace, not NuGet PackageId
     "format_completeness": "1",
     "member_validity": "1",

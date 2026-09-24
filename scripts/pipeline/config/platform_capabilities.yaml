@@ -442,20 +442,27 @@ platforms:
     smoke_test_langs:
       declared: false
       reason: >
-        PARTIALLY FIXED 2026-09-06 (MT065 taskcard C4): smoke_test.py's
-        own _PLATFORM_LANGS/_TS_LANG_MAP are now derived from the shared
+        PARTIALLY FIXED 2026-09-06 (MT065 taskcard C4), further fixed
+        2026-09-23 (TC-11, MT072-2026-09-23-EXAMPLE-VERIFICATION-
+        PRODUCTIONIZATION): smoke_test.py's own _PLATFORM_LANGS/
+        _TS_LANG_MAP are now derived from the shared
         lib/example_verification/registry.py, which declares "go"/"golang"
         -- the previous fallback-to-python defect (a go product's code
         blocks silently smoke-tested as Python) is closed, see
-        smoke_test_py_matches below. `declared` stays false here because
-        the PRIMARY cross-check this site asserts is against
+        smoke_test_py_matches below. TC-11 also collapsed
+        code_syntax_check.py's own independent tree-sitter loader onto
+        that SAME shared registry.py-adjacent loader
+        (lib/example_verification/syntax.py), which already declared "go"
+        -- so code_syntax_check.py now gets a real tree-sitter parse for
+        go too, see code_syntax_check_py_matches below (previously false,
+        this evaluator's own note here said it fell to the looser
+        _BRACE_LANGS heuristic instead). `declared` stays false here
+        because the PRIMARY cross-check this site asserts is against
         content_eval/config.py:PLATFORM_EXPECTED_LANGS, a DIFFERENT,
-        still-unfixed dict (still has no 'go' key) -- that file is not in
-        this taskcard's touchable-files list. code_syntax_check.py's
-        _TS_LANGS also still has no 'go' key (same file-scope reason);
-        "go" still falls to that evaluator's looser _BRACE_LANGS heuristic
-        there, unrelated to this fix.
+        still-unfixed dict (still has no 'go' key) -- that file was not in
+        either taskcard's touchable-files list.
       smoke_test_py_matches: true
+      code_syntax_check_py_matches: true
     kb_suffix:
       declared: false
       reason: "No 'go' key in KB_PLATFORM_SUFFIX -- KB_PLATFORM_SUFFIX.get('go', 'go') falls back to the platform string itself ('go'), not an error."

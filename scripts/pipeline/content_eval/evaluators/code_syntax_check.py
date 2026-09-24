@@ -2,16 +2,34 @@
 
 H-14: Catches syntax errors that code_plausibility misses:
   - Python: ast.parse() for syntax validation → FAIL on SyntaxError
-  - Java, C#, TypeScript, JavaScript, C++: tree-sitter parse → FAIL on has_error
-  - Other brace languages: heuristic balanced-delimiter check → WARN
+  - Java, C#, TypeScript, JavaScript, C++, Go, Rust: tree-sitter parse
+    (via the shared lib/example_verification/syntax.py loader) → FAIL on
+    a real ERROR node
+  - Other brace languages (kotlin, swift, scala — no shared grammar):
+    heuristic balanced-delimiter check → WARN
 
 Skips blocks shorter than 3 lines (intentional fragments).
 Skips blocks with ``# noqa: syntax`` on line 1 (escape hatch).
 
-Tree-sitter language packages required for full validation:
-  pip install tree-sitter-python tree-sitter-java tree-sitter-c-sharp
-              tree-sitter-typescript tree-sitter-javascript tree-sitter-cpp
-If packages are absent, falls back to heuristic delimiter check for those languages.
+TC-11 (MT072-2026-09-23-EXAMPLE-VERIFICATION-PRODUCTIONIZATION, RC4):
+collapsed this module's own independent tree-sitter loader onto the shared
+`lib/example_verification/syntax.py` one (RC17's own documented finding:
+this copy only resolved `rust` via the `tree_sitter_language_pack` fallback,
+while the shared loader -- already used by `smoke_test.py` and the whole
+`example_verification` package -- resolves java/csharp/typescript/cpp/rust/
+go via that same fallback, so a page in one of those languages could
+silently degrade to the WARN-only bracket heuristic here while getting a
+real parse everywhere else). Triaged before collapsing (not blindly): ran
+both this evaluator and the shared loader across the real, full, current
+portfolio (9,125 English pages) -- 0 FAIL/0 WARN from both, in full
+agreement, confirming the historically-cited ~533-block delta was
+explained by defect classes already fixed elsewhere this session
+(ellipsis-as-code placeholders, CMake content mistagged as a cpp fence --
+both real, live instances found and fixed in TC-10), not a live risk this
+collapse could resurface. Python keeps its own `ast.parse()` path
+unchanged -- more precise than a tree-sitter parse for Python, and the
+shared loader was never meant to replace it (its own docstring documents
+this same split).
 """
 
 from __future__ import annotations
@@ -25,15 +43,41 @@ from typing import Any
 from ..models import Finding, Page
 from . import BaseEvaluator
 
+_LIB_DIR = str(Path(__file__).resolve().parents[3] / "lib")
+
+
+def _shared_check_syntax(lang_tag: str, code: str) -> Any:
+    """Import lib/example_verification/syntax.py lazily (sys.path append,
+    matching every other content_eval evaluator that reaches into lib/)
+    and delegate to its check_syntax(). Never raises -- a parser crash or
+    import failure degrades to this module's own GRAMMAR-UNAVAILABLE-shaped
+    fallback (the balanced-delimiter heuristic), same as before the
+    collapse."""
+    import sys
+    if _LIB_DIR not in sys.path:
+        sys.path.insert(0, _LIB_DIR)
+    from example_verification.syntax import check_syntax  # noqa: E402
+    return check_syntax(lang_tag, code)
+
+
 # Language tags that use ast.parse (Python is handled separately — more precise)
 _PYTHON_LANGS = {"python", "py"}
 
-# Language tags handled by tree-sitter (when available)
-_TS_LANGS = {"java", "csharp", "cs", "c#", "typescript", "ts",
-             "javascript", "js", "cpp", "c++", "rust", "rs"}
+# Language tags the SHARED loader (lib/example_verification/syntax.py) has a
+# real tree-sitter grammar for (standalone wheel or tree_sitter_language_pack
+# fallback) -- java, csharp, typescript, javascript, cpp, rust, go. Python is
+# deliberately excluded here (see module docstring: ast.parse is used instead).
+_SHARED_LOADER_LANGS = {
+    "java", "csharp", "cs", "c#", "typescript", "ts",
+    "javascript", "js", "cpp", "c++", "rust", "rs", "go", "golang",
+}
 
-# Language tags for heuristic fallback (tree-sitter absent, or other brace langs)
-_BRACE_LANGS = _TS_LANGS | {"kotlin", "swift", "go", "rust", "scala"}
+# Language tags for heuristic fallback ONLY (no shared grammar exists at all —
+# kotlin/swift/scala) plus every _SHARED_LOADER_LANGS entry, since a genuine
+# GRAMMAR-UNAVAILABLE from the shared loader (parser crash, environment
+# missing a wheel this evaluator's own callers never installed) still falls
+# through to this same heuristic, exactly as before the collapse.
+_BRACE_LANGS = _SHARED_LOADER_LANGS | {"kotlin", "swift", "scala"}
 
 # Skip these block types entirely — not programming languages
 _SKIP_LANGS = {"bash", "shell", "sh", "xml", "json", "yaml", "toml", "text",
@@ -43,94 +87,6 @@ _SKIP_LANGS = {"bash", "shell", "sh", "xml", "json", "yaml", "toml", "text",
 
 # Noqa marker
 _NOQA_SYNTAX_RE = re.compile(r"#\s*noqa:\s*syntax", re.IGNORECASE)
-
-# Tree-sitter parser cache: lang_tag -> Parser instance (or None if unavailable)
-_TS_PARSER_CACHE: dict[str, Any] = {}
-_TS_LOADED = False
-
-
-def _load_ts_parsers() -> None:
-    """Attempt to load all tree-sitter language parsers; populate _TS_PARSER_CACHE."""
-    global _TS_LOADED
-    if _TS_LOADED:
-        return
-    _TS_LOADED = True
-
-    try:
-        from tree_sitter import Language, Parser  # type: ignore[import]
-    except ImportError:
-        return  # tree-sitter core not available — all parsers will be None
-
-    def _make(lang_fn):
-        try:
-            return Parser(Language(lang_fn()))
-        except Exception:
-            return None
-
-    # Python via tree-sitter (not used — ast.parse is preferred)
-    # but register to avoid fallback on explicit 'python' tag
-    try:
-        import tree_sitter_java as _tsj
-        p = _make(_tsj.language)
-        if p:
-            _TS_PARSER_CACHE["java"] = p
-    except ImportError:
-        pass
-
-    try:
-        import tree_sitter_c_sharp as _tscs
-        p = _make(_tscs.language)
-        if p:
-            for tag in ("csharp", "cs", "c#"):
-                _TS_PARSER_CACHE[tag] = p
-    except ImportError:
-        pass
-
-    try:
-        import tree_sitter_typescript as _tsts
-        ts_p = _make(_tsts.language_typescript)
-        if ts_p:
-            for tag in ("typescript", "ts"):
-                _TS_PARSER_CACHE[tag] = ts_p
-        tsx_p = _make(_tsts.language_tsx)
-        if tsx_p:
-            _TS_PARSER_CACHE["tsx"] = tsx_p
-    except ImportError:
-        pass
-
-    try:
-        import tree_sitter_javascript as _tsjs
-        p = _make(_tsjs.language)
-        if p:
-            for tag in ("javascript", "js"):
-                _TS_PARSER_CACHE[tag] = p
-    except ImportError:
-        pass
-
-    try:
-        import tree_sitter_cpp as _tscpp
-        p = _make(_tscpp.language)
-        if p:
-            for tag in ("cpp", "c++"):
-                _TS_PARSER_CACHE[tag] = p
-    except ImportError:
-        pass
-
-    # Rust ships via tree_sitter_language_pack (no standalone wheel installed)
-    try:
-        from tree_sitter_language_pack import get_parser as _lp_get_parser
-        p = _lp_get_parser("rust")
-        if p:
-            for tag in ("rust", "rs"):
-                _TS_PARSER_CACHE[tag] = p
-    except Exception:
-        pass
-
-
-def _ts_parser_for(lang_tag: str) -> Any | None:
-    """Return a cached tree-sitter Parser for lang_tag, or None if unavailable."""
-    _load_ts_parsers()
-    return _TS_PARSER_CACHE.get(lang_tag)
 
 
 # EC-03 Pattern 7 fix: declaration-only snippet detection.  Reference pages
@@ -205,17 +161,10 @@ class CodeSyntaxCheckEvaluator(BaseEvaluator):
                 findings.extend(
                     self._check_python_syntax(content, block.start_line, page)
                 )
-            elif lang in _TS_LANGS:
-                parser = _ts_parser_for(lang)
-                if parser is not None:
-                    findings.extend(
-                        self._check_ts_syntax(content, block.start_line, page, parser, lang)
-                    )
-                else:
-                    # Graceful fallback: tree-sitter not installed
-                    findings.extend(
-                        self._check_balanced_delimiters(content, block.start_line, page)
-                    )
+            elif lang in _SHARED_LOADER_LANGS:
+                findings.extend(
+                    self._check_shared_loader_syntax(content, block.start_line, page, lang)
+                )
             elif lang in _BRACE_LANGS:
                 findings.extend(
                     self._check_balanced_delimiters(content, block.start_line, page)
@@ -247,35 +196,38 @@ class CodeSyntaxCheckEvaluator(BaseEvaluator):
         return []
 
     # ------------------------------------------------------------------
-    # Tree-sitter (Java / C# / TypeScript / JavaScript / C++)
+    # Shared tree-sitter loader (Java / C# / TypeScript / JavaScript / C++ /
+    # Rust / Go) -- collapsed onto lib/example_verification/syntax.py, TC-11
     # ------------------------------------------------------------------
 
-    def _check_ts_syntax(
-        self, code: str, start_line: int, page: Page, parser: Any, lang: str
+    def _check_shared_loader_syntax(
+        self, code: str, start_line: int, page: Page, lang: str
     ) -> list[Finding]:
-        """Use tree-sitter to validate a code block.
+        """Delegate to the shared tree-sitter loader's check_syntax().
 
-        FAIL when an ERROR node is found (genuine unrecognised token/structure).
-        MISSING nodes (parser-inserted tokens to complete a partial parse) are
-        common in valid code snippets and are NOT treated as errors.
+        FAIL when it reports SYNTAX-ERROR (a real ERROR node -- MISSING
+        nodes, parser-inserted tokens completing a partial snippet parse,
+        are excluded by that loader itself, matching this evaluator's own
+        pre-collapse behavior exactly). GRAMMAR-UNAVAILABLE (no parser
+        could be loaded at all -- an environment gap, not a property of
+        this code) falls through to the same balanced-delimiter heuristic
+        this evaluator always used when tree-sitter was unavailable.
         """
         try:
-            tree = parser.parse(code.encode("utf-8", errors="replace"))
+            result = _shared_check_syntax(lang, code)
         except Exception:
-            return []  # never let a parser crash block the evaluator
+            return self._check_balanced_delimiters(code, start_line, page)
 
-        if not tree.root_node.has_error:
+        if result.status == "GRAMMAR-UNAVAILABLE":
+            return self._check_balanced_delimiters(code, start_line, page)
+        if result.status != "SYNTAX-ERROR":
             return []
 
-        # Distinguish ERROR (real syntax issue) from MISSING (snippet-context artefact)
-        first_error = _first_error_node(tree.root_node)
-        if first_error is None:
-            return []  # only MISSING nodes — not a real error in a snippet
-
-        error_line = start_line + first_error.start_point[0]
+        error_line = start_line + (result.error_line or 1) - 1
         lang_display = {"cs": "C#", "c#": "C#", "csharp": "C#",
                         "ts": "TypeScript", "js": "JavaScript",
-                        "cpp": "C++", "c++": "C++"}.get(lang, lang.title())
+                        "cpp": "C++", "c++": "C++", "rs": "Rust",
+                        "golang": "Go"}.get(lang, lang.title())
         return [Finding(
             level="FAIL",
             category="SX",

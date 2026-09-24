@@ -66,6 +66,7 @@ from content_eval.config import (  # noqa: E402
     PROSE_FOREIGN_PATTERNS,
 )
 from content_eval.evaluators import code_syntax_check as csc  # noqa: E402
+from example_verification.syntax import parser_for as _shared_parser_for  # noqa: E402
 from content_eval.evaluators.coverage import CONCRETE_ONLY_PLATFORMS  # noqa: E402
 from content_eval.evaluators.install_recipe import (  # noqa: E402
     _PKG_NAME_RE,
@@ -357,35 +358,40 @@ class TestSmokeTestLangsMatrix:
         decl = CAPS["platforms"][platform]["smoke_test_langs"]
         lang = CAPS["platforms"][platform]["language"]
         expect_present = decl.get("code_syntax_check_py_matches", False)
-        present = lang in csc._TS_LANGS
+        present = lang in csc._SHARED_LOADER_LANGS
         assert present == expect_present, (
             f"{platform} ({lang}): YAML says code_syntax_check_py_matches="
-            f"{expect_present} but real _TS_LANGS membership is {present}"
+            f"{expect_present} but real _SHARED_LOADER_LANGS membership is {present}"
         )
 
-    def test_go_is_partially_fixed_not_fully_undeclared_anymore(self):
-        """REWRITTEN 2026-09-06 (MT065 taskcard C4, RC20 fix): this
-        originally pinned 'go' as absent from all three of
-        PLATFORM_EXPECTED_LANGS / smoke_test._PLATFORM_LANGS /
-        code_syntax_check._TS_LANGS. smoke_test.py's own _PLATFORM_LANGS
-        (and _TS_LANG_MAP) are now derived from the shared
+    def test_go_is_now_fully_fixed_in_code_syntax_check_too(self):
+        """REWRITTEN 2026-09-06 (MT065 taskcard C4, RC20 fix), REWRITTEN
+        AGAIN 2026-09-23 (TC-11, MT072-2026-09-23-EXAMPLE-VERIFICATION-
+        PRODUCTIONIZATION): this originally pinned 'go' as absent from all
+        three of PLATFORM_EXPECTED_LANGS / smoke_test._PLATFORM_LANGS /
+        code_syntax_check._TS_LANGS, then (MT065 C4) smoke_test.py's own
+        _PLATFORM_LANGS/_TS_LANG_MAP were fixed to derive from the shared
         lib/example_verification/registry.py, which declares "go"/"golang"
-        -- the previous fallback-to-python defect (a go product's code
-        blocks silently smoke-tested as Python) is closed. The other two
-        dicts are unfixed (different files, out of this taskcard's scope):
-        content_eval/config.py:PLATFORM_EXPECTED_LANGS and
-        code_syntax_check.py:_TS_LANGS both still have no 'go' key -- this
-        is why platform_capabilities.yaml's go.smoke_test_langs stays
+        -- closing the previous fallback-to-python defect there. TC-11
+        collapsed code_syntax_check.py's OWN independent tree-sitter
+        loader onto lib/example_verification/syntax.py (the same package
+        registry.py lives beside), which already declared "go" -- so
+        code_syntax_check.py now gets a real tree-sitter parse for go too,
+        closing that gap as well. Only content_eval/config.py:
+        PLATFORM_EXPECTED_LANGS remains unfixed (a different file, out of
+        both taskcards' touchable-files lists) -- this is why
+        platform_capabilities.yaml's go.smoke_test_langs stays
         `declared: false` (that site's primary value cross-checks
-        PLATFORM_EXPECTED_LANGS specifically) while its new
-        `smoke_test_py_matches: true` field reflects the real, fixed
-        smoke_test.py state."""
+        PLATFORM_EXPECTED_LANGS specifically) while its
+        `smoke_test_py_matches`/`code_syntax_check_py_matches` fields are
+        both now true."""
         assert "go" not in PLATFORM_EXPECTED_LANGS
         assert "go" in st._PLATFORM_LANGS
         assert "golang" in st._PLATFORM_LANGS["go"]
-        assert "go" not in csc._TS_LANGS
+        assert "go" in csc._SHARED_LOADER_LANGS
         assert CAPS["platforms"]["go"]["smoke_test_langs"]["declared"] is False
         assert CAPS["platforms"]["go"]["smoke_test_langs"]["smoke_test_py_matches"] is True
+        assert CAPS["platforms"]["go"]["smoke_test_langs"]["code_syntax_check_py_matches"] is True
 
 
 # --- kb_suffix -----------------------------------------------------------------
@@ -514,9 +520,22 @@ class TestExampleVerificationMatrix:
         missing = set(ev_registry.PLATFORM_CONTRACT) - set(PLATFORMS)
         assert not missing, f"registry.PLATFORM_CONTRACT declares platforms with no YAML row: {missing}"
 
-    def test_python_and_typescript_are_the_only_real_runners_today(self):
+    def test_all_seven_platforms_now_have_a_real_runner(self):
+        """Stale since TC-01/TC-02/TC-04 (this same mission,
+        MT072-2026-09-23-EXAMPLE-VERIFICATION-PRODUCTIONIZATION): this
+        test originally pinned python/typescript as the only two platforms
+        with a real runner module -- true when written, but TC-04 wired
+        S-120's _LANGUAGE_RUNNERS to dispatch all 7 platforms through the
+        package (this mission's own single most-cited unmet promise,
+        closed). Found stale live while running this file for TC-11 (a
+        different, unrelated collapse); fixed here rather than left for a
+        future session to rediscover -- the OTHER tests in this class
+        (test_every_field_matches_registry_platform_contract, cross-
+        checked per-platform against the YAML) already correctly reflect
+        the real, current 7-platform state; only this one hardcoded
+        2-platform set had fallen behind."""
         real_runners = {p for p, c in ev_registry.PLATFORM_CONTRACT.items() if c.runner is not None}
-        assert real_runners == {"python", "typescript"}
+        assert real_runners == {"cpp", "go", "java", "net", "python", "rust", "typescript"}
 
     def test_go_is_the_only_precommit_blocking_platform_today(self):
         blocking = {p for p, c in ev_registry.PLATFORM_CONTRACT.items() if c.precommit_blocking}
@@ -832,32 +851,23 @@ class TestSyntaxCheckingReproduction:
         lang = CAPS["platforms"][platform]["language"]
         decl = CAPS["platforms"][platform]["smoke_test_langs"]
         if decl.get("code_syntax_check_py_matches"):
-            assert lang in csc._TS_LANGS
-            parser = csc._ts_parser_for(lang)
-            if parser is None:
-                # Real environment gap, found live while building this
-                # card: code_syntax_check.py's _load_ts_parsers() has a
-                # tree_sitter_language_pack FALLBACK only for rust
-                # (_TS_PARSER_CACHE population at L119-127) -- java/cpp/
-                # typescript/javascript each depend on a STANDALONE
-                # tree-sitter-<lang> pip package that no requirements*.txt
-                # in this repo declares (verified: grepped every
-                # scripts/*/requirements*.txt). A clean bootstrap of this
-                # repo (exactly what this session did) therefore has no
-                # real tree-sitter syntax-checking for those 3 languages --
-                # only the looser _BRACE_LANGS heuristic fallback runs.
-                # This is a pre-existing, separate gap from anything this
-                # card is scoped to fix (code_syntax_check.py is not in
-                # this card's touchable-files list) -- skip, don't force a
-                # false pass or a misleading hard failure.
-                pytest.skip(
-                    f"{platform} ({lang}): _TS_LANGS declares this language "
-                    f"but no standalone tree-sitter-{lang} package is "
-                    f"installed/declared in this repo's requirements files "
-                    f"-- real, pre-existing environment gap, not a matrix defect."
-                )
+            assert lang in csc._SHARED_LOADER_LANGS
+            # RC17's own gap (code_syntax_check.py's OLD independent loader
+            # resolved only rust via the tree_sitter_language_pack
+            # fallback; java/cpp/typescript/javascript needed a standalone
+            # wheel no requirements*.txt declared) is closed by TC-11's
+            # collapse onto lib/example_verification/syntax.py's shared
+            # loader, which already tries that same fallback for every
+            # language it declares -- confirmed live, no skip branch
+            # needed anymore.
+            parser = _shared_parser_for(lang)
+            assert parser is not None, (
+                f"{platform} ({lang}): _SHARED_LOADER_LANGS declares this "
+                f"language but the shared loader could not produce a real "
+                f"parser for it -- a genuine environment regression."
+            )
         else:
-            assert lang not in csc._TS_LANGS
+            assert lang not in csc._SHARED_LOADER_LANGS
 
     @pytest.mark.parametrize("platform", PLATFORMS)
     def test_smoke_test_maps_or_declared_absent(self, platform):

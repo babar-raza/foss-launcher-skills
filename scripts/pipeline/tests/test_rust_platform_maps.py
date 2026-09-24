@@ -237,21 +237,28 @@ class TestRustEvalConfig:
 
 
 class TestRustSyntaxChecking:
+    """TC-11 (MT072-2026-09-23-EXAMPLE-VERIFICATION-PRODUCTIONIZATION):
+    code_syntax_check.py's own independent tree-sitter loader was
+    collapsed onto the shared lib/example_verification/syntax.py loader --
+    these tests now exercise that shared loader directly (the same one
+    code_syntax_check.py itself delegates to), not a module-private cache."""
+
     def test_code_syntax_check_parser_loads(self):
         from content_eval.evaluators import code_syntax_check as csc
-        assert "rust" in csc._TS_LANGS
-        parser = csc._ts_parser_for("rust")
+        from example_verification.syntax import parser_for
+        assert "rust" in csc._SHARED_LOADER_LANGS
+        parser = parser_for("rust")
         assert parser is not None
 
     def test_valid_rust_parses_clean(self):
-        from content_eval.evaluators import code_syntax_check as csc
-        parser = csc._ts_parser_for("rust")
+        from example_verification.syntax import parser_for
+        parser = parser_for("rust")
         tree = parser.parse(b"fn main() { println!(\"ok\"); }")
         assert tree.root_node.has_error is False
 
     def test_broken_rust_flagged(self):
-        from content_eval.evaluators import code_syntax_check as csc
-        parser = csc._ts_parser_for("rust")
+        from example_verification.syntax import parser_for
+        parser = parser_for("rust")
         tree = parser.parse(b"fn main( { let = ; }")
         assert tree.root_node.has_error is True
 
