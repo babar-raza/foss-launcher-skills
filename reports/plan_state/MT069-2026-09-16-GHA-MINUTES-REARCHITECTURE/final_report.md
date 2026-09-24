@@ -64,7 +64,16 @@ workflows (all deliberately disabled as a cost stopgap) for any reason.
 | Split private/public | `ci-eval-consistency.yml`, `launch-dashboard.yml` |
 | Stay private, optimize only | `extraction-pipeline.yml`, `metrics-governance.yml`, `reference-index-structure.yml`, `seo-tests.yml`, `act-pipeline.yml`, `cross-repo-index-sync.yml` |
 | Confirmed dead, leave alone | `content-audit.yml` |
-| Consolidation-independent optimization | `example-verification-tests.yml`, the 4 auto-commit watcher bots |
+| Consolidation-independent optimization | `example-verification-tests.yml`[^ev-tc12], the 4 auto-commit watcher bots |
+
+[^ev-tc12]: CORRECTED 2026-09-24 (TC-12, MT072-2026-09-23-EXAMPLE-VERIFICATION-
+PRODUCTIONIZATION): this dossier's own open question ("does the Windows leg test
+anything genuinely OS-sensitive?") is now answered YES -- TC-12 added a real
+MSVC-backed C++ build test to that leg, which cannot run on Linux. No destination
+change either way (still correctly private-only, no migration needed), but the
+specific dual-OS *consolidation* lever this row's dossier flagged as open is now
+closed: do not demote or merge the Windows job. See
+`dossiers/example-verification-tests.md`'s own correction for the full detail.
 
 ## What was built, not just proposed
 
