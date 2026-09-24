@@ -171,7 +171,18 @@ class VerificationReport:
         A block reaches tier 3 with no reason and gets the legacy
         "COMPILED+RAN CLEAN" label; every other status stays
         "BLOCKED-WITH-REASON" using this module's own reason vocabulary,
-        which is already S-120's vocabulary plus this package's additions."""
+        which is already S-120's vocabulary plus this package's additions.
+
+        Bug fix (found live via TC-13, MT072-2026-09-23-EXAMPLE-VERIFICATION-
+        PRODUCTIONIZATION, once real toolchains made a genuine tier-2 PASS
+        reachable for the first time): a real `status="PASS"` result below
+        tier 3 (e.g. CppRunner's disclosed BUILD-VERIFIED-ONLY ceiling --
+        see runners/base.py's `_climb()`) used to fall through to the
+        generic non-BLOCKED-WITH-REASON default below, which hardcodes
+        `reason="TOOLCHAIN-UNAVAILABLE"` -- a FALSE claim for a block that
+        just compiled cleanly with a toolchain that plainly exists. Any
+        `status="PASS"` now keeps its own real `reason` (e.g.
+        `BUILD-VERIFIED-ONLY`) instead of being overwritten."""
         blocks_out: list[dict[str, Any]] = []
         for b in self.blocks:
             if b.status == "PASS" and b.proof_tier >= 3:
@@ -182,7 +193,10 @@ class VerificationReport:
                     entry["commands_run"] = b.commands_run
                 blocks_out.append(entry)
                 continue
-            reason = b.reason if b.status == "BLOCKED-WITH-REASON" else "TOOLCHAIN-UNAVAILABLE"
+            if b.status == "PASS":
+                reason = b.reason or "BUILD-VERIFIED-ONLY"
+            else:
+                reason = b.reason if b.status == "BLOCKED-WITH-REASON" else "TOOLCHAIN-UNAVAILABLE"
             blocks_out.append({
                 "index": b.identity.index,
                 "status": "BLOCKED-WITH-REASON",

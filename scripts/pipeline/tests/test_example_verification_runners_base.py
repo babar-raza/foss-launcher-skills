@@ -141,7 +141,29 @@ def test_max_tier_2_stops_after_compile_never_executes():
     results = base.run(_blocks("import os\nprint(1)"), Policy(max_tier=2, allow_acquire=True), ProductContext())
     assert results[0].status == "PASS"
     assert results[0].proof_tier == 2
+    assert results[0].reason is None  # caller-requested cap, not a runner ceiling -- no reason attached
     assert runner.compile_calls == [0]
+    assert runner.execute_calls == []
+
+
+def test_runner_ceiling_below_3_gets_build_verified_only_reason():
+    """Real bug found live via TC-13 (MT072-2026-09-23-EXAMPLE-VERIFICATION-
+    PRODUCTIONIZATION): CppRunner's own ceiling_tier=2 (library-level
+    BUILD-VERIFIED-ONLY, no per-block execute()) used to produce a bare
+    PASS with no reason, which to_legacy_s120() then mislabeled as the
+    FALSE "TOOLCHAIN-UNAVAILABLE" (see test_example_verification_result.py's
+    sibling test). Distinct from the caller-requested-cap case above: here
+    the RUNNER itself, not the policy, is what stops short of tier 3, even
+    though the caller asked for max_tier=3."""
+    class CeilingTwoRunner(FakeRunner):
+        ceiling_tier = 2
+
+    runner = CeilingTwoRunner()
+    base = BaseRunner(runner)
+    results = base.run(_blocks("import os\nprint(1)"), Policy(max_tier=3, allow_acquire=True), ProductContext())
+    assert results[0].status == "PASS"
+    assert results[0].proof_tier == 2
+    assert results[0].reason == "BUILD-VERIFIED-ONLY"
     assert runner.execute_calls == []
 
 

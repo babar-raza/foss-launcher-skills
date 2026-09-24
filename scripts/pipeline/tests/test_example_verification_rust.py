@@ -1,14 +1,20 @@
 """Tests for lib/example_verification/runners/rust.py's RustRunner (C13,
 MT065-2026-09-06-EXAMPLE-VERIFICATION-CENTRALIZATION).
 
-Unlike test_example_verification_runners_go.py (which requires and uses a
-real `go` toolchain), this repo has NO cargo/rustc/rustup on PATH -- verified
-live below, not assumed. So instead of skipping when the toolchain is
-absent, these tests assert the honest TOOLCHAIN-UNAVAILABLE degradation IS
-the real, unmocked, currently-reproducible behavior -- exactly the shape
-this taskcard's own stage-matrix promotion gate asks for ("tier 1 green
-without rustup; tier >= 2 an honest TOOLCHAIN-UNAVAILABLE until rustup is
-installed").
+Historical note (TC-13, MT072-2026-09-23-EXAMPLE-VERIFICATION-
+PRODUCTIONIZATION): this file originally asserted cargo/rustc were
+genuinely ABSENT on this machine and tested the honest TOOLCHAIN-UNAVAILABLE
+degradation path as the real, unmocked, then-reproducible behavior -- per
+this module's own docstring warning ("if this ever starts failing (rustup
+gets installed here), the TOOLCHAIN-UNAVAILABLE tests below need to become
+skipif-guarded like the Go suite instead"). rustup was installed by that
+taskcard with explicit user consent; the absent-toolchain tests below are
+now `skipif`-guarded (matching test_example_verification_runners_go.py's own
+convention) rather than deleted, so they still cover the honest-degradation
+path on any machine where cargo genuinely isn't installed. A new
+`TestRealBuildIntegration` class (mirroring
+test_example_verification_cpp.py's own pattern) proves the real,
+now-reachable tier-3 path instead.
 """
 from __future__ import annotations
 
@@ -31,13 +37,15 @@ from lib.example_verification.runners.rust import (
     _wrap_fragment,
 )
 
+_CARGO_ABSENT = shutil.which("cargo") is None or shutil.which("rustc") is None
 
-def test_cargo_toolchain_is_genuinely_absent_on_this_machine():
-    """Precondition this whole test file depends on -- if this ever starts
-    failing (rustup gets installed here), the TOOLCHAIN-UNAVAILABLE tests
-    below need to become skipif-guarded like the Go suite instead."""
-    assert shutil.which("cargo") is None
-    assert shutil.which("rustc") is None
+
+def test_cargo_toolchain_is_genuinely_present_on_this_machine():
+    """Precondition test_example_verification_cpp.py's own sibling test
+    mirrors (`test_cmake_ninja_and_msvc_are_genuinely_present_on_this_
+    machine`) -- rustup was installed via TC-13 (see module docstring)."""
+    assert shutil.which("cargo") is not None
+    assert shutil.which("rustc") is not None
 
 
 class TestResolveRustCrateForFamily:
@@ -267,12 +275,14 @@ class TestAcquireCompileExecute:
         assert result["ok"] is True
         assert result["crate_name"] == "aspose-cells-foss-rust"
 
+    @pytest.mark.skipif(not _CARGO_ABSENT, reason="cargo is present on this machine -- see TestRealBuildIntegration")
     def test_compile_reports_toolchain_unavailable(self, tmp_path):
         runner = RustRunner(family="cells")
         acquired = runner.acquire(tmp_path, Policy(), ProductContext(family="cells", platform="rust"))
         failure = runner.compile(acquired, "let x = 1;", 0)
         assert failure == {"reason": "TOOLCHAIN-UNAVAILABLE", "detail": "cargo not found on PATH"}
 
+    @pytest.mark.skipif(not _CARGO_ABSENT, reason="cargo is present on this machine -- see TestRealBuildIntegration")
     def test_execute_reports_toolchain_unavailable(self, tmp_path):
         runner = RustRunner(family="cells")
         acquired = runner.acquire(tmp_path, Policy(), ProductContext(family="cells", platform="rust"))
@@ -313,6 +323,7 @@ class TestBaseRunnerIntegration:
         assert results[0].reason == "SYNTAX-ERROR"
         assert results[0].proof_tier == 1
 
+    @pytest.mark.skipif(not _CARGO_ABSENT, reason="cargo is present on this machine -- see TestRealBuildIntegration")
     def test_forced_tier_3_policy_produces_honest_toolchain_unavailable(self):
         """The stage-matrix promotion gate's literal requirement: tier >= 2
         must be an honest TOOLCHAIN-UNAVAILABLE, not a silent tier-1 PASS
@@ -325,3 +336,33 @@ class TestBaseRunnerIntegration:
         assert results[0].reason == "TOOLCHAIN-UNAVAILABLE"
         assert "cargo not found on PATH" in results[0].detail
         assert results[0].proof_tier == 2
+
+
+class TestRealBuildIntegration:
+    """Real, unmocked cargo compile+run against the real cells/rust
+    product, now that rustup is installed (TC-13). Mirrors
+    test_example_verification_cpp.py's own `TestRealBuildIntegration`
+    pattern and its own class-level rationale. Requires the local cargo
+    registry cache to already be warm for `aspose-cells-foss-rust`'s real
+    dependencies (`cargo fetch` run once, with network access, inside
+    `runs/.clone_cache/aspose_cells_rust` -- see TC-13's own evidence) --
+    cargo's offline mode (`CARGO_NET_OFFLINE=true`, set by `_exec_cargo`,
+    matching Go's `GOPROXY=off` precedent) means a cold, never-fetched
+    registry cache fails loudly instead of silently resolving over the
+    network, by design."""
+
+    def _blocks(self, code: str):
+        import hashlib
+        sha = hashlib.sha256(code.encode()).hexdigest()
+        return [(sha, (10, 12), code)]
+
+    @pytest.mark.skipif(_CARGO_ABSENT, reason="cargo not found on PATH")
+    def test_real_cells_rust_build_and_run_passes(self):
+        base = BaseRunner(RustRunner("cells"))
+        policy = Policy(max_tier=3, allow_acquire=True)
+        product = ProductContext(family="cells", platform="rust")
+        results = base.run(
+            self._blocks("let x = 1;\nprintln!(\"{x}\");"), policy, product,
+        )
+        assert results[0].status == "PASS"
+        assert results[0].proof_tier == 3

@@ -228,7 +228,19 @@ class BaseRunner:
                 return result
 
             if policy.max_tier < 3 or self.runner.ceiling_tier < 3:
-                result = BlockResult(identity=identity, status="PASS", proof_tier=2)
+                # A runner whose OWN ceiling stops at tier 2 (e.g. CppRunner's
+                # library-level "compile only, no per-block execute" design)
+                # gets an honest BUILD-VERIFIED-ONLY reason attached to this
+                # otherwise-bare PASS -- disclosed gap (cpp.py's own module
+                # docstring, "C3's territory") that left a real compile
+                # success structurally indistinguishable from an ordinary
+                # tier-1-only PASS, which to_legacy_s120() then mislabeled as
+                # TOOLCHAIN-UNAVAILABLE (a false claim -- the toolchain is
+                # plainly present and just built the real library). A caller-
+                # requested policy.max_tier cap (the runner itself could go
+                # further) is NOT this case -- no reason is attached then.
+                reason = "BUILD-VERIFIED-ONLY" if self.runner.ceiling_tier < 3 else None
+                result = BlockResult(identity=identity, status="PASS", proof_tier=2, reason=reason)
                 self._maybe_cache(script_sha256, options, result)
                 return result
 

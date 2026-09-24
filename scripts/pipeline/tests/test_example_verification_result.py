@@ -102,6 +102,34 @@ def test_to_legacy_s120_blocked_matches_fixture_dict():
     }
 
 
+def test_to_legacy_s120_build_verified_only_pass_keeps_its_real_reason():
+    # Real bug found live via TC-13 (MT072-2026-09-23-EXAMPLE-VERIFICATION-
+    # PRODUCTIONIZATION): a genuine tier-2 PASS (e.g. CppRunner's disclosed
+    # BUILD-VERIFIED-ONLY ceiling) used to fall through to the generic
+    # non-BLOCKED-WITH-REASON default below and get the FALSE reason
+    # "TOOLCHAIN-UNAVAILABLE" -- wrong, since the toolchain plainly exists
+    # and just compiled the real library cleanly.
+    report = VerificationReport(runner="cpp", blocks=[
+        BlockResult(identity=_identity(0), status="PASS", proof_tier=2, reason="BUILD-VERIFIED-ONLY"),
+    ])
+    legacy = report.to_legacy_s120()
+    assert legacy["blocks"][0] == {
+        "index": 0, "status": "BLOCKED-WITH-REASON",
+        "reason": "BUILD-VERIFIED-ONLY", "detail": "",
+    }
+
+
+def test_to_legacy_s120_bare_tier2_pass_defaults_to_build_verified_only():
+    # Same fix, defensive default: a PASS with no reason set at all (e.g. a
+    # future runner that forgets to attach one) still never gets the false
+    # TOOLCHAIN-UNAVAILABLE label.
+    report = VerificationReport(runner="cpp", blocks=[
+        BlockResult(identity=_identity(0), status="PASS", proof_tier=2),
+    ])
+    legacy = report.to_legacy_s120()
+    assert legacy["blocks"][0]["reason"] == "BUILD-VERIFIED-ONLY"
+
+
 def test_to_legacy_s120_stub_block_gets_toolchain_unavailable():
     # A tier-0/1 result with no execution proof degrades to the legacy
     # stub's own default reason, matching every existing stub-runner block.
