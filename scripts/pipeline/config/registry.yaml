@@ -2548,6 +2548,22 @@ scripts:
     deprecated_since: null
     notes: "GOVERNANCE: durable multi-mission archive for MISSION_AUTHORITY.yaml (open/close/list/backfill/status/allocate). Closes a pre-existing registration gap found 2026-07-31 while extending this file with the RC1/RC2 liveness aggregator (status subcommand). ST-157 fix (2026-09-01): new `allocate --track --slug [--date]` verb wired to mission_id_ledger.MissionIdLedger; `archive_mission()` now raises MissionIdCollisionError instead of silently overwriting a pre-existing, differently-contented archive at the same mission_id; `list` flags any MT0NN-shaped mission id absent from the ledger."
 
+  - path: scripts/pipeline/commands/governance/locale_code_block_equivalence.py
+    kind: entrypoint
+    lifecycle: active
+    canonical_impl_path: null
+    public_entrypoint: true
+    cli_contract: stable
+    owner_domain: content-quality
+    backing:
+      kind: internal
+      ref: null
+    test_targets:
+      - scripts/pipeline/tests/test_locale_code_block_equivalence.py
+    requires_test: true
+    deprecated_since: null
+    notes: "TC-14 (MT072-2026-09-23-EXAMPLE-VERIFICATION-PRODUCTIONIZATION): bounded locale-equivalence gate -- asserts every locale variant's fenced code block is byte-equal (normalized, via code_fences.py's sha256_norm) to its English counterpart at the same page position, without re-executing anything. Full-portfolio run found 12,513 real drift findings (filed as backlog ST-215, not fixed here -- scoped as detection only)."
+
   - path: scripts/pipeline/commands/governance/grade_staleness_sweep.py
     kind: entrypoint
     lifecycle: active
