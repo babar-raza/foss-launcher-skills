@@ -7112,32 +7112,32 @@
         },
         {
           "detail": "",
-          "lang": "",
-          "start_line": 60,
-          "status": "NOT-EXECUTABLE-LANG"
-        },
-        {
-          "detail": "",
           "lang": "java",
-          "start_line": 92,
+          "start_line": 67,
           "status": "PASS"
         },
         {
           "detail": "",
           "lang": "java",
-          "start_line": 120,
+          "start_line": 91,
           "status": "PASS"
         },
         {
           "detail": "",
           "lang": "java",
-          "start_line": 136,
+          "start_line": 119,
           "status": "PASS"
         },
         {
           "detail": "",
           "lang": "java",
-          "start_line": 156,
+          "start_line": 135,
+          "status": "PASS"
+        },
+        {
+          "detail": "",
+          "lang": "java",
+          "start_line": 155,
           "status": "PASS"
         }
       ],
@@ -7485,10 +7485,10 @@
           "status": "EMPTY"
         },
         {
-          "detail": "",
+          "detail": "fence has no language info string",
           "lang": "",
           "start_line": 48,
-          "status": "NOT-EXECUTABLE-LANG"
+          "status": "BLANK-LANG-UNCHECKED"
         },
         {
           "detail": "",
@@ -7633,10 +7633,10 @@
           "status": "NOT-EXECUTABLE-LANG"
         },
         {
-          "detail": "",
+          "detail": "fence has no language info string",
           "lang": "",
           "start_line": 43,
-          "status": "NOT-EXECUTABLE-LANG"
+          "status": "BLANK-LANG-UNCHECKED"
         },
         {
           "detail": "",
@@ -7910,10 +7910,10 @@
     {
       "blocks": [
         {
-          "detail": "",
+          "detail": "fence has no language info string",
           "lang": "",
           "start_line": 19,
-          "status": "NOT-EXECUTABLE-LANG"
+          "status": "BLANK-LANG-UNCHECKED"
         },
         {
           "detail": "",
@@ -7952,10 +7952,10 @@
           "status": "PASS"
         },
         {
-          "detail": "",
+          "detail": "fence has no language info string",
           "lang": "",
           "start_line": 165,
-          "status": "NOT-EXECUTABLE-LANG"
+          "status": "BLANK-LANG-UNCHECKED"
         },
         {
           "detail": "",
@@ -8020,10 +8020,10 @@
           "status": "PASS"
         },
         {
-          "detail": "",
+          "detail": "fence has no language info string",
           "lang": "",
           "start_line": 90,
-          "status": "NOT-EXECUTABLE-LANG"
+          "status": "BLANK-LANG-UNCHECKED"
         },
         {
           "detail": "",
@@ -8063,16 +8063,16 @@
           "status": "NOT-EXECUTABLE-LANG"
         },
         {
-          "detail": "",
+          "detail": "fence has no language info string",
           "lang": "",
           "start_line": 43,
-          "status": "NOT-EXECUTABLE-LANG"
+          "status": "BLANK-LANG-UNCHECKED"
         },
         {
-          "detail": "",
+          "detail": "fence has no language info string",
           "lang": "",
           "start_line": 58,
-          "status": "NOT-EXECUTABLE-LANG"
+          "status": "BLANK-LANG-UNCHECKED"
         }
       ],
       "family": "3d",
@@ -8351,10 +8351,10 @@
     {
       "blocks": [
         {
-          "detail": "",
+          "detail": "fence has no language info string",
           "lang": "",
           "start_line": 25,
-          "status": "NOT-EXECUTABLE-LANG"
+          "status": "BLANK-LANG-UNCHECKED"
         },
         {
           "detail": "",
@@ -8387,10 +8387,10 @@
           "status": "PASS"
         },
         {
-          "detail": "",
+          "detail": "fence has no language info string",
           "lang": "",
           "start_line": 133,
-          "status": "NOT-EXECUTABLE-LANG"
+          "status": "BLANK-LANG-UNCHECKED"
         },
         {
           "detail": "",
@@ -8442,10 +8442,10 @@
           "status": "SHELL-NOT-CHECKED"
         },
         {
-          "detail": "",
+          "detail": "fence has no language info string",
           "lang": "",
           "start_line": 100,
-          "status": "NOT-EXECUTABLE-LANG"
+          "status": "BLANK-LANG-UNCHECKED"
         },
         {
           "detail": "",
@@ -8466,10 +8466,10 @@
           "status": "SHELL-NOT-CHECKED"
         },
         {
-          "detail": "",
+          "detail": "fence has no language info string",
           "lang": "",
           "start_line": 147,
-          "status": "NOT-EXECUTABLE-LANG"
+          "status": "BLANK-LANG-UNCHECKED"
         }
       ],
       "family": "3d",
@@ -9085,10 +9085,10 @@
     {
       "blocks": [
         {
-          "detail": "",
+          "detail": "fence has no language info string",
           "lang": "",
           "start_line": 11,
-          "status": "NOT-EXECUTABLE-LANG"
+          "status": "BLANK-LANG-UNCHECKED"
         },
         {
           "detail": "",
@@ -9769,10 +9769,10 @@
           "status": "PASS"
         },
         {
-          "detail": "",
+          "detail": "fence has no language info string",
           "lang": "",
           "start_line": 65,
-          "status": "NOT-EXECUTABLE-LANG"
+          "status": "BLANK-LANG-UNCHECKED"
         }
       ],
       "family": "cells",
@@ -10060,10 +10060,10 @@
           "status": "PASS"
         },
         {
-          "detail": "",
+          "detail": "fence has no language info string",
           "lang": "",
           "start_line": 212,
-          "status": "NOT-EXECUTABLE-LANG"
+          "status": "BLANK-LANG-UNCHECKED"
         },
         {
           "detail": "",
@@ -11674,10 +11674,10 @@
           "status": "PASS"
         },
         {
-          "detail": "",
+          "detail": "fence has no language info string",
           "lang": "",
           "start_line": 54,
-          "status": "NOT-EXECUTABLE-LANG"
+          "status": "BLANK-LANG-UNCHECKED"
         },
         {
           "detail": "",
@@ -11929,10 +11929,10 @@
           "status": "PASS"
         },
         {
-          "detail": "",
+          "detail": "fence has no language info string",
           "lang": "",
           "start_line": 129,
-          "status": "NOT-EXECUTABLE-LANG"
+          "status": "BLANK-LANG-UNCHECKED"
         },
         {
           "detail": "",
@@ -12069,10 +12069,10 @@
           "status": "PASS"
         },
         {
-          "detail": "",
+          "detail": "fence has no language info string",
           "lang": "",
           "start_line": 167,
-          "status": "NOT-EXECUTABLE-LANG"
+          "status": "BLANK-LANG-UNCHECKED"
         }
       ],
       "family": "note",
@@ -12412,10 +12412,10 @@
     {
       "blocks": [
         {
-          "detail": "",
+          "detail": "fence has no language info string",
           "lang": "",
           "start_line": 28,
-          "status": "NOT-EXECUTABLE-LANG"
+          "status": "BLANK-LANG-UNCHECKED"
         }
       ],
       "family": "page",
@@ -15457,10 +15457,10 @@
           "status": "PASS"
         },
         {
-          "detail": "",
+          "detail": "fence has no language info string",
           "lang": "",
           "start_line": 106,
-          "status": "NOT-EXECUTABLE-LANG"
+          "status": "BLANK-LANG-UNCHECKED"
         },
         {
           "detail": "",
@@ -15827,10 +15827,10 @@
           "status": "PASS"
         },
         {
-          "detail": "",
+          "detail": "fence has no language info string",
           "lang": "",
           "start_line": 70,
-          "status": "NOT-EXECUTABLE-LANG"
+          "status": "BLANK-LANG-UNCHECKED"
         },
         {
           "detail": "",
@@ -16341,10 +16341,10 @@
           "status": "PASS"
         },
         {
-          "detail": "",
+          "detail": "fence has no language info string",
           "lang": "",
           "start_line": 50,
-          "status": "NOT-EXECUTABLE-LANG"
+          "status": "BLANK-LANG-UNCHECKED"
         },
         {
           "detail": "",
@@ -16770,10 +16770,10 @@
           "status": "PASS"
         },
         {
-          "detail": "",
+          "detail": "fence has no language info string",
           "lang": "",
           "start_line": 92,
-          "status": "NOT-EXECUTABLE-LANG"
+          "status": "BLANK-LANG-UNCHECKED"
         },
         {
           "detail": "",
@@ -17828,10 +17828,10 @@
           "status": "PASS"
         },
         {
-          "detail": "",
+          "detail": "fence has no language info string",
           "lang": "",
           "start_line": 21,
-          "status": "NOT-EXECUTABLE-LANG"
+          "status": "BLANK-LANG-UNCHECKED"
         },
         {
           "detail": "",
@@ -17870,10 +17870,10 @@
           "status": "SHELL-NOT-CHECKED"
         },
         {
-          "detail": "",
+          "detail": "fence has no language info string",
           "lang": "",
           "start_line": 130,
-          "status": "NOT-EXECUTABLE-LANG"
+          "status": "BLANK-LANG-UNCHECKED"
         }
       ],
       "family": "3d",
@@ -18902,10 +18902,10 @@
           "status": "PASS"
         },
         {
-          "detail": "",
+          "detail": "fence has no language info string",
           "lang": "",
           "start_line": 71,
-          "status": "NOT-EXECUTABLE-LANG"
+          "status": "BLANK-LANG-UNCHECKED"
         },
         {
           "detail": "",
@@ -18926,10 +18926,10 @@
           "status": "PASS"
         },
         {
-          "detail": "",
+          "detail": "fence has no language info string",
           "lang": "",
           "start_line": 167,
-          "status": "NOT-EXECUTABLE-LANG"
+          "status": "BLANK-LANG-UNCHECKED"
         }
       ],
       "family": "3d",
@@ -22693,10 +22693,10 @@
     {
       "blocks": [
         {
-          "detail": "",
+          "detail": "fence has no language info string",
           "lang": "",
           "start_line": 11,
-          "status": "NOT-EXECUTABLE-LANG"
+          "status": "BLANK-LANG-UNCHECKED"
         },
         {
           "detail": "",
@@ -23339,10 +23339,10 @@
           "status": "GRAMMAR-UNAVAILABLE"
         },
         {
-          "detail": "",
+          "detail": "fence has no language info string",
           "lang": "",
           "start_line": 27,
-          "status": "NOT-EXECUTABLE-LANG"
+          "status": "BLANK-LANG-UNCHECKED"
         },
         {
           "detail": "",
@@ -25280,10 +25280,10 @@
           "status": "PASS"
         },
         {
-          "detail": "",
+          "detail": "fence has no language info string",
           "lang": "",
           "start_line": 51,
-          "status": "NOT-EXECUTABLE-LANG"
+          "status": "BLANK-LANG-UNCHECKED"
         },
         {
           "detail": "",
@@ -25956,10 +25956,10 @@
           "status": "PASS"
         },
         {
-          "detail": "",
+          "detail": "fence has no language info string",
           "lang": "",
           "start_line": 52,
-          "status": "NOT-EXECUTABLE-LANG"
+          "status": "BLANK-LANG-UNCHECKED"
         },
         {
           "detail": "",
@@ -26533,10 +26533,10 @@
           "status": "PASS"
         },
         {
-          "detail": "",
+          "detail": "fence has no language info string",
           "lang": "",
           "start_line": 42,
-          "status": "NOT-EXECUTABLE-LANG"
+          "status": "BLANK-LANG-UNCHECKED"
         },
         {
           "detail": "",
@@ -27179,10 +27179,10 @@
           "status": "PASS"
         },
         {
-          "detail": "",
+          "detail": "fence has no language info string",
           "lang": "",
           "start_line": 43,
-          "status": "NOT-EXECUTABLE-LANG"
+          "status": "BLANK-LANG-UNCHECKED"
         },
         {
           "detail": "",
@@ -28189,10 +28189,10 @@
     {
       "blocks": [
         {
-          "detail": "",
+          "detail": "fence has no language info string",
           "lang": "",
           "start_line": 11,
-          "status": "NOT-EXECUTABLE-LANG"
+          "status": "BLANK-LANG-UNCHECKED"
         },
         {
           "detail": "",
@@ -28694,10 +28694,10 @@
       "platform": "python"
     }
   ],
-  "generated_at": "2026-09-24T13:32:02.324265Z",
+  "generated_at": "2026-09-24T14:48:22.150381Z",
   "lang_status_counts": {
     "<empty>": {
-      "NOT-EXECUTABLE-LANG": 34
+      "BLANK-LANG-UNCHECKED": 33
     },
     "bash": {
       "SHELL-NOT-CHECKED": 138
@@ -28719,7 +28719,7 @@
       "GRAMMAR-UNAVAILABLE": 2
     },
     "java": {
-      "PASS": 509
+      "PASS": 510
     },
     "json": {
       "NOT-EXECUTABLE-LANG": 10
@@ -28746,7 +28746,9 @@
       "NOT-EXECUTABLE-LANG": 1
     }
   },
-  "ledger_errors": [],
+  "ledger_errors": [
+    "content/blog.aspose.org/font/python/font-cff-in-python/index.md:125: [Errno 22] Invalid argument: 'H:\\\\onedrive\\\\Documents\\\\GitHub\\\\aspose.org\\\\reports\\\\example_verification_ledger\\\\font_python.head.json'"
+  ],
   "ledger_writes": 3597,
   "pages_by_site": {
     "blog.aspose.org": 192,
@@ -28762,7 +28764,7 @@
     "reference.aspose.org": 22
   },
   "products_aspose_org_excluded_note": "products.aspose.org's code blocks live embedded in YAML frontmatter with 4+ space indentation, invisible to the CommonMark-conformant fence tokenizer by design -- excluded, not silently miscounted as zero.",
-  "run_id": "sweep-20260924T133039Z",
+  "run_id": "sweep-20260924T144508Z",
   "sites_excluded": [
     "products.aspose.org"
   ],
@@ -28773,10 +28775,11 @@
     "reference.aspose.org"
   ],
   "status_counts": {
+    "BLANK-LANG-UNCHECKED": 33,
     "EMPTY": 1,
     "GRAMMAR-UNAVAILABLE": 51,
-    "NOT-EXECUTABLE-LANG": 71,
-    "PASS": 3597,
+    "NOT-EXECUTABLE-LANG": 37,
+    "PASS": 3598,
     "SHELL-NOT-CHECKED": 138
   },
   "total_blocks_classified": 3858,

@@ -2564,6 +2564,22 @@ scripts:
     deprecated_since: null
     notes: "TC-14 (MT072-2026-09-23-EXAMPLE-VERIFICATION-PRODUCTIONIZATION): bounded locale-equivalence gate -- asserts every locale variant's fenced code block is byte-equal (normalized, via code_fences.py's sha256_norm) to its English counterpart at the same page position, without re-executing anything. Full-portfolio run found 12,513 real drift findings (filed as backlog ST-215, not fixed here -- scoped as detection only)."
 
+  - path: scripts/pipeline/commands/governance/example_verification_sweep.py
+    kind: entrypoint
+    lifecycle: active
+    canonical_impl_path: null
+    public_entrypoint: true
+    cli_contract: stable
+    owner_domain: content-quality
+    backing:
+      kind: internal
+      ref: null
+    test_targets:
+      - scripts/pipeline/tests/test_example_verification_sweep.py
+    requires_test: true
+    deprecated_since: null
+    notes: "TC-09/TC-20 (MT072-2026-09-23-EXAMPLE-VERIFICATION-PRODUCTIONIZATION): portfolio-wide tier-1 classification sweep, this mission's own primary evidence for Q1/Q3. DISCLOSED GAP found live during TC-20 (2026-09-24): this file and its test were built by TC-09 (closed 2026-09-23) but never actually committed to git in any of this mission's ~10 prior commits -- confirmed via 'git log --all --diff-filter=A -- <path>' returning nothing. TC-12's own CI workflow (.github/workflows/example-verification-tests.yml) was built citing a file list that also omitted this test, so it was never running in CI either. Both gaps closed in this same commit."
+
   - path: scripts/pipeline/commands/governance/grade_staleness_sweep.py
     kind: entrypoint
     lifecycle: active
