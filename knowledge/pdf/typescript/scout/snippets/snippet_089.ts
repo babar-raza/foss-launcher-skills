@@ -1,7 +1,5 @@
-it('reports every entry that matches, in Contents/T/Subj order', () => {
-    const doc = Document.Open(buildMultiStreamPage(['BT /F1 10 Tf 50 100 Td (x) Tj ET']));
-    const n = doc.Pages[0].AddTextNote({ rect: [60, 90, 80, 110], contents: 'zed', author: 'zed' });
-    n.Dict.set('Subj', str('zed'));
-    expect(doc.Pages[0].SearchAnnotationText('zed').map((h) => h.key))
-      .toEqual(['Contents', 'T', 'Subj']);
+it('a present but unusable /AP is respected: nothing is drawn', () => {
+    // /N is a state dict and /AS names no state in it.
+    const bytes = note('/Name /Note /AP << /N << /On 5 0 R >> >> /AS /Off');
+    expect(count(render(bytes), notWhite)).toBe(0);
   })

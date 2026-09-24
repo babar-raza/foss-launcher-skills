@@ -1,7 +1,7 @@
-it('carries no geometry — a hit must not be feedable to Redact', () => {
-    // (a)'s only available geometry is the whole /Rect, which is exactly the
-    // shape the c3t7.6 design refused: redacting it burns a box over whatever
-    // else sits under the annotation.
-    const hit = noteDoc().Pages[0].SearchAnnotationText('body secret')[0];
-    expect(Object.keys(hit).sort()).toEqual(['annot', 'key', 'text', 'value']);
+it('AddTextNote still writes no /AP: viewers draw their own icon', () => {
+    const d = Document.New();
+    d.AddPage(PageFormat.A4);
+    const n = d.Pages[0].AddTextNote({ rect: [10, 10, 30, 30] });
+    expect(n.Dict.has('AP')).toBe(false);
+    expect(count(decodePng(d.Pages[0].ToImage()), dark)).toBeGreaterThan(0);
   })

@@ -1,3 +1,5 @@
-it('does not search page content', () => {
-    expect(noteDoc().Pages[0].SearchAnnotationText('page')).toHaveLength(0);
+it('rendering does not write an /AP into the document', () => {
+    const d = Document.Open(note('/Name /Note'));
+    d.Pages[0].ToImage();
+    expect(d.Pages[0].Annotations[0].Dict.has('AP')).toBe(false);
   })

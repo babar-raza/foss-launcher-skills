@@ -1,4 +1,3 @@
-it('does not join two blocks into a word that was never written', () => {
-    expect(rcDoc('<p>a</p><p>b</p>').Pages[0].SearchAnnotationText('ab')).toHaveLength(0);
-    expect(rcDoc('<p>a</p><p>b</p>').Pages[0].SearchAnnotationText('a')).toHaveLength(1);
+it('fills with /C', () => {
+    expect(count(render(attach('/Name /Tag /C [1 0 0]')), red, 50, 50, 150, 150)).toBeGreaterThan(200);
   })

@@ -1,26 +1,26 @@
 {
   "scout": {
-    "completed_at": "2026-08-29T12:53:10Z",
+    "completed_at": "2026-09-24T14:21:40Z",
     "success": true,
     "repo_path": "runs\\.clone_cache\\aspose_pdf_typescript",
     "output_dir": "knowledge\\pdf\\typescript\\scout",
-    "class_count": 3604,
-    "claim_count": 8776
+    "class_count": 1385,
+    "claim_count": 11194
   },
   "promote": {
-    "completed_at": "2026-09-10T12:40:32Z",
+    "completed_at": "2026-09-24T14:22:25Z",
     "success": true,
-    "scout_claims": 8776,
-    "enriched_claims": 46,
+    "scout_claims": 11194,
+    "enriched_claims": 0,
     "supplemental_claims": 0,
-    "total_claims": 8341,
-    "class_count": 1055
+    "total_claims": 10550,
+    "class_count": 1385
   },
   "index": {
-    "completed_at": "2026-09-19T12:00:00Z",
+    "completed_at": "2026-09-24T14:24:19Z",
     "success": true,
-    "class_count": 1002,
-    "claim_count": 8341,
+    "class_count": 1312,
+    "claim_count": 10550,
     "api_confidence": "medium"
   }
 }

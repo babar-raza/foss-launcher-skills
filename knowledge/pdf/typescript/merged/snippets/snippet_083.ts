@@ -1,7 +1,9 @@
-it('still carries field values alongside the annotations', () => {
-      const src = Document.Open(buildAnnotRoundtrip());
-      const bytes = exportData(src, format, true);
-      const dst = Document.Open(buildAnnotRoundtrip());
-      const report = importData(dst, format, bytes, true);
-      expect(report.imported).toContain('field1');
-    })
+it('squares and centres the icon in a wide /Rect', () => {
+    const img = decodePng(Document.Open(page(
+      '<< /Type /Annot /Subtype /Text /Rect [0 50 200 150] /Name /Note /C [1 0 0] >>',
+    )).Pages[0].ToImage());
+    // A 100x100 square centred in a 200x100 rect spans x 50..150.
+    expect(count(img, red, 0, 50, 45, 150)).toBe(0);
+    expect(count(img, red, 155, 50, 200, 150)).toBe(0);
+    expect(count(img, red, 50, 50, 150, 150)).toBeGreaterThan(1000);
+  })

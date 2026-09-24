@@ -1,4 +1,8 @@
-const rest = page.AddTextBlock(longText, [72, 600, 200, 150], {
-  font: 'Times-Roman', fontSize: 11, align: 'justify', valign: 'top', leading: 14,
-});
-if (rest) page.AddTextBlock(rest, [300, 600, 200, 150]); // continue into a 2nd column
+import { parseContentStream, serializeContentStream } from '@asposefoss/pdf';
+
+const ops = parseContentStream(doc.Pages[0].Contents);
+// ops: { operator: string, operands: PdfObject[], inlineImage?: {...} }[]
+for (const op of ops) {
+  if (op.operator === 'Tj') console.log('text op:', op.operands);
+}
+const bytes = serializeContentStream(ops);       // round-trips operators + operands

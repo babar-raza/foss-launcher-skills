@@ -1,8 +1,17 @@
-import { parseContentStream, serializeContentStream } from '@asposefoss/pdf';
+import { Document } from '@asposefoss/pdf';
 
-const ops = parseContentStream(doc.Pages[0].Contents);
-// ops: { operator: string, operands: PdfObject[], inlineImage?: {...} }[]
-for (const op of ops) {
-  if (op.operator === 'Tj') console.log('text op:', op.operands);
-}
-const bytes = serializeContentStream(ops);       // round-trips operators + operands
+// Encrypt to one or more recipient certificates (PEM string or DER bytes):
+const bytes = doc.Save({
+  encrypt: {
+    recipients: [{ certificate: recipientCertPem }],
+    algorithm: 'aes256',                 // 'aes256' (default) | 'aes128' | 'rc4'
+    permissions: { copying: false },     // shared across all recipients
+  },
+});
+
+// Open with the recipient's private key + certificate, or a PKCS#12 bundle:
+const opened = Document.Open(bytes, {
+  recipient: { privateKey, certificate: recipientCertPem },
+  // or: recipient: { pkcs12: p12Bytes, passphrase: '…' },
+});
+console.log(opened.Permissions);         // recovered permission flags (not enforced)

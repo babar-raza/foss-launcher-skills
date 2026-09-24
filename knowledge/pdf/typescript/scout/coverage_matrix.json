@@ -6,6 +6,16 @@
     "method_count": 4,
     "property_count": 3,
     "has_doc": true,
+    "has_tests": true,
+    "enum_members": 0
+  },
+  {
+    "class": "NBSP",
+    "file": "src/preformat.ts",
+    "kind": "constant",
+    "method_count": 0,
+    "property_count": 0,
+    "has_doc": true,
     "has_tests": false,
     "enum_members": 0
   },
@@ -510,11 +520,51 @@
     "enum_members": 0
   },
   {
+    "class": "FreeTextParts",
+    "file": "src/annotdraw.ts",
+    "kind": "interface_declaration",
+    "method_count": 0,
+    "property_count": 4,
+    "has_doc": true,
+    "has_tests": false,
+    "enum_members": 0
+  },
+  {
     "class": "AP_FONT_KEY",
     "file": "src/annotdraw.ts",
     "kind": "constant",
     "method_count": 0,
     "property_count": 0,
+    "has_doc": true,
+    "has_tests": false,
+    "enum_members": 0
+  },
+  {
+    "class": "IconFill",
+    "file": "src/annoticon.ts",
+    "kind": "type_alias_declaration",
+    "method_count": 0,
+    "property_count": 0,
+    "has_doc": true,
+    "has_tests": false,
+    "enum_members": 0
+  },
+  {
+    "class": "IconSubtype",
+    "file": "src/annoticon.ts",
+    "kind": "type_alias_declaration",
+    "method_count": 0,
+    "property_count": 0,
+    "has_doc": false,
+    "has_tests": false,
+    "enum_members": 0
+  },
+  {
+    "class": "Artwork",
+    "file": "src/annoticon.ts",
+    "kind": "interface_declaration",
+    "method_count": 0,
+    "property_count": 3,
     "has_doc": true,
     "has_tests": false,
     "enum_members": 0
@@ -550,6 +600,16 @@
     "enum_members": 0
   },
   {
+    "class": "STAMP_FONT",
+    "file": "src/annotstamp.ts",
+    "kind": "constant",
+    "method_count": 0,
+    "property_count": 0,
+    "has_doc": true,
+    "has_tests": false,
+    "enum_members": 0
+  },
+  {
     "class": "WidgetGeom",
     "file": "src/appearance.ts",
     "kind": "interface_declaration",
@@ -557,6 +617,56 @@
     "property_count": 3,
     "has_doc": true,
     "has_tests": false,
+    "enum_members": 0
+  },
+  {
+    "class": "PAD",
+    "file": "src/appearance.ts",
+    "kind": "constant",
+    "method_count": 0,
+    "property_count": 0,
+    "has_doc": true,
+    "has_tests": false,
+    "enum_members": 0
+  },
+  {
+    "class": "ArtifactEdge",
+    "file": "src/artifact.ts",
+    "kind": "type_alias_declaration",
+    "method_count": 0,
+    "property_count": 0,
+    "has_doc": true,
+    "has_tests": false,
+    "enum_members": 0
+  },
+  {
+    "class": "ArtifactBBoxSource",
+    "file": "src/artifact.ts",
+    "kind": "type_alias_declaration",
+    "method_count": 0,
+    "property_count": 0,
+    "has_doc": true,
+    "has_tests": false,
+    "enum_members": 0
+  },
+  {
+    "class": "PageArtifact",
+    "file": "src/artifact.ts",
+    "kind": "interface_declaration",
+    "method_count": 0,
+    "property_count": 8,
+    "has_doc": true,
+    "has_tests": false,
+    "enum_members": 0
+  },
+  {
+    "class": "Rec",
+    "file": "src/artifact.ts",
+    "kind": "interface_declaration",
+    "method_count": 0,
+    "property_count": 2,
+    "has_doc": false,
+    "has_tests": true,
     "enum_members": 0
   },
   {
@@ -576,7 +686,7 @@
     "method_count": 0,
     "property_count": 0,
     "has_doc": false,
-    "has_tests": false,
+    "has_tests": true,
     "enum_members": 0
   },
   {
@@ -1024,7 +1134,7 @@
     "file": "src/cff.ts",
     "kind": "interface_declaration",
     "method_count": 0,
-    "property_count": 14,
+    "property_count": 16,
     "has_doc": false,
     "has_tests": false,
     "enum_members": 0
@@ -1250,6 +1360,26 @@
     "enum_members": 0
   },
   {
+    "class": "CloudSegment",
+    "file": "src/cloudborder.ts",
+    "kind": "interface_declaration",
+    "method_count": 0,
+    "property_count": 6,
+    "has_doc": true,
+    "has_tests": false,
+    "enum_members": 0
+  },
+  {
+    "class": "CloudPath",
+    "file": "src/cloudborder.ts",
+    "kind": "interface_declaration",
+    "method_count": 0,
+    "property_count": 3,
+    "has_doc": true,
+    "has_tests": false,
+    "enum_members": 0
+  },
+  {
     "class": "CMap",
     "file": "src/cmap.ts",
     "kind": "interface_declaration",
@@ -1470,6 +1600,356 @@
     "enum_members": 0
   },
   {
+    "class": "ColorConvertOptions",
+    "file": "src/colorconvert.ts",
+    "kind": "interface_declaration",
+    "method_count": 0,
+    "property_count": 1,
+    "has_doc": true,
+    "has_tests": false,
+    "enum_members": 0
+  },
+  {
+    "class": "ConvertColorsOptions",
+    "file": "src/colorconvert.ts",
+    "kind": "interface_declaration",
+    "method_count": 0,
+    "property_count": 3,
+    "has_doc": false,
+    "has_tests": false,
+    "enum_members": 0
+  },
+  {
+    "class": "ColorImageResult",
+    "file": "src/colorconvert.ts",
+    "kind": "interface_declaration",
+    "method_count": 0,
+    "property_count": 4,
+    "has_doc": false,
+    "has_tests": false,
+    "enum_members": 0
+  },
+  {
+    "class": "ColorSkipped",
+    "file": "src/colorconvert.ts",
+    "kind": "interface_declaration",
+    "method_count": 0,
+    "property_count": 4,
+    "has_doc": false,
+    "has_tests": false,
+    "enum_members": 0
+  },
+  {
+    "class": "ColorConvertReport",
+    "file": "src/colorconvert.ts",
+    "kind": "interface_declaration",
+    "method_count": 0,
+    "property_count": 10,
+    "has_doc": false,
+    "has_tests": false,
+    "enum_members": 0
+  },
+  {
+    "class": "SpotSpaceResult",
+    "file": "src/colorconvert.ts",
+    "kind": "interface_declaration",
+    "method_count": 0,
+    "property_count": 3,
+    "has_doc": true,
+    "has_tests": false,
+    "enum_members": 0
+  },
+  {
+    "class": "Scope",
+    "file": "src/colorconvert.ts",
+    "kind": "interface_declaration",
+    "method_count": 0,
+    "property_count": 3,
+    "has_doc": true,
+    "has_tests": false,
+    "enum_members": 0
+  },
+  {
+    "class": "ColorArrayOutcome",
+    "file": "src/colorconvert.ts",
+    "kind": "type_alias_declaration",
+    "method_count": 0,
+    "property_count": 1,
+    "has_doc": true,
+    "has_tests": false,
+    "enum_members": 0
+  },
+  {
+    "class": "Resolve",
+    "file": "src/colorimage.ts",
+    "kind": "type_alias_declaration",
+    "method_count": 0,
+    "property_count": 0,
+    "has_doc": false,
+    "has_tests": false,
+    "enum_members": 0
+  },
+  {
+    "class": "Inflate",
+    "file": "src/colorimage.ts",
+    "kind": "type_alias_declaration",
+    "method_count": 0,
+    "property_count": 0,
+    "has_doc": true,
+    "has_tests": false,
+    "enum_members": 0
+  },
+  {
+    "class": "GrayImageOptions",
+    "file": "src/colorimage.ts",
+    "kind": "interface_declaration",
+    "method_count": 0,
+    "property_count": 2,
+    "has_doc": false,
+    "has_tests": false,
+    "enum_members": 0
+  },
+  {
+    "class": "GrayImageOutcome",
+    "file": "src/colorimage.ts",
+    "kind": "type_alias_declaration",
+    "method_count": 0,
+    "property_count": 8,
+    "has_doc": false,
+    "has_tests": false,
+    "enum_members": 0
+  },
+  {
+    "class": "MeshLayout",
+    "file": "src/colormesh.ts",
+    "kind": "interface_declaration",
+    "method_count": 0,
+    "property_count": 6,
+    "has_doc": true,
+    "has_tests": false,
+    "enum_members": 0
+  },
+  {
+    "class": "MeshResult",
+    "file": "src/colormesh.ts",
+    "kind": "type_alias_declaration",
+    "method_count": 0,
+    "property_count": 4,
+    "has_doc": false,
+    "has_tests": false,
+    "enum_members": 0
+  },
+  {
+    "class": "RawVertex",
+    "file": "src/colormesh.ts",
+    "kind": "interface_declaration",
+    "method_count": 0,
+    "property_count": 4,
+    "has_doc": true,
+    "has_tests": false,
+    "enum_members": 0
+  },
+  {
+    "class": "BitReader",
+    "file": "src/colormesh.ts",
+    "kind": "class_declaration",
+    "method_count": 3,
+    "property_count": 1,
+    "has_doc": true,
+    "has_tests": false,
+    "enum_members": 0
+  },
+  {
+    "class": "BitWriter",
+    "file": "src/colormesh.ts",
+    "kind": "class_declaration",
+    "method_count": 3,
+    "property_count": 0,
+    "has_doc": false,
+    "has_tests": false,
+    "enum_members": 0
+  },
+  {
+    "class": "RawPatch",
+    "file": "src/colormesh.ts",
+    "kind": "interface_declaration",
+    "method_count": 0,
+    "property_count": 3,
+    "has_doc": true,
+    "has_tests": false,
+    "enum_members": 0
+  },
+  {
+    "class": "MeshPatch",
+    "file": "src/colormesh.ts",
+    "kind": "interface_declaration",
+    "method_count": 0,
+    "property_count": 5,
+    "has_doc": true,
+    "has_tests": false,
+    "enum_members": 0
+  },
+  {
+    "class": "MeshVertex",
+    "file": "src/colormesh.ts",
+    "kind": "interface_declaration",
+    "method_count": 0,
+    "property_count": 4,
+    "has_doc": true,
+    "has_tests": false,
+    "enum_members": 0
+  },
+  {
+    "class": "NamedRgb",
+    "file": "src/colornames.ts",
+    "kind": "type_alias_declaration",
+    "method_count": 0,
+    "property_count": 0,
+    "has_doc": false,
+    "has_tests": false,
+    "enum_members": 0
+  },
+  {
+    "class": "NAMED_COLORS",
+    "file": "src/colornames.ts",
+    "kind": "constant",
+    "method_count": 0,
+    "property_count": 0,
+    "has_doc": false,
+    "has_tests": false,
+    "enum_members": 0
+  },
+  {
+    "class": "SpaceLookup",
+    "file": "src/colorops.ts",
+    "kind": "type_alias_declaration",
+    "method_count": 0,
+    "property_count": 0,
+    "has_doc": true,
+    "has_tests": false,
+    "enum_members": 0
+  },
+  {
+    "class": "GrayOpsResult",
+    "file": "src/colorops.ts",
+    "kind": "interface_declaration",
+    "method_count": 0,
+    "property_count": 6,
+    "has_doc": false,
+    "has_tests": false,
+    "enum_members": 0
+  },
+  {
+    "class": "StateSpace",
+    "file": "src/colorops.ts",
+    "kind": "type_alias_declaration",
+    "method_count": 0,
+    "property_count": 0,
+    "has_doc": true,
+    "has_tests": false,
+    "enum_members": 0
+  },
+  {
+    "class": "InlineSkip",
+    "file": "src/colorops.ts",
+    "kind": "interface_declaration",
+    "method_count": 0,
+    "property_count": 1,
+    "has_doc": true,
+    "has_tests": false,
+    "enum_members": 0
+  },
+  {
+    "class": "InlineSkipAt",
+    "file": "src/colorops.ts",
+    "kind": "interface_declaration",
+    "method_count": 0,
+    "property_count": 1,
+    "has_doc": true,
+    "has_tests": false,
+    "enum_members": 0
+  },
+  {
+    "class": "CmykTransform",
+    "file": "src/colorrule.ts",
+    "kind": "type_alias_declaration",
+    "method_count": 0,
+    "property_count": 0,
+    "has_doc": true,
+    "has_tests": false,
+    "enum_members": 0
+  },
+  {
+    "class": "GraySpace",
+    "file": "src/colorrule.ts",
+    "kind": "type_alias_declaration",
+    "method_count": 0,
+    "property_count": 8,
+    "has_doc": true,
+    "has_tests": false,
+    "enum_members": 0
+  },
+  {
+    "class": "TargetSpace",
+    "file": "src/colorrule.ts",
+    "kind": "type_alias_declaration",
+    "method_count": 0,
+    "property_count": 0,
+    "has_doc": true,
+    "has_tests": false,
+    "enum_members": 0
+  },
+  {
+    "class": "Resolve",
+    "file": "src/colorsep.ts",
+    "kind": "type_alias_declaration",
+    "method_count": 0,
+    "property_count": 0,
+    "has_doc": true,
+    "has_tests": false,
+    "enum_members": 0
+  },
+  {
+    "class": "Inflate",
+    "file": "src/colorsep.ts",
+    "kind": "type_alias_declaration",
+    "method_count": 0,
+    "property_count": 2,
+    "has_doc": false,
+    "has_tests": false,
+    "enum_members": 0
+  },
+  {
+    "class": "SpotRepoint",
+    "file": "src/colorsep.ts",
+    "kind": "interface_declaration",
+    "method_count": 0,
+    "property_count": 5,
+    "has_doc": false,
+    "has_tests": false,
+    "enum_members": 0
+  },
+  {
+    "class": "SPOT_SAMPLE_BUDGET",
+    "file": "src/colorsep.ts",
+    "kind": "constant",
+    "method_count": 0,
+    "property_count": 0,
+    "has_doc": true,
+    "has_tests": false,
+    "enum_members": 0
+  },
+  {
+    "class": "ShadingOutcome",
+    "file": "src/colorshading.ts",
+    "kind": "type_alias_declaration",
+    "method_count": 0,
+    "property_count": 6,
+    "has_doc": false,
+    "has_tests": false,
+    "enum_members": 0
+  },
+  {
     "class": "Rgb",
     "file": "src/colorspace.ts",
     "kind": "type_alias_declaration",
@@ -1500,11 +1980,21 @@
     "enum_members": 0
   },
   {
+    "class": "ColorFamily",
+    "file": "src/colorspace.ts",
+    "kind": "type_alias_declaration",
+    "method_count": 0,
+    "property_count": 0,
+    "has_doc": true,
+    "has_tests": false,
+    "enum_members": 0
+  },
+  {
     "class": "ColorConverter",
     "file": "src/colorspace.ts",
     "kind": "interface_declaration",
     "method_count": 2,
-    "property_count": 1,
+    "property_count": 2,
     "has_doc": false,
     "has_tests": false,
     "enum_members": 0
@@ -1580,6 +2070,26 @@
     "enum_members": 0
   },
   {
+    "class": "ContentLexer",
+    "file": "src/content.ts",
+    "kind": "class_declaration",
+    "method_count": 3,
+    "property_count": 3,
+    "has_doc": true,
+    "has_tests": false,
+    "enum_members": 0
+  },
+  {
+    "class": "ContentTokenBudget",
+    "file": "src/content.ts",
+    "kind": "interface_declaration",
+    "method_count": 0,
+    "property_count": 1,
+    "has_doc": true,
+    "has_tests": false,
+    "enum_members": 0
+  },
+  {
     "class": "ContentOp",
     "file": "src/content.ts",
     "kind": "interface_declaration",
@@ -1620,6 +2130,16 @@
     "enum_members": 0
   },
   {
+    "class": "CryptKeys",
+    "file": "src/crypto.ts",
+    "kind": "interface_declaration",
+    "method_count": 0,
+    "property_count": 3,
+    "has_doc": true,
+    "has_tests": false,
+    "enum_members": 0
+  },
+  {
     "class": "Resolve",
     "file": "src/crypto.ts",
     "kind": "type_alias_declaration",
@@ -1634,7 +2154,7 @@
     "file": "src/crypto.ts",
     "kind": "interface_declaration",
     "method_count": 1,
-    "property_count": 0,
+    "property_count": 1,
     "has_doc": false,
     "has_tests": false,
     "enum_members": 0
@@ -1642,6 +2162,746 @@
   {
     "class": "PASSWORD_PADDING",
     "file": "src/crypto.ts",
+    "kind": "constant",
+    "method_count": 0,
+    "property_count": 0,
+    "has_doc": true,
+    "has_tests": false,
+    "enum_members": 0
+  },
+  {
+    "class": "BlockBox",
+    "file": "src/cssbox.ts",
+    "kind": "interface_declaration",
+    "method_count": 0,
+    "property_count": 11,
+    "has_doc": false,
+    "has_tests": false,
+    "enum_members": 0
+  },
+  {
+    "class": "TableCellBox",
+    "file": "src/cssbox.ts",
+    "kind": "interface_declaration",
+    "method_count": 0,
+    "property_count": 6,
+    "has_doc": true,
+    "has_tests": false,
+    "enum_members": 0
+  },
+  {
+    "class": "TableRowBox",
+    "file": "src/cssbox.ts",
+    "kind": "interface_declaration",
+    "method_count": 0,
+    "property_count": 4,
+    "has_doc": false,
+    "has_tests": false,
+    "enum_members": 0
+  },
+  {
+    "class": "TableBox",
+    "file": "src/cssbox.ts",
+    "kind": "interface_declaration",
+    "method_count": 0,
+    "property_count": 7,
+    "has_doc": false,
+    "has_tests": false,
+    "enum_members": 0
+  },
+  {
+    "class": "BoxNode",
+    "file": "src/cssbox.ts",
+    "kind": "type_alias_declaration",
+    "method_count": 0,
+    "property_count": 0,
+    "has_doc": false,
+    "has_tests": false,
+    "enum_members": 0
+  },
+  {
+    "class": "LengthContext",
+    "file": "src/csscalc.ts",
+    "kind": "interface_declaration",
+    "method_count": 0,
+    "property_count": 2,
+    "has_doc": true,
+    "has_tests": false,
+    "enum_members": 0
+  },
+  {
+    "class": "CalcNode",
+    "file": "src/csscalc.ts",
+    "kind": "type_alias_declaration",
+    "method_count": 0,
+    "property_count": 11,
+    "has_doc": true,
+    "has_tests": false,
+    "enum_members": 0
+  },
+  {
+    "class": "MathValue",
+    "file": "src/csscalc.ts",
+    "kind": "type_alias_declaration",
+    "method_count": 0,
+    "property_count": 2,
+    "has_doc": true,
+    "has_tests": false,
+    "enum_members": 0
+  },
+  {
+    "class": "Cur",
+    "file": "src/csscalc.ts",
+    "kind": "class_declaration",
+    "method_count": 5,
+    "property_count": 1,
+    "has_doc": true,
+    "has_tests": false,
+    "enum_members": 0
+  },
+  {
+    "class": "Tier",
+    "file": "src/csscascade.ts",
+    "kind": "type_alias_declaration",
+    "method_count": 0,
+    "property_count": 0,
+    "has_doc": true,
+    "has_tests": false,
+    "enum_members": 0
+  },
+  {
+    "class": "CompiledRule",
+    "file": "src/csscascade.ts",
+    "kind": "interface_declaration",
+    "method_count": 0,
+    "property_count": 5,
+    "has_doc": false,
+    "has_tests": false,
+    "enum_members": 0
+  },
+  {
+    "class": "InlineDeclarations",
+    "file": "src/csscascade.ts",
+    "kind": "interface_declaration",
+    "method_count": 0,
+    "property_count": 2,
+    "has_doc": false,
+    "has_tests": false,
+    "enum_members": 0
+  },
+  {
+    "class": "Collected",
+    "file": "src/csscascade.ts",
+    "kind": "interface_declaration",
+    "method_count": 0,
+    "property_count": 3,
+    "has_doc": false,
+    "has_tests": false,
+    "enum_members": 0
+  },
+  {
+    "class": "Walk",
+    "file": "src/csscascade.ts",
+    "kind": "interface_declaration",
+    "method_count": 0,
+    "property_count": 4,
+    "has_doc": false,
+    "has_tests": false,
+    "enum_members": 0
+  },
+  {
+    "class": "ElementDeclarations",
+    "file": "src/csscascade.ts",
+    "kind": "interface_declaration",
+    "method_count": 0,
+    "property_count": 2,
+    "has_doc": false,
+    "has_tests": false,
+    "enum_members": 0
+  },
+  {
+    "class": "Candidate",
+    "file": "src/csscascade.ts",
+    "kind": "interface_declaration",
+    "method_count": 0,
+    "property_count": 4,
+    "has_doc": true,
+    "has_tests": false,
+    "enum_members": 0
+  },
+  {
+    "class": "ComputeResult",
+    "file": "src/csscompute.ts",
+    "kind": "interface_declaration",
+    "method_count": 0,
+    "property_count": 2,
+    "has_doc": false,
+    "has_tests": false,
+    "enum_members": 0
+  },
+  {
+    "class": "CssFlowOptions",
+    "file": "src/cssflow.ts",
+    "kind": "interface_declaration",
+    "method_count": 0,
+    "property_count": 7,
+    "has_doc": false,
+    "has_tests": false,
+    "enum_members": 0
+  },
+  {
+    "class": "CssFlowResult",
+    "file": "src/cssflow.ts",
+    "kind": "interface_declaration",
+    "method_count": 0,
+    "property_count": 3,
+    "has_doc": false,
+    "has_tests": false,
+    "enum_members": 0
+  },
+  {
+    "class": "Ctx",
+    "file": "src/cssflow.ts",
+    "kind": "interface_declaration",
+    "method_count": 0,
+    "property_count": 10,
+    "has_doc": true,
+    "has_tests": false,
+    "enum_members": 0
+  },
+  {
+    "class": "PT_PER_PX",
+    "file": "src/cssflow.ts",
+    "kind": "constant",
+    "method_count": 0,
+    "property_count": 0,
+    "has_doc": true,
+    "has_tests": false,
+    "enum_members": 0
+  },
+  {
+    "class": "FrameEdge",
+    "file": "src/cssframe.ts",
+    "kind": "interface_declaration",
+    "method_count": 0,
+    "property_count": 2,
+    "has_doc": true,
+    "has_tests": false,
+    "enum_members": 0
+  },
+  {
+    "class": "BoxFrame",
+    "file": "src/cssframe.ts",
+    "kind": "interface_declaration",
+    "method_count": 0,
+    "property_count": 12,
+    "has_doc": true,
+    "has_tests": false,
+    "enum_members": 0
+  },
+  {
+    "class": "BoxRun",
+    "file": "src/cssframe.ts",
+    "kind": "interface_declaration",
+    "method_count": 0,
+    "property_count": 1,
+    "has_doc": true,
+    "has_tests": false,
+    "enum_members": 0
+  },
+  {
+    "class": "BoxElement",
+    "file": "src/cssframe.ts",
+    "kind": "class_declaration",
+    "method_count": 4,
+    "property_count": 15,
+    "has_doc": true,
+    "has_tests": false,
+    "enum_members": 0
+  },
+  {
+    "class": "FamilyResolver",
+    "file": "src/cssinline.ts",
+    "kind": "type_alias_declaration",
+    "method_count": 0,
+    "property_count": 0,
+    "has_doc": false,
+    "has_tests": false,
+    "enum_members": 0
+  },
+  {
+    "class": "AtomicInline",
+    "file": "src/cssinline.ts",
+    "kind": "interface_declaration",
+    "method_count": 0,
+    "property_count": 4,
+    "has_doc": false,
+    "has_tests": false,
+    "enum_members": 0
+  },
+  {
+    "class": "InlineContent",
+    "file": "src/cssinline.ts",
+    "kind": "interface_declaration",
+    "method_count": 0,
+    "property_count": 2,
+    "has_doc": false,
+    "has_tests": false,
+    "enum_members": 0
+  },
+  {
+    "class": "State",
+    "file": "src/cssinline.ts",
+    "kind": "interface_declaration",
+    "method_count": 0,
+    "property_count": 2,
+    "has_doc": true,
+    "has_tests": false,
+    "enum_members": 0
+  },
+  {
+    "class": "CssValue",
+    "file": "src/cssparse.ts",
+    "kind": "type_alias_declaration",
+    "method_count": 0,
+    "property_count": 6,
+    "has_doc": false,
+    "has_tests": false,
+    "enum_members": 0
+  },
+  {
+    "class": "CssDeclaration",
+    "file": "src/cssparse.ts",
+    "kind": "interface_declaration",
+    "method_count": 0,
+    "property_count": 4,
+    "has_doc": false,
+    "has_tests": false,
+    "enum_members": 0
+  },
+  {
+    "class": "CssAtRule",
+    "file": "src/cssparse.ts",
+    "kind": "interface_declaration",
+    "method_count": 0,
+    "property_count": 4,
+    "has_doc": false,
+    "has_tests": false,
+    "enum_members": 0
+  },
+  {
+    "class": "CssQualifiedRule",
+    "file": "src/cssparse.ts",
+    "kind": "interface_declaration",
+    "method_count": 0,
+    "property_count": 3,
+    "has_doc": false,
+    "has_tests": false,
+    "enum_members": 0
+  },
+  {
+    "class": "CssError",
+    "file": "src/cssparse.ts",
+    "kind": "interface_declaration",
+    "method_count": 0,
+    "property_count": 2,
+    "has_doc": false,
+    "has_tests": false,
+    "enum_members": 0
+  },
+  {
+    "class": "Cursor",
+    "file": "src/cssparse.ts",
+    "kind": "class_declaration",
+    "method_count": 6,
+    "property_count": 0,
+    "has_doc": true,
+    "has_tests": false,
+    "enum_members": 0
+  },
+  {
+    "class": "Rule",
+    "file": "src/cssparse.ts",
+    "kind": "type_alias_declaration",
+    "method_count": 0,
+    "property_count": 0,
+    "has_doc": false,
+    "has_tests": false,
+    "enum_members": 0
+  },
+  {
+    "class": "LineHeight",
+    "file": "src/cssprop.ts",
+    "kind": "type_alias_declaration",
+    "method_count": 0,
+    "property_count": 2,
+    "has_doc": false,
+    "has_tests": false,
+    "enum_members": 0
+  },
+  {
+    "class": "Auto",
+    "file": "src/cssprop.ts",
+    "kind": "type_alias_declaration",
+    "method_count": 0,
+    "property_count": 0,
+    "has_doc": false,
+    "has_tests": false,
+    "enum_members": 0
+  },
+  {
+    "class": "DecorationLine",
+    "file": "src/cssprop.ts",
+    "kind": "type_alias_declaration",
+    "method_count": 0,
+    "property_count": 0,
+    "has_doc": false,
+    "has_tests": false,
+    "enum_members": 0
+  },
+  {
+    "class": "BorderStyle",
+    "file": "src/cssprop.ts",
+    "kind": "type_alias_declaration",
+    "method_count": 0,
+    "property_count": 0,
+    "has_doc": false,
+    "has_tests": false,
+    "enum_members": 0
+  },
+  {
+    "class": "ComputedStyle",
+    "file": "src/cssprop.ts",
+    "kind": "interface_declaration",
+    "method_count": 0,
+    "property_count": 43,
+    "has_doc": false,
+    "has_tests": false,
+    "enum_members": 0
+  },
+  {
+    "class": "PropContext",
+    "file": "src/cssprop.ts",
+    "kind": "interface_declaration",
+    "method_count": 0,
+    "property_count": 5,
+    "has_doc": true,
+    "has_tests": false,
+    "enum_members": 0
+  },
+  {
+    "class": "PropDef",
+    "file": "src/cssprop.ts",
+    "kind": "interface_declaration",
+    "method_count": 1,
+    "property_count": 3,
+    "has_doc": false,
+    "has_tests": false,
+    "enum_members": 0
+  },
+  {
+    "class": "UnsupportedDeclaration",
+    "file": "src/cssprop.ts",
+    "kind": "interface_declaration",
+    "method_count": 0,
+    "property_count": 4,
+    "has_doc": false,
+    "has_tests": false,
+    "enum_members": 0
+  },
+  {
+    "class": "FONT_SIZE_KEYWORDS",
+    "file": "src/cssprop.ts",
+    "kind": "constant",
+    "method_count": 0,
+    "property_count": 0,
+    "has_doc": true,
+    "has_tests": false,
+    "enum_members": 0
+  },
+  {
+    "class": "PROPERTIES",
+    "file": "src/cssprop.ts",
+    "kind": "constant",
+    "method_count": 0,
+    "property_count": 0,
+    "has_doc": false,
+    "has_tests": false,
+    "enum_members": 0
+  },
+  {
+    "class": "INITIAL_STYLE",
+    "file": "src/cssprop.ts",
+    "kind": "constant",
+    "method_count": 0,
+    "property_count": 0,
+    "has_doc": true,
+    "has_tests": false,
+    "enum_members": 0
+  },
+  {
+    "class": "ResolvedBox",
+    "file": "src/cssresolve.ts",
+    "kind": "interface_declaration",
+    "method_count": 0,
+    "property_count": 11,
+    "has_doc": false,
+    "has_tests": false,
+    "enum_members": 0
+  },
+  {
+    "class": "MeasureFn",
+    "file": "src/cssresolve.ts",
+    "kind": "type_alias_declaration",
+    "method_count": 0,
+    "property_count": 2,
+    "has_doc": true,
+    "has_tests": false,
+    "enum_members": 0
+  },
+  {
+    "class": "Combinator",
+    "file": "src/cssselect.ts",
+    "kind": "type_alias_declaration",
+    "method_count": 0,
+    "property_count": 0,
+    "has_doc": false,
+    "has_tests": false,
+    "enum_members": 0
+  },
+  {
+    "class": "AttrOp",
+    "file": "src/cssselect.ts",
+    "kind": "type_alias_declaration",
+    "method_count": 0,
+    "property_count": 0,
+    "has_doc": false,
+    "has_tests": false,
+    "enum_members": 0
+  },
+  {
+    "class": "AttrSel",
+    "file": "src/cssselect.ts",
+    "kind": "interface_declaration",
+    "method_count": 0,
+    "property_count": 4,
+    "has_doc": false,
+    "has_tests": false,
+    "enum_members": 0
+  },
+  {
+    "class": "Pseudo",
+    "file": "src/cssselect.ts",
+    "kind": "type_alias_declaration",
+    "method_count": 0,
+    "property_count": 19,
+    "has_doc": true,
+    "has_tests": false,
+    "enum_members": 0
+  },
+  {
+    "class": "Compound",
+    "file": "src/cssselect.ts",
+    "kind": "interface_declaration",
+    "method_count": 0,
+    "property_count": 6,
+    "has_doc": true,
+    "has_tests": false,
+    "enum_members": 0
+  },
+  {
+    "class": "ComplexSelector",
+    "file": "src/cssselect.ts",
+    "kind": "interface_declaration",
+    "method_count": 0,
+    "property_count": 2,
+    "has_doc": false,
+    "has_tests": false,
+    "enum_members": 0
+  },
+  {
+    "class": "SelectorList",
+    "file": "src/cssselect.ts",
+    "kind": "type_alias_declaration",
+    "method_count": 0,
+    "property_count": 0,
+    "has_doc": false,
+    "has_tests": false,
+    "enum_members": 0
+  },
+  {
+    "class": "ParsedPseudo",
+    "file": "src/cssselect.ts",
+    "kind": "interface_declaration",
+    "method_count": 0,
+    "property_count": 3,
+    "has_doc": false,
+    "has_tests": false,
+    "enum_members": 0
+  },
+  {
+    "class": "Specificity",
+    "file": "src/cssselect.ts",
+    "kind": "type_alias_declaration",
+    "method_count": 0,
+    "property_count": 0,
+    "has_doc": true,
+    "has_tests": false,
+    "enum_members": 0
+  },
+  {
+    "class": "SHORTHANDS",
+    "file": "src/cssshorthand.ts",
+    "kind": "constant",
+    "method_count": 0,
+    "property_count": 0,
+    "has_doc": false,
+    "has_tests": false,
+    "enum_members": 0
+  },
+  {
+    "class": "GOVERNS",
+    "file": "src/cssshorthand.ts",
+    "kind": "constant",
+    "method_count": 0,
+    "property_count": 0,
+    "has_doc": true,
+    "has_tests": false,
+    "enum_members": 0
+  },
+  {
+    "class": "TableMapCtx",
+    "file": "src/csstable.ts",
+    "kind": "interface_declaration",
+    "method_count": 0,
+    "property_count": 3,
+    "has_doc": false,
+    "has_tests": false,
+    "enum_members": 0
+  },
+  {
+    "class": "CssToken",
+    "file": "src/csstoken.ts",
+    "kind": "type_alias_declaration",
+    "method_count": 0,
+    "property_count": 28,
+    "has_doc": true,
+    "has_tests": false,
+    "enum_members": 0
+  },
+  {
+    "class": "Tokenizer",
+    "file": "src/csstoken.ts",
+    "kind": "class_declaration",
+    "method_count": 2,
+    "property_count": 3,
+    "has_doc": false,
+    "has_tests": false,
+    "enum_members": 0
+  },
+  {
+    "class": "UA_CSS",
+    "file": "src/cssua.ts",
+    "kind": "constant",
+    "method_count": 0,
+    "property_count": 0,
+    "has_doc": true,
+    "has_tests": false,
+    "enum_members": 0
+  },
+  {
+    "class": "LengthPct",
+    "file": "src/cssvalue.ts",
+    "kind": "type_alias_declaration",
+    "method_count": 0,
+    "property_count": 3,
+    "has_doc": true,
+    "has_tests": false,
+    "enum_members": 0
+  },
+  {
+    "class": "CssWide",
+    "file": "src/cssvalue.ts",
+    "kind": "type_alias_declaration",
+    "method_count": 0,
+    "property_count": 0,
+    "has_doc": false,
+    "has_tests": false,
+    "enum_members": 0
+  },
+  {
+    "class": "Color",
+    "file": "src/cssvalue.ts",
+    "kind": "interface_declaration",
+    "method_count": 0,
+    "property_count": 2,
+    "has_doc": false,
+    "has_tests": false,
+    "enum_members": 0
+  },
+  {
+    "class": "FnArg",
+    "file": "src/cssvalue.ts",
+    "kind": "interface_declaration",
+    "method_count": 0,
+    "property_count": 3,
+    "has_doc": false,
+    "has_tests": false,
+    "enum_members": 0
+  },
+  {
+    "class": "PendingValue",
+    "file": "src/cssvar.ts",
+    "kind": "interface_declaration",
+    "method_count": 0,
+    "property_count": 3,
+    "has_doc": true,
+    "has_tests": false,
+    "enum_members": 0
+  },
+  {
+    "class": "DeclValue",
+    "file": "src/cssvar.ts",
+    "kind": "type_alias_declaration",
+    "method_count": 0,
+    "property_count": 0,
+    "has_doc": false,
+    "has_tests": false,
+    "enum_members": 0
+  },
+  {
+    "class": "VarEnv",
+    "file": "src/cssvar.ts",
+    "kind": "type_alias_declaration",
+    "method_count": 0,
+    "property_count": 0,
+    "has_doc": true,
+    "has_tests": false,
+    "enum_members": 0
+  },
+  {
+    "class": "VarFail",
+    "file": "src/cssvar.ts",
+    "kind": "type_alias_declaration",
+    "method_count": 0,
+    "property_count": 0,
+    "has_doc": false,
+    "has_tests": false,
+    "enum_members": 0
+  },
+  {
+    "class": "Budget",
+    "file": "src/cssvar.ts",
+    "kind": "interface_declaration",
+    "method_count": 0,
+    "property_count": 1,
+    "has_doc": false,
+    "has_tests": false,
+    "enum_members": 0
+  },
+  {
+    "class": "VAR_BUDGET",
+    "file": "src/cssvar.ts",
     "kind": "constant",
     "method_count": 0,
     "property_count": 0,
@@ -1665,6 +2925,26 @@
     "kind": "interface_declaration",
     "method_count": 0,
     "property_count": 4,
+    "has_doc": true,
+    "has_tests": false,
+    "enum_members": 0
+  },
+  {
+    "class": "DecodeBudget",
+    "file": "src/decodebudget.ts",
+    "kind": "class_declaration",
+    "method_count": 5,
+    "property_count": 5,
+    "has_doc": false,
+    "has_tests": false,
+    "enum_members": 0
+  },
+  {
+    "class": "RATIO_FLOOR",
+    "file": "src/decodebudget.ts",
+    "kind": "constant",
+    "method_count": 0,
+    "property_count": 0,
     "has_doc": true,
     "has_tests": false,
     "enum_members": 0
@@ -2084,7 +3364,7 @@
     "file": "src/document.ts",
     "kind": "interface_declaration",
     "method_count": 0,
-    "property_count": 2,
+    "property_count": 3,
     "has_doc": false,
     "has_tests": false,
     "enum_members": 0
@@ -2104,7 +3384,7 @@
     "file": "src/document.ts",
     "kind": "interface_declaration",
     "method_count": 0,
-    "property_count": 6,
+    "property_count": 9,
     "has_doc": true,
     "has_tests": false,
     "enum_members": 0
@@ -2114,7 +3394,17 @@
     "file": "src/document.ts",
     "kind": "type_alias_declaration",
     "method_count": 0,
-    "property_count": 4,
+    "property_count": 5,
+    "has_doc": true,
+    "has_tests": false,
+    "enum_members": 0
+  },
+  {
+    "class": "SignTarget",
+    "file": "src/document.ts",
+    "kind": "interface_declaration",
+    "method_count": 0,
+    "property_count": 5,
     "has_doc": true,
     "has_tests": false,
     "enum_members": 0
@@ -2123,8 +3413,8 @@
     "class": "Document",
     "file": "src/document.ts",
     "kind": "class_declaration",
-    "method_count": 109,
-    "property_count": 26,
+    "method_count": 123,
+    "property_count": 43,
     "has_doc": false,
     "has_tests": true,
     "enum_members": 0
@@ -2320,6 +3610,16 @@
     "enum_members": 0
   },
   {
+    "class": "OpsMemo",
+    "file": "src/drprune.ts",
+    "kind": "type_alias_declaration",
+    "method_count": 0,
+    "property_count": 0,
+    "has_doc": true,
+    "has_tests": false,
+    "enum_members": 0
+  },
+  {
     "class": "DrPruneResult",
     "file": "src/drprune.ts",
     "kind": "interface_declaration",
@@ -2396,7 +3696,7 @@
     "method_count": 5,
     "property_count": 6,
     "has_doc": true,
-    "has_tests": false,
+    "has_tests": true,
     "enum_members": 0
   },
   {
@@ -2626,6 +3926,26 @@
     "method_count": 1,
     "property_count": 0,
     "has_doc": false,
+    "has_tests": false,
+    "enum_members": 0
+  },
+  {
+    "class": "ResourceLimitError",
+    "file": "src/errors.ts",
+    "kind": "class_declaration",
+    "method_count": 1,
+    "property_count": 0,
+    "has_doc": true,
+    "has_tests": false,
+    "enum_members": 0
+  },
+  {
+    "class": "SeedValueError",
+    "file": "src/errors.ts",
+    "kind": "class_declaration",
+    "method_count": 1,
+    "property_count": 0,
+    "has_doc": true,
     "has_tests": false,
     "enum_members": 0
   },
@@ -2894,6 +4214,26 @@
     "file": "src/filters.ts",
     "kind": "interface_declaration",
     "method_count": 0,
+    "property_count": 2,
+    "has_doc": true,
+    "has_tests": false,
+    "enum_members": 0
+  },
+  {
+    "class": "ChainOptions",
+    "file": "src/filters.ts",
+    "kind": "interface_declaration",
+    "method_count": 0,
+    "property_count": 2,
+    "has_doc": true,
+    "has_tests": false,
+    "enum_members": 0
+  },
+  {
+    "class": "OutputBound",
+    "file": "src/filters.ts",
+    "kind": "interface_declaration",
+    "method_count": 1,
     "property_count": 1,
     "has_doc": true,
     "has_tests": false,
@@ -3030,12 +4370,22 @@
     "enum_members": 0
   },
   {
+    "class": "FlowAtomic",
+    "file": "src/flow.ts",
+    "kind": "type_alias_declaration",
+    "method_count": 0,
+    "property_count": 5,
+    "has_doc": true,
+    "has_tests": false,
+    "enum_members": 0
+  },
+  {
     "class": "FlowParagraphOptions",
     "file": "src/flow.ts",
     "kind": "interface_declaration",
     "method_count": 0,
-    "property_count": 11,
-    "has_doc": true,
+    "property_count": 13,
+    "has_doc": false,
     "has_tests": false,
     "enum_members": 0
   },
@@ -3053,8 +4403,8 @@
     "class": "TextElement",
     "file": "src/flow.ts",
     "kind": "class_declaration",
-    "method_count": 3,
-    "property_count": 7,
+    "method_count": 4,
+    "property_count": 11,
     "has_doc": true,
     "has_tests": false,
     "enum_members": 0
@@ -3084,7 +4434,7 @@
     "file": "src/flow.ts",
     "kind": "interface_declaration",
     "method_count": 0,
-    "property_count": 16,
+    "property_count": 17,
     "has_doc": true,
     "has_tests": false,
     "enum_members": 0
@@ -3123,8 +4473,8 @@
     "class": "ListItemElement",
     "file": "src/flow.ts",
     "kind": "class_declaration",
-    "method_count": 3,
-    "property_count": 7,
+    "method_count": 4,
+    "property_count": 11,
     "has_doc": true,
     "has_tests": false,
     "enum_members": 0
@@ -3133,8 +4483,8 @@
     "class": "ListBlockElement",
     "file": "src/flow.ts",
     "kind": "class_declaration",
-    "method_count": 3,
-    "property_count": 7,
+    "method_count": 4,
+    "property_count": 11,
     "has_doc": true,
     "has_tests": false,
     "enum_members": 0
@@ -3144,7 +4494,7 @@
     "file": "src/flow.ts",
     "kind": "interface_declaration",
     "method_count": 0,
-    "property_count": 18,
+    "property_count": 19,
     "has_doc": true,
     "has_tests": false,
     "enum_members": 0
@@ -3193,8 +4543,8 @@
     "class": "ImageElement",
     "file": "src/flow.ts",
     "kind": "class_declaration",
-    "method_count": 3,
-    "property_count": 9,
+    "method_count": 4,
+    "property_count": 13,
     "has_doc": true,
     "has_tests": false,
     "enum_members": 0
@@ -3204,7 +4554,7 @@
     "file": "src/flow.ts",
     "kind": "class_declaration",
     "method_count": 3,
-    "property_count": 7,
+    "property_count": 2,
     "has_doc": true,
     "has_tests": false,
     "enum_members": 0
@@ -3243,8 +4593,8 @@
     "class": "Flow",
     "file": "src/flow.ts",
     "kind": "class_declaration",
-    "method_count": 14,
-    "property_count": 0,
+    "method_count": 16,
+    "property_count": 3,
     "has_doc": true,
     "has_tests": false,
     "enum_members": 0
@@ -3263,8 +4613,8 @@
     "class": "RuleElement",
     "file": "src/flowblock.ts",
     "kind": "class_declaration",
-    "method_count": 3,
-    "property_count": 9,
+    "method_count": 4,
+    "property_count": 13,
     "has_doc": true,
     "has_tests": false,
     "enum_members": 0
@@ -3274,7 +4624,7 @@
     "file": "src/flowblock.ts",
     "kind": "interface_declaration",
     "method_count": 0,
-    "property_count": 10,
+    "property_count": 11,
     "has_doc": true,
     "has_tests": false,
     "enum_members": 0
@@ -3283,8 +4633,8 @@
     "class": "CodeBlockElement",
     "file": "src/flowblock.ts",
     "kind": "class_declaration",
-    "method_count": 3,
-    "property_count": 9,
+    "method_count": 4,
+    "property_count": 14,
     "has_doc": true,
     "has_tests": false,
     "enum_members": 0
@@ -3333,8 +4683,8 @@
     "class": "QuotedElement",
     "file": "src/flowblock.ts",
     "kind": "class_declaration",
-    "method_count": 3,
-    "property_count": 7,
+    "method_count": 4,
+    "property_count": 11,
     "has_doc": true,
     "has_tests": false,
     "enum_members": 0
@@ -3383,8 +4733,38 @@
     "class": "FlowElement",
     "file": "src/flowelement.ts",
     "kind": "interface_declaration",
-    "method_count": 2,
-    "property_count": 7,
+    "method_count": 3,
+    "property_count": 11,
+    "has_doc": true,
+    "has_tests": false,
+    "enum_members": 0
+  },
+  {
+    "class": "FloatContent",
+    "file": "src/flowelement.ts",
+    "kind": "interface_declaration",
+    "method_count": 3,
+    "property_count": 6,
+    "has_doc": true,
+    "has_tests": false,
+    "enum_members": 0
+  },
+  {
+    "class": "Compromise",
+    "file": "src/flowelement.ts",
+    "kind": "type_alias_declaration",
+    "method_count": 0,
+    "property_count": 0,
+    "has_doc": true,
+    "has_tests": false,
+    "enum_members": 0
+  },
+  {
+    "class": "MIN_CONTENT_WIDTH",
+    "file": "src/flowelement.ts",
+    "kind": "constant",
+    "method_count": 0,
+    "property_count": 0,
     "has_doc": true,
     "has_tests": false,
     "enum_members": 0
@@ -3414,7 +4794,7 @@
     "file": "src/flowtable.ts",
     "kind": "interface_declaration",
     "method_count": 0,
-    "property_count": 5,
+    "property_count": 6,
     "has_doc": true,
     "has_tests": false,
     "enum_members": 0
@@ -3423,8 +4803,8 @@
     "class": "TableElement",
     "file": "src/flowtable.ts",
     "kind": "class_declaration",
-    "method_count": 3,
-    "property_count": 12,
+    "method_count": 4,
+    "property_count": 16,
     "has_doc": true,
     "has_tests": false,
     "enum_members": 0
@@ -3503,8 +4883,8 @@
     "class": "TextFont",
     "file": "src/font.ts",
     "kind": "class_declaration",
-    "method_count": 6,
-    "property_count": 10,
+    "method_count": 7,
+    "property_count": 11,
     "has_doc": false,
     "has_tests": false,
     "enum_members": 0
@@ -3594,7 +4974,7 @@
     "file": "src/fontnames.ts",
     "kind": "interface_declaration",
     "method_count": 0,
-    "property_count": 8,
+    "property_count": 10,
     "has_doc": true,
     "has_tests": false,
     "enum_members": 0
@@ -3660,10 +5040,100 @@
     "enum_members": 0
   },
   {
+    "class": "Resolve",
+    "file": "src/fontsubst.ts",
+    "kind": "type_alias_declaration",
+    "method_count": 0,
+    "property_count": 0,
+    "has_doc": false,
+    "has_tests": false,
+    "enum_members": 0
+  },
+  {
+    "class": "Inflate",
+    "file": "src/fontsubst.ts",
+    "kind": "type_alias_declaration",
+    "method_count": 0,
+    "property_count": 0,
+    "has_doc": false,
+    "has_tests": false,
+    "enum_members": 0
+  },
+  {
+    "class": "SubstRequest",
+    "file": "src/fontsubst.ts",
+    "kind": "interface_declaration",
+    "method_count": 0,
+    "property_count": 4,
+    "has_doc": true,
+    "has_tests": false,
+    "enum_members": 0
+  },
+  {
+    "class": "SubstMatch",
+    "file": "src/fontsubst.ts",
+    "kind": "interface_declaration",
+    "method_count": 0,
+    "property_count": 2,
+    "has_doc": true,
+    "has_tests": false,
+    "enum_members": 0
+  },
+  {
+    "class": "WANTED_CAP",
+    "file": "src/fontsubst.ts",
+    "kind": "constant",
+    "method_count": 0,
+    "property_count": 0,
+    "has_doc": true,
+    "has_tests": false,
+    "enum_members": 0
+  },
+  {
+    "class": "CID_PROBE_LIMIT",
+    "file": "src/fontsubst.ts",
+    "kind": "constant",
+    "method_count": 0,
+    "property_count": 0,
+    "has_doc": true,
+    "has_tests": false,
+    "enum_members": 0
+  },
+  {
+    "class": "CID_PROBE_STEP",
+    "file": "src/fontsubst.ts",
+    "kind": "constant",
+    "method_count": 0,
+    "property_count": 0,
+    "has_doc": true,
+    "has_tests": false,
+    "enum_members": 0
+  },
+  {
+    "class": "CONFIRM_CAP",
+    "file": "src/fontsubst.ts",
+    "kind": "constant",
+    "method_count": 0,
+    "property_count": 0,
+    "has_doc": true,
+    "has_tests": false,
+    "enum_members": 0
+  },
+  {
+    "class": "MIN_COVERAGE",
+    "file": "src/fontsubst.ts",
+    "kind": "constant",
+    "method_count": 0,
+    "property_count": 0,
+    "has_doc": true,
+    "has_tests": false,
+    "enum_members": 0
+  },
+  {
     "class": "Form",
     "file": "src/form.ts",
     "kind": "class_declaration",
-    "method_count": 10,
+    "method_count": 11,
     "property_count": 2,
     "has_doc": true,
     "has_tests": true,
@@ -3795,6 +5265,16 @@
     "kind": "interface_declaration",
     "method_count": 0,
     "property_count": 6,
+    "has_doc": true,
+    "has_tests": false,
+    "enum_members": 0
+  },
+  {
+    "class": "SignatureFieldInit",
+    "file": "src/formcreate.ts",
+    "kind": "interface_declaration",
+    "method_count": 0,
+    "property_count": 2,
     "has_doc": true,
     "has_tests": false,
     "enum_members": 0
@@ -4064,7 +5544,7 @@
     "file": "src/glyphusage.ts",
     "kind": "interface_declaration",
     "method_count": 0,
-    "property_count": 3,
+    "property_count": 4,
     "has_doc": false,
     "has_tests": false,
     "enum_members": 0
@@ -4170,176 +5650,6 @@
     "enum_members": 0
   },
   {
-    "class": "GrayscaleOptions",
-    "file": "src/grayconvert.ts",
-    "kind": "interface_declaration",
-    "method_count": 0,
-    "property_count": 1,
-    "has_doc": true,
-    "has_tests": false,
-    "enum_members": 0
-  },
-  {
-    "class": "GrayImageResult",
-    "file": "src/grayconvert.ts",
-    "kind": "interface_declaration",
-    "method_count": 0,
-    "property_count": 4,
-    "has_doc": false,
-    "has_tests": false,
-    "enum_members": 0
-  },
-  {
-    "class": "GraySkipped",
-    "file": "src/grayconvert.ts",
-    "kind": "interface_declaration",
-    "method_count": 0,
-    "property_count": 3,
-    "has_doc": false,
-    "has_tests": false,
-    "enum_members": 0
-  },
-  {
-    "class": "GrayscaleReport",
-    "file": "src/grayconvert.ts",
-    "kind": "interface_declaration",
-    "method_count": 0,
-    "property_count": 8,
-    "has_doc": false,
-    "has_tests": false,
-    "enum_members": 0
-  },
-  {
-    "class": "Scope",
-    "file": "src/grayconvert.ts",
-    "kind": "interface_declaration",
-    "method_count": 0,
-    "property_count": 3,
-    "has_doc": true,
-    "has_tests": false,
-    "enum_members": 0
-  },
-  {
-    "class": "Resolve",
-    "file": "src/grayimage.ts",
-    "kind": "type_alias_declaration",
-    "method_count": 0,
-    "property_count": 0,
-    "has_doc": false,
-    "has_tests": false,
-    "enum_members": 0
-  },
-  {
-    "class": "Inflate",
-    "file": "src/grayimage.ts",
-    "kind": "type_alias_declaration",
-    "method_count": 0,
-    "property_count": 0,
-    "has_doc": true,
-    "has_tests": false,
-    "enum_members": 0
-  },
-  {
-    "class": "GrayImageOptions",
-    "file": "src/grayimage.ts",
-    "kind": "interface_declaration",
-    "method_count": 0,
-    "property_count": 1,
-    "has_doc": false,
-    "has_tests": false,
-    "enum_members": 0
-  },
-  {
-    "class": "GrayImageOutcome",
-    "file": "src/grayimage.ts",
-    "kind": "type_alias_declaration",
-    "method_count": 0,
-    "property_count": 8,
-    "has_doc": false,
-    "has_tests": false,
-    "enum_members": 0
-  },
-  {
-    "class": "MeshLayout",
-    "file": "src/graymesh.ts",
-    "kind": "interface_declaration",
-    "method_count": 0,
-    "property_count": 6,
-    "has_doc": true,
-    "has_tests": false,
-    "enum_members": 0
-  },
-  {
-    "class": "MeshResult",
-    "file": "src/graymesh.ts",
-    "kind": "type_alias_declaration",
-    "method_count": 0,
-    "property_count": 4,
-    "has_doc": false,
-    "has_tests": false,
-    "enum_members": 0
-  },
-  {
-    "class": "BitReader",
-    "file": "src/graymesh.ts",
-    "kind": "class_declaration",
-    "method_count": 3,
-    "property_count": 1,
-    "has_doc": true,
-    "has_tests": false,
-    "enum_members": 0
-  },
-  {
-    "class": "BitWriter",
-    "file": "src/graymesh.ts",
-    "kind": "class_declaration",
-    "method_count": 3,
-    "property_count": 0,
-    "has_doc": false,
-    "has_tests": false,
-    "enum_members": 0
-  },
-  {
-    "class": "SpaceLookup",
-    "file": "src/grayops.ts",
-    "kind": "type_alias_declaration",
-    "method_count": 0,
-    "property_count": 0,
-    "has_doc": true,
-    "has_tests": false,
-    "enum_members": 0
-  },
-  {
-    "class": "GrayOpsResult",
-    "file": "src/grayops.ts",
-    "kind": "interface_declaration",
-    "method_count": 0,
-    "property_count": 3,
-    "has_doc": false,
-    "has_tests": false,
-    "enum_members": 0
-  },
-  {
-    "class": "GraySpace",
-    "file": "src/grayscale.ts",
-    "kind": "type_alias_declaration",
-    "method_count": 0,
-    "property_count": 8,
-    "has_doc": true,
-    "has_tests": false,
-    "enum_members": 0
-  },
-  {
-    "class": "ShadingOutcome",
-    "file": "src/grayshading.ts",
-    "kind": "type_alias_declaration",
-    "method_count": 0,
-    "property_count": 6,
-    "has_doc": false,
-    "has_tests": false,
-    "enum_members": 0
-  },
-  {
     "class": "HtmlOptions",
     "file": "src/html.ts",
     "kind": "interface_declaration",
@@ -4350,11 +5660,191 @@
     "enum_members": 0
   },
   {
+    "class": "CharRefError",
+    "file": "src/htmlcharref.ts",
+    "kind": "interface_declaration",
+    "method_count": 0,
+    "property_count": 2,
+    "has_doc": false,
+    "has_tests": false,
+    "enum_members": 0
+  },
+  {
+    "class": "CharRefResult",
+    "file": "src/htmlcharref.ts",
+    "kind": "interface_declaration",
+    "method_count": 0,
+    "property_count": 3,
+    "has_doc": false,
+    "has_tests": false,
+    "enum_members": 0
+  },
+  {
+    "class": "C1_REPLACEMENTS",
+    "file": "src/htmlcharref.ts",
+    "kind": "constant",
+    "method_count": 0,
+    "property_count": 0,
+    "has_doc": true,
+    "has_tests": false,
+    "enum_members": 0
+  },
+  {
+    "class": "HtmlDocument",
+    "file": "src/htmldom.ts",
+    "kind": "interface_declaration",
+    "method_count": 0,
+    "property_count": 4,
+    "has_doc": true,
+    "has_tests": false,
+    "enum_members": 0
+  },
+  {
+    "class": "HtmlDoctype",
+    "file": "src/htmldom.ts",
+    "kind": "interface_declaration",
+    "method_count": 0,
+    "property_count": 5,
+    "has_doc": false,
+    "has_tests": false,
+    "enum_members": 0
+  },
+  {
+    "class": "HtmlNamespace",
+    "file": "src/htmldom.ts",
+    "kind": "type_alias_declaration",
+    "method_count": 0,
+    "property_count": 0,
+    "has_doc": true,
+    "has_tests": false,
+    "enum_members": 0
+  },
+  {
+    "class": "HtmlElement",
+    "file": "src/htmldom.ts",
+    "kind": "interface_declaration",
+    "method_count": 0,
+    "property_count": 7,
+    "has_doc": false,
+    "has_tests": false,
+    "enum_members": 0
+  },
+  {
+    "class": "HtmlText",
+    "file": "src/htmldom.ts",
+    "kind": "interface_declaration",
+    "method_count": 0,
+    "property_count": 3,
+    "has_doc": false,
+    "has_tests": false,
+    "enum_members": 0
+  },
+  {
+    "class": "HtmlComment",
+    "file": "src/htmldom.ts",
+    "kind": "interface_declaration",
+    "method_count": 0,
+    "property_count": 3,
+    "has_doc": false,
+    "has_tests": false,
+    "enum_members": 0
+  },
+  {
+    "class": "HtmlProcessingInstruction",
+    "file": "src/htmldom.ts",
+    "kind": "interface_declaration",
+    "method_count": 0,
+    "property_count": 4,
+    "has_doc": true,
+    "has_tests": false,
+    "enum_members": 0
+  },
+  {
+    "class": "HtmlFragment",
+    "file": "src/htmldom.ts",
+    "kind": "interface_declaration",
+    "method_count": 0,
+    "property_count": 3,
+    "has_doc": true,
+    "has_tests": false,
+    "enum_members": 0
+  },
+  {
+    "class": "HtmlNode",
+    "file": "src/htmldom.ts",
+    "kind": "type_alias_declaration",
+    "method_count": 0,
+    "property_count": 0,
+    "has_doc": false,
+    "has_tests": false,
+    "enum_members": 0
+  },
+  {
+    "class": "HtmlParent",
+    "file": "src/htmldom.ts",
+    "kind": "type_alias_declaration",
+    "method_count": 0,
+    "property_count": 0,
+    "has_doc": true,
+    "has_tests": false,
+    "enum_members": 0
+  },
+  {
+    "class": "HtmlChild",
+    "file": "src/htmldom.ts",
+    "kind": "type_alias_declaration",
+    "method_count": 0,
+    "property_count": 0,
+    "has_doc": true,
+    "has_tests": false,
+    "enum_members": 0
+  },
+  {
     "class": "HtmlSink",
     "file": "src/htmlfixed.ts",
     "kind": "class_declaration",
     "method_count": 20,
     "property_count": 6,
+    "has_doc": true,
+    "has_tests": false,
+    "enum_members": 0
+  },
+  {
+    "class": "HtmlFlowOptions",
+    "file": "src/htmlflow.ts",
+    "kind": "interface_declaration",
+    "method_count": 0,
+    "property_count": 3,
+    "has_doc": true,
+    "has_tests": false,
+    "enum_members": 0
+  },
+  {
+    "class": "HtmlFlowResult",
+    "file": "src/htmlflow.ts",
+    "kind": "interface_declaration",
+    "method_count": 0,
+    "property_count": 2,
+    "has_doc": true,
+    "has_tests": false,
+    "enum_members": 0
+  },
+  {
+    "class": "HtmlElements",
+    "file": "src/htmlflow.ts",
+    "kind": "interface_declaration",
+    "method_count": 0,
+    "property_count": 1,
+    "has_doc": true,
+    "has_tests": false,
+    "enum_members": 0
+  },
+  {
+    "class": "AddHtmlResult",
+    "file": "src/htmlflow.ts",
+    "kind": "interface_declaration",
+    "method_count": 0,
+    "property_count": 2,
     "has_doc": true,
     "has_tests": false,
     "enum_members": 0
@@ -4400,11 +5890,111 @@
     "enum_members": 0
   },
   {
+    "class": "SVG_TAG_NAMES",
+    "file": "src/htmlforeign.ts",
+    "kind": "constant",
+    "method_count": 0,
+    "property_count": 0,
+    "has_doc": true,
+    "has_tests": false,
+    "enum_members": 0
+  },
+  {
+    "class": "SVG_ATTRS",
+    "file": "src/htmlforeign.ts",
+    "kind": "constant",
+    "method_count": 0,
+    "property_count": 0,
+    "has_doc": true,
+    "has_tests": false,
+    "enum_members": 0
+  },
+  {
+    "class": "MATHML_ATTRS",
+    "file": "src/htmlforeign.ts",
+    "kind": "constant",
+    "method_count": 0,
+    "property_count": 0,
+    "has_doc": true,
+    "has_tests": false,
+    "enum_members": 0
+  },
+  {
+    "class": "FOREIGN_ATTRS",
+    "file": "src/htmlforeign.ts",
+    "kind": "constant",
+    "method_count": 0,
+    "property_count": 0,
+    "has_doc": true,
+    "has_tests": false,
+    "enum_members": 0
+  },
+  {
+    "class": "FOREIGN_BREAKOUT",
+    "file": "src/htmlforeign.ts",
+    "kind": "constant",
+    "method_count": 0,
+    "property_count": 0,
+    "has_doc": true,
+    "has_tests": false,
+    "enum_members": 0
+  },
+  {
     "class": "PageFormControls",
     "file": "src/htmlforms.ts",
     "kind": "interface_declaration",
     "method_count": 0,
     "property_count": 3,
+    "has_doc": true,
+    "has_tests": false,
+    "enum_members": 0
+  },
+  {
+    "class": "Construct",
+    "file": "src/htmlreport.ts",
+    "kind": "type_alias_declaration",
+    "method_count": 0,
+    "property_count": 0,
+    "has_doc": true,
+    "has_tests": false,
+    "enum_members": 0
+  },
+  {
+    "class": "NotRendered",
+    "file": "src/htmlreport.ts",
+    "kind": "interface_declaration",
+    "method_count": 0,
+    "property_count": 4,
+    "has_doc": true,
+    "has_tests": false,
+    "enum_members": 0
+  },
+  {
+    "class": "ElementPolicy",
+    "file": "src/htmlreport.ts",
+    "kind": "interface_declaration",
+    "method_count": 0,
+    "property_count": 3,
+    "has_doc": true,
+    "has_tests": false,
+    "enum_members": 0
+  },
+  {
+    "class": "CONSTRUCTS",
+    "file": "src/htmlreport.ts",
+    "kind": "constant",
+    "method_count": 0,
+    "property_count": 0,
+    "has_doc": false,
+    "has_tests": false,
+    "enum_members": 0
+  },
+  {
+    "class": "HTML_POLICY_SIZE",
+    "file": "src/htmlreport.ts",
+    "kind": "constant",
+    "method_count": 0,
+    "property_count": 0,
     "has_doc": true,
     "has_tests": false,
     "enum_members": 0
@@ -4420,11 +6010,231 @@
     "enum_members": 0
   },
   {
+    "class": "ScopeKind",
+    "file": "src/htmlstack.ts",
+    "kind": "type_alias_declaration",
+    "method_count": 0,
+    "property_count": 0,
+    "has_doc": true,
+    "has_tests": false,
+    "enum_members": 0
+  },
+  {
+    "class": "OpenElements",
+    "file": "src/htmlstack.ts",
+    "kind": "class_declaration",
+    "method_count": 13,
+    "property_count": 2,
+    "has_doc": false,
+    "has_tests": false,
+    "enum_members": 0
+  },
+  {
+    "class": "FormattingEntry",
+    "file": "src/htmlstack.ts",
+    "kind": "type_alias_declaration",
+    "method_count": 0,
+    "property_count": 0,
+    "has_doc": true,
+    "has_tests": false,
+    "enum_members": 0
+  },
+  {
+    "class": "ActiveFormatting",
+    "file": "src/htmlstack.ts",
+    "kind": "class_declaration",
+    "method_count": 9,
+    "property_count": 1,
+    "has_doc": false,
+    "has_tests": false,
+    "enum_members": 0
+  },
+  {
+    "class": "HtmlParseError",
+    "file": "src/htmltoken.ts",
+    "kind": "interface_declaration",
+    "method_count": 0,
+    "property_count": 3,
+    "has_doc": false,
+    "has_tests": false,
+    "enum_members": 0
+  },
+  {
+    "class": "HtmlToken",
+    "file": "src/htmltoken.ts",
+    "kind": "type_alias_declaration",
+    "method_count": 0,
+    "property_count": 21,
+    "has_doc": false,
+    "has_tests": false,
+    "enum_members": 0
+  },
+  {
+    "class": "TokenizerState",
+    "file": "src/htmltoken.ts",
+    "kind": "enum_declaration",
+    "method_count": 0,
+    "property_count": 0,
+    "has_doc": false,
+    "has_tests": false,
+    "enum_members": 76
+  },
+  {
+    "class": "TokenizerOptions",
+    "file": "src/htmltoken.ts",
+    "kind": "interface_declaration",
+    "method_count": 0,
+    "property_count": 1,
+    "has_doc": false,
+    "has_tests": false,
+    "enum_members": 0
+  },
+  {
+    "class": "HtmlTokenizer",
+    "file": "src/htmltoken.ts",
+    "kind": "class_declaration",
+    "method_count": 4,
+    "property_count": 8,
+    "has_doc": false,
+    "has_tests": false,
+    "enum_members": 0
+  },
+  {
+    "class": "Mode",
+    "file": "src/htmltree.ts",
+    "kind": "enum_declaration",
+    "method_count": 0,
+    "property_count": 0,
+    "has_doc": true,
+    "has_tests": false,
+    "enum_members": 21
+  },
+  {
+    "class": "FragmentContext",
+    "file": "src/htmltree.ts",
+    "kind": "interface_declaration",
+    "method_count": 0,
+    "property_count": 2,
+    "has_doc": true,
+    "has_tests": false,
+    "enum_members": 0
+  },
+  {
+    "class": "InsertLocation",
+    "file": "src/htmltree.ts",
+    "kind": "interface_declaration",
+    "method_count": 0,
+    "property_count": 2,
+    "has_doc": true,
+    "has_tests": false,
+    "enum_members": 0
+  },
+  {
+    "class": "TreeBuilder",
+    "file": "src/htmltree.ts",
+    "kind": "class_declaration",
+    "method_count": 3,
+    "property_count": 10,
+    "has_doc": false,
+    "has_tests": false,
+    "enum_members": 0
+  },
+  {
+    "class": "CommentLike",
+    "file": "src/htmltree.ts",
+    "kind": "type_alias_declaration",
+    "method_count": 0,
+    "property_count": 2,
+    "has_doc": true,
+    "has_tests": false,
+    "enum_members": 0
+  },
+  {
+    "class": "ParseHtmlBytesOptions",
+    "file": "src/htmltree.ts",
+    "kind": "interface_declaration",
+    "method_count": 0,
+    "property_count": 1,
+    "has_doc": true,
+    "has_tests": false,
+    "enum_members": 0
+  },
+  {
+    "class": "IccVersion",
+    "file": "src/icc.ts",
+    "kind": "interface_declaration",
+    "method_count": 0,
+    "property_count": 3,
+    "has_doc": true,
+    "has_tests": false,
+    "enum_members": 0
+  },
+  {
+    "class": "IccHeader",
+    "file": "src/icc.ts",
+    "kind": "interface_declaration",
+    "method_count": 0,
+    "property_count": 8,
+    "has_doc": false,
+    "has_tests": false,
+    "enum_members": 0
+  },
+  {
+    "class": "IccTag",
+    "file": "src/icc.ts",
+    "kind": "interface_declaration",
+    "method_count": 0,
+    "property_count": 3,
+    "has_doc": false,
+    "has_tests": false,
+    "enum_members": 0
+  },
+  {
+    "class": "IccProfile",
+    "file": "src/icc.ts",
+    "kind": "interface_declaration",
+    "method_count": 0,
+    "property_count": 3,
+    "has_doc": false,
+    "has_tests": false,
+    "enum_members": 0
+  },
+  {
+    "class": "IccCurve",
+    "file": "src/icc.ts",
+    "kind": "type_alias_declaration",
+    "method_count": 0,
+    "property_count": 5,
+    "has_doc": true,
+    "has_tests": false,
+    "enum_members": 0
+  },
+  {
+    "class": "IccLut",
+    "file": "src/icclut.ts",
+    "kind": "interface_declaration",
+    "method_count": 0,
+    "property_count": 7,
+    "has_doc": true,
+    "has_tests": false,
+    "enum_members": 0
+  },
+  {
+    "class": "IccTransformOptions",
+    "file": "src/icctransform.ts",
+    "kind": "interface_declaration",
+    "method_count": 0,
+    "property_count": 1,
+    "has_doc": false,
+    "has_tests": false,
+    "enum_members": 0
+  },
+  {
     "class": "ImageInfo",
     "file": "src/image.ts",
     "kind": "class_declaration",
-    "method_count": 4,
-    "property_count": 10,
+    "method_count": 5,
+    "property_count": 8,
     "has_doc": true,
     "has_tests": false,
     "enum_members": 0
@@ -4481,6 +6291,26 @@
   },
   {
     "class": "EncodedImage",
+    "file": "src/imagehref.ts",
+    "kind": "interface_declaration",
+    "method_count": 0,
+    "property_count": 2,
+    "has_doc": true,
+    "has_tests": false,
+    "enum_members": 0
+  },
+  {
+    "class": "SaveImageFormat",
+    "file": "src/imagehref.ts",
+    "kind": "type_alias_declaration",
+    "method_count": 0,
+    "property_count": 0,
+    "has_doc": true,
+    "has_tests": false,
+    "enum_members": 0
+  },
+  {
+    "class": "SaveImageOptions",
     "file": "src/imagehref.ts",
     "kind": "interface_declaration",
     "method_count": 0,
@@ -4604,7 +6434,7 @@
     "file": "src/imageusage.ts",
     "kind": "interface_declaration",
     "method_count": 0,
-    "property_count": 2,
+    "property_count": 3,
     "has_doc": false,
     "has_tests": false,
     "enum_members": 0
@@ -4614,7 +6444,7 @@
     "file": "src/incremental.ts",
     "kind": "interface_declaration",
     "method_count": 0,
-    "property_count": 4,
+    "property_count": 6,
     "has_doc": true,
     "has_tests": false,
     "enum_members": 0
@@ -4624,7 +6454,7 @@
     "file": "src/incremental.ts",
     "kind": "interface_declaration",
     "method_count": 0,
-    "property_count": 7,
+    "property_count": 8,
     "has_doc": false,
     "has_tests": false,
     "enum_members": 0
@@ -4635,6 +6465,36 @@
     "kind": "interface_declaration",
     "method_count": 0,
     "property_count": 2,
+    "has_doc": false,
+    "has_tests": false,
+    "enum_members": 0
+  },
+  {
+    "class": "XrefRow",
+    "file": "src/incremental.ts",
+    "kind": "interface_declaration",
+    "method_count": 0,
+    "property_count": 4,
+    "has_doc": false,
+    "has_tests": false,
+    "enum_members": 0
+  },
+  {
+    "class": "ObjectDelta",
+    "file": "src/incrementaldelta.ts",
+    "kind": "interface_declaration",
+    "method_count": 0,
+    "property_count": 3,
+    "has_doc": true,
+    "has_tests": false,
+    "enum_members": 0
+  },
+  {
+    "class": "InputDecoder",
+    "file": "src/inflatebound.ts",
+    "kind": "class_declaration",
+    "method_count": 5,
+    "property_count": 1,
     "has_doc": false,
     "has_tests": false,
     "enum_members": 0
@@ -4924,7 +6784,7 @@
     "file": "src/jbig2symbol.ts",
     "kind": "interface_declaration",
     "method_count": 0,
-    "property_count": 14,
+    "property_count": 15,
     "has_doc": false,
     "has_tests": false,
     "enum_members": 0
@@ -5380,7 +7240,7 @@
     "enum_members": 0
   },
   {
-    "class": "LayoutRun",
+    "class": "AtomicBox",
     "file": "src/layout.ts",
     "kind": "interface_declaration",
     "method_count": 0,
@@ -5390,11 +7250,41 @@
     "enum_members": 0
   },
   {
+    "class": "TextLayoutRun",
+    "file": "src/layout.ts",
+    "kind": "interface_declaration",
+    "method_count": 0,
+    "property_count": 3,
+    "has_doc": true,
+    "has_tests": false,
+    "enum_members": 0
+  },
+  {
+    "class": "AtomicLayoutRun",
+    "file": "src/layout.ts",
+    "kind": "interface_declaration",
+    "method_count": 0,
+    "property_count": 1,
+    "has_doc": true,
+    "has_tests": false,
+    "enum_members": 0
+  },
+  {
+    "class": "LayoutRun",
+    "file": "src/layout.ts",
+    "kind": "type_alias_declaration",
+    "method_count": 0,
+    "property_count": 0,
+    "has_doc": false,
+    "has_tests": false,
+    "enum_members": 0
+  },
+  {
     "class": "LaidSegment",
     "file": "src/layout.ts",
     "kind": "interface_declaration",
     "method_count": 0,
-    "property_count": 4,
+    "property_count": 5,
     "has_doc": true,
     "has_tests": false,
     "enum_members": 0
@@ -5464,7 +7354,7 @@
     "file": "src/lexer.ts",
     "kind": "type_alias_declaration",
     "method_count": 0,
-    "property_count": 17,
+    "property_count": 18,
     "has_doc": false,
     "has_tests": false,
     "enum_members": 0
@@ -5474,7 +7364,7 @@
     "file": "src/lexer.ts",
     "kind": "class_declaration",
     "method_count": 2,
-    "property_count": 1,
+    "property_count": 2,
     "has_doc": false,
     "has_tests": false,
     "enum_members": 0
@@ -5540,12 +7430,82 @@
     "enum_members": 0
   },
   {
+    "class": "LineItem",
+    "file": "src/linebox.ts",
+    "kind": "interface_declaration",
+    "method_count": 0,
+    "property_count": 3,
+    "has_doc": true,
+    "has_tests": false,
+    "enum_members": 0
+  },
+  {
     "class": "LBRK",
     "file": "src/linebreak.ts",
     "kind": "constant",
     "method_count": 0,
     "property_count": 0,
     "has_doc": false,
+    "has_tests": false,
+    "enum_members": 0
+  },
+  {
+    "class": "LimitField",
+    "file": "src/loadlimits.ts",
+    "kind": "type_alias_declaration",
+    "method_count": 0,
+    "property_count": 0,
+    "has_doc": true,
+    "has_tests": false,
+    "enum_members": 0
+  },
+  {
+    "class": "LoadLimitValues",
+    "file": "src/loadlimits.ts",
+    "kind": "interface_declaration",
+    "method_count": 0,
+    "property_count": 17,
+    "has_doc": true,
+    "has_tests": false,
+    "enum_members": 0
+  },
+  {
+    "class": "LoadLimitPatch",
+    "file": "src/loadlimits.ts",
+    "kind": "type_alias_declaration",
+    "method_count": 0,
+    "property_count": 0,
+    "has_doc": true,
+    "has_tests": false,
+    "enum_members": 0
+  },
+  {
+    "class": "FieldsMatchKeys",
+    "file": "src/loadlimits.ts",
+    "kind": "type_alias_declaration",
+    "method_count": 0,
+    "property_count": 0,
+    "has_doc": true,
+    "has_tests": false,
+    "enum_members": 0
+  },
+  {
+    "class": "LoadLimits",
+    "file": "src/loadlimits.ts",
+    "kind": "class_declaration",
+    "method_count": 3,
+    "property_count": 18,
+    "has_doc": true,
+    "has_tests": false,
+    "enum_members": 0
+  },
+  {
+    "class": "LIMIT_FIELDS",
+    "file": "src/loadlimits.ts",
+    "kind": "constant",
+    "method_count": 0,
+    "property_count": 0,
+    "has_doc": true,
     "has_tests": false,
     "enum_members": 0
   },
@@ -5880,6 +7840,16 @@
     "enum_members": 0
   },
   {
+    "class": "MAX_ENTITY_NAME",
+    "file": "src/mdentity.ts",
+    "kind": "constant",
+    "method_count": 0,
+    "property_count": 0,
+    "has_doc": true,
+    "has_tests": false,
+    "enum_members": 0
+  },
+  {
     "class": "MarkdownExportOptions",
     "file": "src/mdexport.ts",
     "kind": "interface_declaration",
@@ -5924,7 +7894,7 @@
     "file": "src/mdflow.ts",
     "kind": "interface_declaration",
     "method_count": 0,
-    "property_count": 2,
+    "property_count": 3,
     "has_doc": true,
     "has_tests": false,
     "enum_members": 0
@@ -6020,7 +7990,27 @@
     "enum_members": 0
   },
   {
+    "class": "AtomicResolver",
+    "file": "src/mdruns.ts",
+    "kind": "type_alias_declaration",
+    "method_count": 0,
+    "property_count": 0,
+    "has_doc": true,
+    "has_tests": false,
+    "enum_members": 0
+  },
+  {
     "class": "RunContext",
+    "file": "src/mdruns.ts",
+    "kind": "interface_declaration",
+    "method_count": 0,
+    "property_count": 3,
+    "has_doc": true,
+    "has_tests": false,
+    "enum_members": 0
+  },
+  {
+    "class": "InlineContent",
     "file": "src/mdruns.ts",
     "kind": "interface_declaration",
     "method_count": 0,
@@ -6100,6 +8090,86 @@
     "enum_members": 0
   },
   {
+    "class": "Pt",
+    "file": "src/meshpatch.ts",
+    "kind": "interface_declaration",
+    "method_count": 0,
+    "property_count": 2,
+    "has_doc": true,
+    "has_tests": false,
+    "enum_members": 0
+  },
+  {
+    "class": "PatchRecord",
+    "file": "src/meshpatch.ts",
+    "kind": "interface_declaration",
+    "method_count": 0,
+    "property_count": 3,
+    "has_doc": true,
+    "has_tests": false,
+    "enum_members": 0
+  },
+  {
+    "class": "Patch",
+    "file": "src/meshpatch.ts",
+    "kind": "interface_declaration",
+    "method_count": 0,
+    "property_count": 2,
+    "has_doc": true,
+    "has_tests": false,
+    "enum_members": 0
+  },
+  {
+    "class": "NET_BOUNDARY",
+    "file": "src/meshpatch.ts",
+    "kind": "constant",
+    "method_count": 0,
+    "property_count": 0,
+    "has_doc": true,
+    "has_tests": false,
+    "enum_members": 0
+  },
+  {
+    "class": "NET_INTERIOR",
+    "file": "src/meshpatch.ts",
+    "kind": "constant",
+    "method_count": 0,
+    "property_count": 0,
+    "has_doc": true,
+    "has_tests": false,
+    "enum_members": 0
+  },
+  {
+    "class": "MAX_GRID",
+    "file": "src/meshpatch.ts",
+    "kind": "constant",
+    "method_count": 0,
+    "property_count": 0,
+    "has_doc": true,
+    "has_tests": false,
+    "enum_members": 0
+  },
+  {
+    "class": "TriVertex",
+    "file": "src/meshtri.ts",
+    "kind": "interface_declaration",
+    "method_count": 0,
+    "property_count": 3,
+    "has_doc": true,
+    "has_tests": false,
+    "enum_members": 0
+  },
+  {
+    "class": "Triangle",
+    "file": "src/meshtri.ts",
+    "kind": "type_alias_declaration",
+    "method_count": 0,
+    "property_count": 0,
+    "has_doc": true,
+    "has_tests": false,
+    "enum_members": 0
+  },
+  {
     "class": "Metadata",
     "file": "src/metadata.ts",
     "kind": "interface_declaration",
@@ -6150,6 +8220,36 @@
     "enum_members": 0
   },
   {
+    "class": "SaveImagesOptions",
+    "file": "src/node.ts",
+    "kind": "type_alias_declaration",
+    "method_count": 0,
+    "property_count": 2,
+    "has_doc": true,
+    "has_tests": false,
+    "enum_members": 0
+  },
+  {
+    "class": "SkippedImage",
+    "file": "src/node.ts",
+    "kind": "interface_declaration",
+    "method_count": 0,
+    "property_count": 3,
+    "has_doc": true,
+    "has_tests": false,
+    "enum_members": 0
+  },
+  {
+    "class": "HtmlFileOptions",
+    "file": "src/node.ts",
+    "kind": "interface_declaration",
+    "method_count": 0,
+    "property_count": 2,
+    "has_doc": true,
+    "has_tests": false,
+    "enum_members": 0
+  },
+  {
     "class": "LengthResolver",
     "file": "src/object-parser.ts",
     "kind": "type_alias_declaration",
@@ -6165,7 +8265,7 @@
     "kind": "class_declaration",
     "method_count": 3,
     "property_count": 3,
-    "has_doc": false,
+    "has_doc": true,
     "has_tests": false,
     "enum_members": 0
   },
@@ -6190,6 +8290,56 @@
     "enum_members": 0
   },
   {
+    "class": "FlattenLayersReport",
+    "file": "src/ocflatten.ts",
+    "kind": "interface_declaration",
+    "method_count": 0,
+    "property_count": 7,
+    "has_doc": true,
+    "has_tests": false,
+    "enum_members": 0
+  },
+  {
+    "class": "OcFlattenOptions",
+    "file": "src/ocflatten.ts",
+    "kind": "interface_declaration",
+    "method_count": 2,
+    "property_count": 1,
+    "has_doc": true,
+    "has_tests": false,
+    "enum_members": 0
+  },
+  {
+    "class": "OcFlattenResult",
+    "file": "src/ocflatten.ts",
+    "kind": "interface_declaration",
+    "method_count": 0,
+    "property_count": 8,
+    "has_doc": true,
+    "has_tests": false,
+    "enum_members": 0
+  },
+  {
+    "class": "Frame",
+    "file": "src/ocflatten.ts",
+    "kind": "type_alias_declaration",
+    "method_count": 0,
+    "property_count": 0,
+    "has_doc": true,
+    "has_tests": false,
+    "enum_members": 0
+  },
+  {
+    "class": "ScopeGroup",
+    "file": "src/ocflatten.ts",
+    "kind": "interface_declaration",
+    "method_count": 0,
+    "property_count": 3,
+    "has_doc": true,
+    "has_tests": false,
+    "enum_members": 0
+  },
+  {
     "class": "Excision",
     "file": "src/ocg.ts",
     "kind": "interface_declaration",
@@ -6203,7 +8353,27 @@
     "class": "Layer",
     "file": "src/ocg.ts",
     "kind": "class_declaration",
-    "method_count": 1,
+    "method_count": 2,
+    "property_count": 4,
+    "has_doc": true,
+    "has_tests": false,
+    "enum_members": 0
+  },
+  {
+    "class": "LayerState",
+    "file": "src/ocg.ts",
+    "kind": "interface_declaration",
+    "method_count": 0,
+    "property_count": 2,
+    "has_doc": true,
+    "has_tests": false,
+    "enum_members": 0
+  },
+  {
+    "class": "UsageApplication",
+    "file": "src/ocg.ts",
+    "kind": "interface_declaration",
+    "method_count": 0,
     "property_count": 3,
     "has_doc": true,
     "has_tests": false,
@@ -6213,7 +8383,7 @@
     "class": "LayerConfig",
     "file": "src/ocg.ts",
     "kind": "class_declaration",
-    "method_count": 5,
+    "method_count": 8,
     "property_count": 4,
     "has_doc": true,
     "has_tests": false,
@@ -6233,8 +8403,68 @@
     "class": "OptionalContent",
     "file": "src/ocg.ts",
     "kind": "class_declaration",
-    "method_count": 8,
+    "method_count": 11,
     "property_count": 3,
+    "has_doc": true,
+    "has_tests": false,
+    "enum_members": 0
+  },
+  {
+    "class": "Resolve",
+    "file": "src/ocusage.ts",
+    "kind": "type_alias_declaration",
+    "method_count": 0,
+    "property_count": 0,
+    "has_doc": false,
+    "has_tests": false,
+    "enum_members": 0
+  },
+  {
+    "class": "UsageEvent",
+    "file": "src/ocusage.ts",
+    "kind": "type_alias_declaration",
+    "method_count": 0,
+    "property_count": 0,
+    "has_doc": true,
+    "has_tests": false,
+    "enum_members": 0
+  },
+  {
+    "class": "LayerUsage",
+    "file": "src/ocusage.ts",
+    "kind": "interface_declaration",
+    "method_count": 0,
+    "property_count": 17,
+    "has_doc": true,
+    "has_tests": false,
+    "enum_members": 0
+  },
+  {
+    "class": "UsageContext",
+    "file": "src/ocusage.ts",
+    "kind": "interface_declaration",
+    "method_count": 0,
+    "property_count": 2,
+    "has_doc": true,
+    "has_tests": false,
+    "enum_members": 0
+  },
+  {
+    "class": "OcVisibility",
+    "file": "src/ocvisible.ts",
+    "kind": "interface_declaration",
+    "method_count": 0,
+    "property_count": 2,
+    "has_doc": true,
+    "has_tests": false,
+    "enum_members": 0
+  },
+  {
+    "class": "OcStack",
+    "file": "src/ocvisible.ts",
+    "kind": "class_declaration",
+    "method_count": 4,
+    "property_count": 1,
     "has_doc": true,
     "has_tests": false,
     "enum_members": 0
@@ -6593,10 +8823,30 @@
     "class": "Page",
     "file": "src/page.ts",
     "kind": "class_declaration",
-    "method_count": 60,
-    "property_count": 19,
+    "method_count": 62,
+    "property_count": 24,
     "has_doc": true,
     "has_tests": true,
+    "enum_members": 0
+  },
+  {
+    "class": "Walk",
+    "file": "src/pagecheck.ts",
+    "kind": "interface_declaration",
+    "method_count": 0,
+    "property_count": 6,
+    "has_doc": false,
+    "has_tests": false,
+    "enum_members": 0
+  },
+  {
+    "class": "LETTER_MEDIABOX",
+    "file": "src/pagecheck.ts",
+    "kind": "constant",
+    "method_count": 0,
+    "property_count": 0,
+    "has_doc": true,
+    "has_tests": false,
     "enum_members": 0
   },
   {
@@ -6624,6 +8874,56 @@
     "file": "src/pagelabels.ts",
     "kind": "interface_declaration",
     "method_count": 1,
+    "property_count": 0,
+    "has_doc": true,
+    "has_tests": false,
+    "enum_members": 0
+  },
+  {
+    "class": "PageMode",
+    "file": "src/pagemode.ts",
+    "kind": "type_alias_declaration",
+    "method_count": 0,
+    "property_count": 0,
+    "has_doc": true,
+    "has_tests": false,
+    "enum_members": 0
+  },
+  {
+    "class": "PageLayout",
+    "file": "src/pagemode.ts",
+    "kind": "type_alias_declaration",
+    "method_count": 0,
+    "property_count": 0,
+    "has_doc": true,
+    "has_tests": false,
+    "enum_members": 0
+  },
+  {
+    "class": "PAGE_MODES",
+    "file": "src/pagemode.ts",
+    "kind": "constant",
+    "method_count": 0,
+    "property_count": 0,
+    "has_doc": true,
+    "has_tests": false,
+    "enum_members": 0
+  },
+  {
+    "class": "PAGE_LAYOUTS",
+    "file": "src/pagemode.ts",
+    "kind": "constant",
+    "method_count": 0,
+    "property_count": 0,
+    "has_doc": true,
+    "has_tests": false,
+    "enum_members": 0
+  },
+  {
+    "class": "NON_FULL_SCREEN_MODES",
+    "file": "src/pagemode.ts",
+    "kind": "constant",
+    "method_count": 0,
     "property_count": 0,
     "has_doc": true,
     "has_tests": false,
@@ -6664,7 +8964,7 @@
     "file": "src/pagerender.ts",
     "kind": "interface_declaration",
     "method_count": 0,
-    "property_count": 19,
+    "property_count": 22,
     "has_doc": false,
     "has_tests": false,
     "enum_members": 0
@@ -6694,7 +8994,7 @@
     "file": "src/pagerender.ts",
     "kind": "interface_declaration",
     "method_count": 0,
-    "property_count": 31,
+    "property_count": 35,
     "has_doc": false,
     "has_tests": false,
     "enum_members": 0
@@ -6734,7 +9034,7 @@
     "file": "src/pagerender.ts",
     "kind": "interface_declaration",
     "method_count": 0,
-    "property_count": 5,
+    "property_count": 7,
     "has_doc": false,
     "has_tests": false,
     "enum_members": 0
@@ -6765,6 +9065,56 @@
     "kind": "constant",
     "method_count": 0,
     "property_count": 0,
+    "has_doc": true,
+    "has_tests": false,
+    "enum_members": 0
+  },
+  {
+    "class": "TransitionStyle",
+    "file": "src/pagetransition.ts",
+    "kind": "type_alias_declaration",
+    "method_count": 0,
+    "property_count": 0,
+    "has_doc": true,
+    "has_tests": false,
+    "enum_members": 0
+  },
+  {
+    "class": "TransitionDimension",
+    "file": "src/pagetransition.ts",
+    "kind": "type_alias_declaration",
+    "method_count": 0,
+    "property_count": 0,
+    "has_doc": true,
+    "has_tests": false,
+    "enum_members": 0
+  },
+  {
+    "class": "TransitionMotion",
+    "file": "src/pagetransition.ts",
+    "kind": "type_alias_declaration",
+    "method_count": 0,
+    "property_count": 0,
+    "has_doc": true,
+    "has_tests": false,
+    "enum_members": 0
+  },
+  {
+    "class": "TransitionDirection",
+    "file": "src/pagetransition.ts",
+    "kind": "type_alias_declaration",
+    "method_count": 0,
+    "property_count": 0,
+    "has_doc": true,
+    "has_tests": false,
+    "enum_members": 0
+  },
+  {
+    "class": "PageTransition",
+    "file": "src/pagetransition.ts",
+    "kind": "interface_declaration",
+    "method_count": 0,
+    "property_count": 7,
     "has_doc": true,
     "has_tests": false,
     "enum_members": 0
@@ -6834,7 +9184,7 @@
     "file": "src/paths.ts",
     "kind": "interface_declaration",
     "method_count": 0,
-    "property_count": 2,
+    "property_count": 4,
     "has_doc": false,
     "has_tests": false,
     "enum_members": 0
@@ -6846,7 +9196,7 @@
     "method_count": 0,
     "property_count": 2,
     "has_doc": false,
-    "has_tests": true,
+    "has_tests": false,
     "enum_members": 0
   },
   {
@@ -6886,6 +9236,16 @@
     "method_count": 0,
     "property_count": 0,
     "has_doc": false,
+    "has_tests": false,
+    "enum_members": 0
+  },
+  {
+    "class": "Resolve",
+    "file": "src/pdfatransparency.ts",
+    "kind": "type_alias_declaration",
+    "method_count": 0,
+    "property_count": 0,
+    "has_doc": true,
     "has_tests": false,
     "enum_members": 0
   },
@@ -6930,6 +9290,16 @@
     "enum_members": 0
   },
   {
+    "class": "PartClauses",
+    "file": "src/pdfavalidate.ts",
+    "kind": "type_alias_declaration",
+    "method_count": 0,
+    "property_count": 3,
+    "has_doc": true,
+    "has_tests": false,
+    "enum_members": 0
+  },
+  {
     "class": "PdfFunction",
     "file": "src/pdffunction.ts",
     "kind": "type_alias_declaration",
@@ -6964,7 +9334,7 @@
     "file": "src/pdfuaconvert.ts",
     "kind": "interface_declaration",
     "method_count": 0,
-    "property_count": 3,
+    "property_count": 4,
     "has_doc": false,
     "has_tests": false,
     "enum_members": 0
@@ -6974,7 +9344,7 @@
     "file": "src/pdfuaconvert.ts",
     "kind": "interface_declaration",
     "method_count": 1,
-    "property_count": 3,
+    "property_count": 4,
     "has_doc": false,
     "has_tests": false,
     "enum_members": 0
@@ -7065,7 +9435,7 @@
     "kind": "type_alias_declaration",
     "method_count": 0,
     "property_count": 0,
-    "has_doc": false,
+    "has_doc": true,
     "has_tests": false,
     "enum_members": 0
   },
@@ -7226,7 +9596,7 @@
     "method_count": 0,
     "property_count": 8,
     "has_doc": false,
-    "has_tests": false,
+    "has_tests": true,
     "enum_members": 0
   },
   {
@@ -7240,11 +9610,21 @@
     "enum_members": 0
   },
   {
+    "class": "ImageMode",
+    "file": "src/raster.ts",
+    "kind": "type_alias_declaration",
+    "method_count": 0,
+    "property_count": 0,
+    "has_doc": true,
+    "has_tests": false,
+    "enum_members": 0
+  },
+  {
     "class": "ImageOptions",
     "file": "src/raster.ts",
     "kind": "interface_declaration",
     "method_count": 0,
-    "property_count": 9,
+    "property_count": 11,
     "has_doc": false,
     "has_tests": false,
     "enum_members": 0
@@ -7253,7 +9633,7 @@
     "class": "Canvas",
     "file": "src/raster.ts",
     "kind": "class_declaration",
-    "method_count": 6,
+    "method_count": 8,
     "property_count": 10,
     "has_doc": false,
     "has_tests": false,
@@ -7294,7 +9674,7 @@
     "file": "src/raster.ts",
     "kind": "interface_declaration",
     "method_count": 0,
-    "property_count": 6,
+    "property_count": 8,
     "has_doc": true,
     "has_tests": false,
     "enum_members": 0
@@ -7346,6 +9726,16 @@
     "method_count": 0,
     "property_count": 0,
     "has_doc": true,
+    "has_tests": false,
+    "enum_members": 0
+  },
+  {
+    "class": "IMAGE_MODES",
+    "file": "src/raster.ts",
+    "kind": "constant",
+    "method_count": 0,
+    "property_count": 0,
+    "has_doc": false,
     "has_tests": false,
     "enum_members": 0
   },
@@ -7580,6 +9970,96 @@
     "enum_members": 0
   },
   {
+    "class": "Family",
+    "file": "src/richlayout.ts",
+    "kind": "type_alias_declaration",
+    "method_count": 0,
+    "property_count": 0,
+    "has_doc": false,
+    "has_tests": false,
+    "enum_members": 0
+  },
+  {
+    "class": "RichAlign",
+    "file": "src/richlayout.ts",
+    "kind": "type_alias_declaration",
+    "method_count": 0,
+    "property_count": 0,
+    "has_doc": false,
+    "has_tests": false,
+    "enum_members": 0
+  },
+  {
+    "class": "RichStyle",
+    "file": "src/richlayout.ts",
+    "kind": "interface_declaration",
+    "method_count": 0,
+    "property_count": 8,
+    "has_doc": false,
+    "has_tests": false,
+    "enum_members": 0
+  },
+  {
+    "class": "RichRun",
+    "file": "src/richlayout.ts",
+    "kind": "interface_declaration",
+    "method_count": 0,
+    "property_count": 6,
+    "has_doc": false,
+    "has_tests": false,
+    "enum_members": 0
+  },
+  {
+    "class": "RichParagraph",
+    "file": "src/richlayout.ts",
+    "kind": "interface_declaration",
+    "method_count": 0,
+    "property_count": 2,
+    "has_doc": false,
+    "has_tests": false,
+    "enum_members": 0
+  },
+  {
+    "class": "Builder",
+    "file": "src/richlayout.ts",
+    "kind": "class_declaration",
+    "method_count": 5,
+    "property_count": 1,
+    "has_doc": true,
+    "has_tests": false,
+    "enum_members": 0
+  },
+  {
+    "class": "RichBody",
+    "file": "src/richlayout.ts",
+    "kind": "interface_declaration",
+    "method_count": 0,
+    "property_count": 2,
+    "has_doc": true,
+    "has_tests": false,
+    "enum_members": 0
+  },
+  {
+    "class": "RichTextOptions",
+    "file": "src/richtext.ts",
+    "kind": "interface_declaration",
+    "method_count": 0,
+    "property_count": 1,
+    "has_doc": true,
+    "has_tests": false,
+    "enum_members": 0
+  },
+  {
+    "class": "RICH_BLOCK_ELEMENTS",
+    "file": "src/richtext.ts",
+    "kind": "constant",
+    "method_count": 0,
+    "property_count": 0,
+    "has_doc": true,
+    "has_tests": false,
+    "enum_members": 0
+  },
+  {
     "class": "RunLinkBox",
     "file": "src/runlink.ts",
     "kind": "interface_declaration",
@@ -7594,7 +10074,7 @@
     "file": "src/serializer.ts",
     "kind": "interface_declaration",
     "method_count": 0,
-    "property_count": 4,
+    "property_count": 5,
     "has_doc": false,
     "has_tests": false,
     "enum_members": 0
@@ -7664,7 +10144,7 @@
     "file": "src/sfnt.ts",
     "kind": "class_declaration",
     "method_count": 11,
-    "property_count": 23,
+    "property_count": 24,
     "has_doc": false,
     "has_tests": false,
     "enum_members": 0
@@ -7760,6 +10240,16 @@
     "enum_members": 0
   },
   {
+    "class": "FieldLock",
+    "file": "src/siglock.ts",
+    "kind": "type_alias_declaration",
+    "method_count": 0,
+    "property_count": 4,
+    "has_doc": true,
+    "has_tests": false,
+    "enum_members": 0
+  },
+  {
     "class": "SignatureAppearance",
     "file": "src/signature.ts",
     "kind": "interface_declaration",
@@ -7814,7 +10304,7 @@
     "file": "src/signature.ts",
     "kind": "interface_declaration",
     "method_count": 0,
-    "property_count": 9,
+    "property_count": 11,
     "has_doc": true,
     "has_tests": false,
     "enum_members": 0
@@ -7910,6 +10400,96 @@
     "enum_members": 0
   },
   {
+    "class": "SeedDigestMethod",
+    "file": "src/sigseed.ts",
+    "kind": "type_alias_declaration",
+    "method_count": 0,
+    "property_count": 0,
+    "has_doc": true,
+    "has_tests": false,
+    "enum_members": 0
+  },
+  {
+    "class": "SeedLockDocument",
+    "file": "src/sigseed.ts",
+    "kind": "type_alias_declaration",
+    "method_count": 0,
+    "property_count": 0,
+    "has_doc": true,
+    "has_tests": false,
+    "enum_members": 0
+  },
+  {
+    "class": "SeedRequirement",
+    "file": "src/sigseed.ts",
+    "kind": "type_alias_declaration",
+    "method_count": 0,
+    "property_count": 0,
+    "has_doc": true,
+    "has_tests": false,
+    "enum_members": 0
+  },
+  {
+    "class": "SeedValue",
+    "file": "src/sigseed.ts",
+    "kind": "interface_declaration",
+    "method_count": 0,
+    "property_count": 15,
+    "has_doc": true,
+    "has_tests": false,
+    "enum_members": 0
+  },
+  {
+    "class": "KeyUsageName",
+    "file": "src/sigseed.ts",
+    "kind": "type_alias_declaration",
+    "method_count": 0,
+    "property_count": 0,
+    "has_doc": true,
+    "has_tests": false,
+    "enum_members": 0
+  },
+  {
+    "class": "SeedCertRequirement",
+    "file": "src/sigseed.ts",
+    "kind": "type_alias_declaration",
+    "method_count": 0,
+    "property_count": 0,
+    "has_doc": true,
+    "has_tests": false,
+    "enum_members": 0
+  },
+  {
+    "class": "SeedCertValue",
+    "file": "src/sigseed.ts",
+    "kind": "interface_declaration",
+    "method_count": 0,
+    "property_count": 9,
+    "has_doc": true,
+    "has_tests": false,
+    "enum_members": 0
+  },
+  {
+    "class": "SeedRequest",
+    "file": "src/sigseed.ts",
+    "kind": "interface_declaration",
+    "method_count": 0,
+    "property_count": 7,
+    "has_doc": true,
+    "has_tests": false,
+    "enum_members": 0
+  },
+  {
+    "class": "SeedPlan",
+    "file": "src/sigseed.ts",
+    "kind": "interface_declaration",
+    "method_count": 0,
+    "property_count": 5,
+    "has_doc": true,
+    "has_tests": false,
+    "enum_members": 0
+  },
+  {
     "class": "RevocationFetcher",
     "file": "src/sigverify.ts",
     "kind": "type_alias_declaration",
@@ -7964,7 +10544,7 @@
     "file": "src/sigverify.ts",
     "kind": "interface_declaration",
     "method_count": 0,
-    "property_count": 13,
+    "property_count": 15,
     "has_doc": false,
     "has_tests": false,
     "enum_members": 0
@@ -8004,7 +10584,7 @@
     "file": "src/stamp.ts",
     "kind": "interface_declaration",
     "method_count": 0,
-    "property_count": 13,
+    "property_count": 14,
     "has_doc": true,
     "has_tests": false,
     "enum_members": 0
@@ -8030,12 +10610,32 @@
     "enum_members": 0
   },
   {
+    "class": "BlockAtomic",
+    "file": "src/stamp.ts",
+    "kind": "interface_declaration",
+    "method_count": 0,
+    "property_count": 5,
+    "has_doc": true,
+    "has_tests": false,
+    "enum_members": 0
+  },
+  {
+    "class": "AtomicSpec",
+    "file": "src/stamp.ts",
+    "kind": "interface_declaration",
+    "method_count": 0,
+    "property_count": 5,
+    "has_doc": true,
+    "has_tests": false,
+    "enum_members": 0
+  },
+  {
     "class": "TextBlockOptions",
     "file": "src/stamp.ts",
     "kind": "interface_declaration",
     "method_count": 0,
-    "property_count": 4,
-    "has_doc": true,
+    "property_count": 5,
+    "has_doc": false,
     "has_tests": false,
     "enum_members": 0
   },
@@ -8106,7 +10706,7 @@
     "method_count": 0,
     "property_count": 0,
     "has_doc": false,
-    "has_tests": false,
+    "has_tests": true,
     "enum_members": 0
   },
   {
@@ -8203,8 +10803,8 @@
     "class": "StructElement",
     "file": "src/struct.ts",
     "kind": "class_declaration",
-    "method_count": 10,
-    "property_count": 23,
+    "method_count": 14,
+    "property_count": 26,
     "has_doc": true,
     "has_tests": false,
     "enum_members": 0
@@ -8213,8 +10813,8 @@
     "class": "StructTreeRoot",
     "file": "src/struct.ts",
     "kind": "class_declaration",
-    "method_count": 7,
-    "property_count": 3,
+    "method_count": 8,
+    "property_count": 4,
     "has_doc": true,
     "has_tests": false,
     "enum_members": 0
@@ -8225,16 +10825,6 @@
     "kind": "interface_declaration",
     "method_count": 0,
     "property_count": 3,
-    "has_doc": true,
-    "has_tests": false,
-    "enum_members": 0
-  },
-  {
-    "class": "STANDARD_STRUCTURE_TYPES",
-    "file": "src/struct.ts",
-    "kind": "constant",
-    "method_count": 0,
-    "property_count": 0,
     "has_doc": true,
     "has_tests": false,
     "enum_members": 0
@@ -8310,6 +10900,96 @@
     "enum_members": 0
   },
   {
+    "class": "GridCell",
+    "file": "src/structgrid.ts",
+    "kind": "interface_declaration",
+    "method_count": 0,
+    "property_count": 6,
+    "has_doc": true,
+    "has_tests": false,
+    "enum_members": 0
+  },
+  {
+    "class": "CellAddr",
+    "file": "src/structgrid.ts",
+    "kind": "interface_declaration",
+    "method_count": 0,
+    "property_count": 2,
+    "has_doc": true,
+    "has_tests": false,
+    "enum_members": 0
+  },
+  {
+    "class": "PlacedCell",
+    "file": "src/structgrid.ts",
+    "kind": "interface_declaration",
+    "method_count": 0,
+    "property_count": 3,
+    "has_doc": true,
+    "has_tests": false,
+    "enum_members": 0
+  },
+  {
+    "class": "TableIrregularity",
+    "file": "src/structgrid.ts",
+    "kind": "type_alias_declaration",
+    "method_count": 0,
+    "property_count": 8,
+    "has_doc": false,
+    "has_tests": false,
+    "enum_members": 0
+  },
+  {
+    "class": "StructGrid",
+    "file": "src/structgrid.ts",
+    "kind": "interface_declaration",
+    "method_count": 0,
+    "property_count": 4,
+    "has_doc": false,
+    "has_tests": false,
+    "enum_members": 0
+  },
+  {
+    "class": "StructContainer",
+    "file": "src/structmove.ts",
+    "kind": "type_alias_declaration",
+    "method_count": 0,
+    "property_count": 0,
+    "has_doc": true,
+    "has_tests": false,
+    "enum_members": 0
+  },
+  {
+    "class": "PDF17_NS",
+    "file": "src/structns.ts",
+    "kind": "constant",
+    "method_count": 0,
+    "property_count": 0,
+    "has_doc": true,
+    "has_tests": false,
+    "enum_members": 0
+  },
+  {
+    "class": "PDF20_NS",
+    "file": "src/structns.ts",
+    "kind": "constant",
+    "method_count": 0,
+    "property_count": 0,
+    "has_doc": true,
+    "has_tests": false,
+    "enum_members": 0
+  },
+  {
+    "class": "MATHML_NS",
+    "file": "src/structns.ts",
+    "kind": "constant",
+    "method_count": 0,
+    "property_count": 0,
+    "has_doc": true,
+    "has_tests": false,
+    "enum_members": 0
+  },
+  {
     "class": "PageOrigin",
     "file": "src/structpreserve.ts",
     "kind": "interface_declaration",
@@ -8340,12 +11020,42 @@
     "enum_members": 0
   },
   {
-    "class": "WalkedNode",
-    "file": "src/structvalidate.ts",
+    "class": "StructRemoveResult",
+    "file": "src/structremove.ts",
     "kind": "interface_declaration",
     "method_count": 0,
-    "property_count": 2,
-    "has_doc": false,
+    "property_count": 4,
+    "has_doc": true,
+    "has_tests": false,
+    "enum_members": 0
+  },
+  {
+    "class": "STANDARD_STRUCTURE_TYPES",
+    "file": "src/structtype.ts",
+    "kind": "constant",
+    "method_count": 0,
+    "property_count": 0,
+    "has_doc": true,
+    "has_tests": false,
+    "enum_members": 0
+  },
+  {
+    "class": "PDF20_STRUCTURE_TYPES",
+    "file": "src/structtype.ts",
+    "kind": "constant",
+    "method_count": 0,
+    "property_count": 0,
+    "has_doc": true,
+    "has_tests": false,
+    "enum_members": 0
+  },
+  {
+    "class": "HN_PATTERN",
+    "file": "src/structtype.ts",
+    "kind": "constant",
+    "method_count": 0,
+    "property_count": 0,
+    "has_doc": true,
     "has_tests": false,
     "enum_members": 0
   },
@@ -8354,7 +11064,7 @@
     "file": "src/structwrite.ts",
     "kind": "interface_declaration",
     "method_count": 0,
-    "property_count": 6,
+    "property_count": 7,
     "has_doc": true,
     "has_tests": false,
     "enum_members": 0
@@ -8375,6 +11085,16 @@
     "kind": "interface_declaration",
     "method_count": 0,
     "property_count": 4,
+    "has_doc": true,
+    "has_tests": false,
+    "enum_members": 0
+  },
+  {
+    "class": "StructRetagResult",
+    "file": "src/structwrite.ts",
+    "kind": "interface_declaration",
+    "method_count": 0,
+    "property_count": 2,
     "has_doc": true,
     "has_tests": false,
     "enum_members": 0
@@ -8524,7 +11244,7 @@
     "file": "src/svgdraw.ts",
     "kind": "interface_declaration",
     "method_count": 0,
-    "property_count": 4,
+    "property_count": 5,
     "has_doc": true,
     "has_tests": false,
     "enum_members": 0
@@ -8543,8 +11263,8 @@
     "class": "Emitter",
     "file": "src/svgdraw.ts",
     "kind": "class_declaration",
-    "method_count": 8,
-    "property_count": 33,
+    "method_count": 9,
+    "property_count": 35,
     "has_doc": false,
     "has_tests": false,
     "enum_members": 0
@@ -8595,6 +11315,16 @@
     "kind": "interface_declaration",
     "method_count": 0,
     "property_count": 2,
+    "has_doc": true,
+    "has_tests": false,
+    "enum_members": 0
+  },
+  {
+    "class": "BuiltSvg",
+    "file": "src/svgembed.ts",
+    "kind": "interface_declaration",
+    "method_count": 1,
+    "property_count": 3,
     "has_doc": true,
     "has_tests": false,
     "enum_members": 0
@@ -9254,7 +11984,7 @@
     "file": "src/tableauthor.ts",
     "kind": "interface_declaration",
     "method_count": 0,
-    "property_count": 3,
+    "property_count": 4,
     "has_doc": true,
     "has_tests": false,
     "enum_members": 0
@@ -9295,16 +12025,6 @@
     "kind": "interface_declaration",
     "method_count": 0,
     "property_count": 12,
-    "has_doc": true,
-    "has_tests": false,
-    "enum_members": 0
-  },
-  {
-    "class": "CellPiece",
-    "file": "src/tableauthor.ts",
-    "kind": "interface_declaration",
-    "method_count": 0,
-    "property_count": 3,
     "has_doc": true,
     "has_tests": false,
     "enum_members": 0
@@ -9384,7 +12104,7 @@
     "file": "src/tablemodel.ts",
     "kind": "interface_declaration",
     "method_count": 0,
-    "property_count": 2,
+    "property_count": 3,
     "has_doc": false,
     "has_tests": false,
     "enum_members": 0
@@ -9464,7 +12184,7 @@
     "file": "src/tablerender.ts",
     "kind": "interface_declaration",
     "method_count": 0,
-    "property_count": 7,
+    "property_count": 8,
     "has_doc": true,
     "has_tests": false,
     "enum_members": 0
@@ -9484,7 +12204,7 @@
     "file": "src/tablerender.ts",
     "kind": "interface_declaration",
     "method_count": 0,
-    "property_count": 13,
+    "property_count": 14,
     "has_doc": true,
     "has_tests": false,
     "enum_members": 0
@@ -9644,7 +12364,7 @@
     "file": "src/text.ts",
     "kind": "interface_declaration",
     "method_count": 0,
-    "property_count": 14,
+    "property_count": 22,
     "has_doc": true,
     "has_tests": false,
     "enum_members": 0
@@ -9654,7 +12374,7 @@
     "file": "src/text.ts",
     "kind": "interface_declaration",
     "method_count": 0,
-    "property_count": 7,
+    "property_count": 8,
     "has_doc": true,
     "has_tests": false,
     "enum_members": 0
@@ -9664,7 +12384,27 @@
     "file": "src/text.ts",
     "kind": "interface_declaration",
     "method_count": 0,
-    "property_count": 7,
+    "property_count": 8,
+    "has_doc": true,
+    "has_tests": false,
+    "enum_members": 0
+  },
+  {
+    "class": "ArtifactEvent",
+    "file": "src/text.ts",
+    "kind": "interface_declaration",
+    "method_count": 0,
+    "property_count": 3,
+    "has_doc": true,
+    "has_tests": false,
+    "enum_members": 0
+  },
+  {
+    "class": "MarkedContentEvent",
+    "file": "src/text.ts",
+    "kind": "interface_declaration",
+    "method_count": 0,
+    "property_count": 4,
     "has_doc": true,
     "has_tests": false,
     "enum_members": 0
@@ -9673,7 +12413,7 @@
     "class": "ContentVisitor",
     "file": "src/text.ts",
     "kind": "interface_declaration",
-    "method_count": 3,
+    "method_count": 5,
     "property_count": 0,
     "has_doc": false,
     "has_tests": false,
@@ -9684,8 +12424,18 @@
     "file": "src/text.ts",
     "kind": "interface_declaration",
     "method_count": 0,
-    "property_count": 9,
+    "property_count": 10,
     "has_doc": false,
+    "has_tests": false,
+    "enum_members": 0
+  },
+  {
+    "class": "TextGState",
+    "file": "src/text.ts",
+    "kind": "type_alias_declaration",
+    "method_count": 0,
+    "property_count": 0,
+    "has_doc": true,
     "has_tests": false,
     "enum_members": 0
   },
@@ -9694,13 +12444,43 @@
     "file": "src/text.ts",
     "kind": "interface_declaration",
     "method_count": 0,
-    "property_count": 3,
+    "property_count": 5,
     "has_doc": false,
     "has_tests": false,
     "enum_members": 0
   },
   {
+    "class": "ContentWalkOptions",
+    "file": "src/text.ts",
+    "kind": "interface_declaration",
+    "method_count": 0,
+    "property_count": 1,
+    "has_doc": true,
+    "has_tests": false,
+    "enum_members": 0
+  },
+  {
+    "class": "ExtractOptions",
+    "file": "src/text.ts",
+    "kind": "interface_declaration",
+    "method_count": 0,
+    "property_count": 1,
+    "has_doc": true,
+    "has_tests": false,
+    "enum_members": 0
+  },
+  {
     "class": "GState",
+    "file": "src/text.ts",
+    "kind": "interface_declaration",
+    "method_count": 0,
+    "property_count": 4,
+    "has_doc": true,
+    "has_tests": false,
+    "enum_members": 0
+  },
+  {
+    "class": "McProps",
     "file": "src/text.ts",
     "kind": "interface_declaration",
     "method_count": 0,
@@ -9786,6 +12566,16 @@
     "method_count": 0,
     "property_count": 0,
     "has_doc": false,
+    "has_tests": false,
+    "enum_members": 0
+  },
+  {
+    "class": "Undrawable",
+    "file": "src/textcoverage.ts",
+    "kind": "interface_declaration",
+    "method_count": 0,
+    "property_count": 2,
+    "has_doc": true,
     "has_tests": false,
     "enum_members": 0
   },
@@ -9904,7 +12694,7 @@
     "file": "src/textedit.ts",
     "kind": "interface_declaration",
     "method_count": 0,
-    "property_count": 1,
+    "property_count": 2,
     "has_doc": true,
     "has_tests": false,
     "enum_members": 0
@@ -9915,6 +12705,16 @@
     "kind": "interface_declaration",
     "method_count": 0,
     "property_count": 4,
+    "has_doc": true,
+    "has_tests": false,
+    "enum_members": 0
+  },
+  {
+    "class": "Piece",
+    "file": "src/textextents.ts",
+    "kind": "interface_declaration",
+    "method_count": 0,
+    "property_count": 3,
     "has_doc": true,
     "has_tests": false,
     "enum_members": 0
@@ -9954,7 +12754,7 @@
     "file": "src/tiff.ts",
     "kind": "interface_declaration",
     "method_count": 0,
-    "property_count": 13,
+    "property_count": 14,
     "has_doc": true,
     "has_tests": false,
     "enum_members": 0
@@ -10130,6 +12930,16 @@
     "enum_members": 0
   },
   {
+    "class": "HttpTimestampOptions",
+    "file": "src/tsahttp.ts",
+    "kind": "interface_declaration",
+    "method_count": 0,
+    "property_count": 3,
+    "has_doc": true,
+    "has_tests": false,
+    "enum_members": 0
+  },
+  {
     "class": "Type1Font",
     "file": "src/type1.ts",
     "kind": "class_declaration",
@@ -10164,7 +12974,7 @@
     "file": "src/type1charstring.ts",
     "kind": "interface_declaration",
     "method_count": 1,
-    "property_count": 1,
+    "property_count": 2,
     "has_doc": true,
     "has_tests": false,
     "enum_members": 0
@@ -10174,7 +12984,7 @@
     "file": "src/type1charstring.ts",
     "kind": "interface_declaration",
     "method_count": 0,
-    "property_count": 21,
+    "property_count": 22,
     "has_doc": false,
     "has_tests": false,
     "enum_members": 0
@@ -10300,6 +13110,136 @@
     "enum_members": 0
   },
   {
+    "class": "AnnotCtx",
+    "file": "src/uaannot.ts",
+    "kind": "interface_declaration",
+    "method_count": 0,
+    "property_count": 7,
+    "has_doc": true,
+    "has_tests": false,
+    "enum_members": 0
+  },
+  {
+    "class": "ANNOT_RULES",
+    "file": "src/uaannot.ts",
+    "kind": "constant",
+    "method_count": 0,
+    "property_count": 0,
+    "has_doc": false,
+    "has_tests": false,
+    "enum_members": 0
+  },
+  {
+    "class": "DOC_RULES",
+    "file": "src/uadoc.ts",
+    "kind": "constant",
+    "method_count": 0,
+    "property_count": 0,
+    "has_doc": false,
+    "has_tests": false,
+    "enum_members": 0
+  },
+  {
+    "class": "FontProgram",
+    "file": "src/uafont.ts",
+    "kind": "interface_declaration",
+    "method_count": 0,
+    "property_count": 3,
+    "has_doc": true,
+    "has_tests": false,
+    "enum_members": 0
+  },
+  {
+    "class": "TABLE_116_SIZE",
+    "file": "src/uafont.ts",
+    "kind": "constant",
+    "method_count": 0,
+    "property_count": 0,
+    "has_doc": true,
+    "has_tests": false,
+    "enum_members": 0
+  },
+  {
+    "class": "FONT_RULES",
+    "file": "src/uafont.ts",
+    "kind": "constant",
+    "method_count": 0,
+    "property_count": 0,
+    "has_doc": false,
+    "has_tests": false,
+    "enum_members": 0
+  },
+  {
+    "class": "DistinctGlyph",
+    "file": "src/uaglyph.ts",
+    "kind": "interface_declaration",
+    "method_count": 0,
+    "property_count": 13,
+    "has_doc": true,
+    "has_tests": false,
+    "enum_members": 0
+  },
+  {
+    "class": "PdfUaPart",
+    "file": "src/uarule.ts",
+    "kind": "type_alias_declaration",
+    "method_count": 0,
+    "property_count": 0,
+    "has_doc": true,
+    "has_tests": false,
+    "enum_members": 0
+  },
+  {
+    "class": "WalkedNode",
+    "file": "src/uarule.ts",
+    "kind": "interface_declaration",
+    "method_count": 0,
+    "property_count": 3,
+    "has_doc": false,
+    "has_tests": false,
+    "enum_members": 0
+  },
+  {
+    "class": "UaCtx",
+    "file": "src/uarule.ts",
+    "kind": "interface_declaration",
+    "method_count": 0,
+    "property_count": 5,
+    "has_doc": true,
+    "has_tests": false,
+    "enum_members": 0
+  },
+  {
+    "class": "Rule",
+    "file": "src/uarule.ts",
+    "kind": "type_alias_declaration",
+    "method_count": 0,
+    "property_count": 0,
+    "has_doc": false,
+    "has_tests": false,
+    "enum_members": 0
+  },
+  {
+    "class": "PUA_RANGE_COUNT",
+    "file": "src/uatext.ts",
+    "kind": "constant",
+    "method_count": 0,
+    "property_count": 0,
+    "has_doc": true,
+    "has_tests": false,
+    "enum_members": 0
+  },
+  {
+    "class": "TEXT_RULES",
+    "file": "src/uatext.ts",
+    "kind": "constant",
+    "method_count": 0,
+    "property_count": 0,
+    "has_doc": false,
+    "has_tests": false,
+    "enum_members": 0
+  },
+  {
     "class": "BC",
     "file": "src/unicode-data.ts",
     "kind": "constant",
@@ -10400,6 +13340,86 @@
     "enum_members": 0
   },
   {
+    "class": "NonFullScreenPageMode",
+    "file": "src/viewerprefs.ts",
+    "kind": "type_alias_declaration",
+    "method_count": 0,
+    "property_count": 0,
+    "has_doc": true,
+    "has_tests": false,
+    "enum_members": 0
+  },
+  {
+    "class": "ReadingDirection",
+    "file": "src/viewerprefs.ts",
+    "kind": "type_alias_declaration",
+    "method_count": 0,
+    "property_count": 0,
+    "has_doc": true,
+    "has_tests": false,
+    "enum_members": 0
+  },
+  {
+    "class": "PageBoundary",
+    "file": "src/viewerprefs.ts",
+    "kind": "type_alias_declaration",
+    "method_count": 0,
+    "property_count": 0,
+    "has_doc": true,
+    "has_tests": false,
+    "enum_members": 0
+  },
+  {
+    "class": "PrintScaling",
+    "file": "src/viewerprefs.ts",
+    "kind": "type_alias_declaration",
+    "method_count": 0,
+    "property_count": 0,
+    "has_doc": true,
+    "has_tests": false,
+    "enum_members": 0
+  },
+  {
+    "class": "Duplex",
+    "file": "src/viewerprefs.ts",
+    "kind": "type_alias_declaration",
+    "method_count": 0,
+    "property_count": 0,
+    "has_doc": true,
+    "has_tests": false,
+    "enum_members": 0
+  },
+  {
+    "class": "PrintPageRange",
+    "file": "src/viewerprefs.ts",
+    "kind": "type_alias_declaration",
+    "method_count": 0,
+    "property_count": 0,
+    "has_doc": true,
+    "has_tests": false,
+    "enum_members": 0
+  },
+  {
+    "class": "ViewerPreferences",
+    "file": "src/viewerprefs.ts",
+    "kind": "interface_declaration",
+    "method_count": 0,
+    "property_count": 17,
+    "has_doc": true,
+    "has_tests": false,
+    "enum_members": 0
+  },
+  {
+    "class": "ViewerPreferencesUpdate",
+    "file": "src/viewerprefs.ts",
+    "kind": "type_alias_declaration",
+    "method_count": 0,
+    "property_count": 0,
+    "has_doc": true,
+    "has_tests": false,
+    "enum_members": 0
+  },
+  {
     "class": "Reader",
     "file": "src/woff.ts",
     "kind": "class_declaration",
@@ -10416,6 +13436,266 @@
     "method_count": 0,
     "property_count": 5,
     "has_doc": false,
+    "has_tests": false,
+    "enum_members": 0
+  },
+  {
+    "class": "XfaConvertOptions",
+    "file": "src/xfaconvert.ts",
+    "kind": "interface_declaration",
+    "method_count": 0,
+    "property_count": 1,
+    "has_doc": false,
+    "has_tests": false,
+    "enum_members": 0
+  },
+  {
+    "class": "XfaFieldResult",
+    "file": "src/xfaconvert.ts",
+    "kind": "interface_declaration",
+    "method_count": 0,
+    "property_count": 4,
+    "has_doc": false,
+    "has_tests": false,
+    "enum_members": 0
+  },
+  {
+    "class": "XfaSkipped",
+    "file": "src/xfaconvert.ts",
+    "kind": "interface_declaration",
+    "method_count": 0,
+    "property_count": 3,
+    "has_doc": false,
+    "has_tests": false,
+    "enum_members": 0
+  },
+  {
+    "class": "XfaConvertReport",
+    "file": "src/xfaconvert.ts",
+    "kind": "interface_declaration",
+    "method_count": 0,
+    "property_count": 5,
+    "has_doc": false,
+    "has_tests": false,
+    "enum_members": 0
+  },
+  {
+    "class": "PlanEntry",
+    "file": "src/xfaconvert.ts",
+    "kind": "interface_declaration",
+    "method_count": 0,
+    "property_count": 13,
+    "has_doc": true,
+    "has_tests": false,
+    "enum_members": 0
+  },
+  {
+    "class": "GroupPlan",
+    "file": "src/xfaconvert.ts",
+    "kind": "interface_declaration",
+    "method_count": 0,
+    "property_count": 9,
+    "has_doc": true,
+    "has_tests": false,
+    "enum_members": 0
+  },
+  {
+    "class": "XfaPlan",
+    "file": "src/xfaconvert.ts",
+    "kind": "interface_declaration",
+    "method_count": 0,
+    "property_count": 3,
+    "has_doc": false,
+    "has_tests": false,
+    "enum_members": 0
+  },
+  {
+    "class": "XfaValues",
+    "file": "src/xfadata.ts",
+    "kind": "type_alias_declaration",
+    "method_count": 0,
+    "property_count": 0,
+    "has_doc": false,
+    "has_tests": false,
+    "enum_members": 0
+  },
+  {
+    "class": "XfaAnchor",
+    "file": "src/xfageom.ts",
+    "kind": "type_alias_declaration",
+    "method_count": 0,
+    "property_count": 0,
+    "has_doc": false,
+    "has_tests": false,
+    "enum_members": 0
+  },
+  {
+    "class": "XfaBox",
+    "file": "src/xfageom.ts",
+    "kind": "interface_declaration",
+    "method_count": 0,
+    "property_count": 4,
+    "has_doc": true,
+    "has_tests": false,
+    "enum_members": 0
+  },
+  {
+    "class": "XfaMedium",
+    "file": "src/xfageom.ts",
+    "kind": "interface_declaration",
+    "method_count": 0,
+    "property_count": 3,
+    "has_doc": true,
+    "has_tests": false,
+    "enum_members": 0
+  },
+  {
+    "class": "XfaOffset",
+    "file": "src/xfageom.ts",
+    "kind": "interface_declaration",
+    "method_count": 0,
+    "property_count": 2,
+    "has_doc": true,
+    "has_tests": false,
+    "enum_members": 0
+  },
+  {
+    "class": "XfaRawGeom",
+    "file": "src/xfageom.ts",
+    "kind": "interface_declaration",
+    "method_count": 0,
+    "property_count": 6,
+    "has_doc": true,
+    "has_tests": false,
+    "enum_members": 0
+  },
+  {
+    "class": "XfaCaption",
+    "file": "src/xfageom.ts",
+    "kind": "interface_declaration",
+    "method_count": 0,
+    "property_count": 3,
+    "has_doc": true,
+    "has_tests": false,
+    "enum_members": 0
+  },
+  {
+    "class": "XfaMargin",
+    "file": "src/xfageom.ts",
+    "kind": "interface_declaration",
+    "method_count": 0,
+    "property_count": 4,
+    "has_doc": true,
+    "has_tests": false,
+    "enum_members": 0
+  },
+  {
+    "class": "XfaButtonSpec",
+    "file": "src/xfageom.ts",
+    "kind": "interface_declaration",
+    "method_count": 0,
+    "property_count": 4,
+    "has_doc": true,
+    "has_tests": false,
+    "enum_members": 0
+  },
+  {
+    "class": "XFA_ANCHORS",
+    "file": "src/xfageom.ts",
+    "kind": "constant",
+    "method_count": 0,
+    "property_count": 0,
+    "has_doc": false,
+    "has_tests": false,
+    "enum_members": 0
+  },
+  {
+    "class": "MEDIUM_TOLERANCE_PT",
+    "file": "src/xfageom.ts",
+    "kind": "constant",
+    "method_count": 0,
+    "property_count": 0,
+    "has_doc": true,
+    "has_tests": false,
+    "enum_members": 0
+  },
+  {
+    "class": "XFA_FLOW_LAYOUTS",
+    "file": "src/xfageom.ts",
+    "kind": "constant",
+    "method_count": 0,
+    "property_count": 0,
+    "has_doc": true,
+    "has_tests": false,
+    "enum_members": 0
+  },
+  {
+    "class": "XfaPacketSet",
+    "file": "src/xfapacket.ts",
+    "kind": "interface_declaration",
+    "method_count": 0,
+    "property_count": 5,
+    "has_doc": false,
+    "has_tests": false,
+    "enum_members": 0
+  },
+  {
+    "class": "XfaUiKind",
+    "file": "src/xfatemplate.ts",
+    "kind": "type_alias_declaration",
+    "method_count": 0,
+    "property_count": 0,
+    "has_doc": false,
+    "has_tests": false,
+    "enum_members": 0
+  },
+  {
+    "class": "XfaItem",
+    "file": "src/xfatemplate.ts",
+    "kind": "interface_declaration",
+    "method_count": 0,
+    "property_count": 2,
+    "has_doc": true,
+    "has_tests": false,
+    "enum_members": 0
+  },
+  {
+    "class": "XfaField",
+    "file": "src/xfatemplate.ts",
+    "kind": "interface_declaration",
+    "method_count": 0,
+    "property_count": 27,
+    "has_doc": false,
+    "has_tests": false,
+    "enum_members": 0
+  },
+  {
+    "class": "XfaPageArea",
+    "file": "src/xfatemplate.ts",
+    "kind": "interface_declaration",
+    "method_count": 0,
+    "property_count": 2,
+    "has_doc": false,
+    "has_tests": false,
+    "enum_members": 0
+  },
+  {
+    "class": "XfaTemplate",
+    "file": "src/xfatemplate.ts",
+    "kind": "interface_declaration",
+    "method_count": 0,
+    "property_count": 2,
+    "has_doc": false,
+    "has_tests": false,
+    "enum_members": 0
+  },
+  {
+    "class": "ChainCtx",
+    "file": "src/xfatemplate.ts",
+    "kind": "interface_declaration",
+    "method_count": 0,
+    "property_count": 4,
+    "has_doc": true,
     "has_tests": false,
     "enum_members": 0
   },
@@ -10484,7 +13764,7 @@
     "file": "src/xmp.ts",
     "kind": "interface_declaration",
     "method_count": 0,
-    "property_count": 16,
+    "property_count": 18,
     "has_doc": true,
     "has_tests": false,
     "enum_members": 0
@@ -10510,12 +13790,32 @@
     "enum_members": 0
   },
   {
+    "class": "RowBudget",
+    "file": "src/xref.ts",
+    "kind": "interface_declaration",
+    "method_count": 0,
+    "property_count": 2,
+    "has_doc": true,
+    "has_tests": false,
+    "enum_members": 0
+  },
+  {
     "class": "XrefEntry",
     "file": "src/xref.ts",
     "kind": "type_alias_declaration",
     "method_count": 0,
-    "property_count": 6,
+    "property_count": 8,
     "has_doc": false,
+    "has_tests": false,
+    "enum_members": 0
+  },
+  {
+    "class": "PdfRevision",
+    "file": "src/xref.ts",
+    "kind": "interface_declaration",
+    "method_count": 0,
+    "property_count": 2,
+    "has_doc": true,
     "has_tests": false,
     "enum_members": 0
   },
@@ -10524,7 +13824,7 @@
     "file": "src/xref.ts",
     "kind": "interface_declaration",
     "method_count": 0,
-    "property_count": 2,
+    "property_count": 3,
     "has_doc": false,
     "has_tests": false,
     "enum_members": 0
@@ -10534,7 +13834,7 @@
     "file": "src/xref.ts",
     "kind": "interface_declaration",
     "method_count": 0,
-    "property_count": 2,
+    "property_count": 3,
     "has_doc": false,
     "has_tests": false,
     "enum_members": 0

@@ -4,34 +4,34 @@ product_name: '@asposefoss/pdf'
 version: 0.1.0
 license: MIT
 repo_url: https://github.com/aspose-pdf-foss/Aspose.PDF-FOSS-for-TypeScript.git
-repo_sha: 04e7b50a3dc37427e5e7d72147dd0baf62ccbb9f
+repo_sha: 155bfc7a33f0ba23fb4252b6ba201828b02a5b9d
 config_sha: ba558925e966ce6d
 stale_since: null
-promoted_at: '2026-09-10T12:40:31.735055+00:00'
-source: scout_and_enriched
-enrichment_status: full
+promoted_at: '2026-09-24T14:22:19.993184+00:00'
+source: scout_only
+enrichment_status: scout-only
 has_conflicts: false
 schema_version: 2
-generator_fingerprint: 39b55c0381d862030a39cf289a74386dba0d96ba7bead7439ed295a74ed8206e
+generator_fingerprint: 47ad08067148d602dc12a041cdd801e4d8b3f9d29ef818cfdd5639859cc99da7
 generator_semver: 2.0.0
-bundle_id: dfc16bdf-b78f-4a48-9237-1ecbc1e6bd91
-bundle_generated_at: '2026-09-10T12:40:31.233551+00:00'
+bundle_id: 2bcd03d3-79d7-485a-93b0-c7f45b9f15da
+bundle_generated_at: '2026-09-24T14:22:12.867987+00:00'
 module_assignment_version: 1
 input_hashes:
   extractor_config_sha: ba558925e966ce6d
-  scout_claims_sha: a1e376f04028dfeb1082c7045c469ed75468c7787d2c82a682ff9eb47be5b941
-  scout_api_surface_sha: 4eebb603235c875943b79d851e2e5417b1aa076d713efae1d52e9eaed1bc9d1b
+  scout_claims_sha: 399e15353bc8a6c429d31aa086d550f40abbf59f89949ef73088e49125555638
+  scout_api_surface_sha: f3dcb362fc98173f5f3f1cb174666045bf75b173e45eaa5a044c96c7a834d826
   enriched_claims_sha: 47037b1a602ddbaf2e9f74e5ceaacafbaa4107dc7dd8ab0a43634916cbee8995
   products_json_entry_sha: b36ca837845eb4a967a01323ac2e26e6a0e1c860d67db4982878348ae62a4127
 stats:
-  scout_claims: 8776
-  enriched_claims: 46
+  scout_claims: 11194
+  enriched_claims: 0
   supplemental_claims: 0
-  total_claims: 8341
-  class_count: 1055
+  total_claims: 10550
+  class_count: 1385
   classes:
-    total_declared: 1055
-    public_documented: 1002
-    raw_entries_including_non_class: 3604
+    total_declared: 1385
+    public_documented: 1312
+    raw_entries_including_non_class: 4578
   forbidden_count: 0
   snippet_count: 100

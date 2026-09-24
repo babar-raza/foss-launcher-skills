@@ -1,8 +1,5 @@
-it('ignores annotations in the file when the import flag is off', () => {
-      const src = Document.Open(buildAnnotRoundtrip());
-      const bytes = exportData(src, format, true);
-      const dst = clearedTarget();
-      const report = importData(dst, format, bytes, false);
-      expect(report.importedAnnots).toEqual([]);
-      expect(dst.Pages[0].Annotations.length).toBe(0);
-    })
+it('no /C defaults to a yellow note', () => {
+    const img = render(note('/Name /Note'));
+    const yellow = ([r, g, b]: number[]) => r > 200 && g > 200 && b < 80;
+    expect(count(img, yellow, 50, 50, 150, 150)).toBeGreaterThan(1000);
+  })

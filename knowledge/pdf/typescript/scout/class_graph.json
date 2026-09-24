@@ -84,6 +84,18 @@
     "internal": true
   },
   {
+    "child": "ContentLexer",
+    "parent": "Lexer",
+    "relationship": "inherits",
+    "internal": true
+  },
+  {
+    "child": "BoxElement",
+    "parent": "FlowElement",
+    "relationship": "inherits",
+    "internal": true
+  },
+  {
     "child": "SaveOptions",
     "parent": "SerializeOptions",
     "relationship": "inherits",
@@ -102,10 +114,28 @@
     "internal": false
   },
   {
+    "child": "ResourceLimitError",
+    "parent": "Error",
+    "relationship": "inherits",
+    "internal": false
+  },
+  {
+    "child": "SeedValueError",
+    "parent": "Error",
+    "relationship": "inherits",
+    "internal": false
+  },
+  {
     "child": "InvalidPasswordError",
     "parent": "Error",
     "relationship": "inherits",
     "internal": false
+  },
+  {
+    "child": "FlowAtomic",
+    "parent": "AtomicSpec",
+    "relationship": "inherits",
+    "internal": true
   },
   {
     "child": "TextElement",
@@ -224,6 +254,18 @@
   {
     "child": "HuffmanIntSource",
     "parent": "IntSource",
+    "relationship": "inherits",
+    "internal": true
+  },
+  {
+    "child": "LoadLimits",
+    "parent": "LoadLimitValues",
+    "relationship": "inherits",
+    "internal": true
+  },
+  {
+    "child": "SaveImagesOptions",
+    "parent": "SaveImageOptions",
     "relationship": "inherits",
     "internal": true
   },

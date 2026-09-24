@@ -1,7 +1,11 @@
-it('carries every non-widget annotation to the right page', () => {
-      const { dst, report } = roundTrip();
-      expect(report.importedAnnots.length).toBe(4);
-      expect(report.skippedAnnots).toEqual([]);
-      expect(dst.Pages[0].Annotations.length).toBe(3);
-      expect(dst.Pages[1].Annotations.length).toBe(1);
-    })
+it('draws a cloudy square as Béziers, not a rectangle', () => {
+    const { doc, dict } = attach('Square', [
+      ['Rect', [0, 0, 120, 80]],
+      ['C', [1, 0, 0]],
+      ['BE', be('C', 2)],
+    ]);
+    expect(regenerateAppearance(doc, dict)).toBe(true);
+    const body = apBody(doc, dict);
+    expect(body).toContain(' c\n');
+    expect(body).not.toContain(' re');
+  })

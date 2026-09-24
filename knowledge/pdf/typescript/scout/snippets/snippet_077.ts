@@ -1,5 +1,4 @@
-it('regenerates an appearance for an annotation that arrived without one', () => {
-      const { dst } = roundTrip();
-      const hi = dst.Pages[0].Annotations.find((a) => a.Subtype === 'Highlight')!;
-      expect(apBytes(dst, hi.Dict)).toBeDefined();
-    })
+it('leaves the straight border line empty at a scallop cusp', () => {
+    expect(inkedAtBottomBorder(render(false), 160)).toBe(true);
+    expect(inkedAtBottomBorder(render(true), 160)).toBe(false);
+  })

@@ -1,17 +1,14 @@
 import { Document } from '@asposefoss/pdf';
+import { readFileSync, writeFileSync } from 'node:fs';
 
-// Encrypt to one or more recipient certificates (PEM string or DER bytes):
-const bytes = doc.Save({
-  encrypt: {
-    recipients: [{ certificate: recipientCertPem }],
-    algorithm: 'aes256',                 // 'aes256' (default) | 'aes128' | 'rc4'
-    permissions: { copying: false },     // shared across all recipients
-  },
-});
+const doc = Document.Open(readFileSync('salvaged.pdf'));
+if (doc.recovery) console.log('recovered:', doc.recovery.reason);
 
-// Open with the recipient's private key + certificate, or a PKCS#12 bundle:
-const opened = Document.Open(bytes, {
-  recipient: { privateKey, certificate: recipientCertPem },
-  // or: recipient: { pkcs12: p12Bytes, passphrase: '…' },
-});
-console.log(opened.Permissions);         // recovered permission flags (not enforced)
+const report = doc.Validate();
+for (const i of report.Issues) console.log(i.rule, i.object?.num, i.message);
+
+if (!report.Passed) {
+  const fixed = doc.Repair();
+  console.log(`repaired ${fixed.length} issue(s)`);
+  writeFileSync('repaired.pdf', doc.Save());
+}
