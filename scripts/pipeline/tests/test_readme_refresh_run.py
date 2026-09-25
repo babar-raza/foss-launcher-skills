@@ -1203,7 +1203,10 @@ def test_full_round_trip_start_through_push_dry_run(tmp_path, monkeypatch):
     assert result["enterprise_edition_link_resolves"]["findings"] == []
     assert result["api_reference_table_no_duplicate_rows"]["findings"] == []
 
-    manifest = rr.approve("testfam", "testplat", run_id, note="looks good")
+    manifest = rr.approve(
+        "testfam", "testplat", run_id, note="looks good",
+        override_unresolved_blocks="testplat has no real runner (TC-04); this fixture's own point is the all-stub path",
+    )
     assert manifest["state"] == "APPROVED"
 
     manifest = rr.push("testfam", "testplat", run_id, dry_run=True, acting_model="Test Model X")
@@ -1251,7 +1254,10 @@ def _advance_to_approved(repo_root, family="testfam", platform="testplat"):
     _write_candidate(repo_root, _GOOD_CANDIDATE)
     rr.ingest_candidate(family, platform, run_id)
     rr.verify_examples(family, platform, run_id)
-    rr.approve(family, platform, run_id, note="looks good")
+    rr.approve(
+        family, platform, run_id, note="looks good",
+        override_unresolved_blocks="testplat has no real runner (TC-04); this fixture's own point is the all-stub path",
+    )
     return run_id
 
 
@@ -1293,6 +1299,120 @@ def test_push_dry_run_twice_survives_read_only_git_objects_in_the_reused_work_di
     assert manifest["state"] == "APPROVED", "a second rehearsal must reuse the work dir cleanly"
     receipt = json.loads((rr._run_root("testfam", "testplat", run_id) / "push" / "receipt.json").read_text(encoding="utf-8"))
     assert receipt["dry_run"] is True
+
+
+def _recording_git_runner(timeouts):
+    def _runner(cmd, **kwargs):
+        timeouts.append(kwargs.get("timeout"))
+
+        class _Result:
+            returncode = 0
+            stdout = "ok\n"
+            stderr = ""
+        return _Result()
+    return _runner
+
+
+def test_git_timeout_is_60s_for_local_plumbing_and_900s_for_network_calls(monkeypatch):
+    """Found live 2026-09-19 (page/python, a 418MB target): the hard-coded 60s applied to the
+    disposable `git clone` in push(), which exceeded it three times in a row. Local plumbing
+    keeps 60s; the two calls that move a repo over the wire get the network ceiling; a single
+    call can override both."""
+    monkeypatch.delenv(rr._GIT_TIMEOUT_ENV, raising=False)
+    monkeypatch.delenv(rr._GIT_NETWORK_TIMEOUT_ENV, raising=False)
+    seen = []
+    rr.configure(command_runner=_recording_git_runner(seen))
+    rr._git("rev-parse", "HEAD")
+    rr._git("clone", "--quiet", "src", "dest", network=True)
+    rr._git("status", timeout=7)
+    assert seen == [60.0, 900.0, 7]
+
+
+def test_git_timeouts_are_overridable_from_the_environment(monkeypatch):
+    monkeypatch.setenv(rr._GIT_TIMEOUT_ENV, "5")
+    monkeypatch.setenv(rr._GIT_NETWORK_TIMEOUT_ENV, "1800.5")
+    seen = []
+    rr.configure(command_runner=_recording_git_runner(seen))
+    rr._git("rev-parse", "HEAD")
+    rr._git("push", "url", "branch", network=True)
+    rr._git("status", timeout=7)  # an explicit per-call timeout still wins over the environment
+    assert seen == [5.0, 1800.5, 7]
+
+
+@pytest.mark.parametrize("bad", ["abc", "0", "-3", "inf", "nan"])
+def test_git_timeout_env_rejects_non_positive_or_non_numeric_values(monkeypatch, bad):
+    monkeypatch.setenv(rr._GIT_NETWORK_TIMEOUT_ENV, bad)
+    rr.configure(command_runner=_recording_git_runner([]))
+    with pytest.raises(rr.ReadmeRefreshRunError, match=rr._GIT_NETWORK_TIMEOUT_ENV):
+        rr._git("clone", "--quiet", "src", "dest", network=True)
+
+
+def test_git_timeout_env_blank_value_falls_back_to_the_default(monkeypatch):
+    monkeypatch.setenv(rr._GIT_TIMEOUT_ENV, "  ")
+    seen = []
+    rr.configure(command_runner=_recording_git_runner(seen))
+    rr._git("rev-parse", "HEAD")
+    assert seen == [60.0]
+
+
+def test_git_timeout_raises_a_clean_error_naming_the_knob_with_no_chained_exception(monkeypatch):
+    monkeypatch.delenv(rr._GIT_NETWORK_TIMEOUT_ENV, raising=False)
+
+    def _runner(cmd, **kwargs):
+        raise subprocess.TimeoutExpired(cmd, kwargs["timeout"])
+
+    rr.configure(command_runner=_runner)
+    with pytest.raises(
+        rr.ReadmeRefreshRunError, match=r"timed out after 900s.*README_REFRESH_GIT_NETWORK_TIMEOUT",
+    ) as info:
+        rr._git("clone", "--quiet", "https://example.invalid/o/r.git", "dest", network=True)
+    # A bare TimeoutExpired's text embeds the full argv; nothing may be able to re-stringify it.
+    assert info.value.__cause__ is None and info.value.__suppress_context__
+
+
+def test_push_timeout_blocks_the_run_without_leaking_the_token(tmp_path, monkeypatch):
+    """`git push`'s argv carries the tokenized push URL. Before this, a push timeout surfaced as a
+    raw subprocess.TimeoutExpired (str() embeds argv), which push() persisted verbatim into
+    manifest.json/events.jsonl via _block(). Now it is a ReadmeRefreshRunError, so _do_push's
+    existing token redaction applies to it."""
+    secret = "ghp_SECRET_TOKEN_VALUE_123"
+    monkeypatch.setenv("AGENT_SESSION_ID", "test-session-push-timeout")
+    monkeypatch.setenv("GH_TOKEN", secret)
+    repo_root, upstream_dir = _make_scratch_repo(tmp_path)
+    fake_https = "https://example.invalid/test-org/test-repo.git"
+    products_path = repo_root / "data" / "products.json"
+    products = json.loads(products_path.read_text(encoding="utf-8"))
+    products[0]["clone_url"] = fake_https
+    products_path.write_text(json.dumps(products), encoding="utf-8")
+
+    def _runner(cmd, **kwargs):
+        if cmd[0] == "git" and "push" in cmd:
+            raise subprocess.TimeoutExpired(cmd, kwargs["timeout"])
+        if cmd[0] == "git":
+            # the "network" clone is served from the local stand-in repo
+            return subprocess.run([str(upstream_dir) if a == fake_https else a for a in cmd], **kwargs)
+        if cmd[:2] == ["gh", "api"]:
+            class _Result:
+                returncode = 0
+                stdout = json.dumps({
+                    "permissions": {"push": True, "admin": False},
+                    "default_branch": "main", "archived": False, "disabled": False,
+                })
+                stderr = ""
+            return _Result()
+        raise AssertionError(f"unexpected command in test: {cmd}")
+
+    rr.configure(repo_root=repo_root, command_runner=_runner)
+    run_id = _advance_to_approved(repo_root)
+
+    with pytest.raises(rr.ReadmeRefreshRunError, match="timed out") as info:
+        rr.push("testfam", "testplat", run_id, dry_run=False, acting_model="Test Model")
+    assert secret not in str(info.value)
+    assert "***REDACTED***" in str(info.value)
+    assert rr.status("testfam", "testplat", run_id)["state"] == "BLOCKED"
+    run_root = rr._run_root("testfam", "testplat", run_id)
+    for name in ("manifest.json", "events.jsonl"):
+        assert secret not in (run_root / name).read_text(encoding="utf-8"), name
 
 
 def test_blocked_push_can_be_recovered_and_retried_to_pushed(tmp_path, monkeypatch):
@@ -2749,6 +2869,20 @@ def _argparse_surface_from_source() -> dict[str, set[str]]:
     return surface
 
 
+@pytest.mark.xfail(
+    reason=(
+        "TC-04 (MT072-2026-09-23-EXAMPLE-VERIFICATION-PRODUCTIONIZATION) added "
+        "approve()'s --override-unresolved-blocks flag but cannot update "
+        "skills/readme-refresh.md's execution-contract block to name it: "
+        "path_guard.py's FORBIDDEN_PREFIXES lists 'skills/' unconditionally (no "
+        "agent override token exists, and AGENTS.md prohibits referencing "
+        "SKIP_SKILL_CONTEXT_CHECK regardless). This is a real, disclosed, "
+        "human-only follow-up, not a silently-ignored failure -- add "
+        "'[--override-unresolved-blocks REASON]' to the `approve` line of the "
+        "Official execution contract block, then remove this xfail."
+    ),
+    strict=True,
+)
 def test_cli_contract_matches_skill_doc():
     """TC-08 (readme-refresh-at-a-glance-retention-hardening-2026-09-02): the skill doc's
     "Official execution contract" bash block must name every real subcommand and every real
@@ -3825,7 +3959,10 @@ def test_approve_treats_a_publication_change_since_plan_as_input_drift(tmp_path,
     ).replace('pip install -e ".[dev]"', "pip install testpkg"))
     rr.ingest_candidate("testfam", "testplat", run_id)
     rr.verify_examples("testfam", "testplat", run_id)
-    assert rr.approve("testfam", "testplat", run_id, note="ok")["state"] == "APPROVED"
+    assert rr.approve(
+        "testfam", "testplat", run_id, note="ok",
+        override_unresolved_blocks="testplat has no real runner (TC-04); this fixture's own point is the all-stub path",
+    )["state"] == "APPROVED"
 
 
 def test_approve_ignores_an_ambiguous_reprobe(tmp_path, monkeypatch):
@@ -3843,7 +3980,10 @@ def test_approve_ignores_an_ambiguous_reprobe(tmp_path, monkeypatch):
     # Network down at approve time: not evidence of change, never blocks.
     rr.configure(repo_root=repo_root, command_runner=_fake_gh_command_runner(), verification_runner=stub,
                  publication_prober=_stub_prober(True, source="package_registry.json (probe ambiguous: x)"))
-    assert rr.approve("testfam", "testplat", run_id, note="ok")["state"] == "APPROVED"
+    assert rr.approve(
+        "testfam", "testplat", run_id, note="ok",
+        override_unresolved_blocks="testplat has no real runner (TC-04); this fixture's own point is the all-stub path",
+    )["state"] == "APPROVED"
 
 
 def test_available_badges_follow_the_live_publication_fact(tmp_path, monkeypatch):
@@ -3889,7 +4029,10 @@ def test_verify_examples_reruns_in_place_from_awaiting_review(tmp_path, monkeypa
 
     # Any other state is still refused with the state named -- no silent re-verification of an
     # approved or pushed run.
-    rr.approve("testfam", "testplat", run_id, note="reviewed")
+    rr.approve(
+        "testfam", "testplat", run_id, note="reviewed",
+        override_unresolved_blocks="testplat has no real runner (TC-04); this fixture's own point is the all-stub path",
+    )
     with pytest.raises(rr.ReadmeRefreshRunError, match="current state is APPROVED"):
         rr.verify_examples("testfam", "testplat", run_id)
 
@@ -3928,6 +4071,130 @@ def test_dispatch_selects_real_typescript_runner_for_typescript_platform():
 def test_dispatch_falls_back_to_stub_for_an_unknown_platform():
     runner = None or rr._LANGUAGE_RUNNERS.get("some-future-platform", rr._default_verification_runner)
     assert runner is rr._default_verification_runner
+
+
+# --- TC-04 (MT072-2026-09-23-EXAMPLE-VERIFICATION-PRODUCTIONIZATION): go/net/java/rust/cpp
+# now dispatch through lib/example_verification/api.py -- before this taskcard, ONLY python and
+# typescript had a real runner reachable from this module at all; every other platform silently
+# fell to `_default_verification_runner`'s honest all-stub, confirmed live by reading
+# `_LANGUAGE_RUNNERS` pre-TC-04 (it had exactly 2 keys). Same test-scoping rationale as the C7
+# block above: these tests exercise the dispatch table and the new adapter's normalization
+# directly (fast, no real toolchain/network), not a full state-machine replay.
+
+
+def test_language_runners_now_covers_all_five_previously_unreachable_platforms():
+    for platform in ("go", "net", "java", "rust", "cpp"):
+        assert platform in rr._LANGUAGE_RUNNERS
+        assert rr._LANGUAGE_RUNNERS[platform] is not rr._default_verification_runner
+
+
+@pytest.mark.skipif(shutil.which("go") is None, reason="requires a real go toolchain on PATH")
+def test_package_runner_adapter_normalizes_to_block_statuses_key(tmp_path):
+    """The adapter must produce the SAME "block_statuses" key python_verification_runner/
+    typescript_verification_runner/_default_verification_runner already write to
+    verification/result.json -- not VerificationReport.to_legacy_s120()'s own "blocks" key --
+    so result.json has one consistent shape regardless of which platform ran (confirmed by
+    reading to_legacy_s120() directly: it returns "blocks", not "block_statuses"). This test
+    does a real end-to-end go build+run (not mocked), matching the project's own
+    test_example_verification_runners_go.py convention of a skipif guard for that reason --
+    independent-review finding: this test was originally missing that guard and would FAIL
+    (not skip) on a machine with no go toolchain."""
+    candidate = tmp_path / "README.md"
+    candidate.write_text("```go\npackage main\nfunc main() {}\n```\n", encoding="utf-8")
+    runner = rr._package_verification_runner_for("go")
+
+    result = runner(candidate, {"family": "pdf", "platform": "go"})
+
+    assert "block_statuses" in result
+    assert "blocks" not in result
+    assert result["all_named"] is True
+    assert result["block_statuses"][0]["status"] == "COMPILED+RAN CLEAN"
+
+
+def test_package_runner_adapter_reports_syntax_error_honestly(tmp_path):
+    candidate = tmp_path / "README.md"
+    candidate.write_text("```go\npackage main\nfunc main( {\n```\n", encoding="utf-8")
+    runner = rr._package_verification_runner_for("go")
+
+    result = runner(candidate, {"family": "pdf", "platform": "go"})
+
+    assert result["block_statuses"][0]["status"] == "BLOCKED-WITH-REASON"
+    assert result["block_statuses"][0]["reason"] == "SYNTAX-ERROR"
+
+
+# --- TC-04: approve() now refuses on any unresolved BLOCKED-WITH-REASON block ----------------
+
+
+def test_approve_refuses_when_verification_result_has_unresolved_blocks(tmp_path, monkeypatch):
+    monkeypatch.setenv("AGENT_SESSION_ID", "test-session-tc04-approve-gate")
+    repo_root, _ = _make_scratch_repo(tmp_path)
+    rr.configure(repo_root=repo_root, command_runner=_fake_gh_command_runner())
+
+    manifest = rr.start_run("testfam", "testplat")
+    run_id = manifest["run_id"]
+    rr.plan_run("testfam", "testplat", run_id)
+    _write_candidate(repo_root, _GOOD_CANDIDATE)
+    rr.ingest_candidate("testfam", "testplat", run_id)
+    rr.verify_examples("testfam", "testplat", run_id)  # testplat -> the honest all-stub
+
+    with pytest.raises(rr.ReadmeRefreshRunError, match="BLOCKED-WITH-REASON"):
+        rr.approve("testfam", "testplat", run_id, note="looks good")
+
+    manifest = rr.status("testfam", "testplat", run_id)
+    assert manifest["state"] == "AWAITING_REVIEW"  # never silently advanced
+
+
+def test_approve_succeeds_with_an_explicit_override_and_records_it(tmp_path, monkeypatch):
+    monkeypatch.setenv("AGENT_SESSION_ID", "test-session-tc04-approve-override")
+    repo_root, _ = _make_scratch_repo(tmp_path)
+    rr.configure(repo_root=repo_root, command_runner=_fake_gh_command_runner())
+
+    manifest = rr.start_run("testfam", "testplat")
+    run_id = manifest["run_id"]
+    rr.plan_run("testfam", "testplat", run_id)
+    _write_candidate(repo_root, _GOOD_CANDIDATE)
+    rr.ingest_candidate("testfam", "testplat", run_id)
+    rr.verify_examples("testfam", "testplat", run_id)
+
+    manifest = rr.approve(
+        "testfam", "testplat", run_id, note="looks good",
+        override_unresolved_blocks="reviewed manually, stub is expected for this test fixture",
+    )
+    assert manifest["state"] == "APPROVED"
+    assert manifest["approval"]["override_unresolved_blocks"] == "reviewed manually, stub is expected for this test fixture"
+
+    events = (rr._run_root("testfam", "testplat", run_id) / "events.jsonl").read_text(encoding="utf-8")
+    assert "reviewed manually, stub is expected for this test fixture" in events
+
+
+def test_approve_succeeds_without_override_when_verification_is_clean(tmp_path, monkeypatch):
+    """A real, fully-clean verification result must approve normally with NO override needed --
+    the gate only fires on an actual unresolved block, never as a blanket new requirement."""
+    monkeypatch.setenv("AGENT_SESSION_ID", "test-session-tc04-approve-clean")
+    repo_root, _ = _make_scratch_repo(tmp_path)
+
+    def _clean_stub(candidate_path, factpack):
+        text = candidate_path.read_text(encoding="utf-8") if candidate_path.is_file() else ""
+        block_count = text.count("```") // 2
+        return {
+            "runner": "clean-stub",
+            "blocks_found": block_count,
+            "block_statuses": [{"index": i, "status": "COMPILED+RAN CLEAN"} for i in range(block_count)],
+            "all_named": True,
+        }
+
+    rr.configure(repo_root=repo_root, command_runner=_fake_gh_command_runner(), verification_runner=_clean_stub)
+
+    manifest = rr.start_run("testfam", "testplat")
+    run_id = manifest["run_id"]
+    rr.plan_run("testfam", "testplat", run_id)
+    _write_candidate(repo_root, _GOOD_CANDIDATE)
+    rr.ingest_candidate("testfam", "testplat", run_id)
+    rr.verify_examples("testfam", "testplat", run_id)
+
+    manifest = rr.approve("testfam", "testplat", run_id, note="looks good")
+    assert manifest["state"] == "APPROVED"
+    assert manifest["approval"]["override_unresolved_blocks"] is None
 
 
 def test_explicit_verification_runner_override_still_takes_precedence():

@@ -818,10 +818,54 @@ def _product_guard(family: str, platform: str) -> Iterator[None]:
         raise ReadmeRefreshRunError(str(exc)) from exc
 
 
-def _git(*args: str, cwd: "Path | None" = None, check: bool = True) -> str:
-    result = _command_runner(
-        ["git", *args], cwd=str(cwd or _repo_root), capture_output=True, text=True, timeout=60,
-    )
+# Timeouts for `_git`. The hard-coded 60s that used to apply to every call is fine for local
+# plumbing (rev-parse, add, write-tree, ...) but not for the two calls that move a whole repo over
+# the wire: found live 2026-09-19 (page/python, a 418MB target) -- the disposable `git clone` in
+# _do_push exceeded 60s three times in a row, BLOCKING the run each time. Both ceilings are
+# overridable from the environment (seconds, > 0), and a single call can pass `timeout=` itself.
+_GIT_TIMEOUT_ENV = "README_REFRESH_GIT_TIMEOUT"
+_GIT_NETWORK_TIMEOUT_ENV = "README_REFRESH_GIT_NETWORK_TIMEOUT"
+_GIT_TIMEOUT_DEFAULT_SECONDS = 60.0
+_GIT_NETWORK_TIMEOUT_DEFAULT_SECONDS = 900.0
+
+
+def _resolve_git_timeout(env_name: str, default: float) -> float:
+    raw = os.environ.get(env_name)
+    if raw is None or not raw.strip():
+        return default
+    try:
+        value = float(raw)
+    except ValueError:
+        raise ReadmeRefreshRunError(f"{env_name}={raw!r} is not a number of seconds") from None
+    if not (0 < value < float("inf")):
+        raise ReadmeRefreshRunError(f"{env_name}={raw!r} must be a positive, finite number of seconds")
+    return value
+
+
+def _git(
+    *args: str, cwd: "Path | None" = None, check: bool = True,
+    timeout: "float | None" = None, network: bool = False,
+) -> str:
+    """Run one git command. `network=True` marks a call that transfers repository data (clone,
+    push) and so gets the longer network ceiling; `timeout` overrides both. A timeout is raised
+    as ReadmeRefreshRunError -- never a bare subprocess.TimeoutExpired, whose text embeds the
+    full argv: for `git push` that argv carries the tokenized push URL, and push() persists
+    str(exc) into the manifest when it BLOCKS a run. `from None` also drops the chained
+    TimeoutExpired so nothing downstream can re-stringify it."""
+    if timeout is None:
+        timeout = (
+            _resolve_git_timeout(_GIT_NETWORK_TIMEOUT_ENV, _GIT_NETWORK_TIMEOUT_DEFAULT_SECONDS)
+            if network else _resolve_git_timeout(_GIT_TIMEOUT_ENV, _GIT_TIMEOUT_DEFAULT_SECONDS)
+        )
+    try:
+        result = _command_runner(
+            ["git", *args], cwd=str(cwd or _repo_root), capture_output=True, text=True, timeout=timeout,
+        )
+    except subprocess.TimeoutExpired:
+        env_name = _GIT_NETWORK_TIMEOUT_ENV if network else _GIT_TIMEOUT_ENV
+        raise ReadmeRefreshRunError(
+            f"git {' '.join(args)} timed out after {timeout:g}s (raise it with {env_name}=<seconds>)"
+        ) from None
     if check and result.returncode != 0:
         raise ReadmeRefreshRunError(
             f"git {' '.join(args)} failed ({result.returncode}): {(result.stderr or result.stdout).strip()}"
@@ -5502,15 +5546,51 @@ def typescript_verification_runner(candidate_path: Path, factpack: dict) -> dict
 # pdf/typescript clone caches), but swapping the actual executed code and
 # fixing dispatch are two separable risks; this taskcard's own promotion
 # gate ("dirty-set identical pre/post") is about dispatch, not about
-# proving the swap again. The swap -- and the fuller report.json/
-# VerificationReport writing the governing plan's Consumer-wiring table
-# describes -- needs `lib/example_verification/api.py`, which no taskcard
-# in the current C1-C14 rollout builds (a real, disclosed gap in the plan
-# itself, not silently deferred without a note -- see this taskcard's own
-# evidence for the full reasoning).
+# proving the swap again.
+#
+# TC-04 (MT072-2026-09-23-EXAMPLE-VERIFICATION-PRODUCTIONIZATION) closes
+# the gap the comment above used to describe: `lib/example_verification/
+# api.py` now exists (TC-01), so go/net/java/rust/cpp -- which had NO
+# runner reachable from this module at all before this taskcard, always
+# falling to `_default_verification_runner`'s honest all-stub -- now
+# dispatch through it via `_package_verification_runner_for()` below.
+# python/typescript keep their own proven in-file functions unchanged
+# (same reasoning as before: don't swap proven, already-piloted code in
+# the same step that wires a brand-new path for 5 other platforms).
+def _package_verification_runner_for(platform: str) -> "Callable[[Path, dict], dict]":
+    """Adapter for a platform with no in-file runner in this module
+    (go/net/java/rust/cpp -- their real LanguageRunner classes, C5/
+    C11-C14, were never reachable from readme-refresh before this
+    taskcard). Dispatches through lib/example_verification/api.py and
+    normalizes VerificationReport.to_legacy_s120()'s "blocks" key to
+    this module's own "block_statuses" key -- the shape
+    python_verification_runner/typescript_verification_runner (and
+    `_default_verification_runner`) already write to
+    verification/result.json, so that file has ONE consistent shape on
+    disk no matter which platform produced it, rather than two
+    incompatible shapes depending on which 5 vs which 2 platforms ran."""
+    def _runner(candidate_path: Path, factpack: dict) -> dict:
+        from example_verification.api import verify_markdown
+        from example_verification.policy import Policy
+
+        family = factpack.get("family") or ""
+        text = candidate_path.read_text(encoding="utf-8") if candidate_path.is_file() else ""
+        policy = Policy.for_platform(platform, allow_acquire=True)
+        report = verify_markdown(text, family=family, platform=platform, policy=policy)
+        legacy = report.to_legacy_s120()
+        legacy["block_statuses"] = legacy.pop("blocks")
+        return legacy
+    return _runner
+
+
 _LANGUAGE_RUNNERS: "dict[str, Callable[[Path, dict], dict]]" = {
     "python": python_verification_runner,
     "typescript": typescript_verification_runner,
+    "go": _package_verification_runner_for("go"),
+    "net": _package_verification_runner_for("net"),
+    "java": _package_verification_runner_for("java"),
+    "rust": _package_verification_runner_for("rust"),
+    "cpp": _package_verification_runner_for("cpp"),
 }
 
 
@@ -5574,12 +5654,28 @@ def verify_examples(family: str, platform: str, run_id: str, *, session_id: "str
 # --- approve: AWAITING_REVIEW -> APPROVED (or forced back to PLANNED on drift) -------------
 
 
-def approve(family: str, platform: str, run_id: str, *, note: str, session_id: "str | None" = None) -> dict:
+def approve(
+    family: str, platform: str, run_id: str, *, note: str, session_id: "str | None" = None,
+    override_unresolved_blocks: "str | None" = None,
+) -> dict:
     """AWAITING_REVIEW -> APPROVED. Re-verifies pinned inputs haven't drifted -- if they have,
     forces back to PLANNED for re-review rather than approving stale content. The skill itself
     must never call this on its own initiative -- only on an unambiguous, fresh instruction from
     the user in that turn (enforced by the calling skill doc, not by this function, which has no
     way to know who's asking).
+
+    TC-04 (MT072-2026-09-23-EXAMPLE-VERIFICATION-PRODUCTIONIZATION): this function used to
+    never read verification/result.json at all -- an all-stub verification result (every block
+    BLOCKED-WITH-REASON: TOOLCHAIN-UNAVAILABLE) was just as approvable as a fully clean one,
+    confirmed live by reading this function's own pre-TC-04 body. Any BLOCKED-WITH-REASON block
+    in the LATEST verification/result.json now refuses approval unless the caller passes
+    `override_unresolved_blocks` with a real, non-empty reason (mirrors this repo's existing
+    `--force REASON` / `KNOWLEDGE_QUALITY_OVERRIDE: {reason}` override idiom -- never a silent
+    bypass, always a recorded one). Deliberately an all-or-nothing gate on the STATUS value
+    alone, not a per-reason allow/deny table (e.g. treating TOOLCHAIN-UNAVAILABLE as more
+    forgivable than SYNTAX-ERROR) -- a disclosed, narrower scope than a fully nuanced policy
+    would be, kept simple on purpose for this taskcard; a future taskcard can add per-reason
+    tiers if that distinction turns out to matter in practice.
 
     TC-13 slice (readme-refresh-trackb-and-followon-2026-09-01): generalizes the drift check
     beyond clone_cache_head alone to input_manifest.py's wider (still deliberately narrow --
@@ -5671,8 +5767,40 @@ def approve(family: str, platform: str, run_id: str, *, note: str, session_id: "
                         f"the Installation section against the current state, not approved"
                     )
 
-        manifest["approval"] = {"note": note, "approved_by": owner, "approved_at": _utc()}
-        _event(family, platform, run_id, "APPROVED", note=note)
+        run_root = _run_root(family, platform, run_id)
+        result_path = run_root / "verification" / "result.json"
+        if result_path.is_file():
+            verification_result = json.loads(result_path.read_text(encoding="utf-8"))
+            # Every runner reachable from _LANGUAGE_RUNNERS/_default_verification_runner
+            # writes "block_statuses" -- but VerificationReport.to_legacy_s120() (result.py)
+            # natively uses "blocks", and 2 pre-existing test fixtures in this suite already
+            # stub that exact shape. Falling back to "blocks" (independent-review finding)
+            # closes an accidental-bypass-shaped gap: a future caller writing a
+            # to_legacy_s120()-shaped dict straight to result.json without renaming the key
+            # would otherwise silently read as "0 blocked blocks" here, never firing this gate.
+            block_entries = verification_result.get("block_statuses")
+            if block_entries is None:
+                block_entries = verification_result.get("blocks", [])
+            blocked = [b for b in block_entries if b.get("status") == "BLOCKED-WITH-REASON"]
+            if blocked and not override_unresolved_blocks:
+                reasons = sorted({b.get("reason", "UNKNOWN") for b in blocked})
+                _event(
+                    family, platform, run_id, "APPROVE_BLOCKED_ON_VERIFICATION",
+                    blocked_count=len(blocked), reasons=reasons,
+                )
+                raise ReadmeRefreshRunError(
+                    f"Cannot approve: {len(blocked)} code block(s) are BLOCKED-WITH-REASON "
+                    f"({', '.join(reasons)}) in verification/result.json. Pass "
+                    "override_unresolved_blocks='<reason>' to approve anyway (recorded on the "
+                    "approval event and in the manifest) -- an unresolved verification failure "
+                    "must never be silently approved."
+                )
+
+        manifest["approval"] = {
+            "note": note, "approved_by": owner, "approved_at": _utc(),
+            "override_unresolved_blocks": override_unresolved_blocks,
+        }
+        _event(family, platform, run_id, "APPROVED", note=note, override_unresolved_blocks=override_unresolved_blocks)
         _transition(manifest, "APPROVED", checkpoint="approved")
         return manifest
 
@@ -5832,7 +5960,7 @@ def _do_push(manifest: dict, work_dir: Path, *, dry_run: bool, acting_model: str
 
     if work_dir.exists():
         _rmtree_force(work_dir)
-    _git("clone", "--quiet", manifest["clone_url"], str(work_dir), cwd=_repo_root)
+    _git("clone", "--quiet", manifest["clone_url"], str(work_dir), cwd=_repo_root, network=True)
     default_branch = _git("symbolic-ref", "--short", "HEAD", cwd=work_dir)
     _git("checkout", "-b", branch, cwd=work_dir)
 
@@ -5870,7 +5998,7 @@ def _do_push(manifest: dict, work_dir: Path, *, dry_run: bool, acting_model: str
         raise ReadmeRefreshRunError("GH_TOKEN is not set in the environment -- cannot push to an external repo")
     push_url = manifest["clone_url"].replace("https://", f"https://x-access-token:{gh_token}@")
     try:
-        _git("push", push_url, branch, cwd=work_dir, check=True)
+        _git("push", push_url, branch, cwd=work_dir, check=True, network=True)
     except ReadmeRefreshRunError as exc:
         # _git()'s error message embeds the full argv, including push_url -- redact the real
         # token before this propagates anywhere it could be persisted (manifest.json via
@@ -6163,6 +6291,15 @@ def main(argv: "list[str] | None" = None) -> int:
     p_approve.add_argument("--run-id", required=True)
     p_approve.add_argument("--note", required=True)
     p_approve.add_argument("--session-id")
+    p_approve.add_argument(
+        "--override-unresolved-blocks", metavar="REASON",
+        help=(
+            "TC-04: required if verification/result.json has any BLOCKED-WITH-REASON block "
+            "(including an all-stub result). Give a real reason -- recorded on the approval "
+            "event and in the manifest. Omit when verification is clean; approve() then refuses "
+            "on its own if it isn't."
+        ),
+    )
 
     p_push = sub.add_parser("push")
     p_push.add_argument("--run-id", required=True)
@@ -6490,7 +6627,10 @@ def main(argv: "list[str] | None" = None) -> int:
                     configure(verification_runner=typescript_verification_runner)
                 manifest = verify_examples(family, platform, args.run_id, session_id=args.session_id)
             elif args.command == "approve":
-                manifest = approve(family, platform, args.run_id, note=args.note, session_id=args.session_id)
+                manifest = approve(
+                    family, platform, args.run_id, note=args.note, session_id=args.session_id,
+                    override_unresolved_blocks=args.override_unresolved_blocks,
+                )
             elif args.command == "push":
                 manifest = push(
                     family, platform, args.run_id, session_id=args.session_id, dry_run=args.dry_run,
