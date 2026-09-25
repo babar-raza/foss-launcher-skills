@@ -75,11 +75,15 @@ _LIB_DIR = str(_PIPELINE_ROOT / "lib")
 if _LIB_DIR not in sys.path:
     sys.path.insert(0, _LIB_DIR)
 
-from package_registries import apply_debounce, is_corroborated_match, REQUIRED_CONSECUTIVE_CHECKS  # noqa: E402
+from package_registries import (  # noqa: E402
+    CheckResult, apply_debounce, is_corroborated_match, platform_compatible, REQUIRED_CONSECUTIVE_CHECKS,
+)
 from package_registries import pypi, nuget, npm, go, cargo  # noqa: E402
 from audit.package_install_literal import verify_package_install_literals  # noqa: E402
 from commands.ops import registry_coverage_scan  # noqa: E402
-from package_registry_data import validate_package_registry, set_content_healing_status  # noqa: E402
+from package_registry_data import (  # noqa: E402
+    naming_convention_candidate, validate_package_registry, set_content_healing_status,
+)
 
 DEFAULT_MAX_AUTO_APPLY = 5
 
@@ -107,6 +111,68 @@ _ADAPTERS: dict[str, Any] = {
     "go_modules": go,
     "cargo": cargo,
 }
+
+
+class _OncePerRunAdapter:
+    """Wraps a registry adapter so every check direction in ONE watcher run
+    evaluates the SAME observation of a given package.
+
+    check_published_entries_for_version_update and
+    check_published_entries_for_drift both examine each published:true entry;
+    unwrapped, each called adapter.check_published itself, so a single run took
+    two independent samples of one package. That cost two network round trips
+    per published entry per run, and it let a flapping registry advance the
+    version counter from one sample and the absence counter from the other
+    inside the same run -- the two counters then described different
+    realities. The snapshot is per RUN (a fresh wrapper is built by
+    run_watch/run_auto_apply each time), never per process: the debounce is
+    defined over separate runs, so a later run must sample again."""
+
+    def __init__(self, adapter: Any) -> None:
+        self._adapter = adapter
+        self._observations: dict[str, Any] = {}
+        self._searches: dict[str, Any] = {}
+
+    def check_published(self, candidate: dict[str, Any], **kwargs: Any) -> Any:
+        key = json.dumps(candidate, sort_keys=True, default=str)
+        if key not in self._observations:
+            try:
+                self._observations[key] = self._adapter.check_published(candidate, **kwargs)
+            except Exception as exc:  # noqa: BLE001 -- isolate ONE entry's fault from the whole run
+                # An adapter can raise on a malformed body (e.g. UnicodeDecodeError, which
+                # the adapters do not catch). Left alone that aborted the entire run --
+                # every other package unchecked -- and exited 1 exactly like a findings run.
+                # Same fail-closed posture as every other uncertain result here: ambiguous
+                # (counter held, nothing proposed), never a fabricated answer either way.
+                self._observations[key] = CheckResult(
+                    published=False, ambiguous=True, evidence_url="",
+                    method=f"adapter-exception:{type(exc).__name__}",
+                )
+        return self._observations[key]
+
+    def __getattr__(self, name: str) -> Any:
+        # `search` is exposed only if the wrapped adapter has it (go.py deliberately
+        # has none), and is memoized per family: net and cpp entries of one family
+        # share the same registry query, so it must cost one request per run.
+        target = getattr(self._adapter, name)
+        if name != "search":
+            return target
+
+        def _memoized_search(family: str, **kwargs: Any) -> Any:
+            if family not in self._searches:
+                try:
+                    self._searches[family] = list(target(family, **kwargs))
+                except Exception:  # noqa: BLE001 -- a failed search is 'nothing found', not a crashed run
+                    self._searches[family] = []
+            return self._searches[family]
+
+        return _memoized_search
+
+
+def _once_per_run(adapters: "dict[str, Any] | None") -> dict[str, Any]:
+    """Fresh per-run observation snapshot over `adapters` (default _ADAPTERS)."""
+    source = adapters if adapters is not None else _ADAPTERS
+    return {registry_type: _OncePerRunAdapter(adapter) for registry_type, adapter in source.items()}
 
 
 def configure(
@@ -151,6 +217,73 @@ def _expected_repo_fragment(family: str) -> str:
     return ""
 
 
+def _candidate_name(candidate: dict[str, Any]) -> str:
+    return candidate.get("name") or candidate.get("module_path") or ""
+
+
+def _resolve_unpublished_identity(
+    family: str, platform: str, registry_type: str, candidate: dict[str, Any],
+    adapter: Any, first_result: Any, expected_fragment: str,
+) -> "tuple[dict[str, Any], Any, str | None]":
+    """Re-resolve the identity of an unpublished entry whose STORED name is
+    definitively absent, returning (candidate, result, identity_basis).
+
+    Why this exists (slides/cpp, proven 2026-09-18): the candidate name is
+    frozen at backfill time and, before this, the watcher only ever re-probed
+    that frozen name. Backfill had tried the right name (`Aspose.Slides.Cpp.FOSS`)
+    on 2026-08-01 when nothing existed, then froze the wrong one
+    (`aspose_slides_foss`, a CMake project name). `Aspose.Slides.Cpp.FOSS` went
+    live 2026-09-14 and the system could never notice, however long it waited.
+    Identity discovery must keep searching, not re-verify a guess.
+
+    Order (cheap and deterministic first): the naming convention, then the
+    registry's own search where the adapter has one. The STORED name is always
+    checked first by the caller and wins if live. An alternate is accepted only
+    when it is (1) platform-compatible (NuGet is shared by net and cpp) and
+    (2) corroborated exactly as a stored-name hit would be (a "foss" name, or a
+    project_url matching the family's FOSS org) -- so an unrelated commercial
+    package such as PyPI's `aspose-page` is never adopted.
+
+    An ambiguous alternate probe makes the whole observation ambiguous (counter
+    held, not reset): if the convention probe timed out we cannot say the package
+    is absent, and restarting the debounce would punish a real publish for a
+    network stall. Detection only -- nothing here mutates the registry; the
+    caller reports the new identity in a proposal and apply_proposal records it."""
+    tried = {_candidate_name(candidate)}
+    saw_ambiguous = False
+
+    convention = naming_convention_candidate(family, platform, registry_type)
+    if convention:
+        convention_name = _candidate_name(convention)
+        if convention_name and convention_name not in tried:
+            tried.add(convention_name)
+            probe = adapter.check_published(convention)
+            if probe.ambiguous:
+                saw_ambiguous = True
+            elif (probe.published and platform_compatible(registry_type, platform, convention_name)
+                  and is_corroborated_match(convention_name, probe.project_url, expected_fragment)):
+                basis = "foss-convention-match" if "foss" in convention_name.lower() else "corroborated-non-convention-match"
+                return convention, probe, basis
+
+    search = getattr(adapter, "search", None)
+    if callable(search):
+        for hit in search(family):
+            name = hit.candidate_name or ""
+            if not name or name in tried or hit.ambiguous or not hit.published:
+                continue
+            tried.add(name)
+            if not platform_compatible(registry_type, platform, name):
+                continue
+            if is_corroborated_match(name, hit.project_url, expected_fragment):
+                basis = "foss-convention-match" if "foss" in name.lower() else "corroborated-non-convention-match"
+                return {"name": name}, hit, basis
+
+    if saw_ambiguous:
+        held = CheckResult(published=False, ambiguous=True, evidence_url=first_result.evidence_url, method=first_result.method)
+        return candidate, held, None
+    return candidate, first_result, None
+
+
 def check_unpublished_entries(
     data: dict[str, Any],
     *,
@@ -190,11 +323,25 @@ def check_unpublished_entries(
             if verification.get("published"):
                 continue
 
-            candidate = entry.get("candidate") or {}
+            stored_candidate = entry.get("candidate") or {}
+            expected_fragment = _expected_repo_fragment(family)
+
+            if stored_candidate:
+                result = adapter.check_published(stored_candidate)
+            else:
+                # Backfill can record an empty {} candidate; skipping it (as this used
+                # to) made it permanently invisible. Treat as 'stored name absent' so
+                # identity resolution below still gets its chance.
+                result = CheckResult(published=False, ambiguous=False, evidence_url="", method="no-candidate")
+
+            candidate, identity_basis = stored_candidate, None
+            if not result.published and not result.ambiguous:
+                candidate, result, identity_basis = _resolve_unpublished_identity(
+                    family, platform, registry_type, stored_candidate, adapter, result, expected_fragment,
+                )
             if not candidate:
                 continue
 
-            result = adapter.check_published(candidate)
             current_counter = verification.get("consecutive_checks_agreeing", 0) or 0
             new_counter, should_flip = apply_debounce(current_counter, result)
             verification["consecutive_checks_agreeing"] = new_counter
@@ -202,8 +349,7 @@ def check_unpublished_entries(
             if not should_flip:
                 continue
 
-            candidate_name = candidate.get("name") or candidate.get("module_path") or ""
-            expected_fragment = _expected_repo_fragment(family)
+            candidate_name = _candidate_name(candidate)
             if not is_corroborated_match(candidate_name, result.project_url, expected_fragment):
                 uncorroborated.append({
                     "family": family,
@@ -230,7 +376,11 @@ def check_unpublished_entries(
                 "method": result.method,
                 "verified_owner": result.verified_owner,
             }
-            findings_files = _literal_content_scope(family, platform, entry)
+            if identity_basis:
+                proposal["identity_basis"] = identity_basis
+            # Scope the literal-content hint by the identity that was actually found,
+            # not the (possibly wrong) frozen one it replaces.
+            findings_files = _literal_content_scope(family, platform, {**entry, "candidate": candidate})
             if findings_files:
                 proposal["content_healing_needed"] = True
                 proposal["literal_content_files_flagged"] = findings_files
@@ -596,6 +746,10 @@ def apply_proposal(data: dict[str, Any], proposal: dict[str, Any], *, checked_at
         "evidence_note": f"package-publish-watch live check confirmed via {proposal['method']}, {checked_at}",
         "method": proposal["method"],
     }
+    if proposal.get("identity_basis"):
+        # Recorded only when identity was re-resolved (the candidate replaced above
+        # is then NOT the backfill-time value), so the registry says how it knows.
+        entry["verification"]["identity_basis"] = proposal["identity_basis"]
     # Durable remediation-state tracking (2026-09-07, watcher-fleet reliability
     # hardening, Phase 3): the registry previously recorded only DETECTION state
     # (published True/False) -- the moment a proposal was applied, whether content
@@ -671,6 +825,7 @@ def run_watch(
     lets tests exercise main()'s full wiring with fake, network-free adapters
     instead of monkeypatching run_watch/check_unpublished_entries themselves
     (this mission's established DI-over-monkeypatch convention, AGENTS.md 16)."""
+    adapters = _once_per_run(adapters)
     data = json.loads(DATA_PATH.read_text(encoding="utf-8"))
     proposals, uncorroborated = check_unpublished_entries(data, adapters=adapters)
     version_proposals = check_published_entries_for_version_update(data, adapters=adapters)
@@ -702,7 +857,7 @@ def run_auto_apply(
     meaning once --auto-apply's own validate-then-write discipline governs
     what gets persisted) -- this mirrors Maven's run_auto_apply() exactly.
     """
-    adapters = adapters if adapters is not None else _ADAPTERS
+    adapters = _once_per_run(adapters)
     original_bytes = DATA_PATH.read_text(encoding="utf-8")
     original_data = json.loads(original_bytes)
     data = json.loads(original_bytes)

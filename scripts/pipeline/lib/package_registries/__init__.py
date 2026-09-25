@@ -51,13 +51,31 @@ class CheckResult(NamedTuple):
 REQUIRED_CONSECUTIVE_CHECKS = 2
 
 
-def default_fetch(url: str, *, timeout: float = 10.0) -> FetchResponse | None:
-    """Default `fetch` implementation: a plain unauthenticated GET via stdlib
-    urllib (no `requests` dependency -- confirmed not installed in this repo's
-    venv this session). Returns None on any connection-level failure
-    (timeout, DNS, refused) rather than raising, so adapters can treat that
-    uniformly as `ambiguous` alongside unexpected HTTP statuses.
-    """
+_TRANSIENT_STATUS_CODES = frozenset({429, 500, 502, 503, 504})
+DEFAULT_FETCH_ATTEMPTS = 2
+_RETRY_BACKOFF_SECONDS = 1.0
+
+
+def _classify_fetch_exception(exc: BaseException) -> None:
+    """Map a transport-level fault to the adapters' 'ambiguous' signal (None).
+
+    Beyond the OSError family (timeouts, DNS, refused, TLS), a malformed or
+    truncated HTTP exchange raises http.client.HTTPException subclasses
+    (IncompleteRead, BadStatusLine, LineTooLong, ...) which are NOT OSErrors.
+    Before this they escaped default_fetch and aborted the whole watcher run, so
+    one bad response from one registry hid every other package's result. Anything
+    that is not a network fault (a bug in the caller) still propagates."""
+    import http.client
+    import urllib.error
+
+    if isinstance(exc, (urllib.error.URLError, TimeoutError, OSError, http.client.HTTPException)):
+        return None
+    raise exc
+
+
+def _fetch_once(url: str, *, timeout: float = 10.0) -> FetchResponse | None:
+    """One unauthenticated GET via stdlib urllib (no `requests` dependency --
+    confirmed not installed in this repo's venv). None on any transport fault."""
     import urllib.error
     import urllib.request
 
@@ -67,8 +85,56 @@ def default_fetch(url: str, *, timeout: float = 10.0) -> FetchResponse | None:
             return FetchResponse(status_code=resp.status, body=resp.read())
     except urllib.error.HTTPError as exc:
         return FetchResponse(status_code=exc.code, body=b"")
-    except (urllib.error.URLError, TimeoutError, OSError):
-        return None
+    except Exception as exc:  # noqa: BLE001 -- narrowed by _classify_fetch_exception, which re-raises non-network faults
+        return _classify_fetch_exception(exc)
+
+
+def _fetch_with_retry(url, fetch_once, *, attempts: int = DEFAULT_FETCH_ATTEMPTS, sleep=None) -> FetchResponse | None:
+    """Retry policy over a single-attempt fetch. Retries ONLY a transport fault
+    (None) or a transient status (429/5xx); a definitive answer -- 200, 404, 410,
+    any other 4xx -- is returned immediately, since retrying cannot change a
+    correct result. After the last attempt the last outcome is returned as-is
+    (None or the transient response): the caller's adapter still maps it to
+    `ambiguous`, so retrying can only turn a false 'ambiguous' into the truth,
+    never fabricate a success. Measured motivation: api.nuget.org stalls at TCP
+    connect on ~2-3 of 50 calls; without a retry each stall delays the
+    2-consecutive-check debounce by a full scheduled day."""
+    import time
+
+    sleep = sleep if sleep is not None else time.sleep
+    resp = None
+    for attempt in range(max(1, attempts)):
+        resp = fetch_once(url)
+        if resp is not None and resp.status_code not in _TRANSIENT_STATUS_CODES:
+            return resp
+        if attempt + 1 < max(1, attempts):
+            sleep(_RETRY_BACKOFF_SECONDS)
+    return resp
+
+
+def default_fetch(url: str, *, timeout: float = 10.0) -> FetchResponse | None:
+    """Default `fetch` implementation: single-attempt GET wrapped in the bounded
+    retry policy above. Returns None on any transport fault rather than raising,
+    so adapters can treat that uniformly as `ambiguous` alongside unexpected HTTP
+    statuses."""
+    return _fetch_with_retry(url, lambda u: _fetch_once(u, timeout=timeout))
+
+
+def platform_compatible(registry_type: str, platform: str, name: str) -> bool:
+    """Whether a registry package `name` can belong to `platform`.
+
+    NuGet is the only registry shared by two platforms (net and cpp), so a
+    family-level search ("aspose slides") returns both indiscriminately. Real
+    cases: email/cpp's search fell back to the .NET `Aspose.Email.Foss` (contains
+    "foss", so it passed corroboration) purely because no cpp package existed yet;
+    the mirror hazard is a net entry adopting `Aspose.<Fam>.Cpp.FOSS`. Every real
+    cpp NuGet ID observed embeds "Cpp" (Aspose.Cells.Cpp.FOSS,
+    Aspose.Slides.Cpp.FOSS). Single definition, used by registry_backfill AND the
+    watcher's identity re-resolution, so the two can never disagree."""
+    if registry_type != "nuget":
+        return True
+    has_cpp_marker = "cpp" in name.lower()
+    return has_cpp_marker if platform == "cpp" else not has_cpp_marker
 
 
 def is_corroborated_match(candidate_name: str, project_url: "str | None", expected_repo_fragment: str) -> bool:

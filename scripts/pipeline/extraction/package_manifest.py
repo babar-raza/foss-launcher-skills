@@ -101,7 +101,12 @@ def _parse_python_manifest(repo: Path) -> dict[str, Any]:
 
 def _parse_dotnet_manifest(repo: Path) -> dict[str, Any]:
     info: dict[str, Any] = {}
-    csproj_files = list(repo.rglob("*.csproj"))[:20]
+    # Sorted BEFORE the cap (2026-09-18): the old `list(rglob())[:20]` cut the
+    # list in filesystem-enumeration order and only sorted the survivors, so in a
+    # repo with more than 20 projects the real package's csproj could be dropped
+    # by traversal order alone (platform-dependent). Latent today (largest repo
+    # has 16), pinned by a test so it cannot become a silent identity loss.
+    csproj_files = sorted(repo.rglob("*.csproj"))[:200]
     if not csproj_files:
         return info
     # HARDEN-dotnet-test-csproj (2026-09-11): pathlib.Path.rglob()'s file
@@ -127,19 +132,42 @@ def _parse_dotnet_manifest(repo: Path) -> dict[str, Any]:
     def _is_test_project(p: Path) -> bool:
         return "test" in p.stem.lower()
 
-    csproj_files.sort(key=lambda p: (_is_test_project(p), len(p.parts)))
+    texts: dict[Path, str] = {}
+    for f in csproj_files:
+        try:
+            texts[f] = f.read_text(encoding="utf-8", errors="replace")
+        except OSError:
+            texts[f] = ""
+
+    # 3d/net (2026-09-18): the repo declares TWO <PackageId>s -- the CLI
+    # src/converter/Converter.csproj (<OutputType>Exe, PackageId
+    # "Aspose.3D.Converter", depth 3) and the real library
+    # src/main/Aspose.ThreeD/Aspose.ThreeD.csproj (PackageId "Aspose.3D.FOSS",
+    # depth 4). "First PackageId by depth" picked the shallower TOOL, so the
+    # knowledge model -- and through it the published docs -- taught readers to
+    # install `Aspose.3D.Converter`, which does not exist on NuGet. An
+    # executable / dotnet-tool is not the library package this manifest is
+    # meant to identify, so it ranks below any library project (but is still
+    # used if it is the only thing that declares a package: no worse than the
+    # old behaviour and better than an empty manifest).
+    def _is_executable_or_tool(p: Path) -> bool:
+        t = texts[p]
+        return bool(
+            re.search(r"<OutputType>\s*(?:Win)?Exe\s*</OutputType>", t, re.IGNORECASE)
+            or re.search(r"<PackAsTool>\s*true\s*</PackAsTool>", t, re.IGNORECASE)
+        )
+
+    # `sorted` is stable and csproj_files is already path-sorted, so ties on the
+    # key resolve by path -- deterministic regardless of filesystem order.
+    csproj_files.sort(key=lambda p: (_is_test_project(p), _is_executable_or_tool(p), len(p.parts)))
 
     package_id_file = None
     for f in csproj_files:
-        try:
-            candidate_text = f.read_text(encoding="utf-8", errors="replace")
-        except OSError:
-            continue
-        if re.search(r"<PackageId>.*?</PackageId>", candidate_text):
+        if re.search(r"<PackageId>.*?</PackageId>", texts[f]):
             package_id_file = f
             break
 
-    text = (package_id_file or csproj_files[0]).read_text(encoding="utf-8", errors="replace")
+    text = texts[package_id_file or csproj_files[0]]
     for tag, key in [("PackageId", "name"), ("AssemblyName", "name"),
                      ("Version", "version")]:
         if key in info and info[key]:

@@ -845,3 +845,266 @@ class TestRunAutoApply:
         assert exit_code == 1
         out = capsys.readouterr().out
         assert "Package Identity Needs Manual Review" in out
+
+
+class _CountingAdapter:
+    """Adapter fake that records every check_published call and replays a
+    scripted sequence of results (last result repeats). Lets a test prove how
+    many times a run sampled the network and WHICH sample each check saw."""
+
+    def __init__(self, *results: CheckResult):
+        self._results = list(results)
+        self.calls = 0
+
+    def check_published(self, candidate):
+        result = self._results[min(self.calls, len(self._results) - 1)]
+        self.calls += 1
+        return result
+
+
+class TestSingleObservationPerRun:
+    """A run must take ONE observation of each package and evaluate every
+    check direction (publish, version-update, drift) against that same
+    observation. Before this, check_published_entries_for_version_update and
+    check_published_entries_for_drift each called adapter.check_published for
+    the same published entry, so one run took two independent samples: a
+    flapping registry could advance the version counter from one sample and the
+    absence counter from the other within the SAME run, and every published
+    entry cost two network round trips per run instead of one."""
+
+    def _write(self, tmp_path, data):
+        data_path = tmp_path / "package_registry.json"
+        data_path.write_text(json.dumps(data), encoding="utf-8")
+        sut.configure(data_path=data_path)
+        return data_path
+
+    def test_run_watch_samples_each_published_entry_once(self, tmp_path):
+        self._write(tmp_path, {"cells": {"python": _schema_valid_published_entry()}})
+        live = CheckResult(published=True, ambiguous=False, evidence_url="u", method="m", version="26.9.0")
+        adapter = _CountingAdapter(live)
+        sut.run_watch(adapters={"pypi": adapter})
+        assert adapter.calls == 1
+
+    def test_version_and_drift_checks_share_one_observation(self, tmp_path):
+        """First sample says absent (404), any later sample would say published
+        with a new version. Under the old double-sampling the version check saw
+        the 404 while the drift check saw the later sample, so the two counters
+        described two different realities. One observation => both derive from
+        the 404: the absence counter advances, the version counter does not."""
+        self._write(tmp_path, {"cells": {"python": _schema_valid_published_entry()}})
+        absent = CheckResult(published=False, ambiguous=False, evidence_url="u", method="m")
+        later = CheckResult(published=True, ambiguous=False, evidence_url="u", method="m", version="99.0.0")
+        adapter = _CountingAdapter(absent, later)
+        _, _, version_proposals, _, data = sut.run_watch(adapters={"pypi": adapter})
+        verification = data["cells"]["python"]["verification"]
+        assert adapter.calls == 1
+        assert verification["consecutive_checks_absent"] == 1
+        assert verification.get("consecutive_version_checks_agreeing", 0) == 0
+        assert version_proposals == []
+
+    def test_run_auto_apply_samples_each_published_entry_once(self, tmp_path):
+        self._write(tmp_path, {"cells": {"python": _schema_valid_published_entry()}})
+        live = CheckResult(published=True, ambiguous=False, evidence_url="u", method="m", version="26.9.0")
+        adapter = _CountingAdapter(live)
+        sut.run_auto_apply(adapters={"pypi": adapter}, scan_fn=lambda: {"excluded_but_still_live": []})
+        assert adapter.calls == 1
+
+    def test_observation_is_not_shared_across_runs(self, tmp_path):
+        """The snapshot is per RUN, never per process: a second run must sample
+        again, otherwise the debounce (which is defined over separate runs)
+        could never observe a change."""
+        self._write(tmp_path, {"cells": {"python": _schema_valid_published_entry()}})
+        live = CheckResult(published=True, ambiguous=False, evidence_url="u", method="m", version="26.9.0")
+        adapter = _CountingAdapter(live)
+        sut.run_watch(adapters={"pypi": adapter})
+        sut.run_watch(adapters={"pypi": adapter})
+        assert adapter.calls == 2
+
+
+class _NameKeyedAdapter:
+    """Adapter fake keyed by candidate name. Unknown names resolve to a definitive
+    'not published' (a real 404), matching a real registry."""
+
+    def __init__(self, live: "dict[str, CheckResult]"):
+        self._live = live
+        self.probed: list[str] = []
+
+    def check_published(self, candidate, **_kw):
+        name = candidate.get("name") or candidate.get("module_path")
+        self.probed.append(name)
+        return self._live.get(
+            name, CheckResult(published=False, ambiguous=False, evidence_url=f"u/{name}", method="fake"))
+
+
+class _SearchableAdapter(_NameKeyedAdapter):
+    def __init__(self, live, search_results):
+        super().__init__(live)
+        self._search_results = search_results
+        self.search_calls: list[str] = []
+
+    def search(self, family, **_kw):
+        self.search_calls.append(family)
+        return list(self._search_results)
+
+
+def _live(name, **kw):
+    return CheckResult(published=True, ambiguous=False, evidence_url=f"https://reg/{name}", method="fake",
+                       candidate_name=name, **kw)
+
+
+def _cpp_entry(stored="aspose_slides_foss", counter=0):
+    return {
+        "registry_type": "nuget",
+        "candidate": {"name": stored} if stored else {},
+        "verification": {"published": False, "consecutive_checks_agreeing": counter},
+    }
+
+
+class TestIdentityReResolution:
+    """slides/cpp regression (proven 2026-09-18): NuGet `Aspose.Slides.Cpp.FOSS`
+    26.9.0 went live 2026-09-14 while the registry watched only the frozen
+    backfill-time guess `aspose_slides_foss`. Backfill had tried the right name
+    on 2026-08-01 (nothing existed yet), then froze the wrong one; the watcher
+    only ever re-probed that frozen name, so the package could never be
+    detected however long anyone waited."""
+
+    def test_finds_live_package_under_naming_convention_when_frozen_name_is_absent(self):
+        adapter = _NameKeyedAdapter({"Aspose.Slides.Cpp.FOSS": _live("Aspose.Slides.Cpp.FOSS", version="26.9.0")})
+        data = {"slides": {"cpp": _cpp_entry(counter=1)}}
+        proposals, uncorroborated = sut.check_unpublished_entries(data, adapters={"nuget": adapter})
+        assert uncorroborated == []
+        assert len(proposals) == 1
+        proposal = proposals[0]
+        assert proposal["candidate"] == {"name": "Aspose.Slides.Cpp.FOSS"}
+        assert proposal["identity_basis"] == "foss-convention-match"
+        assert adapter.probed[0] == "aspose_slides_foss"  # stored identity is always checked first
+
+    def test_first_sighting_under_new_identity_only_advances_counter(self):
+        adapter = _NameKeyedAdapter({"Aspose.Slides.Cpp.FOSS": _live("Aspose.Slides.Cpp.FOSS")})
+        data = {"slides": {"cpp": _cpp_entry(counter=0)}}
+        proposals, _ = sut.check_unpublished_entries(data, adapters={"nuget": adapter})
+        assert proposals == []
+        assert data["slides"]["cpp"]["verification"]["consecutive_checks_agreeing"] == 1
+        # detection never mutates identity or publish state; only apply_proposal does
+        assert data["slides"]["cpp"]["candidate"] == {"name": "aspose_slides_foss"}
+        assert data["slides"]["cpp"]["verification"]["published"] is False
+
+    def test_nothing_found_anywhere_resets_counter_exactly_as_before(self):
+        adapter = _NameKeyedAdapter({})
+        data = {"slides": {"cpp": _cpp_entry(counter=1)}}
+        proposals, uncorroborated = sut.check_unpublished_entries(data, adapters={"nuget": adapter})
+        assert proposals == [] and uncorroborated == []
+        assert data["slides"]["cpp"]["verification"]["consecutive_checks_agreeing"] == 0
+
+    def test_ambiguous_alternate_probe_holds_counter_instead_of_resetting(self):
+        """The stored name is a definitive 404 but the convention probe timed out.
+        We cannot tell whether the package exists, so restarting the debounce
+        would punish a real publish for a network stall -- hold, like every other
+        ambiguous result in this module."""
+        ambiguous = CheckResult(published=False, ambiguous=True, evidence_url="u", method="fake")
+        adapter = _NameKeyedAdapter({"Aspose.Slides.Cpp.FOSS": ambiguous})
+        data = {"slides": {"cpp": _cpp_entry(counter=1)}}
+        sut.check_unpublished_entries(data, adapters={"nuget": adapter})
+        assert data["slides"]["cpp"]["verification"]["consecutive_checks_agreeing"] == 1
+
+    def test_stored_name_hit_is_unchanged_and_does_not_search(self):
+        adapter = _SearchableAdapter({"aspose_slides_foss": _live("aspose_slides_foss")}, [])
+        data = {"slides": {"cpp": _cpp_entry(counter=1)}}
+        proposals, _ = sut.check_unpublished_entries(data, adapters={"nuget": adapter})
+        assert proposals[0]["candidate"] == {"name": "aspose_slides_foss"}
+        assert adapter.search_calls == []
+        assert adapter.probed == ["aspose_slides_foss"]
+
+    def test_empty_candidate_is_resolved_instead_of_skipped_forever(self):
+        """Backfill can record an empty {} candidate (no manifest name, no
+        convention). The watcher used to `continue` past those permanently."""
+        adapter = _NameKeyedAdapter({"Aspose.Slides.Cpp.FOSS": _live("Aspose.Slides.Cpp.FOSS")})
+        data = {"slides": {"cpp": _cpp_entry(stored=None, counter=1)}}
+        proposals, _ = sut.check_unpublished_entries(data, adapters={"nuget": adapter})
+        assert [p["candidate"] for p in proposals] == [{"name": "Aspose.Slides.Cpp.FOSS"}]
+
+    def test_search_hit_without_foss_in_name_needs_project_url_corroboration(self):
+        good = _live("aspose-note", project_url="https://github.com/aspose-note-foss/Aspose.Note-FOSS-for-Python")
+        adapter = _SearchableAdapter({}, [good])
+        data = {"note": {"python": {
+            "registry_type": "pypi", "candidate": {"name": "aspose-note-foss"},
+            "verification": {"published": False, "consecutive_checks_agreeing": 1}}}}
+        # the family's FOSS org (corroboration target) comes from products.json
+        sut.PRODUCTS_PATH.write_text(json.dumps([{
+            "family": "note", "platform": "python",
+            "repo_url": "https://github.com/aspose-note-foss/Aspose.Note-FOSS-for-Python"}]), encoding="utf-8")
+        proposals, _ = sut.check_unpublished_entries(data, adapters={"pypi": adapter})
+        assert [p["candidate"] for p in proposals] == [{"name": "aspose-note"}]
+        assert proposals[0]["identity_basis"] == "corroborated-non-convention-match"
+
+    def test_unrelated_commercial_package_from_search_is_ignored(self):
+        """PyPI `aspose-page` is a genuinely unrelated commercial package. It has no
+        'foss' in its name and its project_url is not the FOSS org -- it must never
+        be adopted, no matter how many times it is seen."""
+        commercial = _live("aspose-page", project_url="https://products.aspose.com/page/python-net/")
+        adapter = _SearchableAdapter({}, [commercial])
+        data = {"page": {"python": {
+            "registry_type": "pypi", "candidate": {"name": "aspose-page-foss"},
+            "verification": {"published": False, "consecutive_checks_agreeing": 1}}}}
+        sut.PRODUCTS_PATH.write_text(json.dumps([{
+            "family": "page", "platform": "python",
+            "repo_url": "https://github.com/aspose-page-foss/Aspose.Page-FOSS-for-Python"}]), encoding="utf-8")
+        proposals, uncorroborated = sut.check_unpublished_entries(data, adapters={"pypi": adapter})
+        assert proposals == [] and uncorroborated == []
+        assert data["page"]["python"]["verification"]["consecutive_checks_agreeing"] == 0
+
+    def test_net_entry_never_adopts_a_cpp_package(self):
+        adapter = _SearchableAdapter({}, [_live("Aspose.Slides.Cpp.FOSS")])
+        data = {"slides": {"net": {
+            "registry_type": "nuget", "candidate": {"name": "Aspose.Slides.Nope"},
+            "verification": {"published": False, "consecutive_checks_agreeing": 1}}}}
+        proposals, _ = sut.check_unpublished_entries(data, adapters={"nuget": adapter})
+        assert proposals == []
+
+    def test_search_is_sampled_once_per_family_per_run(self):
+        """net and cpp share a NuGet family search; unpublished entries must not
+        multiply the request count."""
+        adapter = _SearchableAdapter({}, [])
+        data = {"slides": {"net": _cpp_entry("Aspose.Slides.Nope"), "cpp": _cpp_entry("aspose_slides_x")}}
+        sut.check_unpublished_entries(data, adapters=sut._once_per_run({"nuget": adapter}))
+        assert adapter.search_calls == ["slides"]
+
+    def test_apply_proposal_records_new_identity_and_basis(self):
+        entry = _cpp_entry(counter=1)
+        entry.update({"candidate_owner": "asposefoss", "owner_match": None})
+        data = {"slides": {"cpp": entry}}
+        proposal = {
+            "family": "slides", "platform": "cpp", "registry_type": "nuget",
+            "candidate": {"name": "Aspose.Slides.Cpp.FOSS"}, "evidence_url": "https://reg/x",
+            "method": "nuget-flatcontainer-api", "verified_owner": None, "identity_basis": "foss-convention-match",
+            "content_healing_needed": False,
+        }
+        sut.apply_proposal(data, proposal, checked_at="2026-09-18")
+        assert data["slides"]["cpp"]["candidate"] == {"name": "Aspose.Slides.Cpp.FOSS"}
+        assert data["slides"]["cpp"]["verification"]["identity_basis"] == "foss-convention-match"
+        assert data["slides"]["cpp"]["verification"]["published"] is True
+
+
+class TestAdapterExceptionIsolation:
+    """One entry whose adapter raises (e.g. UnicodeDecodeError on a malformed
+    body, which the adapters do not catch) must not abort the run: previously it
+    killed every other package's check and exited 1 exactly like a findings run."""
+
+    class _Boom:
+        @staticmethod
+        def check_published(candidate, **_kw):
+            raise UnicodeDecodeError("utf-8", b"\xff", 0, 1, "invalid start byte")
+
+    def test_failing_entry_is_ambiguous_and_others_still_checked(self):
+        good = _live("aspose-good-foss")
+        data = {
+            "cells": {"python": {"registry_type": "npm", "candidate": {"name": "excel-cells"},
+                                   "verification": {"published": False, "consecutive_checks_agreeing": 1}}},
+            "pdf": {"python": {"registry_type": "pypi", "candidate": {"name": "aspose-good-foss"},
+                                 "verification": {"published": False, "consecutive_checks_agreeing": 1}}},
+        }
+        adapters = sut._once_per_run({"npm": self._Boom(), "pypi": _NameKeyedAdapter({"aspose-good-foss": good})})
+        proposals, _ = sut.check_unpublished_entries(data, adapters=adapters)
+        assert [p["family"] for p in proposals] == ["pdf"]  # the healthy entry still produced its proposal
+        # ambiguous => counter held, never reset and never advanced
+        assert data["cells"]["python"]["verification"]["consecutive_checks_agreeing"] == 1

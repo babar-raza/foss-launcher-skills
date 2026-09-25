@@ -90,9 +90,24 @@ def test_all_31_launched_products_are_registered():
     saying "31" for history/traceability; the assertion is the real,
     current, honest count.
     """
+    # Re-derived 2026-09-18 (33 entries by then, so the hardcoded 32 above had
+    # rotted a third time -- 31 -> 32 -> 33, each a manual bump after a real
+    # product was added, each bump leaving this test red in between). The
+    # guarantee this test exists for is COVERAGE, not a number: every product
+    # the repo knows about (data/products.json) has a registry identity entry.
+    # Derive the expectation from that source of truth so adding a product can
+    # never make this test stale; registry entries may still lead products.json
+    # (identity backfilled ahead of a launch, see the note above), so the check
+    # is one-directional.
     data = _load()
-    total_pairs = sum(len(platforms) for family, platforms in data.items() if not family.startswith("_"))
-    assert total_pairs == 32
+    registered = {(family, platform) for family, platforms in data.items() if not family.startswith("_") for platform in platforms}
+    products = json.loads((_REPO_ROOT / "data" / "products.json").read_text(encoding="utf-8"))
+    known_products = {(p["family"], p["platform"]) for p in products}
+    assert known_products, "data/products.json unexpectedly empty -- the coverage check would pass vacuously"
+    assert known_products - registered == set(), (
+        f"products known to data/products.json with no package_registry.json entry: "
+        f"{sorted(known_products - registered)}"
+    )
 
 
 def test_words_net_uses_naming_convention_fallback_and_is_now_published():
@@ -204,23 +219,32 @@ def test_slides_java_is_published():
     assert data["slides"]["java"]["verification"]["published"] is True
 
 
-def test_slides_net_is_confirmed_not_published():
-    """slides/net (TC-MT015-06, 2026-08-01): a real, live 4-point verification
-    (nuget.org v3-flatcontainer 404 across 4 name variants, nuget.org search API,
-    real .csproj has no PackageId/Version, CI workflow has no publish/pack step)
-    confirmed Aspose.Slides.Foss has never been published to NuGet. Unlike words/net
-    (a pure naming-convention guess, never live-checked), this entry legitimately
-    carries a non-null verified_at and method -- a live check WAS performed, it just
-    confirmed absence rather than presence. See test_unchecked_entry_implies_verified_at_is_null
-    for why that distinction matters."""
+def test_slides_net_identity_and_verification_are_coherent():
+    """slides/net (TC-MT015-06, 2026-08-01): originally a real, live 4-point
+    verification (nuget.org v3-flatcontainer 404 across 4 name variants, search
+    API, .csproj without PackageId/Version, CI without a pack step) confirmed
+    Aspose.Slides.Foss had never been published to NuGet, and this test pinned
+    `published is False` + method `nuget-api-v3-live-check`.
+
+    Rewritten 2026-09-18: that pin asserted a point-in-time fact about an
+    external registry, so it went red the moment the package was really
+    published (package-publish-watch flipped it 2026-09-13; NuGet serves
+    26.9.0). A test that fails BECAUSE the world improved is a broken
+    regression control -- it trains everyone to ignore red. Pin what is stable
+    (the identity that was hand-verified) and the invariant that must hold in
+    EITHER state (a live check was performed, so verified_at/method are
+    recorded; a published entry carries the evidence URL that justifies it).
+    See test_unchecked_entry_implies_verified_at_is_null for why the
+    verified_at distinction matters."""
     data = _load()
     entry = data["slides"]["net"]
     v = entry["verification"]
     assert entry["registry_type"] == "nuget"
     assert entry["candidate"]["name"] == "Aspose.Slides.Foss"
-    assert v["published"] is False
     assert v["verified_at"] is not None
-    assert v["method"] == "nuget-api-v3-live-check"
+    assert v["method"] is not None
+    if v["published"]:
+        assert v["evidence_url"], "a published:true entry must carry the evidence URL that justified the flip"
 
 
 def test_cells_3d_pdf_use_org_aspose_groupid():

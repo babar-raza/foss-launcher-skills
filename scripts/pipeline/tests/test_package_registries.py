@@ -505,3 +505,106 @@ class TestSearchFallback:
         results = cargo.search("cells", fetch=fetch)
         assert len(results) == 1
         assert results[0].candidate_name == "aspose-cells-foss-rust"
+
+
+class TestFetchWithRetry:
+    """default_fetch's transport policy, tested through an injected single-attempt
+    fetch and an injected sleep (no live network, no monkeypatching urllib).
+
+    Root cause this exists for (measured 2026-09-18, 50 sequential calls): api.nuget.org
+    intermittently stalls at TCP connect (2-3 of 50 calls hit the 10s timeout), which
+    the adapters faithfully report as `ambiguous`. Ambiguity is fail-closed and safe,
+    but with no retry every stall costs the debounce a whole extra day."""
+
+    def test_returns_first_success_without_sleeping(self):
+        from package_registries import _fetch_with_retry
+        slept = []
+        calls = []
+
+        def once(url):
+            calls.append(url)
+            return FetchResponse(200, b"ok")
+
+        resp = _fetch_with_retry("u", once, attempts=2, sleep=slept.append)
+        assert resp.status_code == 200 and calls == ["u"] and slept == []
+
+    def test_retries_transport_failure_once_then_succeeds(self):
+        from package_registries import _fetch_with_retry
+        seq = iter([None, FetchResponse(200, b"ok")])
+        slept = []
+        resp = _fetch_with_retry("u", lambda url: next(seq), attempts=2, sleep=slept.append)
+        assert resp.status_code == 200 and len(slept) == 1
+
+    def test_retries_transient_status_codes(self):
+        from package_registries import _fetch_with_retry
+        for transient in (429, 500, 502, 503, 504):
+            seq = iter([FetchResponse(transient, b""), FetchResponse(200, b"ok")])
+            resp = _fetch_with_retry("u", lambda url: next(seq), attempts=2, sleep=lambda s: None)
+            assert resp.status_code == 200, transient
+
+    def test_never_retries_a_definitive_answer(self):
+        """404/410 are the registry's real answer (package absent). Retrying would
+        only add latency and could not change a correct result."""
+        from package_registries import _fetch_with_retry
+        for definitive in (200, 404, 410):
+            calls = []
+
+            def once(url, definitive=definitive):
+                calls.append(1)
+                return FetchResponse(definitive, b"")
+
+            _fetch_with_retry("u", once, attempts=3, sleep=lambda s: None)
+            assert len(calls) == 1, definitive
+
+    def test_gives_up_after_attempts_and_reports_last_outcome(self):
+        from package_registries import _fetch_with_retry
+        calls = []
+
+        def once(url):
+            calls.append(1)
+            return None
+
+        assert _fetch_with_retry("u", once, attempts=2, sleep=lambda s: None) is None
+        assert len(calls) == 2
+        seq = iter([FetchResponse(503, b""), FetchResponse(503, b"")])
+        resp = _fetch_with_retry("u", lambda url: next(seq), attempts=2, sleep=lambda s: None)
+        assert resp.status_code == 503  # still the caller's 'ambiguous', never a fabricated success
+
+
+class TestFetchOnceProtocolErrors:
+    """A malformed/partial HTTP exchange (http.client.HTTPException subclasses such as
+    IncompleteRead/BadStatusLine/LineTooLong) is NOT an OSError, so before this it
+    escaped default_fetch and aborted the entire watcher run -- one bad response from
+    one registry hid every other package's result."""
+
+    def test_http_protocol_errors_map_to_none_not_raise(self):
+        import http.client
+        from package_registries import _classify_fetch_exception
+        for exc in (http.client.IncompleteRead(b"x"), http.client.BadStatusLine("x"), http.client.LineTooLong("status line")):
+            assert _classify_fetch_exception(exc) is None
+
+    def test_unrelated_exceptions_still_propagate(self):
+        import pytest
+        from package_registries import _classify_fetch_exception
+        with pytest.raises(KeyError):
+            _classify_fetch_exception(KeyError("bug in the caller, not a network fault"))
+
+
+class TestPlatformCompatible:
+    """NuGet is the one registry shared by two platforms (net and cpp). A family-level
+    search returns both; a name must be accepted only for the platform it belongs to."""
+
+    def test_nuget_cpp_requires_cpp_marker(self):
+        from package_registries import platform_compatible
+        assert platform_compatible("nuget", "cpp", "Aspose.Slides.Cpp.FOSS")
+        assert not platform_compatible("nuget", "cpp", "Aspose.Email.Foss")
+
+    def test_nuget_net_rejects_cpp_packages(self):
+        from package_registries import platform_compatible
+        assert platform_compatible("nuget", "net", "Aspose.Slides.FOSS")
+        assert not platform_compatible("nuget", "net", "Aspose.Slides.Cpp.FOSS")
+
+    def test_other_registries_are_unconstrained(self):
+        from package_registries import platform_compatible
+        assert platform_compatible("pypi", "python", "aspose-page-foss")
+        assert platform_compatible("npm", "typescript", "@asposefoss/pdf")

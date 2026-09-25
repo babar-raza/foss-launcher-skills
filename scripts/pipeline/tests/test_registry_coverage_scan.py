@@ -158,9 +158,16 @@ def test_real_repo_scan_matches_manual_audit():
     removed from data/registry_exclusions.json (Outcome A) -- cells/typescript
     is no longer excluded-but-live, it is simply live, matching shipped
     precedent (tex/python, words/net, slides/net, slides/cpp, pdf/python)."""
+    # Re-derived 2026-09-18: the hardcoded 32/32 above went red the moment
+    # imaging/net became the 33rd product (2026-09-11) -- the same rot the
+    # docstring already records for 31 -> 32. A product count is not the
+    # invariant; COVERAGE is: nothing discovered may lack a registry entry
+    # (uncovered_pairs == []), which already forces registered >= discovered.
+    # Assert that, plus non-vacuity (the scan must actually have found
+    # something, else an empty repo would trivially "pass").
     sut.configure(repo_root=None)
     report = sut.scan_coverage()
-    assert report["total_discovered"] == 32
-    assert report["total_registered"] == 32
+    assert report["total_discovered"] > 0
+    assert report["total_registered"] >= report["total_discovered"]
     assert report["uncovered_pairs"] == []
     assert report["excluded_but_still_live"] == []

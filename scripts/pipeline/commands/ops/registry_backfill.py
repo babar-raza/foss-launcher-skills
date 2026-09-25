@@ -49,7 +49,7 @@ _LIB_DIR = str(_PIPELINE_ROOT / "lib")
 if _LIB_DIR not in sys.path:
     sys.path.insert(0, _LIB_DIR)
 
-from lib.package_registries import is_corroborated_match  # noqa: E402
+from lib.package_registries import is_corroborated_match, platform_compatible  # noqa: E402
 from lib.package_registries import pypi, npm, nuget, go, cargo  # noqa: E402
 from lib.package_registry_data import naming_convention_candidate, load_registry  # noqa: E402
 from extraction.package_manifest import parse_manifest  # noqa: E402
@@ -163,16 +163,12 @@ def backfill_entry(family: str, platform: str, *, fetch=None) -> "dict | None":
         for result in adapter.search(family, fetch=fetch):
             if not result.candidate_name:
                 continue
-            if registry_type == "nuget" and platform == "cpp" and "cpp" not in result.candidate_name.lower():
-                # NuGet is the only registry shared across two platforms
-                # (net/cpp) -- a family-only search ("aspose email") returns
-                # both variants indiscriminately. Real case caught 2026-08-01:
-                # email/cpp's search fell back to "Aspose.Email.Foss" (the
-                # .NET package, which does contain "foss" and would otherwise
-                # pass is_corroborated_match) purely because no cpp-specific
-                # package exists. Every real cpp NuGet ID observed this
-                # session embeds "Cpp" (Aspose.Cells.Cpp.FOSS), so require it
-                # here rather than trust family-name matching alone.
+            if not platform_compatible(registry_type, platform, result.candidate_name):
+                # NuGet is shared across two platforms (net/cpp) -- a family-only
+                # search returns both indiscriminately (real case caught
+                # 2026-08-01: email/cpp fell back to the .NET "Aspose.Email.Foss").
+                # The rule now lives in package_registries.platform_compatible so
+                # the watcher's identity re-resolution applies the identical one.
                 continue
             if is_corroborated_match(result.candidate_name, result.project_url, expected_fragment):
                 candidate = _build_candidate(registry_type, result.candidate_name)
