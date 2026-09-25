@@ -18,9 +18,24 @@ Generate reference pages in bulk for all missing classes/enums in a given family
 
 Defaults: `--kind all`, no limit.
 
-Any mutating execution requires `--run-id`. In production, invoke S-62 through
-S-84 `refresh_run.py`, which also supplies `--run-root` and restricts generation
-to the pinned `scope.json`. Direct dry runs remain available for diagnostics.
+Any mutating execution requires `--run-id`. For a REFRESH of an already-launched
+product, invoke S-62 through S-84 `refresh_run.py`, which also supplies
+`--run-root` and restricts generation to the pinned `scope.json`. **For a FIRST
+launch (no prior knowledge snapshot), do not pass `--run-root`** -- `--run-id`
+alone is correct and sufficient (`explicit_run_root` stays `False`, so the
+strict `refresh_run.py`-scope gate is skipped, which is right: there is no S-84
+run to pin against yet). Passing `--run-root` on a first launch fails through
+three successive gates (`_validated_run_scope()` requires a manifest that can't
+exist yet; `start --mode combined`/`upstream` then requires `knowledge_delta.json`,
+which also can't exist yet; `--mode remediation` gets past both but then fails
+S-84's own post-generation oracle check, which assumes a prior published
+baseline). Found live 2026-09-11 (`IMAGING-NET-BATCHREF-HARNESS-001`): this
+doc's own literal example had recommended `--run-root` unconditionally since
+the scope-pin gate landed (`e19bab6396`, 2026-07-29) without ever being
+corrected for the first-launch case -- every product launched since then that
+used this script successfully (including pdf/typescript, `f93411ed59`/
+`4ee59ff425`) did so via the undocumented `--run-id`-only form. Direct dry
+runs remain available for diagnostics.
 
 ## Knowledge Pre-conditions
 
@@ -136,7 +151,17 @@ For each entry marked `GENERATE`, in order:
 
 **Log progress**: `[{n}/{total_to_generate}] Generating page for {ClassName} ({kind})...`
 
-Invoke the batch generation script:
+Invoke the batch generation script. **First launch of this family/platform
+(no prior knowledge snapshot, no S-84 run backing this generation)** -- omit
+`--run-root`, `--run-id` alone is correct:
+
+```bash
+.venv/Scripts/python scripts/pipeline/commands/content/batch_reference.py {family} {platform} \
+  --run-id ID
+```
+
+**Refresh of an already-launched product, run through S-84 `refresh_run.py`**
+-- pass the real run directory `refresh_run.py` itself created:
 
 ```bash
 .venv/Scripts/python scripts/pipeline/commands/content/batch_reference.py {family} {platform} \
