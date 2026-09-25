@@ -1,0 +1,81 @@
+stale-check: base=500ed05cf7d2 source=lookback checked=5 intervening=4
+checkout_sync: index synced: 5
+commit_sha=093282591dbede21ab48f3ca336a23e55335c59d
+tree_sha=cc3e878f3ef55bdc73a33b0fa3a5144018013cbd
+pushed=False
+--- Tier 1 output ---
+Deletion gate: OK -- no staged deletions or renames detected.
+OK: 0 filename violations.
+[Step 9] Scanning HEAD for provenance-protected pages...
+No content .md files in staged changes — nothing to check.
+OK: Python placement check passed (5 files scanned, 0 advisory warning(s)).
+[Step 28] PASS: No modified .md content files.
+[Step 29] PASS: No modified .md content files.
+[Step 30] No staged modified content files — skipping.
+[Step 32] No staged skill/registry files — skipping.
+[Step 34] No staged skill/mirror files — skipping.
+[Step 35] baseline=500ed05cf7d2 source=lookback checked=5 intervening=4
+[Step 36] No staged static/media/ files — skipping.
+[Step 39] subprocess-encoding-parity: OK (0 baselined file(s) in scope, no increases).
+[Step 41] No staged contract/checks/registry files — skipping.
+[Step 42] No staged .gitignore/policy/family-registry files — skipping.
+[Step 43] No staged knowledge/*/*/merged/ files — skipping.
+[Step 44] WARN: 4 advisory issue(s):
+[Step 44]   [CHECK 4b] scripts/pipeline/commands/ops/content_region_indexer.py: active entrypoint/library has no test_target
+[Step 44]   [CHECK 4b] scripts/pipeline/commands/ops/post_body_refresh_evidence.py: active entrypoint/library has no test_target
+[Step 44]   [CHECK 5] DEPRECATED: scripts/pipeline/commands/ops/check_audit_results.py (lifecycle=deprecated)
+[Step 44]   [CHECK 5] DEPRECATED: scripts/pipeline/commands/ops/refresh_run_manifest.py (lifecycle=deprecated)
+[Step 44] OK: registration valid (407 entries, 5 checks, 0 blocking issues; 234 require_test entries)
+[Step 45] OK: every changed content_eval evaluator has a corresponding version bump (or none changed).
+
+=== Pre-commit Summary ===
+  Step 0 python version pin             PASS   0.0s
+  Step 1 reports/ boundary              PASS   0.0s
+  Step 2 deletion gate                  PASS   1.0s
+  Step 3 forbidden paths                PASS   0.0s
+  Step 4 filename conventions           PASS   31.0s
+  Step 5 API accuracy audit             SKIP   0.0s
+  Step 6 locale frontmatter contamination SKIP   1.0s
+  Step 7 plugin_platform                PASS   0.0s
+  Step 8 frontmatter validation         PASS   0.0s
+  Step 9 provenance protection          PASS   0.0s
+  Step 10 content_hash normalization     PASS   0.0s
+  Step 11 last_mechanism staleness       PASS   0.0s
+  Step 12 Python placement               PASS   1.0s
+  Step 13 venv enforcement               PASS   0.0s
+  Step 14 session ledger                 PASS   0.0s
+  Step 15 onboarding integrity           PASS   0.0s
+  Step 16 root docs truth                PASS   1.0s
+  Step 17 graded_at reversion            PASS   0.0s
+  Step 18 monkeypatch lint               PASS   4.0s
+  Step 19 Go code block vet              PASS   1.0s
+  Step 20 encoding guard                 PASS   0.0s
+  Step 21 KB slug quality                PASS   0.0s
+  Step 22 Blog post standards            PASS   0.0s
+  Step 23 docs developer-guide slug quality PASS   1.0s
+  Step 24 code fence blank lines         PASS   0.0s
+  Step 25 enterprise link syntax         PASS   0.0s
+  Step 26 frontmatter YAML parse         PASS   0.0s
+  Step 27 translation regression         PASS   1.0s
+  Step 28 evidence churn                 PASS   0.0s
+  Step 29 grade churn                    PASS   0.0s
+  Step 30 grade downgrade gate           PASS   0.0s
+  Step 31 stale refresh gate             PASS   0.0s
+  Step 32 contract claims drift          PASS   0.0s
+  Step 33 reference index structure      PASS   0.0s
+  Step 34 skill-mirror parity            PASS   0.0s
+  Step 35 stale file regression          PASS   3.0s
+  Step 36 media asset size               PASS   0.0s
+  Step 37 backlog reconciliation gate    PASS   0.0s
+  Step 38 backlink compliance gate       SKIP   0.0s
+  Step 39 subprocess encoding parity     PASS   1.0s
+  Step 40 author identity                PASS   0.0s
+  Step 41 readme template contract parity PASS   0.0s
+  Step 42 git tracking policy parity     PASS   0.0s
+  Step 43 knowledge-stats consistency (advisory) PASS   0.0s
+  Step 44 pipeline registry completeness PASS   1.0s
+  Step 45 evaluator version bump         PASS   0.0s
+  Total: 43 passed, 3 skipped, 0 warning, 0 failed
+==============================
+
+skill_run_id=retroactive-20260923-103514-gapapproved

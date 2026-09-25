@@ -1,0 +1,21 @@
+fix(pipeline): parse KB slug verb synonyms through one shared parser (ST-198)
+
+_VERB_KEYWORDS mixed verb-synonym rows with category-hint rows, and the two reverse
+consumers (site_planner._validate_kb_slugs, topic_grounding._extract_topic_noun) built
+their verb set from the canonical outputs only, so slugs led by read/save/parse/inspect
+were never recognised as verb-led.
+
+- site_planner: partition the table into _KB_VERB_SYNONYMS and _KB_CATEGORY_VERB_HINTS
+  (_VERB_KEYWORDS kept as an exact alias); add split_kb_slug_verb_noun() with a
+  deterministic vocabulary; use it in _validate_kb_slugs; guard Check 2 so an empty verb
+  no longer reports a bogus "verb-noun duplication".
+- topic_grounding: delegate to the shared parser (no local vocabulary); version 1 -> 2.
+
+Verification on 248 real en KB how-to pages: parsed nouns change for exactly the 16
+expected slugs; 48 spurious empty-verb warnings (function level) / 7 (real planner CLI)
+-> 0, and the 1 genuine duplication remains; the portfolio topic_grounding FAIL set
+(9125 pages, 7 FAILs) is byte-identical before/after. This does NOT fix the
+read-msg-files-cpp FAIL (different cause, filed as ST-206). Independent review: ACCEPT.
+Scoped tests: 254 passed (9 files).
+
+Co-Authored-By: Claude Sonnet 5 <noreply@anthropic.com>

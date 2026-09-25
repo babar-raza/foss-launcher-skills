@@ -1,0 +1,9 @@
+authoritative_plan: PLAN-ST198-KB-VERB-VOCAB-HARDENING
+mission_id: ST198-2026-09-18-KB-VERB-VOCAB-HARDENING
+authorization: "User invoked <local-plan-cache>/create-a-format-plan-playful-sparkle.md Appendix F single-go prompt (message: 'execute as per Single-go execution prompt'), 2026-09-23. DEVIATION: standing memory feedback_no_push_before_user_review.md (2026-09-19) overrides Appendix F's push authorization -- this run commits locally with --no-push and stops for user review before any push."
+started_at_utc: 2026-09-23T09:44:38Z
+executor: claude-sonnet-5
+session_id: 7f9eef0f-800f-464e-a328-612212801ed8
+repo_head_at_start: ac3672f7b8a94c10f727b71e68ca195783a7717c
+gap_context_started_at_utc: 2026-09-23T09:51:21Z
+gap_context_ttl_minutes: 30

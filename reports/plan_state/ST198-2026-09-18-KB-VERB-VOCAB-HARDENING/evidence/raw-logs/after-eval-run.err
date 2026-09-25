@@ -1,0 +1,14 @@
+Loaded 9125 pages across 33 products
+[content_eval] WARNING: enrichment_status='scout-only' for barcode/python — claim-based evaluators may report false gaps
+[content_eval] WARNING: enrichment_status='scout-only' for cells/go — claim-based evaluators may report false gaps
+[content_eval] WARNING: enrichment_status='scout-only' for cells/python — claim-based evaluators may report false gaps
+[content_eval] WARNING: enrichment_status='scout-only' for email/cpp — claim-based evaluators may report false gaps
+[content_eval] WARNING: enrichment_status='scout-only' for email/net — claim-based evaluators may report false gaps
+[content_eval] WARNING: enrichment_status='scout-only' for pdf/net — claim-based evaluators may report false gaps
+
+Evaluation complete:
+  Pages: 9125
+  FAIL: 7
+  WARN: 0
+  INFO: 0
+  Report: reports\plan_state\ST198-2026-09-18-KB-VERB-VOCAB-HARDENING\evidence\raw-logs\after_eval\content_eval\eval-20260923-100845.json

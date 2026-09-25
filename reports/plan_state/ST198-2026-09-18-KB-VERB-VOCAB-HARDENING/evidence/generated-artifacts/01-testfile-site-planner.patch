@@ -1,0 +1,189 @@
+--- a/scripts/pipeline/tests/test_site_planner.py
++++ b/scripts/pipeline/tests/test_site_planner.py
+@@ -6,6 +6,7 @@
+ from __future__ import annotations
+ 
+ import json
++import logging
+ from pathlib import Path
+ 
+ import pytest
+@@ -1147,6 +1148,178 @@
+         # "unknown-family" has no entry in _FAMILY_PRODUCT_KEYWORDS → C4 skipped
+         sp._validate_kb_slugs(pages, "unknown-family", "net")  # no exception
+ 
++    # ST-198 F-1: Check 2 must not fire when no verb was parsed --------------
++
++    def test_synonym_led_discovered_slug_logs_no_duplication_warning(self, caplog):
++        pages = [self._make_page("how-to-read-msg-files-cpp", source="discovered")]
++        with caplog.at_level(logging.WARNING):
++            sp._validate_kb_slugs(pages, "email", "cpp")
++        assert not any("verb-noun duplication" in r.message for r in caplog.records)
++
++    def test_unknown_verb_discovered_slug_logs_no_duplication_warning(self, caplog):
++        pages = [self._make_page("how-to-get-started-email-cpp", source="discovered")]
++        with caplog.at_level(logging.WARNING):
++            sp._validate_kb_slugs(pages, "email", "cpp")
++        assert not any("verb-noun duplication" in r.message for r in caplog.records)
++
++    def test_unknown_verb_derived_slug_does_not_raise_duplication(self):
++        pages = [self._make_page("how-to-get-started-email-cpp", source="derived")]
++        sp._validate_kb_slugs(pages, "email", "cpp")  # no exception
++
++    def test_real_duplication_still_raises_for_derived_synonym_verb(self):
++        pages = [self._make_page("how-to-read-reading-documents-python", source="derived")]
++        with pytest.raises(ValueError, match=r"verb='read'"):
++            sp._validate_kb_slugs(pages, "pdf", "python")
++
++    def test_real_duplication_still_warns_for_discovered_canonical_verb(self, caplog):
++        pages = [self._make_page("how-to-convert-converters-python", source="discovered")]
++        with caplog.at_level(logging.WARNING):
++            sp._validate_kb_slugs(pages, "words", "python")
++        assert any(
++            "verb-noun duplication" in r.message and "verb='convert'" in r.message
++            for r in caplog.records
++        )
++
++
++class TestKbVerbVocabulary:
++    """ST-198: split_kb_slug_verb_noun() and the _VERB_KEYWORDS table partition.
++
++    Golden pin (this class's first test) freezes detect_kb_verb()'s current
++    output for every raw keyword in _VERB_KEYWORDS plus several compound
++    category names -- the table partition (synonym rows vs category-hint
++    rows) must not change a single forward-path result."""
++
++    def test_detect_kb_verb_forward_path_golden(self):
++        golden = {
++            "load": "load", "read": "load", "open": "load", "import": "load",
++            "save": "export", "write": "export", "export": "export",
++            "convert": "convert", "transform": "convert", "render": "render",
++            "create": "create", "generate": "create", "construct": "create",
++            "build": "build", "add": "add", "insert": "add", "append": "add",
++            "parse": "extract", "extract": "extract", "inspect": "extract",
++            "analyze": "extract", "traverse": "traverse", "optimize": "optimize",
++            "compress": "optimize", "format": "convert",
++            "scene-manage": "load", "scene-management": "load",
++            "scene-entit": "build", "entities": "build", "mesh": "build",
++            "animation": "add", "material": "add", "shading": "add",
++            "message-pars": "extract", "msg": "extract",
++            "compound-file": "load", "cfb": "load",
++            "presentation-content": "create", "pptx": "create",
++            "visual-effect": "add", "effects": "add", "export-render": "export",
++            "package-manage": "build", "opc": "build",
++            "drawing-shape": "add", "drawing": "add", "note-document": "load",
++            "save-export": "export", "saving": "export",
++            "onestore-format": "convert", "onestore": "load",
++            "spreadsheet-oper": "load", "cells": "create",
++            "xml-process": "extract", "app-properties": "extract",
++            "comment": "add", "core-properties": "extract",
++            "presentation-struct": "create", "presentation-manage": "create",
++            "spreadsheet-manage": "load", "email-process": "extract",
++            "document-manage": "load", "core-manage": "work-with",
++            "theme-styl": "add", "annotations-form": "add",
++            "text-extract": "extract", "content-oper": "work-with",
++            "facades-api": "work-with", "logical-struct": "create",
++            "page-generat": "create", "graphics-draw": "add",
++            "devices-render": "render", "conversion-optim": "convert",
++            "security-sign": "add", "navigation-action": "add",
++            "metadata-util": "extract",
++            "export-rendering": "export", "text-extraction": "extract",
++            "message-parsing": "extract", "document-loading": "load",
++            "zzz-unknown": "work-with",
++        }
++        for category, expected in golden.items():
++            assert sp.detect_kb_verb(category) == expected, (
++                f"detect_kb_verb({category!r}) changed: expected {expected!r}, "
++                f"got {sp.detect_kb_verb(category)!r}"
++            )
++
++    def test_synonym_verbs_are_stripped(self):
++        for kws, canon in sp._KB_VERB_SYNONYMS:
++            for kw in kws:
++                verb, noun = sp.split_kb_slug_verb_noun(
++                    f"how-to-{kw}-widgets-python", "python"
++                )
++                assert (verb, noun) == (kw, "widgets"), (
++                    f"raw synonym {kw!r} (canonical {canon!r}) was not stripped: "
++                    f"got verb={verb!r} noun={noun!r}"
++                )
++        assert sp.split_kb_slug_verb_noun(
++            "how-to-read-msg-files-cpp", "cpp"
++        ) == ("read", "msg-files")
++        assert sp.split_kb_slug_verb_noun(
++            "how-to-save-3d-scenes-python", "python"
++        ) == ("save", "3d-scenes")
++        assert sp.split_kb_slug_verb_noun(
++            "how-to-parse-tables-onenote-python", "python"
++        ) == ("parse", "tables-onenote")
++        assert sp.split_kb_slug_verb_noun(
++            "how-to-inspect-tags-onenote-python", "python"
++        ) == ("inspect", "tags-onenote")
++
++    def test_canonical_and_compound_verbs_still_stripped(self):
++        for kws, canon in sp._KB_VERB_SYNONYMS:
++            verb, noun = sp.split_kb_slug_verb_noun(
++                f"how-to-{canon}-widgets-python", "python"
++            )
++            assert (verb, noun) == (canon, "widgets"), (
++                f"canonical verb {canon!r} was not stripped: got {(verb, noun)!r}"
++            )
++        assert sp.split_kb_slug_verb_noun(
++            "how-to-work-with-attachments-cpp", "cpp"
++        ) == ("work-with", "attachments")
++
++    def test_unknown_verb_returns_empty_verb_and_whole_remainder(self):
++        assert sp.split_kb_slug_verb_noun(
++            "how-to-get-started-email-cpp", "cpp"
++        ) == ("", "get-started-email")
++        assert sp.split_kb_slug_verb_noun(
++            "how-to-frobnicate-widget-python", "python"
++        ) == ("", "frobnicate-widget")
++
++    def test_category_hint_keywords_are_never_verbs(self):
++        """Negative control: rows 11+ (category/cluster-name hints, e.g. msg,
++        mesh, cfb, comment, format) must NEVER be recognised as a strippable
++        leading verb -- only true verb synonyms (rows 1-10) may be."""
++        hint_raw_keywords = {
++            kw for kws, _ in sp._KB_CATEGORY_VERB_HINTS for kw in kws
++        }
++        synonym_raw_keywords = {
++            kw for kws, _ in sp._KB_VERB_SYNONYMS for kw in kws
++        }
++        assert hint_raw_keywords.isdisjoint(set(sp._KB_REVERSE_VERB_VOCAB) - synonym_raw_keywords - {
++            v for _, v in sp._VERB_KEYWORDS
++        } - {"work-with"})
++
++    def test_format_hint_is_not_stripped(self):
++        assert sp.split_kb_slug_verb_noun(
++            "how-to-format-support-python", "python"
++        ) == ("", "format-support")
++
++    def test_reverse_vocab_is_deterministic_longest_first(self):
++        vocab = list(sp._KB_REVERSE_VERB_VOCAB)
++        assert vocab == sorted(vocab, key=lambda v: (-len(v), v))
++        assert len(vocab) == len(set(vocab))
++        assert "work-with" in vocab
++        assert (
++            {v for _, v in sp._VERB_KEYWORDS} | {"work-with"}
++        ) <= set(vocab)
++
++    def test_verb_keywords_alias_is_exact_concatenation(self):
++        assert sp._VERB_KEYWORDS == sp._KB_VERB_SYNONYMS + sp._KB_CATEGORY_VERB_HINTS
++
++    def test_platform_suffix_handling(self):
++        assert sp.split_kb_slug_verb_noun(
++            "how-to-save-presentations-dotnet", "net"
++        ) == ("save", "presentations")
++        # F-3 (deferred): legacy "-net" suffixed slugs keep -net in the noun.
++        assert sp.split_kb_slug_verb_noun(
++            "how-to-read-msg-files-net", "net"
++        ) == ("read", "msg-files-net")
++
++    def test_non_howto_slug_raises_value_error(self):
++        with pytest.raises(ValueError):
++            sp.split_kb_slug_verb_noun("faq", "python")
++
+ 
+ # ---------------------------------------------------------------------------
+ # SQ-10: _match_existing_to_cluster concat-synonym fix

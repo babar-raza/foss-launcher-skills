@@ -1,0 +1,22 @@
+--- a/scripts/pipeline/tests/content_eval/test_topic_grounding.py
++++ b/scripts/pipeline/tests/content_eval/test_topic_grounding.py
+@@ -157,6 +157,19 @@
+         # the full inner string rather than raising or dropping a word.
+         assert tg._extract_topic_noun("how-to-frobnicate-widget-python", "python") == "frobnicate-widget"
+ 
++    def test_strips_raw_verb_synonym(self):
++        # ST-198: a slug led by a raw verb synonym (not the canonical form
++        # detect_kb_verb() would have produced) must still be recognised.
++        assert tg._extract_topic_noun("how-to-read-msg-files-cpp", "cpp") == "msg-files"
++        assert tg._extract_topic_noun("how-to-save-3d-scenes-python", "python") == "3d-scenes"
++
++    def test_evaluator_uses_shared_parser_with_no_local_vocabulary(self):
++        # ST-198: the duplicated vocabulary/loop is gone -- this module
++        # delegates to site_planner's single implementation.
++        assert not hasattr(tg, "_KNOWN_VERBS")
++        import commands.launch.site_planner as sp
++        assert tg.split_kb_slug_verb_noun is sp.split_kb_slug_verb_noun
++
+ 
+ class TestNounSegments:
+     def test_connector_splits_into_independent_segments(self):

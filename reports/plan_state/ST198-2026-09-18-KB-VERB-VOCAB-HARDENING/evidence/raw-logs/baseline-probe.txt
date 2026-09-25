@@ -1,0 +1,341 @@
+## HEADER
+shared_fn_present False
+verb_keywords_len 49
+pages 248
+## NOUNS
+3d/java/how-to-add-materials-shading-java	materials-shading	add
+3d/java/how-to-convert-3d-models-java	3d-models	convert
+3d/java/how-to-get-started-3d-java	get-started-3d	
+3d/java/how-to-load-3d-models-java	3d-models	load
+3d/net/how-to-add-animation-dotnet	animation	add
+3d/net/how-to-add-materials-shading-dotnet	materials-shading	add
+3d/net/how-to-build-scene-entities-dotnet	scene-entities	build
+3d/net/how-to-convert-3d-models-dotnet	3d-models	convert
+3d/net/how-to-get-started-3d-dotnet	get-started-3d	
+3d/net/how-to-load-3d-models-dotnet	3d-models	load
+3d/net/how-to-render-3d-dotnet	3d	render
+3d/net/how-to-work-with-profiles-dotnet	profiles	work-with
+3d/python/how-to-add-animation-python	animation	add
+3d/python/how-to-add-materials-shading-python	materials-shading	add
+3d/python/how-to-build-mesh-in-python	mesh-in	build
+3d/python/how-to-convert-3d-models-in-python	3d-models-in	convert
+3d/python/how-to-convert-fbx-to-gltf-python	fbx-to-gltf	convert
+3d/python/how-to-fix-3d-models-errors-python	fix-3d-models-errors	
+3d/python/how-to-get-started-3d-python	get-started-3d	
+3d/python/how-to-load-3d-models-in-python	3d-models-in	load
+3d/python/how-to-optimize-3d-models-python	3d-models	optimize
+3d/python/how-to-save-3d-scenes-python	save-3d-scenes	
+3d/python/how-to-traverse-scene-graph-in-python	scene-graph-in	traverse
+3d/typescript/how-to-add-animation-typescript	animation	add
+3d/typescript/how-to-add-materials-shading-typescript	materials-shading	add
+3d/typescript/how-to-build-mesh-in-typescript	mesh-in	build
+3d/typescript/how-to-convert-3d-models-typescript	3d-models	convert
+3d/typescript/how-to-export-gltf-in-typescript	gltf-in	export
+3d/typescript/how-to-fix-3d-models-errors-typescript	fix-3d-models-errors	
+3d/typescript/how-to-get-started-3d-typescript	get-started-3d	
+3d/typescript/how-to-load-3d-models-in-typescript	3d-models-in	load
+3d/typescript/how-to-optimize-3d-models-typescript	3d-models	optimize
+3d/typescript/how-to-save-3d-models-typescript	save-3d-models	
+3d/typescript/how-to-traverse-scene-graph-in-typescript	scene-graph-in	traverse
+barcode/python/how-to-render-barcode-python	barcode	render
+barcode/python/how-to-work-with-barcode-generation-python	barcode-generation	work-with
+barcode/python/how-to-work-with-encode-options-python	encode-options	work-with
+cells/cpp/how-to-create-cells-foss-model-cpp	cells-foss-model	create
+cells/cpp/how-to-extract-xml-cpp	xml	extract
+cells/cpp/how-to-load-spreadsheet-cpp	spreadsheet	load
+cells/cpp/how-to-work-with-internalvalidation-cpp	internalvalidation	work-with
+cells/cpp/how-to-work-with-xlsx-packaging-cpp	xlsx-packaging	work-with
+cells/go/how-to-load-spreadsheet-go	spreadsheet	load
+cells/java/how-to-create-cells-foss-java	cells-foss	create
+cells/java/how-to-extract-xml-java	xml	extract
+cells/java/how-to-load-spreadsheet-java	spreadsheet	load
+cells/java/how-to-work-with-cell-operations-java	cell-operations	work-with
+cells/java/how-to-work-with-cell-validation-java	cell-validation	work-with
+cells/java/how-to-work-with-xlsx-packaging-java	xlsx-packaging	work-with
+cells/net/how-to-configure-workbook-settings-dotnet	configure-workbook-settings	
+cells/net/how-to-extract-xml-dotnet	xml	extract
+cells/net/how-to-load-spreadsheet-dotnet	spreadsheet	load
+cells/net/how-to-work-with-cell-validation-dotnet	cell-validation	work-with
+cells/net/how-to-work-with-ooxml-packaging-dotnet	ooxml-packaging	work-with
+cells/net/how-to-work-with-packaging-dotnet	packaging	work-with
+cells/net/how-to-work-with-validation-dotnet	validation	work-with
+cells/net/how-to-work-with-workbook-settings-dotnet	workbook-settings	work-with
+cells/python/how-to-convert-csv-to-json-python	csv-to-json	convert
+cells/python/how-to-create-charts-python	charts	create
+cells/python/how-to-export-excel-to-markdown-python	excel-to-markdown	export
+cells/python/how-to-get-started-cells-python	get-started-cells	
+cells/python/how-to-load-spreadsheet-python	spreadsheet	load
+cells/python/how-to-load-spreadsheets-python	spreadsheets	load
+cells/python/how-to-save-spreadsheets-csv-python	save-spreadsheets-csv	
+cells/python/how-to-save-spreadsheets-python	save-spreadsheets	
+cells/python/how-to-style-cells-python	style-cells	
+cells/rust/how-to-create-cells-foss-model-rust	cells-foss-model	create
+cells/rust/how-to-load-spreadsheet-rust	spreadsheet	load
+cells/typescript/how-to-load-spreadsheet-typescript	spreadsheet	load
+email/cpp/how-to-convert-eml-to-msg-cpp	eml-to-msg	convert
+email/cpp/how-to-create-email-cpp	email	create
+email/cpp/how-to-get-started-email-cpp	get-started-email	
+email/cpp/how-to-load-compound-file-cpp	compound-file	load
+email/cpp/how-to-read-msg-files-cpp	read-msg-files	
+email/cpp/how-to-work-with-attachments-cpp	attachments	work-with
+email/net/how-to-convert-eml-to-msg-net	eml-to-msg-net	convert
+email/net/how-to-get-started-email-net	get-started-email-net	
+email/net/how-to-load-compound-file-dotnet	compound-file	load
+email/net/how-to-read-msg-files-net	read-msg-files-net	
+email/net/how-to-work-with-attachments-net	attachments-net	work-with
+email/python/how-to-create-email-python	email	create
+email/python/how-to-get-started-email-python	get-started-email	
+email/python/how-to-load-compound-file-python	compound-file	load
+email/python/how-to-parse-email-python	parse-email	
+font/python/how-to-work-with-brotli-python	brotli	work-with
+font/python/how-to-work-with-cff-python	cff	work-with
+font/python/how-to-work-with-eot-python	eot	work-with
+font/python/how-to-work-with-font-management-python	font-management	work-with
+font/python/how-to-work-with-tables-python	tables	work-with
+font/python/how-to-work-with-ttf-python	ttf	work-with
+font/python/how-to-work-with-type1-python	type1	work-with
+font/python/how-to-work-with-vendor-python	vendor	work-with
+font/python/how-to-work-with-woff-python	woff	work-with
+html/python/how-to-work-with-css-python	css	work-with
+html/python/how-to-work-with-cssom-python	cssom	work-with
+html/python/how-to-work-with-dom-python	dom	work-with
+html/python/how-to-work-with-encoding-python	encoding	work-with
+html/python/how-to-work-with-html-core-python	html-core	work-with
+html/python/how-to-work-with-html-python	html	work-with
+html/python/how-to-work-with-js-python	js	work-with
+html/python/how-to-work-with-layout-python	layout	work-with
+html/python/how-to-work-with-tokenizer-python	tokenizer	work-with
+html/python/how-to-work-with-tree-python	tree	work-with
+html/python/how-to-work-with-url-python	url	work-with
+imaging/net/how-to-work-with-imaging-core-api-dotnet	imaging-core-api	work-with
+note/python/how-to-build-scene-entities-python	scene-entities	build
+note/python/how-to-convert-onestore-format-python	onestore-format	convert
+note/python/how-to-export-onenote-to-pdf-python	onenote-to-pdf	export
+note/python/how-to-extract-text-from-onenote-python	text-from-onenote	extract
+note/python/how-to-get-started-note-python	get-started-note	
+note/python/how-to-inspect-tags-onenote-python	inspect-tags-onenote	
+note/python/how-to-parse-tables-onenote-python	parse-tables-onenote	
+note/python/how-to-read-document-metadata-onenote-python	read-document-metadata-onenote	
+note/python/how-to-read-image-metadata-onenote-python	read-image-metadata-onenote	
+note/python/how-to-save-attachments-onenote-python	save-attachments-onenote	
+note/python/how-to-traverse-dom-onenote-python	dom-onenote	traverse
+note/python/how-to-work-with-ms-one-python	ms-one	work-with
+page/python/how-to-work-with-common-python	common	work-with
+page/python/how-to-work-with-image-python	image	work-with
+page/python/how-to-work-with-mcp-python	mcp	work-with
+page/python/how-to-work-with-pdf-python	pdf	work-with
+page/python/how-to-work-with-ps-python	ps	work-with
+page/python/how-to-work-with-xps-python	xps	work-with
+pdf/cpp/how-to-load-document-cpp	document	load
+pdf/cpp/how-to-work-with-facades-api-cpp	facades-api	work-with
+pdf/cpp/how-to-work-with-pdf-annotations-cpp	pdf-annotations	work-with
+pdf/cpp/how-to-work-with-pdf-cpp	pdf	work-with
+pdf/cpp/how-to-work-with-pdf-graphics-cpp	pdf-graphics	work-with
+pdf/go/how-to-load-document-go	document	load
+pdf/java/how-to-add-drawing-shapes-java	drawing-shapes	add
+pdf/java/how-to-work-with-annotations-java	annotations	work-with
+pdf/java/how-to-work-with-cos-java	cos	work-with
+pdf/java/how-to-work-with-facades-java	facades	work-with
+pdf/java/how-to-work-with-forms-java	forms	work-with
+pdf/java/how-to-work-with-operators-java	operators	work-with
+pdf/java/how-to-work-with-pdf-java	pdf	work-with
+pdf/net/how-to-add-pdf-annotations-dotnet	pdf-annotations	add
+pdf/net/how-to-add-pdf-graphics-dotnet	pdf-graphics	add
+pdf/net/how-to-extract-pdf-metadata-dotnet	pdf-metadata	extract
+pdf/net/how-to-extract-text-dotnet	text	extract
+pdf/net/how-to-load-document-dotnet	document	load
+pdf/net/how-to-work-with-facades-api-dotnet	facades-api	work-with
+pdf/net/how-to-work-with-javascript-extensions-dotnet	javascript-extensions	work-with
+pdf/net/how-to-work-with-pdf-content-streams-dotnet	pdf-content-streams	work-with
+pdf/net/how-to-work-with-pdf-documents-dotnet	pdf-documents	work-with
+pdf/python/how-to-add-pdf-security-signatures-python	pdf-security-signatures	add
+pdf/python/how-to-create-generated-python	generated	create
+pdf/python/how-to-load-document-python	document	load
+pdf/python/how-to-work-with-clustering-python	clustering	work-with
+pdf/python/how-to-work-with-engine-python	engine	work-with
+pdf/python/how-to-work-with-pdf-annotations-python	pdf-annotations	work-with
+pdf/python/how-to-work-with-pdf-data-python	pdf-data	work-with
+pdf/python/how-to-work-with-primitives-python	primitives	work-with
+pdf/typescript/how-to-work-with-annotations-typescript	annotations	work-with
+pdf/typescript/how-to-work-with-attachments-typescript	attachments	work-with
+pdf/typescript/how-to-work-with-conversion-typescript	conversion	work-with
+pdf/typescript/how-to-work-with-forms-typescript	forms	work-with
+pdf/typescript/how-to-work-with-images-typescript	images	work-with
+pdf/typescript/how-to-work-with-pdf-core-api-typescript	pdf-core-api	work-with
+pdf/typescript/how-to-work-with-redaction-typescript	redaction	work-with
+pdf/typescript/how-to-work-with-security-typescript	security	work-with
+pdf/typescript/how-to-work-with-structure-typescript	structure	work-with
+pdf/typescript/how-to-work-with-text-typescript	text	work-with
+slides/cpp/how-to-add-comments-cpp	comments	add
+slides/cpp/how-to-add-images-cpp	images	add
+slides/cpp/how-to-add-shapes-cpp	shapes	add
+slides/cpp/how-to-apply-3d-effects-cpp	apply-3d-effects	
+slides/cpp/how-to-build-package-cpp	package	build
+slides/cpp/how-to-connect-shapes-cpp	connect-shapes	
+slides/cpp/how-to-create-presentations-cpp	presentations	create
+slides/cpp/how-to-extract-xml-cpp	xml	extract
+slides/cpp/how-to-format-text-cpp	format-text	
+slides/cpp/how-to-get-started-slides-cpp	get-started-slides	
+slides/cpp/how-to-load-presentations-cpp	presentations	load
+slides/cpp/how-to-save-presentations-cpp	save-presentations	
+slides/cpp/how-to-work-with-tables-cpp	tables	work-with
+slides/java/how-to-add-comments-java	comments	add
+slides/java/how-to-add-images-java	images	add
+slides/java/how-to-add-shapes-java	shapes	add
+slides/java/how-to-apply-3d-effects-java	apply-3d-effects	
+slides/java/how-to-connect-shapes-java	connect-shapes	
+slides/java/how-to-create-presentations-java	presentations	create
+slides/java/how-to-format-text-java	format-text	
+slides/java/how-to-get-started-slides-java	get-started-slides	
+slides/java/how-to-load-presentations-java	presentations	load
+slides/java/how-to-save-presentations-java	save-presentations	
+slides/java/how-to-work-with-tables-java	tables	work-with
+slides/net/how-to-add-comments-dotnet	comments	add
+slides/net/how-to-add-images-dotnet	images	add
+slides/net/how-to-add-shapes-dotnet	shapes	add
+slides/net/how-to-apply-3d-effects-dotnet	apply-3d-effects	
+slides/net/how-to-connect-shapes-dotnet	connect-shapes	
+slides/net/how-to-create-presentation-dotnet	presentation	create
+slides/net/how-to-create-presentation-structure-dotnet	presentation-structure	create
+slides/net/how-to-create-presentations-dotnet	presentations	create
+slides/net/how-to-extract-app-properties-dotnet	app-properties	extract
+slides/net/how-to-format-text-dotnet	format-text	
+slides/net/how-to-get-started-slides-dotnet	get-started-slides	
+slides/net/how-to-load-presentations-dotnet	presentations	load
+slides/net/how-to-save-presentations-dotnet	save-presentations	
+slides/net/how-to-work-with-tables-dotnet	tables	work-with
+slides/python/how-to-add-animation-python	animation	add
+slides/python/how-to-add-comments-python	comments	add
+slides/python/how-to-add-images-python	images	add
+slides/python/how-to-add-shapes-python	shapes	add
+slides/python/how-to-apply-3d-effects-python	apply-3d-effects	
+slides/python/how-to-connect-shapes-python	connect-shapes	
+slides/python/how-to-create-presentation-python	presentation	create
+slides/python/how-to-create-presentations-python	presentations	create
+slides/python/how-to-format-text-python	format-text	
+slides/python/how-to-get-started-slides-python	get-started-slides	
+slides/python/how-to-load-presentations-python	presentations	load
+slides/python/how-to-save-presentations-python	save-presentations	
+slides/python/how-to-work-with-charts-python	charts	work-with
+slides/python/how-to-work-with-slideshow-python	slideshow	work-with
+slides/python/how-to-work-with-tables-python	tables	work-with
+slides/python/how-to-work-with-xlsx-python	xlsx	work-with
+tex/python/how-to-use-input-sources-python	use-input-sources	
+tex/python/how-to-use-output-formats-python	use-output-formats	
+tex/python/how-to-use-tex-engine-python	use-tex-engine	
+words/net/how-to-add-word-drawing-shapes-dotnet	word-drawing-shapes	add
+words/net/how-to-export-save-dotnet	save	export
+words/net/how-to-load-words-dotnet	words	load
+words/net/how-to-work-with-bibliography-dotnet	bibliography	work-with
+words/net/how-to-work-with-charts-dotnet	charts	work-with
+words/net/how-to-work-with-document-dotnet	document	work-with
+words/net/how-to-work-with-fields-dotnet	fields	work-with
+words/net/how-to-work-with-lists-dotnet	lists	work-with
+words/net/how-to-work-with-markup-dotnet	markup	work-with
+words/net/how-to-work-with-nodes-dotnet	nodes	work-with
+words/net/how-to-work-with-properties-dotnet	properties	work-with
+words/net/how-to-work-with-sdt-dotnet	sdt	work-with
+words/net/how-to-work-with-sections-dotnet	sections	work-with
+words/net/how-to-work-with-settings-dotnet	settings	work-with
+words/net/how-to-work-with-styles-dotnet	styles	work-with
+words/net/how-to-work-with-tables-dotnet	tables	work-with
+words/net/how-to-work-with-text-dotnet	text	work-with
+words/net/how-to-work-with-transitional-dotnet	transitional	work-with
+words/net/how-to-work-with-word-index-and-tables-dotnet	word-index-and-tables	work-with
+words/net/how-to-work-with-word-links-and-references-dotnet	word-links-and-references	work-with
+words/python/how-to-build-ldm-builder-python	ldm-builder	build
+words/python/how-to-convert-converters-python	converters	convert
+words/python/how-to-export-pdf-writer-python	pdf-writer	export
+words/python/how-to-extract-parsers-python	parsers	extract
+words/python/how-to-load-and-export-word-documents-python	and-export-word-documents	load
+words/python/how-to-load-doc-reader-python	doc-reader	load
+words/python/how-to-load-docx-reader-python	docx-reader	load
+words/python/how-to-work-with-document-management-python	document-management	work-with
+## NOVERB 48 [('apply', 4), ('configure', 1), ('connect', 4), ('fix', 2), ('format', 4), ('get', 13), ('inspect', 1), ('parse', 2), ('read', 4), ('save', 9), ('style', 1), ('use', 3)]
+## ELIGIBLE
+3d/java/how-to-add-materials-shading-java	materials-shading	PASS
+cells/python/how-to-convert-csv-to-json-python	csv-to-json	PASS
+email/cpp/how-to-convert-eml-to-msg-cpp	eml-to-msg	PASS
+email/cpp/how-to-create-email-cpp	email	PASS
+email/cpp/how-to-load-compound-file-cpp	compound-file	FAIL
+email/cpp/how-to-read-msg-files-cpp	read-msg-files	FAIL
+email/cpp/how-to-work-with-attachments-cpp	attachments	PASS
+email/net/how-to-load-compound-file-dotnet	compound-file	FAIL
+email/python/how-to-load-compound-file-python	compound-file	PASS
+note/python/how-to-build-scene-entities-python	scene-entities	FAIL
+note/python/how-to-convert-onestore-format-python	onestore-format	FAIL
+note/python/how-to-work-with-ms-one-python	ms-one	FAIL
+slides/cpp/how-to-build-package-cpp	package	PASS
+slides/cpp/how-to-extract-xml-cpp	xml	PASS
+slides/net/how-to-create-presentation-dotnet	presentation	PASS
+slides/net/how-to-create-presentation-structure-dotnet	presentation-structure	FAIL
+slides/net/how-to-extract-app-properties-dotnet	app-properties	PASS
+## WARNINGS
+C2-dup-emptyverb	3d/java	KB slug quality warning (source=discovered): KB slug has verb-noun duplication: 'how-to-get-started-3d-java' |   verb='' appears in noun='get-started-3d'
+C2-dup-emptyverb	3d/net	KB slug quality warning (source=discovered): KB slug has verb-noun duplication: 'how-to-get-started-3d-dotnet' |   verb='' appears in noun='get-started-3d'
+C2-dup-emptyverb	3d/python	KB slug quality warning (source=discovered): KB slug has verb-noun duplication: 'how-to-fix-3d-models-errors-python' |   verb='' appears in noun='fix-3d-models-errors'
+C2-dup-emptyverb	3d/python	KB slug quality warning (source=discovered): KB slug has verb-noun duplication: 'how-to-get-started-3d-python' |   verb='' appears in noun='get-started-3d'
+C2-dup-emptyverb	3d/python	KB slug quality warning (source=discovered): KB slug has verb-noun duplication: 'how-to-save-3d-scenes-python' |   verb='' appears in noun='save-3d-scenes'
+C2-dup-emptyverb	3d/typescript	KB slug quality warning (source=discovered): KB slug has verb-noun duplication: 'how-to-fix-3d-models-errors-typescript' |   verb='' appears in noun='fix-3d-models-errors'
+C2-dup-emptyverb	3d/typescript	KB slug quality warning (source=discovered): KB slug has verb-noun duplication: 'how-to-get-started-3d-typescript' |   verb='' appears in noun='get-started-3d'
+C2-dup-emptyverb	3d/typescript	KB slug quality warning (source=discovered): KB slug has verb-noun duplication: 'how-to-save-3d-models-typescript' |   verb='' appears in noun='save-3d-models'
+C1-camel	cells/cpp	KB slug quality warning (source=discovered): KB slug noun appears to be an unsplit CamelCase token: 'how-to-work-with-internalvalidation-cpp' |   noun='internalvalidation' — add label to _FAMILY_SUBPKG_LABELS['cells'] or rely on TC-KBS-002 splitter
+C2-dup-emptyverb	cells/net	KB slug quality warning (source=discovered): KB slug has verb-noun duplication: 'how-to-configure-workbook-settings-dotnet' |   verb='' appears in noun='configure-workbook-settings'
+C4-family	cells/python	KB slug quality warning (source=discovered): KB slug compound noun lacks product-family qualifier: 'how-to-convert-csv-to-json-python' |   noun='csv-to-json' contains no word from the 'cells' keyword set — slug is ambiguous without URL context. |   Prefix noun with family term (e.g. 'cells-csv-to-json') or update label in _FAMILY_SUBPKG_LABELS['cells']
+C2-dup-emptyverb	cells/python	KB slug quality warning (source=discovered): KB slug has verb-noun duplication: 'how-to-get-started-cells-python' |   verb='' appears in noun='get-started-cells'
+C2-dup-emptyverb	cells/python	KB slug quality warning (source=discovered): KB slug has verb-noun duplication: 'how-to-save-spreadsheets-csv-python' |   verb='' appears in noun='save-spreadsheets-csv'
+C2-dup-emptyverb	cells/python	KB slug quality warning (source=discovered): KB slug has verb-noun duplication: 'how-to-save-spreadsheets-python' |   verb='' appears in noun='save-spreadsheets'
+C2-dup-emptyverb	cells/python	KB slug quality warning (source=discovered): KB slug has verb-noun duplication: 'how-to-style-cells-python' |   verb='' appears in noun='style-cells'
+C2-dup-emptyverb	email/cpp	KB slug quality warning (source=discovered): KB slug has verb-noun duplication: 'how-to-get-started-email-cpp' |   verb='' appears in noun='get-started-email'
+C4-family	email/cpp	KB slug quality warning (source=discovered): KB slug compound noun lacks product-family qualifier: 'how-to-load-compound-file-cpp' |   noun='compound-file' contains no word from the 'email' keyword set — slug is ambiguous without URL context. |   Prefix noun with family term (e.g. 'email-compound-file') or update label in _FAMILY_SUBPKG_LABELS['email']
+C2-dup-emptyverb	email/cpp	KB slug quality warning (source=discovered): KB slug has verb-noun duplication: 'how-to-read-msg-files-cpp' |   verb='' appears in noun='read-msg-files'
+C2-dup-emptyverb	email/net	KB slug quality warning (source=discovered): KB slug has verb-noun duplication: 'how-to-get-started-email-net' |   verb='' appears in noun='get-started-email-net'
+C4-family	email/net	KB slug quality warning (source=discovered): KB slug compound noun lacks product-family qualifier: 'how-to-load-compound-file-dotnet' |   noun='compound-file' contains no word from the 'email' keyword set — slug is ambiguous without URL context. |   Prefix noun with family term (e.g. 'email-compound-file') or update label in _FAMILY_SUBPKG_LABELS['email']
+C2-dup-emptyverb	email/net	KB slug quality warning (source=discovered): KB slug has verb-noun duplication: 'how-to-read-msg-files-net' |   verb='' appears in noun='read-msg-files-net'
+C2-dup-emptyverb	email/python	KB slug quality warning (source=discovered): KB slug has verb-noun duplication: 'how-to-get-started-email-python' |   verb='' appears in noun='get-started-email'
+C4-family	email/python	KB slug quality warning (source=discovered): KB slug compound noun lacks product-family qualifier: 'how-to-load-compound-file-python' |   noun='compound-file' contains no word from the 'email' keyword set — slug is ambiguous without URL context. |   Prefix noun with family term (e.g. 'email-compound-file') or update label in _FAMILY_SUBPKG_LABELS['email']
+C2-dup-emptyverb	email/python	KB slug quality warning (source=discovered): KB slug has verb-noun duplication: 'how-to-parse-email-python' |   verb='' appears in noun='parse-email'
+C2-dup-emptyverb	note/python	KB slug quality warning (source=discovered): KB slug has verb-noun duplication: 'how-to-get-started-note-python' |   verb='' appears in noun='get-started-note'
+C2-dup-emptyverb	note/python	KB slug quality warning (source=discovered): KB slug has verb-noun duplication: 'how-to-inspect-tags-onenote-python' |   verb='' appears in noun='inspect-tags-onenote'
+C2-dup-emptyverb	note/python	KB slug quality warning (source=discovered): KB slug has verb-noun duplication: 'how-to-parse-tables-onenote-python' |   verb='' appears in noun='parse-tables-onenote'
+C2-dup-emptyverb	note/python	KB slug quality warning (source=discovered): KB slug has verb-noun duplication: 'how-to-read-document-metadata-onenote-python' |   verb='' appears in noun='read-document-metadata-onenote'
+C2-dup-emptyverb	note/python	KB slug quality warning (source=discovered): KB slug has verb-noun duplication: 'how-to-read-image-metadata-onenote-python' |   verb='' appears in noun='read-image-metadata-onenote'
+C2-dup-emptyverb	note/python	KB slug quality warning (source=discovered): KB slug has verb-noun duplication: 'how-to-save-attachments-onenote-python' |   verb='' appears in noun='save-attachments-onenote'
+C3-generic	page/python	KB slug quality warning (source=discovered): KB slug noun is too generic: 'how-to-work-with-common-python' |   primary noun word 'common' is in _KB_GENERIC_NOUNS — add a specific label to _FAMILY_SUBPKG_LABELS['page']
+C4-family	pdf/java	KB slug quality warning (source=discovered): KB slug compound noun lacks product-family qualifier: 'how-to-add-drawing-shapes-java' |   noun='drawing-shapes' contains no word from the 'pdf' keyword set — slug is ambiguous without URL context. |   Prefix noun with family term (e.g. 'pdf-drawing-shapes') or update label in _FAMILY_SUBPKG_LABELS['pdf']
+C2-dup-emptyverb	slides/cpp	KB slug quality warning (source=discovered): KB slug has verb-noun duplication: 'how-to-apply-3d-effects-cpp' |   verb='' appears in noun='apply-3d-effects'
+C2-dup-emptyverb	slides/cpp	KB slug quality warning (source=discovered): KB slug has verb-noun duplication: 'how-to-connect-shapes-cpp' |   verb='' appears in noun='connect-shapes'
+C1-camel	slides/cpp	KB slug quality warning (source=discovered): KB slug noun appears to be an unsplit CamelCase token: 'how-to-create-presentations-cpp' |   noun='presentations' — add label to _FAMILY_SUBPKG_LABELS['slides'] or rely on TC-KBS-002 splitter
+C2-dup-emptyverb	slides/cpp	KB slug quality warning (source=discovered): KB slug has verb-noun duplication: 'how-to-format-text-cpp' |   verb='' appears in noun='format-text'
+C2-dup-emptyverb	slides/cpp	KB slug quality warning (source=discovered): KB slug has verb-noun duplication: 'how-to-get-started-slides-cpp' |   verb='' appears in noun='get-started-slides'
+C1-camel	slides/cpp	KB slug quality warning (source=discovered): KB slug noun appears to be an unsplit CamelCase token: 'how-to-load-presentations-cpp' |   noun='presentations' — add label to _FAMILY_SUBPKG_LABELS['slides'] or rely on TC-KBS-002 splitter
+C2-dup-emptyverb	slides/cpp	KB slug quality warning (source=discovered): KB slug has verb-noun duplication: 'how-to-save-presentations-cpp' |   verb='' appears in noun='save-presentations'
+C2-dup-emptyverb	slides/java	KB slug quality warning (source=discovered): KB slug has verb-noun duplication: 'how-to-apply-3d-effects-java' |   verb='' appears in noun='apply-3d-effects'
+C2-dup-emptyverb	slides/java	KB slug quality warning (source=discovered): KB slug has verb-noun duplication: 'how-to-connect-shapes-java' |   verb='' appears in noun='connect-shapes'
+C1-camel	slides/java	KB slug quality warning (source=discovered): KB slug noun appears to be an unsplit CamelCase token: 'how-to-create-presentations-java' |   noun='presentations' — add label to _FAMILY_SUBPKG_LABELS['slides'] or rely on TC-KBS-002 splitter
+C2-dup-emptyverb	slides/java	KB slug quality warning (source=discovered): KB slug has verb-noun duplication: 'how-to-format-text-java' |   verb='' appears in noun='format-text'
+C2-dup-emptyverb	slides/java	KB slug quality warning (source=discovered): KB slug has verb-noun duplication: 'how-to-get-started-slides-java' |   verb='' appears in noun='get-started-slides'
+C1-camel	slides/java	KB slug quality warning (source=discovered): KB slug noun appears to be an unsplit CamelCase token: 'how-to-load-presentations-java' |   noun='presentations' — add label to _FAMILY_SUBPKG_LABELS['slides'] or rely on TC-KBS-002 splitter
+C2-dup-emptyverb	slides/java	KB slug quality warning (source=discovered): KB slug has verb-noun duplication: 'how-to-save-presentations-java' |   verb='' appears in noun='save-presentations'
+C2-dup-emptyverb	slides/net	KB slug quality warning (source=discovered): KB slug has verb-noun duplication: 'how-to-apply-3d-effects-dotnet' |   verb='' appears in noun='apply-3d-effects'
+C2-dup-emptyverb	slides/net	KB slug quality warning (source=discovered): KB slug has verb-noun duplication: 'how-to-connect-shapes-dotnet' |   verb='' appears in noun='connect-shapes'
+C1-camel	slides/net	KB slug quality warning (source=discovered): KB slug noun appears to be an unsplit CamelCase token: 'how-to-create-presentations-dotnet' |   noun='presentations' — add label to _FAMILY_SUBPKG_LABELS['slides'] or rely on TC-KBS-002 splitter
+C4-family	slides/net	KB slug quality warning (source=discovered): KB slug compound noun lacks product-family qualifier: 'how-to-extract-app-properties-dotnet' |   noun='app-properties' contains no word from the 'slides' keyword set — slug is ambiguous without URL context. |   Prefix noun with family term (e.g. 'slides-app-properties') or update label in _FAMILY_SUBPKG_LABELS['slides']
+C2-dup-emptyverb	slides/net	KB slug quality warning (source=discovered): KB slug has verb-noun duplication: 'how-to-format-text-dotnet' |   verb='' appears in noun='format-text'
+C2-dup-emptyverb	slides/net	KB slug quality warning (source=discovered): KB slug has verb-noun duplication: 'how-to-get-started-slides-dotnet' |   verb='' appears in noun='get-started-slides'
+C1-camel	slides/net	KB slug quality warning (source=discovered): KB slug noun appears to be an unsplit CamelCase token: 'how-to-load-presentations-dotnet' |   noun='presentations' — add label to _FAMILY_SUBPKG_LABELS['slides'] or rely on TC-KBS-002 splitter
+C2-dup-emptyverb	slides/net	KB slug quality warning (source=discovered): KB slug has verb-noun duplication: 'how-to-save-presentations-dotnet' |   verb='' appears in noun='save-presentations'
+C2-dup-emptyverb	slides/python	KB slug quality warning (source=discovered): KB slug has verb-noun duplication: 'how-to-apply-3d-effects-python' |   verb='' appears in noun='apply-3d-effects'
+C2-dup-emptyverb	slides/python	KB slug quality warning (source=discovered): KB slug has verb-noun duplication: 'how-to-connect-shapes-python' |   verb='' appears in noun='connect-shapes'
+C1-camel	slides/python	KB slug quality warning (source=discovered): KB slug noun appears to be an unsplit CamelCase token: 'how-to-create-presentations-python' |   noun='presentations' — add label to _FAMILY_SUBPKG_LABELS['slides'] or rely on TC-KBS-002 splitter
+C2-dup-emptyverb	slides/python	KB slug quality warning (source=discovered): KB slug has verb-noun duplication: 'how-to-format-text-python' |   verb='' appears in noun='format-text'
+C2-dup-emptyverb	slides/python	KB slug quality warning (source=discovered): KB slug has verb-noun duplication: 'how-to-get-started-slides-python' |   verb='' appears in noun='get-started-slides'
+C1-camel	slides/python	KB slug quality warning (source=discovered): KB slug noun appears to be an unsplit CamelCase token: 'how-to-load-presentations-python' |   noun='presentations' — add label to _FAMILY_SUBPKG_LABELS['slides'] or rely on TC-KBS-002 splitter
+C2-dup-emptyverb	slides/python	KB slug quality warning (source=discovered): KB slug has verb-noun duplication: 'how-to-save-presentations-python' |   verb='' appears in noun='save-presentations'
+C2-dup-emptyverb	tex/python	KB slug quality warning (source=discovered): KB slug has verb-noun duplication: 'how-to-use-input-sources-python' |   verb='' appears in noun='use-input-sources'
+C2-dup-emptyverb	tex/python	KB slug quality warning (source=discovered): KB slug has verb-noun duplication: 'how-to-use-output-formats-python' |   verb='' appears in noun='use-output-formats'
+C2-dup-emptyverb	tex/python	KB slug quality warning (source=discovered): KB slug has verb-noun duplication: 'how-to-use-tex-engine-python' |   verb='' appears in noun='use-tex-engine'
+C4-family	words/python	KB slug quality warning (source=discovered): KB slug compound noun lacks product-family qualifier: 'how-to-build-ldm-builder-python' |   noun='ldm-builder' contains no word from the 'words' keyword set — slug is ambiguous without URL context. |   Prefix noun with family term (e.g. 'words-ldm-builder') or update label in _FAMILY_SUBPKG_LABELS['words']
+C2-dup-real	words/python	KB slug quality warning (source=discovered): KB slug has verb-noun duplication: 'how-to-convert-converters-python' |   verb='convert' appears in noun='converters'
+C4-family	words/python	KB slug quality warning (source=discovered): KB slug compound noun lacks product-family qualifier: 'how-to-export-pdf-writer-python' |   noun='pdf-writer' contains no word from the 'words' keyword set — slug is ambiguous without URL context. |   Prefix noun with family term (e.g. 'words-pdf-writer') or update label in _FAMILY_SUBPKG_LABELS['words']
+## WARNING_TOTALS [('C1-camel', 9), ('C2-dup-emptyverb', 48), ('C2-dup-real', 1), ('C3-generic', 1), ('C4-family', 8)]
