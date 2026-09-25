@@ -79,6 +79,8 @@ PLATFORM_SDK_CLASSES = {
     "Exception",      # System.Exception (.NET), java.lang.Exception (Java)
     "System",         # System namespace (.NET)
     "Integer",        # java.lang.Integer (Java)
+    "ByteArrayInputStream",   # java.io.ByteArrayInputStream (Java)
+    "ByteArrayOutputStream",  # java.io.ByteArrayOutputStream (Java)
     "Objects",        # java.util.Objects (Java)
     "Collections",    # java.util.Collections (Java)
     "PointF",         # System.Drawing.PointF (.NET)

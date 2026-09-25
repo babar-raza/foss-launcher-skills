@@ -146,6 +146,11 @@ class TestApiAccuracyBclAllowlist:
         from token_ops import PLATFORM_SDK_CLASSES
         assert "Console" in PLATFORM_SDK_CLASSES
 
+    def test_java_byte_array_streams_are_allowlisted(self):
+        """Java standard-library streams must not trigger UNKNOWN_CLASS."""
+        from token_ops import PLATFORM_SDK_CLASSES
+        assert {"ByteArrayInputStream", "ByteArrayOutputStream"} <= PLATFORM_SDK_CLASSES
+
 
 class TestProseTruthDocConventionExclusion:
     """EC-03 fix: doc-convention phrases starting with 'All examples...' must be excluded."""
