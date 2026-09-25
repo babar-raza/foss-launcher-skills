@@ -1,15 +1,15 @@
 # Aspose.Page FOSS for Python
 
-[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE.txt) [![Python](https://img.shields.io/badge/python-3.10%2B-blue.svg)](pyproject.toml) [![Contributors](https://img.shields.io/github/contributors/aspose-page-foss/Aspose.Page-FOSS-for-Python.svg)](https://github.com/aspose-page-foss/Aspose.Page-FOSS-for-Python/graphs/contributors)
+[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE.txt) [![Python](https://img.shields.io/badge/python-3.10%2B-blue.svg)](pyproject.toml) [![Contributors](https://img.shields.io/github/contributors/aspose-page-foss/Aspose.Page-FOSS-for-Python.svg)](https://github.com/aspose-page-foss/Aspose.Page-FOSS-for-Python/graphs/contributors) [![Package Version](https://img.shields.io/pypi/v/aspose-page-foss.svg)](https://pypi.org/project/aspose-page-foss/)
 
 [![Aspose.Page FOSS for Python](https://products.aspose.org/media/page/python/banner-readme.png)](https://products.aspose.org/page/python/)
 
 Aspose.Page FOSS for Python is a free, open-source, MIT-licensed, pure-Python library for
 working with PostScript, Encapsulated PostScript (EPS), and XPS documents. It reads and authors
 PS/EPS and XPS content directly, builds page content programmatically through its own render
-model, and writes PDF or raster (PNG, JPEG, BMP, TIFF) output — all without Ghostscript, Adobe
-tooling, or any native runtime dependency. The same conversions are also exposed as MCP tools
-for LLM-agent and automation workflows.
+model, and writes PDF or raster (PNG, JPEG, BMP, TIFF) output without Ghostscript or Adobe
+tooling. Raster output uses the free `skia-python` package, which has native components. The
+same conversions are also exposed as MCP tools for LLM-agent and automation workflows.
 
 ## Navigation
 
@@ -74,21 +74,35 @@ flowchart TD
 - Write PDF 1.4 output with `PdfWriter`, including TrueType/Type1 font embedding resolved through
   `FontResolver` and `FontCache`.
 - Rasterize PS/EPS content to PNG, JPEG, BMP, or TIFF with `RasterRenderer`; the Skia backend
-  (`skia-python`) is used automatically when installed for speed, with a transparent
-  pure-Python fallback (`DefaultRasterWriter`) when it isn't. XPS-to-image conversion has no
-  such fallback — `skia-python` is a hard requirement there (see Scope and Limitations).
+  (`skia-python`, installed with the package) is used by default for speed, and a pure-Python
+  renderer (`DefaultRasterWriter`) remains available — set `ASPOSE_PAGE_RASTERIZER=python` or
+  pass a writer through `ImageSaveOptions.raster_writer`. XPS-to-image conversion has no such
+  fallback — it always needs the Skia backend (see Scope and Limitations).
 - Expose every conversion as an MCP tool (`ps_to_pdf`, `ps_to_image`, `xps_to_pdf`,
   `xps_to_image`, `eps_metadata`) through `create_server()`, for FastMCP-based automation.
 
 ## Installation
 
-Install directly from a clone of the repository:
+Install the package from PyPI:
+
+```bash
+pip install aspose-page-foss
+```
+
+To build and verify a wheel from a clone of the repository instead, install `uv`, `setuptools`,
+and `wheel`, then run:
 
 ```bash
 git clone https://github.com/aspose-page-foss/Aspose.Page-FOSS-for-Python.git
 cd Aspose.Page-FOSS-for-Python
-pip install -e .
+python package.py build
+python package.py verify
 ```
+
+The wheel version comes from `local/Version.txt`. `verify` installs it with all dependencies
+in `.package-venv` and tests PS/XPS to PDF/PNG conversion. To upload the built wheel, use
+`python package.py publish-test` for TestPyPI or `python package.py publish` for PyPI; these
+commands read credentials from the matching files in `local/`.
 
 The library targets Python 3.10+ (`pyproject.toml`'s `requires-python = ">=3.10"`). See
 [Dependencies](#dependencies) below for the full required/optional/native breakdown.
@@ -97,15 +111,15 @@ The library targets Python 3.10+ (`pyproject.toml`'s `requires-python = ">=3.10"
 
 ### Required Package Dependencies
 
-No required third-party package dependencies.
+- `skia-python` — the Skia rasterization backend behind PNG, JPEG, BMP, and TIFF output; it has
+  native components and is installed automatically with the package. XPS-to-image conversion
+  always needs it; PS/EPS-to-image rendering uses it by default and can fall back to the
+  pure-Python renderer (`DefaultRasterWriter`).
 
 ### Optional Dependencies
 
 - `fastmcp` — required to host the MCP server (`create_server()` / `run()`); imported lazily,
   only when the server is started.
-- `skia-python` — required for XPS-to-image conversion (no fallback); used automatically for
-  PS/EPS-to-image rendering when installed, for speed, but not required there since PS/EPS
-  rendering falls back to a pure-Python renderer (`DefaultRasterWriter`).
 
 ### Native and System Requirements
 
@@ -229,8 +243,8 @@ with open("blank.png", "wb") as f:
 
 ### Convert XPS to a Raster Image (Needs the Skia Backend)
 
-Unlike PS/EPS rasterization, XPS-to-image conversion has no pure-Python fallback — `skia-python`
-must be installed:
+Unlike PS/EPS rasterization, XPS-to-image conversion has no pure-Python fallback — it always
+uses the Skia backend (`skia-python`, installed with the package):
 
 ```python
 from aspose.page.xps.document import XpsDocument
@@ -519,9 +533,10 @@ PS/EPS and XPS content respectively; both delegate PDF output to `PdfWriter` and
 
 - This library converts and authors documents; it does not read existing PDF files (there is no
   PDF import/parsing API).
-- PS/EPS raster output falls back to a pure-Python renderer when `skia-python` isn't installed —
-  a performance difference, not a functional gap. XPS-to-image conversion has no such fallback:
-  `skia-python` must be installed, or it raises a runtime error.
+- PS/EPS raster output can use a pure-Python renderer instead of Skia (when `skia-python`
+  can't be loaded, or when `ASPOSE_PAGE_RASTERIZER=python` is set) — a performance difference,
+  not a functional gap. XPS-to-image conversion has no such fallback and always needs
+  `skia-python`, or it raises a runtime error.
 - Importing `aspose.page.pdf.writer` or `aspose.page.image.raster_renderer` directly, or calling
   `XpsDocument.to_pdf()` / `to_image()`, before anything has imported `aspose.page.ps` raises a
   circular-import `ImportError` in a fresh Python interpreter — a structural property of the

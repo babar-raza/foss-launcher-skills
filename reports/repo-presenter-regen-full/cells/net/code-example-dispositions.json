@@ -7,7 +7,8 @@
       "status": "verified_against_source",
       "evidence_type": "clone_cache_path",
       "evidence_ref": "README.md"
-    }
+    },
+    "api_call_fingerprint": []
   },
   {
     "unit_id": "c0002",
@@ -16,8 +17,12 @@
     "verification": {
       "status": "verified_against_source",
       "evidence_type": "clone_cache_path",
-      "evidence_ref": "README.md"
-    }
+      "evidence_ref": "documentation/_site/quick-start.html",
+      "evidence_note": "Regenerated 2026-09-19 against 941814fd: call(s) `dotnet add` found in documentation/_site/quick-start.html."
+    },
+    "api_call_fingerprint": [
+      "dotnet add"
+    ]
   },
   {
     "unit_id": "c0003",
@@ -27,7 +32,8 @@
       "status": "verified_against_source",
       "evidence_type": "clone_cache_path",
       "evidence_ref": "src/Aspose.Cells_FOSS/Aspose.Cells_FOSS.csproj"
-    }
+    },
+    "api_call_fingerprint": []
   },
   {
     "unit_id": "c0004a",
@@ -37,7 +43,8 @@
       "status": "verified_against_source",
       "evidence_type": "clone_cache_path",
       "evidence_ref": "src/Aspose.Cells_FOSS/Workbook.cs"
-    }
+    },
+    "api_call_fingerprint": []
   },
   {
     "unit_id": "c0004b",
@@ -46,8 +53,12 @@
     "verification": {
       "status": "verified_against_source",
       "evidence_type": "clone_cache_path",
-      "evidence_ref": "src/Aspose.Cells_FOSS/Workbook.cs"
-    }
+      "evidence_ref": "src/Aspose.Cells_FOSS/Workbook.cs",
+      "evidence_note": "Regenerated 2026-09-19 against 941814fd: call(s) `Workbook` found in src/Aspose.Cells_FOSS/Workbook.cs."
+    },
+    "api_call_fingerprint": [
+      "Workbook"
+    ]
   },
   {
     "unit_id": "c0004c",
@@ -56,8 +67,13 @@
     "verification": {
       "status": "verified_against_source",
       "evidence_type": "clone_cache_path",
-      "evidence_ref": "src/Aspose.Cells_FOSS/Cell.cs"
-    }
+      "evidence_ref": "src/Aspose.Cells_FOSS/Cell.cs",
+      "evidence_note": "Regenerated 2026-09-19 against 941814fd: call(s) `PutValue`, `SUM` found in src/Aspose.Cells_FOSS/Cell.cs."
+    },
+    "api_call_fingerprint": [
+      "PutValue",
+      "SUM"
+    ]
   },
   {
     "unit_id": "c0004d",
@@ -66,8 +82,14 @@
     "verification": {
       "status": "verified_against_source",
       "evidence_type": "clone_cache_path",
-      "evidence_ref": "src/Aspose.Cells_FOSS/Style.cs"
-    }
+      "evidence_ref": "documentation/_site/xrefmap.yml",
+      "evidence_note": "Regenerated 2026-09-19 against 941814fd: call(s) `GetStyle`, `Color.FromArgb`, `SetStyle` found in documentation/_site/xrefmap.yml."
+    },
+    "api_call_fingerprint": [
+      "GetStyle",
+      "Color.FromArgb",
+      "SetStyle"
+    ]
   },
   {
     "unit_id": "c0004e",
@@ -76,8 +98,12 @@
     "verification": {
       "status": "verified_against_source",
       "evidence_type": "clone_cache_path",
-      "evidence_ref": "src/Aspose.Cells_FOSS/Workbook.cs"
-    }
+      "evidence_ref": "src/Aspose.Cells_FOSS/Workbook.cs",
+      "evidence_note": "Regenerated 2026-09-19 against 941814fd: call(s) `workbook.Save` found in src/Aspose.Cells_FOSS/Workbook.cs."
+    },
+    "api_call_fingerprint": [
+      "workbook.Save"
+    ]
   },
   {
     "unit_id": "c0005",
@@ -86,8 +112,15 @@
     "verification": {
       "status": "verified_against_source",
       "evidence_type": "clone_cache_path",
-      "evidence_ref": "src/Aspose.Cells_FOSS/LoadOptions.cs"
-    }
+      "evidence_ref": "documentation/_site/index.json",
+      "evidence_note": "Regenerated 2026-09-19 against 941814fd: call(s) `Workbook`, `Console.WriteLine`, `PutValue`, `workbook.Save` found in documentation/_site/index.json."
+    },
+    "api_call_fingerprint": [
+      "Workbook",
+      "Console.WriteLine",
+      "PutValue",
+      "workbook.Save"
+    ]
   },
   {
     "unit_id": "c0006",
@@ -96,8 +129,13 @@
     "verification": {
       "status": "verified_against_source",
       "evidence_type": "clone_cache_path",
-      "evidence_ref": "src/Aspose.Cells_FOSS/PdfSaveOptions.cs"
-    }
+      "evidence_ref": "src/Aspose.Cells_FOSS/PdfSaveOptions.cs",
+      "evidence_note": "Regenerated 2026-09-19 against 941814fd: call(s) `Workbook`, `workbook.Save` found in src/Aspose.Cells_FOSS/PdfSaveOptions.cs."
+    },
+    "api_call_fingerprint": [
+      "Workbook",
+      "workbook.Save"
+    ]
   },
   {
     "unit_id": "c0007a",
@@ -106,8 +144,12 @@
     "verification": {
       "status": "verified_against_source",
       "evidence_type": "clone_cache_path",
-      "evidence_ref": "src/Aspose.Cells_FOSS/Workbook.cs"
-    }
+      "evidence_ref": "src/Aspose.Cells_FOSS/Workbook.cs",
+      "evidence_note": "Regenerated 2026-09-19 against 941814fd: call(s) `Workbook` found in src/Aspose.Cells_FOSS/Workbook.cs."
+    },
+    "api_call_fingerprint": [
+      "Workbook"
+    ]
   },
   {
     "unit_id": "c0007b",
@@ -116,8 +158,12 @@
     "verification": {
       "status": "verified_against_source",
       "evidence_type": "clone_cache_path",
-      "evidence_ref": "src/Aspose.Cells_FOSS/Cell.cs"
-    }
+      "evidence_ref": "src/Aspose.Cells_FOSS/Cell.cs",
+      "evidence_note": "Regenerated 2026-09-19 against 941814fd: call(s) `PutValue` found in src/Aspose.Cells_FOSS/Cell.cs."
+    },
+    "api_call_fingerprint": [
+      "PutValue"
+    ]
   },
   {
     "unit_id": "c0007c",
@@ -126,8 +172,12 @@
     "verification": {
       "status": "verified_against_source",
       "evidence_type": "clone_cache_path",
-      "evidence_ref": "src/Aspose.Cells_FOSS/ListObjectCollection.cs"
-    }
+      "evidence_ref": "src/Aspose.Cells_FOSS/ListObject.cs",
+      "evidence_note": "Regenerated 2026-09-19 against 941814fd: call(s) `sheet.ListObjects.Add` found in src/Aspose.Cells_FOSS/ListObject.cs."
+    },
+    "api_call_fingerprint": [
+      "sheet.ListObjects.Add"
+    ]
   },
   {
     "unit_id": "c0007d",
@@ -136,8 +186,12 @@
     "verification": {
       "status": "verified_against_source",
       "evidence_type": "clone_cache_path",
-      "evidence_ref": "src/Aspose.Cells_FOSS/Workbook.cs"
-    }
+      "evidence_ref": "src/Aspose.Cells_FOSS/Workbook.cs",
+      "evidence_note": "Regenerated 2026-09-19 against 941814fd: call(s) `workbook.Save` found in src/Aspose.Cells_FOSS/Workbook.cs."
+    },
+    "api_call_fingerprint": [
+      "workbook.Save"
+    ]
   },
   {
     "unit_id": "c0008",
@@ -146,8 +200,16 @@
     "verification": {
       "status": "verified_against_source",
       "evidence_type": "clone_cache_path",
-      "evidence_ref": "src/Aspose.Cells_FOSS/ValidationCollection.cs"
-    }
+      "evidence_ref": "documentation/_site/data-validation.html",
+      "evidence_note": "Regenerated 2026-09-19 against 941814fd: call(s) `Workbook`, `PutValue`, `sheet.Validations.Add`, `CellArea.CreateCellArea`, `workbook.Save` found in documentation/_site/data-validation.html."
+    },
+    "api_call_fingerprint": [
+      "Workbook",
+      "PutValue",
+      "sheet.Validations.Add",
+      "CellArea.CreateCellArea",
+      "workbook.Save"
+    ]
   },
   {
     "unit_id": "c0009",
@@ -156,8 +218,19 @@
     "verification": {
       "status": "verified_against_source",
       "evidence_type": "clone_cache_path",
-      "evidence_ref": "src/Aspose.Cells_FOSS/FormatConditionCollection.cs"
-    }
+      "evidence_ref": "samples/Aspose.Cells_FOSS.Samples.ConditionalFormatting/Program.cs",
+      "evidence_note": "Regenerated 2026-09-19 against 941814fd: call(s) `Workbook`, `PutValue`, `sheet.ConditionalFormattings.Add`, `CellArea.CreateCellArea`, `Color.FromArgb` found in samples/Aspose.Cells_FOSS.Samples.ConditionalFormatting/Program.cs."
+    },
+    "api_call_fingerprint": [
+      "Workbook",
+      "PutValue",
+      "sheet.ConditionalFormattings.Add",
+      "rules.AddArea",
+      "CellArea.CreateCellArea",
+      "rules.AddCondition",
+      "Color.FromArgb",
+      "workbook.Save"
+    ]
   },
   {
     "unit_id": "c0010",
@@ -166,18 +239,34 @@
     "verification": {
       "status": "verified_against_source",
       "evidence_type": "clone_cache_path",
-      "evidence_ref": "src/Aspose.Cells_FOSS/HyperlinkCollection.cs"
-    }
+      "evidence_ref": "samples/Aspose.Cells_FOSS.Samples.HyperlinksAndNames/Program.cs",
+      "evidence_note": "Regenerated 2026-09-19 against 941814fd: call(s) `Workbook`, `PutValue`, `sheet.Hyperlinks.Add`, `workbook.DefinedNames.Add`, `workbook.Save` found in samples/Aspose.Cells_FOSS.Samples.HyperlinksAndNames/Program.cs."
+    },
+    "api_call_fingerprint": [
+      "Workbook",
+      "PutValue",
+      "sheet.Hyperlinks.Add",
+      "workbook.DefinedNames.Add",
+      "workbook.Save"
+    ]
   },
   {
     "unit_id": "c0011",
-    "disposition": "merged_verbatim",
+    "disposition": "corrected",
     "target_section": "Additional Examples",
     "verification": {
       "status": "verified_against_source",
       "evidence_type": "clone_cache_path",
-      "evidence_ref": "src/Aspose.Cells_FOSS/ChartCollection.cs"
-    }
+      "evidence_ref": "src/Aspose.Cells_FOSS/Chart.cs",
+      "evidence_note": "Regenerated 2026-09-19: Chart.Name is declared get-only (Chart.cs:47)."
+    },
+    "api_call_fingerprint": [
+      "Workbook",
+      "PutValue",
+      "sheet.Charts.Add",
+      "workbook.Save"
+    ],
+    "correction_reason": "The owner's example assigns chart.Name, but Chart.Name is a get-only property (`public string Name => _model.Name;` at src/Aspose.Cells_FOSS/Chart.cs:47), so the snippet fails to compile with CS0200 against the published 26.9.0 package; the assignment line was removed and the rest kept verbatim."
   },
   {
     "unit_id": "c0012",
@@ -186,8 +275,13 @@
     "verification": {
       "status": "verified_against_source",
       "evidence_type": "clone_cache_path",
-      "evidence_ref": "src/Aspose.Cells_FOSS/PdfSaveOptions.cs"
-    }
+      "evidence_ref": "src/Aspose.Cells_FOSS/PdfSaveOptions.cs",
+      "evidence_note": "Regenerated 2026-09-19 against 941814fd: call(s) `Workbook`, `workbook.Save` found in src/Aspose.Cells_FOSS/PdfSaveOptions.cs."
+    },
+    "api_call_fingerprint": [
+      "Workbook",
+      "workbook.Save"
+    ]
   },
   {
     "unit_id": "c0013",
@@ -196,8 +290,12 @@
     "verification": {
       "status": "verified_against_source",
       "evidence_type": "clone_cache_path",
-      "evidence_ref": "src/Aspose.Cells_FOSS/Aspose.Cells_FOSS.csproj"
-    }
+      "evidence_ref": "src/Aspose.Cells_FOSS/Aspose.Cells_FOSS.csproj",
+      "evidence_note": "Regenerated 2026-09-19: the command names this project, which exists in the tree."
+    },
+    "api_call_fingerprint": [
+      "dotnet build"
+    ]
   },
   {
     "unit_id": "c0014",
@@ -206,8 +304,12 @@
     "verification": {
       "status": "verified_against_source",
       "evidence_type": "clone_cache_path",
-      "evidence_ref": "samples/Aspose.Cells_FOSS.Samples.Basic/Aspose.Cells_FOSS.Samples.Basic.csproj"
-    }
+      "evidence_ref": "samples/Aspose.Cells_FOSS.Samples.Basic/Aspose.Cells_FOSS.Samples.Basic.csproj",
+      "evidence_note": "Regenerated 2026-09-19: the command names this project, which exists in the tree."
+    },
+    "api_call_fingerprint": [
+      "dotnet run"
+    ]
   },
   {
     "unit_id": "c0015",
@@ -216,7 +318,11 @@
     "verification": {
       "status": "verified_against_source",
       "evidence_type": "clone_cache_path",
-      "evidence_ref": "samples/Aspose.Cells_FOSS.Samples.PdfConversion/Aspose.Cells_FOSS.Samples.PdfConversion.csproj"
-    }
+      "evidence_ref": "samples/Aspose.Cells_FOSS.Samples.PdfConversion/Aspose.Cells_FOSS.Samples.PdfConversion.csproj",
+      "evidence_note": "Regenerated 2026-09-19: the command names this project, which exists in the tree."
+    },
+    "api_call_fingerprint": [
+      "dotnet run"
+    ]
   }
 ]

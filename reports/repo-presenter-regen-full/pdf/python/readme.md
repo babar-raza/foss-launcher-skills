@@ -82,20 +82,52 @@ flowchart TD
 - `Document.replace_text()` and `Document.redact_text()` rewrite or remove matched text directly
   inside existing content streams; `redact_text(..., overlay=True)` also draws a filled bar over
   each removed run's location.
-- `Page.render()` and `Page.save_as_image()` rasterize a page to PNG or TIFF through a bundled
-  renderer — no third-party rasterization library required for the core path — that fills real
-  glyph outlines, honors soft masks and blend modes, and paints axial, radial, and mesh shadings.
-- `Document.save_as_html()`, `Document.save_as_markdown()`, and `Document.save_as_svg()` (also
-  reachable through `Document.save()` with `DocFormat.HTML`/`MARKDOWN`/`SVG`) export structure and
-  vector content directly — no PPTX conversion path exists.
+- `Document.to_html()` and `to_markdown()` convert a document to a *flowing* one — headings,
+  paragraphs, lists, tables and figures inferred by the same layout analysis `auto_tag()` uses,
+  with the text decoded the way `extract_text()` decodes it. For a facsimile, export SVG instead.
+- `Page.to_svg()` and `Document.save_as_svg()` export a page as real vectors — paths with their
+  fill rule, dashed strokes, clip paths, glyph outlines, embedded images and gradients. The
+  exporter is the renderer with its paint sinks replaced, so the SVG and the rasterized page agree
+  on geometry by construction.
+- JPEG 2000 (`/JPXDecode`) images — what scanners emit — decode with a bundled pure-Python
+  decoder, so a default install reads them. Pillow is used when present because it is far faster;
+  an image neither can decode is left undrawn rather than painted as noise.
+- `Page.render()` and `Page.save_as_image()` rasterize a page to PNG, TIFF, or JPEG through a
+  bundled renderer — no third-party rasterization library required for the core path — that fills
+  real glyph outlines, honors soft masks and blend modes, and paints axial, radial, and mesh
+  shadings. Output can be RGB, greyscale, or 1-bit bilevel; TIFF is Deflate-compressed by default,
+  and `Document.save_as_tiff()` writes every page into one multi-page TIFF.
+- `Document.encrypt_for_recipients()` seals a document for certificate holders instead of a
+  shared password (the `/Adobe.PubSec` handler), and `Document(path, certificate=..., private_key=...)`
+  opens one. Each recipient gets its own permissions — one may print, another only read the same
+  file — which a password cannot express.
+- `Document.font_substitution` lets the renderer draw fonts the PDF references but does not
+  embed — the East Asian case, where the producer assumes the reader has the face — using font
+  directories you name, programs you supply, or the machine's own fonts. A composite font's CIDs
+  are mapped to Unicode and on to a real face, so a PDF naming `SimSun` renders even where only
+  `PingFang SC` is installed, instead of a row of glyph boxes. Advances still come from the PDF's
+  own `/Widths` / `/W`, so the substitute changes which glyphs are drawn, not where they sit. Off
+  by default, so rendering stays identical across machines unless you ask for it.
+- `Document.layers` lists, creates, switches and removes optional content groups; rendering, text
+  extraction, and graphics absorption all skip a hidden layer, the way a viewer does.
+  `Page.layer(layer)` is a context manager that puts everything authored inside it on that layer,
+  `Layer.add(content)` puts an annotation or image that is *already* in the document on one, and
+  `Document.flatten_layers()` resolves the layers for good — deleting what is hidden from the
+  file rather than leaving it there for the next reader to switch back on.
 - `Form`, `Field`, and `Document.flatten()` create, fill, and permanently bake AcroForm fields —
   text fields, checkboxes, radio groups, list boxes, combo boxes, and push buttons — into static
   page content.
 - `Annotation` and `AnnotationCollection` read, add, and auto-generate `/AP /N` appearance
   streams for the standard shape and text-markup annotation subtypes.
-- `Document.encrypt()` and `Document.decrypt()` apply RC4 or AES password protection, and
-  `PdfSignature.validate()` cryptographically verifies a signer's identity, trust chain,
-  revocation status, and PAdES conformance level.
+- `Document.encrypt(..., algorithm=...)` and `Document.decrypt()` apply and remove standard-handler
+  password protection — AES-256 (`/V 5 /R 6`) by default, AES-128 or 128-bit RC4 on request — and
+  every standard-handler flavour, including 40-bit RC4 and owner-password-only documents, can be
+  opened. Encryption is applied as the document is serialised, per object, so an encrypted save
+  keeps the form fields, attachments, layers and tags of the document it was given, signatures
+  included; `Document.sign()`, `add_ltv()` and `add_document_timestamp()` sign a document up to
+  PAdES-LTA without breaking the signatures it already has, and `PdfSignature.validate()`
+  cryptographically verifies a signer's identity, trust chain, revocation status, and PAdES
+  conformance level.
 - `Document.validate_pdfa()`, `Document.convert_to_pdfa()`, `Document.validate_pdfua()`, and
   `Document.auto_tag()` run heuristic PDF/A and PDF/UA compliance checks and generate a structure
   tree for existing content.
@@ -110,7 +142,7 @@ flowchart TD
 
 ## Installation
 
-Install directly from a clone of the repository:
+Build and install the latest source checkout for development:
 
 ```bash
 git clone https://github.com/aspose-pdf-foss/Aspose-PDF-FOSS-for-Python.git
@@ -127,7 +159,8 @@ Optional extras add:
 python -m pip install -e '.[images,woff2,text-layout]'
 ```
 
-- `images` — Pillow-based image support (JPX/JPEG 2000 decoding, arithmetic-coded JPEG).
+- `images` — Pillow-accelerated JPEG 2000 decoding (the bundled decoder handles it without
+  Pillow, just far more slowly) and arithmetic-coded JPEG.
 - `woff2` — Brotli-based WOFF2 web-font decoding.
 - `text-layout` — HarfBuzz/`python-bidi`/`fonttools`-based complex-text shaping for
   `TextLayoutOptions`.
@@ -136,16 +169,16 @@ python -m pip install -e '.[images,woff2,text-layout]'
 
 ### Required Package Dependencies
 
-- `cryptography` >=42
+- `cryptography` >=50
 - `asn1crypto` >=1.5
 
 ### Optional Dependencies
 
-- `Pillow` >=10 — enables the `images` extra (JPX/JPEG 2000 decoding, arithmetic-coded JPEG).
-- `Brotli` >=1.0 — enables the `woff2` extra (WOFF2 web-font decoding).
+- `Pillow` >=12.3 — enables the `images` extra (fast JPEG 2000 decoding, arithmetic-coded JPEG).
+- `Brotli` >=1.2 — enables the `woff2` extra (WOFF2 web-font decoding).
 - `uharfbuzz` >=0.37 — enables the `text-layout` extra (HarfBuzz-driven complex-text shaping).
 - `python-bidi` >=0.6 — enables the `text-layout` extra (Unicode bidi runs).
-- `fonttools` >=4.40 — enables the `text-layout` extra (font introspection for shaping).
+- `fonttools` >=4.60.2 — enables the `text-layout` extra (font introspection for shaping).
 - `atheris` >=2.3 — enables the `fuzz` extra (fuzz-testing harness).
 
 ### Native and System Requirements
@@ -157,14 +190,15 @@ python -m pip install -e '.[images,woff2,text-layout]'
 - `build` >=1.2
 - `pytest` >=8
 - `ruff` >=0.6
-- `setuptools` >=77
+- `setuptools` >=83
 - `twine` >=5
 - `wheel`
-- `Brotli` >=1.0 — needed to test the `woff2` extra.
-- `fonttools` >=4.40 — needed to test the `text-layout` extra.
-- `Pillow` >=10 — needed to test the `images` extra.
+- `Brotli` >=1.2 — needed to test the `woff2` extra.
+- `fonttools` >=4.60.2 — needed to test the `text-layout` extra.
+- `Pillow` >=12.3 — needed to test the `images` extra.
 - `uharfbuzz` >=0.37 — needed to test the `text-layout` extra.
 - `python-bidi` >=0.6 — needed to test the `text-layout` extra.
+- `reportlab` >=4.2 — imported by `scripts/build_agl_data.py`.
 
 ## Quick Start
 
@@ -219,8 +253,6 @@ with Document() as document:
 ### Encrypt for Certificate Recipients
 
 ```python
-from pathlib import Path
-
 from cryptography import x509
 from aspose_pdf import Document, Recipient
 
@@ -237,6 +269,34 @@ with Document("report.pdf") as document:
 # Opening needs the certificate and its private key, not a password.
 with Document("report-sealed.pdf", certificate=auditor, private_key=key) as doc:
     print(doc.page_count, doc.permissions)
+```
+
+### Sign a Document
+
+```python
+from pathlib import Path
+
+from cryptography.hazmat.primitives.serialization import pkcs12
+from aspose_pdf import Document
+
+key, certificate, chain = pkcs12.load_key_and_certificates(
+    Path("signer.p12").read_bytes(), b"p12-password"
+)
+
+with Document("contract.pdf") as document:
+    document.sign(
+        "Approval",                      # an unsigned signature field; omit for an invisible one
+        certificate=certificate,
+        private_key=key,
+        extra_certificates=chain,
+        reason="Approved",
+        pades=True,
+        timestamp_url="http://timestamp.example/rfc3161",  # PAdES-T
+    )
+    document.add_ltv()                   # the chain and revocation data into /DSS: PAdES-LT
+    document.add_document_timestamp(timestamp_url="http://timestamp.example/rfc3161")  # PAdES-LTA
+    document.save("contract-signed.pdf")  # each step is an appended revision
+    print([signature.valid for signature in document.signatures])
 ```
 
 ### Put a Watermark on a Layer, Then Resolve It
@@ -263,8 +323,9 @@ from aspose_pdf import Document
 
 with Document("report.pdf") as document:
     document.save_as_markdown("report.md")
-    document.save_as_html("report.html")
-    print(document.to_markdown(pages=[0]))
+    # Images as files in report_files/ rather than data: URIs; one HTML file per page.
+    document.save_as_html("report.html", resources_directory="report_files", split_into_pages=True)
+    print(document.to_markdown(pages=[0], markdown_format="CommonMark"))
 ```
 
 ### Export a Page as SVG
@@ -386,28 +447,24 @@ and delete workflows. 265 public types are organized by module below.
 | `AsposePdfException` | Base class for all aspose_pdf exceptions. |
 | `ByteArrayDataSource` | A data source backed by in-memory bytes. |
 | `CdrLoadOptions` | Options for loading CDR files. |
-| `CertificationLevel` | DocMDP certification level of a signature. |
 | `CgmLoadOptions` | Options for loading CGM files. |
 | `ColorPrimitive` | Very small color primitive with transparency support. |
 | `DataSource` | Base class for plugin inputs and outputs. |
 | `DeprecatedFeatureException` | Raised when a deprecated PDF feature is used that is not allowed in newer PDF versions. |
 | `Destination` | Base class for a view destination on a document page. |
-| `DocFormat` | Target format for a save operation. |
 | `Document-document` | Pythonic wrapper for PDF document lifecycle and core operations. |
-| `Duplex` | Enum with 4 members. |
 | `Field` | A field of an interactive form. |
-| `FieldType` | Type of form field. |
 | `FileDataSource` | A data source backed by a file on disk. |
 | `FileFontSource` | Discover the font(s) contained in a single file. |
 | `FileSpecification` | A document-level embedded file (``/Filespec``) with typed metadata. |
 | `FillMode` | Fill mode enumeration for path operations. |
-| `FitBDestination` | Fit the page's bounding box in the window. |
-| `FitBHDestination` | Fit the bounding-box width with `top` at the top of the window. |
-| `FitBVDestination` | Fit the bounding-box height with `left` at the left of the window. |
-| `FitDestination` | Fit the whole page in the window. |
-| `FitHDestination` | Fit the page width with `top` at the top of the window. |
-| `FitRDestination` | Fit the rectangle `(left, bottom, right, top)` in the window. |
 | `FitVDestination` | Fit the page height with `left` at the left of the window. |
+| `FitRDestination` | Fit the rectangle `(left, bottom, right, top)` in the window. |
+| `FitHDestination` | Fit the page width with `top` at the top of the window. |
+| `FitDestination` | Fit the whole page in the window. |
+| `FitBVDestination` | Fit the bounding-box height with `left` at the left of the window. |
+| `FitBHDestination` | Fit the bounding-box width with `top` at the top of the window. |
+| `FitBDestination` | Fit the page's bounding box in the window. |
 | `FolderFontSource` | Collect fonts from a directory (optionally recursing into subfolders). |
 | `FontDescriptor` | Represents a discoverable font. |
 | `FontEmbeddingException` | Raised when there is an error embedding fonts in the PDF. |
@@ -416,28 +473,27 @@ and delete workflows. 265 public types are organized by module below.
 | `FontSource` | Base class for external font providers. |
 | `FontSubstitutionOptions` | Font sources the renderer may substitute from. |
 | `Form` | Represents an interactive form (AcroForm) within a PDF document. |
-| `FormType` | Type of PDF form. |
-| `GoToAction` | Jump to a destination within this document. |
 | `GoToRAction` | Jump to a destination in another (remote) PDF file. |
+| `GoToAction` | Jump to a destination within this document. |
 | `GradientAxialShading` | Represents axial (linear) gradient shading. |
-| `GraphicElement` | A painted path or a placed image, read from a page's content stream. |
-| `GraphicElementCollection` | Collection of graphic elements that can be added to or removed from a page. |
-| `GraphicsAbsorber` | Absorbs graphic elements from PDF pages. |
+| `GraphicElement` | One mark read from a page — a path, image, text run or shading — with its bounding box in page space. |
+| `GraphicElementCollection` | An in-memory list of graphic elements; adding or removing an element changes the list, never the page it came from. |
+| `GraphicsAbsorber` | Collects every mark a page or document makes: paths, images, text runs and `sh` shadings. |
 | `HtmlLoadOptions` | Options for loading HTML documents. |
 | `HtmlSaveOptions` | Options for saving PDF documents as HTML. |
 | `ImagePlacement-images` | Represent an image placed on a PDF page. |
-| `ImagePlacementAbsorber-images` | Absorber to collect image placements from PDF pages. |
+| `ImagePlacementAbsorber-images` | Collect image placements — bytes, page rectangle, matrix, and effective DPI — from a page or document. |
 | `IncorrectCMapUsageException` | Raised when there is an incorrect usage of CMap. |
 | `InvalidFormTypeOperationException` | Exception thrown when an invalid form type operation is attempted. |
 | `InvalidOperationException` | Raised when a graphics element is attached to the wrong parent. |
 | `InvalidPasswordException` | Raised when an incorrect password is provided for an encrypted document. |
+| `LaunchAction` | Launch an application or open a file (serialized verbatim). |
+| `JavaScriptAction` | Run a JavaScript script (serialized verbatim, not validated). |
+| `Layer` | One optional content group: its name, intent, whether it is shown, and `add`/`remove`/`contains` for tagging existing content with it. |
+| `LayerCollection` | The document's layers: indexable by position or by name, with `add(name, visible)` and `remove(layer)`. |
 | `InvalidPdfFileFormatException` | Raised when the PDF file format is invalid or corrupted. |
 | `InvalidValueFormatException` | Raised when an invalid value is encountered during parsing or conversion. |
-| `JavaScriptAction` | Run a JavaScript script (serialized verbatim, not validated). |
 | `LatexFragment` | Small value object that stores LaTeX source text. |
-| `LaunchAction` | Launch an application or open a file (serialized verbatim). |
-| `Layer` | One optional content group, and whether it is currently shown. |
-| `LayerCollection` | The document's layers, indexable by position or by name. |
 | `License` | License management class for Aspose.PDF. |
 | `Margin` | The Margin class provides top, left, bottom, and right properties for defining page margins. |
 | `MarkdownSaveOptions` | Class with 1 method and 4 properties. |
@@ -454,7 +510,6 @@ and delete workflows. 265 public types are organized by module below.
 | `Optimizer` | Optimize each input PDF (compression + unused-object cleanup). |
 | `OutlineCollection` | Top-level collection of :class:`OutlineItem` bookmarks. |
 | `OutlineItem` | A single bookmark entry in a PDF outline tree. |
-| `PadesLevel` | PAdES baseline conformance level reached by a signature. |
 | `Page` | A page of a PDF document. |
 | `PageCollection` | A collection to manage PDF pages within a Document. |
 | `PageInfo` | Class with 1 property. |
@@ -478,25 +533,20 @@ and delete workflows. 265 public types are organized by module below.
 | `PdfUaValidator` | Plugin that runs heuristic PDF/UA validation on one or more inputs. |
 | `PdfValidationException` | Raised when a PDF document fails validation or compliance checks. |
 | `PerformanceLogger` | Class with 2 methods and 1 property. |
-| `Plugin` | Identifiers for the available low-code plugins. |
 | `PluginOptions` | Hold input/output data sources and their PDF resource-limit policy. |
 | `Point` | Represents a point in 2D space. |
 | `Point3D` | Represents a 3D point. |
 | `PrinterSettings` | Class with 11 properties. |
-| `PrintRange` | Enum with 4 members. |
-| `Recipient` | One certificate that may open the document, and what it may then do. |
 | `Rectangle` | Rectangle representing image placement bounds on a PDF page. |
+| `Recipient` | One certificate that may open the document, and what it may then do. |
 | `RegexResult` | Wraps a single regular-expression match found on a PDF page. |
 | `ResetFormAction` | Reset the form's fields to their default values. |
 | `ResultContainer` | Holds the ordered results of a plugin operation. |
-| `RevocationStatus` | Certificate revocation outcome (OCSP/CRL). |
-| `SaveFormat` | Format for saving PDF documents. |
 | `SplitOptions` | Options for :class:`Splitter`: split the first input into single pages. |
 | `Splitter` | Split the first input PDF into one document per page. |
 | `StatisticsEntry` | Entry for tracking statistics and timing information. |
 | `StreamDataSource` | A data source backed by a binary stream (e.g. ``io.BytesIO``). |
 | `StructureElement` | A mutable logical-structure element in a tagged PDF. |
-| `StructureTypeStandard` | Enum with 15 members. |
 | `SubmitFormAction` | Send the form's field values to a URL. |
 | `SvgLoadOptions-load_options` | Options for loading SVG files. |
 | `SvgLoadOptions-svg` | Class with 1 method and 2 properties. |
@@ -513,21 +563,37 @@ and delete workflows. 265 public types are organized by module below.
 | `TextFragmentCollection` | A mutable ordered collection of :class:`TextFragment` objects. |
 | `TextLayoutOptions` | Configure complex-text shaping and line layout for ``Page.add_text``. |
 | `TextSearchOptions` | Options controlling how text search is performed. |
-| `TrustStatus` | Outcome of building/validating the signer's certificate chain. |
 | `UnsignedContent-forms` | Represents a collection of unsigned content elements in a PDF document. |
 | `UnsignedContentAbsorber-forms` | Extract unsigned form fields and annotations from a PDF document. |
 | `UnsupportedFeatureException` | Raised when a compatibility surface names a feature this package lacks. |
 | `URIAction` | Resolve a uniform resource identifier (typically a web link). |
-| `ValidationMethod` | Selects the signature format / validation algorithm. |
-| `ValidationMode` | Controls whether certificate revocation is checked via network. |
 | `ValidationOptions` | Configuration for signature validation. |
 | `ValidationResult` | Structured result returned by signature validation. |
-| `ValidationStatus` | Outcome of a :class:`ValidationResult`. |
 | `VirtualizationPerformance` | Class with 5 methods. |
 | `WarichuWPElement` | Minimal tagged-element type for API compatibility. |
 | `XYZDestination` | Position `(left, top)` at the upper-left with an optional zoom. |
 
+#### Enumerations
 
+| Enumeration | Description |
+|---|---|
+| `CertificationLevel` | DocMDP certification level of a signature. |
+| `DocFormat` | Target format for a save operation. |
+| `Duplex` | Enum with 4 members. |
+| `FieldType` | Type of form field. |
+| `FormType` | Type of PDF form. |
+| `PadesLevel` | PAdES baseline conformance level reached by a signature. |
+| `Plugin` | Identifiers for the available low-code plugins. |
+| `PrintRange` | Enum with 4 members. |
+| `RevocationStatus` | Certificate revocation outcome (OCSP/CRL). |
+| `SaveFormat` | Format for saving PDF documents. |
+| `StructureTypeStandard` | Enum with 15 members. |
+| `TrustStatus` | Outcome of building/validating the signer's certificate chain. |
+| `ValidationMethod` | Selects the signature format / validation algorithm. |
+| `ValidationMode` | Controls whether certificate revocation is checked via network. |
+| `ValidationStatus` | Outcome of a :class:`ValidationResult`. |
+
+---
 
 ### Annotations
 
@@ -577,8 +643,8 @@ and delete workflows. 265 public types are organized by module below.
 | `ChainResult` | Result of building and validating a certificate path. |
 | `CharacterCollection` | A CIDSystemInfo registry, ordering, and supplement triple. |
 | `CidTextCodec` | Code codec for a composite (Type0) font's show strings. |
-| `Codestream` | Class with 2 methods and 8 properties. |
 | `Color` | Represents a color in PDF documents. |
+| `Codestream` | Class with 2 methods and 8 properties. |
 | `CompositeFontMetric` | Advance metrics for a composite (Type0) font. |
 | `ContentStreamParser` | Parse a PDF content stream and extract plain text. |
 | `CosExtractor` | Extract pages, streams, images and metadata from a PdfDocument. |
@@ -589,9 +655,7 @@ and delete workflows. 265 public types are organized by module below.
 | `Decoder-jpx` | JPEG 2000 (JPX) Stream Decoder. |
 | `DssMaterial` | Validation material destined for (or harvested from) a ``/DSS``. |
 | `Encoding` | Class with 1 method and 4 members. |
-| `EncodingType` | Enum with 5 members. |
 | `EncryptionUtils` | Utility class for PDF-compliant AES-CBC, RC4 encryption, and key derivation. |
-| `FilterType` | The FilterType enum lists the supported stream filter names such as FLATE_DECODE, LZW_DECODE, and DCT_DECODE. |
 | `FontResolver` | Index external font sources and resolve PDF font names against them. |
 | `GeneratedAppearance` | A synthesised appearance: content bytes plus any required ExtGState entries. |
 | `GlyphPlacement` | One shaped glyph at an em-relative position within a laid-out line. |
@@ -606,9 +670,9 @@ and delete workflows. 265 public types are organized by module below.
 | `LazyImageDict` | Dictionary that decodes image streams on demand to save memory. |
 | `LazyPdfObjectStore` | Object-number → COS object map that parses from a :class:`PdfCosParser` on demand. |
 | `Matrix` | Matrix supports 2‑D transformations with translate(x, y) and multiply(other) methods, exposing the a‑f components of the affine matrix. |
-| `MQDecoder` | The MQ arithmetic decoder of Annex C. |
-| `OptionalContent` | The document's optional content groups and their default visibility. |
 | `OptionalContentGroup` | One optional content group (`/OCG`) of the document. |
+| `OptionalContent` | The document's optional content groups and their default visibility. |
+| `MQDecoder` | The MQ arithmetic decoder of Annex C. |
 | `ParseWarnings` | Collects warnings during parsing. |
 | `PdfArray` | PdfArray provides an items collection and an append method to build PDF array objects. |
 | `PdfBoolean` | PdfBoolean represents a PDF boolean value via its 'value' property. |
@@ -620,9 +684,9 @@ and delete workflows. 265 public types are organized by module below.
 | `PdfEncodingError` | Font or content stream encoding error. |
 | `PdfIndirectReference` | PdfIndirectReference exposes the object number and generation number of an indirect PDF object. |
 | `PdfMalformedError` | Recoverable malformed PDF structure. |
-| `PdfName` | Represents a PDF name object. |
+| `PdfName` | Class with 1 method and 1 property. |
 | `PdfNull` | Represent PDF null object. |
-| `PdfNumber` | Represents a PDF number primitive (integer or real). |
+| `PdfNumber` | Class with 1 method and 1 property. |
 | `PdfObject` | Base class for all PDF COS objects. |
 | `PdfObjectID` | Class with 2 properties. |
 | `PdfObjectRegistry` | PdfObjectRegistry.register(obj) returns a PdfObjectID that uniquely identifies the stored PDF object within the registry. |
@@ -636,10 +700,10 @@ and delete workflows. 265 public types are organized by module below.
 | `PdfWriterV0` | Writes SimplePdf to PDF 1.7 format. |
 | `PredefinedCMap` | A resolved predefined CMap and its semantic Unicode mapping. |
 | `PredefinedCMapEncoding` | Compact code-to-CID view of a predefined CMap. |
-| `RasterizedPage` | A rendered PDF page in packed RGB format. |
-| `RecipientPayload` | What one opened envelope carries. |
-| `Reshaper` | Policy for shaping complex-script replacements during a text edit. |
+| `RasterizedPage` | A rendered PDF page in packed RGB format; encodes to PNG, TIFF, or JPEG. |
 | `ResolvedFace` | A font program picked for a non-embedded PDF font. |
+| `Reshaper` | Policy for shaping complex-script replacements during a text edit. |
+| `RecipientPayload` | What one opened envelope carries. |
 | `RevocationResult` | Class with 3 properties. |
 | `RichRun` | Class with 2 properties. |
 | `RichStyle` | The resolved style of a text run. |
@@ -653,7 +717,7 @@ and delete workflows. 265 public types are organized by module below.
 | `StandardFonts` | Utility class for the PDF Standard 14 fonts. |
 | `StreamDecoder` | Decode PDF stream data using supported filters. |
 | `StreamEncoder` | Encode raw bytes into PDF stream data, the inverse of :class:`StreamDecoder`. |
-| `TagTree` | The tag tree of ISO 32000-2 clause 14.8, used for structure inclusion. |
+| `TagTree` | The tag tree of JPEG 2000 (ISO/IEC 15444-1, B.10.2), used for inclusion and zero-bitplane signalling. |
 | `TextFragmentAbsorber-simple_pdf` | Absorber that extracts text fragments from a SimplePdf instance. |
 | `TextObject` | A ``BT`` ... ``ET`` text object located in a content stream. |
 | `TiffPage` | One image in a TIFF file. |
@@ -667,17 +731,24 @@ and delete workflows. 265 public types are organized by module below.
 | `XmpProperty` | A property carrying arbitrary qualifiers. |
 | `XmpStruct` | A structured XMP value (an ``rdf:parseType="Resource"`` block). |
 
+#### Enumerations
 
+| Enumeration | Description |
+|---|---|
+| `EncodingType` | Enum with 5 members. |
+| `FilterType` | The FilterType enum lists the supported stream filter names such as FLATE_DECODE, LZW_DECODE, and DCT_DECODE. |
+
+---
 
 ### Generated
 
 | Class | Description |
 |---|---|
-| `Document-generated_document` | Pythonic wrapper for PDF document lifecycle and core operations. |
-| `PdfAValidateOptions-generated_pdfa` | Options for a PDF/A validation run. |
-| `PdfAValidationResult-generated_pdfa` | Result of a PDF/A validation run. |
-| `UnsignedContent-generated_forms` | Container for unsigned content (pages, form fields, annotations). |
-| `UnsignedContentAbsorber-generated_forms` | Extracts unsigned content elements; includes form field/annotation info. |
+| `Document-generated_document` | Re-export of `aspose_pdf.Document`. |
+| `PdfAValidateOptions-generated_pdfa` | Re-export of `aspose_pdf.pdfa.PdfAValidateOptions`. |
+| `PdfAValidationResult-generated_pdfa` | Re-export of `aspose_pdf.pdfa.PdfAValidationResult`. |
+| `UnsignedContent-generated_forms` | Re-export of `aspose_pdf.forms.UnsignedContent`. |
+| `UnsignedContentAbsorber-generated_forms` | Re-export of `aspose_pdf.forms.UnsignedContentAbsorber`. |
 
 ---
 
@@ -699,6 +770,7 @@ and delete workflows. 265 public types are organized by module below.
   - `save(destination, save_format, overwrite) -> Document` / `merge() -> Document`
   - `optimize(options, compress_streams) -> Document` (alias `optimize_resources(options) -> Document`)
   - `encrypt(user_password, owner_password, permissions) -> Document` / `decrypt(password) -> Document` /
+    `encrypt_for_recipients(recipients, algorithm, permissions, ignore_key_usage) -> Document` /
     `change_passwords(old_password, new_user_password, new_owner_password) -> Document`
   - `validate() -> bool` / `check() -> bool` / `repair() -> Document`
   - `validate_pdfa(level) -> PdfAValidationResult` / `convert_to_pdfa(level, font_lookup_directory) -> list[str]`
@@ -706,14 +778,24 @@ and delete workflows. 265 public types are organized by module below.
     `auto_tag(image_alt) -> int`
   - `replace_text(search, replacement, page_index, case_sensitive, max_count) -> int` /
     `redact_text(search, page_index, case_sensitive, max_count, overlay, overlay_color) -> int`
-  - `render_page(page_index, dpi, scale, background, antialias) -> RasterizedPage` /
-    `save_page_as_image(page_index, destination, dpi, scale, background, antialias) -> Path`
-  - `flatten() -> Document` / `generate_appearances(force) -> int` / `generate_field_appearances() -> int`
+  - `render_page(page_index, dpi, scale, background, antialias, shape_substitute_text, draw_annotations, font_substitution) -> RasterizedPage` /
+    `save_page_as_image(page_index, destination, dpi, scale, background, antialias, mode, compression, quality, threshold) -> Path` /
+    `save_as_tiff(destination, pages, dpi, scale, background, antialias, mode, compression, threshold) -> Path` /
+    `save_as_svg(destination, pages, background, draw_annotations, font_substitution, precision, overwrite) -> list[Path]`
+  - `to_html(pages, title, embed_images, paragraph_gap, clip_to_page) -> str` /
+    `to_markdown(pages, title, embed_images, markdown_format, paragraph_gap, clip_to_page) -> str` /
+    `save_as_html(destination, pages, title, embed_images, split_into_pages, resources_directory, paragraph_gap, clip_to_page, overwrite) -> list[Path]` /
+    `save_as_markdown(destination, pages, title, embed_images, image_directory, markdown_format, paragraph_gap, clip_to_page, overwrite) -> Path`
+  - `flatten() -> Document` / `flatten_layers() -> int` /
+    `generate_appearances(force) -> int` / `generate_field_appearances() -> int`
   - `iter_pages() -> Iterator[Page]` / `iter_page_content_streams() -> Generator[bytes, None, None]`
   - `sync_metadata(direction) -> Document` /
-    `add_attachment(name, content, mime, description, creation_date, mod_date, compress) -> Document`
-  - properties: `pages`, `form`, `outlines`, `tagged_content`, `load_limits`, `xmp_metadata`,
-    `embedded_files`, `page_count`, `info`, `is_encrypted`, `permissions`, `is_pdfua_compliant`
+    `add_attachment(name, content, mime, description, creation_date, mod_date, compress) -> Document` /
+    `update_attachment(name, new_name, content, mime, ...) -> FileSpecification` — changes only what
+    it is given, so editing one field keeps the rest
+  - properties: `pages`, `page_labels`, `form`, `outlines`, `layers`, `tagged_content`, `load_limits`,
+    `xmp_metadata`, `embedded_files`, `page_count`, `info`, `is_encrypted`, `permissions`,
+    `is_pdfua_compliant`, `font_substitution`
 
 ### Pages And Content
 
@@ -722,10 +804,17 @@ and delete workflows. 265 public types are organized by module below.
   - `add_image(image, x, y, width, height, pixel_width, pixel_height, color_space, bits_per_component, name, tag, alt, actual_text) -> str`
   - `draw_rectangle(x, y, width, height, stroke_color, fill_color, line_width, tag, alt, actual_text) -> Page` /
     `draw_line(x1, y1, x2, y2, stroke_color, line_width, tag, alt, actual_text) -> Page`
-  - `render(dpi, scale, background, antialias) -> RasterizedPage` /
-    `save_as_image(path, dpi, scale, background, antialias) -> Path`
+  - `render(dpi, scale, background, antialias, shape_substitute_text, draw_annotations, font_substitution) -> RasterizedPage` /
+    `save_as_image(path, dpi, scale, background, antialias, mode, compression, quality, threshold) -> Path`
+  - `to_svg(background, draw_annotations, font_substitution, precision) -> str` /
+    `save_as_svg(path, ...) -> Path`
+  - `to_html(embed_images) -> str` / `to_markdown(embed_images) -> str`
+  - `layer(layer)` — context manager putting authored content on an optional content group
   - `replace_text(...) -> int` / `redact_text(...) -> int`
-  - properties: `index`, `rect`, `media_box`, `crop_box`, `rotation`, `annotations`, `content`
+  - properties: `index`, `label`, `rect`, `media_box`, `crop_box`, `rotation`, `annotations`, `content`
+- `PageLabelCollection` (`Document.page_labels`) — a mutable mapping from the page a label range
+  starts at to its `PageLabel(style, prefix, start)`; `NumberingStyle` names the five styles and
+  `NONE`; `label(page_index) -> str | None`, `clear()`
 - `PageCollection` — `item(index) -> Page`, `add(page) -> Page`, `insert(index, page) -> Page`,
   `delete(index) -> None`, `clear() -> None`, `contains(page) -> bool`, `index_of(page) -> int`
 
@@ -756,7 +845,12 @@ and delete workflows. 265 public types are organized by module below.
   - `add_list_box(...) -> Field` / `add_combo_box(...) -> Field` /
     `add_push_button(name, page, rect, caption, read_only, required) -> Field`
   - `remove_field(name) -> Field` / `generate_appearances() -> int` / `flatten() -> None`
-- `Field` — `remove() -> Field`; properties `name`, `value`, `field_type`
+- `Form` — `export_fdf(destination) -> bytes` / `export_xfdf(destination) -> bytes` /
+  `import_fdf(source) -> list[str]` / `import_xfdf(source) -> list[str]` (form data interchange)
+- `Field` — `remove() -> Field`; properties `name`, `value`, `field_type`, `partial_name`,
+  `alternate_name`, `mapping_name`, `flags`, `read_only`, `required`, `no_export`, `default_value`,
+  `max_length`, `multiline`, `password`, `comb`, `options`, `multi_select`, `editable`,
+  `export_values`, `widgets` (`FieldWidget(page_index, rect)`), `page_index`, `rect`
 - `Annotation` — `generate_appearance(force) -> bool`, `get_property(name, default) -> Any`,
   `set_property(name, value) -> None`; properties `subtype`, `rect`, `contents`, `appearance_normal`
 - `AnnotationCollection` — `add(subtype, rect, contents, title, appearance_normal, properties) -> Annotation`,
@@ -764,8 +858,18 @@ and delete workflows. 265 public types are organized by module below.
 
 ### Security And Signatures
 
-- `Document.encrypt(user_password, owner_password, permissions)` / `Document.decrypt(password)` /
+- `Document.encrypt(user_password, owner_password, permissions, algorithm)` — `algorithm` is
+  `"AES-256"` (default), `"AES-128"`, or `"RC4"` / `Document.decrypt(password)` /
   `Document.change_passwords(...)`
+- `Document.encrypt_for_recipients(recipients, algorithm, permissions, ignore_key_usage)` —
+  public-key (`/Adobe.PubSec`) encryption for certificate holders;
+  `Recipient(certificate, permissions)` pairs a recipient with its own access flags, and
+  `Document(source, certificate=..., private_key=...)` opens the result
+- `Document.sign(field=None, *, certificate, private_key, extra_certificates, reason, location,
+  contact, signer_name, pades, timestamp_url, timestamp_authority, timestamp_timeout, certify)`,
+  `Document.add_ltv(certificates, crls, ocsp_responses)`,
+  `Document.add_document_timestamp(timestamp_url | timestamp_authority)` — carried out by `save()`
+  as appended revisions (PAdES-B/T/LT/LTA), after which `Document.signatures` lists them
 - `PdfSignature.validate(options) -> ValidationResult`; properties `valid`, `name`, `date`, `docmdp_level`
 - `ValidationResult` — properties `is_valid`, `status`, `trust_status`, `revocation_status`,
   `certification_level`, `pades_level`
@@ -787,6 +891,9 @@ and delete workflows. 265 public types are organized by module below.
 - `FontRepository` — `add_source(source) -> None`, `get_available_fonts() -> list[FontDescriptor]`,
   `find_font(font_name) -> FontDescriptor | None`, `open_font(font_name) -> bytes | None`
 - `FontSource` hierarchy — `FolderFontSource`, `FileFontSource`, `MemoryFontSource`, `SystemFontSource`
+- `FontSubstitutionOptions(directories, fonts, use_system_fonts)` / `FontSubstitutionOptions.system()` —
+  font sources the renderer may draw non-embedded fonts from; assign to `Document.font_substitution`
+  or pass as `font_substitution=` to `Page.render` / `Document.render_page`
 
 </details>
 
@@ -811,13 +918,7 @@ and delete workflows. 265 public types are organized by module below.
   formal compliance.
 - OCR and layout reflow are not implemented; `Document.replace_text()` and `Document.redact_text()`
   rewrite matched runs in place but never reflow the surrounding layout.
-- Several compatibility surfaces exist only to keep ported code importable and carry no
-  implementation: `CdrLoadOptions`, `CgmLoadOptions`, `HtmlLoadOptions`, `OfdLoadOptions`, and
-  `SvgLoadOptions` are rejected as a load source, and `SaveFormat.PPTX` is rejected by
-  `Document.save()` — both raise `UnsupportedFeatureException` rather than silently doing
-  nothing. (`DocFormat.SVG`/`HTML`/`MARKDOWN`, `HtmlSaveOptions`, and `MarkdownSaveOptions` are no
-  longer among them — those exports are implemented; see Key Capabilities.)
-- Public-key encryption covers RSA recipients only; key-agreement, password, and KEK recipient
+- Public-key encryption covers RSA recipients only; key-agreement, password and KEK recipient
   types, and RC2-encrypted envelopes, are rejected explicitly. No PDF 2.0 message authentication
   code (`/AuthCode`) is produced or checked for either security handler.
 - Substituting a face for a non-embedded font is opt-in (`Document.font_substitution`) and affects
@@ -825,9 +926,15 @@ and delete workflows. 265 public types are organized by module below.
   substituted program is written into the document. Without it the renderer uses only the bundled
   substitute faces (the Standard 14 plus Symbol/ZapfDingbats), so a non-embedded CJK or symbol font
   draws glyph boxes.
-- HTML and Markdown export carry structure, not appearance: positioning, colour, and fonts are
+- Several compatibility surfaces exist only to keep ported code importable and carry no
+  implementation: `CdrLoadOptions`, `CgmLoadOptions`, `HtmlLoadOptions`, `OfdLoadOptions`, and
+  `SvgLoadOptions` are rejected as a load source, and `SaveFormat.PPTX` is rejected by
+  `Document.save()` — both raise `UnsupportedFeatureException` rather than silently doing nothing.
+  (`DocFormat.SVG`/`HTML`/`MARKDOWN`, `HtmlSaveOptions` and `MarkdownSaveOptions` are no longer
+  among them; those exports are implemented.)
+- HTML and Markdown export carry structure, not appearance: positioning, colour and fonts are
   dropped, and the structure is `auto_tag`'s, so headings come from font size alone, list nesting
-  is flat, and a table needs a regular grid.
+  is flat and a table needs a regular grid.
 - SVG export writes polylines rather than curves (the renderer flattens Béziers as it builds a
   path) and text as glyph outlines, which renders exactly but is not selectable. Blend modes and
   transparency groups are not expressed; mesh and function shadings are sampled into an embedded

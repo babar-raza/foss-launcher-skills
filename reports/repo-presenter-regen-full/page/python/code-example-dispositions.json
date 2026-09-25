@@ -16,7 +16,7 @@
     "verification": {
       "status": "verified_against_source",
       "evidence_type": "clone_cache_path",
-      "evidence_ref": "pyproject.toml"
+      "evidence_ref": "package.py"
     }
   },
   {

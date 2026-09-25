@@ -1,8 +1,8 @@
 [
   {
     "unit_id": "u0001",
-    "excerpt": "Aspose.Page FOSS for Python is a free, open-source, MIT-licensed, pure-Python library for\nworking with PostScript, Encapsulated PostScript (EPS), and XPS documents. It reads and authors\nPS/EPS and XPS content directly, builds page content programmatically through its own render\nmodel, and writes PDF or raster (PNG, JPEG, BMP, TIFF) output — all without Ghostscript, Adobe\ntooling, or any native runtime dependency. The same conversions are also exposed as MCP tools\nfor LLM-agent and automation workflows.",
-    "disposition": "merged_reframed",
+    "excerpt": "Aspose.Page FOSS for Python is a free, open-source, MIT-licensed, pure-Python library for\nworking with PostScript, Encapsulated PostScript (EPS), and XPS documents. It reads and authors\nPS/EPS and XPS content directly, builds page content programmatically through its own render\nmodel, and writes PDF or raster (PNG, JPEG, BMP, TIFF) output without Ghostscript or Adobe\ntooling. Raster output uses the free `skia-python` package, which has native components.\nThe same conversions are also exposed as MCP tools\nfor LLM-agent and automation workflows.",
+    "disposition": "merged_verbatim",
     "target_section": "Intro",
     "classification": "3_branding_positioning",
     "verification": {
@@ -229,18 +229,30 @@
   },
   {
     "unit_id": "u0020",
-    "excerpt": "A PyPI package for this library is not yet published — install directly from a clone of the\nrepository:",
+    "excerpt": "To build and verify a wheel from a clone of the repository, install `uv`, `setuptools`, and\n`wheel`, then run:",
+    "disposition": "merged_reframed",
+    "target_section": "Installation",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "package.py"
+    }
+  },
+  {
+    "unit_id": "u0021",
+    "excerpt": "The wheel version comes from `local/Version.txt`. `verify` installs it with all dependencies\nin `.package-venv` and tests PS/XPS to PDF/PNG conversion. To upload the built wheel, use\n`python package.py publish-test` for TestPyPI or `python package.py publish` for PyPI; these\ncommands read credentials from the matching files in `local/`.",
     "disposition": "merged_verbatim",
     "target_section": "Installation",
     "classification": "2_mechanism_explanation",
     "verification": {
       "status": "verified_against_source",
       "evidence_type": "clone_cache_path",
-      "evidence_ref": "pyproject.toml"
+      "evidence_ref": "package.py"
     }
   },
   {
-    "unit_id": "u0021",
+    "unit_id": "u0022",
     "excerpt": "The library targets Python 3.10+ (`pyproject.toml`'s `requires-python = \">=3.10\"`). See\n[Dependencies](#dependencies) below for the full required/optional/native breakdown.",
     "disposition": "merged_verbatim",
     "target_section": "Installation",
@@ -252,21 +264,9 @@
     }
   },
   {
-    "unit_id": "u0022",
-    "excerpt": "No required third-party package dependencies.",
-    "disposition": "merged_verbatim",
-    "target_section": "Dependencies",
-    "classification": "2_mechanism_explanation",
-    "verification": {
-      "status": "verified_against_source",
-      "evidence_type": "clone_cache_path",
-      "evidence_ref": "pyproject.toml"
-    }
-  },
-  {
     "unit_id": "u0023",
-    "excerpt": "- `fastmcp` — required to host the MCP server (`create_server()` / `run()`); imported lazily,\n  only when the server is started.",
-    "disposition": "merged_verbatim",
+    "excerpt": "`skia-python` is required and installed automatically with the wheel.",
+    "disposition": "merged_reframed",
     "target_section": "Dependencies",
     "classification": "2_mechanism_explanation",
     "verification": {
@@ -277,7 +277,7 @@
   },
   {
     "unit_id": "u0024",
-    "excerpt": "- `skia-python` — required for XPS-to-image conversion (no fallback); used automatically for\n  PS/EPS-to-image rendering when installed, for speed, but not required there since PS/EPS\n  rendering falls back to a pure-Python renderer (`DefaultRasterWriter`).",
+    "excerpt": "- `fastmcp` — required to host the MCP server (`create_server()` / `run()`); imported lazily,\n  only when the server is started.",
     "disposition": "merged_verbatim",
     "target_section": "Dependencies",
     "classification": "2_mechanism_explanation",

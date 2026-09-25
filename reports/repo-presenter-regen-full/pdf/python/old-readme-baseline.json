@@ -1,6 +1,6 @@
 {
-  "baseline_commit": "109e26a10e37541528afb5e3ae6b04516c1c0359",
-  "reason": "auto-pinned at ingest, run rr-20260905T065622Z-20ee0e681e4c",
-  "recorded_at": "2026-09-05T07:10:54.319395Z",
-  "recorded_by": "9d8aa2aa-a458-4688-acc4-4048b8aa9955"
+  "baseline_commit": "ab0b00d76b778ebd0bae5e1715276f600b92d893",
+  "reason": "Re-anchored to current upstream HEAD ab0b00d7: the live README (including the owners' own edits since the previous pin) is the baseline the disposition ledger must account for.",
+  "recorded_at": "2026-09-19T11:51:56.589936Z",
+  "recorded_by": "fc3ec89c-a06a-47e6-b846-9e37a8d37fac"
 }

@@ -331,6 +331,16 @@
   },
   {
     "unit_id": "c0017",
+    "disposition": "merged_verbatim",
+    "target_section": "Installation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "packaging/README.md"
+    }
+  },
+  {
+    "unit_id": "c0018",
     "disposition": "excluded",
     "target_section": null,
     "excluded_reason": "excluded_reason: this is a shell one-liner verifying this library's own header-leak counts (44/172/74/266), not example code demonstrating the public API; the verified counts themselves are already stated in prose in Scope and Limitations",
@@ -341,7 +351,7 @@
     }
   },
   {
-    "unit_id": "c0018",
+    "unit_id": "c0019",
     "disposition": "merged_verbatim",
     "target_section": "Scope and Limitations",
     "verification": {

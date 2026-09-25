@@ -24,7 +24,7 @@
       "status": "verified_against_source",
       "evidence_type": "clone_cache_path",
       "evidence_ref": "pyproject.toml",
-      "evidence_note": "python -m pip install -e '.[dev]' confirmed against pyproject.toml's dev extra."
+      "evidence_note": "Regenerated 2026-09-19: `python -m pip install -e '.[dev]'` -- the `dev` extra is declared in pyproject.toml."
     },
     "disposition": "merged_verbatim",
     "target_section": "Installation"
@@ -57,7 +57,7 @@
       "status": "verified_against_source",
       "evidence_type": "clone_cache_path",
       "evidence_ref": "src/aspose_pdf/document.py",
-      "evidence_note": "Document()/document.pages.add()/document.save() confirmed real in document.py; page.add_text() confirmed real in pages.py."
+      "evidence_note": "Regenerated 2026-09-19 against ab0b00d7: call(s) `Document` found in src/aspose_pdf/document.py."
     },
     "disposition": "merged_verbatim",
     "target_section": "Quick Start"
@@ -73,7 +73,7 @@
       "status": "verified_against_source",
       "evidence_type": "clone_cache_path",
       "evidence_ref": "src/aspose_pdf/document.py",
-      "evidence_note": "Document(\"input.pdf\"), document.page_count, document.version, document.info confirmed real in document.py."
+      "evidence_note": "Regenerated 2026-09-19 against ab0b00d7: call(s) `Document` found in src/aspose_pdf/document.py."
     },
     "disposition": "merged_verbatim",
     "target_section": "Quick Start"
@@ -91,7 +91,7 @@
       "status": "verified_against_source",
       "evidence_type": "clone_cache_path",
       "evidence_ref": "src/aspose_pdf/pages.py",
-      "evidence_note": "document.load_from confirmed real in document.py; document.pages[0].save_as_image confirmed real in pages.py."
+      "evidence_note": "Regenerated 2026-09-19 against ab0b00d7: call(s) `Document`, `save_as_image` found in src/aspose_pdf/pages.py."
     },
     "disposition": "merged_verbatim",
     "target_section": "Additional Examples"
@@ -103,19 +103,75 @@
     "verification": {
       "status": "verified_against_source",
       "evidence_type": "clone_cache_path",
-      "evidence_ref": "src/aspose_pdf/recipients.py"
+      "evidence_ref": "src/aspose_pdf/recipients.py",
+      "evidence_note": "Regenerated 2026-09-19 against ab0b00d7: call(s) `x509.load_pem_x509_certificate`, `Path`, `read_bytes`, `Document`, `document.encrypt_for_recipients` found in src/aspose_pdf/recipients.py."
     },
-    "correction_reason": "The upstream README's own example (confirmed identical in the pinned commit) omits `from pathlib import Path` while using `Path(...)` -- a real, live-verified bug (reproduced via verify-examples: NameError: name 'Path' is not defined). Added the missing import; no other change."
+    "correction_reason": "The upstream README's own example (confirmed identical in the pinned commit) omits `from pathlib import Path` while using `Path(...)` -- a real, live-verified bug (reproduced via verify-examples: NameError: name 'Path' is not defined). Added the missing import; no other change.",
+    "api_call_fingerprint": [
+      "x509.load_pem_x509_certificate",
+      "Path",
+      "read_bytes",
+      "Document",
+      "document.encrypt_for_recipients",
+      "Recipient",
+      "document.save"
+    ]
   },
   {
-    "unit_id": "c0008",
+    "unit_id": "c0008a",
     "disposition": "merged_verbatim",
     "target_section": "Additional Examples",
     "verification": {
       "status": "verified_against_source",
       "evidence_type": "clone_cache_path",
-      "evidence_ref": "src/aspose_pdf/pages.py"
-    }
+      "evidence_ref": "src/aspose_pdf/document.py"
+    },
+    "api_call_fingerprint": []
+  },
+  {
+    "unit_id": "c0008b",
+    "disposition": "merged_verbatim",
+    "target_section": "Additional Examples",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/aspose_pdf/document.py"
+    },
+    "api_call_fingerprint": []
+  },
+  {
+    "unit_id": "c0008c",
+    "disposition": "merged_verbatim",
+    "target_section": "Additional Examples",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/aspose_pdf/document.py",
+      "evidence_note": "Regenerated 2026-09-19 against ab0b00d7: call(s) `pkcs12.load_key_and_certificates`, `Path` found in src/aspose_pdf/document.py."
+    },
+    "api_call_fingerprint": [
+      "pkcs12.load_key_and_certificates",
+      "Path",
+      "read_bytes"
+    ]
+  },
+  {
+    "unit_id": "c0008d",
+    "disposition": "merged_verbatim",
+    "target_section": "Additional Examples",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/aspose_pdf/document.py",
+      "evidence_note": "Regenerated 2026-09-19 against ab0b00d7: call(s) `Document` found in src/aspose_pdf/document.py."
+    },
+    "api_call_fingerprint": [
+      "Document",
+      "document.sign",
+      "document.add_ltv",
+      "document.add_document_timestamp",
+      "document.save"
+    ]
   },
   {
     "unit_id": "c0009",
@@ -124,8 +180,17 @@
     "verification": {
       "status": "verified_against_source",
       "evidence_type": "clone_cache_path",
-      "evidence_ref": "src/aspose_pdf/document.py"
-    }
+      "evidence_ref": "src/aspose_pdf/pages.py",
+      "evidence_note": "Regenerated 2026-09-19 against ab0b00d7: call(s) `Document`, `document.layers.add`, `layer`, `add_text` found in src/aspose_pdf/pages.py."
+    },
+    "api_call_fingerprint": [
+      "Document",
+      "document.layers.add",
+      "layer",
+      "add_text",
+      "document.save",
+      "document.flatten_layers"
+    ]
   },
   {
     "unit_id": "c0010",
@@ -134,8 +199,15 @@
     "verification": {
       "status": "verified_against_source",
       "evidence_type": "clone_cache_path",
-      "evidence_ref": "src/aspose_pdf/document.py"
-    }
+      "evidence_ref": "src/aspose_pdf/document.py",
+      "evidence_note": "Regenerated 2026-09-19 against ab0b00d7: call(s) `Document` found in src/aspose_pdf/document.py."
+    },
+    "api_call_fingerprint": [
+      "Document",
+      "document.save_as_markdown",
+      "document.save_as_html",
+      "document.to_markdown"
+    ]
   },
   {
     "unit_id": "c0011",
@@ -144,11 +216,34 @@
     "verification": {
       "status": "verified_against_source",
       "evidence_type": "clone_cache_path",
-      "evidence_ref": "src/aspose_pdf/font_substitution.py"
-    }
+      "evidence_ref": "src/aspose_pdf/document.py",
+      "evidence_note": "Regenerated 2026-09-19 against ab0b00d7: call(s) `Document`, `save_as_svg` found in src/aspose_pdf/document.py."
+    },
+    "api_call_fingerprint": [
+      "Document",
+      "save_as_svg",
+      "document.save_as_svg"
+    ]
   },
   {
     "unit_id": "c0012",
+    "disposition": "merged_verbatim",
+    "target_section": "Additional Examples",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/aspose_pdf/font_substitution.py",
+      "evidence_note": "Regenerated 2026-09-19 against ab0b00d7: call(s) `Document`, `FontSubstitutionOptions`, `FontSubstitutionOptions.system` found in src/aspose_pdf/font_substitution.py."
+    },
+    "api_call_fingerprint": [
+      "Document",
+      "FontSubstitutionOptions",
+      "FontSubstitutionOptions.system",
+      "document.save_page_as_image"
+    ]
+  },
+  {
+    "unit_id": "c0013",
     "heading_context": "Author Multi-Script Unicode Text",
     "language": "python",
     "api_call_fingerprint": [
@@ -161,13 +256,13 @@
       "status": "verified_against_source",
       "evidence_type": "clone_cache_path",
       "evidence_ref": "src/aspose_pdf/pages.py",
-      "evidence_note": "page.add_text(..., font=...) confirmed real in pages.py."
+      "evidence_note": "Regenerated 2026-09-19 against ab0b00d7: call(s) `Document`, `page.add_text` found in src/aspose_pdf/pages.py."
     },
     "disposition": "merged_verbatim",
     "target_section": "Additional Examples"
   },
   {
-    "unit_id": "c0013a",
+    "unit_id": "c0014a",
     "heading_context": "Author Complex-Script Text With TextLayoutOptions",
     "language": "python",
     "api_call_fingerprint": [],
@@ -181,7 +276,7 @@
     "target_section": "Additional Examples"
   },
   {
-    "unit_id": "c0013b",
+    "unit_id": "c0014b",
     "heading_context": "Author Complex-Script Text With TextLayoutOptions",
     "language": "python",
     "api_call_fingerprint": [
@@ -195,13 +290,13 @@
       "status": "verified_against_source",
       "evidence_type": "clone_cache_path",
       "evidence_ref": "src/aspose_pdf/text_layout.py",
-      "evidence_note": "page.add_text(..., layout=TextLayoutOptions(...)) confirmed real; TextLayoutOptions confirmed real in text_layout.py."
+      "evidence_note": "Regenerated 2026-09-19 against ab0b00d7: call(s) `page.add_text`, `TextLayoutOptions` found in src/aspose_pdf/text_layout.py."
     },
     "disposition": "merged_verbatim",
     "target_section": "Additional Examples"
   },
   {
-    "unit_id": "c0014",
+    "unit_id": "c0015",
     "heading_context": "Extract Text From a PDF",
     "language": "python",
     "api_call_fingerprint": [
@@ -214,13 +309,13 @@
       "status": "verified_against_source",
       "evidence_type": "clone_cache_path",
       "evidence_ref": "src/aspose_pdf/facades.py",
-      "evidence_note": "PdfExtractor.bind_pdf/extract_text/get_text confirmed real in facades.py."
+      "evidence_note": "Regenerated 2026-09-19 against ab0b00d7: call(s) `PdfExtractor` found in src/aspose_pdf/facades.py."
     },
     "disposition": "merged_verbatim",
     "target_section": "Additional Examples"
   },
   {
-    "unit_id": "c0015",
+    "unit_id": "c0016",
     "heading_context": "Merge PDF Files",
     "language": "python",
     "api_call_fingerprint": [
@@ -232,13 +327,13 @@
       "status": "verified_against_source",
       "evidence_type": "clone_cache_path",
       "evidence_ref": "src/aspose_pdf/facades.py",
-      "evidence_note": "PdfFileEditor.concatenate/last_exception confirmed real in facades.py."
+      "evidence_note": "Regenerated 2026-09-19 against ab0b00d7: call(s) `PdfFileEditor` found in src/aspose_pdf/facades.py."
     },
     "disposition": "merged_verbatim",
     "target_section": "Additional Examples"
   },
   {
-    "unit_id": "c0016",
+    "unit_id": "c0017",
     "heading_context": "Apply Resource Limits for Untrusted PDF Input",
     "language": "python",
     "api_call_fingerprint": [
@@ -250,13 +345,13 @@
       "status": "verified_against_source",
       "evidence_type": "clone_cache_path",
       "evidence_ref": "src/aspose_pdf/load_limits.py",
-      "evidence_note": "PdfLoadLimits(...) confirmed real in load_limits.py; PdfResourceLimitException confirmed real in exceptions.py; document.load_from confirmed real in document.py."
+      "evidence_note": "Regenerated 2026-09-19 against ab0b00d7: call(s) `PdfLoadLimits`, `Document` found in src/aspose_pdf/load_limits.py."
     },
     "disposition": "merged_verbatim",
     "target_section": "Additional Examples"
   },
   {
-    "unit_id": "c0017",
+    "unit_id": "c0018",
     "heading_context": "Development and Testing",
     "language": "bash",
     "api_call_fingerprint": [],

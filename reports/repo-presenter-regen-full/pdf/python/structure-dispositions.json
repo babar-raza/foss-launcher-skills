@@ -16,17 +16,33 @@
   {
     "unit_id": "s0002",
     "heading": "Encrypt for Certificate Recipients",
-    "disposition": "merged_reframed",
+    "disposition": "merged_verbatim",
     "target_section": "Additional Examples",
     "classification": "2_mechanism_explanation",
     "verification": {
       "status": "verified_against_source",
       "evidence_type": "clone_cache_path",
       "evidence_ref": "src/aspose_pdf/document.py"
-    }
+    },
+    "kind": "generic_structural_block",
+    "claimed_paths": []
   },
   {
     "unit_id": "s0003",
+    "heading": "Sign a Document",
+    "disposition": "merged_verbatim",
+    "target_section": "Additional Examples",
+    "classification": "2_mechanism_explanation",
+    "verification": {
+      "status": "verified_against_source",
+      "evidence_type": "clone_cache_path",
+      "evidence_ref": "src/aspose_pdf/document.py"
+    },
+    "kind": "generic_structural_block",
+    "claimed_paths": []
+  },
+  {
+    "unit_id": "s0004",
     "heading": "Put a Watermark on a Layer, Then Resolve It",
     "disposition": "merged_verbatim",
     "target_section": "Additional Examples",
@@ -35,10 +51,12 @@
       "status": "verified_against_source",
       "evidence_type": "clone_cache_path",
       "evidence_ref": "src/aspose_pdf/pages.py"
-    }
+    },
+    "kind": "generic_structural_block",
+    "claimed_paths": []
   },
   {
-    "unit_id": "s0004",
+    "unit_id": "s0005",
     "heading": "Convert a Document to HTML or Markdown",
     "disposition": "merged_verbatim",
     "target_section": "Additional Examples",
@@ -47,10 +65,12 @@
       "status": "verified_against_source",
       "evidence_type": "clone_cache_path",
       "evidence_ref": "src/aspose_pdf/document.py"
-    }
+    },
+    "kind": "generic_structural_block",
+    "claimed_paths": []
   },
   {
-    "unit_id": "s0005",
+    "unit_id": "s0006",
     "heading": "Export a Page as SVG",
     "disposition": "merged_verbatim",
     "target_section": "Additional Examples",
@@ -59,10 +79,12 @@
       "status": "verified_against_source",
       "evidence_type": "clone_cache_path",
       "evidence_ref": "src/aspose_pdf/document.py"
-    }
+    },
+    "kind": "generic_structural_block",
+    "claimed_paths": []
   },
   {
-    "unit_id": "s0006",
+    "unit_id": "s0007",
     "heading": "Render a Page Whose Fonts Are Not Embedded",
     "disposition": "merged_verbatim",
     "target_section": "Additional Examples",
@@ -71,10 +93,12 @@
       "status": "verified_against_source",
       "evidence_type": "clone_cache_path",
       "evidence_ref": "src/aspose_pdf/font_substitution.py"
-    }
+    },
+    "kind": "generic_structural_block",
+    "claimed_paths": []
   },
   {
-    "unit_id": "s0007",
+    "unit_id": "s0008",
     "heading": "Author Multi-Script Unicode Text",
     "kind": "generic_structural_block",
     "claimed_paths": [],
@@ -88,7 +112,7 @@
     "target_section": "Additional Examples"
   },
   {
-    "unit_id": "s0008",
+    "unit_id": "s0009",
     "heading": "Author Complex-Script Text With TextLayoutOptions",
     "kind": "generic_structural_block",
     "claimed_paths": [],
@@ -102,7 +126,7 @@
     "target_section": "Additional Examples"
   },
   {
-    "unit_id": "s0009",
+    "unit_id": "s0010",
     "heading": "Extract Text From a PDF",
     "kind": "generic_structural_block",
     "claimed_paths": [],
@@ -116,7 +140,7 @@
     "target_section": "Additional Examples"
   },
   {
-    "unit_id": "s0010",
+    "unit_id": "s0011",
     "heading": "Merge PDF Files",
     "kind": "generic_structural_block",
     "claimed_paths": [],

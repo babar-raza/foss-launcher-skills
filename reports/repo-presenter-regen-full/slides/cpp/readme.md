@@ -1,6 +1,6 @@
 # Aspose.Slides FOSS for C++
 
-[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE) [![C++](https://img.shields.io/badge/C%2B%2B-20-blue.svg)](CMakeLists.txt) [![Contributors](https://img.shields.io/github/contributors/aspose-slides-foss/Aspose.Slides-FOSS-for-Cpp.svg)](https://github.com/aspose-slides-foss/Aspose.Slides-FOSS-for-Cpp/graphs/contributors)
+[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE) [![C++](https://img.shields.io/badge/C%2B%2B-20-blue.svg)](CMakeLists.txt) [![NuGet](https://img.shields.io/nuget/v/Aspose.Slides.Cpp.FOSS.svg)](https://www.nuget.org/packages/Aspose.Slides.Cpp.FOSS/) [![Contributors](https://img.shields.io/github/contributors/aspose-slides-foss/Aspose.Slides-FOSS-for-Cpp.svg)](https://github.com/aspose-slides-foss/Aspose.Slides-FOSS-for-Cpp/graphs/contributors)
 
 [![Aspose.Slides FOSS for C++](https://products.aspose.org/media/slides/cpp/banner-readme.png)](https://products.aspose.org/slides/cpp/)
 
@@ -99,8 +99,8 @@ This covers the same ground upstream calls Features — everything below is real
 
 ## Installation
 
-Building from source is the most direct path — it ships as CMake source you build and link
-directly.
+Build from source with CMake on any platform — it ships as CMake source you build and link
+directly — or, on Windows with MSVC, install the prebuilt NuGet package.
 
 ### Build From Source
 
@@ -162,9 +162,12 @@ cmake -B build -DCMAKE_PREFIX_PATH=/your/prefix
 ```
 
 `examples/consumer/` is exactly that project, and it is built and run against a fresh install on
-every CI run, so the instructions above are checked rather than asserted. Version compatibility is
-`SameMinorVersion`: before 1.0 the major number carries no promise, so
-`find_package(AsposeSlidesFoss 0.1 CONFIG REQUIRED)` accepts any 0.1.x and rejects 0.2.
+every CI run, so the instructions above are checked rather than asserted.
+
+Version compatibility is `SameMinorVersion`. The version is CalVer — `YY.M.PATCH` — so the major
+number is a year and carries no compatibility meaning at all:
+`find_package(AsposeSlidesFoss 26.9 CONFIG REQUIRED)` accepts any `26.9.x` and rejects `26.10`,
+which is the only promise a monthly release train can keep.
 
 **A consumer needs pugixml's headers, not just its library.** 44 of the headers a consumer
 includes — everything under `include/Aspose/Slides/Foss/` outside `_internal/` — include
@@ -176,6 +179,33 @@ implementation detail into the interface, disclosed here rather than quietly fix
 is not small — see [Scope and Limitations](#scope-and-limitations) for the real scale of it. miniz
 has no such problem: it appears in no installed header, is linked privately, and is required only
 at link time.
+
+### Install From NuGet on Windows
+
+On Windows with MSVC there is a prebuilt package, so nothing has to be compiled:
+
+```powershell
+Install-Package Aspose.Slides.Cpp.FOSS
+```
+
+It carries **x64 and Win32**, **Debug and Release**, built against the DLL C runtime (`/MD` and
+`/MDd`), and it needs no other configuration: the include path and the libraries arrive from the
+package. Two requirements, both checked by the package rather than left to fail obscurely:
+
+- **Visual Studio 2022 or newer (`v143`+).** These are static archives compiled against a
+  particular MSVC standard library, part of which is itself compiled rather than header-only. An
+  older toolset links against an older standard library that lacks symbols these objects
+  reference, and fails with `LNK2019` on a name from inside the standard library. The package is
+  therefore built with the *oldest* toolset it supports, never the newest available.
+- **C++ language standard `stdcpp20` or later**, because these headers are C++20.
+
+Three libraries are linked, not one — `aspose_slides_foss.lib`, `pugixml.lib` and `miniz.lib` —
+and pugixml's headers are on your include path as well as ours. A static archive carries no record
+of what it needs, and pugixml is in this library's public interface; see
+[Scope and Limitations](#scope-and-limitations).
+
+For Linux and macOS, build from source as above. `packaging/README.md` describes the package for
+each registry and what state it is in.
 
 ## Dependencies
 
@@ -193,6 +223,8 @@ preferred to a private clone:
 
 - A C++20 compiler and CMake 3.20+ (`cmake_minimum_required(VERSION 3.20)` and
   `CMAKE_CXX_STANDARD 20` in `CMakeLists.txt`).
+- The Windows NuGet package needs Visual Studio 2022 or newer (`v143`+) and the C++ language
+  standard `stdcpp20` or later; the package's own MSBuild targets check both.
 - The library is built as a static archive (`add_library(AsposeSlidesFoss STATIC ...)`): nothing in
   the sources is annotated for symbol export, so a shared build would export nothing, and the build
   forces the static form rather than producing a library that cannot be linked.
@@ -707,13 +739,15 @@ The primary entry point is `Presentation`, which owns a `SlideCollection` of `Sl
 - **[Full API reference](https://reference.aspose.org/slides/cpp/)** — the complete, browsable
   reference for the public API surface (the [API reference](#api-reference) section above covers
   the essentials).
+- **[Publishing guide](PUBLISHING.md)** — how a release of `Aspose.Slides.Cpp.FOSS` reaches
+  nuget.org, and what to do when a release goes wrong halfway.
 - [GitHub repository](https://github.com/aspose-slides-foss/Aspose.Slides-FOSS-for-Cpp)
 - Found a bug or have a feature request? [Open an issue](https://github.com/aspose-slides-foss/Aspose.Slides-FOSS-for-Cpp/issues) on GitHub.
-- `packaging/` holds a **draft** vcpkg port (`packaging/vcpkg/`) and a **draft** Conan recipe
-  (`packaging/conan/`). Neither is submittable yet — no release has been tagged, so neither the
-  source reference nor the archive checksum a real submission needs exists — and `packaging/
-  README.md` states the blockers precisely; until then, build from source or consume via CMake
-  `FetchContent` as described in [Installation](#installation).
+- `packaging/` holds the Windows NuGet package (`packaging/nuget/`) and a **draft** vcpkg port
+  (`packaging/vcpkg/`) and a **draft** Conan recipe (`packaging/conan/`) that are not to be
+  submitted; `packaging/README.md` states the state of each. To use the library, install the
+  NuGet package on Windows, or build from source or consume via CMake `FetchContent` as described
+  in [Installation](#installation).
 
 ## Scope and Limitations
 
@@ -831,6 +865,8 @@ that install; an AddressSanitizer run of the suite; and a build with the oldest 
 claims to support (3.20.6), so that number in `cmake_minimum_required` stays a tested claim. Each
 run uploads the install tree it produced, the generated CycloneDX bill of materials, and the
 conformance corpus, so a reviewer can download exactly what CI built rather than rebuilding it.
+Releases are published by [`.github/workflows/nuget-release.yml`](.github/workflows/nuget-release.yml),
+which runs on a `v*` tag push, or as a dry run through `workflow_dispatch`.
 
 This is also where contributing and reporting things — bugs, vulnerabilities, conduct issues — are
 documented. The one rule worth repeating from [`CONTRIBUTING.md`](CONTRIBUTING.md): **a fix to a writer ships
