@@ -190,7 +190,7 @@ REPO_ROOT = _DEFAULT_REPO_ROOT
 # cached "approved" candidate rather than silently serving stale-era output
 # forever. Callers (recommend.py) pass this to consult_before_llm_call()/
 # record_result() as composer_version -- never compute it themselves.
-COMPOSER_VERSION = "12"
+COMPOSER_VERSION = "13"
 
 
 def configure(*, repo_root: "Path | str | None" = None) -> None:

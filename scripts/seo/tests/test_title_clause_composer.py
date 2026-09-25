@@ -563,6 +563,72 @@ class TestEnumerationMembershipRound9RealWorldFormatWordsFixed:
         assert check_enumeration_membership(composed, real_3d_formats)
 
 
+class TestEnumerationMembershipRound10MoreRealWorldFormatWordsFixed:
+    """Round-10 independent review (agentId a2c9f7db41e6805b3f) REJECT:
+    round 9 fixed only the 2 specific words a reviewer happened to think
+    of, not the underlying gap. A systematic pass over the full exempt
+    sets found 10 more real-world-named-format collisions spanning BOTH
+    _ENUM_COMMON_WORDS and _ENUM_UNIVERSAL_EXEMPT: "pages" (Apple Pages),
+    "key" (Apple Keynote), "class" (Java .class bytecode), "sql" (.sql
+    dump, from the universal set), "app" (.app bundle), "lib" (.lib
+    static library), "workflow" (Automator .workflow), "asset" (Unity
+    .asset), "config" (.config), "log" (.log). Fixed by removing all 10."""
+
+    _REAL_WORDS_FORMATS = {"doc", "docx", "rtf"}
+
+    def test_pages_fabrication_is_caught(self):
+        composed = "Convert DOC, DOCX, RTF and Pages files easily today."
+        assert not check_enumeration_membership(composed, self._REAL_WORDS_FORMATS)
+
+    def test_key_fabrication_is_caught(self):
+        composed = "Convert DOC, DOCX, RTF and Key files easily today."
+        assert not check_enumeration_membership(composed, self._REAL_WORDS_FORMATS)
+
+    def test_class_fabrication_is_caught(self):
+        composed = "Convert DOC, DOCX, RTF and Class files easily today."
+        assert not check_enumeration_membership(composed, self._REAL_WORDS_FORMATS)
+
+    def test_sql_fabrication_is_caught(self):
+        composed = "Convert DOC, DOCX, RTF and SQL files easily today."
+        assert not check_enumeration_membership(composed, self._REAL_WORDS_FORMATS)
+
+    def test_app_fabrication_is_caught(self):
+        composed = "Convert DOC, DOCX, RTF and App files easily today."
+        assert not check_enumeration_membership(composed, self._REAL_WORDS_FORMATS)
+
+    def test_lib_fabrication_is_caught(self):
+        composed = "Convert DOC, DOCX, RTF and Lib files easily today."
+        assert not check_enumeration_membership(composed, self._REAL_WORDS_FORMATS)
+
+    def test_workflow_fabrication_is_caught(self):
+        composed = "Convert DOC, DOCX, RTF and Workflow files easily today."
+        assert not check_enumeration_membership(composed, self._REAL_WORDS_FORMATS)
+
+    def test_asset_fabrication_is_caught(self):
+        composed = "Convert DOC, DOCX, RTF and Asset files easily today."
+        assert not check_enumeration_membership(composed, self._REAL_WORDS_FORMATS)
+
+    def test_config_fabrication_is_caught(self):
+        composed = "Convert DOC, DOCX, RTF and Config files easily today."
+        assert not check_enumeration_membership(composed, self._REAL_WORDS_FORMATS)
+
+    def test_log_fabrication_is_caught(self):
+        composed = "Convert DOC, DOCX, RTF and Log files easily today."
+        assert not check_enumeration_membership(composed, self._REAL_WORDS_FORMATS)
+
+    def test_genuine_pages_format_passes_once_real(self):
+        real_formats = {"doc", "pages"}
+        composed = "Convert between DOC and Pages formats easily."
+        assert check_enumeration_membership(composed, real_formats)
+
+    def test_plural_and_adjacent_forms_stay_exempt(self):
+        """"apps", "libs", "logs", "assets" are NOT themselves recognized
+        format extensions (unlike their singular counterparts) and were
+        deliberately left in _ENUM_COMMON_WORDS."""
+        composed = "Manage apps, libs, logs and assets easily today."
+        assert check_enumeration_membership(composed, set())
+
+
 # ---------------------------------------------------------------------------
 # Acceptance check: over-length-retries-then-falls-back
 # ---------------------------------------------------------------------------

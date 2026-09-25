@@ -379,6 +379,29 @@ def check_grounding_preservation(composed: str, raw_source_text: str) -> bool:
 # world plausible format names, not just this portfolio's own current
 # `formats.json` values or whatever a given round's failing test fixture
 # happens to need.
+#
+# **Rework 10** [round-10 independent review, agentId
+# `a2c9f7db41e6805b3f`, REJECT]: rework 9 fixed the two specific words a
+# reviewer happened to think of, not the underlying gap -- a systematic
+# pass over the full exempt sets found 10 MORE real-world-named-format
+# collisions, spanning BOTH `_ENUM_COMMON_WORDS` and
+# `_ENUM_UNIVERSAL_EXEMPT`: "pages" (Apple Pages, .pages), "key" (Apple
+# Keynote, .key), "class" (Java compiled bytecode, .class), "sql" (SQL
+# script/dump, .sql -- from the universal set), "app" (macOS/iOS .app
+# bundle), "lib" (.lib static library), "workflow" (macOS Automator
+# .workflow), "asset" (Unity .asset), "config" (.config), "log" (.log).
+# 4 of the 10 were live-reproduced end-to-end through
+# `compose_description()`; all 10 independently re-confirmed as isolated
+# `check_enumeration_membership` bypasses and confirmed absent from every
+# real portfolio `formats.json`. Removed all 10 (plural/adjacent forms
+# not themselves a recognized format extension -- e.g. "apps", "libs",
+# "logs", "assets" -- were deliberately left in place). Per the
+# reviewer's own explicit recommendation, a whack-a-mole word-by-word fix
+# is not a durable answer to this defect CLASS; an automated CI check
+# that diffs these exempt lists against a maintained real-world format-
+# name reference is the real fix and is out of scope for this taskcard's
+# `allowed_paths` (no new files) -- filed as a follow-up card rather than
+# silently declared "done" by this round's word removal alone.
 _ENUM_CANDIDATE_RE = re.compile(r"\b(?=[A-Za-z0-9+]*[A-Za-z])[A-Za-z0-9+]{2,}\b")
 _ENUM_UNDERSCORE_CANDIDATE_RE = re.compile(r"\b(?=[A-Za-z0-9_]*[A-Za-z])(?=[A-Za-z0-9_]*_)[A-Za-z0-9_]{2,}\b")
 
@@ -392,7 +415,7 @@ _ENUM_UNDERSCORE_CANDIDATE_RE = re.compile(r"\b(?=[A-Za-z0-9_]*[A-Za-z])(?=[A-Za
 # deliberately NOT here (rework 2) -- a `.NET` page's own `platform`
 # exemption covers it, correctly scoped to only that platform's pages.
 _ENUM_UNIVERSAL_EXEMPT = frozenset({
-    "foss", "api", "sdk", "cli", "url", "sql", "http", "https", "rest",
+    "foss", "api", "sdk", "cli", "url", "http", "https", "rest",
     "ui", "ux", "os", "ide", "gui", "jwt", "oauth", "saas", "ai", "ml",
     "gpu", "cpu", "ram", "ssd", "vm", "ci", "cd", "npm", "pip", "git",
     "seo", "id", "faq", "aspose", "enum", "enums", "saveformat",
@@ -459,22 +482,22 @@ _ENUM_COMMON_WORDS = frozenset({
     "show", "shows", "try", "tries", "look", "looks", "call", "calls",
     "return", "returns",
     # common nouns/adjectives in product/technical descriptions
-    "file", "files", "data", "tool", "tools", "code", "apps", "app",
-    "web", "docs", "kit", "kits", "lib", "libs", "core", "item",
-    "items", "list", "lists", "type", "types", "class", "value", "values",
-    "page", "pages", "site", "sites", "way", "ways", "time", "guide",
-    "user", "users", "input", "output", "project", "format", "class",
+    "file", "files", "data", "tool", "tools", "code", "apps",
+    "web", "docs", "kit", "kits", "libs", "core", "item",
+    "items", "list", "lists", "type", "types", "value", "values",
+    "page", "site", "sites", "way", "ways", "time", "guide",
+    "user", "users", "input", "output", "project", "format",
     "field", "method", "object", "module", "sample", "sample", "basic",
     "extra", "part", "parts", "steps", "level", "levels", "size",
     "range", "point", "group", "groups", "index", "table",
     "sheet", "sheets", "cell", "cells", "row", "rows", "column", "columns",
     "image", "audio", "video", "media", "print", "view",
     "views", "model", "models", "server", "client", "cloud", "local",
-    "batch", "async", "sync", "test", "tests", "log", "logs", "config",
-    "asset", "assets", "task", "tasks", "case", "cases",
+    "batch", "async", "sync", "test", "tests", "logs",
+    "assets", "task", "tasks", "case", "cases",
     "free", "open", "easy", "fast", "best", "new", "high", "low", "full",
     "real", "true", "live", "safe", "modern", "light", "quick", "clean",
-    "clear", "exact", "basic", "wide", "broad", "rich", "key", "main",
+    "clear", "exact", "basic", "wide", "broad", "rich", "main",
     "top", "old", "hot", "cool", "big", "small", "long", "short", "smart",
     "solid", "unique", "custom", "public", "single", "multi", "prior",
     "final", "extra", "same", "other", "others", "own", "useful", "short",
@@ -495,7 +518,7 @@ _ENUM_COMMON_WORDS = frozenset({
     "ensure", "leverage", "utilize", "harness", "generate", "integrate",
     "extract", "automate", "customize", "configure", "implement",
     "developer", "document", "project", "library", "platform", "solution",
-    "workflow", "pipeline", "capability", "application", "performance",
+    "pipeline", "capability", "application", "performance",
     "efficient", "reliable", "flexible", "seamless", "comprehensive",
     "professional", "enterprise", "advanced", "powerful", "scalable",
     "lightweight", "intuitive", "versatile", "dedicated", "extensive",
@@ -510,7 +533,7 @@ _ENUM_COMMON_WORDS = frozenset({
     "building", "workflows", "automation", "pipelines", "supporting",
     "formats", "results", "archival", "natural", "options", "enabling",
     "presentations", "libraries", "solutions", "platforms", "projects",
-    "workflow", "capabilities", "applications", "performances",
+    "capabilities", "applications", "performances",
     "efficiently", "reliably", "seamlessly", "professionally",
     "comprehensively", "powerfully", "additional", "various", "several",
     "numerous", "essential", "fundamental", "primary", "secondary",

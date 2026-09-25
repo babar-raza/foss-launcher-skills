@@ -509,6 +509,33 @@ class TestEnumerationMembershipEndToEnd:
         )
         assert result is None
 
+    def test_more_real_world_format_words_do_not_ground_end_to_end(self, tmp_path):
+        """Round-10 review REJECT, real end-to-end reproduction: round 9
+        fixed only "one"/"step"; a systematic pass over the full exempt
+        sets found 10 more real-world-named-format collisions spanning
+        BOTH _ENUM_COMMON_WORDS and _ENUM_UNIVERSAL_EXEMPT. This case
+        exercises "sql" (SQL script/dump format, from the universal set,
+        proving the gap was not confined to one list) fabricated
+        alongside real cells/python formats."""
+        dc.configure(repo_root=tmp_path)
+        self._write_formats_json(
+            tmp_path, "cells", "python",
+            ["xlsx", "csv", "markdown"],
+        )
+        proposed = (
+            "Explore the SaveFormat enum in Aspose.Cells FOSS for Python, "
+            "enabling export to XLSX, CSV, Markdown and SQL formats "
+            "reliably for developers today."
+        )
+        result = compose_description(
+            "content/reference.aspose.org/en/cells/python/FileFormatType.md",
+            "SaveFormat enum", "cells save format export",
+            ["SaveFormat lists the supported output formats for workbooks."],
+            "cells", "python",
+            llm_call=lambda p: {"proposed_description": proposed, "rationale": "x"},
+        )
+        assert result is None
+
     def test_all_real_format_enumeration_passes_end_to_end(self, tmp_path):
         dc.configure(repo_root=tmp_path)
         self._write_formats_json(tmp_path, "slides", "net", ["Ppt", "Pdf", "Xps", "Pptx", "Html"])
