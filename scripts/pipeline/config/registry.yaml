@@ -2564,6 +2564,23 @@ scripts:
     deprecated_since: null
     notes: "TC-02/TC-03 (MT073-2026-09-24-LOCALE-CODE-BLOCK-DEFECT-REMEDIATION): dry-run/apply tool for the dominant ST-211 defect class MT072/TC-19 diagnosed -- a fence's language tag silently replaced during locale translation (English tags non-code content NON_EXECUTABLE_LANGS, locale gets a real language tag instead). Tag-only fix, no code content changes. Uses lib/example_verification/block_matcher.py's count-robust English/locale block pairing."
 
+  - path: scripts/pipeline/commands/governance/locale_fence_structure_fixer.py
+    kind: entrypoint
+    lifecycle: active
+    canonical_impl_path: null
+    public_entrypoint: true
+    cli_contract: stable
+    owner_domain: content-quality
+    backing:
+      kind: internal
+      ref: null
+    test_targets:
+      - scripts/pipeline/tests/test_locale_fence_structure_fixer.py
+      - scripts/pipeline/tests/test_fence_structure_repair.py
+    requires_test: true
+    deprecated_since: null
+    notes: "TC-09 (MT073-2026-09-24-LOCALE-CODE-BLOCK-DEFECT-REMEDIATION): dry-run/apply tool for ST-215 Bucket 3's LANG_MISMATCH/COUNT_MISMATCH files, deferred from TC-07 once found to be genuine fence-structure corruption, not the simple missing-tag defect TC-07 assumed. Reuses locale_code_block_equivalence.py's run_check() directly (no reimplementation) to find candidates, then lib/example_verification/fence_structure_repair.py to compute a verified repair for two confirmed corruption shapes: MISSING_OPENER (a section's fence-open + import lines were dropped, cascading a CommonMark misparse through the rest of the page) and DUPLICATE_BLOCK (a section's code appears twice -- once unfenced+incomplete, once correctly fenced but separator-shifted). Every write is gated on the repaired locale's block list exactly matching English's (canonical language + sha256_norm) -- a file whose real defect doesn't match either signature (confirmed live: several Bucket-3 files carry an unrelated, separate content-drift or genuinely-stale-translation defect instead of/alongside this one) is reported `unresolved` and never written, dry-run or not."
+
   - path: scripts/pipeline/commands/governance/locale_code_block_equivalence.py
     kind: entrypoint
     lifecycle: active
