@@ -218,7 +218,15 @@ _FAMILY_FORMAT_ALLOWLISTS: dict[str, frozenset[str]] = {
 # heuristic was the ONLY thing rejecting them. Add future confirmed cases
 # here rather than weakening the heuristic itself, which correctly catches
 # the far more common compound-word false-positive shape.
-_CAMELCASE_FALSE_POSITIVE_EXEMPT: frozenset[str] = frozenset({"threemf"})
+# "geojson" (H-3, MT074-2026-09-25-GIS-NET-LAUNCH-AND-READINESS-GATE-HARDENING):
+# from GeoJsonDriver (Aspose.GIS.FOSS/GeoJsonDriver.cs) -- GeoJSON is one real,
+# singular format name (RFC 7946), not a compound of "Geo" + "Json" the way
+# ChartXml genuinely is two concepts (a chart, in XML). Confirmed live: a
+# real, non-stub driver class (CanCreateLayers/CanOpenLayers/CanCreateDatasets
+# all true) was being silently dropped by this heuristic alone -- the "Driver"
+# class-name-suffix fix above (this same card) correctly identifies the
+# class; this exemption is what lets the resulting name survive validation.
+_CAMELCASE_FALSE_POSITIVE_EXEMPT: frozenset[str] = frozenset({"threemf", "geojson"})
 
 
 def _scan_document_ctor_imports(
@@ -1014,8 +1022,21 @@ def detect_formats(
     # source/input format via constructor rather than a dedicated Importer class.
     load_format_pattern = re.compile(
         r"(LoadFormat|ImportFormat|InputFormat|SourceFormat)", re.IGNORECASE)
+    # H-3 (MT074-2026-09-25-GIS-NET-LAUNCH-AND-READINESS-GATE-HARDENING, 2026-09-25):
+    # "Driver" added after gis/net's real scout run silently dropped GeoJsonDriver
+    # (Aspose.GIS.FOSS/GeoJsonDriver.cs -- confirmed live via clone: CanCreateLayers=
+    # true, CanOpenLayers=true, CanCreateDatasets=true, a real read+write GeoJSON
+    # format handler) while WktWriter.cs's "Writer" suffix was correctly recognized
+    # -- the GIS-domain "Driver" naming idiom (OGR/GDAL-style: a driver class exposes
+    # both read and write) simply wasn't in this list, a gap invisible until the
+    # first GIS-domain product was actually scouted. Defaults to direction="import"
+    # below like every other suffix here that isn't itself an export-indicating word
+    # (Exporter/Writer/Saver/Serializer/Device/Renderer) -- this module has no "both"
+    # direction value; a driver class that also writes is under-described as
+    # import-only rather than missing entirely, which is the correct tradeoff until
+    # a future pass adds real read+write method-signature inspection for this suffix.
     importer_pattern = re.compile(
-        r"(Importer|Exporter|Reader|Writer|Loader|Saver|Serializer|Device|Renderer)", re.IGNORECASE)
+        r"(Importer|Exporter|Reader|Writer|Loader|Saver|Serializer|Device|Renderer|Driver)", re.IGNORECASE)
     # LoadOptions/SaveOptions classes signal constructor-based import/export
     # (e.g. HtmlLoadOptions → HTML import, PdfSaveOptions → PDF export).
     load_save_options_pattern = re.compile(
@@ -1141,7 +1162,7 @@ def detect_formats(
                 if re.search(r"(Exporter|Writer|Saver|Serializer|Device|Renderer)", cname, re.IGNORECASE):
                     direction = "export"
                 fmt_name = re.sub(
-                    r"(Importer|Exporter|Reader|Writer|Loader|Saver|Serializer|Factory|Registry|Device|Renderer)", "",
+                    r"(Importer|Exporter|Reader|Writer|Loader|Saver|Serializer|Factory|Registry|Device|Renderer|Driver)", "",
                     cname, flags=re.IGNORECASE).strip().strip("_")
                 # H-04: reject empty, too-short, or common-word false positives
                 _fmt_lower = fmt_name.lower()

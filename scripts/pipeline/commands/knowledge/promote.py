@@ -781,9 +781,24 @@ _STEM_GROUP_LABELS: dict[str, str] = {
 
 
 def _title_case_module_key(key: str) -> str:
-    """Human display label for a raw module key, e.g. 'annotations' -> 'Annotations'."""
-    label = key.replace("_", " ").replace("-", " ").strip()
-    return label.title() if label else "Core API"
+    """Human display label for a raw module key, e.g. 'annotations' -> 'Annotations',
+    'javascript-extensions' -> 'Javascript Extensions'.
+
+    MT074-2026-09-25-GIS-NET-LAUNCH-AND-READINESS-GATE-HARDENING: this used to be a
+    naive replace-separators-then-.title() with no camelCase-boundary splitting, so a
+    multi-word key with NO separator at all (e.g. gis/net's real "spatialreferencing"
+    subpackage, extracted via _dir_segment_module_key's `.lower()`) produced the
+    unsplit "Spatialreferencing" instead of "Spatial Referencing" -- confirmed live
+    bootstrapping gis/net's site plan, which crashed on it downstream (a different,
+    already-camelCase-aware splitter in site_planner.py never got a chance to run,
+    because this already-lowercased module_label took priority as a
+    class_label_override). Delegates to the same _tokenize_identifier() this module
+    already uses for keyword matching (strategy (c) below) -- it splits camelCase
+    boundaries AND separators uniformly, so this fix also applies to any future
+    single-word-no-separator directory name, not just this one case.
+    """
+    words = _tokenize_identifier(key)
+    return " ".join(w.capitalize() for w in words) if words else "Core API"
 
 
 def _common_dir_prefix(file_paths: list) -> str:
@@ -837,6 +852,32 @@ def _dir_segment_module_key(file_path: str, common_prefix: str) -> "str | None":
     if segment.lower() == "formats" and len(parts) > 2:
         return "formats"
     return segment.lower()
+
+
+def _dir_segment_original_case(file_path: str, common_prefix: str) -> "str | None":
+    """MT074-2026-09-25: identical extraction to _dir_segment_module_key() above,
+    but WITHOUT the final `.lower()` -- used only for label generation, so
+    _title_case_module_key()'s camelCase-boundary splitting (via
+    _tokenize_identifier) has real case information to work with. module_key
+    itself must stay a stable lowercase identifier (its own docstring); this
+    sibling function exists so the label path isn't forced to derive words
+    from an already-lowercased string that has lost its word boundaries."""
+    if not file_path:
+        return None
+    norm = str(file_path).replace("\\", "/")
+    if common_prefix:
+        prefix = common_prefix + "/"
+        if norm.startswith(prefix):
+            norm = norm[len(prefix):]
+    parts = norm.split("/")
+    if len(parts) < 2:
+        return None
+    segment = parts[0]
+    if not segment or "." in segment:
+        return None
+    if segment.lower() == "formats" and len(parts) > 2:
+        return "formats"
+    return segment
 
 
 _CAMEL_BOUNDARY_RE = re.compile(r"(?<=[a-z0-9])(?=[A-Z])|(?<=[A-Z])(?=[A-Z][a-z])")
@@ -932,7 +973,10 @@ def compute_module_assignment(api_surface: list, family: str, platform: str) -> 
         subpkg = _dir_segment_module_key(file_path, common_prefix)  # (a)
         if subpkg:
             entry["module_key"] = subpkg
-            entry["module_label"] = _title_case_module_key(subpkg)
+            # MT074: label from the ORIGINAL-cased segment, not the already-
+            # lowercased module_key -- see _dir_segment_original_case()'s docstring.
+            subpkg_raw = _dir_segment_original_case(file_path, common_prefix) or subpkg
+            entry["module_label"] = _title_case_module_key(subpkg_raw)
             continue
 
         if export_groups and name in export_groups:  # (b)

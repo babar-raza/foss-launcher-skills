@@ -83,7 +83,7 @@ EVALUATOR_VERSIONS: dict[str, str] = {
     "page_role": "1",
     "structure": "1",
     "prose_truth": "2",  # v2: fires without claims/formats,
-    "format_truth": "2",  # v2: skip negation check when no direction verb present (eliminates FP on method descriptions)
+    "format_truth": "3",  # v3: recognize geospatial and product-derived format tokens for grounded overclaim detection
     "install_recipe": "3",  # v3: ST-214, English-counterpart cross-check for IR_PUBLISH_CLAIM (see history above)
     "limitations_check": "1",
     "risk_language": "2",

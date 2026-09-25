@@ -49,6 +49,28 @@ class TestTierADirectorySegment:
         assert by_name["Scene"]["module_key"] == "core"
         assert by_name["Scene"]["module_label"] == "Core API"
 
+    def test_camelcase_single_word_directory_splits_into_label(self):
+        """MT074-2026-09-25-GIS-NET-LAUNCH-AND-READINESS-GATE-HARDENING regression:
+        a PascalCase directory name with NO separator (e.g. gis/net's real
+        Aspose.GIS.FOSS/SpatialReferencing/) used to produce an unsplit
+        module_label ("Spatialreferencing") because _dir_segment_module_key()
+        lowercases the segment for module_key before _title_case_module_key()
+        ever sees it, destroying the camelCase word boundary. This crashed
+        site_planner.py's KB-slug validator downstream on gis/net's real
+        first site-plan run -- confirmed live, not synthetic."""
+        api_surface = [
+            {"name": "SpatialReferenceSystemTransformation",
+             "file": "Aspose.GIS.FOSS/SpatialReferencing/SpatialReferenceSystemTransformation.cs"},
+            {"name": "NumberOperations",
+             "file": "Aspose.GIS.FOSS/Common/NumberOperations.cs"},
+        ]
+        promote_mod.compute_module_assignment(api_surface, "gis", "net")
+        by_name = {e["name"]: e for e in api_surface}
+        entry = by_name["SpatialReferenceSystemTransformation"]
+        assert entry["module_key"] == "spatialreferencing"  # stable lowercase identifier, unchanged
+        assert entry["module_label"] == "Spatial Referencing"  # was "Spatialreferencing" before the fix
+        assert by_name["NumberOperations"]["module_label"] == "Common"
+
     def test_common_prefix_is_computed_from_data_not_hardcoded(self):
         """A totally different, made-up nested layout must still work --
         the common-prefix strategy is not keyed to any specific platform's

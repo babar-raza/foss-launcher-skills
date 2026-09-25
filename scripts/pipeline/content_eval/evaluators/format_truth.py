@@ -14,6 +14,7 @@ from __future__ import annotations
 
 import json
 import re
+from functools import lru_cache as _lru_cache
 from pathlib import Path
 from typing import Any
 
@@ -21,7 +22,14 @@ from ..models import Finding, Page
 from . import BaseEvaluator
 from ._claim_index import is_markdown_table_row
 
-KNOWLEDGE_ROOT = Path("knowledge")
+_DEFAULT_KNOWLEDGE_ROOT = Path("knowledge")
+KNOWLEDGE_ROOT = _DEFAULT_KNOWLEDGE_ROOT
+
+
+def configure(*, knowledge_root: Path | None = None) -> None:
+    """Override the knowledge root for isolated callers and tests."""
+    global KNOWLEDGE_ROOT
+    KNOWLEDGE_ROOT = knowledge_root or _DEFAULT_KNOWLEDGE_ROOT
 
 # Maps enum-style canonical keys (lowercased) to their common file-extension
 # equivalents so that content using "3MF" matches formats.json key "ThreeMf".
@@ -43,6 +51,13 @@ _KNOWN_EXTENSIONS = {
     "one", "msg", "eml", "mht", "mhtml", "ics", "vcf", "pst", "ost",
     # spreadsheet/cell formats
     "csv", "tsv",
+    # geospatial formats (H-3, MT074-2026-09-25-GIS-NET-LAUNCH-AND-READINESS-
+    # GATE-HARDENING): absent entirely before gis/net's real launch — confirmed
+    # live that this evaluator's tokenizer could not even recognize "GeoJSON"/
+    # "Shapefile"/"KML"/"GPX" as format words, so it had no way to compare
+    # gis/net's placeholder page's over-claim (Shapefile/GeoJSON/KML/GPX/File
+    # Geodatabase) against the real repo's WKT+GeoJSON-only formats.json.
+    "shp", "shapefile", "kml", "kmz", "gpx", "geojson", "wkt", "gml",
 }
 
 # Regex: matches format extensions used as tokens (case-insensitive)
@@ -53,6 +68,41 @@ _FORMAT_TOKEN_RE = re.compile(
     r")" + r"(?![a-zA-Z0-9])",
     re.IGNORECASE,
 )
+
+
+@_lru_cache(maxsize=64)
+def _format_token_re_for(extra_tokens: frozenset[str]) -> re.Pattern[str]:
+    """H-3 (MT074-2026-09-25-GIS-NET-LAUNCH-AND-READINESS-GATE-HARDENING):
+    per-product-dynamic token recognition, unioned with the static
+    `_KNOWN_EXTENSIONS` baseline above.
+
+    The static baseline alone is a closed-world list that only grows when a
+    human manually notices and edits it per new format domain (confirmed
+    live: it had zero geospatial tokens until gis/net's launch). This unions
+    it with the CURRENT product's own `formats.json` keys (already loaded by
+    `_load_formats()`), so a real, product-specific format that isn't yet in
+    the static list — for gis/net specifically, and for any future new-domain
+    product — is still recognized as a token worth checking, without a manual
+    token-list edit being a hard prerequisite for every new domain. This does
+    NOT replace the static-list additions made alongside this function (the
+    static list is still what lets an OVER-claimed format absent from the
+    product's own formats.json — e.g. "Shapefile" on a WKT+GeoJSON-only
+    product — be recognized as a token to check at all; a purely dynamic,
+    formats.json-only source could never discover a claim for a format the
+    product does NOT have).
+
+    Cached per unique extra_tokens set (bounded: one entry per distinct
+    formats.json key-set actually seen in a single evaluation run).
+    """
+    if not extra_tokens:
+        return _FORMAT_TOKEN_RE
+    combined = sorted(set(_KNOWN_EXTENSIONS) | extra_tokens, key=len, reverse=True)
+    return re.compile(
+        r"(?<![a-zA-Z])(?:\*\.|\.)?" + r"(" +
+        "|".join(re.escape(ext) for ext in combined) +
+        r")" + r"(?![a-zA-Z0-9])",
+        re.IGNORECASE,
+    )
 
 # Direction verbs preceding a format reference
 # ST-029 pattern (3): "output" is added alongside the explicit export verbs so
@@ -224,9 +274,16 @@ def _load_formats(family: str, platform: str) -> dict[str, str]:
     return result
 
 
-def _extract_format_mentions(text: str) -> list[tuple[str, int]]:
-    """Return list of (ext_lower, start_pos) for every format token found."""
-    return [(m.group(1).lower(), m.start()) for m in _FORMAT_TOKEN_RE.finditer(text)]
+def _extract_format_mentions(
+    text: str, extra_tokens: frozenset[str] = frozenset()
+) -> list[tuple[str, int]]:
+    """Return list of (ext_lower, start_pos) for every format token found.
+
+    `extra_tokens` (H-3, MT074): the current product's own formats.json keys,
+    unioned with the static baseline — see `_format_token_re_for()`.
+    """
+    pattern = _format_token_re_for(extra_tokens) if extra_tokens else _FORMAT_TOKEN_RE
+    return [(m.group(1).lower(), m.start()) for m in pattern.finditer(text)]
 
 
 def _claim_direction(context: str) -> str | None:
@@ -350,6 +407,10 @@ class FormatTruthEvaluator(BaseEvaluator):
         format_direction = _load_formats(page.family, page.platform)
         if not format_direction:
             return []  # No format knowledge available
+        # H-3 (MT074): recognize this product's own real format keys as
+        # tokens worth checking, in addition to the static baseline — see
+        # _format_token_re_for()'s docstring.
+        extra_tokens = frozenset(format_direction.keys())
 
         # FIX-DISCLOSED-01: once a page has ALREADY disclosed, in its own body,
         # that a format has no working I/O path (e.g. a reference page's
@@ -559,7 +620,7 @@ class FormatTruthEvaluator(BaseEvaluator):
             if _NEGATION_RE.search(line_text):
                 # Determine the direction context for the whole line once
                 line_neg_dir = _claim_direction(line_text)
-                for ext, _pos in _extract_format_mentions(line_text):
+                for ext, _pos in _extract_format_mentions(line_text, extra_tokens):
                     known_dir = format_direction.get(ext)
                     if not known_dir or known_dir in ("none", "detect"):
                         continue  # Content correctly says it's unsupported
@@ -612,7 +673,7 @@ class FormatTruthEvaluator(BaseEvaluator):
             # context window, regardless of where the format token falls on the
             # line (avoids pos-60 boundary splitting the pattern).
             scan_text = _TABLE_ACCESS_COL_RE.sub("| - |", line_text)
-            mentions = _extract_format_mentions(scan_text)
+            mentions = _extract_format_mentions(scan_text, extra_tokens)
             for ext, pos in mentions:
                 tail = scan_text[pos + len(ext):]
                 # Skip Python type-annotation context: "doc: Type" where the
@@ -655,7 +716,7 @@ class FormatTruthEvaluator(BaseEvaluator):
 
         # --- Scan code blocks ---
         for block in page.code_blocks:
-            for ext, pos in _extract_format_mentions(block.content):
+            for ext, pos in _extract_format_mentions(block.content, extra_tokens):
                 # Skip variable-name false positives: "doc.save()", "doc = ..."
                 # A format token immediately followed by ".<letter>" or " =" is
                 # a Python identifier, not a file-extension mention.

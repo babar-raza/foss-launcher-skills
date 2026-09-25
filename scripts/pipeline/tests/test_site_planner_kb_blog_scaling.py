@@ -204,15 +204,72 @@ def test_small_product_kb_and_blog_unaffected():
 # ---------------------------------------------------------------------------
 
 def test_force_justify_false_default_unaffected():
-    """Default behavior must be untouched: a below-threshold product still
-    gets 0 blog pages when force_justify is not passed."""
+    """H-4 (MT074-2026-09-25-GIS-NET-LAUNCH-AND-READINESS-GATE-HARDENING):
+    a below-threshold product still gets the mandatory announcement post
+    (INV-021 fix) even when force_justify is not passed -- only the
+    optional features/deep-dive posts stay gated. `justified` still
+    correctly reports False (the full section's threshold wasn't met);
+    `pages` is no longer empty (was the actual INV-021 bug: cells/go's real
+    68-136-claim shape used to get zero blog pages at all, requiring a
+    human to notice and manually intervene)."""
     cluster = _cluster("spreadsheet-management", claim_count=87, api_method_count=56,
                        snippet_count=15)
     pages, justified, _retired = plan_blog(
         "cells", "go", total_claims=136, snippet_count=15, clusters=[cluster],
     )
     assert justified is False
-    assert pages == []
+    assert len(pages) == 1
+    assert pages[0]["blog_role"] == "announcement"
+    assert pages[0]["mandatory"] is True
+
+
+def test_existing_post_preserved_even_when_not_justified():
+    """H-4: the existing-post preservation loop must run unconditionally too
+    -- this is the actual mechanism behind imaging/net's real site_plan.yaml
+    desync (blog_justified: false, pages: [] on disk, while a real
+    announcement post existed and was invisible to the plan). A real,
+    already-published post that doesn't match the intro/features pattern
+    (e.g. a human-authored one-off) must survive into `pages` even when the
+    product is below threshold."""
+    cluster = _cluster("spreadsheet-management", claim_count=10, api_method_count=5,
+                       snippet_count=1)
+    existing_post = {
+        "slug": "a-human-authored-deep-dive",
+        "path": "content/blog.aspose.org/cells/go/a-human-authored-deep-dive/index.md",
+    }
+    pages, justified, _retired = plan_blog(
+        "cells", "go", total_claims=50, snippet_count=1, clusters=[cluster],
+        existing=[existing_post],
+    )
+    assert justified is False
+    slugs = {p["slug"] for p in pages}
+    assert "a-human-authored-deep-dive" in slugs, (
+        f"existing post silently dropped when not justified -- the exact "
+        f"imaging/net desync shape. pages={pages!r}"
+    )
+
+
+def test_imaging_net_shaped_fixture_gets_announcement_post_not_zero():
+    """H-4 real-precedent fixture: imaging/net's actual historical shape
+    (68 total_claims, 50 snippets -- still under the 200-claim leg of the
+    AND-gate) launched with ZERO blog posts before this fix, and needed a
+    human to notice the resulting 404 and patch it in separately (see the
+    real commit 84ffeabff5, "explicit operator override... not a
+    retroactive claim that the threshold was wrong"). Proves the split is
+    real: announcement post ships, features post does not, at the exact
+    number that broke in production."""
+    cluster = _cluster("image-probing", claim_count=40, api_method_count=20,
+                       snippet_count=50)
+    pages, justified, _retired = plan_blog(
+        "imaging", "net", total_claims=68, snippet_count=50, clusters=[cluster],
+    )
+    assert justified is False  # total_claims=68 < 200 -- features/deep-dive correctly still gated
+    assert len(pages) == 1
+    assert pages[0]["blog_role"] == "announcement"
+    assert pages[0]["slug"] == "introducing-imaging-foss-net"
+    roles = {p["blog_role"] for p in pages}
+    assert "features" not in roles
+    assert "deep-dive" not in roles
 
 
 def test_force_justify_true_bypasses_claims_threshold():

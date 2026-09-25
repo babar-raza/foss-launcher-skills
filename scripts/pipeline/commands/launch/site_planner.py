@@ -739,6 +739,20 @@ _ROOT_LABELS: dict[str, str] = {
 }
 
 _FAMILY_SUBPKG_LABELS: dict[str, dict[str, str]] = {
+    "gis": {
+        # MT074-2026-09-25-GIS-NET-LAUNCH-AND-READINESS-GATE-HARDENING: gis/net's
+        # first real site-plan run crashed _validate_kb_slugs's Check 1 on
+        # "spatialreferencing" (Aspose.GIS.FOSS/SpatialReferencing/ -- a single-
+        # word C# namespace directory with no CamelCase boundary for TC-KBS-002's
+        # splitter to find, the exact same failure shape as pdf's
+        # "connectionset"/"datadescription" entries above). Confirmed live via
+        # api_surface.json: gis/net's real sub-package keys are "common",
+        # "formats" (Formats/ and Formats/Wkt/ both flatten to this via the
+        # ancestor-"formats" rule), and "spatialreferencing".
+        "common":              "gis-common-utilities",     # NumberOperations etc.
+        "formats":             "wkt-geojson-formats",       # WKT parser/writer, GeoJSON driver
+        "spatialreferencing":  "spatial-referencing",       # SRS/EPSG/datum classes
+    },
     "barcode": {
         "":          "barcode-generation",   # Root-level Barcode/BarcodeService classes
         "encoders":  "barcode-generation",   # Encoder implementation classes
@@ -1342,10 +1356,28 @@ def plan_blog(
     product an operator has decided deserves blog coverage despite falling
     under the mechanical bar — never set automatically by launch-product,
     refresh-product, or any orchestration skill.
+
+    H-4 (MT074-2026-09-25-GIS-NET-LAUNCH-AND-READINESS-GATE-HARDENING):
+    `justified` now gates ONLY the optional features/deep-dive posts below —
+    the mandatory `blog_role: announcement` post (and existing-post
+    preservation) are produced unconditionally. Before this fix, `justified`
+    was a single all-or-nothing gate on the ENTIRE section (INV-021): a
+    product under the total_claims/snippet_count threshold got zero blog
+    pages, including the announcement post every launched product is
+    supposed to ship. Real precedent this already bit twice: imaging/net (68
+    claims) and cells/go (113-136 claims) both landed under threshold and
+    both needed a human to notice and manually intervene -- via two
+    different, inconsistent paths (cells/go used --force-blog and stayed in
+    sync; imaging/net was patched via a direct /new-blog-post call that
+    bypassed the plan entirely, leaving its site_plan.yaml permanently
+    desynced from the real post that exists on disk). The all-or-nothing
+    gate also silently dropped the existing-post preservation loop
+    (`pages_to_retire`/existing-post re-adoption below) whenever a product
+    fell under threshold -- THAT is the actual mechanism behind imaging/
+    net's desync, not just a missing announcement post; fixed by running
+    that loop unconditionally too.
     """
     justified = (total_claims >= 200 and snippet_count >= 5) or force_justify
-    if not justified:
-        return [], False, []
 
     existing = existing or []
     base = f"content/blog.aspose.org/{family}/{platform}"
@@ -1381,151 +1413,155 @@ def plan_blog(
         }
     )
 
-    # --- Mandatory post 2: features (cluster-derived slug) ---
-    # Select the primary cluster: highest claim_count, not in limitations.
-    kf_candidates = [
-        c for c in clusters
-        if c["claim_count"] >= 5 and not c["in_limitations"]
-    ]
+    # H-4: everything below (features post + deep-dive posts) stays gated on
+    # `justified` -- only the announcement post above and the existing-post
+    # preservation loop below are unconditional.
     pages_to_retire: list[dict] = []
+    if justified:
+        # --- Mandatory post 2: features (cluster-derived slug) ---
+        # Select the primary cluster: highest claim_count, not in limitations.
+        kf_candidates = [
+            c for c in clusters
+            if c["claim_count"] >= 5 and not c["in_limitations"]
+        ]
 
-    if kf_candidates:
-        kf_primary = kf_candidates[0]   # clusters sorted by claim_count desc
-        primary_slug_val = kf_primary["slug"]
-        # Avoid duplicate prefix: e.g. email-email-processing → email-processing
-        if primary_slug_val.startswith(f"{family}-"):
-            kf_derived_slug = f"{primary_slug_val}-{platform}"
+        if kf_candidates:
+            kf_primary = kf_candidates[0]   # clusters sorted by claim_count desc
+            primary_slug_val = kf_primary["slug"]
+            # Avoid duplicate prefix: e.g. email-email-processing → email-processing
+            if primary_slug_val.startswith(f"{family}-"):
+                kf_derived_slug = f"{primary_slug_val}-{platform}"
+            else:
+                kf_derived_slug = f"{family}-{primary_slug_val}-{platform}"
+            kf_cluster_cat = kf_primary["category"]
+            kf_cluster_class_names = kf_primary.get("class_names", [])
         else:
-            kf_derived_slug = f"{family}-{primary_slug_val}-{platform}"
-        kf_cluster_cat = kf_primary["category"]
-        kf_cluster_class_names = kf_primary.get("class_names", [])
-    else:
-        kf_primary = None
-        kf_derived_slug = f"{family}-features-{platform}"
-        kf_cluster_cat = ""
-        kf_cluster_class_names = []
+            kf_primary = None
+            kf_derived_slug = f"{family}-features-{platform}"
+            kf_cluster_cat = ""
+            kf_cluster_class_names = []
 
-    kf_path = f"{base}/{kf_derived_slug}/index.md"
+        kf_path = f"{base}/{kf_derived_slug}/index.md"
 
-    # Exclude the intro post from discovery candidates to prevent false matches
-    # from _match_existing_to_cluster Priority 4 keyword overlap.
-    existing_excl_intro = [p for p in existing if p["slug"] != intro_slug]
+        # Exclude the intro post from discovery candidates to prevent false matches
+        # from _match_existing_to_cluster Priority 4 keyword overlap.
+        existing_excl_intro = [p for p in existing if p["slug"] != intro_slug]
 
-    # Phase 1: cluster-aware matching.
-    # Finds future posts where the cluster name is in the slug (Priority 2),
-    # or posts with a matching frontmatter_cluster field (Priority 1).
-    kf_match: dict | None = None
-    if kf_primary:
-        kf_match = _match_existing_to_cluster(
-            existing_excl_intro, kf_cluster_cat, primary_slug_val,
-            kf_cluster_class_names, section="blog", family=family,
-        )
-
-    # Phase 2: keyword fallback for legacy *-key-features-* posts.
-    # This is NOT optional — it preserves all currently deployed products whose
-    # slugs contain "key-features" but not any cluster label.
-    if kf_match is None:
-        for ep in existing_excl_intro:
-            if "key-features" in ep["slug"] or "key-feature" in ep["slug"]:
-                kf_match = ep
-                break
-
-    # Opt-in replan: if the matched slug matches the banned pattern and the post
-    # was auto-generated (auto_updatable: true), drop the match and force
-    # re-derivation. The old post path is added to pages_to_retire so the caller
-    # can retire it. Only active when force_replan=True.
-    if kf_match and force_replan:
-        _slug_has_key_features = (
-            _BANNED_SLUG_RE.match(kf_match["slug"])
-            or "key-features" in kf_match["slug"]
-            or "key-feature" in kf_match["slug"]
-        )
-        if _slug_has_key_features and kf_match.get("auto_updatable", True):
-            pages_to_retire.append({
-                "slug": kf_match["slug"],
-                "path": kf_match["path"],
-                "reason": f"Replaced by cluster-derived slug: {kf_derived_slug}",
-            })
-            kf_match = None
-
-    if kf_match:
-        kf_slug = kf_match["slug"]
-        kf_path = kf_match["path"]
-    else:
-        kf_slug = kf_derived_slug
-
-    kf_record: dict = {
-        "slug": kf_slug,
-        "path": kf_path,
-        "type": "blog-post",
-        "weight": 2,
-        "mandatory": True,
-        "page_class": "generated",
-        "blog_role": "features",
-        "note": "Key features overview post",
-        "source": "discovered" if kf_match else "derived",
-    }
-    if kf_cluster_cat:
-        kf_record["cluster"] = kf_cluster_cat
-    pages.append(kf_record)
-
-    # --- Optional deep-dive post(s) ---
-    # Exclude the cluster already used by Post 2 to prevent topical overlap.
-    _kf_cat = kf_cluster_cat  # may be "" when fallback path was taken
-    eligible = [
-        c
-        for c in clusters
-        if c["claim_count"] >= 20
-        and c["snippet_count"] >= 3
-        and not c["in_limitations"]
-        and c["category"] != _kf_cat
-    ]
-    # SH-01: sliding-scale threshold for whether ANY deep-dive post exists at
-    # all. Unchanged — HARDEN-A13 only scales HOW MANY once this gate passes
-    # (was hard-capped at exactly 1 regardless of product size; see
-    # _deep_dive_post_cap docstring).
-    # Large APIs (500+ claims): always eligible
-    # Medium APIs (200-499 claims): eligible if snippets and topic clusters exist
-    deep_dive_eligible = (
-        total_claims >= 500
-        or (total_claims >= 200 and snippet_count >= 5 and len(eligible) >= 1)
-    )
-    if eligible and deep_dive_eligible:
-        deep_dive_cap = _deep_dive_post_cap(total_claims)
-        deep_dive_weight = 3
-        for top in eligible[:deep_dive_cap]:
-            # Mirror the features slug prefix-deduplication: ensure family identity is present.
-            if top['slug'].startswith(f"{family}-"):
-                dive_derived_slug = f"{top['slug']}-in-{platform}"
-            else:
-                dive_derived_slug = f"{family}-{top['slug']}-in-{platform}"
-            dive_path = f"{base}/{dive_derived_slug}/index.md"
-            # Check existing for a deep-dive match
-            dive_match = _match_existing_to_cluster(
-                existing, top["category"], top["slug"], top["class_names"],
-                section="blog", family=family,
+        # Phase 1: cluster-aware matching.
+        # Finds future posts where the cluster name is in the slug (Priority 2),
+        # or posts with a matching frontmatter_cluster field (Priority 1).
+        kf_match: dict | None = None
+        if kf_primary:
+            kf_match = _match_existing_to_cluster(
+                existing_excl_intro, kf_cluster_cat, primary_slug_val,
+                kf_cluster_class_names, section="blog", family=family,
             )
-            if dive_match:
-                dive_slug = dive_match["slug"]
-                dive_path = dive_match["path"]
-            else:
-                dive_slug = dive_derived_slug
 
-            pages.append(
-                {
-                    "slug": dive_slug,
-                    "path": dive_path,
-                    "type": "blog-post",
-                    "weight": deep_dive_weight,
-                    "mandatory": False,
-                    "page_class": "generated",
-                    "blog_role": "deep-dive",
-                    "note": f"Deep-dive post for cluster: {top['category']}",
-                    "cluster": top["category"],
-                    "source": "discovered" if dive_match else "derived",
-                }
+        # Phase 2: keyword fallback for legacy *-key-features-* posts.
+        # This is NOT optional — it preserves all currently deployed products whose
+        # slugs contain "key-features" but not any cluster label.
+        if kf_match is None:
+            for ep in existing_excl_intro:
+                if "key-features" in ep["slug"] or "key-feature" in ep["slug"]:
+                    kf_match = ep
+                    break
+
+        # Opt-in replan: if the matched slug matches the banned pattern and the post
+        # was auto-generated (auto_updatable: true), drop the match and force
+        # re-derivation. The old post path is added to pages_to_retire so the caller
+        # can retire it. Only active when force_replan=True.
+        if kf_match and force_replan:
+            _slug_has_key_features = (
+                _BANNED_SLUG_RE.match(kf_match["slug"])
+                or "key-features" in kf_match["slug"]
+                or "key-feature" in kf_match["slug"]
             )
-            deep_dive_weight += 1
+            if _slug_has_key_features and kf_match.get("auto_updatable", True):
+                pages_to_retire.append({
+                    "slug": kf_match["slug"],
+                    "path": kf_match["path"],
+                    "reason": f"Replaced by cluster-derived slug: {kf_derived_slug}",
+                })
+                kf_match = None
+
+        if kf_match:
+            kf_slug = kf_match["slug"]
+            kf_path = kf_match["path"]
+        else:
+            kf_slug = kf_derived_slug
+
+        kf_record: dict = {
+            "slug": kf_slug,
+            "path": kf_path,
+            "type": "blog-post",
+            "weight": 2,
+            "mandatory": True,
+            "page_class": "generated",
+            "blog_role": "features",
+            "note": "Key features overview post",
+            "source": "discovered" if kf_match else "derived",
+        }
+        if kf_cluster_cat:
+            kf_record["cluster"] = kf_cluster_cat
+        pages.append(kf_record)
+
+        # --- Optional deep-dive post(s) ---
+        # Exclude the cluster already used by Post 2 to prevent topical overlap.
+        _kf_cat = kf_cluster_cat  # may be "" when fallback path was taken
+        eligible = [
+            c
+            for c in clusters
+            if c["claim_count"] >= 20
+            and c["snippet_count"] >= 3
+            and not c["in_limitations"]
+            and c["category"] != _kf_cat
+        ]
+        # SH-01: sliding-scale threshold for whether ANY deep-dive post exists at
+        # all. Unchanged — HARDEN-A13 only scales HOW MANY once this gate passes
+        # (was hard-capped at exactly 1 regardless of product size; see
+        # _deep_dive_post_cap docstring).
+        # Large APIs (500+ claims): always eligible
+        # Medium APIs (200-499 claims): eligible if snippets and topic clusters exist
+        deep_dive_eligible = (
+            total_claims >= 500
+            or (total_claims >= 200 and snippet_count >= 5 and len(eligible) >= 1)
+        )
+        if eligible and deep_dive_eligible:
+            deep_dive_cap = _deep_dive_post_cap(total_claims)
+            deep_dive_weight = 3
+            for top in eligible[:deep_dive_cap]:
+                # Mirror the features slug prefix-deduplication: ensure family identity is present.
+                if top['slug'].startswith(f"{family}-"):
+                    dive_derived_slug = f"{top['slug']}-in-{platform}"
+                else:
+                    dive_derived_slug = f"{family}-{top['slug']}-in-{platform}"
+                dive_path = f"{base}/{dive_derived_slug}/index.md"
+                # Check existing for a deep-dive match
+                dive_match = _match_existing_to_cluster(
+                    existing, top["category"], top["slug"], top["class_names"],
+                    section="blog", family=family,
+                )
+                if dive_match:
+                    dive_slug = dive_match["slug"]
+                    dive_path = dive_match["path"]
+                else:
+                    dive_slug = dive_derived_slug
+
+                pages.append(
+                    {
+                        "slug": dive_slug,
+                        "path": dive_path,
+                        "type": "blog-post",
+                        "weight": deep_dive_weight,
+                        "mandatory": False,
+                        "page_class": "generated",
+                        "blog_role": "deep-dive",
+                        "note": f"Deep-dive post for cluster: {top['category']}",
+                        "cluster": top["category"],
+                        "source": "discovered" if dive_match else "derived",
+                    }
+                )
+                deep_dive_weight += 1
 
     # Include existing blog pages not yet matched (source: existing).
     # Exclude paths already in pages_to_retire — these were deliberately cleared
@@ -1547,7 +1583,13 @@ def plan_blog(
             })
 
     _validate_blog_slugs(pages)
-    return pages, True, pages_to_retire
+    # H-4: `justified` here now means "the full section (features/deep-dive)
+    # met the mechanical threshold" -- callers that gate on this flag for
+    # OTHER purposes (e.g. site_plan.yaml's sections.blog.justified field)
+    # keep their existing meaning unchanged; `len(pages) > 0` is the correct
+    # check for "does this product have any blog content at all" now that
+    # the announcement post is unconditional.
+    return pages, justified, pages_to_retire
 
 
 def plan_docs(

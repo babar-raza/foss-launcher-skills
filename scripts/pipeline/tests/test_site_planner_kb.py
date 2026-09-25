@@ -197,6 +197,29 @@ class TestKBSlugRegressions(unittest.TestCase):
         )
 
     # ------------------------------------------------------------------
+    # gis/net unit tests — MT074-2026-09-25-GIS-NET-LAUNCH-AND-READINESS-
+    # GATE-HARDENING (same failure shape as TC-KBS-001/pdf's "connectionset"/
+    # "datadescription": a single-word C# namespace directory with no
+    # CamelCase boundary crashed _validate_kb_slugs's Check 1 on gis/net's
+    # real first site-plan run)
+    # ------------------------------------------------------------------
+
+    def test_subpkg_to_label_gis_spatialreferencing(self):
+        from site_planner import _subpkg_to_label
+        result = _subpkg_to_label("spatialreferencing", "gis")
+        self.assertEqual(result, "spatial-referencing")
+
+    def test_subpkg_to_label_gis_formats(self):
+        from site_planner import _subpkg_to_label
+        result = _subpkg_to_label("formats", "gis")
+        self.assertEqual(result, "wkt-geojson-formats")
+
+    def test_subpkg_to_label_gis_common(self):
+        from site_planner import _subpkg_to_label
+        result = _subpkg_to_label("common", "gis")
+        self.assertEqual(result, "gis-common-utilities")
+
+    # ------------------------------------------------------------------
     # D-2 unit test — TC-KBS-003 (_kb_noun_from_cluster extraction fix)
     # ------------------------------------------------------------------
 
