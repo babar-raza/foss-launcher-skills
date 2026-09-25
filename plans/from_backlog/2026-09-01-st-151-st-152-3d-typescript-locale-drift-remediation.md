@@ -258,6 +258,25 @@ locales, file the gap as a follow-up (lowest-risk, matches this plan's own estab
 decide the full-batch policy based on whether that actually improves the fidelity score,
 rather than guessing.
 
+### Finding B validated live (2026-09-25) — decision resolved, plan unblocked
+
+Ran the cheap test exactly as recommended: `mesh.md` → de and fr, single-language
+invocations, `--model professionalize_llm`, **no** `--force-accept`. Both jobs
+succeeded and both came back clean:
+
+| Locale | Before (force-accepted) | After (no `--force-accept`) |
+|---|---|---|
+| de | score 0.6, verdict `warn` — "public members" → "public users", `isManifold`'s boolean-return meaning lost, `referenceMode` garbled to "referenceMade" | **score 1.0, verdict `pass`, issues: []** — `referenceMode` correctly preserved verbatim; `isManifold()` correctly translated ("Gibt true zurück, wenn manifold gesetzt ist" — the boolean-return meaning is intact) |
+| fr | score 0.6, verdict `warn` — "mesh" mistranslated as "grille" (grid), encoding-garbled text, "mixed language" in 3 method descriptions | **score 1.0, verdict `pass`, issues: []** — no "grille" anywhere in the output |
+
+**Decision, resolved**: Finding B's recommended policy is correct and is hereby adopted —
+`--force-accept` is scoped to the documented CJK/RTL locale set only (zh, ar, he, fa, hi,
+ko, ja, th, vi); every Latin/Cyrillic-script locale in the 25-locale approved set runs
+through the tool's own (non-forced) validation+retry logic instead. This is no longer a
+recommendation pending confirmation — it is validated, live evidence.
+
+**Plan status**: both pending decisions (Finding A, Finding B) are now resolved. TC-LOCALE-02-03/02-04 are unblocked and ready to resume at full scale — this pass did not run the remaining ~23-locale × 2-file batch (mesh.md + scene.md, minus the 2 locales just re-confirmed and the 7 already done in the batch-1 pilot), which is a genuinely large, separate content-generation undertaking (each invocation is a real LLM translation call, not a quick fix) correctly left as the next actionable step for whoever picks this plan back up, rather than rushed through without per-file review.
+
 ## Execution control layer (scoped taskcards)
 
 This plan is small enough (one ~30-line code change + tests, one content-regeneration
