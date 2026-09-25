@@ -1,0 +1,37 @@
+family: gis
+platform: net
+product_name: Aspose.GIS-FOSS for Net
+version: ''
+license: ''
+repo_url: https://github.com/aspose-gis-foss/Aspose.GIS.FOSS-for-.Net.git
+repo_sha: 92904d72b7f0a4f6087fad155aa5ec01fbc98309
+config_sha: 34aab820c6fda0ea
+stale_since: null
+promoted_at: '2026-09-25T14:59:16.471392+00:00'
+source: scout_only
+enrichment_status: scout-only
+has_conflicts: false
+schema_version: 2
+generator_fingerprint: e83b38db090a5a8c4072dde37588a2ad6dfdc947c97043de650a3d3ffc0f1aec
+generator_semver: 2.0.0
+bundle_id: 25de5581-27de-4182-b90e-f9eb37c1bccd
+bundle_generated_at: '2026-09-25T14:59:16.215015+00:00'
+module_assignment_version: 1
+input_hashes:
+  extractor_config_sha: 34aab820c6fda0ea
+  scout_claims_sha: 60796f88aa4708ab4e2f011ad392e7149011b7f98ac6db0c1dd5d0208f4c0829
+  scout_api_surface_sha: 688b618e97a5f5ce44c1c6e3a3e07249848918297b46dc98b4804f83012616de
+  enriched_claims_sha: f18041ee21f0666ef38693f5bf1f4972db3d1b4fb227a9a68ca4de7d022a9dc1
+  products_json_entry_sha: e5f07b565d933a57db56f11599aa581d451ba704edef39211e64fb169d09505b
+stats:
+  scout_claims: 330
+  enriched_claims: 0
+  supplemental_claims: 0
+  total_claims: 320
+  class_count: 35
+  classes:
+    total_declared: 35
+    public_documented: 34
+    raw_entries_including_non_class: 35
+  forbidden_count: 0
+  snippet_count: 0
