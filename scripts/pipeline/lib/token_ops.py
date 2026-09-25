@@ -81,6 +81,7 @@ PLATFORM_SDK_CLASSES = {
     "Integer",        # java.lang.Integer (Java)
     "ByteArrayInputStream",   # java.io.ByteArrayInputStream (Java)
     "ByteArrayOutputStream",  # java.io.ByteArrayOutputStream (Java)
+    "Some",           # Rust Option::Some variant
     "Objects",        # java.util.Objects (Java)
     "Collections",    # java.util.Collections (Java)
     "PointF",         # System.Drawing.PointF (.NET)

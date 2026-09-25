@@ -151,6 +151,10 @@ class TestApiAccuracyBclAllowlist:
         from token_ops import PLATFORM_SDK_CLASSES
         assert {"ByteArrayInputStream", "ByteArrayOutputStream"} <= PLATFORM_SDK_CLASSES
 
+    def test_rust_some_variant_is_allowlisted(self):
+        from token_ops import PLATFORM_SDK_CLASSES
+        assert "Some" in PLATFORM_SDK_CLASSES
+
 
 class TestProseTruthDocConventionExclusion:
     """EC-03 fix: doc-convention phrases starting with 'All examples...' must be excluded."""
