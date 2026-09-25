@@ -148,6 +148,42 @@ def _count_en_pages(site: str, family: str, platform: str) -> int:
         return len(list(en_root.rglob("*.md")))
 
 
+def _check_blog_post_exists(family: str, platform: str) -> str | None:
+    """H-4 (MT074): every launch must ship at least one real blog post
+    (the mandatory blog_role: announcement post).
+
+    Before this fix, nothing in this script checked blog-post existence at
+    all -- a product whose site_planner.py::plan_blog() call returned zero
+    pages (all-or-nothing on total_claims>=200 and snippet_count>=5, INV-021)
+    would report a clean READY TO SHIP despite `launch-product.md`'s own
+    prose claiming "first blog post at B+" as a readiness criterion. Real
+    precedent: imaging/net (68 claims) launched with zero blog posts and
+    needed a human to notice the resulting 404 and patch it in separately.
+
+    Checks for at least one real post directory (contains index.md, the
+    canonical English source) under content/blog.aspose.org/{family}/
+    {platform}/ -- a bare index.<locale>.md with no English index.md doesn't
+    count, matching how _collect_grades() and _count_en_pages() already treat
+    "index.md" as the one canonical file per post in this same module.
+
+    Returns None if at least one real post exists, else a blocker message.
+    """
+    blog_root = _CONTENT / "blog.aspose.org" / family / platform
+    if not blog_root.is_dir():
+        return (
+            f"no blog posts exist for {family}/{platform} "
+            f"(content/blog.aspose.org/{family}/{platform}/ does not exist) — "
+            f"every launch must ship at least one announcement post"
+        )
+    if not any(blog_root.glob("*/index.md")):
+        return (
+            f"no blog posts exist for {family}/{platform} "
+            f"(content/blog.aspose.org/{family}/{platform}/ has no post directory "
+            f"with an index.md) — every launch must ship at least one announcement post"
+        )
+    return None
+
+
 def _collect_grades(family: str, platform: str) -> dict:
     """Collect content grades from frontmatter across all EN pages."""
     grades = {"A": 0, "B": 0, "C": 0, "D": 0, "F": 0, "ungraded": 0}
@@ -215,12 +251,47 @@ def _import_acceptance_bindings():
     return acceptance_bindings
 
 
+def _find_final_verdict_recommendation(family: str, platform: str) -> "str | None":
+    """H-2 (MT074): locate S-90's real, agent-authored
+    reports/publish-review/{family}-{platform}-{YYYYMMDD}/final-verdict.md
+    and parse its "## Final Recommendation" section for PUBLISH / CONDITIONAL
+    / BLOCKED (per the template at .claude/commands/publish-readiness-review.md).
+
+    S-90's Steps 7+ (including final-verdict.md authoring) have no backing
+    script -- the skill's own docstring says so explicitly -- so there is no
+    write-time hook to intercept. This is deliberately a read-side fix
+    instead: readiness_scorecard.py reads the real artifact directly rather
+    than trusting a hand-typed sign-off file with no link back to it.
+
+    Returns the most recent recommendation found (by directory date suffix,
+    lexicographically sortable), or None if no final-verdict.md exists or it
+    could not be parsed.
+    """
+    review_root = _ROOT / "reports" / "publish-review"
+    if not review_root.is_dir():
+        return None
+    candidates = sorted(review_root.glob(f"{family}-{platform}-*/final-verdict.md"))
+    if not candidates:
+        return None
+    verdict_file = candidates[-1]  # YYYYMMDD suffix sorts newest-last
+    try:
+        text = verdict_file.read_text(encoding="utf-8", errors="replace")
+    except OSError:
+        return None
+    section_match = re.search(
+        r"##\s*Final Recommendation\s*\n(.*?)(?:\n##|\Z)", text, re.DOTALL | re.IGNORECASE
+    )
+    section = section_match.group(1) if section_match else text
+    m = re.search(r"\b(PUBLISH|CONDITIONAL|BLOCKED)\b", section, re.IGNORECASE)
+    return m.group(1).upper() if m else None
+
+
 def _read_hgate_signoffs(family: str, platform: str) -> dict[str, str]:
     """Read human review gate sign-off results.
 
     Returns dict mapping gate id (h01..h05) to result
-    (PASS/FAIL/CONDITIONAL/STALE/""). Empty string means no sign-off file
-    found or sign-off not completed.
+    (PASS/FAIL/CONDITIONAL/STALE/UNLINKED/CONTRADICTED/""). Empty string
+    means no sign-off file found or sign-off not completed.
 
     R-1 (MT040-2026-08-28-PDF-TYPESCRIPT-LAUNCH TC-MT040-49): a PASS result
     is downgraded to "STALE" when the sample file carries a ``bindings:``
@@ -232,11 +303,30 @@ def _read_hgate_signoffs(family: str, platform: str) -> dict[str, str]:
     and its bare PASS/FAIL/CONDITIONAL is returned unchanged -- this is an
     additive check, not a retroactive one; it never invents staleness for an
     artifact that predates this signal.
+
+    H-2 (MT074): a PASS/CONDITIONAL result is further checked against S-90's
+    real reports/publish-review/.../final-verdict.md. Before this fix, this
+    reader trusted a `reports/human-review/*-sample.md` file whose own
+    generator (human_review_sampler.py) writes it with a literal empty
+    `result: ""` and the instruction "fill in after review" -- nothing
+    checked that a real S-90 review had actually produced that result, or
+    that it agreed with S-90's own output. This had already diverged in
+    production once (cells/typescript's readiness.md and its real
+    final-verdict.md directly contradicted each other with no mechanical
+    check). Two new downgrades close this:
+      - "UNLINKED": the sample says PASS/CONDITIONAL but no final-verdict.md
+        exists for this family/platform at all -- an unreviewed
+        self-attestation with nothing behind it.
+      - "CONTRADICTED": a final-verdict.md exists, but its own Final
+        Recommendation is BLOCKED while the sample claims PASS -- a real,
+        detected divergence between the two verdict paths, the exact shape
+        of the cells/typescript incident.
     """
     review_dir = _ROOT / "reports" / "human-review"
     results: dict[str, str] = {}
     bindings_mod = None
     current_bindings = None
+    final_verdict_recommendation = "_unchecked"  # sentinel: lazily computed once, cached
     for gate in _HGATES:
         sample_file = review_dir / f"{family}-{platform}-{gate}-sample.md"
         if not sample_file.is_file():
@@ -267,6 +357,16 @@ def _read_hgate_signoffs(family: str, platform: str) -> dict[str, str]:
                     result = "STALE"
             except Exception:  # noqa: BLE001 -- staleness check is additive, never fatal
                 pass
+        if result in ("PASS", "CONDITIONAL"):
+            if final_verdict_recommendation == "_unchecked":
+                try:
+                    final_verdict_recommendation = _find_final_verdict_recommendation(family, platform)
+                except Exception:  # noqa: BLE001 -- additive check, never fatal
+                    final_verdict_recommendation = None
+            if final_verdict_recommendation is None:
+                result = "UNLINKED"
+            elif final_verdict_recommendation == "BLOCKED":
+                result = "CONTRADICTED"
         results[gate] = result
     return results
 
@@ -307,6 +407,79 @@ def _verify_checkpoint_integrity(family: str, platform: str, checkpoints: dict) 
             for note in notes:
                 problems.append(f"checkpoint {key}: {note}")
     return problems
+
+
+# H-1 (MT074-2026-09-25-GIS-NET-LAUNCH-AND-READINESS-GATE-HARDENING): the two
+# launch_gate.py gates that are structurally incapable of ever meaningfully
+# blocking a launch. L-06 can only ever return FAIL or SKIP by design (its own
+# module docstring: a placeholder pending a `promote.py --dry-run` mode that
+# doesn't exist yet) -- wiring it in as a blocker would make every launch
+# permanently unshippable. L-14's grade-regression comparison is unimplemented
+# (its own inline comment: "For now, just report stats") and can only return
+# PASS or SKIP -- wiring it in as a blocker would be a no-op. Both are still
+# run and their results recorded for visibility; neither is silently hidden.
+_LAUNCH_GATE_INFORMATIONAL_ONLY = frozenset({"L-06", "L-14"})
+
+
+def _run_launch_gates(family: str, platform: str) -> tuple[list[str], list[dict]]:
+    """H-1: genuinely invoke launch_gate.py's gates as part of the real Stage-8
+    verdict.
+
+    Before this fix, `.claude/commands/launch-product.md`'s Stage 8.5 claimed
+    "the prior stage's launch_gate.py runs 16 automated gates" -- but
+    readiness_scorecard.py (the script Stage 8 actually runs) never imported
+    or subprocessed launch_gate.py at all. This was proven, not inferred,
+    against a real incident: imaging/net's on-disk `reports/imaging/net/
+    readiness.md`, produced by a real Stage-8 run before its Day-2 family-page
+    fix, reported a clean "NOT READY (H-gates only)" verdict with zero mention
+    of the stale "coming soon" placeholder L-10 exists to catch. A second,
+    orphaned script (`readiness_gate.py`) did call launch_gate.py, but was
+    never wired into `/launch-product` -- only into unrelated subsystems.
+
+    L-07 (the full `pytest scripts/pipeline/tests/` suite) is skipped by
+    default here, matching the existing precedent already set by
+    `readiness_gate.py`'s own G-06 gate (`launch_gate.py {family} {platform}
+    --skip-tests`) -- a full-suite run on every readiness check is
+    prohibitively slow for routine, possibly-repeated use; run it separately
+    (`launch_gate.py {family} {platform}` without `--skip-tests`) when a full
+    pipeline-test pass is actually wanted.
+
+    Returns:
+        (blockers, gate_results) -- blockers is a list of human-readable FAIL
+        strings for any non-informational-only gate; gate_results is every
+        gate's {gate_id, status, detail} for reporting, including the two
+        informational-only gates (never contributing to blockers).
+    """
+    pipeline_root = str(_ROOT / "scripts" / "pipeline")
+    if pipeline_root not in sys.path:
+        sys.path.insert(0, pipeline_root)
+    try:
+        from commands.launch import launch_gate
+    except ImportError as exc:
+        print(f"WARN: launch_gate wiring unavailable: {exc}", file=sys.stderr)
+        return [], []
+
+    launch_gate.configure(repo_root=_ROOT)
+
+    blockers: list[str] = []
+    gate_results: list[dict] = []
+    for gate_fn in launch_gate._ALL_GATES:
+        if gate_fn is launch_gate.gate_l07_pipeline_tests:
+            continue  # skipped by default -- see docstring above
+        try:
+            result = gate_fn(family, platform)
+        except Exception as exc:  # noqa: BLE001 -- a crashing gate is a real blocker, not silence
+            blockers.append(f"launch gate crashed: {gate_fn.__name__}: {exc}")
+            continue
+        gate_results.append({
+            "gate_id": result.gate_id,
+            "name": result.name,
+            "status": result.status,
+            "detail": result.detail,
+        })
+        if result.status == launch_gate.STATUS_FAIL and result.gate_id not in _LAUNCH_GATE_INFORMATIONAL_ONLY:
+            blockers.append(f"{result.gate_id} {result.name}: {result.detail}")
+    return blockers, gate_results
 
 
 def _verify_forbidden_claims_receipts(family: str, platform: str) -> list[str]:
@@ -352,6 +525,8 @@ def compute_verdict(
     skip_human_review: bool = False,
     checkpoint_integrity: list[str] | None = None,
     unverified_forbidden_claims: list[str] | None = None,
+    launch_gate_failures: list[str] | None = None,
+    blog_post_missing: str | None = None,
 ) -> tuple[bool, list[str]]:
     """Compute launch readiness verdict. Pure function — no I/O, no sys.exit.
 
@@ -370,6 +545,18 @@ def compute_verdict(
             must not report READY for a page whose scan crashed or never ran,
             even though launch_gate.py's separate L-03 gate already catches
             the same condition — the two gates must not be allowed to disagree.
+        launch_gate_failures: H-1 (MT074) — FAIL results from
+            _run_launch_gates() for any of launch_gate.py's non-informational-
+            only gates (L-01..L-05, L-07..L-13, L-15, L-16). Each is a real
+            blocker — this is the fix for the proven gap where this verdict
+            could report READY TO SHIP while a live "coming soon" family-page
+            placeholder (L-10) or any other launch_gate.py gate was failing,
+            unnoticed, because nothing here ever ran them.
+        blog_post_missing: H-4 (MT074) — a message from _check_blog_post_exists()
+            if the family/platform has zero real blog posts on disk, else None.
+            A real blocker — closes INV-021's second half, where a
+            zero-blog-post launch previously reported a clean READY TO SHIP
+            with no criterion checking blog-post existence at all.
 
     Returns:
         (ready: bool, blockers: list[str])
@@ -387,6 +574,14 @@ def compute_verdict(
     # Criterion 0.6 (HARDEN-A7/finding-1): every forbidden-claims scan must be verified
     for receipt_name in (unverified_forbidden_claims or []):
         blockers.append(f"unverified forbidden-claims scan: {receipt_name}")
+
+    # Criterion 0.7 (H-1, MT074): launch_gate.py's own gates must actually run and pass
+    for failure in (launch_gate_failures or []):
+        blockers.append(f"launch gate: {failure}")
+
+    # Criterion 0.8 (H-4, MT074): the mandatory announcement blog post must exist
+    if blog_post_missing:
+        blockers.append(blog_post_missing)
 
     # Criterion 1: 0 D/F pages
     df_count = grades.get("D", 0) + grades.get("F", 0)
@@ -417,6 +612,25 @@ def compute_verdict(
                 blockers.append(
                     f"{_HGATE_NAMES[gate]} ({gate.upper()}): STALE — signed off PASS against "
                     f"older knowledge/evaluator state; re-review required"
+                )
+            elif result == "UNLINKED":
+                # H-2 (MT074): a hand-typed PASS/CONDITIONAL sign-off with no
+                # corresponding S-90 final-verdict.md — a self-attestation
+                # with nothing real behind it.
+                blockers.append(
+                    f"{_HGATE_NAMES[gate]} ({gate.upper()}): UNLINKED — sample file claims a "
+                    f"result but no reports/publish-review/.../final-verdict.md exists for "
+                    f"this product; run /publish-readiness-review"
+                )
+            elif result == "CONTRADICTED":
+                # H-2 (MT074): the real S-90 output disagrees with the
+                # hand-typed sign-off — the exact shape of the cells/
+                # typescript incident (readiness.md said NOT READY while
+                # final-verdict.md said PUBLISH), now mechanically caught.
+                blockers.append(
+                    f"{_HGATE_NAMES[gate]} ({gate.upper()}): CONTRADICTED — sample file claims "
+                    f"a result but the real S-90 final-verdict.md's Final Recommendation is "
+                    f"BLOCKED; the two verdicts disagree, re-review required"
                 )
             else:
                 blockers.append(
@@ -464,11 +678,15 @@ def main():
         print(f"  AUDIT: --skip-human-review used for {family}/{platform}", file=sys.stderr)
     checkpoint_integrity = _verify_checkpoint_integrity(family, platform, checkpoints)
     unverified_forbidden_claims = _verify_forbidden_claims_receipts(family, platform)
+    launch_gate_failures, launch_gate_results = _run_launch_gates(family, platform)
+    blog_post_missing = _check_blog_post_exists(family, platform)
     ready, blockers = compute_verdict(
         grades, coverage, checkpoints, hgate_results,
         skip_human_review=args.skip_human_review,
         checkpoint_integrity=checkpoint_integrity,
         unverified_forbidden_claims=unverified_forbidden_claims,
+        launch_gate_failures=launch_gate_failures,
+        blog_post_missing=blog_post_missing,
     )
     verdict = "READY TO SHIP" if ready else "NOT READY"
 
@@ -485,6 +703,8 @@ def main():
             "blockers": blockers,
             "human_review": hgate_results,
             "skip_human_review": args.skip_human_review,
+            "launch_gates": launch_gate_results,
+            "blog_post_missing": blog_post_missing,
         }
         print(json.dumps(result, indent=2))
     else:
@@ -538,6 +758,23 @@ def main():
                 status = result if result else "NOT REVIEWED"
                 mark = "+" if result == "PASS" else "-"
                 print(f"  [{mark}] {gate.upper()} {_HGATE_NAMES[gate]}: {status}")
+        print()
+
+        # Launch gates (H-1, MT074)
+        print("Launch gates (launch_gate.py L-01..L-16, L-07 skipped by default):")
+        if launch_gate_results:
+            for g in launch_gate_results:
+                mark = "+" if g["status"] == "PASS" else ("~" if g["status"] in ("WARN", "SKIP") else "-")
+                info_note = " (informational only)" if g["gate_id"] in _LAUNCH_GATE_INFORMATIONAL_ONLY else ""
+                print(f"  [{mark}] {g['gate_id']} {g['name']}: {g['status']}{info_note}")
+        else:
+            print("  (unavailable — see WARN above)")
+        print()
+
+        # Blog post existence (H-4, MT074)
+        print("Blog post (mandatory announcement post):")
+        print(f"  [{'-' if blog_post_missing else '+'}] "
+              f"{blog_post_missing or 'at least one real post exists'}")
         print()
 
         # Checkpoints
@@ -596,6 +833,16 @@ def main():
         for gate in _HGATES:
             result = hgate_results.get(gate, "")
             f.write(f"| {gate.upper()} | {_HGATE_NAMES[gate]} | {result or 'NOT REVIEWED'} |\n")
+
+        f.write(f"\n## Launch Gates (launch_gate.py, L-07 skipped by default)\n\n")
+        f.write("| Gate | Name | Status |\n")
+        f.write("|------|------|--------|\n")
+        for g in launch_gate_results:
+            note = " (informational only)" if g["gate_id"] in _LAUNCH_GATE_INFORMATIONAL_ONLY else ""
+            f.write(f"| {g['gate_id']} | {g['name']} | {g['status']}{note} |\n")
+
+        f.write(f"\n## Blog Post (mandatory announcement post)\n\n")
+        f.write(f"{blog_post_missing or 'At least one real post exists.'}\n")
 
         if blockers:
             f.write(f"\n## Blockers\n\n")

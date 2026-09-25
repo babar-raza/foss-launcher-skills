@@ -64,6 +64,20 @@ def _passing_grades() -> dict:
     return {"A": 10, "B": 5, "C": 2, "D": 0, "F": 0, "ungraded": 0}
 
 
+def _write_passing_final_verdict(tmp_path, family, platform, date="20260925"):
+    """H-2: a real reports/publish-review/.../final-verdict.md with a
+    PUBLISH recommendation -- write this alongside a hand-typed PASS
+    sample.md sign-off so tests that are about OTHER sign-off parsing
+    behavior (case-insensitivity, CRLF, bindings staleness, etc.) aren't
+    incidentally blocked by the H-2 linkage requirement they're not testing."""
+    verdict_dir = tmp_path / "reports" / "publish-review" / f"{family}-{platform}-{date}"
+    verdict_dir.mkdir(parents=True, exist_ok=True)
+    (verdict_dir / "final-verdict.md").write_text(
+        "# Publish Readiness Review\n\n## Final Recommendation\n\n**PUBLISH**\n",
+        encoding="utf-8",
+    )
+
+
 # ---------------------------------------------------------------------------
 # Grade criteria
 # ---------------------------------------------------------------------------
@@ -581,6 +595,7 @@ class TestSignoffParserHardening:
         (review_dir / "3d-java-h01-sample.md").write_text(
             '# H-01\n\n```yaml\nresult: "pass"\n```\n'
         )
+        _write_passing_final_verdict(tmp_path, "3d", "java")
         readiness_scorecard.configure(repo_root=tmp_path)
         results = readiness_scorecard._read_hgate_signoffs("3d", "java")
         assert results["h01"] == "PASS"
@@ -592,6 +607,7 @@ class TestSignoffParserHardening:
         (review_dir / "3d-java-h01-sample.md").write_text(
             '# H-01\n\n```yaml\nresult: "Pass"\n```\n'
         )
+        _write_passing_final_verdict(tmp_path, "3d", "java")
         readiness_scorecard.configure(repo_root=tmp_path)
         results = readiness_scorecard._read_hgate_signoffs("3d", "java")
         assert results["h01"] == "PASS"
@@ -603,6 +619,7 @@ class TestSignoffParserHardening:
         # Write with explicit CRLF
         content = '# H-01\r\n\r\n```yaml\r\nresult: "PASS"\r\n```\r\n'
         (review_dir / "3d-java-h01-sample.md").write_bytes(content.encode("utf-8"))
+        _write_passing_final_verdict(tmp_path, "3d", "java")
         readiness_scorecard.configure(repo_root=tmp_path)
         results = readiness_scorecard._read_hgate_signoffs("3d", "java")
         assert results["h01"] == "PASS"
@@ -614,6 +631,7 @@ class TestSignoffParserHardening:
         (review_dir / "3d-java-h01-sample.md").write_text(
             '# H-01\n\n```yaml\nresult: "PASS" # reviewer: looks good\n```\n'
         )
+        _write_passing_final_verdict(tmp_path, "3d", "java")
         readiness_scorecard.configure(repo_root=tmp_path)
         results = readiness_scorecard._read_hgate_signoffs("3d", "java")
         assert results["h01"] == "PASS"
@@ -636,6 +654,7 @@ class TestSignoffParserHardening:
         (review_dir / "3d-java-h03-sample.md").write_text(
             '# H-03\n\n```yaml\nresult: conditional\n```\n'
         )
+        _write_passing_final_verdict(tmp_path, "3d", "java")
         readiness_scorecard.configure(repo_root=tmp_path)
         results = readiness_scorecard._read_hgate_signoffs("3d", "java")
         assert results["h03"] == "CONDITIONAL"
@@ -690,6 +709,7 @@ class TestHGateBindingsStaleness:
             '# H-01\n\n```yaml\nresult: "PASS"\nbindings:\n'
             '  model_sha: "current_sha"\n```\n'
         )
+        _write_passing_final_verdict(tmp_path, "3d", "java")
         readiness_scorecard.configure(repo_root=tmp_path)
         results = readiness_scorecard._read_hgate_signoffs("3d", "java")
         assert results["h01"] == "PASS"
@@ -717,6 +737,7 @@ class TestHGateBindingsStaleness:
         (review_dir / "3d-java-h01-sample.md").write_text(
             '# H-01\n\n```yaml\nresult: "PASS"\n```\n'
         )
+        _write_passing_final_verdict(tmp_path, "3d", "java")
         readiness_scorecard.configure(repo_root=tmp_path)
         results = readiness_scorecard._read_hgate_signoffs("3d", "java")
         assert results["h01"] == "PASS"
@@ -769,6 +790,311 @@ class TestHGateBindingsStaleness:
         text = report_path.read_text(encoding="utf-8")
         assert "bindings:" in text
         assert "written_sha" in text
+
+
+class TestLaunchGateWiring:
+    """H-1 (MT074-2026-09-25-GIS-NET-LAUNCH-AND-READINESS-GATE-HARDENING):
+    readiness_scorecard.py must genuinely invoke launch_gate.py's gates, not
+    just re-describe them in prose. Root incident this closes: imaging/net's
+    real, on-disk `reports/imaging/net/readiness.md` (produced by a real
+    Stage-8 run before its Day-2 family-page fix) reported a clean
+    "NOT READY (H-gates only)" verdict with zero mention of the live
+    "coming soon" placeholder Gate L-10 exists to catch -- proving
+    readiness_scorecard.py never called launch_gate.py at all, contradicting
+    launch-product.md's own Stage 8.5 prose."""
+
+    def test_fail_gate_result_blocks_verdict(self):
+        """compute_verdict: a launch_gate failure is a real blocker, same
+        shape as checkpoint_integrity/unverified_forbidden_claims."""
+        ready, blockers = compute_verdict(
+            _passing_grades(), _passing_coverage(), _passing_checkpoints(),
+            _passing_hgates(), skip_human_review=True,
+            launch_gate_failures=["L-10 No coming-soon placeholder: "
+                                   "'coming soon' found in family page"],
+        )
+        assert ready is False
+        assert any("L-10" in b and "coming soon" in b for b in blockers)
+
+    def test_no_launch_gate_failures_defaults_to_no_blockers(self):
+        ready, blockers = compute_verdict(
+            _passing_grades(), _passing_coverage(), _passing_checkpoints(),
+            _passing_hgates(), skip_human_review=True,
+        )
+        assert ready is True
+        assert blockers == []
+
+    def test_run_launch_gates_excludes_informational_only_gates_from_blockers(self):
+        """L-06 and L-14 are structurally incapable of ever meaningfully
+        blocking (L-06: FAIL/SKIP-only by design; L-14: PASS/SKIP-only,
+        regression logic unimplemented) -- a FAIL from either must still be
+        recorded for visibility but must NEVER appear in blockers."""
+        # Import via the SAME dotted path _run_launch_gates() itself uses
+        # (`from commands.launch import launch_gate`) -- a bare `import
+        # launch_gate` resolves to a DIFFERENT module-cache entry even
+        # though it's the same file, so monkeypatching that copy's
+        # _ALL_GATES would silently not affect the one production code runs.
+        from commands.launch import launch_gate
+
+        def _fake_real_fail(family, platform):
+            return launch_gate.GateResult("L-04", "API accuracy",
+                                           launch_gate.STATUS_FAIL, "audit.py exit 1")
+
+        def _fake_informational_fail(family, platform):
+            return launch_gate.GateResult("L-06", "Promote validation",
+                                           launch_gate.STATUS_FAIL, "state=STALE_ORPHANED")
+
+        def _fake_pass(family, platform):
+            return launch_gate.GateResult("L-10", "No coming-soon placeholder",
+                                           launch_gate.STATUS_PASS, "clean")
+
+        saved = launch_gate._ALL_GATES
+        launch_gate._ALL_GATES = [_fake_real_fail, _fake_informational_fail, _fake_pass]
+        try:
+            blockers, gate_results = readiness_scorecard._run_launch_gates("x", "y")
+        finally:
+            launch_gate._ALL_GATES = saved
+
+        assert len(blockers) == 1
+        assert "L-04" in blockers[0]
+        assert not any("L-06" in b for b in blockers)
+        # Still recorded for visibility, just never a blocker:
+        assert {g["gate_id"] for g in gate_results} == {"L-04", "L-06", "L-10"}
+
+    def test_gate_l10_real_fail_reproduces_imaging_net_incident(self, tmp_path):
+        """The exact real-world regression: a family _index.md still carrying
+        the "coming soon" placeholder (imaging/net's actual pre-fix text
+        shape) must FAIL via the real gate_l10_no_coming_soon function, and
+        that FAIL must flow through _run_launch_gates into a real blocker --
+        not just in launch_gate.py standalone, but reachable from
+        readiness_scorecard.py, which is the actual gap this card closes."""
+        # See the module-identity note in
+        # TestLaunchGateWiring.test_run_launch_gates_excludes_informational_only_gates_from_blockers
+        # -- must match _run_launch_gates()'s own import path exactly.
+        from commands.launch import launch_gate
+
+        family_page = tmp_path / "content" / "products.aspose.org" / "en" / "imaging" / "_index.md"
+        family_page.parent.mkdir(parents=True)
+        family_page.write_text(
+            "---\ntitle: Aspose.Imaging FOSS\n---\n\n"
+            "Aspose.Imaging FOSS is coming soon as an open-source library...\n",
+            encoding="utf-8",
+        )
+        readiness_scorecard.configure(repo_root=tmp_path)
+        launch_gate.configure(repo_root=tmp_path)
+        try:
+            result = launch_gate.gate_l10_no_coming_soon("imaging", "net")
+            assert result.status == launch_gate.STATUS_FAIL
+
+            # Run it through the real wiring, isolated to just L-10 so the
+            # test stays fast (no hugo/audit.py/pytest subprocess gates).
+            import readiness_scorecard as rs
+            saved = launch_gate._ALL_GATES
+            launch_gate._ALL_GATES = [launch_gate.gate_l10_no_coming_soon]
+            try:
+                blockers, gate_results = rs._run_launch_gates("imaging", "net")
+            finally:
+                launch_gate._ALL_GATES = saved
+            assert any("L-10" in b and "coming soon" in b.lower() for b in blockers)
+        finally:
+            readiness_scorecard.configure()
+            launch_gate.configure()
+
+    def test_gate_l10_real_pass_on_clean_family_page(self, tmp_path):
+        """Green counterpart: a real, non-placeholder family page must PASS,
+        proving H-1's wiring doesn't false-positive on ordinary content."""
+        from commands.launch import launch_gate
+
+        family_page = tmp_path / "content" / "products.aspose.org" / "en" / "words" / "_index.md"
+        family_page.parent.mkdir(parents=True)
+        family_page.write_text(
+            "---\ntitle: Aspose.Words FOSS\n---\n\n"
+            "Aspose.Words FOSS is a real, open-source document library.\n",
+            encoding="utf-8",
+        )
+        readiness_scorecard.configure(repo_root=tmp_path)
+        launch_gate.configure(repo_root=tmp_path)
+        try:
+            import readiness_scorecard as rs
+            saved = launch_gate._ALL_GATES
+            launch_gate._ALL_GATES = [launch_gate.gate_l10_no_coming_soon]
+            try:
+                blockers, gate_results = rs._run_launch_gates("words", "net")
+            finally:
+                launch_gate._ALL_GATES = saved
+            assert blockers == []
+            assert gate_results[0]["status"] == "PASS"
+        finally:
+            readiness_scorecard.configure()
+            launch_gate.configure()
+
+
+# ---------------------------------------------------------------------------
+# H-4: mandatory announcement blog post (INV-021)
+# ---------------------------------------------------------------------------
+
+class TestBlogPostExists:
+    """H-4 (MT074): every launch must ship at least one real blog post, and
+    readiness_scorecard.py must actually check for it. Before this fix,
+    nothing here checked blog-post existence at all -- imaging/net (68
+    total_claims, real precedent) launched with zero blog posts and a clean
+    READY TO SHIP verdict; a human had to notice the resulting 404 later."""
+
+    def test_missing_blog_directory_blocks(self, tmp_path):
+        readiness_scorecard.configure(repo_root=tmp_path)
+        try:
+            msg = readiness_scorecard._check_blog_post_exists("gis", "net")
+            assert msg is not None
+            assert "gis/net" in msg
+        finally:
+            readiness_scorecard.configure()
+
+    def test_locale_only_file_does_not_count(self, tmp_path):
+        """A bare index.<locale>.md with no English index.md must not count
+        -- matches how _collect_grades()/_count_en_pages() already treat
+        index.md as the one canonical file per post in this module."""
+        post_dir = (tmp_path / "content" / "blog.aspose.org" / "gis" / "net"
+                    / "introducing-gis-foss-net")
+        post_dir.mkdir(parents=True)
+        (post_dir / "index.fr.md").write_text("---\ntitle: x\n---\n", encoding="utf-8")
+        readiness_scorecard.configure(repo_root=tmp_path)
+        try:
+            msg = readiness_scorecard._check_blog_post_exists("gis", "net")
+            assert msg is not None
+        finally:
+            readiness_scorecard.configure()
+
+    def test_real_english_post_passes(self, tmp_path):
+        post_dir = (tmp_path / "content" / "blog.aspose.org" / "gis" / "net"
+                    / "introducing-gis-foss-net")
+        post_dir.mkdir(parents=True)
+        (post_dir / "index.md").write_text("---\ntitle: x\n---\n", encoding="utf-8")
+        readiness_scorecard.configure(repo_root=tmp_path)
+        try:
+            msg = readiness_scorecard._check_blog_post_exists("gis", "net")
+            assert msg is None
+        finally:
+            readiness_scorecard.configure()
+
+    def test_blog_post_missing_blocks_verdict(self):
+        ready, blockers = compute_verdict(
+            _passing_grades(), _passing_coverage(), _passing_checkpoints(),
+            _passing_hgates(), skip_human_review=True,
+            blog_post_missing="no blog posts exist for gis/net",
+        )
+        assert ready is False
+        assert any("no blog posts exist for gis/net" in b for b in blockers)
+
+    def test_blog_post_present_does_not_block(self):
+        ready, blockers = compute_verdict(
+            _passing_grades(), _passing_coverage(), _passing_checkpoints(),
+            _passing_hgates(), skip_human_review=True,
+            blog_post_missing=None,
+        )
+        assert ready is True
+        assert blockers == []
+
+
+class TestFinalVerdictLinking:
+    """H-2 (MT074-2026-09-25-GIS-NET-LAUNCH-AND-READINESS-GATE-HARDENING):
+    a hand-typed reports/human-review/*-sample.md sign-off must be checked
+    against S-90's real, agent-authored final-verdict.md -- not trusted
+    unconditionally. Root incident this closes: cells/typescript's
+    readiness.md (NOT READY) and its own real final-verdict.md (PUBLISH)
+    directly contradicted each other in production with no mechanical check
+    (product_acceptance_state.py's own documented finding)."""
+
+    def _write_sample(self, tmp_path, family, platform, gate, result):
+        review_dir = tmp_path / "reports" / "human-review"
+        review_dir.mkdir(parents=True, exist_ok=True)
+        (review_dir / f"{family}-{platform}-{gate}-sample.md").write_text(
+            f'# {gate.upper()}\n\n```yaml\nresult: "{result}"\n```\n', encoding="utf-8"
+        )
+
+    def _write_final_verdict(self, tmp_path, family, platform, recommendation, date="20260925"):
+        verdict_dir = tmp_path / "reports" / "publish-review" / f"{family}-{platform}-{date}"
+        verdict_dir.mkdir(parents=True, exist_ok=True)
+        (verdict_dir / "final-verdict.md").write_text(
+            f"# Publish Readiness Review\n\n## Final Recommendation\n\n**{recommendation}**\n",
+            encoding="utf-8",
+        )
+
+    def test_pass_with_no_final_verdict_downgrades_to_unlinked(self, tmp_path):
+        self._write_sample(tmp_path, "gis", "net", "h01", "PASS")
+        readiness_scorecard.configure(repo_root=tmp_path)
+        try:
+            results = readiness_scorecard._read_hgate_signoffs("gis", "net")
+            assert results["h01"] == "UNLINKED"
+        finally:
+            readiness_scorecard.configure()
+
+    def test_pass_with_matching_publish_verdict_stays_pass(self, tmp_path):
+        self._write_sample(tmp_path, "gis", "net", "h01", "PASS")
+        self._write_final_verdict(tmp_path, "gis", "net", "PUBLISH")
+        readiness_scorecard.configure(repo_root=tmp_path)
+        try:
+            results = readiness_scorecard._read_hgate_signoffs("gis", "net")
+            assert results["h01"] == "PASS"
+        finally:
+            readiness_scorecard.configure()
+
+    def test_pass_contradicted_by_blocked_final_verdict(self, tmp_path):
+        """The exact cells/typescript incident shape: a hand-typed PASS
+        while the real S-90 output says BLOCKED."""
+        self._write_sample(tmp_path, "cells", "typescript", "h01", "PASS")
+        self._write_final_verdict(tmp_path, "cells", "typescript", "BLOCKED")
+        readiness_scorecard.configure(repo_root=tmp_path)
+        try:
+            results = readiness_scorecard._read_hgate_signoffs("cells", "typescript")
+            assert results["h01"] == "CONTRADICTED"
+        finally:
+            readiness_scorecard.configure()
+
+    def test_fail_result_never_gets_unlinked_or_contradicted(self, tmp_path):
+        """A FAIL sign-off means the reviewer already found a problem --
+        that verdict stands regardless of final-verdict.md linkage."""
+        self._write_sample(tmp_path, "gis", "net", "h01", "FAIL")
+        readiness_scorecard.configure(repo_root=tmp_path)
+        try:
+            results = readiness_scorecard._read_hgate_signoffs("gis", "net")
+            assert results["h01"] == "FAIL"
+        finally:
+            readiness_scorecard.configure()
+
+    def test_no_final_verdict_dir_returns_none(self, tmp_path):
+        readiness_scorecard.configure(repo_root=tmp_path)
+        try:
+            rec = readiness_scorecard._find_final_verdict_recommendation("gis", "net")
+            assert rec is None
+        finally:
+            readiness_scorecard.configure()
+
+    def test_picks_most_recent_final_verdict_by_date_suffix(self, tmp_path):
+        self._write_final_verdict(tmp_path, "gis", "net", "BLOCKED", date="20260901")
+        self._write_final_verdict(tmp_path, "gis", "net", "PUBLISH", date="20260925")
+        readiness_scorecard.configure(repo_root=tmp_path)
+        try:
+            rec = readiness_scorecard._find_final_verdict_recommendation("gis", "net")
+            assert rec == "PUBLISH"
+        finally:
+            readiness_scorecard.configure()
+
+    def test_unlinked_result_blocks_verdict(self):
+        hgates = _passing_hgates()
+        hgates["h01"] = "UNLINKED"
+        ready, blockers = compute_verdict(
+            _passing_grades(), _passing_coverage(), _passing_checkpoints(), hgates,
+        )
+        assert ready is False
+        assert any("UNLINKED" in b and "H01" in b for b in blockers)
+
+    def test_contradicted_result_blocks_verdict(self):
+        hgates = _passing_hgates()
+        hgates["h01"] = "CONTRADICTED"
+        ready, blockers = compute_verdict(
+            _passing_grades(), _passing_coverage(), _passing_checkpoints(), hgates,
+        )
+        assert ready is False
+        assert any("CONTRADICTED" in b and "H01" in b for b in blockers)
 
 
 class TestParityWarningMarkerIsAsciiSafe:
