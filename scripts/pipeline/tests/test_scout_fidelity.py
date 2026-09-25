@@ -391,10 +391,17 @@ class TestP3DocCommentCensus:
 
     def test_negative_control_flags_hidden_doc_comments(self, tmp_path, monkeypatch):
         """5 real source doc comments (>= P3_MIN_SOURCE_DOC_COUNT), 0
-        captured — the real 3d/typescript shape (0/162 docs captured)."""
+        captured — the real 3d/typescript shape (0/162 docs captured).
+
+        ST-224/TC-TSGAP-09 (2026-09-24): P3 graduated to FAIL-enabled after a
+        fleet-wide recalibration over 33 products found 0 would_fail_if_enabled
+        -- the first probe to clear the zero-false-positive bar. This
+        negative control must now assert FAIL, not WARN; would_fail_if_enabled
+        stays true regardless (it reports what WOULD happen if disabled, per
+        its own field name)."""
         _setup_product(tmp_path, monkeypatch, api_surface=_bad_api_surface_entries())
         result = scout_fidelity.probe_p3_doc_comment_census("fake", "typescript")
-        assert result["status"] == "WARN"
+        assert result["status"] == "FAIL"
         assert result["would_fail_if_enabled"] is True
         assert result["details"]["source_doc_count"] == 5
         assert result["details"]["api_doc_count"] == 0
@@ -528,12 +535,17 @@ class TestRunProbesOrchestration:
         assert report["findings_count"] == 0
         assert report["fail_count"] == 0
 
-    def test_overall_status_warn_when_findings_present(self, tmp_path, monkeypatch):
+    def test_overall_status_fail_when_p3_finding_present(self, tmp_path, monkeypatch):
+        """ST-224/TC-TSGAP-09 (2026-09-24): P3 graduated to FAIL-enabled, so
+        this fixture (which trips P3's doc-comment census) now produces a
+        real FAIL, not just an advisory WARN. Renamed from
+        test_overall_status_warn_when_findings_present, which this fixture's
+        outcome no longer matches."""
         _setup_product(tmp_path, monkeypatch, api_surface=_bad_api_surface_entries())
         report = scout_fidelity.run_probes("fake", "typescript")
-        assert report["overall_status"] == "WARN"
+        assert report["overall_status"] == "FAIL"
         assert report["findings_count"] > 0
-        assert report["fail_count"] == 0  # advisory-only today
+        assert report["fail_count"] == 1  # P3 only; P1/P2/P4 still WARN-only
 
     def test_write_fidelity_report_writes_expected_path(self, tmp_path, monkeypatch):
         _setup_product(tmp_path, monkeypatch, api_surface=_good_api_surface_entries())
@@ -616,9 +628,16 @@ class TestTierClassification:
 
 
 class TestStatusForNeverFailsByDefault:
-    def test_all_probes_disabled_for_fail_by_default(self):
+    def test_p3_enabled_others_still_disabled_for_fail(self):
+        """Renamed from test_all_probes_disabled_for_fail_by_default
+        (ST-224/TC-TSGAP-09, 2026-09-24): P3 is now the first probe to
+        graduate to FAIL-enabled, per a fleet-wide recalibration finding 0
+        would_fail_if_enabled across all 33 products with a clone cache.
+        P1/P2/P4/P5 remain WARN-only -- their own calibration runs still show
+        real would-be false positives (P1: 6/33, P2: 13/33, P5: 21/33) or are
+        WARN-only by design (P4)."""
         assert scout_fidelity.PROBE_FAIL_ENABLED == {
-            "P1": False, "P2": False, "P3": False, "P4": False, "P5": False,
+            "P1": False, "P2": False, "P3": True, "P4": False, "P5": False,
         }
 
     def test_status_for_returns_warn_not_fail_when_disabled(self):
@@ -637,10 +656,14 @@ class TestStatusForNeverFailsByDefault:
 
 
 class TestCliMain:
-    def test_main_exits_zero_on_warn(self, tmp_path, monkeypatch, capsys):
+    def test_main_exits_nonzero_on_fail(self, tmp_path, monkeypatch, capsys):
+        """Renamed from test_main_exits_zero_on_warn (ST-224/TC-TSGAP-09,
+        2026-09-24): this fixture trips P3's doc-comment census, which is
+        now FAIL-enabled -- main() must exit 1, matching its own
+        `return 1 if report["overall_status"] == "FAIL" else 0` contract."""
         _setup_product(tmp_path, monkeypatch, api_surface=_bad_api_surface_entries())
         rc = scout_fidelity.main(["fake", "typescript", "--repo-root", str(tmp_path)])
-        assert rc == 0
+        assert rc == 1
 
     def test_main_requires_family_and_platform_without_calibrate(self, tmp_path):
         with pytest.raises(SystemExit):

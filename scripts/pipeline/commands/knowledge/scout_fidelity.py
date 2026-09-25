@@ -127,7 +127,13 @@ SCHEMA_VERSION = 1
 PROBE_FAIL_ENABLED: dict = {
     "P1": False,
     "P2": False,
-    "P3": False,
+    # P3 (2026-09-24, ST-224/TC-TSGAP-09): fleet-wide re-calibration over all
+    # 33 products with a clone cache present found 0 would_fail_if_enabled --
+    # the first time any probe has cleared the zero-false-positive bar this
+    # module's own docstring requires before graduating from WARN. See
+    # reports/sprint/pdf-typescript-hardening/evidence/fidelity_calibration.json
+    # (generated_at 2026-09-24) for the full per-product breakdown.
+    "P3": True,
     "P4": False,
     "P5": False,
 }
