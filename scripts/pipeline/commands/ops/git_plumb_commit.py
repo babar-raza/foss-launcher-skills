@@ -127,6 +127,29 @@ _COMMAND_RUNNER: Callable[..., "subprocess.CompletedProcess"] = subprocess.run
 _TEXT_KW = dict(text=True, encoding="utf-8", errors="replace")
 
 
+def _hidden_window_kwargs() -> dict:
+    """Suppress the console window bash.exe would otherwise flash open.
+
+    Confirmed live (2026-09-25): every Tier-1 check this module runs
+    (scripts/pre-commit-audit.sh via bash.exe) opened a new, briefly-visible
+    console window on Windows -- disruptive during an unattended campaign
+    run that triggers commits repeatedly. subprocess.run() has no console
+    suppression by default for a console-subsystem child; CREATE_NO_WINDOW
+    plus a hidden STARTUPINFO is the standard fix and carries no risk here
+    since this call is a short-lived, synchronous, non-interactive check
+    (not a long-lived process whose own console the OS/runtime depends on).
+    """
+    kwargs: dict = {}
+    if hasattr(subprocess, "CREATE_NO_WINDOW"):
+        kwargs["creationflags"] = subprocess.CREATE_NO_WINDOW
+    if hasattr(subprocess, "STARTUPINFO"):
+        info = subprocess.STARTUPINFO()
+        info.dwFlags |= subprocess.STARTF_USESHOWWINDOW
+        info.wShowWindow = subprocess.SW_HIDE
+        kwargs["startupinfo"] = info
+    return kwargs
+
+
 def configure(
     *,
     repo_root: "Path | str | None" = None,
@@ -726,6 +749,7 @@ def _resolve_git_bash() -> "str | None":
         try:
             probe = _COMMAND_RUNNER(
                 [candidate, "-c", "uname -s"], capture_output=True, **_TEXT_KW, timeout=10,
+                **_hidden_window_kwargs(),
             )
         except (OSError, subprocess.TimeoutExpired):
             continue
@@ -817,6 +841,7 @@ def _verify_index_isolation(
         isolated_check = _COMMAND_RUNNER(
             [bash_path, "-c", "git ls-files"],
             cwd=str(repo_root), capture_output=True, **_TEXT_KW, env=env_isolated,
+            **_hidden_window_kwargs(),
         )
         if _ISOLATION_CANARY_SENTINEL not in isolated_check.stdout:
             return (
@@ -830,6 +855,7 @@ def _verify_index_isolation(
         real_check = _COMMAND_RUNNER(
             [bash_path, "-c", "git ls-files"],
             cwd=str(repo_root), capture_output=True, **_TEXT_KW, env=env_real,
+            **_hidden_window_kwargs(),
         )
         if _ISOLATION_CANARY_SENTINEL in real_check.stdout:
             return (
@@ -985,6 +1011,7 @@ def _run_tier1_checks(
     tier1_result = _COMMAND_RUNNER(
         [bash_path, "scripts/pre-commit-audit.sh"],
         cwd=str(repo_root), capture_output=True, **_TEXT_KW, env=env,
+        **_hidden_window_kwargs(),
     )
     # Normalize: a reader failure must surface as empty text, never None --
     # None turned a Tier-1 FAIL into a raw TypeError, and a Tier-1 PASS into
@@ -1401,7 +1428,13 @@ def plumb_commit(
               f"-- proceeding with the lookback window only.", file=sys.stderr)
     if session_id and ctx is not None and ctx.status in ("none", "closed"):
         raise PlumbCommitIdentityUnresolved(session_id, ctx.status)
-    if ctx is not None and ctx.status == "ambiguous":
+    # Programmatic callers that did not select a session deliberately use the
+    # lookback baseline.  Ambient sessions elsewhere in the main repository
+    # must not turn an otherwise quiet isolated-repository operation into a
+    # warning (and, in particular, must not obscure a gitignore warning the
+    # caller is trying to inspect).  An explicit session still gets the
+    # diagnostic because that caller asked for session-bound ownership.
+    if session_id and ctx is not None and ctx.status == "ambiguous":
         print(f"WARNING: session identity is ambiguous "
               f"({', '.join(ctx.candidates)}) -- stale check runs on the "
               f"lookback window; the session-ledger cross-check is skipped "
@@ -1905,6 +1938,9 @@ def main(argv: "list[str] | None" = None) -> int:
                         help="Read file paths (one per line) from FILE. Merged with "
                              "--files. Avoids OS argument-list-too-long errors on "
                              "large commits.")
+    parser.add_argument("--min-content-files", type=int, default=5,
+                        help="Refuse a content/ commit with fewer than this many "
+                             "content paths (default: 5).")
     parser.add_argument("--message", default=None)
     parser.add_argument("--message-file", default=None)
     parser.add_argument("--co-author", default=None, dest="co_author",
@@ -1992,6 +2028,18 @@ def main(argv: "list[str] | None" = None) -> int:
     if not files:
         print("ERROR: pass --files, --files-from, or both (at least one file required)",
               file=sys.stderr)
+        return 2
+    if args.min_content_files < 1:
+        print("ERROR: --min-content-files must be positive", file=sys.stderr)
+        return 2
+    content_files = [path for path in files if Path(path).as_posix().startswith("content/")]
+    if content_files and len(content_files) < args.min_content_files:
+        print(
+            f"ERROR: refusing content commit with {len(content_files)} content file(s); "
+            f"minimum is {args.min_content_files}. Leave the paths queued until the "
+            "batch reaches the floor.",
+            file=sys.stderr,
+        )
         return 2
     args.files = files
 
