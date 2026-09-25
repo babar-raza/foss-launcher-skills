@@ -1,36 +1,36 @@
 {
   "schema_version": 2,
-  "bundle_id": "b0ee0ccd-9dcc-4980-874d-85abb9a9945a",
+  "bundle_id": "09fa1b86-7468-4371-b51c-f2f58be9fda7",
   "family": "3d",
   "platform": "java",
-  "repo_sha": "e308de58888635956cd66e5b0e2994dd42cd4356",
-  "generated_at": "2026-09-10T11:07:21.302005+00:00",
-  "generator_fingerprint": "39b55c0381d862030a39cf289a74386dba0d96ba7bead7439ed295a74ed8206e",
+  "repo_sha": "3d2ed6be91f5abdd1c52ecbcfa192719883cb1b3",
+  "generated_at": "2026-09-24T14:24:16.140762+00:00",
+  "generator_fingerprint": "47ad08067148d602dc12a041cdd801e4d8b3f9d29ef818cfdd5639859cc99da7",
   "generator_semver": "2.0.0",
   "members": {
     "model.yaml": {
-      "sha256": "080e5bcc1aac8a213eef7706a8c89f169c542b2deeb2c1d25429923a466b53db",
-      "bytes": 1345
+      "sha256": "944f60c7b7636e713307d55cbfd225859430bb3e239e050d5933801de9cb1ed1",
+      "bytes": 1340
     },
     "api_surface.json": {
-      "sha256": "bcbf5649b2121c8d698017bd647e22c37c91c4556b81c5d5c5dc865b225bd903",
-      "bytes": 2040641
+      "sha256": "ab66433eb9c2b90496930a31d5f6cd5db6b60864ed6a94b5d7bf71d845dce085",
+      "bytes": 2318897
     },
     "api_surface.md": {
-      "sha256": "ec43cb282b59494750acb49280018acf73234bdd3440afe853eaa020198abff9",
+      "sha256": "e2f871b1c3667801c0e97546a38a033ee7b3d98e54e988ce03ed41e64d469299",
       "bytes": 212002
     },
     "formats.json": {
-      "sha256": "5e85508f98c550b8b7936e16b0ba755075ff51419c249fbc538b192e5d7c01c3",
-      "bytes": 5746
+      "sha256": "c9709473ef9fe78f90697c19c683962d2e289560c351c6035017f6a1014f5635",
+      "bytes": 6386
     },
     "formats.md": {
-      "sha256": "d52164d527bfa8916cc37cd30ab8734501f4447978a51317538960fd06361792",
-      "bytes": 593
+      "sha256": "16bfba9f216c5c625f7d1e6034db5d43b64d95eb5660d6a1ccb5284a81ff53a4",
+      "bytes": 651
     },
     "claims.json": {
-      "sha256": "afa8a26a6b15ec2c3f9d832a9e9ed06cda06611a195c5346cfb84c42e8f186a5",
-      "bytes": 1619687
+      "sha256": "3fe3b97731775552c9d03748e5f9fd4f3702b1df9f3e670e5463c8f892e9d113",
+      "bytes": 1051088
     },
     "limitations.md": {
       "sha256": "17de9ffb0c6a6828e2536ee8dd8401f24e85a86be1edab1a36e53992d90f9852",
@@ -41,8 +41,8 @@
       "bytes": 244
     },
     "merge_report.md": {
-      "sha256": "f3506fcbe9320e7d4ab76947d7ebf7c3fed6a14fa69197151dc79ad8d9717fe8",
-      "bytes": 561
+      "sha256": "06bc93d9c74837f9d9bcaeb5164d0728ec9c6e079e9ef47b9e2cd74e426a98f5",
+      "bytes": 558
     },
     "snippets/snippet_001.java": {
       "sha256": "306300553ae116383a973bb105388d9ba56426f1cc1c9d0c98e75430071beb9f",
@@ -305,32 +305,32 @@
       "bytes": 71
     },
     "snippets/snippet_066.java": {
-      "sha256": "808046a7e314ba4a4a660501de6bfe136a0cf8d4227b35beef72f7b4c5f484a6",
-      "bytes": 170
+      "sha256": "415c2cb80e44dd70614caaa7ae004a192d594deb2acc4d3559e9f9aee15b53bb",
+      "bytes": 190
     },
     "snippets/snippet_067.java": {
-      "sha256": "4f26dd7509a73e92168276c88b44371bc5927d9c7b693adaa72bc30cab1e3ec8",
-      "bytes": 543
+      "sha256": "fcf7ece4ff6a3569178c1e575aa45ef2223a9a13733a1b47b7088acc531c9e9c",
+      "bytes": 324
     },
     "snippets/snippet_068.java": {
-      "sha256": "39ea1e9a8113afa1bfbc4276dc2f25bbca1ad5dfeb9ef04c987938e4c6e332d4",
-      "bytes": 242
+      "sha256": "30eaac748b46ba123ca85e94ecec432bb1293809c3be17e14d9e1556a5f3ad7f",
+      "bytes": 203
     },
     "snippets/snippet_069.java": {
-      "sha256": "835c855b4d66ccf9b52722278c68dfe268322f825e47936595b8472b3df6ebbe",
-      "bytes": 437
+      "sha256": "2878200b77e73da121261627f431b37c54d21a0221e09467c589eef0f779a14a",
+      "bytes": 468
     },
     "snippets/snippet_070.java": {
-      "sha256": "a84b977b5f4ee7539b97c570a1e581ff3bf67ea14124f08ca2edcab03f2118b4",
-      "bytes": 192
+      "sha256": "b3b8ec4e8213fd6cd9acda56dc40305c08ddf89f7a739fabed93e9c3a5751146",
+      "bytes": 311
     },
     "snippets/snippet_071.java": {
-      "sha256": "8f38236128e23e2aef5251387fdb0c6b25e9a1c9b723de16e6aad9ecd5f2344e",
-      "bytes": 182
+      "sha256": "ad7764a51f218e668f0411744dd6b95205c7aa7e82c1e1dfda6f3f8a43f8f381",
+      "bytes": 331
     },
     "snippets/snippet_072.java": {
-      "sha256": "ca7683be291d0dd380170cd45f38ad7ede073e6ab78d27ad1d3f8cbd820b50be",
-      "bytes": 279
+      "sha256": "89d12c25adbc4ccab3636a6de79586fd883b3b8062e9732ea9cfe39b20fa0552",
+      "bytes": 251
     },
     "snippets/snippet_073.java": {
       "sha256": "d88a6899ac55fef52cbd781b22c4b3a50e93a81bb8b9b81ac0e0243a082c655e",
@@ -345,10 +345,10 @@
       "bytes": 249
     },
     "snippets/snippets_index.json": {
-      "sha256": "d94ac13025cdcc93ed65d0391486b6be6edc008022855655235e58c31bd13b7f",
-      "bytes": 52884
+      "sha256": "77037e75a392b9e5ce5379940bc1e1cd3aab73678cbbb3979f42afd47e4731c4",
+      "bytes": 50873
     }
   },
-  "promote_run_id": "promote-20260910T110721Z",
+  "promote_run_id": "promote-20260924T142417Z",
   "status": "COMPLETE"
 }

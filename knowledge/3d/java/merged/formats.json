@@ -64,6 +64,30 @@
     "direction": "export"
   },
   {
+    "format": "NO_CHANGE",
+    "enum": "GltfEmbeddedImageFormat",
+    "value": "",
+    "file": "src/main/java/com/aspose/threed/GltfEmbeddedImageFormat.java",
+    "line": 6,
+    "direction": "detect"
+  },
+  {
+    "format": "JPEG",
+    "enum": "GltfEmbeddedImageFormat",
+    "value": "",
+    "file": "src/main/java/com/aspose/threed/GltfEmbeddedImageFormat.java",
+    "line": 6,
+    "direction": "detect"
+  },
+  {
+    "format": "PNG",
+    "enum": "GltfEmbeddedImageFormat",
+    "value": "",
+    "file": "src/main/java/com/aspose/threed/GltfEmbeddedImageFormat.java",
+    "line": 6,
+    "direction": "detect"
+  },
+  {
     "format": "A3dw",
     "enum": "",
     "value": "",

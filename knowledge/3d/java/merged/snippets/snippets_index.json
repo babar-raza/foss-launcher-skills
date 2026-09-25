@@ -1532,9 +1532,8 @@
     "file": "snippet_066.java",
     "source_file": "README.md",
     "source_function": "(readme_block)",
-    "source_line": 94,
+    "source_line": 122,
     "classes_used": [
-      "FileFormat",
       "Scene"
     ],
     "methods_used": [
@@ -1546,40 +1545,13 @@
     ],
     "provenance": "scout",
     "code_sha256": {
-      "exact": "6f553e0f54b8ff67c689e8d43241be8d4b062d26b0a94aefb3ea76cfebc472d5",
-      "norm": "204366bc2cc51577411b61008e535f81cc879de23b533c2001c0b047fa19ca69"
+      "exact": "0c7d0ef8752d632e716d58f2b841823482aaca8ab080dfddc52cfb34a77f967a",
+      "norm": "b5f1b9c7589bfdc956e3398c628518237b767e4a8393d7513682a6adc847522a"
     }
   },
   {
     "id": "snippet_067",
     "file": "snippet_067.java",
-    "source_file": "README.md",
-    "source_function": "(readme_block)",
-    "source_line": 104,
-    "classes_used": [
-      "Mesh",
-      "Node",
-      "Scene"
-    ],
-    "methods_used": [
-      "Mesh.addControlPoint",
-      "Mesh.createPolygon",
-      "Node.createChildNode",
-      "Scene.getRootNode",
-      "Scene.save"
-    ],
-    "formats_referenced": [
-      "stl"
-    ],
-    "provenance": "scout",
-    "code_sha256": {
-      "exact": "498fd9f47466aef61a20b6579385ca7e742d3b55bbe39f9f5b1efb77ba83edc4",
-      "norm": "6ac21dc862583f6f6bd0b4b8a980998cbafdd31344e90626d38854698bf19dd6"
-    }
-  },
-  {
-    "id": "snippet_068",
-    "file": "snippet_068.java",
     "source_file": "README.md",
     "source_function": "(readme_block)",
     "source_line": 134,
@@ -1590,6 +1562,7 @@
       "StlSaveOptions"
     ],
     "methods_used": [
+      "Scene.fromFile",
       "Scene.save"
     ],
     "formats_referenced": [
@@ -1597,8 +1570,33 @@
     ],
     "provenance": "scout",
     "code_sha256": {
-      "exact": "949aab54fcaab7f5961f986d41768a92eb422bcc5838c206ab6139dab7a9775c",
-      "norm": "c135901e3ee7491d302a6e9e9d46232833d67a45feda2d1ebf571244ac3a4203"
+      "exact": "ddcc778537a50f0775486535c69a9d6bdf7751c023afc3071dde1d68597e7afe",
+      "norm": "881b8fce5b2f3ef1154dca5d21f0d549b72ea20fce6a7dfca165629bca8e84ca"
+    }
+  },
+  {
+    "id": "snippet_068",
+    "file": "snippet_068.java",
+    "source_file": "README.md",
+    "source_function": "(readme_block)",
+    "source_line": 155,
+    "classes_used": [
+      "Box",
+      "Node",
+      "Scene"
+    ],
+    "methods_used": [
+      "Node.createChildNode",
+      "Scene.getRootNode",
+      "Scene.save"
+    ],
+    "formats_referenced": [
+      "stl"
+    ],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "d8b130284564b80f5db991800acefa663b93760801589e6f20b9cc9ca90a0c6e",
+      "norm": "6da3b293ad8f04a1c10e6b981a3095e593edebf65dfacc185bc7bbfb814ab5b0"
     }
   },
   {
@@ -1606,21 +1604,69 @@
     "file": "snippet_069.java",
     "source_file": "README.md",
     "source_function": "(readme_block)",
-    "source_line": 150,
+    "source_line": 170,
+    "classes_used": [
+      "Material",
+      "Node",
+      "PbrMaterial",
+      "Scene",
+      "Vector3"
+    ],
+    "methods_used": [
+      "Node.getChildNodes",
+      "Node.setMaterial",
+      "PbrMaterial.setAlbedo",
+      "PbrMaterial.setMetallicFactor",
+      "PbrMaterial.setRoughnessFactor",
+      "Scene.fromFile",
+      "Scene.getRootNode",
+      "Scene.save",
+      "Vector3.get"
+    ],
+    "formats_referenced": [
+      "stl"
+    ],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "ce91006b4a2e6195ec3a4b0533029df5c643b140e4d811bf955afedbcdaacea9",
+      "norm": "c1d7c4f18e39883728f7ddb926cbb7ffc60629d55eb3738f96cb2fcbcd67a1fa"
+    }
+  },
+  {
+    "id": "snippet_070",
+    "file": "snippet_070.java",
+    "source_file": "README.md",
+    "source_function": "(readme_block)",
+    "source_line": 190,
+    "classes_used": [
+      "Curve",
+      "NurbsCurve",
+      "Vector4"
+    ],
+    "methods_used": [
+      "NurbsCurve.getControlPoints",
+      "NurbsCurve.setDegree"
+    ],
+    "formats_referenced": [],
+    "provenance": "scout",
+    "code_sha256": {
+      "exact": "cbdf7ee6b36214888d6d92c9535012709857c8e81d2b4ad9c1523557839ac3d8",
+      "norm": "76afb48b5185b2d80967fbc04b946e3fb4699216249917874def5dbd26aacb9e"
+    }
+  },
+  {
+    "id": "snippet_071",
+    "file": "snippet_071.java",
+    "source_file": "README.md",
+    "source_function": "(readme_block)",
+    "source_line": 203,
     "classes_used": [
       "FileFormat",
-      "Mesh",
-      "Node",
       "Scene",
       "Stream"
     ],
     "methods_used": [
       "FileFormat.getFormatByExtension",
-      "Mesh.getControlPoints",
-      "Mesh.getPolygonCount",
-      "Node.getChildNodes",
-      "Node.getEntities",
-      "Scene.getRootNode",
       "Scene.open",
       "Stream.close",
       "Stream.wrap"
@@ -1630,40 +1676,16 @@
     ],
     "provenance": "scout",
     "code_sha256": {
-      "exact": "4d603f6ace7ec5f79216e9a8a84a7a0e692a4f7864a718b737562f00749df7c1",
-      "norm": "f3b47074d82c9117b855aadbc8a6f06444664076b2bc4a37bd23ec20956063e2"
+      "exact": "79131fdf8d3a56f996ecf1c54817041d81792e53c21e6e479b8df5e253cbafce",
+      "norm": "32c1fa12929ca8bfe6a520be1477d5e7ef043f7107aa4ef85a9d3c2de8a5d910"
     }
   },
   {
-    "id": "snippet_070",
-    "file": "snippet_070.java",
+    "id": "snippet_072",
+    "file": "snippet_072.java",
     "source_file": "README.md",
     "source_function": "(readme_block)",
-    "source_line": 165,
-    "classes_used": [
-      "Node",
-      "Scene"
-    ],
-    "methods_used": [
-      "Node.createChildNode",
-      "Node.getChildNodes",
-      "Node.getName",
-      "Scene.getName",
-      "Scene.getRootNode"
-    ],
-    "formats_referenced": [],
-    "provenance": "scout",
-    "code_sha256": {
-      "exact": "b623133f1134d738f872689d77de30fb9b7f971810bfbbb595928d09c1ccdbd2",
-      "norm": "3e8f36596a02fd1c7b1436fcec8d8fd640e9dae1865e4d2b661fe7d56ed7faf7"
-    }
-  },
-  {
-    "id": "snippet_071",
-    "file": "snippet_071.java",
-    "source_file": "README.md",
-    "source_function": "(readme_block)",
-    "source_line": 174,
+    "source_line": 217,
     "classes_used": [
       "Node",
       "Transform",
@@ -1678,100 +1700,8 @@
     "formats_referenced": [],
     "provenance": "scout",
     "code_sha256": {
-      "exact": "b373218afe71cd7ac449e04478e427dd0b2dd281c0e193a22ed8d118c182ca95",
-      "norm": "1cfdf8fcaecf393fac528e0db84cee49b67ff46b316d08a19ef75826d3ac061c"
-    }
-  },
-  {
-    "id": "snippet_072",
-    "file": "snippet_072.java",
-    "source_file": "README.md",
-    "source_function": "(readme_block)",
-    "source_line": 182,
-    "classes_used": [
-      "LambertMaterial",
-      "Material",
-      "Vector3"
-    ],
-    "methods_used": [
-      "LambertMaterial.setAmbientColor",
-      "LambertMaterial.setDiffuseColor",
-      "LambertMaterial.setTransparency"
-    ],
-    "formats_referenced": [],
-    "provenance": "scout",
-    "code_sha256": {
-      "exact": "5f1897b3e7e3eb52e306c07709f126ecf045f0f1e60cb421f53c70895dd8db7a",
-      "norm": "af9ee843f4ed481781b75d095dc7389cff83a8a98ab7bc0e54b036674f3a06e5"
-    }
-  },
-  {
-    "id": "snippet_073",
-    "file": "snippet_073.java",
-    "source_file": "README.md",
-    "source_function": "(readme_block)",
-    "source_line": 192,
-    "classes_used": [
-      "Material",
-      "PbrMaterial",
-      "Vector3"
-    ],
-    "methods_used": [
-      "PbrMaterial.setAlbedo",
-      "PbrMaterial.setMetallicFactor",
-      "PbrMaterial.setRoughnessFactor"
-    ],
-    "formats_referenced": [],
-    "provenance": "scout",
-    "code_sha256": {
-      "exact": "0452f119c76da4fac6853063070172cfa0ccc32818bafe129b5fcefd3011dbe4",
-      "norm": "b5a8296e88172acc2f63c8b1398be3c4a8afd46ee65e1f6e9981204b8c8951c2"
-    }
-  },
-  {
-    "id": "snippet_074",
-    "file": "snippet_074.java",
-    "source_file": "README.md",
-    "source_function": "(readme_block)",
-    "source_line": 203,
-    "classes_used": [
-      "Curve",
-      "CurveDimension",
-      "NurbsCurve",
-      "NurbsType"
-    ],
-    "methods_used": [
-      "NurbsCurve.getCurveType",
-      "NurbsCurve.getDegree",
-      "NurbsCurve.getDimension",
-      "NurbsCurve.setOrder"
-    ],
-    "formats_referenced": [],
-    "provenance": "scout",
-    "code_sha256": {
-      "exact": "ba1ca46b38745accad201b6212d9ec1010aeade82422c3aebc6664aadbc51d20",
-      "norm": "45e53ef20dde6ceaed5b787fc0106f237b9bcc0277e2f052b1a97a8499fd3c82"
-    }
-  },
-  {
-    "id": "snippet_075",
-    "file": "snippet_075.java",
-    "source_file": "README.md",
-    "source_function": "(readme_block)",
-    "source_line": 217,
-    "classes_used": [
-      "Vector3"
-    ],
-    "methods_used": [
-      "Vector3.add",
-      "Vector3.cross",
-      "Vector3.dot"
-    ],
-    "formats_referenced": [],
-    "provenance": "scout",
-    "code_sha256": {
-      "exact": "49aec54ab2d58bd539a14184f618519e84fbd427bc8053459ea8c9c3f77d9f9e",
-      "norm": "4864a9b5a11396d34006320690726fe7b2c5c82ba060c2ed6680da6afa5499d1"
+      "exact": "0408d3ee1ca3a056ba6ef52d2034f411cd75f129d7253e250761ca8504c78720",
+      "norm": "9d0ab6a30db3fdbf2fcd90f9bdc9ec2dc4570a99bea54869dd87ffd0505e9445"
     }
   }
 ]

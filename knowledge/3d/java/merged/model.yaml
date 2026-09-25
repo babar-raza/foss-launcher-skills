@@ -1,37 +1,38 @@
+bundle_generated_at: '2026-09-24T14:24:16.140762+00:00'
+bundle_id: 09fa1b86-7468-4371-b51c-f2f58be9fda7
+config_sha: 8b1fe257c09be32f
+enrichment_status: scout-only
+extractor_hash: 4900f4cab6786779
 family: 3d
+generator_fingerprint: 47ad08067148d602dc12a041cdd801e4d8b3f9d29ef818cfdd5639859cc99da7
+generator_semver: 2.0.0
+has_conflicts: false
+input_hashes:
+  enriched_claims_sha: 99506b014683dd232794bb2058a92f7b1269903d0b0999828b0b1ac51d494183
+  extractor_config_sha: 8b1fe257c09be32f
+  products_json_entry_sha: 982a822733792427957c4522975dc7221841791114c0ded87b55a6a33b78484f
+  scout_api_surface_sha: c8ef879c954e6dea2a4907202633f0fc9c1f858664bcb87ba67d36108f82c7af
+  scout_claims_sha: 3f443e7095292649e949b482c2245be7695647da5ae724ac37907cf128e4b9d9
+license: ''
+module_assignment_version: 1
 platform: java
 product_name: aspose-3d-foss
-version: 26.5.0
-license: ''
+promoted_at: '2026-09-24T14:24:16.893804+00:00'
+repo_sha: 3d2ed6be91f5abdd1c52ecbcfa192719883cb1b3
 repo_url: https://github.com/aspose-3d-foss/Aspose.3D-FOSS-for-Java.git
-repo_sha: e308de58888635956cd66e5b0e2994dd42cd4356
-config_sha: 8b1fe257c09be32f
-stale_since: null
-promoted_at: '2026-09-10T11:07:21.535097+00:00'
-source: scout_and_enriched
-enrichment_status: full
-has_conflicts: false
 schema_version: 2
-generator_fingerprint: 39b55c0381d862030a39cf289a74386dba0d96ba7bead7439ed295a74ed8206e
-generator_semver: 2.0.0
-bundle_id: b0ee0ccd-9dcc-4980-874d-85abb9a9945a
-bundle_generated_at: '2026-09-10T11:07:21.302005+00:00'
-module_assignment_version: 1
-input_hashes:
-  extractor_config_sha: 8b1fe257c09be32f
-  scout_claims_sha: c13847711b3dd7a2b64d3e9fffee7961e60478bdcb3368f8168367ec7ad1f136
-  scout_api_surface_sha: 9f5d532808523348ea4f3a2440142c400c9583c8917b424c18a517655d5f3b41
-  enriched_claims_sha: 99506b014683dd232794bb2058a92f7b1269903d0b0999828b0b1ac51d494183
-  products_json_entry_sha: 982a822733792427957c4522975dc7221841791114c0ded87b55a6a33b78484f
+source: scout_only
+stale_since: null
 stats:
-  scout_claims: 3008
-  enriched_claims: 1182
-  supplemental_claims: 0
-  total_claims: 4147
   class_count: 266
   classes:
-    total_declared: 266
     public_documented: 266
     raw_entries_including_non_class: 266
+    total_declared: 266
+  enriched_claims: 0
   forbidden_count: 80
-  snippet_count: 75
+  scout_claims: 3011
+  snippet_count: 72
+  supplemental_claims: 0
+  total_claims: 2982
+version: 26.5.0

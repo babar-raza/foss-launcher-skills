@@ -1,8 +1,7 @@
-import com.aspose.threed.FileFormat;
+import com.aspose.threed.Box;
 import com.aspose.threed.Scene;
-import com.aspose.threed.StlSaveOptions;
 
-scene.save("output.stl", FileFormat.STLASCII);
-
-// ...or with save options
-scene.save("output.stl", new StlSaveOptions());
+Scene scene = new Scene();
+Box box = new Box(2.0, 2.0, 2.0);
+scene.getRootNode().createChildNode("box", box);
+scene.save("box.stl");

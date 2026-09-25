@@ -1,5 +1,7 @@
-import com.aspose.threed.FileFormat;
 import com.aspose.threed.Scene;
 
+// Load an STL file (format is detected automatically)
 Scene scene = Scene.fromFile("input/cube.stl");
-scene.save("output.stl", FileFormat.STLASCII);
+
+// Save it back out
+scene.save("output.stl");

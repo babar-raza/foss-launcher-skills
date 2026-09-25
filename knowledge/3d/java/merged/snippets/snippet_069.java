@@ -1,10 +1,15 @@
-FileInputStream stream = new FileInputStream(new File("testdata/input/cube.stl"));
-Scene scene = new Scene();
-FileFormat format = FileFormat.getFormatByExtension(".stl");
-scene.open(Stream.wrap(stream), format);
-stream.close();
+import com.aspose.threed.Node;
+import com.aspose.threed.PbrMaterial;
+import com.aspose.threed.Scene;
+import com.aspose.threed.Vector3;
 
+Scene scene = Scene.fromFile("input/cube.stl");
 Node node = scene.getRootNode().getChildNodes().get(0);
-Mesh mesh = (Mesh) node.getEntities().get(0);
-System.out.println(mesh.getControlPoints().size());
-System.out.println(mesh.getPolygonCount());
+
+PbrMaterial material = new PbrMaterial();
+material.setAlbedo(new Vector3(0.8, 0.2, 0.2));
+material.setMetallicFactor(0.1);
+material.setRoughnessFactor(0.6);
+node.setMaterial(material);
+
+scene.save("output.stl");

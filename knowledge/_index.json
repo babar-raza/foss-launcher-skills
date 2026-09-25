@@ -7,7 +7,7 @@
       "api_confidence": "high",
       "stale": false,
       "class_count": 266,
-      "claim_count": 4147,
+      "claim_count": 2982,
       "vectors_current": false,
       "vectors_status": "stale",
       "vectors_generated_at": "2026-07-25T17:37:57.568540Z"
@@ -193,6 +193,18 @@
       "vectors_generated_at": "2026-07-25T17:40:55.401782Z"
     },
     {
+      "family": "gis",
+      "platform": "net",
+      "display_name": "Aspose.Gis for Net",
+      "api_confidence": "high",
+      "stale": false,
+      "class_count": 34,
+      "claim_count": 320,
+      "vectors_current": false,
+      "vectors_status": "missing",
+      "vectors_generated_at": null
+    },
+    {
       "family": "html",
       "platform": "python",
       "display_name": "Aspose.Html for Python",
@@ -306,10 +318,10 @@
       "display_name": "Aspose.Pdf for Typescript",
       "api_confidence": "medium",
       "stale": false,
-      "class_count": 1002,
-      "claim_count": 8341,
-      "vectors_current": true,
-      "vectors_status": "current",
+      "class_count": 1312,
+      "claim_count": 10550,
+      "vectors_current": false,
+      "vectors_status": "stale",
       "vectors_generated_at": "2026-09-10T13:22:08.946081Z"
     },
     {

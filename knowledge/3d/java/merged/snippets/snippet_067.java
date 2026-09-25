@@ -1,19 +1,11 @@
-import com.aspose.threed.Mesh;
-import com.aspose.threed.Node;
+import com.aspose.threed.FileFormat;
 import com.aspose.threed.Scene;
+import com.aspose.threed.StlSaveOptions;
 
-Scene scene = new Scene();
-Mesh mesh = new Mesh("TestMesh");
+Scene scene = Scene.fromFile("input/cube.stl");
 
-mesh.addControlPoint(0, 0, 0);
-mesh.addControlPoint(1, 0, 0);
-mesh.addControlPoint(0, 1, 0);
-mesh.addControlPoint(0, 0, 1);
+// Save in an explicit format
+scene.save("output.stl", FileFormat.STLASCII);
 
-mesh.createPolygon(new int[]{0, 1, 2});
-mesh.createPolygon(new int[]{0, 1, 3});
-mesh.createPolygon(new int[]{0, 2, 3});
-mesh.createPolygon(new int[]{1, 2, 3});
-
-scene.getRootNode().createChildNode("TestNode", mesh);
-scene.save("output.stl");
+// ...or with save options
+scene.save("output.stl", new StlSaveOptions());
