@@ -117,6 +117,26 @@ from advisory_lock import FileLock, LockTimeout  # noqa: E402
 
 _DEFAULT_REPO_ROOT = Path(__file__).resolve().parent.parent.parent.parent.parent
 
+
+def _hidden_window_kwargs() -> dict:
+    """Suppress the console window git.exe would otherwise flash open.
+
+    Confirmed live (2026-09-25): this module's git subprocess calls opened a
+    new, briefly-visible console window on Windows each time -- disruptive
+    during an unattended campaign run that calls `current`/`adopt`
+    repeatedly. Matches the same fix already applied to git_plumb_commit.py.
+    """
+    kwargs: dict = {}
+    if hasattr(subprocess, "CREATE_NO_WINDOW"):
+        kwargs["creationflags"] = subprocess.CREATE_NO_WINDOW
+    if hasattr(subprocess, "STARTUPINFO"):
+        info = subprocess.STARTUPINFO()
+        info.dwFlags |= subprocess.STARTF_USESHOWWINDOW
+        info.wShowWindow = subprocess.SW_HIDE
+        kwargs["startupinfo"] = info
+    return kwargs
+
+
 _REPO_ROOT = _DEFAULT_REPO_ROOT
 _SESSION_DIR = _REPO_ROOT / "reports" / "session-state"
 _ACTIVE_POINTER = _SESSION_DIR / "ACTIVE"
@@ -287,7 +307,7 @@ def _git_dirty_files() -> list[str]:
         result = subprocess.run(
             ["git", "status", "--porcelain", "-uall"],
             capture_output=True, text=True, cwd=str(_REPO_ROOT),
-            timeout=30,
+            timeout=30, **_hidden_window_kwargs(),
         )
         if result.returncode != 0:
             return []
@@ -323,7 +343,7 @@ def _git_head_sha() -> str | None:
         result = subprocess.run(
             ["git", "rev-parse", "HEAD"],
             capture_output=True, text=True, cwd=str(_REPO_ROOT),
-            timeout=30,
+            timeout=30, **_hidden_window_kwargs(),
         )
         if result.returncode != 0:
             return None
