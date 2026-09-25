@@ -2025,4 +2025,41 @@ else
 fi
 _pc_step_end "PASS"
 
+_pc_step_start "no inline class-count formula (advisory)"
+# ---------------------------------------------------------------------------
+# Step 46 (MT067-2026-09-10, TC-13, wired 2026-09-25): preventive heuristic
+# lint against a 5th independently-reimplemented class-counting formula
+# reappearing (see docs/reference/knowledge-artifacts.md's "Class-Count
+# Statistics" section for the incident this closes). check_no_inline_class_count.py
+# was built and verified in the same mission that landed the real fix, but
+# was never actually wired into any gate -- caught during a 2026-09-25
+# recheck, 15 days after the mission's own commits: the tool existed and
+# worked, but provided zero real preventive value while nothing invoked it.
+# ALWAYS advisory (--advisory), not a staged rollout toward a hard gate like
+# Step 43/consistency check: this lint has known, accepted false positives
+# (Rust/Go receiver-method association loops, absent_evidence.json class-name
+# listing, a test assertion) with no allowlist mechanism to suppress them --
+# see the check's own module docstring. Scoped to ONLY fire when a
+# scripts/pipeline/ file is staged.
+# ---------------------------------------------------------------------------
+staged_pipeline_files=$(git diff --cached --name-only --diff-filter=ACMR 2>/dev/null | grep -E \
+    '^scripts/pipeline/.*\.py$' || true)
+if [ -n "$staged_pipeline_files" ]; then
+    if [ -n "$_HOOK_PYTHON" ] && [ -f "scripts/ci/checks/check_no_inline_class_count.py" ]; then
+        _nicc_out=$(PYTHONPATH=scripts/pipeline "$_HOOK_PYTHON" \
+            scripts/ci/checks/check_no_inline_class_count.py --advisory 2>&1)
+        _nicc_exit=$?
+        echo "$_nicc_out" | sed 's/^/[Step 46] /'
+        if [ $_nicc_exit -ne 0 ]; then
+            _pc_step_end "FAIL"
+            _pc_exit 1
+        fi
+    else
+        echo "[Step 46] SKIP: .venv not found or check_no_inline_class_count.py missing." >&2
+    fi
+else
+    echo "[Step 46] No staged scripts/pipeline/*.py files — skipping."
+fi
+_pc_step_end "PASS"
+
 _pc_exit 0
