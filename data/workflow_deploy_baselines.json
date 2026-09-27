@@ -49,9 +49,9 @@
     "deployed_repo": "Aspose/aspose.org-workflows"
   },
   "maven-publish-watcher.yml": {
-    "approved_baseline_sha256": "ef135bd64af00879a19cb0016fed0243c00e8927604a378293d13d14312034cd",
-    "baseline_recorded_at": "2026-09-17T18:30:10.812899Z",
-    "baseline_source": "seeded_from_deployed",
+    "approved_baseline_sha256": "4bc9e58a64625907395821bf239649c5d8e643fb5c26aeff08ae91a4b1f9fb94",
+    "baseline_recorded_at": "2026-09-27T03:52:01.108337Z",
+    "baseline_source": "approved_after_review: F39: deployed the fixed stuck-release wiring (literal-\\n bug) to Aspose/aspose.org-workflows, verified byte-identical",
     "deployed_path": ".github/workflows/maven-publish-watcher.yml",
     "deployed_repo": "Aspose/aspose.org-workflows"
   },
