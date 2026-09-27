@@ -71,7 +71,8 @@ jobs:
           PYTHONPATH=scripts/pipeline python -m commands.ops.publish_watcher \
             --auto-apply \
             --issue-body-out /tmp/issue-body.md \
-            --version-issue-body-out /tmp/version-issue-body.md \n            --stuck-release-issue-body-out /tmp/stuck-release-issue-body.md
+            --version-issue-body-out /tmp/version-issue-body.md \
+            --stuck-release-issue-body-out /tmp/stuck-release-issue-body.md
         continue-on-error: true
 
       - name: Open a PR with the auto-applied registry changes (instead of committing directly)
