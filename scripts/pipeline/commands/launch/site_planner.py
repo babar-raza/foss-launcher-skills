@@ -771,6 +771,12 @@ _FAMILY_SUBPKG_LABELS: dict[str, dict[str, str]] = {
         "packaging":  "xlsx-packaging",      # OPC/XLSX packaging classes in cells_foss packaging/
         "cells_foss": "spreadsheet-management",  # Root-level cells_foss classes
         "validation": "data-validation",     # Data validation rules (TC-KBS-005)
+        # "internalvalidation" is a lowercase sub-package directory name with no
+        # CamelCase boundary for TC-KBS-002's splitter to find -- same failure
+        # shape as gis/net's "spatialreferencing" and pdf's "connectionset"
+        # above. Confirmed live 2026-09-28: cells/cpp's site-plan run crashed
+        # _validate_kb_slugs's Check 1 on this noun across every locale.
+        "internalvalidation": "internal-data-validation",  # Internal validation-rule classes, distinct from validation/
     },
     "pdf": {
         # RC-5 fix (TC-KBS-015): merged labels now include "pdf" product qualifier
