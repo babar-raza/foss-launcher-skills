@@ -776,7 +776,9 @@ _FAMILY_SUBPKG_LABELS: dict[str, dict[str, str]] = {
         # shape as gis/net's "spatialreferencing" and pdf's "connectionset"
         # above. Confirmed live 2026-09-28: cells/cpp's site-plan run crashed
         # _validate_kb_slugs's Check 1 on this noun across every locale.
-        "internalvalidation": "internal-data-validation",  # Internal validation-rule classes, distinct from validation/
+        # First attempt ("internal-data-validation") then failed Check 4 --
+        # no "cells" product keyword -- corrected to prefix with "cells".
+        "internalvalidation": "cells-internal-validation",  # Internal validation-rule classes, distinct from validation/
     },
     "pdf": {
         # RC-5 fix (TC-KBS-015): merged labels now include "pdf" product qualifier
