@@ -49,17 +49,24 @@
     "deployed_repo": "Aspose/aspose.org-workflows"
   },
   "maven-publish-watcher.yml": {
-    "approved_baseline_sha256": "4bc9e58a64625907395821bf239649c5d8e643fb5c26aeff08ae91a4b1f9fb94",
-    "baseline_recorded_at": "2026-09-27T03:52:01.108337Z",
-    "baseline_source": "approved_after_review: F39: deployed the fixed stuck-release wiring (literal-\\n bug) to Aspose/aspose.org-workflows, verified byte-identical",
+    "approved_baseline_sha256": "0a09b2fe2f0131c87373d9e2611260e5483ef18253eac94895ab0322bc882c2f",
+    "baseline_recorded_at": "2026-09-28T13:06:13.476875Z",
+    "baseline_source": "approved_after_review: MT075-T7 cutover 2026-09-28: retired scheduled trigger, superseded by registry-watch.yml; committed by user as f9370fa",
     "deployed_path": ".github/workflows/maven-publish-watcher.yml",
     "deployed_repo": "Aspose/aspose.org-workflows"
   },
   "package-publish-watch.yml": {
-    "approved_baseline_sha256": "b608d7dfb2213567da60d0c4236874df04c1b594d32b4705fc3816a79bec4f39",
-    "baseline_recorded_at": "2026-09-17T18:30:11.919695Z",
-    "baseline_source": "seeded_from_deployed",
+    "approved_baseline_sha256": "525f0e421d789ca17915792e182216bd4d45d7ea2237ae6f071279bedd46da49",
+    "baseline_recorded_at": "2026-09-28T13:06:39.939997Z",
+    "baseline_source": "approved_after_review: MT075-T7 cutover 2026-09-28: retired scheduled trigger, superseded by registry-watch.yml; committed by user as f9370fa",
     "deployed_path": ".github/workflows/package-publish-watch.yml",
+    "deployed_repo": "Aspose/aspose.org-workflows"
+  },
+  "registry-watch.yml": {
+    "approved_baseline_sha256": "cf41028bd16ef673b8062f5b8be5b4aa7f5839dc499d211bfe47019102244476",
+    "baseline_recorded_at": "2026-09-28T13:05:27.672477Z",
+    "baseline_source": "seeded_from_deployed",
+    "deployed_path": ".github/workflows/registry-watch.yml",
     "deployed_repo": "Aspose/aspose.org-workflows"
   },
   "runner-availability-watch.yml": {
