@@ -63,9 +63,9 @@
     "deployed_repo": "Aspose/aspose.org-workflows"
   },
   "registry-watch.yml": {
-    "approved_baseline_sha256": "cf41028bd16ef673b8062f5b8be5b4aa7f5839dc499d211bfe47019102244476",
-    "baseline_recorded_at": "2026-09-28T13:05:27.672477Z",
-    "baseline_source": "seeded_from_deployed",
+    "approved_baseline_sha256": "b5f0926b7d5b732db434247d4cafc7137e1478ee573e226e4e60d6c86c1f29fd",
+    "baseline_recorded_at": "2026-09-29T10:27:12.788049Z",
+    "baseline_source": "approved_after_review: MT075-T10 2026-09-28/29: removed bootstrap/PR mechanism, fully autonomous from the first run; pilot dispatch verified clean in real CI (run 36555338032, correct 9-step no-PR structure, clean no-op commit-step exit). Committed by user as 5e25617",
     "deployed_path": ".github/workflows/registry-watch.yml",
     "deployed_repo": "Aspose/aspose.org-workflows"
   },

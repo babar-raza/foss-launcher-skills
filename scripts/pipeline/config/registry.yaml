@@ -577,6 +577,30 @@ scripts:
       that migration (TC-MT015-02) has not happened yet; both old files still exist and are
       still the live source for their respective shortcodes as of this commit."
 
+  - path: scripts/pipeline/lib/version_compare.py
+    kind: library
+    lifecycle: active
+    canonical_impl_path: null
+    public_entrypoint: false
+    cli_contract: none
+    owner_domain: ops
+    backing:
+      kind: internal
+      ref: null
+    test_targets:
+      - scripts/pipeline/tests/test_version_compare.py
+    test_exempt_reason: null
+    requires_test: true
+    deprecated_since: null
+    notes: >-
+      MT075-2026-09-28-REGISTRY-WATCH-CONSOLIDATION-AND-SCANNER-HARDENING,
+      T1: per-registry monotonic version comparators (pypi/PEP440, nuget
+      SemVer2+4-part+prerelease, go_modules/npm/cargo semver core, maven --
+      a common-case subset of ComparableVersion, see the module's own
+      docstring for the honesty note on what that subset does and doesn't
+      cover). The single place "is B actually newer than A" is decided for
+      every registry_watch.py auto-apply decision.
+
   - path: scripts/pipeline/lib/product_registry.py
     kind: library
     lifecycle: active
@@ -3665,6 +3689,61 @@ scripts:
       apply + content-healing flow, and by
       .github/workflows/package-publish-watch.yml for scheduled
       notification-only detection.
+
+  # ── MT075-2026-09-28-REGISTRY-WATCH-CONSOLIDATION-AND-SCANNER-HARDENING ─────
+
+  - path: scripts/pipeline/commands/ops/registry_watch.py
+    kind: entrypoint
+    lifecycle: active
+    canonical_impl_path: null
+    public_entrypoint: true
+    cli_contract: "python -m commands.ops.registry_watch [--auto-apply] [--held-report-out PATH]"
+    owner_domain: ops
+    backing:
+      kind: internal
+      ref: null
+    test_targets:
+      - scripts/pipeline/tests/test_registry_watch.py
+    test_exempt_reason: null
+    requires_test: true
+    deprecated_since: null
+    notes: >-
+      The unified 6-registry watcher (pypi/nuget/npm/go_modules/cargo/maven)
+      replacing publish_watcher.py + package_publish_watch.py -- one
+      iteration loop over the shared package_registries CheckResult adapter
+      contract, gated by check_registry_merge_safety.py's two-tier decision.
+      --auto-apply atomically writes data/package_registry.json; committing
+      that write is the calling workflow's job
+      (scripts/ci/deployed-workflows/registry-watch.yml), not this module's.
+      Fully autonomous from the first run (MT075-T10, plan Revision 2 R2.13)
+      -- no PR, no human step, for either tier.
+
+  - path: scripts/pipeline/commands/ops/check_registry_merge_safety.py
+    kind: library
+    lifecycle: active
+    canonical_impl_path: null
+    public_entrypoint: false
+    cli_contract: none
+    owner_domain: ops
+    backing:
+      kind: internal
+      ref: null
+    test_targets:
+      - scripts/pipeline/tests/test_check_registry_merge_safety.py
+    test_exempt_reason: null
+    requires_test: true
+    deprecated_since: null
+    notes: >-
+      The deterministic decision engine behind registry_watch.py: Tier 1
+      (version bump of an already-published, same-identity entry) auto-
+      applies on schema/monotonic-version/prerelease/diff-scope checks
+      alone; Tier 2 (first publish/identity change) auto-applies only when
+      corroborated against the product's own GitHub repo tags/releases,
+      else HOLDs for re-evaluation, never blocking on a person. MT075-T9
+      (plan Revision 2 R2.13) added a cross-run velocity/anomaly check
+      reusing scripts/seo/pipeline/change_budget.py (mechanism=
+      registry_watch) -- the real control that replaced the bootstrap-PR
+      human-merge step this design originally shipped with.
 
   # ── ST-054 TC-09 (2026-09-10, plans/from_backlog/2026-08-16-st-054-inline-install-command-remediation.md) ─────
 

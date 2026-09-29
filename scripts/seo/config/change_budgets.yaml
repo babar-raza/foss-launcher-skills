@@ -50,6 +50,24 @@ warmup_runs: 3
 schema_a_refresh_max_pages_per_run: 150
 schema_a_refresh_max_pages_per_site_per_run: 150
 
+# registry_watch (MT075-T8, 2026-09-28): the package-registry watcher's own
+# cross-run velocity/anomaly gate, reusing this module rather than building a
+# new one. Unlike title_description_writes/schema_a_refresh, this mechanism
+# has no "site" concept and no title/description split -- items_by_scope is
+# always left empty by its caller (check_registry_merge_safety.py) so the
+# per-site check never fires, and title_changes/description_changes stay 0 by
+# construction (same "inert by construction" pattern schema_a_refresh already
+# uses, see below). total_items is 1 per registry entry the gate is about to
+# auto-apply; max_pages_per_run mirrors check_registry_merge_safety.py's own
+# existing static MAX_ENTRIES_PER_BATCH=5 per-run cap (so the static half of
+# this check never disagrees with the cap already enforced elsewhere) -- what
+# this integration actually ADDS is the rolling-baseline anomaly check across
+# RUNS, which had no equivalent anywhere in the registry-watch pipeline before
+# this (a sustained pattern under the per-run cap, run after run, previously
+# passed every time).
+registry_watch_max_pages_per_run: 5
+registry_watch_max_pages_per_site_per_run: 5
+
 # Cross-mechanism ceiling (Finding #80): a family could receive auto-merged
 # Schema A keyword changes AND autonomous title/description writes in the
 # same week, each individually within its own mechanism's cap, with no check

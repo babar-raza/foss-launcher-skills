@@ -9,6 +9,7 @@ mission's own fail-closed design requirement (a real API's flakiness must
 never make a test flaky).
 """
 
+import json
 import sys
 from pathlib import Path
 
@@ -17,7 +18,7 @@ if str(_LIB_DIR) not in sys.path:
     sys.path.insert(0, str(_LIB_DIR))
 
 from package_registries import CheckResult, FetchResponse, apply_debounce, is_corroborated_match  # noqa: E402
-from package_registries import pypi, npm, nuget, go, cargo  # noqa: E402
+from package_registries import pypi, npm, nuget, go, cargo, maven  # noqa: E402
 
 
 def _fake_fetch(status_code: int, body: bytes = b""):
@@ -121,6 +122,77 @@ class TestNuGetAdapter:
         nuget.check_published({"name": "Aspose.Words.FOSS"}, fetch=_fetch)
         assert "aspose.words.foss" in captured["url"]
         assert "Aspose.Words.FOSS" not in captured["url"]
+
+
+class TestMavenAdapter:
+    """MT075-T6: CheckResult-shaped shim over the same maven-metadata.xml
+    approach commands.ops.publish_watcher.default_live_checker uses --
+    exercised here through the shared fetch-injection convention so
+    registry_watch.py can treat Maven like the other 5 registries."""
+
+    _METADATA_XML = (
+        b"<metadata><versioning><release>26.7.0</release>"
+        b"<latest>26.7.0</latest></versioning></metadata>"
+    )
+
+    def test_published(self):
+        result = maven.check_published(
+            {"group_id": "org.aspose", "artifact_id": "aspose-cells-foss"},
+            fetch=_fake_fetch(200, self._METADATA_XML),
+        )
+        assert result.published is True
+        assert result.ambiguous is False
+        assert result.version == "26.7.0"
+        assert result.candidate_name == "aspose-cells-foss"
+
+    def test_not_published_404(self):
+        result = maven.check_published(
+            {"group_id": "org.aspose", "artifact_id": "aspose-cells-foss"},
+            fetch=_fake_fetch(404),
+        )
+        assert result.published is False
+        assert result.ambiguous is False
+
+    def test_ambiguous_on_connection_error(self):
+        result = maven.check_published(
+            {"group_id": "org.aspose", "artifact_id": "aspose-cells-foss"},
+            fetch=_fake_fetch_connection_error(),
+        )
+        assert result.ambiguous is True
+
+    def test_ambiguous_on_malformed_xml(self):
+        result = maven.check_published(
+            {"group_id": "org.aspose", "artifact_id": "aspose-cells-foss"},
+            fetch=_fake_fetch(200, b"not xml at all"),
+        )
+        assert result.ambiguous is True
+
+    def test_group_id_dots_become_path_segments(self):
+        captured = {}
+
+        def _fetch(url: str):
+            captured["url"] = url
+            return FetchResponse(status_code=404, body=b"")
+
+        maven.check_published({"group_id": "org.aspose", "artifact_id": "aspose-cells-foss"}, fetch=_fetch)
+        assert "org/aspose/aspose-cells-foss/maven-metadata.xml" in captured["url"]
+
+    def test_search_filters_to_aspose_named_artifacts(self):
+        body = json.dumps({
+            "response": {"docs": [
+                {"g": "org.aspose", "a": "aspose-cells-foss"},
+                {"g": "org.other", "a": "unrelated-lib"},
+            ]}
+        }).encode("utf-8")
+
+        def _fetch(url: str):
+            if "solrsearch" in url:
+                return FetchResponse(status_code=200, body=body)
+            return FetchResponse(status_code=200, body=self._METADATA_XML)
+
+        results = maven.search("cells", fetch=_fetch)
+        assert len(results) == 1
+        assert results[0].candidate_name == "aspose-cells-foss"
 
 
 class TestGoAdapter:
