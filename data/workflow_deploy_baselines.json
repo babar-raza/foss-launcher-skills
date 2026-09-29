@@ -63,9 +63,9 @@
     "deployed_repo": "Aspose/aspose.org-workflows"
   },
   "registry-watch.yml": {
-    "approved_baseline_sha256": "b5f0926b7d5b732db434247d4cafc7137e1478ee573e226e4e60d6c86c1f29fd",
-    "baseline_recorded_at": "2026-09-29T10:27:12.788049Z",
-    "baseline_source": "approved_after_review: MT075-T10 2026-09-28/29: removed bootstrap/PR mechanism, fully autonomous from the first run; pilot dispatch verified clean in real CI (run 36555338032, correct 9-step no-PR structure, clean no-op commit-step exit). Committed by user as 5e25617",
+    "approved_baseline_sha256": "ca3a2a2fe3333d73985405a574ec76c081af1a9ea28400eca8e4ec86f8912648",
+    "baseline_recorded_at": "2026-09-29T13:56:06.490738Z",
+    "baseline_source": "approved_after_review: MT075: added missing set -o pipefail, redeployed 2026-09-29, commit 9af8a65 on the public repo (private repo template already had it via e282381d6e)",
     "deployed_path": ".github/workflows/registry-watch.yml",
     "deployed_repo": "Aspose/aspose.org-workflows"
   },
