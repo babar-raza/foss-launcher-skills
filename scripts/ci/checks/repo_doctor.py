@@ -42,7 +42,7 @@ OPTIONAL_ENV_VARS = ["PROFESSIONALIZE_API_KEY", "LLM_API_KEY", "GOOGLE_API_KEY"]
 STATUS_ORDER = {"READY": 0, "WARNING": 1, "EXTERNAL_UNAVAILABLE": 1, "BLOCKED": 2}
 
 
-def _run(cmd: list[str], timeout: int = 10) -> "subprocess.CompletedProcess | None":
+def _default_run(cmd: list[str], timeout: int = 10) -> "subprocess.CompletedProcess | None":
     try:
         return subprocess.run(
             cmd, capture_output=True, text=True, timeout=timeout, cwd=REPO_ROOT,
@@ -50,6 +50,15 @@ def _run(cmd: list[str], timeout: int = 10) -> "subprocess.CompletedProcess | No
         )
     except (OSError, subprocess.TimeoutExpired):
         return None
+
+
+_run = _default_run
+
+
+def configure(*, run_fn=None) -> None:
+    """Override the subprocess-running seam for testing. No args resets to default."""
+    global _run
+    _run = _default_run if run_fn is None else run_fn
 
 
 def check_python_version() -> dict:
@@ -171,9 +180,25 @@ CHECKS = [
     check_pytest_collection,
 ]
 
+# Maps a short name (matching that check's own result["name"]) to its function, for
+# --check <name>. A plain dict literal, not derived by calling each function (that
+# would run every check — including a real pytest subprocess — just to read a name).
+CHECKS_BY_NAME = {
+    "python_version": check_python_version,
+    "venv": check_venv,
+    "hugo": check_hugo,
+    "git_hooks": check_git_hooks,
+    "env_vars": check_env_vars,
+    "repo_state": check_repo_state,
+    "knowledge_data": check_knowledge_dir,
+    "pytest_collection": check_pytest_collection,
+}
 
-def run() -> dict:
-    results = [check() for check in CHECKS]
+
+def run(checks: list | None = None) -> dict:
+    """Run the given checks (default: all of CHECKS) and summarize the worst status."""
+    selected = checks if checks is not None else CHECKS
+    results = [check() for check in selected]
     worst = max((r["status"] for r in results), key=lambda s: STATUS_ORDER[s])
     return {"overall": worst, "checks": results}
 
@@ -187,12 +212,19 @@ def print_human(d: dict) -> None:
     print(f"\nOverall: {d['overall']}")
 
 
-def main() -> int:
+def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     parser.add_argument("--json", action="store_true", help="Machine-readable JSON output")
-    args = parser.parse_args()
+    parser.add_argument(
+        "--check", metavar="NAME", choices=sorted(CHECKS_BY_NAME),
+        help="Run only this one check instead of the full suite (e.g. git_hooks). "
+             "Cheap and side-effect-free — use this for a single automated gate "
+             "(e.g. session start) instead of a hand-copied re-implementation of the "
+             "same logic, which drifts from this script over time.",
+    )
+    args = parser.parse_args(argv)
 
-    d = run()
+    d = run([CHECKS_BY_NAME[args.check]] if args.check else None)
     if args.json:
         print(json.dumps(d, indent=2))
     else:

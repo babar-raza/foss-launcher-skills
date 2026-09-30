@@ -40,14 +40,25 @@ any user request.
 4b. Verify local git hooks are installed (TC-CIR-09, 2026-08-14 CI reliability
     reassessment, Root Cause F: hook installation was previously verified only
     once, at manual `install-hooks.sh` time, never re-checked — "install once
-    and hope"):
+    and hope"). Call `repo_doctor.py`'s single-source-of-truth `git_hooks`
+    check rather than re-implementing the comparison inline — a hand-copied
+    bash duplicate of this exact logic (this step's own prior form) is how a
+    real incident went undetected: `core.hooksPath` drifted to a stale
+    absolute path on a machine whose checkout had moved to a different
+    drive, silently disabling every local git hook for an unknown period,
+    and nothing at session start caught it (2026-09-29/30, confirmed root
+    cause of blog.aspose.org staying red 2026-09-26 through 2026-09-29 —
+    see reports/skill-gaps/2026-09-30-session-start-hookspath-doctor-wiring.md
+    for this fix's own gap-escalation record):
     ```bash
-    hp=$(git config --get core.hooksPath 2>/dev/null || true)
-    if [ "$hp" != "scripts/githooks" ]; then
-      echo "⚠️  Warning: core.hooksPath is '${hp:-<unset>}', expected 'scripts/githooks'."
-      echo "   Pre-commit/commit-msg/post-commit gates will NOT run for this checkout."
-      echo "   Recovery: bash scripts/install-hooks.sh"
-    fi
+    .venv/Scripts/python scripts/ci/checks/repo_doctor.py --check git_hooks --json
+    ```
+    If the result's `"status"` is `"BLOCKED"`, surface its `"detail"` and
+    `"remediation"` fields loudly:
+    ```
+    ⚠️  Warning: {detail}
+       Pre-commit/commit-msg/post-commit gates will NOT run for this checkout.
+       Recovery: {remediation}
     ```
     Warning only — does not block the session. A missing hook install is a
     real risk (every local Tier 1 gate this repo relies on silently does
