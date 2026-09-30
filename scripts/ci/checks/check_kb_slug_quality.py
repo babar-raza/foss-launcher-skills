@@ -41,6 +41,7 @@ Exit codes:
 from __future__ import annotations
 
 import argparse
+import subprocess
 import sys
 from pathlib import Path
 
@@ -235,6 +236,56 @@ def _extract_family(path: str | Path) -> str:
     return ""
 
 
+def _en_equivalent_path(path: str | Path) -> str | None:
+    """Return the English-locale equivalent of a KB content path, or None.
+
+    Expected path structure: .../kb.aspose.org/{locale}/{family}/{platform}/...
+    Returns None if the path is already the English source, or if the
+    kb.aspose.org/{locale} structure cannot be found. Always returns a
+    forward-slash path -- git's tree/ref syntax (used by
+    _already_shipped_in_head's `HEAD:<path>`) requires "/" regardless of OS,
+    even though Path(*parts) would reconstruct "\\"-joined paths on Windows.
+    """
+    parts = list(Path(path).parts)
+    for i, part in enumerate(parts):
+        if part == "kb.aspose.org" and i + 1 < len(parts):
+            if parts[i + 1] == "en":
+                return None
+            parts[i + 1] = "en"
+            return "/".join(parts)
+    return None
+
+
+def _already_shipped_in_head(repo_relative_path: str) -> bool:
+    """True if ``repo_relative_path`` already existed in HEAD before this commit.
+
+    2026-09-30 incident: a translation of an already-shipped English KB how-to
+    page (page/python's how-to-work-with-common-python.md, live since an
+    earlier commit) was hard-blocked by this gate for every locale, exactly
+    like a brand-new defective slug would be -- unlike site_planner.py's own
+    _validate_kb_slugs(), which only raises for source="derived" (a slug this
+    run just chose) and merely warns for source="discovered" (an existing,
+    already-shipped URL). This gate had no equivalent distinction: every
+    staged file was checked identically regardless of whether its slug was a
+    brand-new naming decision or a locale mirror of years-old, already-live
+    content. Re-litigating an old URL's name on every future translation
+    commit is not this gate's job -- it blocked ~24h of otherwise-verified,
+    unrelated translation output across many locales because ONE recurring
+    already-shipped filename kept landing in the same commit batch (commits
+    are all-or-nothing). Only a file whose English equivalent is genuinely
+    new (not yet in HEAD) should still be hard-blocked here.
+    """
+    try:
+        result = subprocess.run(
+            ["git", "cat-file", "-e", f"HEAD:{repo_relative_path}"],
+            capture_output=True,
+            timeout=10,
+        )
+    except (subprocess.SubprocessError, OSError):
+        return False
+    return result.returncode == 0
+
+
 def check_files(paths: list[str]) -> int:
     """Staged-file mode: check the given file paths. Return 1 if any fail."""
     failures: list[tuple[str, str, str]] = []
@@ -243,6 +294,9 @@ def check_files(paths: list[str]) -> int:
         family = _extract_family(p)
         result = check_slug(stem, family=family)
         if result is not None:
+            en_equivalent = _en_equivalent_path(p)
+            if en_equivalent is not None and _already_shipped_in_head(en_equivalent):
+                continue
             check_id, msg = result
             failures.append((p, check_id, msg))
 

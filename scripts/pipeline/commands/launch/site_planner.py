@@ -846,6 +846,20 @@ _FAMILY_SUBPKG_LABELS: dict[str, dict[str, str]] = {
         "linksandreferences": "word-links-and-references",
         "indexandtables":     "word-index-and-tables",
     },
+    "page": {
+        # Found live 2026-09-30: page/python's src/aspose/page/common/ sub-package
+        # (color_resources.py: DeviceColorSpace, PatternPaint, ShadingPattern etc.;
+        # render_model.py: Point, Matrix, Rect, Path, RenderPage, RenderDocument,
+        # RenderModelBuilder etc. -- confirmed live via api_surface.json) flattens
+        # to the bare noun "common", which _KB_GENERIC_NOUNS rejects at Check 3.
+        # This blocked every commit batch containing the resulting KB how-to page
+        # (how-to-work-with-common-python.md) for ~24h, since a commit's pre-push
+        # KB-slug-quality gate is all-or-nothing across the whole batch. Mirrors
+        # gis's identical "common" fix (TC-KBS-* above): prefix with the family
+        # name so the primary noun word is "page", not "common" -- "page" has no
+        # entry in _FAMILY_PRODUCT_KEYWORDS so Check 4 does not apply here either.
+        "common": "page-rendering-model",   # color spaces/shading/patterns + render-model primitives
+    },
 }
 
 

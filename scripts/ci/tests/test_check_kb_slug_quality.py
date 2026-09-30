@@ -19,7 +19,12 @@ CHECKER = REPO_ROOT / "scripts" / "ci" / "checks" / "check_kb_slug_quality.py"
 
 # Import the module-level functions for unit tests
 sys.path.insert(0, str(REPO_ROOT / "scripts" / "ci" / "checks"))
-from check_kb_slug_quality import check_slug, _extract_family  # noqa: E402
+from check_kb_slug_quality import (  # noqa: E402
+    check_slug,
+    _already_shipped_in_head,
+    _en_equivalent_path,
+    _extract_family,
+)
 
 
 # ---------------------------------------------------------------------------
@@ -40,6 +45,29 @@ def _make_kb_file(tmp_path: Path, stem: str) -> Path:
     p = tmp_path / "content" / "kb.aspose.org" / "en" / "pdf" / "net" / f"{stem}.md"
     p.parent.mkdir(parents=True, exist_ok=True)
     p.write_text("---\ntitle: test\n---\n", encoding="utf-8")
+    return p
+
+
+def _init_git_repo(tmp_path: Path) -> None:
+    subprocess.run(["git", "init", "-q"], cwd=str(tmp_path), check=True)
+    subprocess.run(
+        ["git", "config", "user.email", "test@example.com"],
+        cwd=str(tmp_path), check=True,
+    )
+    subprocess.run(
+        ["git", "config", "user.name", "Test"], cwd=str(tmp_path), check=True
+    )
+
+
+def _commit_file(tmp_path: Path, relative_path: str, content: str = "x") -> Path:
+    """Create ``relative_path`` under tmp_path and commit it to the tmp repo."""
+    p = tmp_path / relative_path
+    p.parent.mkdir(parents=True, exist_ok=True)
+    p.write_text(content, encoding="utf-8")
+    subprocess.run(["git", "add", relative_path], cwd=str(tmp_path), check=True)
+    subprocess.run(
+        ["git", "commit", "-q", "-m", "seed"], cwd=str(tmp_path), check=True
+    )
     return p
 
 
@@ -456,3 +484,146 @@ class TestFamilyKeywordDictSync:
                 f"  ci_gate only:  {sorted(ci_dict[family] - pipeline_dict[family])}\n"
                 f"  pipeline only: {sorted(pipeline_dict[family] - ci_dict[family])}"
             )
+
+
+# ===========================================================================
+# Unit tests — _en_equivalent_path()
+# ===========================================================================
+
+class TestEnEquivalentPath:
+    def test_locale_path_maps_to_en(self):
+        path = "content/kb.aspose.org/it/page/python/how-to-work-with-common-python.md"
+        assert (
+            _en_equivalent_path(path)
+            == "content/kb.aspose.org/en/page/python/how-to-work-with-common-python.md"
+        )
+
+    def test_en_path_returns_none(self):
+        path = "content/kb.aspose.org/en/page/python/how-to-work-with-common-python.md"
+        assert _en_equivalent_path(path) is None
+
+    def test_path_without_kb_root_returns_none(self):
+        assert _en_equivalent_path("some/other/path/to/file.md") is None
+
+    def test_windows_style_path(self):
+        """Input may be OS-native (backslash-joined on Windows); output is
+        always forward-slash, since it feeds a git ref spec (HEAD:<path>),
+        which requires "/" on every OS."""
+        path = str(
+            Path("content") / "kb.aspose.org" / "ja" / "pdf" / "net"
+            / "how-to-work-with-core-dotnet.md"
+        )
+        expected = "content/kb.aspose.org/en/pdf/net/how-to-work-with-core-dotnet.md"
+        assert _en_equivalent_path(path) == expected
+
+
+# ===========================================================================
+# Unit tests — _already_shipped_in_head()
+# TC-KBS-* (2026-09-30): a translation of an already-shipped English KB page
+# must not be re-litigated as if its slug were a brand-new naming decision.
+# ===========================================================================
+
+class TestAlreadyShippedInHead:
+    def test_committed_file_is_shipped(self, tmp_path, monkeypatch):
+        _init_git_repo(tmp_path)
+        _commit_file(
+            tmp_path, "content/kb.aspose.org/en/page/python/how-to-work-with-common-python.md"
+        )
+        monkeypatch.chdir(tmp_path)
+        assert _already_shipped_in_head(
+            "content/kb.aspose.org/en/page/python/how-to-work-with-common-python.md"
+        )
+
+    def test_uncommitted_file_is_not_shipped(self, tmp_path, monkeypatch):
+        _init_git_repo(tmp_path)
+        # An initial commit is needed so HEAD resolves at all.
+        _commit_file(tmp_path, "README.md", content="seed")
+        newfile = tmp_path / "content" / "kb.aspose.org" / "en" / "page" / "python" / "new.md"
+        newfile.parent.mkdir(parents=True, exist_ok=True)
+        newfile.write_text("x", encoding="utf-8")
+        monkeypatch.chdir(tmp_path)
+        assert not _already_shipped_in_head(
+            "content/kb.aspose.org/en/page/python/new.md"
+        )
+
+    def test_no_head_at_all_returns_false(self, tmp_path, monkeypatch):
+        """An empty repo (no commits yet) has no HEAD -- must not crash."""
+        _init_git_repo(tmp_path)
+        monkeypatch.chdir(tmp_path)
+        assert not _already_shipped_in_head("content/kb.aspose.org/en/page/python/x.md")
+
+
+# ===========================================================================
+# Integration tests — the discovered/derived exemption via check_files()
+# 2026-09-30 incident: page/python's how-to-work-with-common-python.md was
+# already shipped (committed weeks earlier); translating it into new locales
+# then hard-blocked every commit batch containing one of those locale files,
+# since check_files() previously applied C1-C4 identically regardless of
+# whether the English source was brand new or long-since live. Confirmed via
+# the real content repo: the EN file is tracked (`git ls-files` confirms it)
+# with prior commit history, so the fix below is what actually unblocks it.
+# ===========================================================================
+
+class TestAlreadyShippedExemptionViaCLI:
+    def _run_in(self, cwd: Path, *args: str) -> subprocess.CompletedProcess:
+        return subprocess.run(
+            [sys.executable, str(CHECKER)] + list(args),
+            capture_output=True,
+            text=True,
+            encoding="utf-8",
+            errors="replace",
+            cwd=str(cwd),
+        )
+
+    def test_locale_translation_of_shipped_page_is_exempted(self, tmp_path):
+        _init_git_repo(tmp_path)
+        _commit_file(
+            tmp_path,
+            "content/kb.aspose.org/en/page/python/how-to-work-with-common-python.md",
+        )
+        locale_file = (
+            tmp_path / "content" / "kb.aspose.org" / "it" / "page" / "python"
+            / "how-to-work-with-common-python.md"
+        )
+        locale_file.parent.mkdir(parents=True, exist_ok=True)
+        locale_file.write_text("---\ntitle: test\n---\n", encoding="utf-8")
+
+        result = self._run_in(
+            tmp_path,
+            "content/kb.aspose.org/it/page/python/how-to-work-with-common-python.md",
+        )
+        assert result.returncode == 0, result.stdout + result.stderr
+
+    def test_brand_new_defective_slug_still_fails(self, tmp_path):
+        """No prior EN history for this slug -- the C3 defect must still block."""
+        _init_git_repo(tmp_path)
+        _commit_file(tmp_path, "README.md", content="seed")
+        locale_file = (
+            tmp_path / "content" / "kb.aspose.org" / "it" / "page" / "python"
+            / "how-to-work-with-common-python.md"
+        )
+        locale_file.parent.mkdir(parents=True, exist_ok=True)
+        locale_file.write_text("---\ntitle: test\n---\n", encoding="utf-8")
+
+        result = self._run_in(
+            tmp_path,
+            "content/kb.aspose.org/it/page/python/how-to-work-with-common-python.md",
+        )
+        assert result.returncode == 1, result.stdout + result.stderr
+        assert "C3" in result.stdout
+
+    def test_english_source_itself_is_never_exempted(self, tmp_path):
+        """_en_equivalent_path() returns None for an EN path -- no self-exemption."""
+        _init_git_repo(tmp_path)
+        en_file = (
+            tmp_path / "content" / "kb.aspose.org" / "en" / "page" / "python"
+            / "how-to-work-with-common-python.md"
+        )
+        en_file.parent.mkdir(parents=True, exist_ok=True)
+        en_file.write_text("---\ntitle: test\n---\n", encoding="utf-8")
+
+        result = self._run_in(
+            tmp_path,
+            "content/kb.aspose.org/en/page/python/how-to-work-with-common-python.md",
+        )
+        assert result.returncode == 1, result.stdout + result.stderr
