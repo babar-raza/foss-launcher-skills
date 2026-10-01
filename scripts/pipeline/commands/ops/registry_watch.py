@@ -143,17 +143,51 @@ def _iter_entries(data: dict):
                 yield family, platform, entry
 
 
+def default_identity_resolver(
+    family: str, platform: str, registry_type: str, entry: dict, adapter: Any, first_result: CheckResult,
+) -> "tuple[dict, CheckResult, str | None]":
+    """Re-resolve the identity of an unpublished entry whose STORED name is
+    definitively absent (naming convention, then the registry's own search).
+
+    Delegates to package_publish_watch._resolve_unpublished_identity -- the
+    tested resolver built after slides/cpp (`Aspose.Slides.Cpp.FOSS`, live
+    2026-09-14, was never noticed because the stored name was a frozen
+    backfill guess). The unified watcher that superseded the scheduled
+    package_publish_watch run (2026-09-28) probed ONLY the stored name, so the
+    same blind spot returned: `Aspose.PDF.Cpp.FOSS` went live 2026-09-30 while
+    the stored guess was `Aspose_PDF_FOSS`, and every run reported no_change.
+
+    NOTE: this couples registry_watch to package_publish_watch. When that
+    module is retired (MT075 T7), move the resolver into lib/package_registries
+    and repoint this function -- do not drop it."""
+    from commands.ops import package_publish_watch as ppw
+
+    return ppw._resolve_unpublished_identity(
+        family, platform, registry_type, entry.get("candidate") or {}, adapter, first_result,
+        ppw._expected_repo_fragment(family),
+    )
+
+
 def run_watch(
     data: dict, *, adapters: "dict[str, Any] | None" = None, fetch=None,
     corroboration_check: "Callable[[str, str, str], bool] | None" = None,
     velocity_check: "Callable[[str], tuple[bool, str]] | None" = None,
     recorded_at: "str | None" = None,
+    identity_resolver: "Callable[..., tuple[dict, CheckResult, str | None]] | None" = None,
 ) -> dict[str, Any]:
     """Observe every entry once, classify+gate each observed change, and
     return a full report: an updated_registry (base data with every
     AUTO_APPLY candidate merged in, capped at gate.MAX_ENTRIES_PER_BATCH --
     extras are demoted to held, never silently dropped) plus applied/held/
-    rejected/no_change/ambiguous breakdowns for reporting."""
+    rejected/no_change/ambiguous breakdowns for reporting.
+
+    An unpublished entry whose stored name is definitively absent is not
+    taken at face value: identity_resolver (default_identity_resolver) gets a
+    chance to find the real package under another name. A discovered identity
+    is still just an observation -- it goes through the same two-tier gate as
+    any first publish (repo release/tag corroboration or HELD)."""
+    identity_resolver = identity_resolver or default_identity_resolver
+    adapter_map = adapters if adapters is not None else _ADAPTERS
     recorded_at = recorded_at or datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
     updated_registry = copy.deepcopy(data)
 
@@ -170,7 +204,18 @@ def run_watch(
             ambiguous.append({"family": family, "platform": platform, "reason": "no adapter or ambiguous fetch"})
             continue
 
+        identity_basis = None
+        if not result.published and not (entry.get("verification") or {}).get("published"):
+            _, result, identity_basis = identity_resolver(
+                family, platform, registry_type, entry, adapter_map[registry_type], result,
+            )
+            if result.ambiguous:
+                ambiguous.append({"family": family, "platform": platform, "reason": "ambiguous identity-discovery probe"})
+                continue
+
         candidate_entry = build_candidate_entry(entry, result, recorded_at=recorded_at)
+        if identity_basis and result.published:
+            candidate_entry["verification"]["identity_basis"] = identity_basis
         verdict = gate.evaluate_entry_change(
             family, platform, entry, candidate_entry,
             corroboration_check=corroboration_check, velocity_check=velocity_check,

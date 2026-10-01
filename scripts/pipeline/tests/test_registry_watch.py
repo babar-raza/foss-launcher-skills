@@ -259,6 +259,84 @@ class TestRunWatch:
         assert result["ambiguous"] == []
 
 
+class _NugetByName:
+    """check_published() answers per package id: only ids in `live` resolve."""
+
+    def __init__(self, live: "dict[str, str]", ambiguous: "set[str] | None" = None):
+        self._live = live
+        self._ambiguous = ambiguous or set()
+        self.probed: list[str] = []
+
+    def check_published(self, candidate, *, fetch=None):
+        name = candidate["name"]
+        self.probed.append(name)
+        if name in self._ambiguous:
+            return CheckResult(published=False, ambiguous=True, evidence_url="u", method="nuget-flatcontainer-api")
+        if name in self._live:
+            return CheckResult(
+                published=True, ambiguous=False, evidence_url=f"https://api.nuget.org/{name.lower()}",
+                method="nuget-flatcontainer-api", candidate_name=name, version=self._live[name],
+                verified_owner="Aspose",
+            )
+        return CheckResult(published=False, ambiguous=False, evidence_url="u", method="nuget-flatcontainer-api")
+
+
+def _cpp_entry_with_guessed_name() -> dict:
+    """pdf/cpp as backfilled 2026-08-01: a CMake-style guess, not the NuGet id."""
+    entry = _entry(registry_type="nuget", name="Aspose_PDF_FOSS", version=None, published=False)
+    entry["verification"].update({"evidence_url": None, "method": "nuget-backfill-scan", "verified_at": "2026-08-01"})
+    return entry
+
+
+class TestIdentityDiscovery:
+    """Regression: Aspose.PDF.Cpp.FOSS went live on NuGet 2026-09-30 while the registry
+    held the backfill guess `Aspose_PDF_FOSS`. The unified watcher probed only the stored
+    name, so every run reported no_change -- the same blind spot slides/cpp hit earlier."""
+
+    def test_wrong_stored_name_is_rediscovered_and_applied(self):
+        data = {"pdf": {"cpp": _cpp_entry_with_guessed_name()}}
+        adapter = _NugetByName({"Aspose.PDF.Cpp.FOSS": "1.0.1"})
+        result = sut.run_watch(data, adapters={"nuget": adapter}, corroboration_check=lambda f, p, v: True)
+        assert [r["platform"] for r in result["applied"]] == ["cpp"]
+        entry = result["updated_registry"]["pdf"]["cpp"]
+        assert entry["candidate"]["name"] == "Aspose.PDF.Cpp.FOSS"
+        assert entry["candidate"]["version"] == "1.0.1"
+        assert entry["verification"]["published"] is True
+        assert entry["verification"]["identity_basis"] == "foss-convention-match"
+        assert adapter.probed[0] == "Aspose_PDF_FOSS"  # the stored name is always tried first
+
+    def test_discovered_identity_is_still_gated_not_trusted(self):
+        data = {"pdf": {"cpp": _cpp_entry_with_guessed_name()}}
+        adapter = _NugetByName({"Aspose.PDF.Cpp.FOSS": "1.0.1"})
+        result = sut.run_watch(data, adapters={"nuget": adapter}, corroboration_check=lambda f, p, v: False)
+        assert result["applied"] == []
+        assert len(result["held"]) == 1
+        assert result["updated_registry"]["pdf"]["cpp"]["verification"]["published"] is False
+        assert result["updated_registry"]["pdf"]["cpp"]["candidate"]["name"] == "Aspose_PDF_FOSS"
+
+    def test_package_absent_under_every_name_is_not_a_change(self):
+        data = {"pdf": {"cpp": _cpp_entry_with_guessed_name()}}
+        result = sut.run_watch(data, adapters={"nuget": _NugetByName({})}, corroboration_check=lambda f, p, v: True)
+        assert result["applied"] == [] and result["held"] == [] and result["rejected"] == []
+        assert len(result["no_change"]) == 1
+
+    def test_ambiguous_discovery_probe_is_not_reported_as_absent(self):
+        data = {"pdf": {"cpp": _cpp_entry_with_guessed_name()}}
+        adapter = _NugetByName({}, ambiguous={"Aspose.PDF.Cpp.FOSS"})
+        result = sut.run_watch(data, adapters={"nuget": adapter}, corroboration_check=lambda f, p, v: True)
+        assert result["no_change"] == []
+        assert len(result["ambiguous"]) == 1
+
+    def test_published_entries_are_never_re_resolved(self):
+        def _boom(*args, **kwargs):
+            raise AssertionError("identity resolution must only run for unpublished entries")
+
+        data = {"pdf": {"net": _entry(registry_type="nuget", name="Aspose.PDF.FOSS", version="26.9.0", published=True)}}
+        adapter = _NugetByName({"Aspose.PDF.FOSS": "26.9.0"})
+        result = sut.run_watch(data, adapters={"nuget": adapter}, identity_resolver=_boom)
+        assert len(result["no_change"]) == 1
+
+
 class TestVelocityAndRecordApplyWiring:
     """MT075-T9 (plan Revision 2 R2.13): the cross-run velocity/anomaly
     check that replaces the bootstrap-PR human-merge step."""
