@@ -50,7 +50,8 @@ def _scan_ok(repos: list) -> tuple:
     return repos, [_ok_outcome(repo_count=len(repos))]
 
 
-def _make_repo(name, *, description="A FOSS lib", pushed_days=10, archived=False):
+def _make_repo(name, *, description="A FOSS lib", pushed_days=10, archived=False,
+               default_branch="main"):
     return {
         "name": name,
         "full_name": f"org/{name}",
@@ -59,7 +60,20 @@ def _make_repo(name, *, description="A FOSS lib", pushed_days=10, archived=False
         "pushed_at": _ago(pushed_days),
         "archived": archived,
         "description": description,
+        "default_branch": default_branch,
     }
+
+
+class _FakeProbe:
+    """Injected has_product_source: records calls, returns a canned answer."""
+
+    def __init__(self, answer):
+        self.answer = answer
+        self.calls = []
+
+    def __call__(self, org_or_full_name, repo_name, default_branch, *, token, **_kw):
+        self.calls.append((org_or_full_name, repo_name, default_branch, token))
+        return self.answer
 
 
 def _registry_entry(family, platform, *, status="launched", active=True, **extra):
@@ -165,13 +179,69 @@ class TestCmdScan:
         (tmp_path / "data" / "products.json").write_text("[]")
         repos = [_make_repo("Aspose.PDF-FOSS-for-Python")]
 
-        with patch("lib.org_scanner.scan_orgs", return_value=_scan_ok(repos)):
-            report = repo_patrol.cmd_scan(orgs=["test-org"], apply=True)
+        report = repo_patrol.cmd_scan(orgs=["test-org"], apply=True,
+                                      has_source_fn=_FakeProbe(True),
+                                      scan_orgs_fn=lambda orgs, **kw: _scan_ok(repos),
+                                      preflight_fn=lambda org, **kw: None)
 
         reg = json.loads((tmp_path / "data" / "products.json").read_text())
         assert len(reg) == 1
         assert reg[0]["status"] in ("candidate", "investigating")
         assert reg[0].get("first_seen_at") is not None
+
+    # -- registry `active` for applied entries: not archived AND default branch
+    #    has product source; push recency is NOT considered (MT075 TC-RPG-04) --
+
+    def _apply(self, tmp_path, repo, probe, token=None):
+        (tmp_path / "data" / "products.json").write_text("[]")
+        repo_patrol.cmd_scan(orgs=["test-org"], apply=True, token=token,
+                             has_source_fn=probe,
+                             scan_orgs_fn=lambda orgs, **kw: _scan_ok([repo]),
+                             preflight_fn=lambda org, **kw: None)
+        return json.loads((tmp_path / "data" / "products.json").read_text())
+
+    def test_apply_active_true_when_default_branch_has_source(self, tmp_path):
+        reg = self._apply(tmp_path, _make_repo("Aspose.PDF-FOSS-for-Python"), _FakeProbe(True))
+        assert reg[0]["active"] is True
+
+    def test_apply_old_push_with_source_stays_active(self, tmp_path):
+        """Pushed ~3 years ago: the old 180-day rule would have said inactive."""
+        repo = _make_repo("Aspose.PDF-FOSS-for-Python", pushed_days=3 * 365)
+        reg = self._apply(tmp_path, repo, _FakeProbe(True))
+        assert reg[0]["active"] is True
+
+    def test_apply_recent_push_without_source_is_inactive(self, tmp_path):
+        reg = self._apply(tmp_path, _make_repo("Aspose.PDF-FOSS-for-Python", pushed_days=1),
+                          _FakeProbe(False))
+        assert reg[0]["active"] is False
+
+    def test_apply_archived_is_inactive_even_with_source(self, tmp_path):
+        probe = _FakeProbe(True)
+        reg = self._apply(tmp_path, _make_repo("Aspose.PDF-FOSS-for-Python", archived=True), probe)
+        assert reg[0]["active"] is False
+        assert probe.calls == []
+
+    def test_apply_unknown_probe_records_false_and_warns(self, tmp_path, capsys):
+        reg = self._apply(tmp_path, _make_repo("Aspose.PDF-FOSS-for-Python"), _FakeProbe(None))
+        assert reg[0]["active"] is False
+        assert "could not verify product source" in capsys.readouterr().err
+
+    @pytest.mark.parametrize("branch", ["main", "master"])
+    def test_apply_probes_the_repos_default_branch(self, tmp_path, branch):
+        probe = _FakeProbe(True)
+        self._apply(tmp_path, _make_repo("Aspose.PDF-FOSS-for-Python", default_branch=branch), probe)
+        assert probe.calls == [("org/Aspose.PDF-FOSS-for-Python",
+                                "Aspose.PDF-FOSS-for-Python", branch, None)]
+
+    def test_dry_scan_does_not_probe(self, tmp_path):
+        """No --apply -> no registry write -> no per-repo API calls."""
+        (tmp_path / "data" / "products.json").write_text("[]")
+        probe = _FakeProbe(True)
+        repo = _make_repo("Aspose.PDF-FOSS-for-Python")
+        repo_patrol.cmd_scan(orgs=["test-org"], apply=False, has_source_fn=probe,
+                             scan_orgs_fn=lambda orgs, **kw: _scan_ok([repo]),
+                             preflight_fn=lambda org, **kw: None)
+        assert probe.calls == []
 
     def test_existing_launched_skipped(self, tmp_path):
         reg = [_registry_entry("pdf", "python")]

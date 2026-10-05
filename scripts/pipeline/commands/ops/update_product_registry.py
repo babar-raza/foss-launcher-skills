@@ -9,6 +9,8 @@ Modes:
     Default:      Scan GitHub org for FOSS repos, merge with local knowledge dirs.
     --local-only: Skip GitHub — build registry from knowledge/ dirs only.
     --force:      Overwrite active/inactive status even for repos already in registry.
+                  (active = not archived AND the default branch contains product
+                  source; push recency is NOT considered -- MT075 TC-RPG-04.)
     --reconcile:  Read-only check: verify all 8 content/knowledge/package-registry
                   signals for each registered product. Prints a per-product table
                   and exits 1 if any signal is MISSING.
@@ -51,8 +53,8 @@ import os
 import re
 import sys
 import tempfile
-from datetime import datetime, timezone
 from pathlib import Path
+from typing import Callable
 
 try:
     import requests  # noqa: F401
@@ -82,8 +84,9 @@ for _p in (str(_PIPELINE_DIR), str(_LIB_DIR)):
 from core.env_loader import load_env  # noqa: E402
 load_env()
 
-# Repos pushed within this many days are considered "active"
-_ACTIVE_PUSH_DAYS = 180
+# "active" is NOT a push-recency heuristic (MT075 TC-RPG-04): a repo is active iff
+# it is not archived AND its DEFAULT branch contains product source, however long
+# ago anyone last pushed. See org_scanner.has_product_source().
 
 # Orgs to scan — one per Aspose family, overrideable via ASPOSE_ORG env var
 _DEFAULT_ORGS = [
@@ -260,17 +263,6 @@ def _enforce_exclusions(merged: list[dict], exclusions: list[dict]) -> list[dict
 # Discover products from GitHub
 # ---------------------------------------------------------------------------
 
-def _is_recently_pushed(pushed_at: str, days: int = _ACTIVE_PUSH_DAYS) -> bool:
-    if not pushed_at:
-        return False
-    try:
-        dt = datetime.fromisoformat(pushed_at.replace("Z", "+00:00"))
-        age = datetime.now(tz=timezone.utc) - dt
-        return age.days <= days
-    except ValueError:
-        return False
-
-
 def _import_org_scanner():
     """Import org_scanner, tolerating invocation from the repo root."""
     try:
@@ -287,14 +279,63 @@ def _import_org_scanner():
         return org_scanner
 
 
-def _discover_from_github(orgs: list[str], token: str | None) -> tuple[list[dict], list[dict]]:
+def _compute_active(
+    repo: dict,
+    previous: dict | None,
+    token: str | None,
+    has_source_fn: "Callable[..., bool | None]",
+) -> bool:
+    """Registry ``active`` for one scanned repo: not archived AND default branch has source.
+
+    Push recency is deliberately ignored (an uploaded-once product stays active).
+    When the source probe cannot answer (``None``: API/network/rate-limit error), the
+    result is never silently demoted: an existing registry entry keeps its previous
+    ``active``; a brand-new pair is recorded ``False`` and a warning is printed.
+    """
+    if repo.get("archived"):
+        return False
+    has_source = has_source_fn(
+        repo.get("full_name") or repo["name"],
+        repo["name"],
+        repo.get("default_branch", ""),
+        token=token,
+    )
+    if has_source is not None:
+        return bool(has_source)
+    if previous is not None:
+        kept = bool(previous.get("active"))
+        print(f"  WARN: could not verify product source for {repo['name']} "
+              f"(branch {repo.get('default_branch') or '?'!r}); keeping previous active={kept}",
+              file=sys.stderr)
+        return kept
+    print(f"  WARN: could not verify product source for NEW repo {repo['name']} "
+          f"(branch {repo.get('default_branch') or '?'!r}); recording active=False",
+          file=sys.stderr)
+    return False
+
+
+def _discover_from_github(
+    orgs: list[str],
+    token: str | None,
+    *,
+    existing: "list[dict] | None" = None,
+    scan_orgs_fn: "Callable[..., tuple[list[dict], list[dict]]] | None" = None,
+    has_source_fn: "Callable[..., bool | None] | None" = None,
+) -> tuple[list[dict], list[dict]]:
     """Return ``(products, outcomes)`` discovered by scanning one or more GitHub orgs.
 
     *outcomes* is the per-org result list from ``org_scanner.scan_orgs``; callers
     MUST inspect it before treating an empty product list as "no products exist"
     (ST-058).
+
+    *existing* is the current registry (used so an unknown source probe never flips
+    a previously-active entry). *scan_orgs_fn* / *has_source_fn* are test seams that
+    default to ``org_scanner.scan_orgs`` / ``org_scanner.has_product_source``.
     """
-    scan_orgs = _import_org_scanner().scan_orgs
+    scanner = _import_org_scanner()
+    scan_orgs = scan_orgs_fn or scanner.scan_orgs
+    has_source_fn = has_source_fn or scanner.has_product_source
+    previous_by_key = {_key(e): e for e in (existing or [])}
 
     products: list[dict] = []
     exclusions = _load_exclusions()
@@ -306,7 +347,7 @@ def _discover_from_github(orgs: list[str], token: str | None) -> tuple[list[dict
         family, platform = pair
         if _is_excluded(exclusions, repo_name=repo["name"], family=family, platform=platform):
             continue
-        active = not repo["archived"] and _is_recently_pushed(repo.get("pushed_at", ""))
+        active = _compute_active(repo, previous_by_key.get((family, platform)), token, has_source_fn)
         products.append(
             {
                 "family": family,
@@ -649,7 +690,7 @@ def main(argv: list[str] | None = None) -> int:
     if not args.local_only:
         print(f"Scanning GitHub orgs: {orgs} (auth: {auth_mode})…", file=sys.stderr)
         try:
-            github_products, outcomes = _discover_from_github(orgs, token)
+            github_products, outcomes = _discover_from_github(orgs, token, existing=existing)
         except Exception as exc:  # noqa: BLE001
             print(f"ERROR: GitHub scan failed ({exc})", file=sys.stderr)
             print("Refusing to rewrite the tracked registry from an unverified scan. "

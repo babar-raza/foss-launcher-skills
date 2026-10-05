@@ -6,6 +6,8 @@ Public API:
     resolve_token(explicit=None) -> (token | None, auth_mode)
     preflight(org, *, token=None) -> None            (raises TokenRejected)
     scan_org(org, *, token=None, per_page=100, max_rate_wait=300) -> list[dict]
+    has_product_source(org_or_full_name, repo_name, default_branch, *, token, fetch=None)
+        -> bool | None                               (MT075 TC-RPG-04)
     scan_orgs(orgs, *, token=None, max_rate_wait=300) -> (list[dict], list[dict])
 
 Each returned repo dict contains:
@@ -16,6 +18,7 @@ Each returned repo dict contains:
     pushed_at   str   — ISO 8601 timestamp of last push (or "")
     archived    bool  — True if repo is archived
     description str   — repo description (or "")
+    default_branch str — repo default branch, e.g. "main" or "master" (or "")
 
 ``scan_orgs`` additionally returns one *outcome* dict per org::
 
@@ -39,7 +42,8 @@ from __future__ import annotations
 
 import os
 import time
-from typing import Iterator
+from typing import Callable, Iterator
+from urllib.parse import quote
 
 try:
     import requests
@@ -287,9 +291,97 @@ def scan_org(
                 "pushed_at": raw.get("pushed_at") or "",
                 "archived": bool(raw.get("archived")),
                 "description": raw.get("description") or "",
+                "default_branch": raw.get("default_branch") or "",
             }
         )
     return repos
+
+
+# ---------------------------------------------------------------------------
+# Product-source probe (MT075 TC-RPG-04)
+# ---------------------------------------------------------------------------
+# A repo is a *product* (registry ``active``) iff it is not archived AND its
+# DEFAULT branch carries product source -- regardless of how recently anyone
+# pushed. "Source" = at least one blob that is not boilerplate/metadata.
+
+# Root-level files whose basename (case-insensitive) starts with one of these are
+# repo boilerplate, not product source (README.md, LICENSE-MIT, CHANGELOG.rst ...).
+_BOILERPLATE_PREFIXES = ("readme", "license", "changelog", "security",
+                         "contributing", "code_of_conduct")
+# Root-level directories that never count as product source.
+_NON_SOURCE_ROOT_DIRS = (".github", "docs")
+
+
+def _is_source_path(path: str) -> bool:
+    """True when a blob path in a git tree counts as product source."""
+    parts = [p for p in path.split("/") if p]
+    if not parts:
+        return False
+    first = parts[0]
+    if first.startswith("."):  # .github/, .gitignore, .gitattributes, any dotfile/dir
+        return False
+    if len(parts) > 1:
+        return first.lower() not in _NON_SOURCE_ROOT_DIRS
+    return not first.lower().startswith(_BOILERPLATE_PREFIXES)  # root-level file
+
+
+def _default_fetch(url: str, headers: dict, timeout: int = 30):
+    return requests.get(url, headers=headers, timeout=timeout)
+
+
+def has_product_source(
+    org_or_full_name: str,
+    repo_name: str,
+    default_branch: str,
+    *,
+    token: str | None,
+    fetch: "Callable[..., object] | None" = None,
+    sleep: "Callable[[float], None] | None" = None,
+    max_rate_wait: int = _DEFAULT_MAX_RATE_WAIT,
+) -> bool | None:
+    """Does the repo's DEFAULT branch contain product source?
+
+    Returns ``True`` / ``False`` when determined, ``None`` when unknown. Never
+    raises for a per-repo failure -- unknown must not look like "no source".
+
+    *org_or_full_name* is either an org login (combined with *repo_name*) or a
+    full ``"org/repo"`` name (then *repo_name* is ignored).
+
+    ``None`` is returned for an empty *default_branch*, a network/API/HTTP error,
+    an authorization denial, a 404, malformed JSON, or a rate limit that is still
+    in force after one capped retry. A 409 ("Git Repository is empty") is a real
+    answer: ``False``. A truncated tree (very large repo) counts as source.
+
+    *fetch(url, headers, timeout)* and *sleep(seconds)* are injectable test seams;
+    defaults are ``requests.get`` and ``time.sleep``.
+    """
+    if not default_branch:
+        return None
+    full = org_or_full_name if "/" in org_or_full_name else f"{org_or_full_name}/{repo_name}"
+    url = (f"{_GITHUB_API}/repos/{quote(full, safe='/')}/git/trees/"
+           f"{quote(default_branch, safe='/')}?recursive=1")
+    do_fetch = fetch or _default_fetch
+    do_sleep = sleep or time.sleep
+    try:
+        resp = do_fetch(url, _headers(token), 30)
+        if getattr(resp, "status_code", None) in (403, 429) and _is_rate_limited(resp):
+            do_sleep(_rate_wait_seconds(resp, max_rate_wait))
+            resp = do_fetch(url, _headers(token), 30)
+        status = getattr(resp, "status_code", None)
+        if status == 409:
+            return False  # empty repository
+        if status is None or not 200 <= status < 300:
+            return None  # 401/403/404/429/5xx: unknown
+        body = resp.json()
+    except Exception:  # noqa: BLE001 -- per-repo failures are "unknown", never fatal
+        return None
+    if not isinstance(body, dict) or not isinstance(body.get("tree"), list):
+        return None
+    for node in body["tree"]:
+        if (isinstance(node, dict) and node.get("type") == "blob"
+                and _is_source_path(str(node.get("path", "")))):
+            return True
+    return True if body.get("truncated") else False
 
 
 def _outcome(org: str, status: str, repo_count: int = 0, detail: str = "") -> dict:

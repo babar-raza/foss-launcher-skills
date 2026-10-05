@@ -522,8 +522,17 @@ def cmd_scan(
     force: bool = False,
     auth_mode: str = "unknown",
     max_rate_wait: int = _DEFAULT_MAX_RATE_WAIT,
+    has_source_fn: "Callable[..., bool | None] | None" = None,
+    scan_orgs_fn: "Callable[..., tuple[list[dict], list[dict]]] | None" = None,
+    preflight_fn: "Callable[..., None] | None" = None,
 ) -> dict:
     """Scan GitHub orgs and produce a patrol report.
+
+    *has_source_fn* is a test seam for the product-source probe used to set the
+    registry ``active`` flag of entries written by ``--apply`` (default:
+    ``org_scanner.has_product_source``). It is only called under ``apply``.
+    *scan_orgs_fn* / *preflight_fn* are likewise test seams (default:
+    ``org_scanner.scan_orgs`` / ``org_scanner.preflight``).
 
     Returns the patrol report dict, which always carries a ``scan_health`` block.
 
@@ -533,7 +542,9 @@ def cmd_scan(
     a report marked ``degraded`` listing exactly which orgs were missed.
     """
     from lib.org_scanner import scan_orgs, preflight, TokenRejected
-    from commands.ops.update_product_registry import _classify_repo, _DEFAULT_ORGS
+    scan_orgs = scan_orgs_fn or scan_orgs
+    preflight = preflight_fn or preflight
+    from commands.ops.update_product_registry import _classify_repo, _compute_active, _DEFAULT_ORGS
 
     if orgs is None:
         env_orgs = os.environ.get("ASPOSE_ORG", "")
@@ -615,6 +626,9 @@ def cmd_scan(
                         "change": "newly_archived",
                         "repo_name": repo["name"],
                     })
+                # NOTE (MT075 TC-RPG-04): "gone_inactive" is a triage/staleness
+                # *advisory* (S-95 files a P3 INV-item) -- it never writes the
+                # registry `active` flag, so push recency stays its heuristic.
                 elif not _is_recently_pushed(repo.get("pushed_at", ""), inactive_days):
                     status_changes.append({
                         "family": family,
@@ -680,15 +694,18 @@ def cmd_scan(
             new_candidates.append(entry_data)
 
             if apply:
+                # MT075 TC-RPG-04: registry `active` = not archived AND default
+                # branch has product source (NOT push recency). New pair, so an
+                # unknown probe records False + a warning (see _compute_active).
+                if has_source_fn is None:
+                    from lib.org_scanner import has_product_source as has_source_fn  # noqa: PLC0415
                 new_entry = {
                     "family": family,
                     "platform": platform,
                     "repo_name": repo["name"],
                     "repo_url": repo.get("html_url", ""),
                     "clone_url": repo.get("clone_url", ""),
-                    "active": not repo.get("archived", False) and _is_recently_pushed(
-                        repo.get("pushed_at", ""), inactive_days
-                    ),
+                    "active": _compute_active(repo, None, token, has_source_fn),
                     "discovered_via": "github",
                     "status": status,
                     "confidence": conf,

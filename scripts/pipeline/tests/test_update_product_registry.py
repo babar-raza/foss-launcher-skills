@@ -68,29 +68,123 @@ class TestClassifyRepo:
 
 
 # ---------------------------------------------------------------------------
-# _is_recently_pushed — pure function tests
+# registry `active` = not archived AND default branch has product source
+# (MT075 TC-RPG-04). Replaces the old 180-day push-recency rule
+# (_is_recently_pushed / _ACTIVE_PUSH_DAYS, removed). The source probe and the
+# scanner are injected through _discover_from_github's seams -- no patching.
 # ---------------------------------------------------------------------------
 
-class TestIsRecentlyPushed:
-    def _ago(self, days: int) -> str:
-        dt = datetime.now(tz=timezone.utc) - timedelta(days=days)
-        return dt.strftime("%Y-%m-%dT%H:%M:%SZ")
+def _ago_iso(days: int) -> str:
+    dt = datetime.now(tz=timezone.utc) - timedelta(days=days)
+    return dt.strftime("%Y-%m-%dT%H:%M:%SZ")
 
-    def test_recent_push_is_active(self):
-        assert upr._is_recently_pushed(self._ago(10)) is True
 
-    def test_old_push_is_inactive(self):
-        assert upr._is_recently_pushed(self._ago(200)) is False
+def _scan_repo(name="Aspose.PDF-FOSS-for-Python", *, pushed_days=10, archived=False,
+               default_branch="main"):
+    return {
+        "name": name,
+        "full_name": f"aspose-pdf-foss/{name}",
+        "html_url": f"https://github.com/aspose-pdf-foss/{name}",
+        "clone_url": f"https://github.com/aspose-pdf-foss/{name}.git",
+        "pushed_at": _ago_iso(pushed_days),
+        "archived": archived,
+        "description": "",
+        "default_branch": default_branch,
+    }
 
-    def test_exactly_at_boundary(self):
-        # 180 days ago is still within the window (age.days <= 180)
-        assert upr._is_recently_pushed(self._ago(180)) is True
 
-    def test_empty_string_returns_false(self):
-        assert upr._is_recently_pushed("") is False
+class _FakeProbe:
+    """Records every has_product_source call and returns a canned answer."""
 
-    def test_invalid_string_returns_false(self):
-        assert upr._is_recently_pushed("not-a-date") is False
+    def __init__(self, answer):
+        self.answer = answer
+        self.calls = []
+
+    def __call__(self, org_or_full_name, repo_name, default_branch, *, token, **_kw):
+        self.calls.append((org_or_full_name, repo_name, default_branch, token))
+        return self.answer
+
+
+def _discover(repos, probe, *, existing=None):
+    def _scan(orgs, *, token=None, **_kw):
+        return repos, [{"org": o, "status": "ok", "repo_count": len(repos), "detail": ""}
+                       for o in orgs]
+    return upr._discover_from_github(["aspose-pdf-foss"], "tok", existing=existing,
+                                     scan_orgs_fn=_scan, has_source_fn=probe)
+
+
+class TestActiveFromProductSource:
+    @pytest.fixture(autouse=True)
+    def _isolate(self, tmp_path):
+        upr.configure(repo_root=tmp_path)   # no real data/registry_exclusions.json
+        yield
+        upr.configure(repo_root=None)
+
+    def test_not_archived_with_source_is_active(self):
+        probe = _FakeProbe(True)
+        products, _ = _discover([_scan_repo()], probe)
+        assert products[0]["active"] is True
+
+    def test_no_source_is_inactive(self):
+        products, _ = _discover([_scan_repo()], _FakeProbe(False))
+        assert products[0]["active"] is False
+
+    def test_old_push_no_longer_matters(self):
+        """A repo pushed 3 years ago that still has source stays active."""
+        products, _ = _discover([_scan_repo(pushed_days=3 * 365)], _FakeProbe(True))
+        assert products[0]["active"] is True
+
+    def test_recent_push_without_source_is_still_inactive(self):
+        """Recency is not evidence of a product: fresh push + no source -> inactive."""
+        products, _ = _discover([_scan_repo(pushed_days=1)], _FakeProbe(False))
+        assert products[0]["active"] is False
+
+    def test_archived_is_inactive_even_with_source(self):
+        probe = _FakeProbe(True)
+        products, _ = _discover([_scan_repo(archived=True)], probe)
+        assert products[0]["active"] is False
+        assert probe.calls == [], "archived repos must not spend an API call"
+
+    @pytest.mark.parametrize("branch", ["main", "master"])
+    def test_probe_receives_each_repos_default_branch(self, branch):
+        probe = _FakeProbe(True)
+        _discover([_scan_repo(default_branch=branch)], probe)
+        assert probe.calls == [("aspose-pdf-foss/Aspose.PDF-FOSS-for-Python",
+                                "Aspose.PDF-FOSS-for-Python", branch, "tok")]
+
+    def test_unknown_keeps_previous_active_true_and_warns(self, capsys):
+        existing = [_entry("pdf", "python", active=True)]
+        products, _ = _discover([_scan_repo()], _FakeProbe(None), existing=existing)
+        assert products[0]["active"] is True
+        assert "could not verify product source" in capsys.readouterr().err
+
+    def test_unknown_keeps_previous_active_false(self):
+        existing = [_entry("pdf", "python", active=False)]
+        products, _ = _discover([_scan_repo()], _FakeProbe(None), existing=existing)
+        assert products[0]["active"] is False
+
+    def test_unknown_for_new_pair_is_false_with_warning(self, capsys):
+        products, _ = _discover([_scan_repo()], _FakeProbe(None), existing=[])
+        assert products[0]["active"] is False
+        err = capsys.readouterr().err
+        assert "NEW repo" in err and "active=False" in err
+
+    def test_unknown_never_demotes_existing_true_through_merge(self):
+        existing = [_entry("pdf", "python", active=True)]
+        products, _ = _discover([_scan_repo()], _FakeProbe(None), existing=existing)
+        merged = upr._merge(existing, products, force=False)
+        assert merged[0]["active"] is True
+
+    def test_known_no_source_does_not_demote_existing_true_without_force(self):
+        """Documented --force semantics are unchanged: only --force overwrites a True."""
+        existing = [_entry("pdf", "python", active=True)]
+        products, _ = _discover([_scan_repo()], _FakeProbe(False), existing=existing)
+        assert upr._merge(existing, products, force=False)[0]["active"] is True
+        assert upr._merge(existing, products, force=True)[0]["active"] is False
+
+    def test_old_recency_helpers_are_gone(self):
+        assert not hasattr(upr, "_is_recently_pushed")
+        assert not hasattr(upr, "_ACTIVE_PUSH_DAYS")
 
 
 # ---------------------------------------------------------------------------
