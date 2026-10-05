@@ -1,7 +1,11 @@
 # Local Hugo runtime
 
-Agents and developers must use the pinned, checksummed local Hugo under `hugo/runtime/`
-instead of whatever `hugo` happens to be on `PATH`, and must never build into the repo.
+Agents and developers must use the pinned local Hugo under `hugo/runtime/` instead of
+whatever `hugo` happens to be on `PATH`, and must never build into the repo.
+
+Integrity: 0.154.5 was downloaded from the upstream release and its SHA-256 verified against
+`hugo_0.154.5_checksums.txt`. 0.140.1 was copied from `E:\hugo`; its SHA-256 is recorded in
+`versions.json` but was not verified against upstream checksums (see Re-provisioning to redo that).
 
 ## Layout
 
@@ -53,7 +57,13 @@ bash scripts/ci/hooks/hugo_temp_build.sh --config configs/releases.aspose.org.to
 - The temp dir is removed on normal exit, build failure, `--exec` failure, SIGINT and SIGTERM.
 - Sibling `aspose-hugo.*` dirs older than 24 hours (left by killed runs, e.g. SIGKILL) are swept
   at the start of every run.
-- Exit code is hugo's on build failure, otherwise the `--exec` command's (130/143 on INT/TERM).
+- Exit code is hugo's on build failure, otherwise the `--exec` command's (130/143 on INT/TERM);
+  2 for usage errors (missing `--config`, bad argument, missing temp root); `find_hugo.sh` exits 1
+  when the version cannot be resolved.
+- A relative `TMPDIR` is resolved to an absolute path first, so output can never land in the source dir.
+- The sweep only matches `aspose-hugo.` followed by exactly six characters (the mktemp pattern).
+- Interrupts: SIGTERM and interactive Ctrl-C clean up. A shell that starts the script as a plain
+  background job (`cmd &`, non-interactive) makes it ignore SIGINT by POSIX rule; use SIGTERM there.
 
 ## Rule
 

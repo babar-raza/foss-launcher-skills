@@ -33,7 +33,7 @@ while [ $# -gt 0 ]; do
         --version)    [ $# -ge 2 ] || die "--version requires a value"; version="$2"; shift 2 ;;
         --source-dir) [ $# -ge 2 ] || die "--source-dir requires a value"; source_dir="$2"; shift 2 ;;
         --exec)       [ $# -ge 2 ] || die "--exec requires a value"; exec_cmd="$2"; shift 2 ;;
-        -h|--help)    sed -n '2,22p' "${BASH_SOURCE[0]}"; exit 0 ;;
+        -h|--help)    sed -n '2,21p' "${BASH_SOURCE[0]}"; exit 0 ;;
         *) die "unknown argument: $1" ;;
     esac
 done
@@ -48,9 +48,14 @@ fi
 
 tmp_root="${TMPDIR:-/tmp}"
 [ -d "$tmp_root" ] || die "temp root does not exist: $tmp_root"
+# Absolute path: hugo resolves a relative -d against --source, while the cleanup
+# below resolves against the cwd, so a relative TMPDIR would leak into the repo.
+tmp_root="$(cd "$tmp_root" && pwd)"
 
-# Sweep stale sibling temp dirs (older than 24h) before creating ours.
-find "$tmp_root" -maxdepth 1 -type d -name 'aspose-hugo.*' -mmin +1440 \
+# Sweep stale sibling temp dirs (older than 24h) before creating ours. The name
+# pattern is exactly what mktemp produces below (6 random chars), so a dir that
+# merely starts with "aspose-hugo." is never touched.
+find "$tmp_root" -maxdepth 1 -type d -name 'aspose-hugo.??????' -mmin +1440 \
     -exec rm -rf {} + 2>/dev/null || true
 
 tmp="$(mktemp -d "$tmp_root/aspose-hugo.XXXXXX")"
