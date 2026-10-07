@@ -22,5 +22,29 @@
       }
     ],
     "provenance": "TC-RDR-03-3D-PYTHON (readme-disposition-remediation-2026-08-18), 2026-08-20. 3d/python is the only Python product in this portfolio whose clone-cache manifest is setup.py-only (no pyproject.toml, no setup.cfg) -- confirmed by checking all 12 python products' clone caches. dependency_extract._extract_pypi_dependencies deliberately refuses to parse a setup.py-only manifest by executing it (a documented security/architecture rule, not a parsing gap), and its own error message names data/dependency_overrides.json as the sanctioned escape hatch. Values here are read directly from setup.py's literal install_requires=[] (empty), extras_require={'dev': ['pytest>=7.0.0']}, and python_requires='>=3.7' -- not invented."
+  },
+  "psd/python": {
+    "ecosystem": "pypi",
+    "source_manifest_path": null,
+    "applicable": true,
+    "not_applicable_reason": null,
+    "required": [],
+    "optional": [],
+    "native_system": [
+      {
+        "name": "Python",
+        "version_constraint": ">=3.7",
+        "purpose": "no packaging manifest or version classifier exists to read this from (confirmed: no pyproject.toml, setup.cfg, or setup.py anywhere in the repo); `from __future__ import annotations` is used in 10 real source files, which requires Python 3.7 or later to even parse -- this is the real, verified floor, not a guess. No syntax requiring a newer interpreter (no `match`, no walrus operator) was found anywhere in aspose_psd_foss/."
+      }
+    ],
+    "proprietary_runtime": [],
+    "development": [
+      {
+        "name": "pytest",
+        "version_constraint": null,
+        "purpose": "imported by every test module under aspose_psd_foss_test/ (confirmed via a real grep of every test file's import statements); no version is pinned anywhere since no packaging manifest exists."
+      }
+    ],
+    "provenance": "2026-10-07, readme-refresh onboarding for psd/python. This repo has NO packaging manifest of any kind -- no pyproject.toml, no setup.cfg, and no setup.py (a strictly more severe gap than 3d/python's setup.py-only case above). dependency_extract.py's own plan()-time error names data/dependency_overrides.json as the sanctioned escape hatch for exactly this case. Required/optional are empty because a real grep of every `import`/`from` statement in aspose_psd_foss/ (the library itself, not its tests) found only stdlib modules (typing, enum, io, hashlib, math, struct, sys, abc, os, copy) and internal aspose_psd_foss.* imports -- zero third-party imports anywhere. The one development dependency (pytest) is confirmed by the same method against aspose_psd_foss_test/. Nothing here is invented; everything traces to a literal import statement or language-feature use in the real source."
   }
 }
