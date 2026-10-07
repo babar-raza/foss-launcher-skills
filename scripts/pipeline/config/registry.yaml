@@ -499,6 +499,21 @@ scripts:
     notes: "TC-08 unified readiness gate: aggregates skill-sync, provider-sync, DAR, knowledge staleness, proof index, and launch-gate into one verdict"
     change_impact: "FRESH-001 (2026-08-14, T7): G-04 migrated from a raw model.yaml stale_since read to the shared freshness_guard.is_generation_allowed(mode='degraded') gate -- highest-blast-radius call site, migrated last, behavioral equivalence verified before merge."
 
+  - path: scripts/pipeline/commands/launch/upstream_readiness_check.py
+    kind: entrypoint
+    lifecycle: active
+    canonical_impl_path: null
+    public_entrypoint: true
+    cli_contract: stable
+    owner_domain: content-governance
+    backing:
+      kind: internal
+      ref: null
+    test_targets: ["scripts/pipeline/tests/test_upstream_readiness_check.py"]
+    requires_test: true
+    deprecated_since: null
+    notes: "TC-PSD-HRD-01 (MT076): Stage -1 readiness before any registry/knowledge/content work -- license (file-first, GitHub API second only for the SPDX id; absence is WARN MISCONFIGURED_NO_LICENSE_FILE per owner decision, never a launch blocker), merged source, clone-current, install-fallback viability (F-PSD-07), hooks installed, family placeholder copy. Not yet wired into /launch-product's own stage sequence (HRD-01-05 SYNC step; this card ships the module + its NC-13 real-portfolio acceptance test only)."
+
   - path: scripts/pipeline/commands/diagnostics/human_review_sampler.py
     kind: entrypoint
     lifecycle: active
