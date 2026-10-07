@@ -138,83 +138,14 @@ Docs, KB, blog and Products pages are never sampled. Each gets its full review.
 
 A page is cleared only when, bound to its CURRENT content sha256 (LF-normalised bytes), it has the required number of valid PASS verdicts from distinct reviewers who are not authors, and no FAIL verdict or blocker finding exists at that hash. A verdict for any earlier hash is ignored: an edit after review invalidates it. Any blocker overrides every PASS. There is no way to clear a finding except a changed page and a fresh review.
 
-Run the gate from the repo root (it reads `tiers.json` and `verdicts/`, writes `gate.json`, and exits 0 only when every listed page is cleared; pass the comma-separated author ids as the third argument):
+Run the gate from the repo root (B20: promoted from an inline block to a registered, tested
+module `scripts/pipeline/commands/content/ivp_gate.py`, `scripts/pipeline/tests/test_ivp_gate.py`;
+it reads `tiers.json` and `verdicts/`, writes `gate.json`, and exits 0 only when every listed
+page is cleared; pass the comma-separated author ids as the third, optional argument):
 
 ```bash
-.venv/Scripts/python - "$RUN" "<pages file>" "<author ids>" <<'PY'
-import hashlib, json, sys
-from pathlib import Path
-
-run_dir, pages_file = Path(sys.argv[1]), Path(sys.argv[2])
-authors = {a for a in (sys.argv[3].split(",") if len(sys.argv) > 3 else []) if a}
-tiers = json.loads((run_dir / "tiers.json").read_text(encoding="utf-8"))
-pages = [p.strip() for p in pages_file.read_text(encoding="utf-8").splitlines()
-         if p.strip() and not p.startswith("#")]
-DIMS = ("R1", "R2", "R3", "R4", "R5", "R6")
-
-def sha(path):
-    return hashlib.sha256(Path(path).read_bytes().replace(b"\r\n", b"\n")).hexdigest()
-
-def valid(v):
-    for k in ("page", "content_sha256", "reviewer_id", "tier", "checks", "findings", "verdict"):
-        if k not in v:
-            return False, f"missing key {k}"
-    if v["reviewer_id"] in authors:
-        return False, "reviewer is an author"
-    if v["verdict"] == "PASS":
-        if any(f.get("severity") in ("blocker", "major") for f in v["findings"]):
-            return False, "PASS with blocker/major finding"
-        if any(c.get("result") not in ("PASS", "NA") for c in v["checks"]):
-            return False, "PASS with a failed check"
-        if any(c.get("result") == "NA" and not str(c.get("note", "")).strip() for c in v["checks"]):
-            return False, "NA without a note"
-        seen = {str(c.get("id", ""))[:2] for c in v["checks"]}
-        if not all(d in seen for d in DIMS):
-            return False, "dimension missing: " + ",".join(d for d in DIMS if d not in seen)
-    return True, ""
-
-verdicts = {}
-for f in sorted((run_dir / "verdicts").glob("*.json")):
-    v = json.loads(f.read_text(encoding="utf-8"))
-    verdicts.setdefault(v.get("page"), []).append((f.name, v))
-
-report, cleared = [], []
-for page in pages:
-    need = 2 if int(tiers.get(page, 1)) == 1 else 1
-    cur = sha(page) if Path(page).is_file() else None
-    row = {"page": page, "tier": tiers.get(page, 1), "need": need, "sha256": cur, "status": "", "why": []}
-    passes, blocked = {}, False
-    for name, v in verdicts.get(page, []):
-        if v.get("content_sha256") != cur:
-            row["why"].append(f"{name}: stale hash (ignored)")
-            continue
-        good, why = valid(v)
-        if not good:
-            row["why"].append(f"{name}: invalid ({why})")
-        if v.get("verdict") == "FAIL" or any(x.get("severity") == "blocker" for x in v.get("findings", [])):
-            blocked = True
-            row["why"].append(f"{name}: FAIL or blocker at current hash")
-        elif good:
-            passes[v["reviewer_id"]] = name
-    if cur is None:
-        row["status"] = "MISSING_PAGE"
-    elif blocked:
-        row["status"] = "REWORK_REQUIRED"
-    elif len(passes) >= need:
-        row["status"] = "CLEARED"
-        cleared.append(page)
-    else:
-        row["status"] = "NEEDS_REVIEW"
-        row["why"].append(f"{len(passes)}/{need} independent PASS verdicts at current hash")
-    report.append(row)
-
-out = {"pages": report, "cleared": cleared, "all_cleared": len(cleared) == len(pages)}
-(run_dir / "gate.json").write_text(json.dumps(out, indent=2, sort_keys=True), encoding="utf-8")
-for r in report:
-    print(f"{r['status']:16} tier{r['tier']} {r['page']}  {'; '.join(r['why'])}")
-print("ALL_CLEARED" if out["all_cleared"] else "NOT_CLEARED")
-sys.exit(0 if out["all_cleared"] else 1)
-PY
+PYTHONPATH=scripts/pipeline .venv/Scripts/python scripts/pipeline/commands/content/ivp_gate.py \
+  "$RUN" "<pages file>" "<author ids>"
 ```
 
 `REWORK_REQUIRED` and `NEEDS_REVIEW` pages go back to the owning author skill (S-20, S-56, S-57, S-58, S-73, or the refresh run for generated pages) with the findings. After the fix the page has a new hash, the old verdicts no longer count, and Steps 2-6 run again for that page with fresh reviewers (reviewers from the failed round are not reused).

@@ -7391,3 +7391,19 @@ scripts:
     deprecated_since: null
     notes: "MT074 B16 CLI: analyze / rank; read-only; never writes the propagation state"
 
+  - path: scripts/pipeline/commands/content/ivp_gate.py
+    kind: entrypoint
+    lifecycle: active
+    canonical_impl_path: null
+    public_entrypoint: true
+    cli_contract: stable
+    owner_domain: content-quality
+    backing:
+      kind: skill
+      ref: independent-content-review
+    requires_test: true
+    test_targets:
+      - scripts/pipeline/tests/test_ivp_gate.py
+    deprecated_since: null
+    notes: "MT074 B20: promoted S-127 Step 6 verdict-gate logic out of the skill into a tested, registered module; repoints independent-content-review.md"
+
