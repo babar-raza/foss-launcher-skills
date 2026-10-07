@@ -471,14 +471,35 @@ _NON_PUBLIC_DIRS: frozenset[str] = frozenset({
     "scripts", "tools", "build", "dist",
 })
 
+# Name patterns that mark a test project / package even when the directory is not literally "tests"
+# (HRD-04, MT076: psd/python ships `aspose_psd_foss_test` beside `aspose_psd_foss`). Matched on directory
+# components only, plus pytest's own file conventions. A bare `*tests` file-name suffix is NOT used
+# (would false-positive on names like `contests.py`).
+_NON_PUBLIC_DIR_SUFFIXES: tuple[str, ...] = ("_test", "_tests", "-test", "-tests", ".test", ".tests")
+_NON_PUBLIC_DIR_PREFIXES: tuple[str, ...] = ("test_", "test-")
+_NON_PUBLIC_FILE_NAMES: frozenset[str] = frozenset({"conftest.py"})
+# .NET build output: `obj|bin` immediately followed by a configuration directory. A bare `obj` directory is
+# NOT excluded: 3d/python and 3d/typescript have a real `formats/obj/` (Wavefront OBJ) package.
+_BUILD_OUTPUT_PARENTS: frozenset[str] = frozenset({"obj", "bin"})
+_BUILD_OUTPUT_CONFIGS: frozenset[str] = frozenset({"debug", "release"})
+
 
 def _is_non_public_path(p: Path, root: Path) -> bool:
-    """Return True if any path component relative to *root* is a non-public directory."""
+    """Return True if the path is not part of the public API surface: a non-public directory
+    (exact names), a test project/package by name pattern, a pytest-convention test file, or .NET build output."""
     try:
         parts = p.relative_to(root).parts
     except ValueError:
         parts = p.parts
-    return any(part.lower() in _NON_PUBLIC_DIRS for part in parts)
+    lowered = [part.lower() for part in parts]
+    if any(part in _NON_PUBLIC_DIRS for part in lowered):
+        return True
+    dirs, name = lowered[:-1], (lowered[-1] if lowered else "")
+    if any(d.endswith(_NON_PUBLIC_DIR_SUFFIXES) or d.startswith(_NON_PUBLIC_DIR_PREFIXES) for d in dirs):
+        return True
+    if name in _NON_PUBLIC_FILE_NAMES or (name.endswith(".py") and (name.startswith("test_") or name.endswith("_test.py"))):
+        return True
+    return any(a in _BUILD_OUTPUT_PARENTS and b in _BUILD_OUTPUT_CONFIGS for a, b in zip(lowered, lowered[1:]))
 
 
 _FORMAT_STEM_RE = re.compile(
