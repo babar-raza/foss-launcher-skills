@@ -103,6 +103,28 @@ scout's API surface.
 
 ---
 
+### Platform notes — .NET/NuGet
+
+- **Install command**: always the `{{< package-install "{family}" "{platform}" >}}` shortcode,
+  never a literal `dotnet add package ...` line — same resolution-order rule as the TypeScript/
+  npm section above (registry candidate name when published → `naming_convention_candidate()`
+  guess → `None`; unpublished renders a "not yet published — build from source" notice).
+- **Known extraction gap — NET-OPERATOR-OVERLOAD-001** (`backlog/BACKLOG.md`;
+  `platform_capabilities.yaml`'s own `net.declared_ignored_kinds` entries for
+  `operator_declaration`/`conversion_operator_declaration`/`delegate_declaration`/
+  `event_field_declaration`/`indexer_declaration` document this as a real, unfixed,
+  portfolio-wide gap): public `operator ==`/`operator !=`/conversion operators, delegates,
+  events, and indexers on a .NET product's public types are invisible to extraction and will
+  not appear in generated reference pages or claims. Confirmed live on psd/net (TC-PSD-HRD-07):
+  8 real public operator overloads (`Point`, `Rectangle`, `RectangleF`, `Size`, two each) exist
+  in the upstream source and 0 appear in `knowledge/psd/net/merged/api_surface.json`. This is a
+  content-governance disclosure, not a fix — the extraction gap itself stays out of scope for
+  any launch-product run (fixing `tree_helpers.py`/`api_surface.py` is a separate, future card).
+  A reviewer or content author should not be surprised that a value type's equality operators
+  are absent from its reference page; it is a known, already-filed gap, not a scout regression.
+
+---
+
 ### STAGE 0.5 — Site Plan
 **Command**: `/site-plan {family} {platform}`
 **Output**: `reports/plans/{family}/{platform}/site_plan.yaml`
