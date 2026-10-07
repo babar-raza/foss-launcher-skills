@@ -63,9 +63,9 @@
     "deployed_repo": "Aspose/aspose.org-workflows"
   },
   "registry-watch.yml": {
-    "approved_baseline_sha256": "ca3a2a2fe3333d73985405a574ec76c081af1a9ea28400eca8e4ec86f8912648",
-    "baseline_recorded_at": "2026-09-29T13:56:06.490738Z",
-    "baseline_source": "approved_after_review: MT075: added missing set -o pipefail, redeployed 2026-09-29, commit 9af8a65 on the public repo (private repo template already had it via e282381d6e)",
+    "approved_baseline_sha256": "7f0ee73cdd68091ebeae6a83034b624345373564031112e494ae5aff881e8731",
+    "baseline_recorded_at": "2026-10-07T15:40:25.785364Z",
+    "baseline_source": "approved_after_review: MT074 W2/W3 reviewed: non-blocking release-trigger step, hardening; workflows PR #66 merged after independent review PASS (commit ec01e5c084)",
     "deployed_path": ".github/workflows/registry-watch.yml",
     "deployed_repo": "Aspose/aspose.org-workflows"
   },
@@ -133,9 +133,9 @@
     "deployed_repo": "Aspose/aspose.org-workflows"
   },
   "upstream-monitor.yml": {
-    "approved_baseline_sha256": "ca31bef32dd8209ef080c67b073830c253b2e86cdd78599fa44bca23dc48bd32",
-    "baseline_recorded_at": "2026-09-18T13:00:00.000000Z",
-    "baseline_source": "approved_after_review: workflows-repo commit 4ab9d5c3 (comments + 2 message strings only, no logic; prior baseline 87fd14f9 verified equal to its parent blob) -- MT069 HC-08",
+    "approved_baseline_sha256": "1e57a39b69127e6b309941fbe328e33aefbb6938bf9358a34d27ca49d5cd91cc",
+    "baseline_recorded_at": "2026-10-07T15:40:03.823747Z",
+    "baseline_source": "approved_after_review: MT074 W1/W3 reviewed: clone-free fleet drift, gate, state PR; workflows PR #66 merged after independent review PASS (commit ec01e5c084)",
     "deployed_path": ".github/workflows/upstream-monitor.yml",
     "deployed_repo": "Aspose/aspose.org-workflows"
   },
