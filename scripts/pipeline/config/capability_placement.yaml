@@ -1,0 +1,165 @@
+# capability_placement.yaml -- every threshold used by lib/capability_delta.py,
+# lib/availability.py and commands/ops/capability_surface_gate.py. Code has NO thresholds.
+#
+# MT074 cards B4/B5. Nothing in this file may name a product, a family, a language or a file
+# format (hard gate G-1: a test scans for such literals). Only generic programming vocabulary
+# appears, as DATA.
+#
+# FROZEN INITIAL VALUES: the products-surface rule and the grouping thresholds below are
+# boundary-tested (tests/test_capability_delta.py pins both sides of every threshold). Changing a
+# number here is a policy change: update the tests in the same commit and say why.
+schema_version: 1
+
+grouping:
+  # (a) structural grouping is always on (new types co-added in one namespace form a base group;
+  #     added members whose signatures reference a new type attach to that type's group).
+  token_affinity:
+    # (b) optional token-affinity clustering. Every auto-grouped unit is marked `grouping: draft`.
+    enabled: true
+    min_token_length: 3
+    # a token links two groups when >= this many NEW symbols carry it ...
+    min_new_symbols_sharing: 2
+    # ... and <= this many EXISTING symbols carry it (a token shared with the whole existing API,
+    # e.g. a ubiquitous suffix, carries no information).
+    max_existing_symbols_sharing: 3
+    # tokens that never link anything (generic programming vocabulary, not product vocabulary)
+    generic_tokens: [get, set, add, new, base, impl, abstract, item, items, list, type, types,
+                     value, values, data, info, helper, utils, util, manager, factory, builder,
+                     default, simple, common, core, api, the, and, for]
+
+# Namespace segments (split on . / \) that mark a type as internal-looking: it is documented in
+# the reference surface only; every other surface is none_justified:internal.
+internal_namespace_segments: [engine, internal, internals, impl, private]
+
+io_route:
+  # A unit introduces a new I/O route when (rule, deterministic and generic):
+  #   R1: it adds >= 1 new enum constant to an EXISTING public enum AND >= 1 new public type; or
+  #   R2: it adds >= 1 new format AND >= 1 new public type; or
+  #   R3: it contains a new public type whose name tokens include any of type_tokens
+  #       (load/save-style routes and options types); or
+  #   R4: it attaches an added member of an existing type whose name tokens include any of
+  #       member_verbs AND whose signature references a new type of the unit; or
+  #   R5: its kind is format-route and it adds >= 1 format.
+  type_tokens: [load, save, read, write, import, export, convert, render, options, option, settings]
+  member_verbs: [load, save, read, write, import, export, convert, render, open, parse]
+
+options:
+  # new public type whose name tokens include one of these => the unit introduces options/knobs
+  type_tokens: [options, option, settings, config, configuration, params, parameters]
+
+placement:
+  # ---------------------------------------------------------------- products surface (FROZEN)
+  products:
+    dedicated_section:
+      min_public_types: 5
+      # AND (introduces_new_io_route OR new_public_members >= min_public_members_without_route)
+      min_public_members_without_route: 15
+      # AND a verified example is present (verified_example_present must be True; None == False)
+      require_verified_example: true
+    mention:
+      # OR-ed: any one of these makes the unit at least a mention
+      min_public_types: 1
+      min_public_members: 3
+      min_new_enum_constants: 1
+      min_new_formats: 1
+    block_match:
+      # a mention target is the existing block with the highest token overlap with the unit;
+      # fewer shared tokens than this => `unplaced` (hard fail at the gate, never promoted)
+      min_overlap: 1
+  # ---------------------------------------------------------------- reference surface
+  reference:
+    # every new public type => create (reference pages are mechanical); members/constants on
+    # existing types => update; a unit with no API symbols at all => none (rationale mandatory)
+    create_min_public_types: 1
+    update_min_members_or_constants: 1
+  # ---------------------------------------------------------------- docs surface
+  docs:
+    create_if_new_io_route: true
+    create_min_public_types: 3
+    update_min_public_types: 1
+    update_min_public_members: 3
+  # ---------------------------------------------------------------- kb surface
+  kb:
+    create_if_introduces_options: true
+    create_if_new_io_route: true
+    update_min_public_types: 1
+  # ---------------------------------------------------------------- blog surface
+  blog:
+    create_kinds: [route, format-route]
+    create_min_public_types: 5
+    # a format-route unit has no new types; it is blog-worthy only through create_min_new_formats
+    create_min_new_formats: 3
+
+satisfaction:
+  # CLOSE-TIME: a create/update/mention disposition is satisfied when the target resolves to >= 1
+  # existing file under a content root and the files found there mention at least
+  # min_term_ratio of the unit's terms (type names; else enum constants; else formats; else
+  # member names), and at least one term at all.
+  min_term_ratio:
+    reference: 1.0
+    docs: 0.5
+    kb: 0.5
+    blog: 0.5
+    products: 0.5
+  # file suffixes read when a target is a directory
+  directory_suffixes: [.md, .mdx, .html, .htm]
+
+availability:
+  # Phrases that count as an availability qualifier. Matched case-insensitively, whitespace-flexible,
+  # on word boundaries, and ignored when immediately preceded by a negation prefix (below).
+  # A bare "unreleased" is deliberately NOT here ("Unreleased changes are listed ..." is not a
+  # qualifier); neither is "in development".
+  qualifier_phrases:
+    - not yet released
+    - not yet published
+    - is unreleased
+    - are unreleased
+    - currently unreleased
+    - remains unreleased
+    - unreleased feature
+    - unreleased api
+    - unreleased capability
+    - available in the next release
+    - coming in the next release
+    - available from source
+    - source-only
+    - pre-release
+    - prerelease
+    - upcoming release
+    - planned for the next release
+    - not included in the latest published
+  # a phrase directly preceded by one of these terms is a negation, not a qualifier
+  qualifier_negation_prefixes: [not, no longer, already, n't, never]
+  # a mention of a unit's symbol is covered only by a qualifier within this many characters
+  qualifier_window_chars: 400
+  # tag candidates tried (in order) to turn a published version into a git ref
+  tag_templates: ["v{version}", "{version}", "release-{version}", "release/{version}"]
+  # keys of the package-registry `verification` block that may name the released commit/tag
+  release_ref_keys: [released_sha, release_sha, released_tag, release_tag]
+  coordinate_scan:
+    # a flagged version needs at least this many numeric components (x.y)
+    min_components_in_coordinate: 2
+    # the shape of one version token; {V} below is replaced by it
+    version_pattern: '\d+(?:\.\d+)+(?:[-+][0-9A-Za-z.]*[0-9A-Za-z])?'
+    # STRONG contexts (always flagged when the version is not released): regexes with a named group
+    # `version`; {V} stands for version_pattern
+    coordinate_patterns:
+      - '(?<![\w.-])[A-Za-z][\w.-]*:[A-Za-z][\w.-]*:(?P<version>{V})'
+      - '(?i)<version>\s*(?P<version>{V})\s*</version>'
+      - '(?i)\bversion\s*=\s*["''](?P<version>{V})["'']'
+      - '(?<![\w.])[A-Za-z][\w.@/-]*\s*(?:==|~=|>=|\^|~)\s*v?(?P<version>{V})'
+      - '(?<![\w.])[A-Za-z][\w.-]*@v?(?P<version>{V})'
+      - '(?<![\w.])[A-Za-z][A-Za-z0-9_]*(?:-[A-Za-z][A-Za-z0-9_]*)*-v?(?P<version>{V})(?![\w])'
+    # KEYWORD contexts: a keyword directly followed by a version flags it only when the version
+    # belongs to the product's own version scheme (same leading component as a known released /
+    # unreleased version)
+    keyword_contexts: [version, ver, v, since, requires, required, release, upgrade to, from]
+    # spans in which no version is flagged (dotted-quad addresses, ISO-ish dates, long dotted OIDs);
+    # an explicitly configured unreleased version is never excluded
+    ignore_patterns:
+      - '(?<![\d.])(?:(?:25[0-5]|2[0-4]\d|1?\d?\d)\.){3}(?:25[0-5]|2[0-4]\d|1?\d?\d)(?![\d.])'
+      - '(?<![\d.])\d{4}[.\-/]\d{1,2}[.\-/]\d{1,2}(?!\d)'
+      - '(?<![\d.])\d{1,2}[./]\d{1,2}[./]\d{4}(?!\d)'
+      - '(?<![\d.])\d+(?:\.\d+){5,}(?![\d.])'
+    # a coordinate whose name part contains one of these tokens is a tool, not the product
+    ignore_tool_names: [jdk, jre, jvm, hugo, node, nodejs, npm, gradle, maven, dotnet, sdk, openssl, chrome]
