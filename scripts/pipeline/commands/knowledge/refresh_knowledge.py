@@ -17,6 +17,11 @@ Flags:
     --no-auto-fetch     Skip update_clone() before SHA comparison.  Useful for
                         offline or CI environments where network is unavailable.
     --no-auto-clone     Disable automatic cloning from clone_url in products.json.
+    --pin-sha SHA       After clone/fetch, detach-checkout the clone at exactly SHA and
+                        refresh against it (not origin/HEAD). Exits non-zero ("failed")
+                        if the clone HEAD cannot be made equal to SHA.
+    --strict-fetch      A failed upstream fetch is a hard failure ("failed") instead of
+                        degrading to the stale clone HEAD.
     --all               Refresh all products found in registry or clone cache.
 
 Environment:
@@ -57,6 +62,35 @@ if str(_LIB_DIR) not in sys.path:
     sys.path.insert(0, str(_LIB_DIR))
 
 
+_UNSET = object()
+_cfg_hooks: dict = {}
+
+
+def configure_hooks(*, run_fn=_UNSET, head_sha_fn=_UNSET, checkout_pinned_fn=_UNSET,
+                    completeness_check_fn=_UNSET) -> None:
+    """Test seam (configure() pattern) for the refresh chain's side-effecting steps:
+    the subprocess runner, HEAD lookup, pinned checkout and completeness check.
+    Passing a callable installs it; ``None`` removes that hook; calling with NO
+    arguments resets every hook (autouse-fixture teardown).  Hooks are resolved at
+    call time, so they compose with module-attribute patches used by older tests."""
+    given = {"run": run_fn, "head_sha": head_sha_fn, "checkout_pinned": checkout_pinned_fn,
+             "completeness_check": completeness_check_fn}
+    if all(v is _UNSET for v in given.values()):
+        _cfg_hooks.clear()
+        return
+    for name, fn in given.items():
+        if fn is _UNSET:
+            continue
+        if fn is None:
+            _cfg_hooks.pop(name, None)
+        else:
+            _cfg_hooks[name] = fn
+
+
+def _hooked(name: str, default):
+    return _cfg_hooks.get(name) or default
+
+
 def configure(
     *,
     repo_root: "Path | str | None" = None,
@@ -80,6 +114,7 @@ from core.clone_cache import (  # noqa: E402
     clone_head_sha as _clone_head_sha_fn,
     ensure_clone as _ensure_clone,
     update_clone as _update_clone,
+    checkout_pinned as _checkout_pinned,
 )
 from core.fs import atomic_write  # noqa: E402
 
@@ -159,6 +194,22 @@ def _stored_extractor_hash(family: str, platform: str) -> str | None:
     return None
 
 
+def _snippet_budget_blocks(path: Path) -> dict:
+    """{platform: snippet_budget block} from platform_capabilities.yaml ({} if absent)."""
+    try:
+        doc = yaml.safe_load(path.read_text(encoding="utf-8"))
+    except (OSError, yaml.YAMLError):
+        return {}
+    platforms = doc.get("platforms") if isinstance(doc, dict) else None
+    if not isinstance(platforms, dict):
+        return {}
+    return {
+        str(name): row["snippet_budget"]
+        for name, row in platforms.items()
+        if isinstance(row, dict) and isinstance(row.get("snippet_budget"), dict)
+    }
+
+
 def _compute_extractor_hash() -> str:
     """Compute a hash of the extractor source files.
 
@@ -182,6 +233,10 @@ def _compute_extractor_hash() -> str:
     principle used elsewhere in this hardening pass (see D-1 in
     reports/sprint/pdf-typescript-hardening/preflight/design.md).
 
+    MT074 R3-5 (deliberate scope widening): the canonical JSON of the per-platform
+    ``snippet_budget`` blocks of config/platform_capabilities.yaml is also hashed --
+    they drive snippet extraction but are not ``.py`` files under extraction/.
+
     One-time cost: this widens what counts as "changed" for every already-
     scouted product, so the very next ``refresh_knowledge.py`` run for a
     fleet product may report ``extractor_changed: true`` even with no
@@ -199,7 +254,25 @@ def _compute_extractor_hash() -> str:
     h = hashlib.sha256()
     for fp in extractor_files:
         if fp.exists():
-            h.update(fp.read_bytes())
+            # MT074 B13d: hash LF-normalised bytes so a CRLF checkout
+            # (core.autocrlf=true) and an LF checkout of the SAME source give the
+            # same hash -- raw bytes made "extractor changed" a per-machine artefact.
+            # Scope is unchanged (same files, same order).
+            h.update(fp.read_bytes().replace(b"\r\n", b"\n"))
+    # MT074 R3-5: the per-platform `snippet_budget` blocks of
+    # config/platform_capabilities.yaml DRIVE extraction (extraction/snippets.py reads
+    # them) but live outside extraction/*.py, so a budget change used to leave every
+    # product's "extractor unchanged" signal silently wrong.  Their canonical JSON
+    # (sorted keys, parsed -- hence line-ending independent) is folded in.  This
+    # DELIBERATELY WIDENS the hash scope beyond .py files: one more fleet-wide
+    # one-time `extractor_changed` event, the correct and honest signal.  A repo
+    # without the YAML (or without any block) hashes exactly as before.
+    blocks = _snippet_budget_blocks(REPO_ROOT / "scripts" / "pipeline" / "config"
+                                    / "platform_capabilities.yaml")
+    if blocks:
+        h.update(b"\0snippet_budget\0")
+        h.update(json.dumps(blocks, sort_keys=True, separators=(",", ":"),
+                            ensure_ascii=False, default=str).encode("utf-8"))
     return h.hexdigest()[:16]
 
 
@@ -604,6 +677,149 @@ def _maybe_run_block_updater_dry_run(family: str, platform: str, merged_dir: Pat
     return summary
 
 
+# Directions of a real formats.json entry that count as documented FORMAT SUPPORT, mapped
+# to the set of capabilities they grant. Every other direction ("detect", "enum_only", and
+# anything an extractor invents later) is NOISE: it is reported in the delta's ``noise``
+# list but never counted as added/removed support.
+_FORMAT_SUPPORT_DIRECTIONS: "dict[str, frozenset]" = {
+    "import": frozenset({"import"}),
+    "export": frozenset({"export"}),
+    "both": frozenset({"import", "export"}),
+}
+# Pre-TC-02 formats.json entries carried a ``support`` label instead of ``direction``.
+_LEGACY_SUPPORT_TO_DIRECTION = {"both": "both", "import-only": "import", "export-only": "export"}
+
+
+def _format_support_label(directions: "frozenset | set") -> str:
+    """Map a capability set to the label vocabulary format_table_handler.py consumes."""
+    if {"import", "export"} <= set(directions):
+        return "both"
+    if "import" in directions:
+        return "import-only"
+    if "export" in directions:
+        return "export-only"
+    return ""
+
+
+def _index_formats(entries: list) -> "tuple[dict, dict]":
+    """Index formats.json entries into (supported, noise).
+
+    Real entry shape: ``{format, enum, value, file, line, direction, functional}``
+    (legacy ``{name, support}`` entries are accepted too). Entries are keyed by
+    ``(format.strip().casefold(), direction)``; several entries sharing a key (e.g. the
+    same format listed once with an empty ``enum`` and once under its real enum) are
+    de-duplicated, preferring an entry with a non-empty ``enum``, then the lowest
+    ``(file, line)``. A key is SUPPORT only when its direction grants import/export
+    AND at least one of its entries is not explicitly ``functional: false``; anything
+    else lands in ``noise`` keyed by ``(format_key, direction, reason)``.
+
+    Returns ``(supported, noise)``: ``supported`` maps format_key -> {name, directions,
+    ext, description}; ``noise`` maps (format_key, direction, reason) -> {name,
+    direction, reason}.
+    """
+    groups: "dict[tuple[str, str], list[dict]]" = {}
+    for entry in entries:
+        if not isinstance(entry, dict):
+            continue
+        name = str(entry.get("format") or entry.get("name") or "").strip()
+        direction = entry.get("direction")
+        if not direction:
+            direction = _LEGACY_SUPPORT_TO_DIRECTION.get(str(entry.get("support", "")), "")
+        direction = str(direction or "").strip().casefold()
+        groups.setdefault((name.casefold(), direction), []).append(entry)
+
+    def _preference(e: dict) -> tuple:
+        # MT074 R1-8: `line` is untrusted extractor output; a non-numeric value
+        # ("12a", "", None, a list) must degrade to 0, never abort the delta writer
+        # (and with it the whole refresh chain).
+        try:
+            line = int(e.get("line") or 0)
+        except (TypeError, ValueError):
+            line = 0
+        return (0 if e.get("enum") else 1, str(e.get("file", "")), line)
+
+    supported: dict = {}
+    noise: dict = {}
+    for (fkey, direction), members in groups.items():
+        functional = [m for m in members if m.get("functional") is not False]
+        pool = functional or members
+        best = min(pool, key=_preference)
+        name = str(best.get("format") or best.get("name") or "").strip()
+        caps = _FORMAT_SUPPORT_DIRECTIONS.get(direction)
+        if not fkey:
+            reason = "empty_format_name"
+        elif caps is None:
+            reason = "non_support_direction"
+        elif not functional:
+            reason = "non_functional"
+        else:
+            reason = ""
+        if reason:
+            noise[(fkey, direction, reason)] = {"name": name, "direction": direction, "reason": reason}
+            continue
+        slot = supported.setdefault(fkey, {
+            "name": name, "directions": set(),
+            "ext": str(best.get("ext") or ""), "description": str(best.get("description") or ""),
+        })
+        slot["directions"] |= caps
+    return supported, noise
+
+
+def _compute_format_delta(old_entries: list, new_entries: list) -> dict:
+    """Diff two formats.json snapshots (real schema) into added/removed/direction-changed + noise.
+
+    CONTRACT:
+      input   old_entries/new_entries: lists of formats.json entries (see _index_formats).
+      output  {"formats_added": [{name, ext, support, description, directions}],
+               "formats_removed": [{name, ext, support, directions}],
+               "formats_direction_changed": [{name, old_support, new_support}],
+               "noise": [{name, direction, reason, change: "added"|"removed"}]}
+              ``name`` is the format string itself (compatible with format_table_handler.py);
+              ``support`` is "both" | "import-only" | "export-only".
+      rules   * identity = format string, casefolded/stripped -- no per-format alias logic.
+              * a format is added/removed when it gains/loses ALL import/export support;
+                a changed capability set is direction_changed.
+              * detect / enum_only / non-functional / unknown directions are never support:
+                they appear only in ``noise`` (changes in them are reported, never dropped).
+    """
+    old_sup, old_noise = _index_formats(old_entries)
+    new_sup, new_noise = _index_formats(new_entries)
+
+    added = []
+    for key in sorted(set(new_sup) - set(old_sup)):
+        f = new_sup[key]
+        added.append({
+            "name": f["name"], "ext": f["ext"], "support": _format_support_label(f["directions"]),
+            "description": f["description"], "directions": sorted(f["directions"]),
+        })
+    removed = []
+    for key in sorted(set(old_sup) - set(new_sup)):
+        f = old_sup[key]
+        removed.append({
+            "name": f["name"], "ext": f["ext"], "support": _format_support_label(f["directions"]),
+            "directions": sorted(f["directions"]),
+        })
+    direction_changed = []
+    for key in sorted(set(old_sup) & set(new_sup)):
+        if old_sup[key]["directions"] != new_sup[key]["directions"]:
+            direction_changed.append({
+                "name": new_sup[key]["name"],
+                "old_support": _format_support_label(old_sup[key]["directions"]),
+                "new_support": _format_support_label(new_sup[key]["directions"]),
+            })
+    noise = []
+    for nkey in sorted(set(new_noise) - set(old_noise)):
+        noise.append({**new_noise[nkey], "change": "added"})
+    for nkey in sorted(set(old_noise) - set(new_noise)):
+        noise.append({**old_noise[nkey], "change": "removed"})
+    return {
+        "formats_added": added,
+        "formats_removed": removed,
+        "formats_direction_changed": direction_changed,
+        "noise": noise,
+    }
+
+
 def _write_format_delta(
     family: str,
     platform: str,
@@ -614,69 +830,32 @@ def _write_format_delta(
 ) -> None:
     """Compute and write format_delta.json comparing merged.bak/formats.json vs merged/formats.json.
 
-    Detects: FORMAT_ADDED, FORMAT_REMOVED, FORMAT_DIRECTION_CHANGED.
+    Detects: FORMAT_ADDED, FORMAT_REMOVED, FORMAT_DIRECTION_CHANGED (see _compute_format_delta
+    for the real-schema keying and the ``noise`` list, MT074 B2).
     Written to merged/format_delta.json; persists after bak cleanup.
     Must be called BEFORE _cleanup_bak().
     """
-    bak_fmt_path = bak_dir / "formats.json"
-    new_fmt_path = merged_dir / "formats.json"
-
-    def _load_formats(path: Path) -> dict[str, dict]:
-        """Load formats.json as a dict keyed by format name (uppercase)."""
+    def _load_formats(path: Path) -> list:
         if not path.is_file():
-            return {}
+            return []
         try:
             data = json.loads(path.read_text(encoding="utf-8", errors="replace"))
-            if not isinstance(data, list):
-                return {}
-            return {str(f.get("name", "")).upper(): f for f in data if isinstance(f, dict)}
         except Exception:
-            return {}
+            return []
+        return data if isinstance(data, list) else []
 
-    old_formats = _load_formats(bak_fmt_path)
-    new_formats = _load_formats(new_fmt_path)
-
-    added: list[dict] = []
-    removed: list[dict] = []
-    direction_changed: list[dict] = []
-
-    old_names = set(old_formats)
-    new_names = set(new_formats)
-
-    for name in sorted(new_names - old_names):
-        f = new_formats[name]
-        added.append({
-            "name": f.get("name", name),
-            "ext": f.get("ext", ""),
-            "support": f.get("support", ""),
-            "description": f.get("description", ""),
-        })
-
-    for name in sorted(old_names - new_names):
-        f = old_formats[name]
-        removed.append({
-            "name": f.get("name", name),
-            "ext": f.get("ext", ""),
-            "support": f.get("support", ""),
-        })
-
-    for name in sorted(old_names & new_names):
-        old_sup = old_formats[name].get("support", "")
-        new_sup = new_formats[name].get("support", "")
-        if old_sup != new_sup:
-            direction_changed.append({
-                "name": new_formats[name].get("name", name),
-                "old_support": old_sup,
-                "new_support": new_sup,
-            })
+    computed = _compute_format_delta(
+        _load_formats(bak_dir / "formats.json"), _load_formats(merged_dir / "formats.json"),
+    )
+    added = computed["formats_added"]
+    removed = computed["formats_removed"]
+    direction_changed = computed["formats_direction_changed"]
 
     delta = {
         "generated_at": datetime.now(timezone.utc).isoformat(),
         "base_sha": base_sha or "",
         "current_sha": current_sha,
-        "formats_added": added,
-        "formats_removed": removed,
-        "formats_direction_changed": direction_changed,
+        **computed,
     }
 
     target = merged_dir / "format_delta.json"
@@ -686,7 +865,8 @@ def _write_format_delta(
         tmp.replace(target)
         print(
             f"  {family}/{platform}: format_delta.json written "
-            f"(+{len(added)} added, -{len(removed)} removed, ~{len(direction_changed)} direction_changed)"
+            f"(+{len(added)} added, -{len(removed)} removed, ~{len(direction_changed)} direction_changed, "
+            f"{len(computed['noise'])} noise)"
         )
     except Exception as exc:
         print(f"  {family}/{platform}: WARN — could not write format_delta.json: {exc}")
@@ -813,6 +993,254 @@ def _deprecated_member_keys(api_entry: dict) -> set:
     return keys
 
 
+def _api_namespace(entry: dict) -> str:
+    """The namespace/package qualifier of an api_surface entry, or "" when it has none.
+
+    First non-empty of ``canonical_namespace`` (set by the per-language extractors), ``class_package``,
+    ``namespace``, ``package``. ``module_key``/``module_label`` are deliberately NOT used:
+    they are documentation groupings, not language identity.
+    """
+    for field in ("canonical_namespace", "class_package", "namespace", "package"):
+        value = entry.get(field)
+        if value:
+            return str(value)
+    return ""
+
+
+def _api_qualified_name(entry: dict) -> str:
+    """Stable qualified identity of an api_surface entry: ``<qualifier>::<name>``.
+
+    The qualifier is the entry's namespace/package (``_api_namespace``); entries that carry
+    none (older knowledge models, some extractors) fall back to their source ``file``;
+    with neither, the identity is the bare simple name. ``line`` is never part of identity
+    (it churns on every edit).
+    """
+    name = str(entry.get("name", ""))
+    qualifier = _api_namespace(entry) or str(entry.get("file") or "")
+    return f"{qualifier}::{name}" if qualifier else name
+
+
+def _member_names(entry: dict, field: str) -> set:
+    """Names of an entry's ``field`` members (dict members use ``name``; bare strings pass through)."""
+    out = set()
+    for m in entry.get(field, []) or []:
+        if isinstance(m, dict):
+            if m.get("name") is not None:
+                out.add(m.get("name"))
+        elif m is not None:
+            out.add(str(m))
+    return out
+
+
+def _pair_same_name_entities(olds: list, news: list) -> "tuple[list, list, list]":
+    """Match old/new entities that share a simple name; returns (pairs, removed, added).
+
+    Passes, each greedy and order-stable: (1) same non-empty namespace; (2) neither side has a
+    namespace and the file matches; (3) one side lacks a namespace (schema upgrade) and the file
+    matches; (4) one side lacks a namespace. Two entities that BOTH carry a namespace and
+    differ never pair -- that is a real new/removed type (or a relocation), not a no-op.
+    """
+    olds, news, pairs = list(olds), list(news), []
+
+    def run(pred) -> None:
+        for o in list(olds):
+            for n in news:
+                if pred(o, n):
+                    pairs.append((o, n))
+                    olds.remove(o)
+                    news.remove(n)
+                    break
+
+    run(lambda o, n: bool(_api_namespace(o)) and _api_namespace(o) == _api_namespace(n))
+    run(lambda o, n: not _api_namespace(o) and not _api_namespace(n)
+        and str(o.get("file") or "") == str(n.get("file") or ""))
+    run(lambda o, n: (not _api_namespace(o) or not _api_namespace(n))
+        and bool(o.get("file")) and o.get("file") == n.get("file"))
+    run(lambda o, n: not _api_namespace(o) or not _api_namespace(n))
+    return pairs, olds, news
+
+
+def _extractor_change_state(bak_dir: Path) -> str:
+    """Did the extractor change between the previous bundle and now?  "true" | "false" | "unknown".
+
+    Compares ``extractor_hash`` recorded in ``<bak_dir>/model.yaml`` (the previous bundle) with
+    ``_compute_extractor_hash()``. A missing/unreadable previous hash is "unknown" -- never
+    assumed equal, because an api_surface diff across two extractor versions can show a
+    member-list drop that is extractor noise rather than an upstream removal.
+    """
+    path = bak_dir / "model.yaml"
+    try:
+        data = yaml.safe_load(path.read_text(encoding="utf-8")) if path.is_file() else None
+    except Exception:
+        return "unknown"
+    previous = data.get("extractor_hash") if isinstance(data, dict) else None
+    if not previous:
+        return "unknown"
+    try:
+        return "false" if str(previous) == _compute_extractor_hash() else "true"
+    except Exception:
+        return "unknown"
+
+
+def _diff_api_surface(old_apis: list, new_apis: list, *, extractor_changed: str = "unknown") -> dict:
+    """Diff two api_surface.json snapshots on QUALIFIED identity (MT074 B2).
+
+    CONTRACT:
+      input   old_apis/new_apis: lists of api_surface entries (``name`` required; optional
+              ``canonical_namespace``/``class_package``/``namespace``/``package``, ``file``,
+              ``methods``, ``properties``, ``enum_members``).
+      identity ``_api_qualified_name`` (``<namespace-or-file>::<name>``); same-simple-name
+              entities are paired by ``_pair_same_name_entities``.
+      output  new_apis / removed_apis / modified_apis: SIMPLE-name lists (compatibility).
+                new_apis     = simple names of every qualified-new type (a type whose simple
+                               name collides with an existing one is no longer masked);
+                removed_apis = simple names of removed types whose simple name no longer
+                               exists anywhere (a name still held by another type is never
+                               reported removed -- the page for it must not be dropped);
+                modified_apis = simple names of paired types whose method names, property
+                               names or enum member names changed.
+              new_apis_qualified / removed_apis_qualified / modified_apis_qualified: qualified
+              identities (sorted). name_collisions: one record per simple name that is held
+              by more than one type in either snapshot and is involved in a change
+              ({name, old, new, added, removed, modified}). api_signature_changes (keyed by
+              simple name; entries of colliding same-named modified types are merged):
+              added/removed_methods/properties always, plus enum_members_added/_removed when
+              the enum member set changed.
+      breaking (extractor-version aware): ``extractor_changed`` is "true" | "false" | "unknown"
+              (see _extractor_change_state). A member removal (methods / properties / enum
+              constants) is CONFIRMED -- ``breaking_changes`` / ``breaking_apis``
+              ({name: {removed_methods, removed_properties, enum_members_removed}}, non-empty
+              keys only) -- ONLY when extractor_changed == "false" AND the type stayed in the
+              same file. Otherwise it is ``breaking_unconfirmed`` ({name: {<removed keys>,
+              reason: "extractor_changed_or_unknown", verify_against_source: True}}) because a
+              member-list drop between two extractor versions is indistinguishable from a real
+              removal; ``breaking_unconfirmed_apis`` lists the names. Whole-type removals are
+              still in removed_apis and, when extractor_changed != "false", also in
+              ``removed_apis_unconfirmed``. ``extraction_drift_suspect`` (independent of
+              extractor_changed) lists paired same-file types whose member count fell by
+              >= 30% and >= 5 members with no member added -- the signature of extractor drift.
+    """
+    olds_by_name: dict = {}
+    news_by_name: dict = {}
+    for e in old_apis:
+        if isinstance(e, dict) and "name" in e:
+            olds_by_name.setdefault(e["name"], []).append(e)
+    for e in new_apis:
+        if isinstance(e, dict) and "name" in e:
+            news_by_name.setdefault(e["name"], []).append(e)
+
+    added_q: list = []
+    removed_q: list = []
+    modified_q: list = []
+    added_names: set = set()
+    removed_names: set = set()
+    modified_names: set = set()
+    sig_by_name: dict = {}
+    collisions: list = []
+    file_moved: set = set()
+    drift_suspect: list = []
+
+    for name in sorted(set(olds_by_name) | set(news_by_name)):
+        olds, news = olds_by_name.get(name, []), news_by_name.get(name, [])
+        pairs, gone, fresh = _pair_same_name_entities(olds, news)
+        grp_added = sorted(_api_qualified_name(e) for e in fresh)
+        grp_removed = sorted(_api_qualified_name(e) for e in gone)
+        grp_modified: list = []
+        for o, n in pairs:
+            om, nm = _member_names(o, "methods"), _member_names(n, "methods")
+            op, np_ = _member_names(o, "properties"), _member_names(n, "properties")
+            oe, ne = _member_names(o, "enum_members"), _member_names(n, "enum_members")
+            if om == nm and op == np_ and oe == ne:
+                continue
+            of, nf = str(o.get("file") or ""), str(n.get("file") or "")
+            if of and nf and of != nf:
+                file_moved.add(name)
+            old_count, new_count = len(om) + len(op) + len(oe), len(nm) + len(np_) + len(ne)
+            dropped = old_count - new_count
+            if (of == nf and dropped >= 5 and dropped >= 0.3 * old_count
+                    and not (nm - om) and not (np_ - op) and not (ne - oe)):
+                drift_suspect.append({
+                    "name": name, "qualified": _api_qualified_name(n), "file": nf,
+                    "old_member_count": old_count, "new_member_count": new_count,
+                    "removed_member_count": dropped,
+                })
+            grp_modified.append(_api_qualified_name(n))
+            sig = sig_by_name.setdefault(name, {
+                "added_methods": set(), "removed_methods": set(),
+                "added_properties": set(), "removed_properties": set(),
+                "enum_members_added": set(), "enum_members_removed": set(),
+            })
+            sig["added_methods"] |= nm - om
+            sig["removed_methods"] |= om - nm
+            sig["added_properties"] |= np_ - op
+            sig["removed_properties"] |= op - np_
+            sig["enum_members_added"] |= ne - oe
+            sig["enum_members_removed"] |= oe - ne
+        added_q += grp_added
+        removed_q += grp_removed
+        modified_q += grp_modified
+        if grp_added:
+            added_names.add(name)
+        if grp_removed:
+            removed_names.add(name)
+        if grp_modified:
+            modified_names.add(name)
+        if (len(olds) > 1 or len(news) > 1) and (grp_added or grp_removed or grp_modified):
+            collisions.append({
+                "name": name,
+                "old": sorted(_api_qualified_name(e) for e in olds),
+                "new": sorted(_api_qualified_name(e) for e in news),
+                "added": grp_added, "removed": grp_removed, "modified": sorted(grp_modified),
+            })
+
+    new_names = set(news_by_name)
+    api_signature_changes: dict = {}
+    breaking_changes: dict = {}
+    breaking_unconfirmed: dict = {}
+    extractor_stable = extractor_changed == "false"
+    for name, sig in sig_by_name.items():
+        entry = {
+            "added_methods": sorted(sig["added_methods"]),
+            "removed_methods": sorted(sig["removed_methods"]),
+            "added_properties": sorted(sig["added_properties"]),
+            "removed_properties": sorted(sig["removed_properties"]),
+        }
+        if sig["enum_members_added"] or sig["enum_members_removed"]:
+            entry["enum_members_added"] = sorted(sig["enum_members_added"])
+            entry["enum_members_removed"] = sorted(sig["enum_members_removed"])
+        api_signature_changes[name] = entry
+        broken = {
+            k: entry[k] for k in ("removed_methods", "removed_properties", "enum_members_removed")
+            if entry.get(k)
+        }
+        if broken:
+            if extractor_stable and name not in file_moved:
+                breaking_changes[name] = broken
+            else:
+                breaking_unconfirmed[name] = {
+                    **broken,
+                    "reason": "extractor_changed_or_unknown",
+                    "verify_against_source": True,
+                }
+
+    return {
+        "new_apis": sorted(added_names),
+        "removed_apis": sorted(removed_names - new_names),
+        "modified_apis": sorted(modified_names),
+        "new_apis_qualified": sorted(added_q),
+        "removed_apis_qualified": sorted(removed_q),
+        "modified_apis_qualified": sorted(modified_q),
+        "name_collisions": collisions,
+        "api_signature_changes": {k: api_signature_changes[k] for k in sorted(api_signature_changes)},
+        "breaking_apis": sorted(breaking_changes),
+        "breaking_changes": {k: breaking_changes[k] for k in sorted(breaking_changes)},
+        "breaking_unconfirmed_apis": sorted(breaking_unconfirmed),
+        "breaking_unconfirmed": {k: breaking_unconfirmed[k] for k in sorted(breaking_unconfirmed)},
+        "removed_apis_unconfirmed": [] if extractor_stable else sorted(removed_names - new_names),
+        "extraction_drift_suspect": sorted(drift_suspect, key=lambda d: d["qualified"]),
+    }
+
+
 def _write_knowledge_delta(
     family: str,
     platform: str,
@@ -904,44 +1332,15 @@ def _write_knowledge_delta(
             "new_text": new_by_id[cid].get("text", ""),
         }
 
-    # Build API dicts keyed by class name
-    old_api_by_name = {e["name"]: e for e in old_apis if isinstance(e, dict) and "name" in e}
-    new_api_by_name = {e["name"]: e for e in new_apis if isinstance(e, dict) and "name" in e}
-    old_api_names = set(old_api_by_name)
-    new_api_names = set(new_api_by_name)
-
-    added_apis = sorted(new_api_names - old_api_names)
-    removed_apis = sorted(old_api_names - new_api_names)
-
-    # Classes in both old and new but with changed members (methods or properties)
-    api_surface_modified = sorted(
-        name for name in new_api_names & old_api_names
-        if (
-            {m.get("name") for m in new_api_by_name[name].get("methods", [])}
-            != {m.get("name") for m in old_api_by_name[name].get("methods", [])}
-        ) or (
-            {p.get("name") for p in new_api_by_name[name].get("properties", [])}
-            != {p.get("name") for p in old_api_by_name[name].get("properties", [])}
-        )
-    )
-
-    # Task 17 (§9.12): a short, structured signature-diff summary for each
-    # name-set-changed class -- alongside modified_apis, not a replacement
-    # for it. Only api_surface_modified (a real method/property name-set
-    # change) gets one; erc_changed_classes (doc-coverage only, no signature
-    # change) correctly does not.
-    api_signature_changes: dict[str, dict] = {}
-    for name in api_surface_modified:
-        old_methods = {m.get("name") for m in old_api_by_name[name].get("methods", [])}
-        new_methods = {m.get("name") for m in new_api_by_name[name].get("methods", [])}
-        old_props = {p.get("name") for p in old_api_by_name[name].get("properties", [])}
-        new_props = {p.get("name") for p in new_api_by_name[name].get("properties", [])}
-        api_signature_changes[name] = {
-            "added_methods": sorted(new_methods - old_methods),
-            "removed_methods": sorted(old_methods - new_methods),
-            "added_properties": sorted(new_props - old_props),
-            "removed_properties": sorted(old_props - new_props),
-        }
+    # MT074 B2: API identity is QUALIFIED (see _diff_api_surface), not the simple class
+    # name -- two different types sharing a simple name no longer mask each other, and
+    # enum_members changes are diffed. Simple-name lists are kept for compatibility.
+    extractor_changed = _extractor_change_state(bak_dir)
+    api_diff = _diff_api_surface(old_apis, new_apis, extractor_changed=extractor_changed)
+    added_apis = api_diff["new_apis"]
+    removed_apis = api_diff["removed_apis"]
+    api_surface_modified = api_diff["modified_apis"]
+    api_signature_changes = api_diff["api_signature_changes"]
 
     # Classes whose ERC member descriptions changed (e.g. after --mode member-doc run).
     # When enrich.py adds new ClassName.MemberName api-kind claims, those classes should
@@ -993,6 +1392,7 @@ def _write_knowledge_delta(
         "generated_at": datetime.now(timezone.utc).isoformat(),
         "base_sha": base_sha or "",
         "current_sha": current_sha,
+        "extractor_changed": extractor_changed,
         "new_claims": added_claims,
         "removed_claims": removed_claims,
         "modified_claims": modified_claims,
@@ -1004,6 +1404,17 @@ def _write_knowledge_delta(
         "claim_text_changes": claim_text_changes,
         "api_signature_changes": api_signature_changes,
         "reidentified_claims": reidentified_claims,
+        # MT074 B2 additive fields (existing consumers ignore them).
+        "new_apis_qualified": api_diff["new_apis_qualified"],
+        "removed_apis_qualified": api_diff["removed_apis_qualified"],
+        "modified_apis_qualified": api_diff["modified_apis_qualified"],
+        "name_collisions": api_diff["name_collisions"],
+        "breaking_apis": api_diff["breaking_apis"],
+        "breaking_changes": api_diff["breaking_changes"],
+        "breaking_unconfirmed_apis": api_diff["breaking_unconfirmed_apis"],
+        "breaking_unconfirmed": api_diff["breaking_unconfirmed"],
+        "removed_apis_unconfirmed": api_diff["removed_apis_unconfirmed"],
+        "extraction_drift_suspect": api_diff["extraction_drift_suspect"],
     }
 
     # Atomic write via temp file + rename
@@ -1035,10 +1446,23 @@ def refresh(
     auto_fetch: bool = True,
     compulsory_enrich: bool = False,
     skip_enrich: bool = False,
+    pin_sha: "str | None" = None,
+    strict_fetch: bool = False,
+    allow_drop_enrichment: bool = False,
+    allow_partial_enrichment: bool = False,
 ) -> str:
     """Refresh knowledge for one product.
 
+    allow_drop_enrichment (MT074 B13a): forwarded to promote.py as
+    --allow-drop-enrichment. Off by default -- promote fails closed rather than
+    silently dropping the tracked enriched (ERC-*) claims.
+
     Returns one of: "current", "refreshed", "stale", "no_clone", "failed".
+
+    pin_sha (MT074 B1): after clone/fetch, detach-checkout the clone at exactly this
+    commit and use it as HEAD for the whole refresh; "failed" if HEAD cannot be made
+    equal to it. strict_fetch: a failed upstream fetch returns "failed" instead of the
+    legacy degraded mode (continue on the stale clone HEAD). Defaults change nothing.
 
     When auto_clone=True (default), attempts to clone the repo from clone_url
     in data/products.json if the clone cache directory is missing.
@@ -1046,12 +1470,12 @@ def refresh(
     so that change detection is not permanently blind.
     """
     clone = _clone_dir(family, platform)
-    head = _head_sha(clone)
+    head = _hooked("head_sha", _head_sha)(clone)
     if head is None:
         if auto_clone and not check_only:
             cloned = _try_auto_clone(family, platform, clone)
             if cloned:
-                head = _head_sha(clone)
+                head = _hooked("head_sha", _head_sha)(clone)
         if head is None:
             print(f"  {family}/{platform}: clone cache not found at {clone}")
             return "no_clone"
@@ -1059,10 +1483,30 @@ def refresh(
     # Fetch upstream to advance local HEAD before SHA comparison.
     # This fixes the permanent blind-detection problem (shallow clone never updated).
     if auto_fetch:
-        fetched_sha = _update_clone(family, platform)
+        if strict_fetch:
+            try:
+                fetched_sha = _update_clone(family, platform, strict=True)
+            except RuntimeError as exc:
+                print(f"  {family}/{platform}: FAILED — strict fetch error: {exc}")
+                return "failed"
+        else:
+            fetched_sha = _update_clone(family, platform)
         if fetched_sha is not None:
             head = fetched_sha
         # If fetch fails, continue with existing clone HEAD (degraded mode)
+
+    if pin_sha:
+        try:
+            pinned = _hooked("checkout_pinned", _checkout_pinned)(family, platform, pin_sha)
+        except RuntimeError as exc:
+            print(f"  {family}/{platform}: FAILED — cannot pin clone to {pin_sha[:10]}: {exc}")
+            return "failed"
+        actual = _hooked("head_sha", _head_sha)(clone)
+        if actual != pinned:
+            print(f"  {family}/{platform}: FAILED — pin mismatch: clone HEAD "
+                  f"{(actual or 'none')[:10]} != pinned {pinned[:10]}")
+            return "failed"
+        head = pinned
 
     current = _model_sha(family, platform)
 
@@ -1127,8 +1571,16 @@ def refresh(
     try:
         with acquire_regen_lock(family, platform, owner="refresh-knowledge",
                                  knowledge_root=KNOWLEDGE_ROOT):
+            _chain_kw: dict = {}
+            if allow_drop_enrichment:
+                _chain_kw["allow_drop_enrichment"] = True
+            if allow_partial_enrichment:
+                _chain_kw["allow_partial_enrichment"] = True
+            if pin_sha:
+                _chain_kw["pin_sha"] = pin_sha
             return _run_refresh_chain(family, platform, clone, head, current,
-                                       compulsory_enrich=compulsory_enrich, skip_enrich=skip_enrich)
+                                       compulsory_enrich=compulsory_enrich, skip_enrich=skip_enrich,
+                                       **_chain_kw)
     except RegenLockTimeout:
         print(f"  {family}/{platform}: another process is already refreshing this "
               f"product's knowledge (regen lock busy) — skipping this run")
@@ -1144,6 +1596,9 @@ def _run_refresh_chain(
     *,
     compulsory_enrich: bool,
     skip_enrich: bool,
+    allow_drop_enrichment: bool = False,
+    allow_partial_enrichment: bool = False,
+    pin_sha: "str | None" = None,
 ) -> str:
     """The scout -> enrich -> promote -> index chain, run under refresh()'s regen
     lock. Extracted to its own function (unchanged body) purely so refresh() can wrap
@@ -1162,21 +1617,42 @@ def _run_refresh_chain(
 
     try:
         scout_out = KNOWLEDGE_ROOT / family / platform / "scout"
-        ok = _run(
+        ok = _hooked("run", _run)(
             [sys.executable, "scripts/pipeline/commands/knowledge/scout.py",
              family, platform, str(clone), str(scout_out)],
             "scout",
         )
         if not ok:
             return "failed"
+        # MT074 R1-8: the pin was verified ONCE, before the chain.  Re-verify after the
+        # scout step (the one step that reads the clone) so a clone that moved under a
+        # pinned refresh can never be promoted as if it were the pinned commit.
+        if pin_sha:
+            _after = _hooked("head_sha", _head_sha)(clone)
+            if _after != head:
+                print(f"  {family}/{platform}: FAILED — pinned clone HEAD moved during scout: "
+                      f"{(_after or 'none')[:10]} != pinned {head[:10]}")
+                return "failed"
 
         # Enrich: best-effort by default, hard fail with --compulsory-enrich.
         # SEAM-01: --skip-enrich bypasses LLM calls entirely (scout-only run).
         if skip_enrich:
             print(f"  {family}/{platform}: enrich skipped (--skip-enrich)")
             enrich_ok = False
+            # MT074 B13a: --skip-enrich means "no LLM", not "drop the enriched claims".
+            # When scout/enriched_claims.json is missing but the tracked merged claims
+            # hold ERC claims, materialise them via the LLM-free carry-forward
+            # (enrich.py --no-llm seeds from the tracked claims) so promote does not
+            # abort or silently drop them.
+            if not (scout_out / "enriched_claims.json").exists() and \
+                    (merged_dir / "claims.json").exists():
+                _hooked("run", _run)(
+                    [sys.executable, "scripts/pipeline/commands/knowledge/enrich.py",
+                     family, platform, "--no-llm"],
+                    "enrich-seed",
+                )
         else:
-            enrich_ok = _run(
+            enrich_ok = _hooked("run", _run)(
                 [sys.executable, "scripts/pipeline/commands/knowledge/enrich.py", family, platform],
                 "enrich",
             )
@@ -1196,10 +1672,16 @@ def _run_refresh_chain(
                 print(f"  {family}/{platform}: ENRICH FAILED and --compulsory-enrich is set — aborting")
                 return "failed"
 
-        ok = _run(
-            [sys.executable, "scripts/pipeline/commands/knowledge/promote.py", family, platform],
-            "promote",
-        )
+        # MT074 B13d: pass the current extractor hash so promote stamps it into
+        # model.yaml (it used to drop the field; it was only re-saved at the very
+        # end of a fully successful chain).
+        _promote_cmd = [sys.executable, "scripts/pipeline/commands/knowledge/promote.py",
+                        family, platform, "--extractor-hash", _compute_extractor_hash()]
+        if allow_drop_enrichment:
+            _promote_cmd.append("--allow-drop-enrichment")
+        if allow_partial_enrichment:
+            _promote_cmd.append("--allow-partial-enrichment")
+        ok = _hooked("run", _run)(_promote_cmd, "promote")
         if not ok:
             return "failed"
 
@@ -1224,7 +1706,7 @@ def _run_refresh_chain(
             family, platform, "enrichment_status", "full" if enrich_ok else "scout-only"
         )
 
-        ok = _run(
+        ok = _hooked("run", _run)(
             [sys.executable, "scripts/pipeline/commands/knowledge/index.py", family, platform],
             "index",
         )
@@ -1258,11 +1740,11 @@ def _run_refresh_chain(
         except Exception as exc:
             print(f"  {family}/{platform}: WARN — could not clear stale_since after refresh: {exc}")
 
-        _run_completeness_check(family, platform)
+        _hooked("completeness_check", _run_completeness_check)(family, platform)
 
         # Auto-refresh evidence after knowledge update to prevent WARN drift.
         # Non-fatal: evidence can always be re-attached manually.
-        _run(
+        _hooked("run", _run)(
             [sys.executable, "scripts/pipeline/commands/healing/attach_evidence.py",
              family, platform],
             "attach-evidence",
@@ -1333,13 +1815,27 @@ def main():
                         help="Disable automatic cloning from clone_url in products.json")
     parser.add_argument("--no-auto-fetch", action="store_true",
                         help="Skip upstream fetch before SHA comparison (offline/CI mode)")
+    parser.add_argument("--pin-sha", dest="pin_sha", default=None, metavar="SHA",
+                        help="Detach-checkout the clone at exactly SHA after fetch; fail if HEAD != SHA")
+    parser.add_argument("--strict-fetch", action="store_true", dest="strict_fetch",
+                        help="Treat a failed upstream fetch as a hard failure (no degraded mode)")
     parser.add_argument("--compulsory-enrich", action="store_true",
                         help="Require enrichment to succeed; abort pipeline on enrich failure")
     parser.add_argument("--skip-enrich", action="store_true", dest="skip_enrich",
                         help="Skip LLM enrichment entirely; writes enrichment_status: scout-only")
+    parser.add_argument("--allow-drop-enrichment", action="store_true", dest="allow_drop_enrichment",
+                        help="MT074 B13a: let promote DROP the tracked enriched (ERC-*) claims when "
+                             "enrichment output is absent/empty/stale. Off by default (promote aborts "
+                             "instead, so enrichment is never silently lost).")
+    parser.add_argument("--allow-partial-enrichment", action="store_true", dest="allow_partial_enrichment",
+                        help="MT074 R1-5: let promote use an enrichment output marked PARTIAL (some "
+                             "changed units failed/yielded nothing; their old claims are kept). Off by "
+                             "default; the failed units are retried on the next enrich run.")
     parser.add_argument("family", nargs="?", help="Product family (e.g. 3d)")
     parser.add_argument("platform", nargs="?", help="Platform (e.g. python)")
     args = parser.parse_args()
+    if args.pin_sha and args.all:
+        parser.error("--pin-sha is per-product; it cannot be combined with --all")
 
     # --check is a legacy alias for --check-only
     check_only = args.check_only or args.check
@@ -1359,6 +1855,10 @@ def main():
                 auto_fetch=auto_fetch,
                 compulsory_enrich=args.compulsory_enrich,
                 skip_enrich=args.skip_enrich,
+                pin_sha=args.pin_sha,
+                strict_fetch=args.strict_fetch,
+                allow_drop_enrichment=args.allow_drop_enrichment,
+                allow_partial_enrichment=args.allow_partial_enrichment,
             )
         stale = [k for k, v in results.items() if v in ("stale", "failed")]
         no_clone = [k for k, v in results.items() if v == "no_clone"]
@@ -1382,6 +1882,10 @@ def main():
         auto_fetch=auto_fetch,
         compulsory_enrich=args.compulsory_enrich,
         skip_enrich=args.skip_enrich,
+        pin_sha=args.pin_sha,
+        strict_fetch=args.strict_fetch,
+        allow_drop_enrichment=args.allow_drop_enrichment,
+        allow_partial_enrichment=args.allow_partial_enrichment,
     )
     if result in ("stale", "failed", "no_clone"):
         sys.exit(1)

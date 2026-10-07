@@ -59,6 +59,12 @@ from lib.bundle_manifest import (
 # scripts/pipeline/commands/knowledge/promote.py -> ... -> repo root (4 parents up)
 _PROMOTE_REPO_ROOT = Path(__file__).resolve().parents[4]
 
+# MT074 B13a / R1-6: promote aborts (fails closed) when the enrichment it is about to merge
+# retains fewer than this fraction of the enriched (ERC-*) claims already tracked in
+# merged/claims.json -- 0 claims (absent/empty/stale input) is the extreme case, a stale
+# partial file (1500 -> 100) the sneaky one.  --allow-drop-enrichment overrides.
+ENRICHMENT_MIN_RETAINED_RATIO = 0.5
+
 
 def compute_extractor_config_sha(family: str) -> str:
     """Return a 16-hex-char hash of the family-specific extractor configuration.
@@ -1413,7 +1419,24 @@ def _save_known_errors_override(block: str, family: str, platform: str, knowledg
     path.write_text(block, encoding="utf-8")
 
 
-def promote(family: str, platform: str, knowledge_root=None, *, merged_dir_override=None) -> bool:
+def _count_tracked_enriched_claims(claims_path: Path) -> int:
+    """Number of enriched (ERC-*) claims in a tracked merged/claims.json (0 if unreadable)."""
+    try:
+        data = json.loads(Path(claims_path).read_text(encoding="utf-8"))
+    except (OSError, json.JSONDecodeError):
+        return 0
+    claims = data if isinstance(data, list) else (data.get("claims", []) if isinstance(data, dict) else [])
+    return sum(
+        1 for c in claims
+        if isinstance(c, dict) and isinstance(c.get("claim_id"), str)
+        and c["claim_id"].startswith("ERC-")
+        and c.get("provenance", "enriched") == "enriched"
+    )
+
+
+def promote(family: str, platform: str, knowledge_root=None, *, merged_dir_override=None,
+            allow_drop_enrichment: bool = False, extractor_hash: "str | None" = None,
+            allow_partial_enrichment: bool = False) -> bool:
     """Promote scout/ knowledge to merged/ with optional enriched/supplemental claims.
 
     merged_dir_override (FRESH-001, T3): when given, all merged/ reads AND writes go
@@ -1424,6 +1447,24 @@ def promote(family: str, platform: str, knowledge_root=None, *, merged_dir_overr
     PromotionValidationError partway through this function never leaves the real
     merged/ in a mixed/partial state. New keyword-only param, defaults to None
     (identical behaviour to before this change) so no existing caller is affected.
+
+    allow_drop_enrichment (MT074 B13a): promote FAILS CLOSED -- hard abort, nothing
+    written -- when the enrichment input is absent, empty or stale while the tracked
+    merged/claims.json already holds enriched (ERC-*) claims, because proceeding would
+    silently drop every one of them and the next delta would report them as mass
+    removal (observed live: -1,542 claims on pdf/java).  Pass True (CLI:
+    --allow-drop-enrichment) ONLY for a deliberate decision to discard enrichment.
+    The abort also trips on PARTIAL loss: fewer than ENRICHMENT_MIN_RETAINED_RATIO
+    (50%) of the tracked ERC claims surviving in the enrichment input.
+
+    allow_partial_enrichment (MT074 R1-5): enrich marks an output ``enrichment_status:
+    partial`` when a changed unit failed/yielded nothing; promote aborts on it unless
+    this is True (CLI: --allow-partial-enrichment).
+
+    extractor_hash (MT074 B13d): the current extractor hash, passed by
+    refresh_knowledge so a promote running inside a refresh stamps it into
+    model.yaml.  When None, any extractor_hash already present in model.yaml is
+    PRESERVED (promote rewrites model.yaml wholesale and used to drop it).
 
     Returns True on success, False on failure.
     """
@@ -1463,13 +1504,19 @@ def promote(family: str, platform: str, knowledge_root=None, *, merged_dir_overr
     # (confirmed empirically pre-fix: knowledge/3d/net/merged/model.yaml had no
     # previous_repo_sha key despite refresh_knowledge.py's intent to write one).
     _prior_repo_sha_for_ledger: str | None = None
+    _prior_extractor_hash: "str | None" = None
     _existing_model_path = merged_dir / "model.yaml"
     if _existing_model_path.exists():
         try:
             _existing_model = yaml.safe_load(_existing_model_path.read_text(encoding="utf-8")) or {}
             _prior_repo_sha_for_ledger = _existing_model.get("repo_sha") or None
+            _prior_extractor_hash = _existing_model.get("extractor_hash") or None
         except Exception:
             _prior_repo_sha_for_ledger = None  # corrupt/unreadable prior model.yaml; ledger will record prior=null, not fabricate a value
+
+    # MT074 B13a: how many enriched (ERC-*) claims does the TRACKED merged/claims.json
+    # already hold?  Read BEFORE this function overwrites claims.json below.
+    _tracked_erc_count = _count_tracked_enriched_claims(merged_dir / "claims.json")
 
     # Load scout data
     # FIX-12: claims.json may be a flat list (legacy) or a wrapper dict with
@@ -1514,7 +1561,24 @@ def promote(family: str, platform: str, knowledge_root=None, *, merged_dir_overr
             # Staleness check: enriched_claims.json records the api_surface SHA it was
             # generated from.  If that SHA differs from the current scout api_surface,
             # the enrichment is stale and claims may reference removed/renamed members.
-            if isinstance(enriched_data, dict):
+            _partial_enrichment = (isinstance(enriched_data, dict)
+                                   and enriched_data.get("enrichment_status") == "partial")
+            if _partial_enrichment:
+                # MT074 R1-5: enrich marks an output PARTIAL when some changed unit failed or
+                # yielded nothing acceptable (their OLD claims are kept, sha NOT refreshed).
+                if not allow_partial_enrichment:
+                    print(
+                        f"  FAIL: {family}/{platform}: enriched_claims.json is marked PARTIAL "
+                        f"({len(enriched_data.get('incomplete_units', []))} unit(s) not enriched for "
+                        f"the current api_surface) -- aborting before anything is written.\n"
+                        f"  Fix: re-run enrich.py {family} {platform} (retries exactly those units), "
+                        f"or pass --allow-partial-enrichment to promote the old claims of the "
+                        f"incomplete units anyway."
+                    )
+                    return False
+                print(f"  WARNING: --allow-partial-enrichment: promoting a PARTIAL enrichment "
+                      f"({len(enriched_data.get('incomplete_units', []))} incomplete unit(s) keep old claims)")
+            if isinstance(enriched_data, dict) and not _partial_enrichment:
                 stored_sha = enriched_data.get("api_surface_sha", "")
                 if stored_sha:
                     import hashlib as _hashlib
@@ -1550,6 +1614,27 @@ def promote(family: str, platform: str, knowledge_root=None, *, merged_dir_overr
             print(f"  Supplemental: {supplemental_count} claims (temporary bridge - delete after enrich.py runs)")
         except (json.JSONDecodeError, OSError) as exc:
             print(f"  WARNING: could not read supplemental_claims.json: {exc}")
+
+    if _tracked_erc_count and enriched_count < ENRICHMENT_MIN_RETAINED_RATIO * _tracked_erc_count:
+        if not allow_drop_enrichment:
+            print(
+                f"  FAIL: {family}/{platform}: the tracked merged/claims.json holds "
+                f"{_tracked_erc_count} enriched (ERC-*) claim(s) but the enrichment input "
+                f"({enriched_path}) yields only {enriched_count} (absent, empty, stale or "
+                f"truncated; minimum retained ratio {ENRICHMENT_MIN_RETAINED_RATIO:.0%}) -- aborting "
+                f"before anything is written, because promoting now would silently DROP "
+                f"{_tracked_erc_count - enriched_count} of them "
+                f"(the next delta would report mass removal).\n"
+                f"  Fix: run enrich.py {family} {platform} (it seeds from the tracked claims "
+                f"when scout/enriched_claims.json is missing; add --no-llm to do so without "
+                f"any LLM call), or pass --allow-drop-enrichment to discard enrichment on purpose."
+            )
+            return False
+        print(
+            f"  WARNING: --allow-drop-enrichment: dropping "
+            f"{_tracked_erc_count - enriched_count} of {_tracked_erc_count} tracked "
+            f"enriched (ERC-*) claim(s) -- enrichment input is absent, empty, stale or truncated"
+        )
 
     print(f"  Total claims: {len(merged_claims)}")
 
@@ -2062,6 +2147,11 @@ def promote(family: str, platform: str, knowledge_root=None, *, merged_dir_overr
             "snippet_count": snippet_count,
         },
     }
+    # MT074 B13d: stamp the current extractor hash when running inside a refresh,
+    # otherwise preserve whatever model.yaml already carried (never drop it).
+    _eh = extractor_hash or _prior_extractor_hash
+    if _eh:
+        merged_model["extractor_hash"] = _eh
     (merged_dir / "model.yaml").write_text(
         yaml.dump(merged_model, default_flow_style=False, sort_keys=False),
         encoding="utf-8",
@@ -2399,7 +2489,10 @@ def _atomic_swap(real_merged: Path, staging_dir: Path, bak_dir: Path) -> "list[s
     return []
 
 
-def promote_atomic(family: str, platform: str, knowledge_root=None) -> bool:
+def promote_atomic(family: str, platform: str, knowledge_root=None, *,
+                   allow_drop_enrichment: bool = False,
+                   extractor_hash: "str | None" = None,
+                   allow_partial_enrichment: bool = False) -> bool:
     """Promote scout/ -> merged/ atomically: stage the full bundle in an isolated
     directory, validate it, then swap it into place all-or-nothing.
 
@@ -2440,7 +2533,15 @@ def promote_atomic(family: str, platform: str, knowledge_root=None) -> bool:
         staging_dir.mkdir(parents=True, exist_ok=True)
 
     try:
-        success = promote(family, platform, knowledge_root, merged_dir_override=staging_dir)
+        _extra_kw: dict = {}
+        if allow_drop_enrichment:
+            _extra_kw["allow_drop_enrichment"] = True
+        if extractor_hash:
+            _extra_kw["extractor_hash"] = extractor_hash
+        if allow_partial_enrichment:
+            _extra_kw["allow_partial_enrichment"] = True
+        success = promote(family, platform, knowledge_root, merged_dir_override=staging_dir,
+                          **_extra_kw)
     except Exception as exc:
         print(f"PROMOTE_ATOMIC: promote() raised, discarding staging bundle ({exc})")
         shutil.rmtree(staging_dir, ignore_errors=True)
@@ -2506,6 +2607,21 @@ def main() -> None:
                              f"{PROMOTE_ATOMIC_ENV} env var, defaults to on)")
     parser.add_argument("--no-atomic", dest="atomic", action="store_false",
                         help="Force the legacy direct-write promotion path (no staging/swap)")
+    parser.add_argument("--allow-drop-enrichment", action="store_true", default=False,
+                        help="MT074 B13a: permit promote to proceed when enrichment is absent, "
+                             "empty or stale although the tracked merged/claims.json holds "
+                             "enriched (ERC-*) claims -- they are DROPPED. Off by default: promote "
+                             "otherwise aborts (fails closed) so enriched claims are never "
+                             "silently lost.")
+    parser.add_argument("--allow-partial-enrichment", action="store_true", default=False,
+                        help="MT074 R1-5: permit promote to use an enriched_claims.json marked "
+                             "PARTIAL (some changed units failed/yielded nothing; their OLD claims "
+                             "are kept). Off by default: promote aborts instead. Re-running "
+                             "enrich.py retries exactly the incomplete units.")
+    parser.add_argument("--extractor-hash", default=None, metavar="HASH",
+                        help="MT074 B13d: stamp this extractor hash into model.yaml (passed by "
+                             "refresh_knowledge when promote runs inside a refresh). Without it "
+                             "an existing extractor_hash is preserved.")
     parser.add_argument("--verify-snippets", action="store_true", default=False,
                         help="Run ONLY the post-promote execution-proof sweep "
                              "(sweep_snippet_execution_proof, MT072 TC-06) over this "
@@ -2528,11 +2644,18 @@ def main() -> None:
         use_atomic = os.environ.get(PROMOTE_ATOMIC_ENV, "1").strip().lower() not in ("0", "false", "no")
     else:
         use_atomic = args.atomic
+    _kw: dict = {}
+    if args.allow_drop_enrichment:
+        _kw["allow_drop_enrichment"] = True
+    if args.extractor_hash:
+        _kw["extractor_hash"] = args.extractor_hash
+    if args.allow_partial_enrichment:
+        _kw["allow_partial_enrichment"] = True
     try:
         if use_atomic:
-            success = promote_atomic(args.family, args.platform, args.knowledge_root)
+            success = promote_atomic(args.family, args.platform, args.knowledge_root, **_kw)
         else:
-            success = promote(args.family, args.platform, args.knowledge_root)
+            success = promote(args.family, args.platform, args.knowledge_root, **_kw)
     except PromotionValidationError as exc:
         print(f"\nPROMOTE: FAIL\n{exc}")
         sys.exit(1)

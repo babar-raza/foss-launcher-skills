@@ -337,3 +337,70 @@ def test_git_reachable_end_to_end_resolution_with_real_repo(tmp_path):
     )
     assert res.sha == real_sha
     assert res.source == "orphaned-recovered"
+
+
+# -- MT074 B1: shallow-clone deepen seam ----------------------------------------
+
+def _init_repo_with_commits(tmp_path, n=3):
+    repo = tmp_path / "full"
+    repo.mkdir()
+
+    def git(*args):
+        subprocess.run(["git", "-C", str(repo), *args], check=True, capture_output=True)
+
+    try:
+        git("init", "-q")
+        git("config", "user.email", "t@t")
+        git("config", "user.name", "t")
+    except (OSError, subprocess.CalledProcessError):
+        pytest.skip("git not available")
+    shas = []
+    for i in range(n):
+        (repo / "m.py").write_text(f"v{i}\n", encoding="utf-8")
+        git("add", "m.py")
+        git("commit", "-q", "-m", f"c{i}")
+        shas.append(subprocess.run(["git", "-C", str(repo), "rev-parse", "HEAD"],
+                                   capture_output=True, text=True, encoding="utf-8", errors="replace").stdout.strip())
+    return repo, shas
+
+
+def test_git_reachable_does_not_deepen_a_full_repo(tmp_path):
+    repo, shas = _init_repo_with_commits(tmp_path)
+    calls = []
+
+    def deepen(sha):
+        calls.append(sha)
+        return True
+
+    probe = git_reachable(repo, deepen=deepen)
+    assert probe(shas[0]) is True
+    assert probe("0" * 40) is False
+    assert calls == []  # full history: no network deepening ever
+
+
+def test_git_reachable_consults_deepen_seam_for_shallow_repo_then_rechecks(tmp_path):
+    repo, _ = _init_repo_with_commits(tmp_path)
+    calls = []
+
+    def deepen(sha):
+        calls.append(sha)
+        return True  # claims success, but ancestry is re-verified -> still an orphan
+
+    probe = git_reachable(repo, is_shallow=lambda: True, deepen=deepen)
+    assert probe("0" * 40) is False
+    assert calls == ["0" * 40]
+
+
+def test_git_reachable_unreachable_after_deepen_stays_orphaned(tmp_path):
+    repo, _ = _init_repo_with_commits(tmp_path)
+    probe = git_reachable(repo, is_shallow=lambda: True, deepen=lambda s: False)
+    assert probe("f" * 40) is False
+
+
+def test_git_reachable_deepen_failure_degrades_to_false(tmp_path):
+    repo, _ = _init_repo_with_commits(tmp_path)
+
+    def boom(sha):
+        raise OSError("network down")
+
+    assert git_reachable(repo, is_shallow=lambda: True, deepen=boom)("e" * 40) is False

@@ -2661,3 +2661,135 @@ class TestRemediationModeScopeSynthesis:
 
         decisions_path = tmp_path / "reports/pdf/java/run-artifacts/page_decisions.jsonl"
         assert not decisions_path.is_file()
+
+
+# ── MT074 B13b: claim-ID churn must never delete body content ─────────────────
+
+def _id_churn_fixture(tmp_path, family, platform, *, claim_text, old_id, new_id,
+                      truly_removed=False, with_mapping=True):
+    """Incident shape (MT074 R-C row 4): a claim's ID changed (LLM-worded ID re-hashed)
+    while its TEXT is byte-identical, and a FEATURE_REMOVED change for the OLD id still
+    reached body_refresh. `truly_removed=True` is the negative control: the claim's text
+    is genuinely gone from the current claims."""
+    kroot = tmp_path / "knowledge"
+    merged = kroot / family / platform / "merged"
+    merged.mkdir(parents=True)
+    current_claims = [] if truly_removed else [
+        {"claim_id": new_id, "text": claim_text, "kind": "feature"},
+    ]
+    (merged / "claims.json").write_text(json.dumps(current_claims), encoding="utf-8")
+    (merged / "knowledge_delta.json").write_text(json.dumps({
+        "removed_claims": [old_id],
+        "reidentified_claims": {} if (truly_removed or not with_mapping) else {old_id: new_id},
+    }), encoding="utf-8")
+    page_content = (
+        "---\ntitle: Test\n---\n\n## Overview\n\nStill valid content.\n\n"
+        "## Churned Section\n\nThis section cites the claim that was merely re-identified.\n\n"
+        "## Notes\n\nMore text.\n"
+    )
+    page = _make_page(tmp_path, f"content/docs.aspose.org/en/{family}/{platform}/page.md", page_content)
+    change = {
+        "change_id": "CHG-001", "change_type": "FEATURE_REMOVED", "symbol": old_id,
+        "symbol_kind": "claim", "public_impact": "USER_VISIBLE", "content_impact": "BODY_UPDATE",
+        "confidence": 0.80, "old_text": claim_text, "new_text": None,
+        "family": family, "platform": platform, "base_sha": "a", "current_sha": "b",
+        "evidence_paths": [],
+    }
+    impact = _make_impact(str(page), "CHG-001", "churned-section", br.UT_REMOVAL)
+    _setup_reports(tmp_path, family, platform, [impact], [change])
+    br.configure(knowledge_root=str(kroot))
+    return page, page_content
+
+
+_ID_CHURN_SHAPES = [
+    ("ptxa", "alpha", "Streams are flushed automatically when the writer is closed.",
+     "CLM-ptxa-111111", "ERC-ptxa-alpha-aaaaaaaa"),
+    ("ptxb", "beta", "Batch operations run on a bounded worker pool.",
+     "ERC-ptxb-beta-bbbbbbbb", "ERC-ptxb-beta-cccccccc"),
+]
+
+
+@pytest.mark.parametrize("family,platform,text,old_id,new_id", _ID_CHURN_SHAPES)
+def test_id_churn_with_identical_text_deletes_nothing(tmp_path, family, platform, text, old_id, new_id):
+    page, original = _id_churn_fixture(tmp_path, family, platform, claim_text=text,
+                                       old_id=old_id, new_id=new_id)
+    writes: list[tuple] = []
+    br.configure(safe_write_fn=lambda p, c, **kw: writes.append((str(p), c)) or True)
+    try:
+        receipts = _run(family, platform, execute=True)
+    finally:
+        br.configure(knowledge_root=None)
+    assert writes == [], "ID churn (same text, new id) must not rewrite or delete any body content"
+    assert page.read_text(encoding="utf-8") == original
+    assert all(r.get("verdict") != br.VD_UPDATED for r in receipts)
+
+
+@pytest.mark.parametrize("family,platform,text,old_id,new_id", _ID_CHURN_SHAPES)
+def test_genuinely_removed_claim_still_removes_section(tmp_path, family, platform, text, old_id, new_id):
+    """Negative control: the guard must not turn real removals into no-ops."""
+    _id_churn_fixture(tmp_path, family, platform, claim_text=text, old_id=old_id,
+                      new_id=new_id, truly_removed=True)
+    writes: list[tuple] = []
+    br.configure(safe_write_fn=lambda p, c, **kw: writes.append((str(p), c)) or True)
+    try:
+        _run(family, platform, execute=True)
+    finally:
+        br.configure(knowledge_root=None)
+    assert writes, "a genuinely removed claim must still be applied"
+    assert "## Churned Section" not in writes[0][1]
+    assert "Still valid content" in writes[0][1]
+
+
+def test_id_churn_guard_is_inert_without_knowledge_state(tmp_path):
+    """No claims.json / delta for the product => the guard must not fire (fails open to the
+    pre-existing behaviour, never raises)."""
+    page_content = "---\ntitle: T\n---\n\n## Overview\n\nKeep.\n\n## Gone\n\nBody.\n"
+    page = _make_page(tmp_path, "content/docs.aspose.org/en/ptxc/gamma/page.md", page_content)
+    change = {"change_id": "CHG-001", "change_type": "FEATURE_REMOVED", "symbol": "CLM-x-1",
+              "symbol_kind": "claim", "public_impact": "USER_VISIBLE",
+              "content_impact": "BODY_UPDATE", "confidence": 0.80,
+              "old_text": "Some text", "new_text": None, "evidence_paths": []}
+    impact = _make_impact(str(page), "CHG-001", "gone", br.UT_REMOVAL)
+    _setup_reports(tmp_path, "ptxc", "gamma", [impact], [change])
+    br.configure(knowledge_root=str(tmp_path / "no-knowledge-here"))
+    writes: list[tuple] = []
+    br.configure(safe_write_fn=lambda p, c, **kw: writes.append((str(p), c)) or True)
+    try:
+        _run("ptxc", "gamma", execute=True)
+    finally:
+        br.configure(knowledge_root=None)
+    assert writes and "## Gone" not in writes[0][1]
+
+
+@pytest.mark.parametrize("family,platform,text,old_id,new_id", _ID_CHURN_SHAPES)
+def test_byte_exact_text_layer_alone_preserves_section(tmp_path, family, platform, text, old_id, new_id):
+    """The text layer of the churn guard stands on its own: NO reidentified mapping in the delta
+    (`reidentified_claims: {}`), but the removed claim's old text is still byte-identically among
+    the current claims => the section is preserved and the receipt says why."""
+    page, original = _id_churn_fixture(tmp_path, family, platform, claim_text=text,
+                                       old_id=old_id, new_id=new_id, with_mapping=False)
+    writes: list[tuple] = []
+    br.configure(safe_write_fn=lambda p, c, **kw: writes.append((str(p), c)) or True)
+    try:
+        receipts = _run(family, platform, execute=True)
+    finally:
+        br.configure(knowledge_root=None)
+    assert writes == [] and page.read_text(encoding="utf-8") == original
+    assert any("[CLAIM_ID_CHURN]" in sec for r in receipts for sec in r.get("preserved_sections", []))
+
+
+def test_churn_guard_text_layer_is_byte_exact_not_fuzzy(tmp_path):
+    """A near-identical (not byte-identical) current claim must NOT shield a removal."""
+    family, platform = "ptxd", "delta"
+    _id_churn_fixture(tmp_path, family, platform, claim_text="Alpha beta gamma.",
+                      old_id="CLM-ptxd-1", new_id="CLM-ptxd-2", with_mapping=False)
+    merged = tmp_path / "knowledge" / family / platform / "merged"
+    (merged / "claims.json").write_text(json.dumps(
+        [{"claim_id": "CLM-ptxd-2", "text": "Alpha beta gamma!", "kind": "feature"}]), encoding="utf-8")
+    writes: list[tuple] = []
+    br.configure(safe_write_fn=lambda p, c, **kw: writes.append((str(p), c)) or True)
+    try:
+        _run(family, platform, execute=True)
+    finally:
+        br.configure(knowledge_root=None)
+    assert writes and "## Churned Section" not in writes[0][1]

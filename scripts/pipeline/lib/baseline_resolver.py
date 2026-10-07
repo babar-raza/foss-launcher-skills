@@ -31,10 +31,19 @@ the legacy `model.yaml` scalar are both unavailable (fresh clone, or a product n
 migrated), this module now falls back to sampling that field directly from committed
 content before giving up — see `_sample_content_model_sha` and its use in
 `resolve_baseline_sha`.
+
+NETWORK CONTRACT (MT074 B1): everything here is local EXCEPT one step: when the clone is
+shallow and a baseline SHA is not an ancestor of HEAD, `git_reachability_state`/`git_reachable`
+call a bounded deepen probe (core.clone_cache: `git fetch` of a few commits, memoized and
+capped per process, 60s per fetch). Results are tri-state: reachable / orphaned / unknown; an
+outage or cap is "unknown" (`git_reachable` -> False, or raises BaselineReachabilityUnknown
+with on_unknown="raise"), never an orphan verdict. Set `ASPOSE_BASELINE_OFFLINE=1` (or pass
+`offline=True`) to forbid the fetch entirely.
 """
 from __future__ import annotations
 
 import argparse
+import os
 import subprocess
 import sys
 from dataclasses import dataclass
@@ -49,6 +58,7 @@ if str(_PIPELINE_ROOT) not in sys.path:
 from lib.baseline_ledger import BaselineLedger  # noqa: E402
 from lib.content_discovery import discover_content  # noqa: E402
 from core.markdown import parse_frontmatter  # noqa: E402
+from core.clone_cache import REACHABLE, ORPHANED, UNKNOWN  # noqa: E402
 
 
 class OrphanedBaselineError(Exception):
@@ -82,11 +92,151 @@ class BaselineResolution:
         return self.source == "orphaned-recovered"
 
 
-def git_reachable(repo_path: Path | str) -> Callable[[str], bool]:
+class BaselineReachabilityUnknown(Exception):
+    """Reachability of a baseline SHA could not be determined (network/lock/timeout/cap).
+
+    Raised by ``git_reachable(..., on_unknown="raise")`` instead of reporting False -- an
+    unverifiable baseline is NOT an orphaned baseline (see ``git_reachability_state``).
+    """
+
+    def __init__(self, sha: str):
+        self.sha = sha
+        super().__init__(f"baseline reachability unverifiable for {sha[:10]!r} (network/lock/timeout/cap)")
+
+
+# Setting this environment variable to a truthy value (1/true/yes) forbids ALL network access
+# from git_reachability_state/git_reachable: a shallow clone whose ancestry probe fails is then
+# UNKNOWN (unverifiable) instead of triggering a deepen fetch.
+OFFLINE_ENV = "ASPOSE_BASELINE_OFFLINE"
+
+
+def _env_offline() -> bool:
+    return os.environ.get(OFFLINE_ENV, "").strip().lower() in ("1", "true", "yes")
+
+
+def _default_deepen(repo_path: "Path | str", sha: str) -> str:
+    """Default deepen seam: tri-state verdict from core.clone_cache's memoized, capped,
+    time-bounded deepen probe (the ONLY network-touching step in this module). Any import or
+    runtime failure is UNKNOWN -- never ORPHANED."""
+    try:
+        from core.clone_cache import probe_baseline_reachability_at
+        return probe_baseline_reachability_at(repo_path, sha)
+    except Exception:
+        return UNKNOWN
+
+
+def _is_shallow(repo: str) -> "bool | None":
+    """True/False from git; None when git cannot answer. Local-only."""
+    try:
+        result = subprocess.run(
+            ["git", "-C", repo, "rev-parse", "--is-shallow-repository"],
+            capture_output=True, text=True, encoding="utf-8", errors="replace", timeout=30,
+        )
+    except (OSError, subprocess.SubprocessError):
+        return None
+    if result.returncode != 0:
+        return None
+    return result.stdout.strip() == "true"
+
+
+def _normalise_deepen_result(result: object) -> str:
+    """Map a deepen-seam return value onto REACHABLE / ORPHANED / UNKNOWN.
+
+    A seam may return a tri-state string, or a bool (True = "a deepen completed and claims
+    success", False = "completed, still not reachable"). Anything else is UNKNOWN. A REACHABLE
+    claim is always re-verified by the caller against real ancestry.
+    """
+    if result is True:
+        return REACHABLE
+    if result is False:
+        return ORPHANED
+    if result in (REACHABLE, ORPHANED, UNKNOWN):
+        return str(result)
+    return UNKNOWN
+
+
+def git_reachability_state(
+    repo_path: Path | str,
+    *,
+    deepen: "Callable[[str], object] | None" = None,
+    is_shallow: "Callable[[], bool | None] | None" = None,
+    offline: "bool | None" = None,
+) -> Callable[[str], str]:
+    """Build callable(sha) -> "reachable" | "orphaned" | "unknown" for sha vs HEAD in repo_path.
+
+    NETWORK CONTRACT: the plain probe (`git merge-base --is-ancestor`) is local. Only when the
+    repo is SHALLOW and the sha is not an ancestor does this call ``deepen(sha)`` -- by default
+    core.clone_cache's progressive ``git fetch --deepen`` probe, which is memoized per process
+    (including negative/unknown verdicts), capped per process, and time-bounded per fetch.
+    A full repo never triggers it. ``offline=True`` (or env ``ASPOSE_BASELINE_OFFLINE=1``)
+    forbids it entirely: such a case is "unknown", the honest answer for a truncated history.
+
+    Verdicts: REACHABLE = ancestor of HEAD (re-verified locally AFTER any deepen -- a seam's
+    claim of success is never trusted); ORPHANED = full repo, or a COMPLETED deepen, still has
+    no path to the sha; UNKNOWN = the deepen could not finish (network, lock, timeout, cap,
+    seam error). UNKNOWN must never be reported as an orphan.
+    """
+    repo = str(repo_path)
+    shallow_probe = is_shallow if is_shallow is not None else (lambda: _is_shallow(repo))
+    deepen_fn = deepen if deepen is not None else (lambda s: _default_deepen(repo, s))
+
+    def _ancestor(sha: str) -> bool:
+        try:
+            result = subprocess.run(
+                ["git", "-C", repo, "merge-base", "--is-ancestor", sha, "HEAD"],
+                capture_output=True,
+                timeout=30,
+            )
+            return result.returncode == 0
+        except (OSError, subprocess.SubprocessError):
+            return False
+
+    def _state(sha: str) -> str:
+        if not sha:
+            return ORPHANED
+        if _ancestor(sha):
+            return REACHABLE
+        shallow = shallow_probe()
+        if shallow is None:
+            return UNKNOWN
+        if not shallow:
+            return ORPHANED  # full history: definitively not an ancestor
+        if offline if offline is not None else _env_offline():
+            return UNKNOWN
+        try:
+            verdict = _normalise_deepen_result(deepen_fn(sha))
+        except Exception:
+            return UNKNOWN
+        if verdict == REACHABLE:
+            # Never trust the seam: ancestry is re-verified locally after the deepen.
+            return REACHABLE if _ancestor(sha) else ORPHANED
+        return verdict
+
+    return _state
+
+
+def git_reachable(
+    repo_path: Path | str,
+    *,
+    deepen: "Callable[[str], object] | None" = None,
+    is_shallow: "Callable[[], bool | None] | None" = None,
+    offline: "bool | None" = None,
+    on_unknown: str = "false",
+) -> Callable[[str], bool]:
     """Build a callable(sha) -> bool testing whether sha is reachable from HEAD in
     repo_path -- i.e. whether it is an ancestor of (or equal to) the current tip,
     not merely whether the commit OBJECT still exists somewhere in the object
     database.
+
+    Bool view of ``git_reachability_state`` (see it for the network contract and the
+    deepen/offline seams). ``on_unknown="false"`` (default, legacy) reports an UNKNOWN verdict
+    as False; ``on_unknown="raise"`` raises ``BaselineReachabilityUnknown`` so a caller can
+    distinguish "unverifiable" from "orphaned" instead of treating an outage as a force-push.
+
+    MT074 B1 (shallow-clone false orphan): the clone cache is ``--depth 2``, so a healthy
+    baseline older than the two fetched commits is not an ancestor of HEAD as far as the
+    truncated history can tell; the shallow-only deepen path removes that false orphan while a
+    genuinely rewritten-away sha stays False.
 
     RC-1 follow-up (readme-refresh-hardening-and-regen-2026-08-30, found live
     during the font/python TC-27b canary): this previously ran `git cat-file -e
@@ -101,20 +251,15 @@ def git_reachable(repo_path: Path | str) -> Callable[[str], bool]:
     ancestor of HEAD, exit 1 = not an ancestor, any other exit (invalid/missing
     object) also correctly resolves to False here.
     """
-    repo = str(repo_path)
+    if on_unknown not in ("false", "raise"):
+        raise ValueError(f"on_unknown must be 'false' or 'raise', got {on_unknown!r}")
+    state_fn = git_reachability_state(repo_path, deepen=deepen, is_shallow=is_shallow, offline=offline)
 
     def _check(sha: str) -> bool:
-        if not sha:
-            return False
-        try:
-            result = subprocess.run(
-                ["git", "-C", repo, "merge-base", "--is-ancestor", sha, "HEAD"],
-                capture_output=True,
-                timeout=30,
-            )
-            return result.returncode == 0
-        except (OSError, subprocess.SubprocessError):
-            return False
+        state = state_fn(sha)
+        if state == UNKNOWN and on_unknown == "raise":
+            raise BaselineReachabilityUnknown(sha)
+        return state == REACHABLE
 
     return _check
 
@@ -228,10 +373,13 @@ def main(argv=None) -> int:
         resolution = resolve_baseline_sha(
             args.family,
             args.platform,
-            reachable=git_reachable(args.repo_path),
+            reachable=git_reachable(args.repo_path, on_unknown="raise"),
             repo_root=args.repo_root,
             model_repo_sha=args.model_sha,
         )
+    except BaselineReachabilityUnknown as exc:
+        print(f"BASELINE_REACHABILITY_UNVERIFIABLE\t{exc}", file=sys.stderr)
+        return 4
     except OrphanedBaselineError as exc:
         print(f"ORPHANED_BASELINE\t{exc}", file=sys.stderr)
         return 3

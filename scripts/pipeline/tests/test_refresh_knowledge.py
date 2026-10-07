@@ -33,6 +33,7 @@ def _isolate_paths(tmp_path):
     _rk.configure(repo_root=tmp_path)
     yield
     _rk.configure()
+    _rk.configure_hooks()
 
 
 # ---------------------------------------------------------------------------
@@ -1415,3 +1416,203 @@ class TestBlockUpdaterCallsiteFullChain:
         assert "block_updater_dry_run" not in pipeline_run
         inventory_path = tmp_path / "reports" / "package-reconciliation" / "inventory.jsonl"
         assert not inventory_path.exists()
+
+
+# ---------------------------------------------------------------------------
+# MT074 B2: real-schema format delta + enum-member API delta (via the writers)
+# ---------------------------------------------------------------------------
+
+class TestRealSchemaDeltas:
+    def _dirs(self, tmp_path):
+        bak, merged = tmp_path / "bak", tmp_path / "merged"
+        bak.mkdir()
+        merged.mkdir()
+        return bak, merged
+
+    def test_format_delta_real_schema_python_shape(self, tmp_path):
+        bak, merged = self._dirs(tmp_path)
+        old = [{"format": "Markdown", "enum": "", "value": "", "file": "r.py", "line": 1, "direction": "import"}]
+        new = old + [
+            {"format": "Epub", "enum": "", "value": "", "file": "w.py", "line": 2, "direction": "export"},
+            {"format": "Magic", "enum": "", "value": "", "file": "d.py", "line": 3, "direction": "detect"},
+        ]
+        (bak / "formats.json").write_text(json.dumps(old), encoding="utf-8")
+        (merged / "formats.json").write_text(json.dumps(new), encoding="utf-8")
+        _rk._write_format_delta("words", "python", bak, merged, "n", "o")
+        out = json.loads((merged / "format_delta.json").read_text(encoding="utf-8"))
+        assert [f["name"] for f in out["formats_added"]] == ["Epub"]
+        assert [n["name"] for n in out["noise"]] == ["Magic"]
+        assert out["formats_removed"] == [] and out["formats_direction_changed"] == []
+
+    def test_enum_member_added_visible_in_knowledge_delta(self, tmp_path):
+        bak, merged = self._dirs(tmp_path)
+        old = [{"name": "Kind", "canonical_namespace": "Acme", "methods": [], "properties": [],
+                "enum_members": [{"name": "One", "value": ""}]}]
+        new = [dict(old[0], enum_members=[{"name": "One", "value": ""}, {"name": "Two", "value": ""}])]
+        (bak / "api_surface.json").write_text(json.dumps(old), encoding="utf-8")
+        (bak / "claims.json").write_text("[]", encoding="utf-8")
+        (merged / "api_surface.json").write_text(json.dumps(new), encoding="utf-8")
+        (merged / "claims.json").write_text("[]", encoding="utf-8")
+        _rk._write_knowledge_delta("cells", "net", bak, merged, "n", "o")
+        delta = json.loads((merged / "knowledge_delta.json").read_text(encoding="utf-8"))
+        assert delta["modified_apis"] == ["Kind"]
+        assert delta["api_signature_changes"]["Kind"]["enum_members_added"] == ["Two"]
+
+
+# ---------------------------------------------------------------------------
+# MT074 B13: promote command wiring (extractor hash, fail-closed flag, LLM-free seed)
+# ---------------------------------------------------------------------------
+
+class TestRerunConsistencyWiring:
+    PRODUCTS = [("cells", "python"), ("words", "net")]
+
+    def _chain(self, tmp_path, family, platform, **kwargs):
+        cmds: list[tuple[str, list[str]]] = []
+
+        def fake_run(cmd: list[str], label: str) -> bool:
+            cmds.append((label, list(cmd)))
+            return True
+
+        _rk.configure_hooks(run_fn=fake_run, head_sha_fn=lambda _c: "new",
+                            completeness_check_fn=lambda _f, _p: None)
+        with _patch_clone_dir(tmp_path), _patch_model("old"):
+            assert refresh(family, platform, **kwargs) == "refreshed"
+        return cmds
+
+    @pytest.mark.parametrize("family,platform", PRODUCTS)
+    def test_promote_receives_the_current_extractor_hash(self, tmp_path, family, platform):
+        cmds = self._chain(tmp_path, family, platform)
+        promote_cmd = next(c for label, c in cmds if label == "promote")
+        i = promote_cmd.index("--extractor-hash")
+        assert promote_cmd[i + 1] == _rk._compute_extractor_hash()
+        assert "--allow-drop-enrichment" not in promote_cmd, "fail-closed must be the default"
+
+    @pytest.mark.parametrize("family,platform", PRODUCTS)
+    def test_allow_drop_enrichment_is_forwarded_only_when_asked(self, tmp_path, family, platform):
+        cmds = self._chain(tmp_path, family, platform, allow_drop_enrichment=True)
+        promote_cmd = next(c for label, c in cmds if label == "promote")
+        assert "--allow-drop-enrichment" in promote_cmd
+
+    @pytest.mark.parametrize("family,platform", PRODUCTS)
+    def test_skip_enrich_seeds_from_tracked_claims_without_llm(self, tmp_path, family, platform):
+        merged = tmp_path / "knowledge" / family / platform / "merged"
+        merged.mkdir(parents=True)
+        (merged / "claims.json").write_text("[]", encoding="utf-8")
+        cmds = self._chain(tmp_path, family, platform, skip_enrich=True)
+        labels = [label for label, _ in cmds]
+        seed_cmd = next(c for label, c in cmds if label == "enrich-seed")
+        assert "--no-llm" in seed_cmd
+        assert "enrich" not in labels, "--skip-enrich must still never run the LLM enrich step"
+        assert labels.index("enrich-seed") < labels.index("promote")
+
+    @pytest.mark.parametrize("family,platform", PRODUCTS)
+    def test_skip_enrich_without_tracked_claims_runs_no_seed(self, tmp_path, family, platform):
+        cmds = self._chain(tmp_path, family, platform, skip_enrich=True)
+        assert "enrich-seed" not in [label for label, _ in cmds]
+
+
+class TestPinnedHeadReverifiedAfterScout:
+    """MT074 R1-8: the pin was checked once, before the chain; the clone must still be at
+    the pin AFTER the scout step."""
+
+    PRODUCTS = [("cells", "python"), ("words", "net")]
+
+    @pytest.mark.parametrize("family,platform", PRODUCTS)
+    def test_head_moving_during_scout_fails_the_refresh(self, tmp_path, family, platform):
+        heads = iter(["pinned0000", "pinned0000"])           # initial head + post-pin verification
+        labels: list[str] = []
+
+        def head_sha(_clone):
+            return next(heads, "moved11111")                 # every later read: moved
+
+        def fake_run(cmd, label):
+            labels.append(label)
+            return True
+
+        _rk.configure_hooks(head_sha_fn=head_sha, run_fn=fake_run,
+                            checkout_pinned_fn=lambda _f, _p, _s: "pinned0000",
+                            completeness_check_fn=lambda _f, _p: None)
+        with _patch_clone_dir(tmp_path), _patch_model("old"):
+            result = refresh(family, platform, auto_fetch=False, pin_sha="pinned0000")
+        assert result == "failed"
+        assert "scout" in labels and "promote" not in labels, "must stop before promote"
+
+    @pytest.mark.parametrize("family,platform", PRODUCTS)
+    def test_head_stable_through_scout_proceeds(self, tmp_path, family, platform):
+        labels: list[str] = []
+
+        def fake_run(cmd, label):
+            labels.append(label)
+            return True
+
+        _rk.configure_hooks(head_sha_fn=lambda _c: "pinned0000", run_fn=fake_run,
+                            checkout_pinned_fn=lambda _f, _p, _s: "pinned0000",
+                            completeness_check_fn=lambda _f, _p: None)
+        with _patch_clone_dir(tmp_path), _patch_model("old"):
+            assert refresh(family, platform, auto_fetch=False, pin_sha="pinned0000") == "refreshed"
+        assert "promote" in labels
+
+
+class TestFormatIndexRobustness:
+    @pytest.mark.parametrize("bad_line", ["12a", "", None, [3], {"x": 1}, "3.5"])
+    @pytest.mark.parametrize("fmt", ["Alpha", "Beta Format"])
+    def test_non_numeric_line_does_not_abort_format_indexing(self, bad_line, fmt):
+        entries = [
+            {"format": fmt, "direction": "import", "file": "a.x", "line": bad_line},
+            {"format": fmt, "direction": "import", "file": "b.x", "line": 7},
+        ]
+        supported, _noise = _rk._index_formats(entries)
+        assert supported
+
+
+class TestExtractorHashCoversSnippetBudget:
+    def _repo(self, root, docs_fence_budget):
+        ext = root / "scripts" / "pipeline" / "extraction"
+        ext.mkdir(parents=True, exist_ok=True)
+        (ext / "a.py").write_text("x = 1\n", encoding="utf-8")
+        cfg = root / "scripts" / "pipeline" / "config"
+        cfg.mkdir(parents=True, exist_ok=True)
+        (cfg / "platform_capabilities.yaml").write_text(
+            "platforms:\n  java:\n    language: java\n    snippet_budget:\n      mode: tiered\n"
+            f"      docs_fence_budget: {docs_fence_budget}\n      note: first\n"
+            "  python:\n    language: python\n    snippet_budget:\n      mode: legacy\n",
+            encoding="utf-8",
+        )
+        return root
+
+    def test_changing_docs_fence_budget_changes_the_hash(self, tmp_path):
+        a = self._repo(tmp_path / "a", 20)
+        b = self._repo(tmp_path / "b", 30)
+        same = self._repo(tmp_path / "c", 20)
+        hashes = {}
+        for name, root in (("a", a), ("b", b), ("same", same)):
+            _rk.configure(repo_root=root)
+            hashes[name] = _rk._compute_extractor_hash()
+        assert hashes["a"] != hashes["b"]
+        assert hashes["a"] == hashes["same"]
+
+    def test_crlf_yaml_hashes_like_lf_yaml(self, tmp_path):
+        a = self._repo(tmp_path / "a", 20)
+        b = self._repo(tmp_path / "b", 20)
+        y = b / "scripts" / "pipeline" / "config" / "platform_capabilities.yaml"
+        y.write_bytes(y.read_bytes().replace(b"\n", b"\r\n"))
+        _rk.configure(repo_root=a)
+        ha = _rk._compute_extractor_hash()
+        _rk.configure(repo_root=b)
+        assert _rk._compute_extractor_hash() == ha
+
+    def test_non_budget_yaml_edits_do_not_change_the_hash(self, tmp_path):
+        a = self._repo(tmp_path / "a", 20)
+        _rk.configure(repo_root=a)
+        h1 = _rk._compute_extractor_hash()
+        y = a / "scripts" / "pipeline" / "config" / "platform_capabilities.yaml"
+        y.write_text(y.read_text(encoding="utf-8") + "\nversion: 2\n", encoding="utf-8")
+        assert _rk._compute_extractor_hash() == h1
+
+    def test_repo_without_the_yaml_hashes_as_before(self, tmp_path):
+        a = tmp_path / "a"
+        ext = a / "scripts" / "pipeline" / "extraction"
+        ext.mkdir(parents=True)
+        (ext / "a.py").write_text("x = 1\n", encoding="utf-8")
+        _rk.configure(repo_root=a)
+        assert len(_rk._compute_extractor_hash()) == 16

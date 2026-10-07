@@ -280,3 +280,62 @@ def test_update_clone_returns_none_promptly_when_lock_already_held(tmp_path, mon
     finally:
         cc.configure()  # reset to the real default for subsequent tests
         _clear_test_lock(family, platform)
+
+
+# ---------------------------------------------------------------------------
+# MT074 B1: reachability / pinned checkout API surface (real-git behaviour lives in
+# test_det_shallow_clone_pin.py; these pin the cheap contract edges)
+# ---------------------------------------------------------------------------
+
+def test_ensure_baseline_reachable_false_without_clone(tmp_path, monkeypatch):
+    from core.clone_cache import ensure_baseline_reachable
+    monkeypatch.setenv("ASPOSE_CLONE_CACHE", str(tmp_path))
+    assert ensure_baseline_reachable("words", "python", "a" * 40) is False
+
+
+def _fake_git(tmp_path, *, fetch_rc, calls):
+    class _R:
+        def __init__(self, rc=1, out=""):
+            self.returncode, self.stdout, self.stderr = rc, out, ""
+
+    def runner(args, cwd):
+        calls.append(list(args))
+        if args[1:3] == ["rev-parse", "--is-shallow-repository"]:
+            return _R(0, "true")
+        if args[1:3] == ["rev-parse", "--show-toplevel"]:
+            return _R(0, str(tmp_path))
+        if args[1] == "fetch":
+            return _R(fetch_rc)
+        return _R(1)  # merge-base: never an ancestor
+
+    return runner
+
+
+def test_deepen_until_ancestor_never_unshallows_and_stops_after_steps(tmp_path):
+    from core.clone_cache import deepen_until_ancestor, deepen_until_ancestor_state, ORPHANED
+    calls = []
+    runner = _fake_git(tmp_path, fetch_rc=0, calls=calls)
+    assert deepen_until_ancestor(tmp_path, "b" * 40, deepen_steps=(5, 20), runner=runner) is False
+    flat = [" ".join(c) for c in calls]
+    assert [c for c in flat if "--deepen=" in c] == ["git fetch --deepen=5 origin", "git fetch --deepen=20 origin"]
+    assert not any("--unshallow" in c for c in flat)
+    calls.clear()
+    # every step COMPLETED and the sha is still unreachable -> a definitive orphan verdict
+    assert deepen_until_ancestor_state(tmp_path, "b" * 40, deepen_steps=(5, 20), runner=runner) == ORPHANED
+
+
+def test_failed_deepen_fetch_is_unknown_not_orphaned(tmp_path):
+    from core.clone_cache import deepen_until_ancestor_state, UNKNOWN
+    calls = []
+    runner = _fake_git(tmp_path, fetch_rc=128, calls=calls)  # every fetch fails (e.g. network down)
+    assert deepen_until_ancestor_state(tmp_path, "b" * 40, deepen_steps=(5, 20), runner=runner) == UNKNOWN
+    assert len([c for c in calls if "--deepen=5" in " ".join(c)]) == 1  # stops at the first failure
+    assert not any("--deepen=20" in " ".join(c) for c in calls)
+
+
+def test_update_clone_signature_keeps_two_positional_callers():
+    import inspect
+    from core.clone_cache import update_clone
+    params = list(inspect.signature(update_clone).parameters.values())
+    assert [p.name for p in params[:2]] == ["family", "platform"]
+    assert params[2].name == "strict" and params[2].default is False

@@ -395,3 +395,64 @@ def test_format_changes_mixed_with_api_and_claim_changes(tmp_path):
     assert len(changes) == 3
     kinds = {c["symbol_kind"] for c in changes}
     assert kinds == {"class", "claim", "format"}
+
+
+# ── MT074 B2: enum-member and breaking-change events ─────────────────────────
+
+
+def test_enum_member_added_emits_feature_added_enum_event(tmp_path):
+    """C#-shaped enum gaining a constant: FEATURE_ADDED enum-level event next to API_MODIFIED."""
+    _make_delta(
+        tmp_path, "cells", "net",
+        modified_apis=["SaveKind"],
+        api_signature_changes={"SaveKind": {
+            "added_methods": [], "removed_methods": [], "added_properties": [],
+            "removed_properties": [], "enum_members_added": ["Parquet"], "enum_members_removed": [],
+        }},
+    )
+    changes = sd.run("cells", "net")
+    types = sorted((c["change_type"], c["symbol_kind"]) for c in changes)
+    assert types == [("API_MODIFIED", "class"), ("FEATURE_ADDED", "enum")]
+    enum_event = next(c for c in changes if c["symbol_kind"] == "enum")
+    assert enum_event["enum_members_added"] == ["Parquet"]
+    assert enum_event["symbol"] == "SaveKind"
+
+
+def test_enum_member_removed_is_breaking_signature_change(tmp_path):
+    _make_delta(
+        tmp_path, "words", "python",
+        modified_apis=["LoadFormat"],
+        api_signature_changes={"LoadFormat": {
+            "added_methods": [], "removed_methods": [], "added_properties": [],
+            "removed_properties": [], "enum_members_added": [], "enum_members_removed": ["DOC"],
+        }},
+    )
+    delta_path = tmp_path / "knowledge" / "words" / "python" / "merged" / "knowledge_delta.json"
+    data = json.loads(delta_path.read_text(encoding="utf-8"))
+    data["breaking_apis"] = ["LoadFormat"]
+    delta_path.write_text(json.dumps(data), encoding="utf-8")
+    changes = sd.run("words", "python")
+    enum_event = next(c for c in changes if c["symbol_kind"] == "enum")
+    assert enum_event["change_type"] == "API_SIGNATURE_CHANGED" and enum_event["breaking"] is True
+    class_event = next(c for c in changes if c["symbol_kind"] == "class")
+    assert class_event["breaking"] is True
+
+
+def test_deltas_without_new_fields_produce_no_enum_events(tmp_path):
+    _make_delta(tmp_path, "pdf", "net", modified_apis=["A"],
+                api_signature_changes={"A": {"added_methods": ["x"], "removed_methods": [],
+                                             "added_properties": [], "removed_properties": []}})
+    changes = sd.run("pdf", "net")
+    assert [c["symbol_kind"] for c in changes] == ["class"]
+    assert "breaking" not in changes[0]
+
+
+def test_format_added_event_carries_support_label_and_ignores_noise(tmp_path):
+    _make_delta(tmp_path, "words", "python")
+    (tmp_path / "knowledge" / "words" / "python" / "merged" / "format_delta.json").write_text(
+        json.dumps({"formats_added": [{"name": "Epub", "ext": "", "support": "export-only"}],
+                    "noise": [{"name": "x", "direction": "detect", "reason": "non_support_direction",
+                               "change": "added"}]}), encoding="utf-8")
+    changes = sd.run("words", "python")
+    assert [(c["change_type"], c["symbol"], c.get("format_support")) for c in changes] == [
+        ("FORMAT_ADDED", "Epub", "export-only")]

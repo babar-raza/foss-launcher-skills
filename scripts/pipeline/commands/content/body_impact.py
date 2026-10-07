@@ -259,7 +259,16 @@ def _select_update_type(change: dict, section: dict) -> str:
     if change_type in ("FEATURE_ADDED", "BEHAVIOR_CHANGED", "CLAIM_MODIFIED"):
         return UT_REWRITE
 
+    # MT074 B2: format-support events (FORMAT_ADDED now fires from a non-empty format_delta).
+    # Added / direction-changed support is rewritten in place like any capability change; a
+    # removed format is a surgical edit -- never a section removal.
+    if change_type in ("FORMAT_ADDED", "FORMAT_DIRECTION_CHANGED"):
+        return UT_REWRITE
+
     return UT_SURGICAL
+
+
+_REMOVAL_CHANGE_TYPES = ("API_REMOVED", "API_SIGNATURE_CHANGED", "API_RENAMED", "FEATURE_REMOVED")
 
 
 def _match_change_to_sections(change: dict, claim_map: dict) -> list[dict]:
@@ -275,6 +284,12 @@ def _match_change_to_sections(change: dict, claim_map: dict) -> list[dict]:
 
     # Skip changes with NO_ACTION content impact
     if content_impact == "NO_ACTION":
+        return []
+
+    # MT074 B2: a removal that has not been verified against source (the extractor changed or is
+    # unknown, so a member-list drop may be extractor noise) is informational -- it never drives
+    # a body edit, let alone a removal.
+    if change.get("verify_against_source") and change_type in _REMOVAL_CHANGE_TYPES:
         return []
 
     for section in claim_map.get("sections", []):

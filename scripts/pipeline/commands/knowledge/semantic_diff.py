@@ -23,8 +23,23 @@ them rather than changing that shape):
       "modified_claims": ["CLM-..."],
       "claim_text_changes": {"CLM-...": {"old_text": "...|null", "new_text": "...|null"}},
       "api_signature_changes": {"ClassName": {"added_methods": [...], "removed_methods": [...],
-                                               "added_properties": [...], "removed_properties": [...]}}
+                                               "added_properties": [...], "removed_properties": [...],
+                                               "enum_members_added": [...],      # only when enum changed
+                                               "enum_members_removed": [...]}}   # only when enum changed
     }
+
+MT074 B2 additive fields (all optional; absent in older deltas): "new_apis_qualified" /
+"removed_apis_qualified" / "modified_apis_qualified" (qualified identities), "name_collisions",
+"breaking_apis" (types that lost methods/properties/enum constants) and "breaking_changes".
+An enum type with added/removed constants additionally yields an enum-level event
+(FEATURE_ADDED for added constants, API_SIGNATURE_CHANGED for removed ones: ``breaking`` only when
+the delta lists the type in "breaking_apis" -- extractor unchanged -- otherwise
+``breaking_unconfirmed`` + ``verify_against_source``, content_impact REVIEW_ONLY).
+Also optional: "extractor_changed" ("true"|"false"|"unknown"), "breaking_unconfirmed(_apis)",
+"removed_apis_unconfirmed", "extraction_drift_suspect" (informational, never edits).
+
+format_delta.json (real formats.json schema, MT074 B2) also carries a "noise" list
+(detect/enum_only/non-functional entries) that is deliberately NOT turned into events.
 """
 
 from pathlib import Path
@@ -193,7 +208,71 @@ def _classify_api_change(class_name: str, delta: dict) -> dict:
     sig_change = (delta.get("api_signature_changes", {}) or {}).get(class_name)
     if sig_change:
         result["signature_summary"] = sig_change
+    # MT074 B2: surface the delta's breaking-change flag (lost methods/properties/enum constants).
+    # ``breaking`` = CONFIRMED (extractor unchanged, same file). ``breaking_unconfirmed`` is
+    # informational only: the removal may be extractor-version noise and must be verified
+    # against source before anything acts on it.
+    if class_name in (delta.get("breaking_apis", []) or []):
+        result["breaking"] = True
+    elif class_name in (delta.get("breaking_unconfirmed_apis", []) or []):
+        result["breaking_unconfirmed"] = True
+        result["verify_against_source"] = True
+    if change_type == API_REMOVED and class_name in (delta.get("removed_apis_unconfirmed", []) or []):
+        # Whole-type removal seen across an extractor change: informational, never an edit.
+        result["content_impact"] = REVIEW_ONLY
+        result["breaking_unconfirmed"] = True
+        result["verify_against_source"] = True
     return result
+
+
+def _classify_enum_member_changes(class_name: str, sig_change: dict, delta: dict | None = None) -> list[dict]:
+    """Enum-level events for added/removed enum constants of a modified type (MT074 B2).
+
+    A new constant on an existing enum is a user-visible capability addition (FEATURE_ADDED,
+    the same type a new claim gets); a removed constant is a breaking signature change
+    (API_SIGNATURE_CHANGED with ``breaking``). ``symbol`` stays the enum type name so the
+    section matchers in body_impact.py use the same precise identifier as the type's
+    API_MODIFIED event instead of tokenising generic constant names. Language-agnostic: it
+    only reads ``enum_members_added`` / ``enum_members_removed`` from the signature diff.
+    """
+    events: list[dict] = []
+    visibility = _classify_api_visibility(class_name)
+    impact = NO_ACTION if visibility == INTERNAL_ONLY else BODY_UPDATE
+    confidence = 0.90 if visibility == USER_VISIBLE else 0.60
+    added = list(sig_change.get("enum_members_added") or [])
+    removed = list(sig_change.get("enum_members_removed") or [])
+    if added:
+        events.append({
+            "change_type": FEATURE_ADDED,
+            "symbol": class_name,
+            "symbol_kind": "enum",
+            "public_impact": visibility,
+            "content_impact": impact,
+            "confidence": confidence,
+            "enum_members_added": added,
+        })
+    if removed:
+        delta = delta or {}
+        event = {
+            "change_type": API_SIGNATURE_CHANGED,
+            "symbol": class_name,
+            "symbol_kind": "enum",
+            "public_impact": visibility,
+            "content_impact": impact,
+            "confidence": confidence,
+            "enum_members_removed": removed,
+        }
+        if class_name in (delta.get("breaking_apis", []) or []):
+            event["breaking"] = True
+        else:
+            # Unconfirmed (extractor changed/unknown) or a legacy delta without breaking data:
+            # informational only -- the removal may be extractor noise (verify against source).
+            event["breaking_unconfirmed"] = True
+            event["verify_against_source"] = True
+            if impact == BODY_UPDATE:
+                event["content_impact"] = REVIEW_ONLY
+        events.append(event)
+    return events
 
 
 _CLM_FEATURE_PATTERN = re.compile(r"CLM-[a-z]+-[a-f0-9]+")
@@ -295,6 +374,8 @@ def _classify_format_change(entry: dict, change_type: str) -> dict:
     }
     if entry.get("ext"):
         result["format_ext"] = entry["ext"]
+    if entry.get("support"):
+        result["format_support"] = entry["support"]
     if change_type == FORMAT_DIRECTION_CHANGED:
         result["old_support"] = entry.get("old_support")
         result["new_support"] = entry.get("new_support")
@@ -332,6 +413,11 @@ def _build_changes(family: str, platform: str, delta: dict) -> list[dict]:
         changes.append(_make_change(_classify_api_change(cls, delta)))
     for cls in delta.get("modified_apis", []):
         changes.append(_make_change(_classify_api_change(cls, delta)))
+    # MT074 B2: enum-constant additions/removals as their own events (additive).
+    for cls, sig in sorted((delta.get("api_signature_changes", {}) or {}).items()):
+        if isinstance(sig, dict):
+            for event in _classify_enum_member_changes(cls, sig, delta):
+                changes.append(_make_change(event))
 
     # Claim changes
     for clm in delta.get("removed_claims", []):

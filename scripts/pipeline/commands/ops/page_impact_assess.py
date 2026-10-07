@@ -253,6 +253,23 @@ def _extract_changed_api_ids(delta: dict) -> set[str]:
                 name = entry.get("name") or entry.get("class_name") or ""
                 if name:
                     ids.add(name)
+    # MT074 B2: enum constants added/removed on an existing type are changes to that type's
+    # public surface -- a page citing "Type.Member" (or "Type") is affected. Exact,
+    # case-preserved identifiers only (no lowercase body-token matching: constant names
+    # such as short format words would match unrelated prose).
+    # Removed constants are skipped while the removal is unconfirmed (extractor changed/unknown,
+    # delta["breaking_unconfirmed"]): that is informational, not evidence the member is gone.
+    unconfirmed = delta.get("breaking_unconfirmed", {}) or {}
+    for owner, sig in (delta.get("api_signature_changes", {}) or {}).items():
+        if not isinstance(sig, dict):
+            continue
+        for key in ("enum_members_added", "enum_members_removed"):
+            if (key == "enum_members_removed" and isinstance(unconfirmed.get(owner), dict)
+                    and unconfirmed[owner].get("enum_members_removed")):
+                continue
+            for member in sig.get(key, []) or []:
+                if owner and member:
+                    ids.add(f"{owner}.{member}")
     return ids
 
 

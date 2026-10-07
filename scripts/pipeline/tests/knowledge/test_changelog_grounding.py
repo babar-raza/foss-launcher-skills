@@ -240,3 +240,73 @@ def test_cli_succeeds_and_prints_markdown_on_valid_data(tmp_path, capsys):
         assert "PdfDigitalSignatureBuilder" in captured.out
     finally:
         sut.configure(reports_root="reports/refresh_review")
+
+
+# ── MT074: unconfirmed removals and enum-constant additions ─────────────────
+
+def _enum_event(change_type, symbol, **extra):
+    base = _change(change_type, symbol, symbol_kind="enum")
+    base.update(extra)
+    return base
+
+
+def test_unconfirmed_enum_removal_never_reaches_breaking_or_migration():
+    """C#-shaped enum: removal flagged verify_against_source (extractor changed)."""
+    removal = _enum_event(
+        "API_SIGNATURE_CHANGED", "SaveKind", enum_members_removed=["Legacy"],
+        breaking_unconfirmed=True, verify_against_source=True, content_impact="REVIEW_ONLY",
+    )
+    draft = _draft([removal])
+    assert draft["breaking_changes"] == [] and draft["migration_guidance"] == []
+    assert all(not v for v in draft["categories"].values())
+    assert [e["symbol"] for e in draft["unconfirmed"]] == ["SaveKind"]
+    assert draft["unconfirmed"][0]["enum_members_removed"] == ["Legacy"]
+    md = sut.format_markdown(draft)
+    assert f"### {sut.UNCONFIRMED_HEADING}" in md
+    assert "### Compatibility" not in md and "### Migration" not in md
+    assert "Legacy" in md
+
+
+def test_unconfirmed_type_removal_is_not_listed_under_removed():
+    gone = _change("API_REMOVED", "Gone")
+    gone.update(verify_against_source=True, breaking_unconfirmed=True, content_impact="REVIEW_ONLY")
+    kept = _change("API_REMOVED", "Truly", change_id="CHG-pdf-java-0002")
+    draft = _draft([gone, kept])
+    assert [e["symbol"] for e in draft["categories"]["Removed"]] == ["Truly"]
+    assert [e["symbol"] for e in draft["unconfirmed"]] == ["Gone"]
+    assert [e["symbol"] for e in draft["breaking_changes"]] == ["Truly"]  # confirmed path unchanged
+
+
+def test_confirmed_breaking_enum_removal_still_reported_as_breaking():
+    removal = _enum_event("API_SIGNATURE_CHANGED", "Kind", enum_members_removed=["Two"], breaking=True)
+    draft = _draft([removal])
+    assert [e["symbol"] for e in draft["breaking_changes"]] == ["Kind"]
+    assert draft["unconfirmed"] == []
+
+
+def test_enum_constant_addition_is_labelled_as_constant_added_not_a_new_type():
+    """Python-shaped enum already present before: only a constant was added."""
+    added = _enum_event("FEATURE_ADDED", "LoadFormat", enum_members_added=["DOCX", "ODT"])
+    draft = _draft([added])
+    entry = draft["categories"]["Added"][0]
+    assert entry["label"] == "constant added to LoadFormat"
+    assert entry["constants_added"] == ["DOCX", "ODT"]
+    md = sut.format_markdown(draft)
+    assert "- `DOCX` — constant added to LoadFormat" in md
+    assert "- `LoadFormat`" not in md  # never presented as a newly added type
+    assert sut.validate_changelog_draft(draft, [added]) == []
+
+
+def test_new_type_still_listed_plainly_under_added():
+    draft = _draft([_change("API_ADDED", "NewClass")])
+    assert "label" not in draft["categories"]["Added"][0]
+    assert "- `NewClass`" in sut.format_markdown(draft)
+
+
+def test_validator_rejects_fabricated_unconfirmed_symbol():
+    real = _enum_event("API_SIGNATURE_CHANGED", "SaveKind", enum_members_removed=["Legacy"],
+                       verify_against_source=True)
+    draft = _draft([real])
+    draft["unconfirmed"].append({"symbol": "Invented", "change_id": "X", "evidence_paths": ["p"]})
+    violations = sut.validate_changelog_draft(draft, [real, _change("API_ADDED", "Other")])
+    assert any("Invented" in v for v in violations)

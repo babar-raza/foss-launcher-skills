@@ -771,3 +771,25 @@ class TestTrafficTier:
 
         assert len(set(outcomes)) == 1, f"pia_score/summary varied by traffic_tier: {outcomes}"
         assert outcomes[0] == ("HIGH_IMPACT", 1)
+
+
+# ---------------------------------------------------------------------------
+# MT074 B2: enum-member signal flows into citation scoring
+# ---------------------------------------------------------------------------
+
+def test_changed_api_ids_include_enum_members_for_non_java_surface():
+    delta = {
+        "modified_apis": ["SaveKind"],
+        "api_signature_changes": {"SaveKind": {
+            "added_methods": [], "removed_methods": [], "added_properties": [], "removed_properties": [],
+            "enum_members_added": ["Parquet"], "enum_members_removed": [],
+        }},
+    }
+    ids = page_impact_assess._extract_changed_api_ids(delta)
+    assert ids == {"SaveKind", "SaveKind.Parquet"}
+    assert page_impact_assess._match_cited_apis(["SaveKind.Parquet"], ids) == {"SaveKind.Parquet"}
+
+
+def test_old_delta_shape_still_yields_only_simple_names():
+    ids = page_impact_assess._extract_changed_api_ids({"new_apis": ["B"], "modified_apis": ["A"]})
+    assert ids == {"A", "B"}

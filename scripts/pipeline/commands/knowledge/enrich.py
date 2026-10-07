@@ -1161,6 +1161,232 @@ def _post_validate_stub_claims(claims: list, clone_dir: Path) -> list:
 
 
 # ---------------------------------------------------------------------------
+# MT074 B13 -- rerun consistency: tracked-state seed + incremental per-unit
+# enrichment
+# ---------------------------------------------------------------------------
+#
+# Why this exists (MT074 plan, "Rerun-consistency design", rows 3 and 5):
+#   * scout/enriched_claims.json is untracked.  When it is absent (fresh
+#     checkout, deleted scout/), every ERC claim used to vanish from the next
+#     promote and the delta reported mass removal (observed live: -1,542 claims
+#     on pdf/java).  merged/claims.json IS tracked, so it is the durable seed.
+#   * Batches used to be positional slices of a name-sorted list, so ONE new
+#     class shifted every later batch boundary and invalidated every later LLM
+#     cache entry.  Batches are now a stable hash partition of each class's
+#     qualified key, and each ERC claim records which unit (class or batch) and
+#     which content hash produced it, so a rerun only re-enriches units whose
+#     api-surface content changed.
+#
+# Additive claim fields (ignored by every existing consumer):
+#   enrich_unit  "class:<qualified key>" (member-doc) | "batch:<idx>/<count>"
+#   class_hash   16-hex hash of the unit's prompt-feeding api-surface content
+#                (for a "batch:" unit: hash over its member classes' hashes)
+
+_UNIT_FIELDS = ("enrich_unit", "class_hash")
+_TRACKED_SEED_STRIP_KEYS = ("provenance",)
+
+
+def _class_qualified_key(cls: dict) -> str:
+    """Stable identity of an api_surface entry.  Simple names collide (pdf/java
+    has 36 duplicated simple names), so prefer the qualified import, then
+    namespace + name, then file + name.
+
+    NOTE: this is one of TWO qualified-identity schemes in the pipeline; the other is
+    refresh_knowledge._api_qualified_name (delta diffing).  They answer different
+    questions (enrichment-unit partitioning vs. API add/remove identity), are keyed
+    off the same api_surface fields, and are deliberately not unified here: changing
+    this key re-buckets every product's enrichment units."""
+    imp = cls.get("class_import")
+    if isinstance(imp, str) and imp:
+        return imp
+    ns = cls.get("canonical_namespace") or cls.get("class_package")
+    name = cls.get("name", "")
+    if isinstance(ns, str) and ns:
+        return f"{ns}.{name}"
+    return f"{cls.get('file', '')}::{name}"
+
+
+def _class_content_hash(cls: dict) -> str:
+    """Hash of everything about a class that feeds an enrichment prompt.
+
+    Built from the SAME fact renderers the prompts use (capability facts and
+    member-doc facts), so the hash tracks the prompt inputs exactly -- signature,
+    docstring and member lists included -- and cannot drift from them.  The
+    kind and qualified key are folded in so a kind change also invalidates.
+    """
+    payload = "\x1f".join([
+        _class_qualified_key(cls),
+        str(cls.get("kind", "")),
+        _build_verified_facts([cls]),
+        _build_member_doc_facts(cls),
+    ])
+    return hashlib.sha256(payload.encode("utf-8")).hexdigest()[:16]
+
+
+def _key_bucket_hash(key: str) -> int:
+    return int(hashlib.sha256(key.encode("utf-8")).hexdigest()[:8], 16)
+
+
+def _bucket_count_for(n_classes: int, batch_size: int, prior_count: int = 0) -> int:
+    """Number of hash buckets.  A power of two with mean bucket size <= batch_size.
+
+    ``prior_count`` (read back from the carried claims' ``enrich_unit`` stamps)
+    is kept while it still yields a sane mean size, so adding classes does not
+    re-bucket the whole product until the mean genuinely outgrows the batch
+    size -- that single re-bucket is the only event that re-enriches everything.
+    """
+    batch_size = max(1, batch_size)
+    if n_classes <= 0:
+        return 1
+    if prior_count > 0:
+        mean = n_classes / prior_count
+        if batch_size / 4 <= mean <= 2 * batch_size:
+            return prior_count
+    needed = max(1, -(-n_classes // batch_size))
+    count = 1
+    while count < needed:
+        count *= 2
+    return count
+
+
+def _plan_capability_units(public_classes: list, batch_size: int,
+                           prior_count: int = 0) -> list:
+    """Partition classes into capability-mode batches by stable key hash.
+
+    Returns ordered units ``{"unit": str, "hash": str, "classes": [cls, ...]}``.
+    A bucket larger than the facts-block cap is split into sorted chunks so no
+    class is ever silently left out of the prompt.
+    """
+    count = _bucket_count_for(len(public_classes), batch_size, prior_count)
+    buckets: dict[int, list] = {}
+    for cls in public_classes:
+        buckets.setdefault(_key_bucket_hash(_class_qualified_key(cls)) % count, []).append(cls)
+    units: list = []
+    cap = max(1, min(_MAX_FACTS_CLASSES, max(batch_size, 1) * 4))
+    for idx in sorted(buckets):
+        members = sorted(buckets[idx], key=lambda c: (c.get("name", ""), _class_qualified_key(c)))
+        chunks = [members[i:i + cap] for i in range(0, len(members), cap)] or [[]]
+        for chunk_no, chunk in enumerate(chunks):
+            label = f"{idx}" if len(chunks) == 1 else f"{idx}.{chunk_no}"
+            digest = hashlib.sha256("\n".join(
+                f"{_class_qualified_key(c)}={_class_content_hash(c)}" for c in chunk
+            ).encode("utf-8")).hexdigest()[:16]
+            units.append({"unit": f"batch:{label}/{count}", "hash": digest, "classes": chunk})
+    return units
+
+
+def _prior_bucket_count(claims: list) -> int:
+    """Largest bucket count recorded on carried ``batch:<i>/<n>`` stamps (0 = none)."""
+    best = 0
+    for c in claims:
+        unit = c.get("enrich_unit") if isinstance(c, dict) else None
+        if isinstance(unit, str) and unit.startswith("batch:") and "/" in unit:
+            try:
+                best = max(best, int(unit.rsplit("/", 1)[1]))
+            except ValueError:
+                continue
+    return best
+
+
+def _unit_is_current(unit: str, unit_hash: str, claims: list, ledger: dict) -> bool:
+    """A unit is up to date iff a carried claim carries its stamp with the SAME
+    hash, or the ledger (zero-yield units) recorded that hash as processed."""
+    if ledger.get(unit) == unit_hash:
+        return True
+    return any(
+        isinstance(c, dict) and c.get("enrich_unit") == unit and c.get("class_hash") == unit_hash
+        for c in claims
+    )
+
+
+def _stamp_claim(claim: dict, unit: str, unit_hash: str) -> None:
+    claim["enrich_unit"] = unit
+    claim["class_hash"] = unit_hash
+
+
+def _is_adoptable(dup, carried_claims: list) -> bool:
+    """True for an UNSTAMPED claim that is part of the carried set (a legacy claim
+    this unit's regeneration re-derived) -- it is adopted into the unit."""
+    return (isinstance(dup, dict) and not dup.get("enrich_unit")
+            and any(dup is c for c in carried_claims))
+
+
+def _find_duplicate(candidate: dict, existing_claims: list):
+    """Like _is_duplicate, but returns the matching existing claim (or None)."""
+    c_tokens = _tokenize(candidate.get("text", ""))
+    if not c_tokens:
+        return None
+    c_kind = candidate.get("kind", "")
+    for ec in existing_claims:
+        ec_kind = ec.get("kind", "")
+        if c_kind in _EXACT_ONLY_KINDS or ec_kind in _EXACT_ONLY_KINDS:
+            if candidate.get("text", "").strip() == ec.get("text", "").strip():
+                return ec
+            continue
+        e_tokens = _tokenize(ec.get("text", ""))
+        union = c_tokens | e_tokens
+        if not union:
+            continue
+        if len(c_tokens & e_tokens) / len(union) >= _DEDUP_OVERLAP_THRESHOLD:
+            return ec
+    return None
+
+
+def _load_tracked_enriched_claims(tracked_claims_path) -> list:
+    """ERC claims from the tracked merged/claims.json, in file order.
+
+    Only ``provenance == "enriched"`` claims are seeded (scout claims are
+    regenerated by scout; supplemental ones are a separate bridge).  The
+    ``provenance`` key promote adds is stripped so that re-promoting the seeded
+    set reproduces merged/claims.json byte-for-byte.
+    """
+    path = Path(tracked_claims_path)
+    if not path.is_file():
+        return []
+    try:
+        data = json.loads(path.read_text(encoding="utf-8"))
+    except (json.JSONDecodeError, OSError) as exc:
+        log.warning("Could not read tracked merged claims %s: %s", path, exc)
+        return []
+    claims = data if isinstance(data, list) else (data.get("claims", []) if isinstance(data, dict) else [])
+    seeded = []
+    for c in claims:
+        if not isinstance(c, dict):
+            continue
+        cid = c.get("claim_id")
+        if not (isinstance(cid, str) and cid.startswith("ERC-")):
+            continue
+        if c.get("provenance", "enriched") != "enriched":
+            continue
+        seeded.append({k: v for k, v in c.items() if k not in _TRACKED_SEED_STRIP_KEYS})
+    return seeded
+
+
+_UNSET = object()
+_cfg_hooks: dict = {}
+
+
+def configure(*, llm_call_fn=_UNSET, preflight_fn=_UNSET, clone_exists_fn=_UNSET,
+              metrics_fn=_UNSET) -> None:
+    """Test seam (configure() pattern) for enrich()'s side-effecting collaborators: the
+    LLM call, the endpoint preflight, the clone-cache probe and the metrics writer.
+    A callable installs a hook, ``None`` removes it, and calling with NO arguments
+    resets every hook (autouse-fixture teardown)."""
+    given = {"llm_call": llm_call_fn, "preflight": preflight_fn,
+             "clone_exists": clone_exists_fn, "metrics": metrics_fn}
+    if all(v is _UNSET for v in given.values()):
+        _cfg_hooks.clear()
+        return
+    for name, fn in given.items():
+        if fn is _UNSET:
+            continue
+        if fn is None:
+            _cfg_hooks.pop(name, None)
+        else:
+            _cfg_hooks[name] = fn
+
+
+# ---------------------------------------------------------------------------
 # Main enrich function
 # ---------------------------------------------------------------------------
 
@@ -1170,14 +1396,28 @@ def enrich(family: str, platform: str, knowledge_root=None, *,
            min_coverage: float = _DEFAULT_MIN_COVERAGE,
            mode: str = "capability",
            reports_root=None,
-           force_llm_regen: bool = False) -> bool:
+           force_llm_regen: bool = False,
+           tracked_claims_path=None,
+           force_full: bool = False) -> bool:
     """Run S-37 enrichment for a family/platform.
 
     Returns True on success (even if LLM unavailable — writes empty enriched file).
+
+    MT074 B13: ``tracked_claims_path`` (default ``<product>/merged/claims.json``)
+    seeds the carry-forward when scout/enriched_claims.json is absent or empty;
+    ``force_full`` re-enriches every unit instead of only changed/new ones.
     """
     base = (Path(knowledge_root) if knowledge_root else Path("knowledge")) / family / platform
     scout_dir = base / "scout"
     out_path = scout_dir / "enriched_claims.json"
+
+    # MT074: side-effecting collaborators resolved at call time, through the module's
+    # configure() hooks first, then the module attributes (so older tests that patch the
+    # attributes keep working).
+    _call_llm = _cfg_hooks.get("llm_call") or _llm_call
+    _preflight = _cfg_hooks.get("preflight") or _preflight_check
+    _clone_present = _cfg_hooks.get("clone_exists") or clone_exists
+    _write_metrics = _cfg_hooks.get("metrics") or _try_write_enrich_metrics
 
     global _enrich_metrics_events, _enrich_run_id
     _enrich_metrics_events = []
@@ -1249,12 +1489,35 @@ def enrich(family: str, platform: str, knowledge_root=None, *,
 
     # Load existing enriched claims (for idempotent re-runs)
     existing_enriched: list = []
+    unit_ledger: dict = {}
+    stored_api_sha = ""
     if out_path.exists():
         try:
             existing_data = json.loads(out_path.read_text(encoding="utf-8"))
             existing_enriched = existing_data.get("claims", []) if isinstance(existing_data, dict) else []
+            if isinstance(existing_data, dict):
+                stored_api_sha = existing_data.get("api_surface_sha", "") or ""
+                _ledger = existing_data.get("enrich_units")
+                if isinstance(_ledger, dict):
+                    unit_ledger = {str(k): str(v) for k, v in _ledger.items()}
         except (json.JSONDecodeError, OSError) as exc:
             log.warning("Could not parse existing enriched_claims.json: %s — treating as empty", exc)
+    # MT074 B13a: the durable source of enriched claims is the TRACKED
+    # merged/claims.json, not the untracked scout/enriched_claims.json.  When
+    # the scout file is absent (fresh checkout / deleted scout/) or empty, seed
+    # the carry-forward from the tracked ERC claims so they are never silently
+    # dropped (the -1,542 claim mass-removal incident).
+    seeded_from_tracked = False
+    if not existing_enriched:
+        _tracked_path = (Path(tracked_claims_path) if tracked_claims_path is not None
+                         else base / "merged" / "claims.json")
+        _seed = _load_tracked_enriched_claims(_tracked_path)
+        if _seed:
+            existing_enriched = _seed
+            seeded_from_tracked = True
+            run_stats["seeded_from_tracked"] = len(_seed)
+            log.info("Seeded carry-forward with %d ERC claim(s) from tracked %s "
+                     "(scout/enriched_claims.json absent or empty)", len(_seed), _tracked_path)
 
     # Task 18 (§9.13, closes G11): prune carried-forward member-doc claims
     # whose target class/member no longer exists in the CURRENT api_surface
@@ -1262,6 +1525,7 @@ def enrich(family: str, platform: str, knowledge_root=None, *,
     # forever. Placed here, before any downstream use of existing_enriched
     # (dedup, all_batched_claims, --rehash-only, --no-llm preservation),
     # so every one of those paths benefits automatically.
+    pruned_count = 0
     if existing_enriched:
         pruned_count = len(existing_enriched)
         existing_enriched = _prune_stale_carried_forward_claims(existing_enriched, api_surface)
@@ -1299,9 +1563,12 @@ def enrich(family: str, platform: str, knowledge_root=None, *,
             # the file when pruning genuinely removed something, so a true
             # no-op run stays a true no-op (no timestamp/hash churn for no
             # real reason).
-            if pruned_count:
+            if pruned_count or seeded_from_tracked:
+                # MT074 B13a: a seeded carry-forward must be materialised so the
+                # following promote sees the tracked ERC claims instead of none.
                 _write_output(out_path, existing_enriched, family, platform,
-                              "none (--no-llm, pruned)", api_surface)
+                              "none (--no-llm, pruned)" if pruned_count else "none (--no-llm, seeded)",
+                              api_surface, unit_ledger=unit_ledger)
             run_stats["duration_seconds"] = round(time.monotonic() - t0, 1)
             run_stats["cache_hits"] = llm_cache.hits
             run_stats["cache_misses"] = llm_cache.misses
@@ -1320,7 +1587,8 @@ def enrich(family: str, platform: str, knowledge_root=None, *,
     if rehash_only:
         log.info("--rehash-only: re-hashing %d existing enriched claims", len(existing_enriched))
         rehashed = _assign_ids(existing_enriched, family, platform)
-        _write_output(out_path, rehashed, family, platform, "rehash-only", api_surface)
+        _write_output(out_path, rehashed, family, platform, "rehash-only", api_surface,
+                      unit_ledger=unit_ledger)
         run_stats["claims_final"] = len(rehashed)
         run_stats["duration_seconds"] = round(time.monotonic() - t0, 1)
         run_stats["cache_hits"] = llm_cache.hits
@@ -1330,7 +1598,7 @@ def enrich(family: str, platform: str, knowledge_root=None, *,
         return True
 
     # Preflight: verify at least one LLM endpoint is available before batching.
-    preflight = _preflight_check()
+    preflight = _preflight()
     healthy = [k for k, v in preflight.items() if v == "ok"]
     if not healthy:
         log.warning("All LLM endpoints failed preflight: %s", preflight)
@@ -1382,7 +1650,7 @@ def enrich(family: str, platform: str, knowledge_root=None, *,
 
     # Build source context ONCE — same for all batches
     clone_dir = _clone_path(family, platform)
-    if clone_exists(family, platform):
+    if _clone_present(family, platform):
         log.info("Building source context from clone cache: %s", clone_dir)
         source_context = _build_source_context(clone_dir, low_docstring=low_docstring)
         log.info("Source context: %d chars", len(source_context))
@@ -1417,19 +1685,67 @@ def enrich(family: str, platform: str, knowledge_root=None, *,
 
     all_batched_claims: list[dict] = list(existing_enriched)  # start with existing
 
-    batches = [public_classes[i:i + batch_size]
-               for i in range(0, len(public_classes), batch_size)]
+    # MT074 B13c: batches are a STABLE hash partition of each class's qualified
+    # key (not positional slices of a name-sorted list), so adding one class
+    # changes exactly one batch.  Each unit carries a content hash; a unit whose
+    # hash matches a carried claim stamp (or the ledger) is skipped on rerun.
+    capability_units = _plan_capability_units(
+        public_classes, batch_size, _prior_bucket_count(all_batched_claims))
+    batches = [u["classes"] for u in capability_units]
+    current_units: dict[str, str] = {}      # unit -> hash, confirmed up to date this run
+    mutated_count = 0                       # claims added/replaced/re-stamped by THIS run
+    run_stats.update({"units_total": 0, "units_skipped": 0, "units_enriched": 0,
+                      "unit_claims_replaced": 0})
+    # Every unit this run is responsible for; whatever is not confirmed current at the
+    # end (LLM failure, nothing acceptable, early stop) makes the output PARTIAL.
+    planned_units: list[str] = []
+    if mode in ("capability", "both"):
+        planned_units += [u["unit"] for u in capability_units]
+    if mode in ("member-doc", "both"):
+        planned_units += [f"class:{_class_qualified_key(c)}" for c in public_classes]
+    coverage_stopped = False
 
-    log.info("Multi-batch enrichment: %d classes in %d batch(es) of %d",
+    log.info("Multi-batch enrichment: %d classes in %d batch(es) of ~%d",
              len(public_classes), len(batches), batch_size)
 
-    all_existing_for_dedup = scout_claims + existing_enriched
     api_names = _extract_api_names(api_surface)
     model_used = "none"
 
+    def _dedup_pool(exclude_ids: "set[int] | None" = None) -> list:
+        """scout claims + every carried/accepted ERC claim (optionally minus the
+        claims of the unit being regenerated, so a regenerated claim is never
+        suppressed as a duplicate of its own previous version)."""
+        if not exclude_ids:
+            return scout_claims + all_batched_claims
+        return scout_claims + [c for c in all_batched_claims if id(c) not in exclude_ids]
+
+    def _commit_unit(unit_id: str, unit_hash: str, old_unit_claims: list,
+                     new_claims: list) -> None:
+        """Replace a regenerated unit's previous (stamped) claims by its new ones.
+
+        Old claims are only removed when the regeneration produced at least one
+        accepted claim, so a failed/empty regeneration can never lose data.
+        """
+        nonlocal all_batched_claims, mutated_count
+        if new_claims:
+            mutated_count += len(new_claims) + len(old_unit_claims)
+            drop = {id(c) for c in old_unit_claims}
+            if drop:
+                all_batched_claims = [c for c in all_batched_claims if id(c) not in drop]
+                run_stats["unit_claims_replaced"] += len(old_unit_claims)
+            for nc in new_claims:
+                _stamp_claim(nc, unit_id, unit_hash)
+            all_batched_claims.extend(new_claims)
+            current_units[unit_id] = unit_hash
+        elif not old_unit_claims:
+            current_units[unit_id] = unit_hash  # zero-yield unit: remember it was processed
+
     # --- capability mode: batch-class semantic enrichment ---
     if mode in ("capability", "both"):
-        for batch_idx, batch in enumerate(batches):
+        for batch_idx, unit_info in enumerate(capability_units):
+            batch = unit_info["classes"]
+            unit_id, unit_hash = unit_info["unit"], unit_info["hash"]
+            run_stats["units_total"] += 1
             # Check if min_coverage already satisfied
             if min_coverage > 0:
                 covered = len(all_batched_claims)
@@ -1437,15 +1753,25 @@ def enrich(family: str, platform: str, knowledge_root=None, *,
                 if covered >= needed:
                     log.info("Min coverage %.0f%% satisfied after batch %d (%d/%d claims)",
                              min_coverage * 100, batch_idx, covered, len(public_classes))
+                    coverage_stopped = True
                     break
 
+            if not force_full and _unit_is_current(unit_id, unit_hash, all_batched_claims, unit_ledger):
+                run_stats["units_skipped"] += 1
+                current_units[unit_id] = unit_hash
+                continue
+            run_stats["units_enriched"] += 1
+            old_unit_claims = [c for c in all_batched_claims
+                               if isinstance(c, dict) and c.get("enrich_unit") == unit_id]
+            pool = _dedup_pool({id(c) for c in old_unit_claims})
+            new_unit_claims: list[dict] = []
             batch_facts = _build_verified_facts(batch)
             sys_prompt, user_prompt = _build_prompt(family, platform, batch_facts, source_context,
                                                     low_docstring=low_docstring)
             log.info("Batch %d/%d: calling LLM for %d classes...",
                      batch_idx + 1, len(batches), len(batch))
             run_stats["batches_attempted"] += 1
-            raw_result, batch_model = _llm_call(sys_prompt, user_prompt, cache=llm_cache, cache_extra=_cache_extra)
+            raw_result, batch_model = _call_llm(sys_prompt, user_prompt, cache=llm_cache, cache_extra=_cache_extra)
             if batch_model:
                 model_used = batch_model
 
@@ -1473,6 +1799,7 @@ def enrich(family: str, platform: str, knowledge_root=None, *,
                 raw_claims = raw_result
             if not raw_claims:
                 log.debug("Batch %d returned no claims", batch_idx + 1)
+                _commit_unit(unit_id, unit_hash, old_unit_claims, [])
                 continue
 
             run_stats["claims_raw"] += len(raw_claims)
@@ -1480,13 +1807,21 @@ def enrich(family: str, platform: str, knowledge_root=None, *,
                 if not _validate_claim(claim, api_names):
                     run_stats["claims_rejected"] += 1
                     continue
-                if _is_duplicate(claim, all_existing_for_dedup):
+                dup = _find_duplicate(claim, pool)
+                if dup is not None:
                     run_stats["claims_deduplicated"] += 1
+                    # Adopt an unstamped carried (legacy) claim that this unit
+                    # re-derived, so the unit converges to "current".
+                    if _is_adoptable(dup, all_batched_claims):
+                        _stamp_claim(dup, unit_id, unit_hash)
+                        current_units[unit_id] = unit_hash
+                        mutated_count += 1
                     continue
                 run_stats["claims_accepted"] += 1
                 claim.setdefault("page_role", None)
-                all_batched_claims.append(claim)
-                all_existing_for_dedup.append(claim)
+                new_unit_claims.append(claim)
+                pool.append(claim)
+            _commit_unit(unit_id, unit_hash, old_unit_claims, new_unit_claims)
 
     # --- member-doc mode: per-class, per-member description generation ---
     # Generates one claim per method/property starting with ClassName.MemberName
@@ -1496,12 +1831,24 @@ def enrich(family: str, platform: str, knowledge_root=None, *,
                  len(public_classes))
         for cls in public_classes:
             cls_name = cls.get("name", "")
+            unit_id = f"class:{_class_qualified_key(cls)}"
+            unit_hash = _class_content_hash(cls)
+            run_stats["units_total"] += 1
+            if not force_full and _unit_is_current(unit_id, unit_hash, all_batched_claims, unit_ledger):
+                run_stats["units_skipped"] += 1
+                current_units[unit_id] = unit_hash
+                continue
+            run_stats["units_enriched"] += 1
+            old_unit_claims = [c for c in all_batched_claims
+                               if isinstance(c, dict) and c.get("enrich_unit") == unit_id]
+            pool = _dedup_pool({id(c) for c in old_unit_claims})
+            new_unit_claims = []
             sys_prompt, user_prompt = _build_member_doc_prompt(
                 family, platform, cls, source_context
             )
             log.info("member-doc: calling LLM for class %s...", cls_name)
             run_stats["batches_attempted"] += 1
-            raw_result, batch_model = _llm_call(sys_prompt, user_prompt, cache=llm_cache, cache_extra=_cache_extra)
+            raw_result, batch_model = _call_llm(sys_prompt, user_prompt, cache=llm_cache, cache_extra=_cache_extra)
             if batch_model:
                 model_used = batch_model
             if raw_result is None:
@@ -1523,22 +1870,29 @@ def enrich(family: str, platform: str, knowledge_root=None, *,
             for claim in raw_claims:
                 if not _validate_claim(claim, api_names):
                     continue
-                if _is_duplicate(claim, all_existing_for_dedup):
+                dup = _find_duplicate(claim, pool)
+                if dup is not None:
+                    if _is_adoptable(dup, all_batched_claims):
+                        _stamp_claim(dup, unit_id, unit_hash)
+                        current_units[unit_id] = unit_hash
+                        mutated_count += 1
                     continue
                 # Member-doc claims are always reference-scoped
                 claim["page_role"] = "reference"
-                all_batched_claims.append(claim)
-                all_existing_for_dedup.append(claim)
+                new_unit_claims.append(claim)
+                pool.append(claim)
+            _commit_unit(unit_id, unit_hash, old_unit_claims, new_unit_claims)
 
     # --- feature mode: high-level capability/install/troubleshoot claims ---
     # Writes to a separate feature_claims.json (additive, does not touch enriched_claims.json)
     if mode == "feature":
+        all_existing_for_dedup = scout_claims + existing_enriched
         log.info("Feature mode: extracting capability/install/troubleshoot claims")
         feature_out_path = scout_dir / "feature_claims.json"
 
         # Collect source file paths from clone cache
         source_files: list[str] = []
-        if clone_exists(family, platform):
+        if _clone_present(family, platform):
             for p in clone_dir.rglob("*"):
                 if p.is_file() and p.suffix.lower() in {
                     ".py", ".java", ".cs", ".ts", ".cpp", ".h", ".md", ".txt",
@@ -1556,7 +1910,7 @@ def enrich(family: str, platform: str, knowledge_root=None, *,
         )
         log.info("Feature mode: calling LLM with %d source files listed...", len(source_files))
         run_stats["batches_attempted"] += 1
-        raw_result, batch_model = _llm_call(sys_prompt, user_prompt, cache=llm_cache, cache_extra=_cache_extra)
+        raw_result, batch_model = _call_llm(sys_prompt, user_prompt, cache=llm_cache, cache_extra=_cache_extra)
         if batch_model:
             model_used = batch_model
 
@@ -1639,6 +1993,31 @@ def enrich(family: str, platform: str, knowledge_root=None, *,
 
     # Write protection: refuse to write empty claims when LLM likely failed
     new_claims_added = len(final_claims) - len(existing_enriched)
+    # MT074 B13: "nothing to write" must not be a bare length delta -- a regenerated
+    # unit can swap claims at equal length, a pruned/seeded set must be materialised,
+    # and an api_surface change that touches no enrichment unit (e.g. only line
+    # numbers moved) must still refresh api_surface_sha, or promote would treat
+    # every ERC claim as stale.  Only changes THIS run made count (an LLM outage
+    # over an unchanged file still preserves it untouched, as before).
+    _current_api_sha = hashlib.sha256(
+        json.dumps(api_surface, sort_keys=True).encode()
+    ).hexdigest()[:16]
+    # The sha may only be refreshed when EVERY unit is confirmed current for this
+    # api_surface -- never when the LLM failed on a changed unit, or the old claims
+    # would be blessed as valid for a surface they were not generated from.
+    outstanding_units = sorted(set(planned_units) - set(current_units))
+    all_units_current = bool(planned_units) and not outstanding_units
+    # PARTIAL: some changed/new unit failed or yielded nothing acceptable (its OLD claims
+    # are kept).  Never refresh the sha for such an output; promote refuses it unless
+    # --allow-partial-enrichment is given; the next run retries exactly those units.
+    partial_units = [] if coverage_stopped else outstanding_units
+    state_changed = (
+        bool(mutated_count)
+        or bool(pruned_count)
+        or seeded_from_tracked
+        or bool(stored_api_sha and stored_api_sha != _current_api_sha and all_units_current)
+        or not out_path.exists()
+    )
     if not final_claims and len(batches) > 0:
         log.error(
             "WRITE PROTECTION: LLM enrichment produced 0 claims from %d batches. "
@@ -1653,10 +2032,10 @@ def enrich(family: str, platform: str, knowledge_root=None, *,
         run_stats["cache_misses"] = llm_cache.misses
         _write_enrichment_report(family, platform, run_stats, "failed",
                                  out_path, reports_root=reports_root)
-        _try_write_enrich_metrics(family, platform, _enrich_run_id, _enrich_metrics_events, run_stats, t0)
+        _write_metrics(family, platform, _enrich_run_id, _enrich_metrics_events, run_stats, t0)
         return False  # Signal failure instead of success
 
-    if new_claims_added <= 0 and existing_enriched and len(batches) > 0:
+    if new_claims_added <= 0 and existing_enriched and len(batches) > 0 and not state_changed:
         log.warning(
             "LLM enrichment produced no NEW claims (%d batches attempted). "
             "Preserving existing %d claims in enriched_claims.json without metadata update.",
@@ -1670,7 +2049,7 @@ def enrich(family: str, platform: str, knowledge_root=None, *,
         run_stats["cache_misses"] = llm_cache.misses
         _write_enrichment_report(family, platform, run_stats, "partial",
                                  out_path, reports_root=reports_root)
-        _try_write_enrich_metrics(family, platform, _enrich_run_id, _enrich_metrics_events, run_stats, t0)
+        _write_metrics(family, platform, _enrich_run_id, _enrich_metrics_events, run_stats, t0)
         return True  # Existing claims preserved, skip rewrite to avoid metadata churn
 
     run_stats["claims_final"] = len(final_claims)
@@ -1685,7 +2064,9 @@ def enrich(family: str, platform: str, knowledge_root=None, *,
 
     enrichment_status = "success" if run_stats["batches_failed"] == 0 else "partial"
     _write_output(out_path, final_claims, family, platform, model_used, api_surface,
-                  run_stats=run_stats)
+                  run_stats=run_stats, unit_ledger=current_units,
+                  partial_units=partial_units,
+                  api_sha_override=(stored_api_sha if partial_units and stored_api_sha else None))
 
     log.info(
         "=== S-37 Summary: model=%s, batches=%d/%d, raw=%d, rejected=%d, "
@@ -1697,14 +2078,20 @@ def enrich(family: str, platform: str, knowledge_root=None, *,
     )
     _write_enrichment_report(family, platform, run_stats, enrichment_status,
                              out_path, reports_root=reports_root)
-    _try_write_enrich_metrics(family, platform, _enrich_run_id, _enrich_metrics_events, run_stats, t0)
+    _write_metrics(family, platform, _enrich_run_id, _enrich_metrics_events, run_stats, t0)
     return True
 
 
 def _write_output(out_path: Path, claims: list, family: str, platform: str,
-                  model: str, api_surface: list, *, run_stats=None) -> None:
-    """Write enriched_claims.json."""
-    api_sha = hashlib.sha256(
+                  model: str, api_surface: list, *, run_stats=None,
+                  unit_ledger=None, partial_units=None, api_sha_override=None) -> None:
+    """Write enriched_claims.json.
+
+    partial_units (MT074 R1-5): non-empty => the output is marked
+    ``enrichment_status: partial`` with the ``incomplete_units`` list, and
+    ``api_sha_override`` (the PREVIOUS sha) keeps api_surface_sha un-refreshed so the
+    old claims are not blessed as valid for a surface they were not generated from."""
+    api_sha = api_sha_override or hashlib.sha256(
         json.dumps(api_surface, sort_keys=True).encode()
     ).hexdigest()[:16]
 
@@ -1720,6 +2107,12 @@ def _write_output(out_path: Path, claims: list, family: str, platform: str,
     }
     if run_stats:
         payload["run_stats"] = run_stats
+    if partial_units:
+        payload["enrichment_status"] = "partial"
+        payload["incomplete_units"] = sorted(partial_units)
+    if unit_ledger:
+        # MT074 B13c: units confirmed up to date (incl. zero-yield ones) -> hash.
+        payload["enrich_units"] = {k: unit_ledger[k] for k in sorted(unit_ledger)}
     out_path.parent.mkdir(parents=True, exist_ok=True)
     atomic_write(out_path, json.dumps(payload, indent=2, ensure_ascii=False))
 
@@ -1731,7 +2124,7 @@ def _write_output(out_path: Path, claims: list, family: str, platform: str,
         "claim_count": len(claims),
         "model": model,
         "api_surface_sha": api_sha,
-        "enrichment_status": "success" if claims else "empty",
+        "enrichment_status": ("partial" if partial_units else "success") if claims else "empty",
         "run_stats_summary": {
             "batches": run_stats.get("batches_attempted", 0) if run_stats else 0,
             "rejected": run_stats.get("claims_rejected", 0) if run_stats else 0,
@@ -1796,6 +2189,11 @@ def main() -> None:
     parser.add_argument("--no-llm-cache", action="store_true", dest="no_llm_cache",
                         help="HARDEN-A4: bypass the content-hash LLM output cache and force "
                              "fresh LLM calls (loudly logged; fresh outputs still refresh the cache)")
+    parser.add_argument("--force-full-enrich", action="store_true", dest="force_full_enrich",
+                        help="MT074 B13c: re-enrich EVERY unit (class/batch) instead of only "
+                             "units whose api-surface content hash changed or that are new. "
+                             "Carried-forward claims are still preserved; regenerated units "
+                             "replace their own previous claims.")
     parser.add_argument("--llm-timeout", type=int, default=_LLM_TIMEOUT_SECONDS,
                         help=f"Per-call chat timeout in seconds (default {_LLM_TIMEOUT_SECONDS}, "
                              "matching llm_registry.yaml's professionalize.chat default_timeout). "
@@ -1820,7 +2218,8 @@ def main() -> None:
                      batch_size=args.batch_size,
                      min_coverage=args.min_coverage,
                      mode=args.mode,
-                     force_llm_regen=args.no_llm_cache)
+                     force_llm_regen=args.no_llm_cache,
+                     force_full=args.force_full_enrich)
     status = "PASS" if success else "FAIL"
     print(f"\nKNOWLEDGE-ENRICH: {status}")
     sys.exit(0 if success else 1)

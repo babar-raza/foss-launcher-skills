@@ -547,3 +547,36 @@ def test_format_change_produces_impact_via_general_review_pipeline(tmp_path):
     assert len(impacts) == 1
     sections = impacts[0]["affected_sections"]
     assert any(s["impact_level"] == bi.IL_DEFINITE for s in sections)
+
+
+# ── MT074 B2: format / enum event update types ───────────────────────────────
+
+def test_format_events_choose_non_destructive_update_types():
+    section = {"heading": "Supported formats", "section_id": "s1", "claims": []}
+
+    def pick(change_type):
+        return bi._select_update_type({"change_type": change_type}, section)
+
+    assert pick("FORMAT_ADDED") == bi.UT_REWRITE
+    assert pick("FORMAT_DIRECTION_CHANGED") == bi.UT_REWRITE
+    assert pick("FORMAT_REMOVED") == bi.UT_SURGICAL
+    assert pick("FORMAT_REMOVED") != bi.UT_REMOVAL
+
+
+def test_enum_level_feature_added_event_matches_section_citing_the_enum():
+    change = {
+        "change_id": "CHG-cells-net-0001", "change_type": "FEATURE_ADDED", "symbol": "SaveKind",
+        "symbol_kind": "enum", "public_impact": "USER_VISIBLE", "content_impact": "BODY_UPDATE",
+        "confidence": 0.9, "enum_members_added": ["Parquet"],
+    }
+    cm = {
+        "page_path": "cells/net/page.md",
+        "sections": [{
+            "section_id": "s1", "heading": "Saving", "start_line": 1, "end_line": 9,
+            "claims": [{"sentence": "Pass a SaveKind value to Save.", "detected_symbols": ["SaveKind"]}],
+        }],
+    }
+    entries = bi._match_change_to_sections(change, cm)
+    assert len(entries) == 1
+    assert entries[0]["impact_level"] == bi.IL_DEFINITE
+    assert entries[0]["update_type"] == bi.UT_REWRITE

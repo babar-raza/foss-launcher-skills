@@ -117,6 +117,7 @@ _cfg_writes_root: str = "reports/body_refresh_writes"  # TC-09: post-write evide
 _cfg_forbidden_claims: "list[str] | None" = None  # RPR-E-02: injected in tests; None = load from index.json
 _cfg_api_fact_summary_fn: Any = None    # RPR-ST082-01: injected in tests to mock api_surface grounding lookup
 _cfg_cache_schema_override: "str | None" = None  # RPR-ST082-02: injected in tests to simulate an older cache schema
+_cfg_knowledge_root: "str | Path | None" = None  # MT074 B13b: injected in tests; None = cwd-relative knowledge/
 
 
 def configure(
@@ -129,11 +130,13 @@ def configure(
     forbidden_claims: "list[str] | None | object" = _UNSET,
     api_fact_summary_fn: Any = _UNSET,
     cache_schema_override: "str | None | object" = _UNSET,
+    knowledge_root: "str | Path | None | object" = _UNSET,
 ) -> None:
     """Override dependencies for testing (configure() seam pattern)."""
     global _cfg_reports_root, _cfg_receipts_root, _cfg_llm_router_class
     global _cfg_safe_write_fn, _cfg_hash_validation, _cfg_writes_root
     global _cfg_forbidden_claims, _cfg_api_fact_summary_fn, _cfg_cache_schema_override
+    global _cfg_knowledge_root
     if reports_root is not None:
         _cfg_reports_root = reports_root
     if receipts_root is not None:
@@ -152,6 +155,9 @@ def configure(
         _cfg_api_fact_summary_fn = api_fact_summary_fn
     if cache_schema_override is not _UNSET:
         _cfg_cache_schema_override = cache_schema_override  # type: ignore[assignment]
+    if knowledge_root is not _UNSET:
+        _cfg_knowledge_root = knowledge_root  # type: ignore[assignment]
+        _CLAIM_STATE_CACHE.clear()
 
 
 # ── RPR-E-04: surface-differentiated update-strategy policy ──────────────────
@@ -1431,6 +1437,87 @@ def _paragraph_rewrite(section_text: str, change: dict, context: dict) -> str:
     return _fallback("LLM_EMPTY_RESPONSE")
 
 
+# ── MT074 B13b: claim-ID churn is not a removal ────────────────────────────
+#
+# Root incident (MT074 R-C row 4; 2026-08-25 G10): claim IDs for non-member claims derive
+# from LLM wording, so a rebuild re-IDs a claim whose TEXT did not change.  A removal-class
+# change keyed to the OLD id then looked like "this feature is gone" and body_refresh deleted
+# real, unchanged sections (41 pages, 2,390 deletions measured live).  refresh_knowledge
+# already reconciles exact-text re-IDs out of delta.removed_claims; this is the second,
+# independent layer at the point of deletion: before any removal-class edit keyed to a CLAIM,
+# confirm the claim is really gone -- its id is not a re-identified id in the delta AND its
+# text no longer appears (byte-exact) among the current claims.  Fails OPEN (applies the edit
+# as before) when the knowledge state is unavailable, so it can only ever withhold deletions
+# that the current knowledge model itself contradicts.
+
+_REMOVAL_CHANGE_TYPES = frozenset({"FEATURE_REMOVED", "API_REMOVED"})
+_CLAIM_STATE_CACHE: dict[tuple, tuple] = {}
+
+
+def _knowledge_dir(family: str, platform: str) -> Path:
+    # cwd-relative by default, like the other knowledge/ reads in this module
+    # (UT_EXAMPLE's snippets lookup); override through configure(knowledge_root=...).
+    root = Path(_cfg_knowledge_root) if _cfg_knowledge_root is not None else Path("knowledge")
+    return root / family / platform / "merged"
+
+
+def _claim_churn_state(family: str, platform: str) -> tuple[frozenset, frozenset]:
+    """(reidentified old ids, texts of all CURRENT claims) for a product; empties when the
+    knowledge files are absent/unreadable.  Cached per (path, mtime) so a run over many
+    pages parses each file once."""
+    merged = _knowledge_dir(family, platform)
+    key_parts = []
+    for name in ("knowledge_delta.json", "claims.json"):
+        fp = merged / name
+        try:
+            st = fp.stat()
+            key_parts.append((str(fp), st.st_mtime_ns, st.st_size))
+        except OSError:
+            key_parts.append((str(fp), None, None))
+    key = tuple(key_parts)
+    cached = _CLAIM_STATE_CACHE.get(key)
+    if cached is not None:
+        return cached
+    reid: frozenset = frozenset()
+    texts: frozenset = frozenset()
+    try:
+        delta = json.loads((merged / "knowledge_delta.json").read_text(encoding="utf-8"))
+        raw = delta.get("reidentified_claims") if isinstance(delta, dict) else None
+        if isinstance(raw, dict):
+            reid = frozenset(str(k) for k in raw)
+    except (OSError, json.JSONDecodeError):
+        pass
+    try:
+        data = json.loads((merged / "claims.json").read_text(encoding="utf-8"))
+        claims = data if isinstance(data, list) else data.get("claims", [])
+        texts = frozenset(
+            (c.get("text") or c.get("claim_text") or "")
+            for c in claims if isinstance(c, dict)
+        ) - {""}
+    except (OSError, json.JSONDecodeError, AttributeError):
+        pass
+    if len(_CLAIM_STATE_CACHE) > 8:
+        _CLAIM_STATE_CACHE.clear()
+    _CLAIM_STATE_CACHE[key] = (reid, texts)
+    return reid, texts
+
+
+def _is_claim_id_churn_not_removal(change: dict, context: dict) -> bool:
+    """True when `change` is a claim-removal whose claim was merely re-identified."""
+    if change.get("change_type") not in _REMOVAL_CHANGE_TYPES:
+        return False
+    if change.get("symbol_kind") != "claim":
+        return False
+    family, platform = context.get("family", ""), context.get("platform", "")
+    if not family or not platform:
+        return False
+    reid, texts = _claim_churn_state(family, platform)
+    if change.get("symbol") in reid:
+        return True
+    old_text = change.get("old_text") or ""
+    return bool(old_text) and old_text in texts
+
+
 # ── Main update logic ──────────────────────────────────────────────────────
 
 def _select_strategy(impact_section: dict, change: dict) -> str:
@@ -1482,6 +1569,10 @@ def _apply_section_update(
 
     strategy = _select_strategy(impact_section, change)
     symbol = change.get("symbol", "")
+
+    # MT074 B13b: an ID-only re-identification of a still-present claim is not a removal.
+    if _is_claim_id_churn_not_removal(change, context):
+        return page_content, "PRESERVED_CLAIM_ID_CHURN"
 
     if strategy == UT_REMOVAL:
         new_content = _section_removal(page_content, section_id)
@@ -2219,6 +2310,9 @@ def run(
                 sec_reason = context.get("_fallback_reason")
                 if sec_reason and sec_reason != "NONE" and page_fallback_reason == "NONE":
                     page_fallback_reason = sec_reason
+                if strategy == "PRESERVED_CLAIM_ID_CHURN":
+                    sections_preserved.append(f"{sec_id}[CLAIM_ID_CHURN]")
+                    continue
                 if updated != new_content:
                     line_offset += len(updated.splitlines()) - len(new_content.splitlines())
                     new_content = updated

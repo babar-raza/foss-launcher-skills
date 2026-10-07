@@ -23,7 +23,13 @@ CONTRACT: scripts/pipeline/lib/freshness_guard.py
            deliberately skipped in offline mode) — see _check_baseline_reachability()'s own
            docstring for the full rationale (font/python vs. slides/python: two orphaned-
            baseline cases requiring OPPOSITE verdicts, which a commit-SHA-only check could
-           never distinguish).
+           never distinguish). PRECISE NETWORK NOTE (MT074 B1, supersedes "local-only" above):
+           the probes are local git commands EXCEPT one step -- when the clone is shallow and
+           the baseline is not an ancestor of HEAD, a bounded `git fetch --deepen` probe
+           (memoized + capped per process, 60s per fetch) runs before an orphan is declared,
+           in degraded mode too. An unfinished probe (outage/timeout/cap) yields a
+           "baseline reachability unverifiable" WARN note appended to the result reason and
+           NEVER STALE_ORPHANED; ASPOSE_BASELINE_OFFLINE=1 forbids the fetch.
   states:  CURRENT, STALE, REFRESHING, REFRESH_FAILED, UPSTREAM_UNAVAILABLE,
            PROVENANCE_MISSING, CORRUPT, LAST_KNOWN_GOOD, HISTORY_REWRITTEN_CONTENT_IDENTICAL,
            STALE_ORPHANED — see check_freshness()'s docstring for the full semantics of each.
@@ -39,7 +45,7 @@ import json
 import subprocess
 import sys
 from pathlib import Path
-from typing import NamedTuple
+from typing import Callable, NamedTuple
 
 import yaml
 
@@ -294,6 +300,7 @@ def _orphaned_commit_tree_sha(repo_path: Path, orphaned_sha: str) -> "str | None
 
 def _check_baseline_reachability(
     family: str, platform: str, resolved_sha: "str | None",
+    *, deepen: "Callable[[str], bool] | None" = None,
 ) -> "tuple[str, str] | None":
     """RC-1 (the closed forensic audit's own unifying root cause): "is this the same
     thing as before?" was answered everywhere in this pipeline by comparing a
@@ -318,8 +325,19 @@ def _check_baseline_reachability(
     for CI/cold-start callers) or the baseline IS reachable (the common case in
     steady-state operation) — `None` means "fall through to the pre-existing
     stale_since-only logic, unchanged", never "assume current" or "assume stale".
-    Local-only (a `git cat-file`/`rev-parse` against the already-fetched clone
-    cache, never a network call) — safe to run in both degraded and strict modes;
+    MT074 B1 (NETWORK, precisely): the clone cache is `--depth 2`, so before a baseline is
+    declared orphaned the probe (`baseline_resolver.git_reachability_state`) deepens a
+    SHALLOW clone through the injectable `deepen` seam (default: core.clone_cache's
+    progressive `git fetch --deepen`, memoized + capped per process, 60s per fetch). That
+    is the ONE network-touching step in this function, taken only for a shallow clone whose
+    baseline is not already an ancestor; a full clone and a reachable baseline stay local.
+    The verdict is tri-state: a COMPLETED deepen that still cannot reach the sha is an
+    orphan (STALE_ORPHANED / HISTORY_REWRITTEN_CONTENT_IDENTICAL as before); an UNFINISHED
+    one (network down, timeout, lock busy, fetch cap) returns the pseudo-state
+    ("BASELINE_UNVERIFIABLE", reason) -- never an orphan claim -- which check_freshness()
+    notes in its reason and otherwise falls through. `ASPOSE_BASELINE_OFFLINE=1` forbids the
+    fetch (a shallow non-ancestor baseline is then unverifiable).
+    The tree-SHA comparison itself is still local (`rev-parse`) — safe to run in both degraded and strict modes;
     deliberately NOT run in offline mode, which must never touch the filesystem
     beyond resolve_baseline() by contract.
     """
@@ -333,11 +351,19 @@ def _check_baseline_reachability(
         return None
     repo_path = clone_path(family, platform)
     try:
-        from baseline_resolver import git_reachable
+        from baseline_resolver import git_reachability_state
     except Exception:
         return None
-    if git_reachable(repo_path)(resolved_sha):
+    state = git_reachability_state(repo_path, deepen=deepen)(resolved_sha)
+    if state == "reachable":
         return None
+    if state == "unknown":
+        return (
+            "BASELINE_UNVERIFIABLE",
+            f"baseline reachability unverifiable: commit {resolved_sha[:10]} is not an ancestor of the "
+            f"shallow clone-cache HEAD and the deepen check could not finish (network/lock/timeout/"
+            f"fetch cap, or offline) -- NOT treated as an orphan",
+        )
 
     recorded_tree_sha = _resolve_recorded_tree_sha(family, platform, resolved_sha)
     tree_sha_source = "recorded"
@@ -633,8 +659,10 @@ def check_freshness(family: str, platform: str, *, mode: str = "degraded") -> Fr
     # at all"; a v1 model.yaml with no bundle_manifest.json is legacy-but-usable in
     # degraded mode. Strict mode's network check below is still the real gate.
 
-    # RC-1 / TC-11 (readme-refresh-hardening-and-regen-2026-08-30): local-only (no
-    # network), so safe to run in both degraded and strict modes -- deliberately
+    # RC-1 / TC-11 (readme-refresh-hardening-and-regen-2026-08-30): local git probes (the
+    # only network use is the bounded, memoized, capped shallow-clone deepen documented in
+    # _check_baseline_reachability; an unfinished one is a WARN note, never an orphan), run
+    # in both degraded and strict modes -- deliberately
     # BEFORE strict mode's live upstream comparison below, since a raw SHA-string
     # mismatch against a live remote is exactly the wrong signal once the baseline
     # is already known to be an orphan; running that check first would just
@@ -642,22 +670,27 @@ def check_freshness(family: str, platform: str, *, mode: str = "degraded") -> Fr
     # None (fall through, unchanged) for the common case -- reachable baseline, or
     # no clone cache available to check against at all.
     orphan_result = _check_baseline_reachability(family, platform, resolved_sha)
+    reach_note = ""
     if orphan_result is not None:
         orphan_state, orphan_reason = orphan_result
-        return FreshnessResult(
-            orphan_state, orphan_reason, resolved_sha=resolved_sha, resolved_from=resolved_from,
-        )
+        if orphan_state == "BASELINE_UNVERIFIABLE":
+            # Could not finish the shallow-clone deepen: say so, but never claim an orphan.
+            reach_note = f" [WARN: {orphan_reason}]"
+        else:
+            return FreshnessResult(
+                orphan_state, orphan_reason, resolved_sha=resolved_sha, resolved_from=resolved_from,
+            )
 
     if mode == "degraded":
         # Stale local model_yaml stale_since is still an authored signal (set by
         # /knowledge-diff) worth honoring even without a live check.
         if model.get("stale_since") is not None:
             return FreshnessResult(
-                "STALE", f"stale_since={model.get('stale_since')!r} recorded locally",
+                "STALE", f"stale_since={model.get('stale_since')!r} recorded locally" + reach_note,
                 resolved_sha=resolved_sha, resolved_from=resolved_from,
             )
         return FreshnessResult(
-            "CURRENT", "degraded mode — durable sources agree, no local stale_since flag set",
+            "CURRENT", "degraded mode — durable sources agree, no local stale_since flag set" + reach_note,
             resolved_sha=resolved_sha, resolved_from=resolved_from,
         )
 
@@ -676,11 +709,11 @@ def check_freshness(family: str, platform: str, *, mode: str = "degraded") -> Fr
         )
     if live_sha == resolved_sha:
         return FreshnessResult(
-            "CURRENT", "resolved baseline matches live upstream HEAD",
+            "CURRENT", "resolved baseline matches live upstream HEAD" + reach_note,
             resolved_sha=resolved_sha, live_sha=live_sha, resolved_from=resolved_from,
         )
     return FreshnessResult(
-        "STALE", f"resolved baseline {resolved_sha[:10]} != live upstream HEAD {live_sha[:10]}",
+        "STALE", f"resolved baseline {resolved_sha[:10]} != live upstream HEAD {live_sha[:10]}" + reach_note,
         resolved_sha=resolved_sha, live_sha=live_sha, resolved_from=resolved_from,
     )
 

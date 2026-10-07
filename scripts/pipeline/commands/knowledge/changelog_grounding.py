@@ -57,6 +57,11 @@ _BREAKING_TYPES = {"API_REMOVED", "API_SIGNATURE_CHANGED", "API_RENAMED"}
 
 _CATEGORY_ORDER = ("Added", "Changed", "Fixed", "Deprecated", "Removed")
 
+# Heading of the section that holds events semantic_diff.py flagged ``verify_against_source``
+# (a removal/modification seen across an extractor change, so it may be extractor noise).
+# Such events never enter a category, ``breaking_changes`` or ``migration_guidance``.
+UNCONFIRMED_HEADING = "Unconfirmed (verify against source before publishing)"
+
 # ── Marketing-language rejection list ────────────────────────────────────────
 # Not exhaustive by design -- a cheap, high-precision heuristic gate, not an NLP
 # classifier. Extend if a real draft slips an obvious unsupported claim through.
@@ -124,6 +129,7 @@ def build_changelog_draft(
 
     categories: dict[str, list[dict[str, Any]]] = {c: [] for c in _CATEGORY_ORDER}
     breaking: list[dict[str, Any]] = []
+    unconfirmed: list[dict[str, Any]] = []
 
     for change in changes:
         if change.get("public_impact") != "USER_VISIBLE":
@@ -135,6 +141,19 @@ def build_changelog_draft(
             "change_id": change.get("change_id"),
             "evidence_paths": change.get("evidence_paths", []),
         }
+        if change.get("verify_against_source"):
+            # Unverified (extractor changed/unknown): a human must confirm against source
+            # before this is published. Never a category line, never "breaking"/migration.
+            entry["change_type"] = change_type
+            for key in ("enum_members_added", "enum_members_removed"):
+                if change.get(key):
+                    entry[key] = list(change[key])
+            unconfirmed.append(entry)
+            continue
+        if change.get("symbol_kind") == "enum" and change_type == "FEATURE_ADDED":
+            # An enum-level event is a constant added to a PRE-EXISTING type -- not a new type.
+            entry["constants_added"] = list(change.get("enum_members_added") or [])
+            entry["label"] = f"constant added to {change.get('symbol')}"
         if change_type in _ADDED_TYPES:
             categories["Added"].append(entry)
         elif change_type in _CHANGED_TYPES:
@@ -160,6 +179,7 @@ def build_changelog_draft(
             ),
         },
         "categories": categories,
+        "unconfirmed": unconfirmed,
         "breaking_changes": breaking,
         "migration_guidance": [
             f"`{e['symbol']}` changed in a way that may require code changes — see "
@@ -202,6 +222,13 @@ def validate_changelog_draft(
                     "every line must trace to a real knowledge artifact."
                 )
 
+    for entry in draft.get("unconfirmed", []) or []:
+        if entry.get("symbol") not in real_symbols:
+            violations.append(
+                f"Unconfirmed: symbol '{entry.get('symbol')}' (change_id={entry.get('change_id')}) "
+                "is not present in the source semantic_changes.json data."
+            )
+
     draft_text = json.dumps(draft).lower()
     for phrase in _MARKETING_PHRASES:
         if phrase in draft_text:
@@ -237,7 +264,15 @@ def format_markdown(draft: dict[str, Any]) -> str:
         lines.append(f"### {category}")
         for e in entries:
             evidence = f" ({', '.join(e['evidence_paths'])})" if e.get("evidence_paths") else ""
-            lines.append(f"- `{e['symbol']}`{evidence}")
+            if e.get("label"):  # enum-constant addition: say what was actually added, and where
+                constants = e.get("constants_added") or []
+                if constants:
+                    for const in constants:
+                        lines.append(f"- `{const}` — {e['label']}{evidence}")
+                else:
+                    lines.append(f"- {e['label']}{evidence}")
+            else:
+                lines.append(f"- `{e['symbol']}`{evidence}")
         lines.append("")
 
     if draft.get("breaking_changes"):
@@ -250,6 +285,18 @@ def format_markdown(draft: dict[str, Any]) -> str:
         lines.append("### Migration")
         for line in draft["migration_guidance"]:
             lines.append(f"- {line}")
+        lines.append("")
+
+    if draft.get("unconfirmed"):
+        lines.append(f"### {UNCONFIRMED_HEADING}")
+        for e in draft["unconfirmed"]:
+            evidence = f" ({', '.join(e['evidence_paths'])})" if e.get("evidence_paths") else ""
+            detail = ""
+            if e.get("enum_members_removed"):
+                detail = f" — constants possibly removed: {', '.join(f'`{c}`' for c in e['enum_members_removed'])}"
+            elif e.get("enum_members_added"):
+                detail = f" — constants possibly added: {', '.join(f'`{c}`' for c in e['enum_members_added'])}"
+            lines.append(f"- `{e['symbol']}` ({e.get('change_type')}){detail}{evidence}")
         lines.append("")
 
     maven = draft["maven"]

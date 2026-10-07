@@ -940,6 +940,33 @@ def _subpkg_to_label(subpkg: str, family: str) -> str:
     return slug_from_category(split)
 
 
+def _is_unsplit_long_token(label: str) -> bool:
+    """True when `label` slugs to one hyphen-free token longer than 12 chars --
+    the exact shape _validate_kb_slugs Check 1 rejects as an unsplit CamelCase
+    token (e.g. an automatic 'Logicalstructure' module_label)."""
+    slug = slug_from_category(label)
+    return "-" not in slug and len(slug) > 12
+
+
+def _resolve_cluster_label(subpkg: str, auto_label: "str | None", family: str) -> str:
+    """Pick the cluster label for one module/sub-package key.
+
+    The automatic module_label written by promote's module assignment wins,
+    exactly as before, EXCEPT when it would produce an unsplit long single-token
+    slug that KB slug validation rejects AND _subpkg_to_label() (explicit
+    family/global label map) yields a different, usable label -- then that
+    explicit label is used instead. Labels that are fine today are untouched.
+    """
+    if not auto_label:
+        return _subpkg_to_label(subpkg, family)
+    if _is_unsplit_long_token(auto_label):
+        explicit = _subpkg_to_label(subpkg, family)
+        if (slug_from_category(explicit) != slug_from_category(auto_label)
+                and not _is_unsplit_long_token(explicit)):
+            return explicit
+    return auto_label
+
+
 def _compute_demand_hints_safe(family: str, api_surface: list[dict]) -> "dict[str, float]":
     """Lazily compute real demand_hints for `family`, degrading to {} on any
     failure -- site planning must never fail or behave differently because
@@ -1043,7 +1070,7 @@ def detect_clusters(
 
     # ----- 2. Build sub-package → cluster label map -----
     subpkg_label: dict[str, str] = {
-        sp: class_label_override.get(sp) or _subpkg_to_label(sp, family)
+        sp: _resolve_cluster_label(sp, class_label_override.get(sp), family)
         for sp in set(class_to_subpkg.values())
     }
 
