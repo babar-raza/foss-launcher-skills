@@ -300,11 +300,27 @@ output instead of a manual frontmatter read.
    If BLOCKED_TARGET: record in readiness report — do not block READY TO SHIP on
    BLOCKED_TARGET alone (target site controls the link, not this repo).
 
-   **7h. H-05 license accuracy**:
-   - Read `LICENSE` file from clone cache at
-     `runs/.clone_cache/aspose_{family}_{platform}/LICENSE`
-   - Read license claim from products page frontmatter or prose.
-   - If mismatch: record as ESCALATED with reason "license-mismatch" (real human required).
+   **7h. H-05 license accuracy** (file-first; revised 2026-10-07, MT076 TC-PSD-HRD-9N-3 /
+   TC-PSD-LIC-01-04 — the prior version hardcoded a bare `LICENSE` filename and left "no file at
+   all" undefined, which risked escalating an owner-attested MIT claim with no upstream file as
+   a false "mismatch"; F-PSD-15 also showed an API-only check false-fails any repo whose license
+   file GitHub's API doesn't recognize):
+   - Run `python scripts/pipeline/commands/launch/upstream_readiness_check.py {family} {platform} --json`
+     and read its `U-01` result (`license_file` check) — file-first (root `LICENSE*`/
+     `COPYING*`/`UNLICENSE*`, or one level into a same-named directory), GitHub's API consulted
+     only to attach an SPDX id, never to downgrade a file-backed PASS.
+   - Read the license claim from the products page frontmatter or prose.
+   - If `U-01` is `PASS` (a file exists): the page's claim must match that file's license. If it
+     does not: record as ESCALATED with reason "license-mismatch" (real human required).
+   - If `U-01` is `WARN` (`MISCONFIGURED_NO_LICENSE_FILE`, no file exists):
+     - If `license_statement` is set (an owner attestation on record, e.g.
+       `data/products.json`'s `overrides.license`) and the page's claim matches it: record PASS
+       ("owner-attested, no file") — this is NOT a mismatch; do not escalate.
+     - If the page makes a license claim with no file AND no attestation: record as ESCALATED
+       with reason "license-claim-unattested" (real human required) — a claim needs a source.
+     - If the page links to a license file or page while `license_link_allowed` is `false`: FAIL
+       (dead/premature link) — reroute to the content-fix skill that owns the link, never a
+       manual edit.
 
 8. **Re-evaluate all actioned pages**:
    For every page that was actioned in Step 7 (S-21, S-26, batch-reference):
