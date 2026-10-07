@@ -1,5 +1,5 @@
 # Promote Report: psd/net
-Date: 2026-10-07T12:59:40.465189+00:00
+Date: 2026-10-07T22:31:33.664446+00:00
 Scout SHA: f4e1b261922d514591b898f01346af1c6bf59f92
 Source: scout-only (standalone pipeline, no FL dependency)
 
