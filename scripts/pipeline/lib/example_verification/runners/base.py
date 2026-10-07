@@ -43,7 +43,7 @@ from typing import Any, Protocol, runtime_checkable
 from .. import syntax as syntax_mod
 from ..cache import CacheEntry, ResultCache, cache_key
 from ..policy import Policy, ProductContext
-from ..result import BlockIdentity, BlockResult
+from ..result import REASONS, BlockIdentity, BlockResult
 
 
 @runtime_checkable
@@ -212,18 +212,26 @@ class BaseRunner:
         with _disposable_dir() as work_dir:
             acquired = self.runner.acquire(work_dir, policy, product)
             if not acquired.get("ok"):
-                return BlockResult(
-                    identity=identity, status="BLOCKED-WITH-REASON", reason="ACQUIRE-FAILED",
+                # MT074 B6: a runner may name a more specific, already-
+                # registered reason for its acquire failure (e.g. the Java
+                # runner's TOOLCHAIN-UNAVAILABLE when no JDK is
+                # discoverable) instead of the generic ACQUIRE-FAILED. An
+                # unregistered string is ignored, never trusted.
+                reason = acquired.get("reason")
+                if reason not in REASONS:
+                    reason = "ACQUIRE-FAILED"
+                return self._apply_meta(BlockResult(
+                    identity=identity, status="BLOCKED-WITH-REASON", reason=reason,
                     detail=acquired.get("detail", ""), proof_tier=0,
-                )
+                ), acquired)
 
             compile_failure = self.runner.compile(acquired, script, identity.index)
             if compile_failure is not None:
-                result = BlockResult(
+                result = self._apply_meta(BlockResult(
                     identity=identity, status="BLOCKED-WITH-REASON",
                     reason=compile_failure.get("reason", "COMPILE-ERROR"),
                     detail=compile_failure.get("detail", ""), proof_tier=2,
-                )
+                ), acquired)
                 self._maybe_cache(script_sha256, options, result)
                 return result
 
@@ -240,29 +248,53 @@ class BaseRunner:
                 # requested policy.max_tier cap (the runner itself could go
                 # further) is NOT this case -- no reason is attached then.
                 reason = "BUILD-VERIFIED-ONLY" if self.runner.ceiling_tier < 3 else None
-                result = BlockResult(identity=identity, status="PASS", proof_tier=2, reason=reason)
+                result = self._apply_meta(
+                    BlockResult(identity=identity, status="PASS", proof_tier=2, reason=reason),
+                    acquired)
                 self._maybe_cache(script_sha256, options, result)
                 return result
 
             executed = self.runner.execute(acquired, script, identity.index)
-            result = self._executed_to_result(identity, executed)
+            result = self._apply_meta(self._executed_to_result(identity, executed), acquired)
             self._maybe_cache(script_sha256, options, result)
             return result
+
+    @staticmethod
+    def _apply_meta(result: BlockResult, acquired: dict) -> BlockResult:
+        """MT074 B6: copy what the runner recorded about its environment
+        (`acquired["result_meta"]`: toolchain_name/version/path and an
+        `artifact` dict -- jar sha256, source SHA, discovery source, ...)
+        onto the BlockResult. A runner that records nothing is unchanged."""
+        meta = acquired.get("result_meta") if isinstance(acquired, dict) else None
+        if not meta:
+            return result
+        for attr in ("toolchain_name", "toolchain_version", "toolchain_path"):
+            if meta.get(attr) is not None:
+                setattr(result, attr, meta[attr])
+        if meta.get("artifact") is not None:
+            result.artifact = dict(meta["artifact"])
+        return result
 
     def _executed_to_result(self, identity: BlockIdentity, executed: dict) -> BlockResult:
         if executed.get("status") == "PASS" or executed.get("status") == "COMPILED+RAN CLEAN":
             return BlockResult(identity=identity, status="PASS", proof_tier=3)
+        # A runner may report a LOWER proof tier for a failed execute (the
+        # Java runner: compiled fine, but a required input fixture was not
+        # provided => disclosed compile-only, tier 2). Default stays 3.
         return BlockResult(
             identity=identity, status="BLOCKED-WITH-REASON",
             reason=executed.get("reason", "RUNTIME-ERROR"),
-            detail=executed.get("detail", ""), proof_tier=3,
+            detail=executed.get("detail", ""),
+            proof_tier=int(executed.get("proof_tier", 3)),
         )
 
     def _entry_to_result(self, identity: BlockIdentity, entry: CacheEntry) -> BlockResult:
-        return BlockResult(
+        result = BlockResult(
             identity=identity, status=entry.status, reason=entry.reason,
             detail=entry.detail, proof_tier=entry.proof_tier, provenance="cache",
         )
+        # MT074 R3-7a: restore the provenance the original run recorded.
+        return self._apply_meta(result, {"result_meta": entry.meta})
 
     def _maybe_cache(self, content_sha256: str, options: RunOptions, result: BlockResult) -> None:
         """`content_sha256` must be the hash of whatever was ACTUALLY
@@ -281,7 +313,18 @@ class BaseRunner:
             detail=result.detail, clone_head=options.clone_head,
             toolchain_version=options.toolchain_fp, runners_module_version=options.runners_module_version,
             code_sha256=content_sha256,
+            meta=self._meta_of(result),
         ))
+
+    @staticmethod
+    def _meta_of(result: BlockResult) -> "dict | None":
+        meta = {
+            "toolchain_name": result.toolchain_name,
+            "toolchain_version": result.toolchain_version,
+            "toolchain_path": result.toolchain_path,
+            "artifact": result.artifact,
+        }
+        return meta if any(v is not None for v in meta.values()) else None
 
 
 class _disposable_dir:

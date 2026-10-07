@@ -37,6 +37,8 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 from typing import Any
 
+from . import RUNNERS_MODULE_VERSION
+
 STATUSES: frozenset[str] = frozenset({
     "PASS", "BLOCKED-WITH-REASON", "NOT-EXECUTABLE-LANG", "NOT-VERIFIED",
 })
@@ -110,6 +112,11 @@ class BlockResult:
     attribution: str | None = None
     continues_example: bool = False
     commands_run: int | None = None
+    # MT074 B6: what the run was verified AGAINST, when a runner records it
+    # (e.g. the Java runner: product jar sha256, source SHA, toolchain
+    # discovery source/path/version, fixtures staged). None for every runner
+    # that does not -- additive, never part of the cache key.
+    artifact: dict[str, Any] | None = None
 
     def __post_init__(self) -> None:
         if self.status not in STATUSES:
@@ -138,7 +145,7 @@ class VerificationReport:
 
     runner: str
     blocks: list[BlockResult] = field(default_factory=list)
-    runners_module_version: str = "1"
+    runners_module_version: str = RUNNERS_MODULE_VERSION
     clone_head: str | None = None
     package: str | None = None
     package_version: str | None = None
@@ -191,18 +198,23 @@ class VerificationReport:
                     entry["continues_example"] = True
                 if b.commands_run is not None:
                     entry["commands_run"] = b.commands_run
+                if b.artifact:
+                    entry["artifact"] = b.artifact
                 blocks_out.append(entry)
                 continue
             if b.status == "PASS":
                 reason = b.reason or "BUILD-VERIFIED-ONLY"
             else:
                 reason = b.reason if b.status == "BLOCKED-WITH-REASON" else "TOOLCHAIN-UNAVAILABLE"
-            blocks_out.append({
+            blocked: dict[str, Any] = {
                 "index": b.identity.index,
                 "status": "BLOCKED-WITH-REASON",
                 "reason": reason,
                 "detail": b.detail,
-            })
+            }
+            if b.artifact:  # MT074 B6b: additive, only when a runner recorded one
+                blocked["artifact"] = b.artifact
+            blocks_out.append(blocked)
         return {
             "runner": self.runner,
             "blocks_found": self.blocks_found,

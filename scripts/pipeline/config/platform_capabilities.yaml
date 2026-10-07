@@ -165,6 +165,34 @@ capability_sites:
       (registry.py) this YAML site mirrors, replacing the earlier design's
       separate JSON contract + parity script (Phase 1 item 1) with a
       single source + one CI check (check_example_verification()).
+  snippet_budget:
+    source: scripts/pipeline/extraction/snippets.py:snippet_budget_for (loader; reads THIS file)
+    description: >
+      MT074 B3 (R4: new-capability code never reached snippets). Which
+      snippet-selection strategy extraction/snippets.py uses for this
+      platform's language. `mode: legacy` = cap-by-iteration-order (tests dirs
+      first, first 100 win; the pre-existing behaviour, byte-identical).
+      `mode: tiered` = deterministic tiered budget: README fences (<=10),
+      then `docs_fence_budget` language-tagged fences from docs/**/*.md,
+      then curated examples (<=60), then tests (remainder up to the cap) of
+      which the last `test_tail_reserve` slots are spread evenly across the
+      candidates that sort after the cut (so later-sorting, newer-feature
+      tests are reached). `stable_superset: true` keeps tier 2 in the legacy
+      discovery order (tests/ before test/, sorted paths). GUARANTEE (exact):
+      only a retained PREFIX inside tier 2 -- the first (tier-2 budget -
+      test_tail_reserve) legacy snippets survive in order (e.g. 85/100 with
+      reserve 15 and no README/docs/examples; 56/100 on pdf/java, which also
+      contributes 29 README+docs fences). It is NOT a full superset when the
+      cap binds (the legacy tail, and tests displaced by curated examples,
+      are evicted); only when everything fits is the new set a superset.
+      false/absent sorts globally by (path, line) as typescript's original
+      tiered path does. `languages` (optional, default [language]) lists
+      the tree-sitter language names that take this mode -- it exists
+      because a platform row can serve more than one language (the
+      typescript row also covers javascript, which has no active product row
+      of its own). This is the declared source; snippets.py reads it, and
+      scripts/ci/checks/check_platform_capabilities.py fails if the two ever
+      disagree or the block is malformed.
 
 # ---------------------------------------------------------------------------
 # Per-platform declarations
@@ -225,6 +253,8 @@ platforms:
       offline_tier: 1
       runner_module: python
       precommit_blocking: false
+    snippet_budget:
+      mode: legacy
 
   net:
     language: csharp
@@ -290,6 +320,8 @@ platforms:
       offline_tier: 1
       runner_module: dotnet
       precommit_blocking: false
+    snippet_budget:
+      mode: legacy
 
   java:
     language: java
@@ -340,6 +372,12 @@ platforms:
       offline_tier: 1
       runner_module: java
       precommit_blocking: false
+    snippet_budget:
+      mode: tiered
+      docs_fence_budget: 20
+      test_tail_reserve: 15
+      stable_superset: true
+      note: "MT074 B3 opt-in: README (<=10) + docs/**/*.md fences (<=20) first, then examples (<=60), then tests with the last 15 slots spread over the tail so later-sorting new-feature tests are harvested (a Java product's src/test fills the 100-cap before newer test files are reached)."
 
   cpp:
     language: cpp
@@ -408,6 +446,8 @@ platforms:
       offline_tier: 1
       runner_module: cpp
       precommit_blocking: false
+    snippet_budget:
+      mode: legacy
 
   go:
     language: go
@@ -490,6 +530,8 @@ platforms:
       runner_module: go
       precommit_blocking: true
       precommit_blocking_note: "The only platform with a real, proven pre-commit compile gate today (check_go_code_blocks.py, Step 18) -- predates this package entirely."
+    snippet_budget:
+      mode: legacy
 
   rust:
     language: rust
@@ -544,6 +586,8 @@ platforms:
       offline_tier: 1
       runner_module: rust
       precommit_blocking: false
+    snippet_budget:
+      mode: legacy
 
   typescript:
     language: typescript
@@ -619,3 +663,9 @@ platforms:
       offline_tier: 1
       runner_module: typescript
       precommit_blocking: false
+    snippet_budget:
+      mode: tiered
+      languages: [typescript, javascript]
+      docs_fence_budget: 0
+      test_tail_reserve: 0
+      note: "TC-MT040-44 (D-5) opt-in, byte-identical: no docs fences, no tail reserve."

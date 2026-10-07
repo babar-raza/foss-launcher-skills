@@ -33,19 +33,150 @@ MAX_SNIPPETS = 100
 
 _NON_ALNUM_RE = re.compile(r"[^a-z0-9]+")
 
-# TC-MT040-44 (D-5): platforms opted into the deterministic tiered snippet
-# budget (_extract_snippets_tiered below) instead of the legacy cap-by-
-# iteration-order path. Scoped narrowly so every other platform's snippet
-# output/order is provably byte-identical before/after this change (see
-# test_typescript_snippet_ordering.py's golden-parity test).
+# TC-MT040-44 (D-5) / MT074 B3: platforms opted into the deterministic tiered
+# snippet budget (_extract_snippets_tiered below) instead of the legacy cap-by-
+# iteration-order path are DECLARED, not hard-coded: each row of
+# config/platform_capabilities.yaml carries a `snippet_budget` capability
 #
-# `platform_capabilities.yaml` (D-1/TC-MT040-40) does not exist yet in this
-# tree -- once it lands, this set should migrate to a declared capability
-# row there (e.g. `snippet_budget: tiered`) instead of a hard-coded literal.
-_TIERED_SNIPPET_PLATFORMS = {"typescript", "javascript"}
+#     snippet_budget:
+#       mode: tiered | legacy
+#       languages: [typescript, javascript]   # optional; default [row.language]
+#       docs_fence_budget: 0                  # tier-0 slots for docs/**/*.md fences
+#       test_tail_reserve: 0                  # tier-2 slots spread over the tail
+#       stable_superset: false                # true: tier 2 keeps legacy order (retained PREFIX only)
+#
+# `languages` is matched against the `language` argument of extract_snippets()
+# (the tree-sitter language, e.g. "java"), NOT the platform key. A language
+# absent from every row (or `mode: legacy`) takes the legacy path, whose
+# output is byte-identical to before this capability existed (proven by
+# test_typescript_snippet_ordering.py / test_snippet_delta_priority.py
+# golden-parity tests). scripts/ci/checks/check_platform_capabilities.py
+# keeps the YAML and this loader in agreement.
+_SNIPPET_BUDGET_MODES = ("legacy", "tiered")
+_CAPABILITIES_YAML = (Path(__file__).resolve().parents[1] / "config"
+                      / "platform_capabilities.yaml")
+
+# configure() seam (module _cfg_* globals + configure() + autouse fixture).
+_cfg_capabilities_path: "Path | None" = None
+_cfg_budget_by_language: "dict[str, dict] | None" = None
+_budget_cache: "dict[str, dict] | None" = None
+
+
+def configure(*, capabilities_path: "Path | str | None" = None,
+              budget_by_language: "dict[str, dict] | None" = None) -> None:
+    """Test/operator hook. `capabilities_path` redirects the YAML read;
+    `budget_by_language` injects the resolved mapping directly (bypassing the
+    YAML). Calling with no arguments restores production behaviour."""
+    global _cfg_capabilities_path, _cfg_budget_by_language, _budget_cache
+    _cfg_capabilities_path = Path(capabilities_path) if capabilities_path else None
+    _cfg_budget_by_language = budget_by_language
+    _budget_cache = None
+
+
+class SnippetBudgetConfigError(RuntimeError):
+    """platform_capabilities.yaml is missing, unreadable, or its
+    `snippet_budget` block for the requested language is malformed."""
+
+
+def _normalize_budget(platform: str, decl: dict) -> dict:
+    out: dict = {}
+    for knob in ("docs_fence_budget", "test_tail_reserve"):
+        v = decl.get(knob, 0)
+        if not isinstance(v, int) or isinstance(v, bool) or v < 0:
+            raise SnippetBudgetConfigError(
+                f"platform_capabilities.yaml: platforms.{platform}.snippet_budget."
+                f"{knob}={v!r} must be a non-negative integer. Fix that row in "
+                f"scripts/pipeline/config/platform_capabilities.yaml "
+                f"(scripts/ci/checks/check_platform_capabilities.py reports it).")
+        out[knob] = v
+    out["stable_superset"] = bool(decl.get("stable_superset", False))
+    return out
+
+
+def _row_languages(row: dict, decl: dict) -> list:
+    languages = decl.get("languages") or [row.get("language")]
+    return [str(x) for x in languages if x] if isinstance(languages, (list, tuple)) else []
+
+
+def parse_snippet_budgets(caps: dict) -> "dict[str, dict]":
+    """Resolve a parsed platform_capabilities mapping into
+    {language: normalized tiered-budget dict}. Only `mode: tiered` rows
+    contribute. Pure and STRICT (a malformed row raises
+    SnippetBudgetConfigError) -- used by check_platform_capabilities.py;
+    extraction itself resolves ONE language lazily via snippet_budget_for()."""
+    out: dict[str, dict] = {}
+    for platform, row in sorted((caps.get("platforms") or {}).items()):
+        decl = row.get("snippet_budget")
+        if not isinstance(decl, dict) or decl.get("mode") != "tiered":
+            continue
+        norm = _normalize_budget(platform, decl)
+        for lang in _row_languages(row, decl):
+            out[lang] = dict(norm)
+    return out
+
+
+def _capabilities_doc() -> dict:
+    """The raw parsed YAML, read once. Fails LOUD (silently falling back to
+    the legacy path would change which snippets a tiered platform harvests
+    without any signal) -- but with a message naming the file and the fix."""
+    global _budget_cache
+    if _budget_cache is None:
+        import yaml
+        path = _cfg_capabilities_path or _CAPABILITIES_YAML
+        try:
+            with open(path, encoding="utf-8") as f:
+                doc = yaml.safe_load(f)
+        except OSError as exc:
+            raise SnippetBudgetConfigError(
+                f"cannot read {path}: {exc}. extract_snippets needs the platform "
+                f"capability contract; restore scripts/pipeline/config/"
+                f"platform_capabilities.yaml (git checkout it) or point "
+                f"extraction.snippets.configure(capabilities_path=...) at a valid copy.") from exc
+        except yaml.YAMLError as exc:
+            raise SnippetBudgetConfigError(
+                f"{path} is not valid YAML: {exc}. Fix the syntax error "
+                f"(scripts/ci/checks/check_platform_capabilities.py shows the "
+                f"offending platform) -- every scout run reads this file.") from exc
+        if not isinstance(doc, dict):
+            raise SnippetBudgetConfigError(
+                f"{path} must contain a mapping with a `platforms:` key, got {type(doc).__name__}.")
+        _budget_cache = doc
+    return _budget_cache
+
+
+def snippet_budget_for(language: str) -> "dict | None":
+    """Tiered-budget config for *language*, or None for the legacy path.
+
+    Resolved LAZILY per language: only rows that claim *language* are
+    validated, so a corrupt snippet_budget block for another platform (say
+    java) cannot break extraction for a legacy language (say python)."""
+    if _cfg_budget_by_language is not None:
+        return _cfg_budget_by_language.get(language)
+    platforms = _capabilities_doc().get("platforms") or {}
+    for platform, row in sorted(platforms.items()):
+        decl = row.get("snippet_budget") if isinstance(row, dict) else None
+        if not isinstance(decl, dict) or decl.get("mode") != "tiered":
+            continue
+        if language in _row_languages(row, decl):
+            return _normalize_budget(platform, decl)
+    return None
+
+
+def snippet_budget_for_all() -> "dict[str, dict]":
+    """Copy of the resolved {language: tiered-budget} mapping (strict)."""
+    if _cfg_budget_by_language is not None:
+        return {k: dict(v) for k, v in _cfg_budget_by_language.items()}
+    return parse_snippet_budgets(_capabilities_doc())
+
+
+def tiered_snippet_languages() -> frozenset:
+    """Languages that take the tiered path (derived from the YAML)."""
+    return frozenset(snippet_budget_for_all())
+
 
 # Legacy (non-tiered) directory scan order -- iteration-order dependent by
-# construction, unchanged for every platform not in _TIERED_SNIPPET_PLATFORMS.
+# construction, unchanged for every platform that does not declare
+# `snippet_budget.mode: tiered`.
 # Hoisted to module scope (previously an inline literal inside
 # extract_snippets) purely so tests can pin the literal without needing to
 # re-run extraction; the *values* and *order* are untouched.
@@ -54,7 +185,7 @@ _DEFAULT_SNIPPET_DIRS = ["tests", "test", "examples", "example", "samples",
 _EXAMPLE_DIR_NAMES = {"examples", "example", "samples", "demo",
                       "ApiExamples", "api_examples", "_examples"}
 
-# TC-MT040-44 tier directory groups (TS/JS tiered path only).
+# TC-MT040-44 tier directory groups (tiered path only).
 _TIER1_EXAMPLE_DIR_NAMES = ["examples", "example", "samples", "demo",
                             "ApiExamples", "api_examples", "_examples"]
 _TIER2_TEST_DIR_NAMES = ["tests", "test"]
@@ -339,15 +470,18 @@ def extract_snippets(
 
     Returns a list of snippet dicts.
 
-    TC-MT040-44 (D-5): platforms in _TIERED_SNIPPET_PLATFORMS (TypeScript/
-    JavaScript today) are dispatched to the deterministic tiered budget
-    (_extract_snippets_tiered) instead of this legacy cap-by-iteration-order
-    path. Every other platform's code below is completely untouched --
-    verified byte-identical by test_typescript_snippet_ordering.py's golden
-    parity test.
+    TC-MT040-44 (D-5): languages whose platform row declares
+    `snippet_budget: {mode: tiered}` in platform_capabilities.yaml are
+    dispatched to the deterministic tiered budget (_extract_snippets_tiered)
+    instead of this legacy cap-by-iteration-order path. Every other
+    platform's code below is completely untouched -- verified byte-identical
+    by test_typescript_snippet_ordering.py's golden parity test.
     """
-    if language in _TIERED_SNIPPET_PLATFORMS:
-        return _extract_snippets_tiered(parser, language, pkg_root, repo, classes, formats)
+    _tiered_budget = snippet_budget_for(language)
+    if _tiered_budget is not None:
+        return _extract_snippets_tiered(
+            parser, language, pkg_root, repo, classes, formats,
+            budget=_tiered_budget)
 
     # Build lookup sets from already-extracted api_surface
     api_class_names: set[str] = set()
@@ -699,7 +833,8 @@ def extract_snippets(
 # Tier 1 -- curated examples/samples directories (<=60)
 # Tier 2 -- tests (remainder up to MAX_SNIPPETS, unchanged total cap)
 #
-# Applies only to languages in _TIERED_SNIPPET_PLATFORMS. Within each tier,
+# Applies only to languages declared `snippet_budget.mode: tiered` in
+# platform_capabilities.yaml. Within each tier,
 # candidates are sorted deterministically by (source path, then source line)
 # -- NEVER by filesystem/directory-listing iteration order -- so re-running
 # scout on an unchanged repo always produces an identical snippet set and
@@ -862,6 +997,8 @@ def _collect_tier_candidates(
     api_class_names: set[str],
     api_method_index: dict[str, set[str]],
     format_names: set[str],
+    *,
+    preserve_discovery_order: bool = False,
 ) -> list[dict]:
     """Parse every file in *files* (in WHATEVER order they arrive -- see
     _discover_snippet_dir_files), collect candidate snippet functions/blocks
@@ -871,6 +1008,14 @@ def _collect_tier_candidates(
     sort is what makes the tier's output independent of *files*' input
     order -- the determinism seam TC-MT040-44 requires: a test can pass
     `files` shuffled and still get an identical result.
+
+    MT074 B3: with *preserve_discovery_order* the final sort is skipped and
+    candidates stay in `files` order (then in-file collection order) -- the
+    exact order the legacy path harvested them, which
+    `_discover_snippet_dir_files` already makes deterministic (sdir order ->
+    search-base order -> sorted directories -> sorted files). Used only by a
+    row declaring `stable_superset: true`, so the old selection is a retained
+    prefix of the new one.
     """
     raw: list[dict] = []
     seen: set[Path] = set()
@@ -908,7 +1053,8 @@ def _collect_tier_candidates(
                 "methods_used": methods_used,
                 "formats_referenced": formats_ref,
             })
-    raw.sort(key=lambda e: (e["source_file"].lower(), e["source_line"], e["source_function"]))
+    if not preserve_discovery_order:
+        raw.sort(key=lambda e: (e["source_file"].lower(), e["source_line"], e["source_function"]))
     return raw
 
 
@@ -931,11 +1077,7 @@ def _collect_readme_fence_entries(
             text = readme.read_text(encoding="utf-8", errors="replace")
         except OSError:
             continue
-        lang_names = {language}
-        if language == "javascript":
-            lang_names.update({"javascript", "js"})
-        if language == "typescript":
-            lang_names.update({"typescript", "ts"})
+        lang_names = _fence_lang_names(language)
         fence_pattern = re.compile(
             r"```(" + "|".join(re.escape(n) for n in lang_names)
             + r")\s*\n(.*?)```", re.DOTALL | re.IGNORECASE)
@@ -958,6 +1100,140 @@ def _collect_readme_fence_entries(
             })
         break
     return entries
+
+
+def _fence_lang_names(language: str) -> "set[str]":
+    """Fence info-string tags that denote *language*. For typescript/
+    javascript this is exactly the set the tiered README collector always
+    used (byte-identical); other languages add their conventional aliases."""
+    names = {language}
+    if language == "javascript":
+        names.update({"javascript", "js"})
+    if language == "typescript":
+        names.update({"typescript", "ts"})
+    if language == "csharp":
+        names.update({"csharp", "cs", "c#"})
+    if language == "python":
+        names.update({"python", "py"})
+    if language == "cpp":
+        names.update({"cpp", "c++"})
+    if language == "rust":
+        names.update({"rust", "rs"})
+    return names
+
+
+_FENCE_OPEN_RE = re.compile(r"^ {0,3}(`{3,}|~{3,})[ \t]*([^\s`]*)")
+
+
+def _iter_tagged_fences(text: str, lang_names: "set[str]"):
+    """Yield (start_line, code) for every CLOSED, language-tagged fenced
+    block in *text* whose first info-string token is in *lang_names*.
+    Untagged fences, fences of other languages and an unterminated trailing
+    fence are skipped. Document order (deterministic)."""
+    wanted = {n.lower() for n in lang_names}
+    lines = text.splitlines()
+    i = 0
+    n = len(lines)
+    while i < n:
+        m = _FENCE_OPEN_RE.match(lines[i])
+        if not m:
+            i += 1
+            continue
+        marker, tag = m.group(1), m.group(2).strip("{}.").lower()
+        close_re = re.compile(
+            r"^ {0,3}" + re.escape(marker[0]) + "{" + str(len(marker)) + r",}[ \t]*$")
+        j = i + 1
+        while j < n and not close_re.match(lines[j]):
+            j += 1
+        if j >= n:  # unterminated -> drop, and stop scanning this file
+            break
+        if tag in wanted:
+            yield i + 1, "\n".join(lines[i + 1:j]) + "\n"
+        i = j + 1
+
+
+def _collect_docs_fence_entries(
+    parser,
+    language: str,
+    repo: Path,
+    search_bases: "list[Path]",
+    api_class_names: "set[str]",
+    api_method_index: "dict[str, set[str]]",
+    format_names: "set[str]",
+    *,
+    skip_codes: "set[str] | None" = None,
+) -> "list[dict]":
+    """MT074 B3 tier-0 candidates: language-tagged fenced code in every
+    `docs/**/*.md` under a search base (upstream feature docs are where NEW
+    capabilities are first written down -- R4: they never reached snippets).
+
+    Deterministic and independent of any prior knowledge-bundle state: files
+    are taken in lower-cased repo-relative path order, fences in document
+    order; a fence whose normalized code was already seen (README or an
+    earlier docs file) is dropped.
+    """
+    docs_dirs: list[Path] = []
+    for base in search_bases:
+        if not base.is_dir():
+            continue
+        try:
+            children = sorted(base.iterdir(), key=lambda p: p.name)
+        except OSError:
+            continue
+        for c in children:
+            if c.is_dir() and c.name.lower() == "docs" and c not in docs_dirs:
+                docs_dirs.append(c)
+    md_files: list[tuple[str, Path]] = []
+    seen_files: set[Path] = set()
+    for d in docs_dirs:
+        for f in d.rglob("*.md"):
+            if f in seen_files or not f.is_file():
+                continue
+            seen_files.add(f)
+            md_files.append((str(f.relative_to(repo)).replace("\\", "/"), f))
+    md_files.sort(key=lambda t: (t[0].lower(), t[0]))
+    lang_names = _fence_lang_names(language)
+    seen_codes = set(skip_codes or ())
+    entries: list[dict] = []
+    for rel, fpath in md_files[:MAX_FILES]:
+        try:
+            text = fpath.read_text(encoding="utf-8", errors="replace")
+        except OSError:
+            continue
+        for line, code in _iter_tagged_fences(text, lang_names):
+            if not code.strip():
+                continue
+            norm = _normalize_snippet_code(code)
+            if norm in seen_codes:
+                continue
+            seen_codes.add(norm)
+            t = parser.parse(code.encode("utf-8"))
+            classes_used, methods_used, formats_ref = _snippet_cross_refs(
+                code, api_class_names, api_method_index, format_names)
+            entries.append({
+                "source_file": rel,
+                "source_function": "(docs_block)",
+                "source_line": line,
+                "language": language,
+                "code": code,
+                "valid": not t.root_node.has_error,
+                "classes_used": classes_used,
+                "methods_used": methods_used,
+                "formats_referenced": formats_ref,
+            })
+    return entries
+
+
+def _spread_pick(items: list, k: int) -> list:
+    """Deterministically pick *k* items spread evenly (path order preserved)
+    across *items*: the midpoint of each of k equal segments. Returns all of
+    *items* when len(items) <= k. Pure function of (len, k)."""
+    n = len(items)
+    if k <= 0:
+        return []
+    if n <= k:
+        return list(items)
+    return [items[(2 * i + 1) * n // (2 * k)] for i in range(k)]
 
 
 def _finalize_snippet(payload: dict, counter: int, ext: str) -> dict:
@@ -990,11 +1266,57 @@ def _extract_snippets_tiered(
     repo: Path,
     classes: list[dict],
     formats: list[dict],
+    budget: "dict | None" = None,
 ) -> list[dict]:
-    """TC-MT040-44 (D-5) tiered snippet budget for platforms in
-    _TIERED_SNIPPET_PLATFORMS (TypeScript/JavaScript today). See the module
-    docstring block above this function for the tier definitions.
+    """TC-MT040-44 (D-5) tiered snippet budget for languages declared
+    `snippet_budget.mode: tiered` in platform_capabilities.yaml. See the
+    module comment block above for the tier definitions.
+
+    MT074 B3 -- *budget* (the language's declared config) adds OPT-IN,
+    default-off knobs, so a row that sets none (typescript/javascript) is
+    byte-identical to the pre-B3 behaviour:
+
+      docs_fence_budget  tier 0 also takes up to N language-tagged fences
+                         from docs/**/*.md, AFTER the (<=10) README fences
+                         and before any example/test (new-capability docs
+                         first).
+      test_tail_reserve  tier 2 keeps the first (budget - R) candidates in
+                         tier-2 order and spends the last R slots on
+                         candidates spread evenly across the REMAINDER
+                         (see _spread_pick), so tests in later-sorting files
+                         (newer features) are reached.
+      stable_superset    tier-2 order is the LEGACY discovery order
+                         (`tests/` before `test/`, then sorted paths)
+                         instead of one global (path, line) sort.
+
+    EXACTLY what is guaranteed -- and what is not (pinned by
+    test_snippet_delta_priority.TestStableSupersetFlagIsPinned):
+
+      * Only a RETAINED PREFIX inside tier 2. With stable_superset the first
+        (tier-2 budget - test_tail_reserve) snippets of the legacy
+        selection survive, in order, where tier-2 budget = MAX_SNIPPETS -
+        README fences - docs fences - examples. Examples of the retained
+        share of a full 100-snippet legacy selection (reserve 15): 85/100
+        for a tree with no README/docs/examples; 56/100 for a real tree
+        that also contributes 29 README+docs fences (pdf/java).
+      * It is NOT a full superset when the cap binds: the legacy tail
+        beyond that prefix is evicted (in reverse tier-2 order) in favour
+        of README/docs fences, curated examples and the tail picks.
+      * Curated examples (tier 1) are placed BEFORE tests, so a tree that
+        has examples loses legacy tests to them by design.
+      * Without stable_superset the legacy prefix is not preserved at all
+        when both `tests/` and `test/` exist (the global sort puts
+        `test/` first); the flag is what keeps it.
+      * Only when the whole candidate set fits under MAX_SNIPPETS is the
+        new SET a superset of the old one (order may differ).
+
+    Everything is a pure function of the repo tree -- never of prior
+    knowledge-bundle state.
     """
+    budget = budget or {}
+    docs_fence_budget = max(0, int(budget.get("docs_fence_budget", 0)))
+    test_tail_reserve = max(0, int(budget.get("test_tail_reserve", 0)))
+    stable_superset = bool(budget.get("stable_superset", False))
     api_class_names: set[str] = set()
     api_method_index: dict[str, set[str]] = {}
     for cls in classes:
@@ -1032,6 +1354,18 @@ def _extract_snippets_tiered(
         counter += 1
         snippets.append(_finalize_snippet(entry, counter, ext))
 
+    # ---- Tier 0b (opt-in): docs/**/*.md fenced code ----
+    if docs_fence_budget and counter < MAX_SNIPPETS:
+        readme_codes = {_normalize_snippet_code(e["code"]) for e in readme_entries}
+        docs_entries = _collect_docs_fence_entries(
+            parser, language, repo, search_bases, api_class_names,
+            api_method_index, format_names, skip_codes=readme_codes)
+        for entry in docs_entries[:docs_fence_budget]:
+            if counter >= MAX_SNIPPETS:
+                break
+            counter += 1
+            snippets.append(_finalize_snippet(entry, counter, ext))
+
     # ---- Tier 1: curated examples/samples (<=60) ----
     if counter < MAX_SNIPPETS:
         tier1_files = _discover_snippet_dir_files(
@@ -1052,9 +1386,17 @@ def _extract_snippets_tiered(
             is_example_dir=False)
         tier2_candidates = _collect_tier_candidates(
             tier2_files, parser, language, func_types, class_types, repo,
-            api_class_names, api_method_index, format_names)
+            api_class_names, api_method_index, format_names,
+            preserve_discovery_order=stable_superset)
         tier2_budget = MAX_SNIPPETS - counter
-        for entry in tier2_candidates[:tier2_budget]:
+        if test_tail_reserve and len(tier2_candidates) > tier2_budget:
+            reserve = min(test_tail_reserve, tier2_budget)
+            head = tier2_candidates[:tier2_budget - reserve]
+            tail = _spread_pick(tier2_candidates[tier2_budget - reserve:], reserve)
+            tier2_selected = head + tail
+        else:
+            tier2_selected = tier2_candidates[:tier2_budget]
+        for entry in tier2_selected:
             counter += 1
             snippets.append(_finalize_snippet(entry, counter, ext))
 

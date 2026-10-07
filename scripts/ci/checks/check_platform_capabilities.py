@@ -18,7 +18,7 @@ Two check families:
 
   CHECK B — Per-site value conformance (BLOCKING):
     For every platform declared in the YAML, the declared value for each of
-    the 16 capability sites is re-read from the REAL pipeline code (always
+    the capability sites is re-read from the REAL pipeline code (always
     the actual scripts/pipeline/ modules in this checkout -- independent of
     any --repo-root override used for testing the YAML/products.json side)
     and compared against the YAML. Any disagreement is a value_mismatch
@@ -295,7 +295,14 @@ def check_smoke_test_langs(caps: dict, platforms: list) -> list[dict]:
                 f"YAML smoke_test_py_matches={decl.get('smoke_test_py_matches', False)} "
                 f"!= real smoke_test.py._PLATFORM_LANGS membership {smoke_test_present}",
             ))
-        csc_present = lang in csc._TS_LANGS
+        # TC-11 (ad6faf2355) renamed code_syntax_check._TS_LANGS to
+        # _SHARED_LOADER_LANGS when it collapsed that evaluator onto the
+        # shared lib/example_verification/syntax.py loader; this check was
+        # left reading the removed name (AttributeError on every real run).
+        csc_langs = getattr(csc, "_SHARED_LOADER_LANGS", None)
+        if csc_langs is None:
+            csc_langs = csc._TS_LANGS
+        csc_present = lang in csc_langs
         if csc_present != decl.get("code_syntax_check_py_matches", False):
             findings.append(_finding(
                 "value_mismatch", platform, "smoke_test_langs",
@@ -447,6 +454,88 @@ def check_example_verification(caps: dict, platforms: list) -> list[dict]:
     return findings
 
 
+def check_snippet_budget(caps: dict, platforms: list) -> list[dict]:
+    """MT074 B3: the `snippet_budget` site. The YAML is the declared source
+    that extraction/snippets.py reads (snippet_budget_for); this check fails
+    CI if a row's block is missing/malformed, names a language the extractor
+    cannot parse, double-claims a language, or if the loader's view of the
+    LIVE YAML ever disagrees with the YAML this check was pointed at."""
+    findings: list[dict] = []
+    snippets = _pipeline_module("extraction.snippets")
+    tree_helpers = _pipeline_module("extraction.tree_helpers")
+    claimed: dict[str, str] = {}
+    for platform in platforms:
+        row = caps["platforms"][platform]
+        decl = row.get("snippet_budget")
+        if not isinstance(decl, dict):
+            findings.append(_finding(
+                "value_mismatch", platform, "snippet_budget",
+                "YAML has no snippet_budget block for this platform "
+                "(declare `mode: legacy` explicitly -- never a silent omission)",
+            ))
+            continue
+        mode = decl.get("mode")
+        if mode not in snippets._SNIPPET_BUDGET_MODES:
+            findings.append(_finding(
+                "value_mismatch", platform, "snippet_budget",
+                f"mode {mode!r} not in {list(snippets._SNIPPET_BUDGET_MODES)}",
+            ))
+            continue
+        if mode == "legacy":
+            continue
+        languages = decl.get("languages") or [row["language"]]
+        if row["language"] not in languages:
+            findings.append(_finding(
+                "value_mismatch", platform, "snippet_budget",
+                f"languages {languages} must include the row's own language {row['language']!r}",
+            ))
+        for lang in languages:
+            if lang not in tree_helpers._FILE_EXTENSIONS:
+                findings.append(_finding(
+                    "value_mismatch", platform, "snippet_budget",
+                    f"language {lang!r} has no extraction/tree_helpers._FILE_EXTENSIONS entry",
+                ))
+            if lang in claimed and claimed[lang] != platform:
+                findings.append(_finding(
+                    "value_mismatch", platform, "snippet_budget",
+                    f"language {lang!r} already claimed by platform {claimed[lang]!r}",
+                ))
+            claimed[lang] = platform
+        for knob in ("docs_fence_budget", "test_tail_reserve"):
+            v = decl.get(knob, 0)
+            if not isinstance(v, int) or isinstance(v, bool) or not 0 <= v <= snippets.MAX_SNIPPETS:
+                findings.append(_finding(
+                    "value_mismatch", platform, "snippet_budget",
+                    f"{knob}={v!r} must be an int in [0, {snippets.MAX_SNIPPETS}]",
+                ))
+    # Declared-vs-loader agreement: every language this YAML declares tiered
+    # must load with the identical budget in extract_snippets(), and a
+    # language this YAML declares legacy must not load as tiered.
+    try:
+        declared_map = snippets.parse_snippet_budgets(
+            {"platforms": {p: caps["platforms"][p] for p in platforms}})
+        live_map = snippets.snippet_budget_for_all()
+    except snippets.SnippetBudgetConfigError as exc:
+        findings.append(_finding("value_mismatch", "(all)", "snippet_budget", str(exc)))
+        return findings
+    for lang, budget in sorted(declared_map.items()):
+        if live_map.get(lang) != budget:
+            findings.append(_finding(
+                "value_mismatch", "(all)", "snippet_budget",
+                f"YAML declares {lang!r} -> {budget} but extraction/snippets.py loads {live_map.get(lang)}",
+            ))
+    for platform in platforms:
+        decl = caps["platforms"][platform].get("snippet_budget")
+        if isinstance(decl, dict) and decl.get("mode") == "legacy":
+            lang = caps["platforms"][platform]["language"]
+            if lang in live_map and lang not in declared_map:
+                findings.append(_finding(
+                    "value_mismatch", platform, "snippet_budget",
+                    f"YAML declares mode legacy but extraction/snippets.py loads {lang!r} as tiered",
+                ))
+    return findings
+
+
 _SITE_CHECKS = (
     check_class_func_module_kinds,
     check_doc_style,
@@ -460,6 +549,7 @@ _SITE_CHECKS = (
     check_coverage_policy,
     check_reachability_enforced,
     check_example_verification,
+    check_snippet_budget,
 )
 
 

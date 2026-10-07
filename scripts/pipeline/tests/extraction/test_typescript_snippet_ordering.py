@@ -38,7 +38,6 @@ from extraction.snippets import (
     MAX_SNIPPETS,
     _DEFAULT_SNIPPET_DIRS,
     _TIER2_TEST_DIR_NAMES,
-    _TIERED_SNIPPET_PLATFORMS,
     _TS_TEST_FILE_RE,
     _collect_snippet_functions,
     _collect_tier_candidates,
@@ -48,6 +47,8 @@ from extraction.snippets import (
     _normalize_snippet_code,
     _search_base_list,
     extract_snippets,
+    snippet_budget_for,
+    tiered_snippet_languages,
 )
 from extraction.tree_helpers import _CLASS_TYPES, _FUNC_TYPES, get_parser
 
@@ -87,8 +88,23 @@ def _generate_bulk_fixture(dest: Path, n_test_files: int = 30, its_per_file: int
 # ---------------------------------------------------------------------------
 
 class TestDispatchScoping:
-    def test_only_typescript_and_javascript_are_tiered(self):
-        assert _TIERED_SNIPPET_PLATFORMS == {"typescript", "javascript"}
+    def test_tiered_languages_are_declared_in_platform_capabilities_yaml(self):
+        """MT074 B3: the tiered set is DECLARED (platform_capabilities.yaml
+        `snippet_budget`), no longer a hard-coded literal. typescript and
+        javascript keep their original opt-in; java is the B3 addition;
+        every other language stays on the legacy path."""
+        langs = tiered_snippet_languages()
+        assert {"typescript", "javascript"} <= langs
+        assert "java" in langs
+        assert langs.isdisjoint({"python", "csharp", "cpp", "go", "rust"})
+
+    def test_typescript_and_javascript_budget_has_no_b3_knobs(self):
+        """The byte-identical guarantee for TS/JS: neither B3 knob is on."""
+        for lang in ("typescript", "javascript"):
+            budget = snippet_budget_for(lang)
+            assert budget["docs_fence_budget"] == 0
+            assert budget["test_tail_reserve"] == 0
+            assert budget["stable_superset"] is False
 
     def test_default_snippet_dirs_literal_pinned(self):
         """Regression pin: the legacy iteration-order list is untouched --
@@ -110,6 +126,13 @@ class TestNonOptedInPlatformGoldenParity:
         parser = get_parser("python")
         current = extract_snippets(
             parser, "python", GOLDEN_PKG, GOLDEN_PKG, classes=[], formats=[])
+        # The golden was captured from LF fixtures; a Windows checkout with
+        # core.autocrlf materializes them as CRLF (git ls-files --eol:
+        # i/lf w/crlf), which is a line-ending artifact of the working tree,
+        # not an extraction difference. Normalize it so the test measures
+        # extraction parity, not the checkout's EOL setting.
+        for snippet in current:
+            snippet["code"] = snippet["code"].replace("\r\n", "\n")
         assert current == golden
 
     def test_python_snippet_output_has_no_snippet_key_field(self):

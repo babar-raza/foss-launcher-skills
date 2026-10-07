@@ -114,7 +114,7 @@ def configure(*, python_runner=None, typescript_runner=None) -> None:
     }
 
 
-def _load_language_runner(platform: str, family: str = "") -> Any:
+def _load_language_runner(platform: str, family: str = "", **runner_kwargs: Any) -> Any:
     """Every go/dotnet/java/rust/cpp LanguageRunner class requires
     `family` (used to resolve the product's own module/crate/package name
     for import-statement inference, e.g. GoRunner._resolve_go_module_for_family)
@@ -128,7 +128,9 @@ def _load_language_runner(platform: str, family: str = "") -> Any:
     whose sys.path has scripts/pipeline but not scripts/pipeline/lib."""
     mod_name, class_name = _LANGUAGE_RUNNER_CLASSES[platform]
     mod = importlib.import_module(f".runners.{mod_name}", package=__package__)
-    return getattr(mod, class_name)(family)
+    # MT074 B6: optional runner constructor options (e.g. the Java runner's
+    # product_jar / product_build / prelude). Empty for every existing caller.
+    return getattr(mod, class_name)(family, **runner_kwargs)
 
 
 def verify_page(
@@ -138,6 +140,8 @@ def verify_page(
     platform: str,
     policy: "Policy | None" = None,
     factpack: "dict | None" = None,
+    runner_kwargs: "dict | None" = None,
+    cache: "Any | None" = None,
 ) -> VerificationReport:
     """Verify one markdown FILE's fenced code blocks for `platform`. Both
     dispatch paths read the real file at `path` (python/typescript's
@@ -151,7 +155,8 @@ def verify_page(
 
     text = path.read_text(encoding="utf-8") if path.is_file() else ""
     product = ProductContext.from_knowledge(family, platform) if family and platform else ProductContext()
-    return verify_markdown(text, family=family, platform=platform, policy=policy, product=product)
+    return verify_markdown(text, family=family, platform=platform, policy=policy, product=product,
+                           runner_kwargs=runner_kwargs, cache=cache)
 
 
 def verify_markdown(
@@ -162,6 +167,8 @@ def verify_markdown(
     policy: "Policy | None" = None,
     product: "ProductContext | None" = None,
     line_offset: int = 0,
+    runner_kwargs: "dict | None" = None,
+    cache: "Any | None" = None,
 ) -> VerificationReport:
     """Verify one markdown STRING's fenced code blocks for `platform`.
     Raises NotImplementedError for python/typescript -- their runners are
@@ -209,10 +216,18 @@ def verify_markdown(
             runners_module_version=RUNNERS_MODULE_VERSION, clone_head=product.clone_head,
         )
 
-    runner = BaseRunner(_load_language_runner(platform, family=family))
+    language_runner = _load_language_runner(platform, family=family, **(runner_kwargs or {}))
+    # `cache` (a cache.ResultCache) is opt-in; the key it is probed with
+    # includes the runner's artifact/prelude fingerprint (see below).
+    runner = BaseRunner(language_runner, cache=cache)
     blocks_in = [(b.sha256_norm, (b.start_line, b.end_line), b.content) for b in own_blocks]
+    # MT074 B6: a runner that verifies against a product artifact (the Java
+    # runner's jar) exposes `fingerprint()`; folding it into the cache key
+    # keeps a result computed against one jar from being served for another.
+    fingerprint = getattr(language_runner, "fingerprint", None)
     options = RunOptions(
         allow_acquire=policy.allow_acquire, clone_head=product.clone_head or "",
+        toolchain_fp=fingerprint() if callable(fingerprint) else "",
         runners_module_version=RUNNERS_MODULE_VERSION,
     )
     results = runner.run(blocks_in, policy, product, options=options)

@@ -25,12 +25,20 @@ from __future__ import annotations
 
 import hashlib
 import json
-from dataclasses import asdict, dataclass
+from dataclasses import asdict, dataclass, replace
 from pathlib import Path
 from typing import Any
 
 _REPO_ROOT = Path(__file__).resolve().parents[4]
 _RUNS_BASE = _REPO_ROOT / "runs" / ".example_verification"
+
+
+# Schema version of the on-disk cache: part of every cache KEY and stamped on
+# every entry. Bump it to orphan all previously cached results without
+# touching RUNNERS_MODULE_VERSION (which is stamped into sweeps/proofs).
+# "2" (MT074): a missing input file used to be cached as a RUNTIME-ERROR and
+# is now an uncached FIXTURE-UNAVAILABLE; entries also gained `meta`.
+CACHE_SCHEMA_VERSION = "2"
 
 
 def cache_key(
@@ -40,7 +48,8 @@ def cache_key(
     """`max_tier` is deliberately NOT part of the key -- see ResultCache.get()
     for how a stored entry answers a request for a different tier than the
     one it was originally computed at."""
-    raw = f"1|{sha256_norm}|{canonical_lang}|{clone_head}|{toolchain_fp}|{runners_module_version}"
+    raw = (f"{CACHE_SCHEMA_VERSION}|{sha256_norm}|{canonical_lang}|{clone_head}"
+           f"|{toolchain_fp}|{runners_module_version}")
     return hashlib.sha256(raw.encode("utf-8")).hexdigest()
 
 
@@ -54,6 +63,12 @@ class CacheEntry:
     toolchain_version: str = ""
     runners_module_version: str = ""
     code_sha256: str = ""
+    # MT074 R3-7a: the runner's provenance record (toolchain_name/version/path
+    # and the `artifact` dict) so a cache HIT still says what it was proven
+    # against. Never part of the cache key; None for entries without one.
+    meta: "dict | None" = None
+    # Entries written before schema "2" carry no such field -> "1" -> a miss.
+    schema_version: str = "1"
 
     def is_deterministic_failure(self) -> bool:
         from . import result as result_mod
@@ -122,6 +137,8 @@ class ResultCache:
         if raw is None:
             return None
         entry = CacheEntry(**raw)
+        if entry.schema_version != CACHE_SCHEMA_VERSION:
+            return None  # produced under older semantics (e.g. cached RUNTIME-ERROR for a missing input)
         if entry.proof_tier >= want_tier:
             return entry
         if entry.is_deterministic_failure():
@@ -136,7 +153,7 @@ class ResultCache:
         if not (entry.is_pass() or entry.is_deterministic_failure()):
             return False
         data = self._load()
-        data[key] = asdict(entry)
+        data[key] = asdict(replace(entry, schema_version=CACHE_SCHEMA_VERSION))
         self._path.parent.mkdir(parents=True, exist_ok=True)
         self._path.write_text(
             json.dumps(data, indent=2, sort_keys=True), encoding="utf-8",

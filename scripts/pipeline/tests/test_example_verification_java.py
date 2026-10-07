@@ -1,27 +1,33 @@
 """Tests for lib/example_verification/runners/java.py's JavaRunner (C12):
 the third concrete `runners/base.py` LanguageRunner implementation.
 
-Real acquire (`mvn -version` toolchain discovery) -> compile (`javac`) ->
-execute (`java`) is the check (never mocked) -- uses only the JDK's own
-standard library (`System.out.println`), fully offline, so these tests need
-no network and acquire no real product JAR (disclosed scope limit -- see
-runners/java.py's own module docstring). Requires a real `mvn`+JDK on PATH
-(confirmed present via the plan's own "Verified toolchain inventory":
-Temurin JDK 21.0.11, Apache Maven 3.9.16 -- resolving JDK 17.0.19 for its
-own builds, the exact real-world wrinkle this runner's toolchain discovery
-exists to handle correctly).
+Real acquire (toolchain discovery) -> compile (`javac`) -> execute (`java`)
+is the check (never mocked) -- uses only the JDK's own standard library
+(`System.out.println`), fully offline, so these tests need no network and
+acquire no real product JAR (the product-jar path is covered by
+test_example_verification_product_jar.py). Requires a discoverable JDK:
+MT074 B6 widened discovery from PATH-only to PATH -> JAVA_HOME -> configured
+roots (`ASPOSE_TOOLCHAIN_ROOTS` + per-OS defaults), so a JDK that is merely
+installed (not on PATH) now counts. If NO JDK is discoverable these tests are
+SKIPPED with a loud reason -- they never pass silently.
 """
 from __future__ import annotations
 
-import shutil
-
 import pytest
 
+from lib.example_verification import toolchain as tc_mod
 from lib.example_verification.policy import Policy, ProductContext
 from lib.example_verification.runners.base import BaseRunner
-from lib.example_verification.runners.java import JavaRunner, _exec_java
+from lib.example_verification.runners.java import EMPTY_TOOLCHAIN, JavaRunner, _exec_java
 
-pytestmark = pytest.mark.skipif(shutil.which("mvn") is None, reason="mvn not on PATH")
+_DISCOVERED = tc_mod.discover_java_toolchain()
+
+pytestmark = pytest.mark.skipif(
+    _DISCOVERED.jdk is None,
+    reason=("NO JDK (>= 11) DISCOVERABLE via PATH / JAVA_HOME / roots "
+            f"{list(_DISCOVERED.searched_roots)} -- every real-javac/java test in this "
+            "module is SKIPPED, not passed; install a JDK or set ASPOSE_TOOLCHAIN_ROOTS"),
+)
 
 
 def _acquired(tmp_path):
@@ -131,17 +137,29 @@ class TestAcquireReal:
         assert acquired["javac_exe"]
         assert acquired["toolchain_version"]
 
-    def test_reports_ok_false_when_mvn_is_missing(self, tmp_path):
-        runner = JavaRunner(family="no-such-family")
-        import os
-        real_path = os.environ.get("PATH", "")
-        try:
-            os.environ["PATH"] = ""
-            result = runner.acquire(tmp_path, Policy(max_tier=3, allow_acquire=True), ProductContext())
-        finally:
-            os.environ["PATH"] = real_path
+    def test_acquire_records_discovery_source_path_and_version(self, tmp_path):
+        _runner, acquired = _acquired(tmp_path)
+        meta = acquired["result_meta"]
+        assert meta["toolchain_name"] == "java"
+        assert meta["toolchain_version"] == acquired["toolchain_version"]
+        assert meta["toolchain_path"] == acquired["javac_exe"]
+        tool = meta["artifact"]["toolchain"]
+        assert tool["jdk_source"] != "none"
+        assert tool["jdk_version"] == acquired["toolchain_version"]
+
+    def test_no_discoverable_jdk_is_an_explicit_blocked_toolchain_outcome(self, tmp_path):
+        """Replaces the old PATH="" probe: discovery now (correctly) finds a
+        JDK in JAVA_HOME / roots even with an empty PATH, so 'nothing
+        discoverable' is expressed with an injected empty toolchain."""
+        runner = JavaRunner(family="no-such-family", toolchain=EMPTY_TOOLCHAIN)
+        result = runner.acquire(tmp_path, Policy(max_tier=3, allow_acquire=True), ProductContext())
         assert result["ok"] is False
-        assert "mvn" in result["detail"]
+        assert result["reason"] == "TOOLCHAIN-UNAVAILABLE"
+        assert result["detail"].startswith("BLOCKED_TOOLCHAIN:")
+
+    def test_discovery_with_nothing_on_path_or_roots_finds_no_jdk(self):
+        empty = tc_mod.discover_java_toolchain(env={}, roots=[], which=lambda _n: None)
+        assert empty.jdk is None and empty.maven is None
 
 
 class TestCompileRealJavac:

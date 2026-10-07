@@ -21,6 +21,10 @@ distinguishable from a fresh one after a runner improves.
 """
 from __future__ import annotations
 
+# Deliberately NOT bumped by MT074: this value is stamped into sweeps/proofs
+# and pinned by tests and swept data. Cache invalidation for the MT074
+# semantics change (missing input file: cached RUNTIME-ERROR -> uncached
+# FIXTURE-UNAVAILABLE) is cache.CACHE_SCHEMA_VERSION's job instead.
 RUNNERS_MODULE_VERSION = "1"
 
 __all__ = ["RUNNERS_MODULE_VERSION"]
