@@ -64,6 +64,20 @@ regardless of this module's real result (wiring the dispatch is a future card, s
 pattern as `U-01`'s own Stage -1 module). Run it by hand for a net/python launch before trusting a
 scout's API surface.
 
+**Source-install fallback mode (TC-PSD-HRD-10, permanent fix of F-PSD-07):** the unpublished-
+package install block (`foss-source-install.html`, called from `package-install`/
+`package-install-inline`/`maven-coord`/`maven-gav`) reads a per-product `source_install_mode`
+field in `data/products.json`, decided by `scripts/pipeline/lib/source_install.py::
+determine_source_install_mode(platform, repo)`: `"standard"` (absent/default; today's
+unconditional per-platform instructions, used by every product except the one named below) or,
+**python-only**, `"pythonpath"` (no packaging manifest exists at all, so an editable install
+cannot work; the package renders clone + run-from-folder-or-PYTHONPATH instructions instead —
+psd/python's own case). A `net` product's mode is also computed (reused by
+`upstream_readiness_check.py`'s U-04 preflight check) but every net product today resolves
+`"standard"`; the field only ever changes the RENDERED python branch. Run `enrich_products_
+source_install_mode.py --dry-run` after cloning a new unpublished product to see its real mode
+before assuming the default is correct.
+
 ---
 
 ### Platform notes — TypeScript/npm
