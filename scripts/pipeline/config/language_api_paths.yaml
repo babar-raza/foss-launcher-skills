@@ -1,0 +1,135 @@
+# language_api_paths.yaml -- per-language path rules used by lib/language_adapters.py and
+# commands/diagnostics/fleet_drift.py to classify the files changed between two upstream commits.
+#
+# Keyed by the `platform` value found in data/products.json. Nothing here names a product or a
+# family: only generic language names appear, as DATA keys.
+#
+# Glob syntax (matched against repo-relative POSIX paths; CASE-SENSITIVE unless
+# common.case_sensitive is false):
+#   *      any run of characters except "/"
+#   **/    zero or more directories      (so "**/x.py" also matches "x.py")
+#   **     anything, including "/"
+#   ?      one character except "/"
+#   [!a-c] character class (negatable)
+#
+# ANCHORING: directory-name patterns such as tests/**, docs/**, build/**, bin/** are anchored at
+# the TOP of the repository ("tests/**", never "**/tests/**"). A directory that merely happens to
+# be called build, docs, test or bin deep inside a source tree (a Java package `...build/`, a .NET
+# namespace folder `Docs/`) is source code and must classify as such. Nested conventions that are
+# genuinely language-specific (a Maven `src/test/` in any module, a Go `testdata/`, a .NET
+# `*.Tests` project) are listed under that language instead.
+#
+# Per language:
+#   source_extensions        files with these extensions are "source" unless they match a
+#                            non_source_path_patterns entry (tests, examples, build output ...)
+#   api_path_patterns        where the PUBLIC API / option / enum surface lives
+#   api_exclude_patterns     carve-outs inside api_path_patterns (internal / private code)
+#   non_source_path_patterns language-specific additions to common.non_source_path_patterns
+#
+# Classification of one changed file (see language_adapters.classify_paths):
+#   non-source  -> matches non_source_path_patterns, or has no source extension
+#   source      -> has a source extension and is not non-source
+#   api         -> source AND matches an api_path_patterns entry AND no api_exclude_patterns entry
+#
+# `unknown_platform` is the UNKNOWN-safe default for a platform missing from `languages`: the
+# classifier never guesses, it reports tier UNKNOWN with this reason.
+schema_version: 1
+
+truncation:
+  # GitHub's compare endpoint returns at most 300 files in total, however it is paginated;
+  # a result of this size or more is treated as truncated (an API change may be hiding past it).
+  max_files_visible: 300
+
+unknown_platform:
+  tier: UNKNOWN
+  reason: platform_not_in_language_api_paths
+  # only used to COUNT source files for an unknown platform (the tier stays UNKNOWN)
+  source_extensions: [.java, .cs, .py, .ts, .tsx, .js, .go, .cpp, .cc, .c, .h, .hpp, .rs, .kt]
+
+common:
+  case_sensitive: true
+  non_source_path_patterns:
+    - "tests/**"
+    - "test/**"
+    - "__tests__/**"
+    - "testdata/**"
+    - "fixtures/**"
+    - "examples/**"
+    - "example/**"
+    - "_examples/**"
+    - "samples/**"
+    - "sample/**"
+    - "benchmarks/**"
+    - "docs/**"
+    - ".github/**"
+    - "**/node_modules/**"
+    - "vendor/**"
+    - "target/**"
+    - "build/**"
+    - "dist/**"
+    - "bin/**"
+    - "obj/**"
+  # categorize_docs matches these case-insensitively (a file named changelog.md is a changelog)
+  changelog_patterns: ["**/CHANGELOG*", "**/HISTORY*", "**/RELEASE*", "**/NEWS*"]
+  readme_patterns: ["README*", "**/README*"]
+  docs_patterns: ["docs/**", "**/docs/**", "**/*.md", "**/*.rst", "**/*.adoc"]
+  test_patterns:
+    - "tests/**"
+    - "test/**"
+    - "**/tests/**"
+    - "**/test/**"
+    - "**/__tests__/**"
+    - "**/*_test.*"
+    - "**/*.test.*"
+    - "**/*.spec.*"
+    - "**/*Test.java"
+    - "**/*Tests.cs"
+
+languages:
+  java:
+    source_extensions: [.java, .kt]
+    api_path_patterns: ["src/main/**", "**/src/main/**"]
+    api_exclude_patterns: ["**/internal/**"]
+    # Maven/Gradle modules nest src/test at any depth
+    non_source_path_patterns: ["src/test/**", "**/src/test/**"]
+
+  net:
+    source_extensions: [.cs, .vb, .fs]
+    api_path_patterns: ["src/**", "**/src/**"]
+    api_exclude_patterns: ["**/internal/**", "**/Internal/**", "**/*.Designer.cs", "**/*.g.cs", "**/AssemblyInfo.cs"]
+    # test PROJECTS are directories named <Something>.Tests (or .UnitTests) at any depth
+    non_source_path_patterns: ["**/*.Tests/**", "**/*.UnitTests/**", "*Tests/**"]
+
+  python:
+    source_extensions: [.py, .pyi]
+    # a flat layout keeps packages in top-level directories (pkg/sub/mod.py); a src layout keeps
+    # them under src/. Root-level scripts (setup.py, conftest.py) are not API.
+    api_path_patterns: ["src/**", "*/**"]
+    # a single-underscore module/package is private by convention; __init__/__main__ are not
+    api_exclude_patterns: ["**/_[!_]*.py", "**/_[!_]*/**", "**/internal/**", "**/setup.py", "**/conftest.py"]
+    non_source_path_patterns: ["scripts/**", "tools/**", "fuzz/**", "**/conftest.py", "**/setup.py"]
+
+  typescript:
+    source_extensions: [.ts, .tsx, .mts, .cts]
+    api_path_patterns: ["src/**", "index.ts", "lib/**"]
+    api_exclude_patterns: ["**/internal/**", "**/*.test.ts", "**/*.spec.ts"]
+    non_source_path_patterns: ["*.config.ts", "**/*.test.ts", "**/*.spec.ts"]
+
+  go:
+    source_extensions: [.go]
+    api_path_patterns: ["*.go", "**/*.go"]
+    api_exclude_patterns: ["**/internal/**", "**/*_test.go", "cmd/**"]
+    # `testdata` is a toolchain-ignored directory in any Go package
+    non_source_path_patterns: ["**/*_test.go", "cmd/**", "**/testdata/**"]
+
+  cpp:
+    source_extensions: [.cpp, .cc, .cxx, .c, .h, .hh, .hpp, .hxx]
+    api_path_patterns: ["include/**", "src/public/**"]
+    api_exclude_patterns: ["include/internal/**", "**/internal/**", "src/internal/**"]
+    non_source_path_patterns: ["third_party/**", "cmake/**"]
+
+  rust:
+    source_extensions: [.rs]
+    api_path_patterns: ["src/**", "**/src/**"]
+    api_exclude_patterns: ["**/internal/**", "src/bin/**", "**/src/bin/**"]
+    non_source_path_patterns: ["benches/**"]
