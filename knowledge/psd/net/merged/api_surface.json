@@ -1,0 +1,2583 @@
+[
+  {
+    "name": "ChannelInformation",
+    "kind": "class_declaration",
+    "doc": "Represents PSD layer channel information.",
+    "file": "src/Aspose.PSD.FOSS/Layers/ChannelInformation.cs",
+    "line": 8,
+    "bases": [],
+    "methods": [
+      {
+        "name": "ChannelInformation",
+        "params": [
+          {
+            "name": "compressionMethod",
+            "type": "CompressionMethod"
+          },
+          {
+            "name": "bitDepth",
+            "type": "int"
+          },
+          {
+            "name": "psdVersion",
+            "type": "int"
+          }
+        ],
+        "return_type": "",
+        "doc": "Initializes a new instance of the ChannelInformation class.",
+        "line": 16,
+        "is_constructor": true,
+        "deprecated": false,
+        "deprecated_reason": "",
+        "file": "src/Aspose.PSD.FOSS/Layers/ChannelInformation.cs"
+      }
+    ],
+    "properties": [
+      {
+        "name": "ChannelID",
+        "type": "short",
+        "doc": "Gets or sets the channel identifier.",
+        "line": 37,
+        "writable": true,
+        "file": "src/Aspose.PSD.FOSS/Layers/ChannelInformation.cs"
+      },
+      {
+        "name": "CompressionMethod",
+        "type": "CompressionMethod",
+        "doc": "Gets or sets the channel compression method.",
+        "line": 42,
+        "writable": true,
+        "file": "src/Aspose.PSD.FOSS/Layers/ChannelInformation.cs"
+      },
+      {
+        "name": "Length",
+        "type": "int",
+        "doc": "Gets the channel length in bytes.",
+        "line": 47,
+        "writable": false,
+        "file": "src/Aspose.PSD.FOSS/Layers/ChannelInformation.cs"
+      }
+    ],
+    "visibility": "public",
+    "reachable": true,
+    "deprecated": false,
+    "deprecated_reason": "",
+    "canonical_namespace": "Aspose.PSD.FileFormats.Psd.Layers",
+    "class_import": "Aspose.PSD.FileFormats.Psd.Layers.ChannelInformation",
+    "module_key": "layers",
+    "module_label": "Layers"
+  },
+  {
+    "name": "ColorModes",
+    "kind": "enum_declaration",
+    "doc": "Defines the color modes supported by PSD files.",
+    "file": "src/Aspose.PSD.FOSS/ColorModes.cs",
+    "line": 6,
+    "bases": [
+      "short"
+    ],
+    "methods": [],
+    "properties": [],
+    "visibility": "public",
+    "reachable": true,
+    "deprecated": false,
+    "deprecated_reason": "",
+    "enum_members": [
+      {
+        "name": "Bitmap",
+        "value": "0"
+      },
+      {
+        "name": "Grayscale",
+        "value": "1"
+      },
+      {
+        "name": "Indexed",
+        "value": "2"
+      },
+      {
+        "name": "Rgb",
+        "value": "3"
+      },
+      {
+        "name": "Cmyk",
+        "value": "4"
+      },
+      {
+        "name": "Multichannel",
+        "value": "7"
+      },
+      {
+        "name": "Duotone",
+        "value": "8"
+      },
+      {
+        "name": "Lab",
+        "value": "9"
+      }
+    ],
+    "canonical_namespace": "Aspose.PSD.FileFormats.Psd",
+    "class_import": "Aspose.PSD.FileFormats.Psd.ColorModes",
+    "module_key": "core",
+    "module_label": "Core API"
+  },
+  {
+    "name": "CompressionMethod",
+    "kind": "enum_declaration",
+    "doc": "Defines the compression methods used for image data in PSD files.",
+    "file": "src/Aspose.PSD.FOSS/CompressionMethod.cs",
+    "line": 6,
+    "bases": [
+      "short"
+    ],
+    "methods": [],
+    "properties": [],
+    "visibility": "public",
+    "reachable": true,
+    "deprecated": false,
+    "deprecated_reason": "",
+    "enum_members": [
+      {
+        "name": "Raw",
+        "value": "0"
+      },
+      {
+        "name": "RLE",
+        "value": "1"
+      },
+      {
+        "name": "ZipWithoutPrediction",
+        "value": "2"
+      },
+      {
+        "name": "ZipWithPrediction",
+        "value": "3"
+      }
+    ],
+    "canonical_namespace": "Aspose.PSD.FileFormats.Psd",
+    "class_import": "Aspose.PSD.FileFormats.Psd.CompressionMethod",
+    "module_key": "core",
+    "module_label": "Core API"
+  },
+  {
+    "name": "PsdLoadException",
+    "kind": "class_declaration",
+    "doc": "Exception that is thrown when an error occurs while loading a PSD file.",
+    "file": "src/Aspose.PSD.FOSS/CoreExceptions/PsdLoadException.cs",
+    "line": 6,
+    "bases": [
+      "Exception"
+    ],
+    "methods": [
+      {
+        "name": "PsdLoadException",
+        "params": [
+          {
+            "name": "message",
+            "type": "string"
+          }
+        ],
+        "return_type": "",
+        "doc": "Initializes a new instance of the PsdLoadException class with a specified error message.",
+        "line": 12,
+        "is_constructor": true,
+        "deprecated": false,
+        "deprecated_reason": "",
+        "file": "src/Aspose.PSD.FOSS/CoreExceptions/PsdLoadException.cs"
+      },
+      {
+        "name": "PsdLoadException",
+        "params": [
+          {
+            "name": "message",
+            "type": "string"
+          },
+          {
+            "name": "innerException",
+            "type": "Exception"
+          }
+        ],
+        "return_type": "",
+        "doc": "Initializes a new instance of the PsdLoadException class with a specified error message and inner exception.",
+        "line": 19,
+        "is_constructor": true,
+        "deprecated": false,
+        "deprecated_reason": "",
+        "file": "src/Aspose.PSD.FOSS/CoreExceptions/PsdLoadException.cs"
+      }
+    ],
+    "properties": [],
+    "visibility": "public",
+    "reachable": true,
+    "deprecated": false,
+    "deprecated_reason": "",
+    "canonical_namespace": "Aspose.PSD.FileFormats.Psd",
+    "class_import": "Aspose.PSD.FileFormats.Psd.PsdLoadException",
+    "module_key": "coreexceptions",
+    "module_label": "Core Exceptions"
+  },
+  {
+    "name": "PsdSaveException",
+    "kind": "class_declaration",
+    "doc": "Exception that is thrown when an error occurs while saving a PSD file.",
+    "file": "src/Aspose.PSD.FOSS/CoreExceptions/PsdSaveException.cs",
+    "line": 6,
+    "bases": [
+      "Exception"
+    ],
+    "methods": [
+      {
+        "name": "PsdSaveException",
+        "params": [
+          {
+            "name": "message",
+            "type": "string"
+          }
+        ],
+        "return_type": "",
+        "doc": "Initializes a new instance of the PsdSaveException class with a specified error message.",
+        "line": 12,
+        "is_constructor": true,
+        "deprecated": false,
+        "deprecated_reason": "",
+        "file": "src/Aspose.PSD.FOSS/CoreExceptions/PsdSaveException.cs"
+      },
+      {
+        "name": "PsdSaveException",
+        "params": [
+          {
+            "name": "message",
+            "type": "string"
+          },
+          {
+            "name": "innerException",
+            "type": "Exception"
+          }
+        ],
+        "return_type": "",
+        "doc": "Initializes a new instance of the PsdSaveException class with a specified error message and inner exception.",
+        "line": 19,
+        "is_constructor": true,
+        "deprecated": false,
+        "deprecated_reason": "",
+        "file": "src/Aspose.PSD.FOSS/CoreExceptions/PsdSaveException.cs"
+      }
+    ],
+    "properties": [],
+    "visibility": "public",
+    "reachable": true,
+    "deprecated": false,
+    "deprecated_reason": "",
+    "canonical_namespace": "Aspose.PSD.FileFormats.Psd",
+    "class_import": "Aspose.PSD.FileFormats.Psd.PsdSaveException",
+    "module_key": "coreexceptions",
+    "module_label": "Core Exceptions"
+  },
+  {
+    "name": "Image",
+    "kind": "class_declaration",
+    "doc": "Provides the Aspose.PSD-compatible base image entry point for loading PSD/PSB documents.",
+    "file": "src/Aspose.PSD.FOSS/Image.cs",
+    "line": 8,
+    "bases": [
+      "IDisposable"
+    ],
+    "methods": [
+      {
+        "name": "Load",
+        "params": [
+          {
+            "name": "filePath",
+            "type": "string"
+          }
+        ],
+        "return_type": "",
+        "doc": "Loads a new image from the specified file path.",
+        "line": 30,
+        "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
+        "file": "src/Aspose.PSD.FOSS/Image.cs"
+      },
+      {
+        "name": "Load",
+        "params": [
+          {
+            "name": "stream",
+            "type": "Stream"
+          }
+        ],
+        "return_type": "",
+        "doc": "Loads a new image from the specified stream.",
+        "line": 40,
+        "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
+        "file": "src/Aspose.PSD.FOSS/Image.cs"
+      },
+      {
+        "name": "Save",
+        "params": [
+          {
+            "name": "filePath",
+            "type": "string"
+          }
+        ],
+        "return_type": "",
+        "doc": "Saves the image data to the specified file path.",
+        "line": 49,
+        "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
+        "file": "src/Aspose.PSD.FOSS/Image.cs"
+      },
+      {
+        "name": "Save",
+        "params": [
+          {
+            "name": "stream",
+            "type": "Stream"
+          }
+        ],
+        "return_type": "",
+        "doc": "Saves the image data to the specified stream.",
+        "line": 55,
+        "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
+        "file": "src/Aspose.PSD.FOSS/Image.cs"
+      },
+      {
+        "name": "Dispose",
+        "params": [],
+        "return_type": "",
+        "doc": "Releases resources used by the image.",
+        "line": 60,
+        "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
+        "file": "src/Aspose.PSD.FOSS/Image.cs"
+      }
+    ],
+    "properties": [
+      {
+        "name": "Width",
+        "type": "int",
+        "doc": "Gets the image width in pixels.",
+        "line": 13,
+        "writable": false,
+        "file": "src/Aspose.PSD.FOSS/Image.cs"
+      },
+      {
+        "name": "Height",
+        "type": "int",
+        "doc": "Gets the image height in pixels.",
+        "line": 18,
+        "writable": false,
+        "file": "src/Aspose.PSD.FOSS/Image.cs"
+      },
+      {
+        "name": "Bounds",
+        "type": "Rectangle",
+        "doc": "Gets the image bounds.",
+        "line": 23,
+        "writable": false,
+        "file": "src/Aspose.PSD.FOSS/Image.cs"
+      }
+    ],
+    "visibility": "public",
+    "reachable": true,
+    "deprecated": false,
+    "deprecated_reason": "",
+    "is_abstract": true,
+    "canonical_namespace": "Aspose.PSD",
+    "class_import": "Aspose.PSD.Image",
+    "module_key": "core",
+    "module_label": "Core API"
+  },
+  {
+    "name": "BlendMode",
+    "kind": "enum_declaration",
+    "doc": "Defines the blend modes used for layers in PSD files.",
+    "file": "src/Aspose.PSD.FOSS/Layers/BlendMode.cs",
+    "line": 6,
+    "bases": [
+      "uint"
+    ],
+    "methods": [],
+    "properties": [],
+    "visibility": "public",
+    "reachable": true,
+    "deprecated": false,
+    "deprecated_reason": "",
+    "enum_members": [
+      {
+        "name": "Normal",
+        "value": "1852797549"
+      },
+      {
+        "name": "Multiply",
+        "value": "1836411936"
+      },
+      {
+        "name": "Screen",
+        "value": "1935897198"
+      },
+      {
+        "name": "Overlay",
+        "value": "1870030194"
+      },
+      {
+        "name": "Darken",
+        "value": "1684107883"
+      },
+      {
+        "name": "Lighten",
+        "value": "1818850405"
+      },
+      {
+        "name": "ColorDodge",
+        "value": "1684633120"
+      },
+      {
+        "name": "ColorBurn",
+        "value": "1768188278"
+      },
+      {
+        "name": "HardLight",
+        "value": "1749838196"
+      },
+      {
+        "name": "SoftLight",
+        "value": "1934387572"
+      },
+      {
+        "name": "Difference",
+        "value": "1684629094"
+      },
+      {
+        "name": "Exclusion",
+        "value": "1936553316"
+      },
+      {
+        "name": "Hue",
+        "value": "1752524064"
+      },
+      {
+        "name": "Saturation",
+        "value": "1935766560"
+      },
+      {
+        "name": "Color",
+        "value": "1668246642"
+      },
+      {
+        "name": "Luminosity",
+        "value": "1819634976"
+      },
+      {
+        "name": "DarkerColor",
+        "value": "1684751212"
+      },
+      {
+        "name": "LighterColor",
+        "value": "1818706796"
+      },
+      {
+        "name": "LinearBurn",
+        "value": "1818391150"
+      },
+      {
+        "name": "LinearDodge",
+        "value": "1818518631"
+      },
+      {
+        "name": "LinearLight",
+        "value": "1816947060"
+      },
+      {
+        "name": "VividLight",
+        "value": "1984719220"
+      },
+      {
+        "name": "PinLight",
+        "value": "1884055924"
+      },
+      {
+        "name": "HardMix",
+        "value": "1749903736"
+      },
+      {
+        "name": "Subtract",
+        "value": "1718842722"
+      },
+      {
+        "name": "Divide",
+        "value": "1717856630"
+      },
+      {
+        "name": "Dissolve",
+        "value": "1684632435"
+      },
+      {
+        "name": "PassThrough",
+        "value": "1885434739"
+      },
+      {
+        "name": "Absent",
+        "value": "0"
+      }
+    ],
+    "canonical_namespace": "Aspose.PSD.FileFormats.Core.Blending",
+    "class_import": "Aspose.PSD.FileFormats.Core.Blending.BlendMode",
+    "module_key": "layers",
+    "module_label": "Layers"
+  },
+  {
+    "name": "BlendRange",
+    "kind": "class_declaration",
+    "doc": "Represents a PSD layer blend range.",
+    "file": "src/Aspose.PSD.FOSS/Layers/BlendRange.cs",
+    "line": 6,
+    "bases": [],
+    "methods": [],
+    "properties": [
+      {
+        "name": "Destination",
+        "type": "int",
+        "doc": "Gets or sets the destination blend range.",
+        "line": 11,
+        "writable": true,
+        "file": "src/Aspose.PSD.FOSS/Layers/BlendRange.cs"
+      },
+      {
+        "name": "Source",
+        "type": "int",
+        "doc": "Gets or sets the source blend range.",
+        "line": 16,
+        "writable": true,
+        "file": "src/Aspose.PSD.FOSS/Layers/BlendRange.cs"
+      }
+    ],
+    "visibility": "public",
+    "reachable": true,
+    "deprecated": false,
+    "deprecated_reason": "",
+    "canonical_namespace": "Aspose.PSD.FileFormats.Psd.Layers",
+    "class_import": "Aspose.PSD.FileFormats.Psd.Layers.BlendRange",
+    "module_key": "layers",
+    "module_label": "Layers"
+  },
+  {
+    "name": "GlobalLayerMaskInfo",
+    "kind": "class_declaration",
+    "doc": "Represents global layer mask information.",
+    "file": "src/Aspose.PSD.FOSS/Layers/GlobalLayerMaskInfo.cs",
+    "line": 6,
+    "bases": [],
+    "methods": [],
+    "properties": [],
+    "visibility": "public",
+    "reachable": true,
+    "deprecated": false,
+    "deprecated_reason": "",
+    "canonical_namespace": "Aspose.PSD.FileFormats.Psd.Layers",
+    "class_import": "Aspose.PSD.FileFormats.Psd.Layers.GlobalLayerMaskInfo",
+    "module_key": "layers",
+    "module_label": "Layers"
+  },
+  {
+    "name": "Layer",
+    "kind": "class_declaration",
+    "doc": "Represents a single PSD layer with basic metadata used by the FOSS library.",
+    "file": "src/Aspose.PSD.FOSS/Layers/Layer.cs",
+    "line": 10,
+    "bases": [],
+    "methods": [],
+    "properties": [
+      {
+        "name": "Name",
+        "type": "string",
+        "doc": "Gets or sets the Pascal layer name stored in the layer record.",
+        "line": 40,
+        "writable": true,
+        "file": "src/Aspose.PSD.FOSS/Layers/Layer.cs"
+      },
+      {
+        "name": "Bounds",
+        "type": "Rectangle",
+        "doc": "Gets the Aspose.PSD-compatible local layer rectangle.",
+        "line": 55,
+        "writable": false,
+        "file": "src/Aspose.PSD.FOSS/Layers/Layer.cs"
+      },
+      {
+        "name": "Width",
+        "type": "int",
+        "doc": "Gets the layer width in pixels.",
+        "line": 65,
+        "writable": false,
+        "file": "src/Aspose.PSD.FOSS/Layers/Layer.cs"
+      },
+      {
+        "name": "Height",
+        "type": "int",
+        "doc": "Gets the layer height in pixels.",
+        "line": 70,
+        "writable": false,
+        "file": "src/Aspose.PSD.FOSS/Layers/Layer.cs"
+      },
+      {
+        "name": "Top",
+        "type": "int",
+        "doc": "Gets the top edge of the layer bounds.",
+        "line": 75,
+        "writable": true,
+        "file": "src/Aspose.PSD.FOSS/Layers/Layer.cs"
+      },
+      {
+        "name": "Left",
+        "type": "int",
+        "doc": "Gets the left edge of the layer bounds.",
+        "line": 90,
+        "writable": true,
+        "file": "src/Aspose.PSD.FOSS/Layers/Layer.cs"
+      },
+      {
+        "name": "Bottom",
+        "type": "int",
+        "doc": "Gets the bottom edge of the layer bounds.",
+        "line": 105,
+        "writable": true,
+        "file": "src/Aspose.PSD.FOSS/Layers/Layer.cs"
+      },
+      {
+        "name": "Right",
+        "type": "int",
+        "doc": "Gets the right edge of the layer bounds.",
+        "line": 120,
+        "writable": true,
+        "file": "src/Aspose.PSD.FOSS/Layers/Layer.cs"
+      },
+      {
+        "name": "IsVisible",
+        "type": "bool",
+        "doc": "Gets or sets a value indicating whether the layer is visible.",
+        "line": 135,
+        "writable": true,
+        "file": "src/Aspose.PSD.FOSS/Layers/Layer.cs"
+      },
+      {
+        "name": "Opacity",
+        "type": "byte",
+        "doc": "Gets or sets the layer opacity in the 0-255 range.",
+        "line": 150,
+        "writable": true,
+        "file": "src/Aspose.PSD.FOSS/Layers/Layer.cs"
+      },
+      {
+        "name": "Clipping",
+        "type": "byte",
+        "doc": "Gets the PSD clipping value for the layer.",
+        "line": 165,
+        "writable": true,
+        "file": "src/Aspose.PSD.FOSS/Layers/Layer.cs"
+      },
+      {
+        "name": "BlendModeKey",
+        "type": "BlendMode",
+        "doc": "Gets or sets the layer blend mode key.",
+        "line": 191,
+        "writable": true,
+        "file": "src/Aspose.PSD.FOSS/Layers/Layer.cs"
+      },
+      {
+        "name": "ChannelsCount",
+        "type": "int",
+        "doc": "Gets the layer's channels count.",
+        "line": 200,
+        "writable": false,
+        "file": "src/Aspose.PSD.FOSS/Layers/Layer.cs"
+      },
+      {
+        "name": "ChannelInformation",
+        "type": "ChannelInformation[]",
+        "doc": "Gets or sets the channel information.",
+        "line": 205,
+        "writable": true,
+        "file": "src/Aspose.PSD.FOSS/Layers/Layer.cs"
+      },
+      {
+        "name": "LayerMaskData",
+        "type": "LayerMaskData?",
+        "doc": "Gets or sets the layer mask data.",
+        "line": 259,
+        "writable": true,
+        "file": "src/Aspose.PSD.FOSS/Layers/Layer.cs"
+      },
+      {
+        "name": "LayerBlendingRangesData",
+        "type": "LayerBlendingRangesData",
+        "doc": "Gets or sets the layer blending ranges data.",
+        "line": 277,
+        "writable": true,
+        "file": "src/Aspose.PSD.FOSS/Layers/Layer.cs"
+      },
+      {
+        "name": "LayerTrailerSize",
+        "type": "int",
+        "kind": "constant",
+        "doc": "Gets the fixed-size byte count of the layer record trailer fields.",
+        "line": 15,
+        "writable": false,
+        "file": "src/Aspose.PSD.FOSS/Layers/Layer.cs"
+      }
+    ],
+    "visibility": "public",
+    "reachable": true,
+    "deprecated": false,
+    "deprecated_reason": "",
+    "canonical_namespace": "Aspose.PSD.FileFormats.Psd.Layers",
+    "class_import": "Aspose.PSD.FileFormats.Psd.Layers.Layer",
+    "module_key": "layers",
+    "module_label": "Layers"
+  },
+  {
+    "name": "LayerBlendingRangesData",
+    "kind": "class_declaration",
+    "doc": "Represents PSD layer blending ranges data.",
+    "file": "src/Aspose.PSD.FOSS/Layers/LayerBlendingRangesData.cs",
+    "line": 6,
+    "bases": [],
+    "methods": [
+      {
+        "name": "LayerBlendingRangesData",
+        "params": [],
+        "return_type": "",
+        "doc": "Initializes a new instance of the LayerBlendingRangesData class.",
+        "line": 16,
+        "is_constructor": true,
+        "deprecated": false,
+        "deprecated_reason": "",
+        "file": "src/Aspose.PSD.FOSS/Layers/LayerBlendingRangesData.cs"
+      }
+    ],
+    "properties": [
+      {
+        "name": "CompositeBlendRange",
+        "type": "BlendRange",
+        "doc": "Gets or sets the composite blend range.",
+        "line": 32,
+        "writable": true,
+        "file": "src/Aspose.PSD.FOSS/Layers/LayerBlendingRangesData.cs"
+      },
+      {
+        "name": "ChannelBlendRanges",
+        "type": "BlendRange[]",
+        "doc": "Gets or sets the per-channel blend ranges.",
+        "line": 37,
+        "writable": true,
+        "file": "src/Aspose.PSD.FOSS/Layers/LayerBlendingRangesData.cs"
+      },
+      {
+        "name": "Length",
+        "type": "int",
+        "doc": "Gets the blending ranges data length in bytes.",
+        "line": 42,
+        "writable": false,
+        "file": "src/Aspose.PSD.FOSS/Layers/LayerBlendingRangesData.cs"
+      }
+    ],
+    "visibility": "public",
+    "reachable": true,
+    "deprecated": false,
+    "deprecated_reason": "",
+    "canonical_namespace": "Aspose.PSD.FileFormats.Psd.Layers",
+    "class_import": "Aspose.PSD.FileFormats.Psd.Layers.LayerBlendingRangesData",
+    "module_key": "layers",
+    "module_label": "Layers"
+  },
+  {
+    "name": "LayerMaskData",
+    "kind": "class_declaration",
+    "doc": "Defines the base class for PSD layer mask data.",
+    "file": "src/Aspose.PSD.FOSS/Layers/LayerMaskData.cs",
+    "line": 6,
+    "bases": [],
+    "methods": [],
+    "properties": [
+      {
+        "name": "Bottom",
+        "type": "int",
+        "doc": "Gets or sets the bottom layer mask position.",
+        "line": 21,
+        "writable": true,
+        "file": "src/Aspose.PSD.FOSS/Layers/LayerMaskData.cs"
+      },
+      {
+        "name": "DataSize",
+        "type": "int",
+        "doc": "Gets the size of the layer mask data.",
+        "line": 30,
+        "writable": false,
+        "file": "src/Aspose.PSD.FOSS/Layers/LayerMaskData.cs"
+      },
+      {
+        "name": "DefaultColor",
+        "type": "byte",
+        "doc": "Gets or sets the default layer mask color.",
+        "line": 35,
+        "writable": true,
+        "file": "src/Aspose.PSD.FOSS/Layers/LayerMaskData.cs"
+      },
+      {
+        "name": "Flags",
+        "type": "LayerMaskFlags",
+        "doc": "Gets or sets the layer mask flags.",
+        "line": 40,
+        "writable": true,
+        "file": "src/Aspose.PSD.FOSS/Layers/LayerMaskData.cs"
+      },
+      {
+        "name": "ImageData",
+        "type": "byte[]",
+        "doc": "Gets or sets the layer mask image data.",
+        "line": 45,
+        "writable": true,
+        "file": "src/Aspose.PSD.FOSS/Layers/LayerMaskData.cs"
+      },
+      {
+        "name": "Left",
+        "type": "int",
+        "doc": "Gets or sets the left layer mask position.",
+        "line": 54,
+        "writable": true,
+        "file": "src/Aspose.PSD.FOSS/Layers/LayerMaskData.cs"
+      },
+      {
+        "name": "MaskRectangle",
+        "type": "Rectangle",
+        "doc": "Gets or sets the mask rectangle.",
+        "line": 63,
+        "writable": true,
+        "file": "src/Aspose.PSD.FOSS/Layers/LayerMaskData.cs"
+      },
+      {
+        "name": "Right",
+        "type": "int",
+        "doc": "Gets or sets the right layer mask position.",
+        "line": 72,
+        "writable": true,
+        "file": "src/Aspose.PSD.FOSS/Layers/LayerMaskData.cs"
+      },
+      {
+        "name": "Top",
+        "type": "int",
+        "doc": "Gets or sets the top layer mask position.",
+        "line": 81,
+        "writable": true,
+        "file": "src/Aspose.PSD.FOSS/Layers/LayerMaskData.cs"
+      }
+    ],
+    "visibility": "public",
+    "reachable": true,
+    "deprecated": false,
+    "deprecated_reason": "",
+    "is_abstract": true,
+    "canonical_namespace": "Aspose.PSD.FileFormats.Psd.Layers",
+    "class_import": "Aspose.PSD.FileFormats.Psd.Layers.LayerMaskData",
+    "module_key": "layers",
+    "module_label": "Layers"
+  },
+  {
+    "name": "LayerMaskDataShort",
+    "kind": "class_declaration",
+    "doc": "Defines layer mask data for layers that have only a raster or vector mask.",
+    "file": "src/Aspose.PSD.FOSS/Layers/LayerMaskDataShort.cs",
+    "line": 6,
+    "bases": [
+      "LayerMaskData"
+    ],
+    "methods": [
+      {
+        "name": "LayerMaskDataShort",
+        "params": [],
+        "return_type": "",
+        "doc": "Initializes a new instance of the LayerMaskDataShort class.",
+        "line": 11,
+        "is_constructor": true,
+        "deprecated": false,
+        "deprecated_reason": "",
+        "file": "src/Aspose.PSD.FOSS/Layers/LayerMaskDataShort.cs"
+      }
+    ],
+    "properties": [
+      {
+        "name": "Padding",
+        "type": "short",
+        "doc": "Gets or sets the layer mask padding.",
+        "line": 18,
+        "writable": true,
+        "file": "src/Aspose.PSD.FOSS/Layers/LayerMaskDataShort.cs"
+      },
+      {
+        "name": "Bottom",
+        "type": "int",
+        "doc": "Gets or sets the bottom layer mask position.",
+        "line": 21,
+        "writable": true,
+        "file": "src/Aspose.PSD.FOSS/Layers/LayerMaskData.cs"
+      },
+      {
+        "name": "DataSize",
+        "type": "int",
+        "doc": "Gets the size of the layer mask data.",
+        "line": 30,
+        "writable": false,
+        "file": "src/Aspose.PSD.FOSS/Layers/LayerMaskData.cs"
+      },
+      {
+        "name": "DefaultColor",
+        "type": "byte",
+        "doc": "Gets or sets the default layer mask color.",
+        "line": 35,
+        "writable": true,
+        "file": "src/Aspose.PSD.FOSS/Layers/LayerMaskData.cs"
+      },
+      {
+        "name": "Flags",
+        "type": "LayerMaskFlags",
+        "doc": "Gets or sets the layer mask flags.",
+        "line": 40,
+        "writable": true,
+        "file": "src/Aspose.PSD.FOSS/Layers/LayerMaskData.cs"
+      },
+      {
+        "name": "ImageData",
+        "type": "byte[]",
+        "doc": "Gets or sets the layer mask image data.",
+        "line": 45,
+        "writable": true,
+        "file": "src/Aspose.PSD.FOSS/Layers/LayerMaskData.cs"
+      },
+      {
+        "name": "Left",
+        "type": "int",
+        "doc": "Gets or sets the left layer mask position.",
+        "line": 54,
+        "writable": true,
+        "file": "src/Aspose.PSD.FOSS/Layers/LayerMaskData.cs"
+      },
+      {
+        "name": "MaskRectangle",
+        "type": "Rectangle",
+        "doc": "Gets or sets the mask rectangle.",
+        "line": 63,
+        "writable": true,
+        "file": "src/Aspose.PSD.FOSS/Layers/LayerMaskData.cs"
+      },
+      {
+        "name": "Right",
+        "type": "int",
+        "doc": "Gets or sets the right layer mask position.",
+        "line": 72,
+        "writable": true,
+        "file": "src/Aspose.PSD.FOSS/Layers/LayerMaskData.cs"
+      },
+      {
+        "name": "Top",
+        "type": "int",
+        "doc": "Gets or sets the top layer mask position.",
+        "line": 81,
+        "writable": true,
+        "file": "src/Aspose.PSD.FOSS/Layers/LayerMaskData.cs"
+      }
+    ],
+    "visibility": "public",
+    "reachable": true,
+    "deprecated": false,
+    "deprecated_reason": "",
+    "canonical_namespace": "Aspose.PSD.FileFormats.Psd.Layers",
+    "class_import": "Aspose.PSD.FileFormats.Psd.Layers.LayerMaskDataShort",
+    "module_key": "layers",
+    "module_label": "Layers"
+  },
+  {
+    "name": "LayerMaskFlags",
+    "kind": "enum_declaration",
+    "doc": "Defines PSD layer mask flags.",
+    "file": "src/Aspose.PSD.FOSS/Layers/LayerMaskFlags.cs",
+    "line": 6,
+    "bases": [
+      "byte"
+    ],
+    "methods": [],
+    "properties": [],
+    "visibility": "public",
+    "reachable": true,
+    "deprecated": false,
+    "deprecated_reason": "",
+    "enum_members": [
+      {
+        "name": "None",
+        "value": "0"
+      },
+      {
+        "name": "RelativeToLayer",
+        "value": "1"
+      },
+      {
+        "name": "Disabled",
+        "value": "2"
+      },
+      {
+        "name": "InvertedWhenBlending",
+        "value": "4"
+      },
+      {
+        "name": "UserMaskFromRenderingOtherData",
+        "value": "8"
+      },
+      {
+        "name": "UserOrVectorMasksHaveParameters",
+        "value": "16"
+      }
+    ],
+    "canonical_namespace": "Aspose.PSD.FileFormats.Psd.Layers",
+    "class_import": "Aspose.PSD.FileFormats.Psd.Layers.LayerMaskFlags",
+    "module_key": "layers",
+    "module_label": "Layers"
+  },
+  {
+    "name": "LayerResource",
+    "kind": "class_declaration",
+    "doc": "Represents a PSD layer resource.",
+    "file": "src/Aspose.PSD.FOSS/Layers/LayerResource.cs",
+    "line": 6,
+    "bases": [],
+    "methods": [
+      {
+        "name": "Save",
+        "params": [
+          {
+            "name": "streamContainer",
+            "type": "StreamContainer"
+          },
+          {
+            "name": "psdVersion",
+            "type": "int"
+          }
+        ],
+        "return_type": "",
+        "doc": "Saves the layer resource to the specified stream container.",
+        "line": 43,
+        "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
+        "file": "src/Aspose.PSD.FOSS/Layers/LayerResource.cs"
+      }
+    ],
+    "properties": [
+      {
+        "name": "Key",
+        "type": "int",
+        "doc": "Gets the layer resource key.",
+        "line": 21,
+        "writable": false,
+        "file": "src/Aspose.PSD.FOSS/Layers/LayerResource.cs"
+      },
+      {
+        "name": "Length",
+        "type": "int",
+        "doc": "Gets the layer resource length in bytes.",
+        "line": 26,
+        "writable": false,
+        "file": "src/Aspose.PSD.FOSS/Layers/LayerResource.cs"
+      },
+      {
+        "name": "PsdVersion",
+        "type": "int",
+        "doc": "Gets the minimal PSD version required for the layer resource.",
+        "line": 31,
+        "writable": false,
+        "file": "src/Aspose.PSD.FOSS/Layers/LayerResource.cs"
+      },
+      {
+        "name": "Signature",
+        "type": "int",
+        "doc": "Gets the layer resource signature.",
+        "line": 36,
+        "writable": false,
+        "file": "src/Aspose.PSD.FOSS/Layers/LayerResource.cs"
+      },
+      {
+        "name": "ResourceSignature",
+        "type": "int",
+        "kind": "constant",
+        "doc": "The common layer resource signature.",
+        "line": 11,
+        "writable": false,
+        "file": "src/Aspose.PSD.FOSS/Layers/LayerResource.cs"
+      },
+      {
+        "name": "PsbResourceSignature",
+        "type": "int",
+        "kind": "constant",
+        "doc": "The PSB-specific layer resource signature.",
+        "line": 16,
+        "writable": false,
+        "file": "src/Aspose.PSD.FOSS/Layers/LayerResource.cs"
+      }
+    ],
+    "visibility": "public",
+    "reachable": true,
+    "deprecated": false,
+    "deprecated_reason": "",
+    "is_abstract": true,
+    "canonical_namespace": "Aspose.PSD.FileFormats.Psd.Layers",
+    "class_import": "Aspose.PSD.FileFormats.Psd.Layers.LayerResource",
+    "module_key": "layers",
+    "module_label": "Layers"
+  },
+  {
+    "name": "Point",
+    "kind": "struct_declaration",
+    "doc": "Represents an ordered pair of integer x- and y-coordinates that defines a point in a two-dimensional plane.",
+    "file": "src/Aspose.PSD.FOSS/Point.cs",
+    "line": 6,
+    "bases": [
+      "IEquatable<Point>"
+    ],
+    "methods": [
+      {
+        "name": "Point",
+        "params": [
+          {
+            "name": "x",
+            "type": "int"
+          },
+          {
+            "name": "y",
+            "type": "int"
+          }
+        ],
+        "return_type": "",
+        "doc": "Initializes a new instance of the Point structure with the specified coordinates.",
+        "line": 18,
+        "is_constructor": true,
+        "deprecated": false,
+        "deprecated_reason": "",
+        "file": "src/Aspose.PSD.FOSS/Point.cs"
+      },
+      {
+        "name": "Equals",
+        "params": [
+          {
+            "name": "other",
+            "type": "Point"
+          }
+        ],
+        "return_type": "",
+        "doc": "Determines whether the specified point is equal to this point.",
+        "line": 44,
+        "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
+        "file": "src/Aspose.PSD.FOSS/Point.cs"
+      },
+      {
+        "name": "Equals",
+        "params": [
+          {
+            "name": "obj",
+            "type": "object?"
+          }
+        ],
+        "return_type": "",
+        "doc": "Determines whether the specified object is equal to this point.",
+        "line": 54,
+        "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
+        "file": "src/Aspose.PSD.FOSS/Point.cs"
+      },
+      {
+        "name": "GetHashCode",
+        "params": [],
+        "return_type": "",
+        "doc": "Returns a hash code for this point.",
+        "line": 63,
+        "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
+        "file": "src/Aspose.PSD.FOSS/Point.cs"
+      },
+      {
+        "name": "ToString",
+        "params": [],
+        "return_type": "",
+        "doc": "Returns a compact coordinate representation.",
+        "line": 72,
+        "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
+        "file": "src/Aspose.PSD.FOSS/Point.cs"
+      }
+    ],
+    "properties": [
+      {
+        "name": "X",
+        "type": "int",
+        "doc": "Gets or sets the x-coordinate of this Point.",
+        "line": 27,
+        "writable": true,
+        "file": "src/Aspose.PSD.FOSS/Point.cs"
+      },
+      {
+        "name": "Y",
+        "type": "int",
+        "doc": "Gets or sets the y-coordinate of this Point.",
+        "line": 32,
+        "writable": true,
+        "file": "src/Aspose.PSD.FOSS/Point.cs"
+      },
+      {
+        "name": "IsEmpty",
+        "type": "bool",
+        "doc": "Gets a value indicating whether this Point has coordinates left uninitialized.",
+        "line": 37,
+        "writable": false,
+        "file": "src/Aspose.PSD.FOSS/Point.cs"
+      },
+      {
+        "name": "Empty",
+        "type": "Point",
+        "kind": "static_field",
+        "doc": "Represents a Point with coordinates left uninitialized.",
+        "line": 11,
+        "writable": false,
+        "file": "src/Aspose.PSD.FOSS/Point.cs"
+      }
+    ],
+    "visibility": "public",
+    "reachable": true,
+    "deprecated": false,
+    "deprecated_reason": "",
+    "canonical_namespace": "Aspose.PSD",
+    "class_import": "Aspose.PSD.Point",
+    "module_key": "core",
+    "module_label": "Core API"
+  },
+  {
+    "name": "PsdImage",
+    "kind": "class_declaration",
+    "doc": "Represents a PSD image that can be loaded, inspected, and saved without rendering.",
+    "file": "src/Aspose.PSD.FOSS/PsdImage.cs",
+    "line": 10,
+    "bases": [
+      "Image"
+    ],
+    "methods": [
+      {
+        "name": "Load",
+        "params": [
+          {
+            "name": "filePath",
+            "type": "string"
+          }
+        ],
+        "return_type": "",
+        "doc": "Loads a PSD image from a file path.",
+        "line": 265,
+        "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
+        "file": "src/Aspose.PSD.FOSS/PsdImage.cs"
+      },
+      {
+        "name": "Load",
+        "params": [
+          {
+            "name": "stream",
+            "type": "Stream"
+          }
+        ],
+        "return_type": "",
+        "doc": "Loads a PSD image from a readable stream.",
+        "line": 279,
+        "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
+        "file": "src/Aspose.PSD.FOSS/PsdImage.cs"
+      },
+      {
+        "name": "Save",
+        "params": [
+          {
+            "name": "filePath",
+            "type": "string"
+          }
+        ],
+        "return_type": "",
+        "doc": "Saves the image to a file path.",
+        "line": 323,
+        "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
+        "file": "src/Aspose.PSD.FOSS/PsdImage.cs"
+      },
+      {
+        "name": "Save",
+        "params": [
+          {
+            "name": "stream",
+            "type": "Stream"
+          }
+        ],
+        "return_type": "",
+        "doc": "Saves the image to a writable stream.",
+        "line": 335,
+        "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
+        "file": "src/Aspose.PSD.FOSS/PsdImage.cs"
+      },
+      {
+        "name": "Dispose",
+        "params": [],
+        "return_type": "",
+        "doc": "Releases the image and optionally the underlying stream.",
+        "line": 356,
+        "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
+        "file": "src/Aspose.PSD.FOSS/PsdImage.cs"
+      }
+    ],
+    "properties": [
+      {
+        "name": "Width",
+        "type": "int",
+        "doc": "Gets the document width in pixels.",
+        "line": 30,
+        "writable": false,
+        "file": "src/Aspose.PSD.FOSS/PsdImage.cs"
+      },
+      {
+        "name": "Height",
+        "type": "int",
+        "doc": "Gets the document height in pixels.",
+        "line": 35,
+        "writable": false,
+        "file": "src/Aspose.PSD.FOSS/PsdImage.cs"
+      },
+      {
+        "name": "BitsPerChannel",
+        "type": "int",
+        "doc": "Gets the number of bits stored per channel.",
+        "line": 45,
+        "writable": false,
+        "file": "src/Aspose.PSD.FOSS/PsdImage.cs"
+      },
+      {
+        "name": "ColorMode",
+        "type": "ColorModes",
+        "doc": "Gets the PSD color mode reported by the header.",
+        "line": 50,
+        "writable": true,
+        "file": "src/Aspose.PSD.FOSS/PsdImage.cs"
+      },
+      {
+        "name": "Version",
+        "type": "int",
+        "doc": "Gets or sets the Aspose.PSD-compatible API version number.",
+        "line": 59,
+        "writable": true,
+        "file": "src/Aspose.PSD.FOSS/PsdImage.cs"
+      },
+      {
+        "name": "Layers",
+        "type": "Layer[]",
+        "doc": "Gets the parsed layer collection.",
+        "line": 89,
+        "writable": true,
+        "file": "src/Aspose.PSD.FOSS/PsdImage.cs"
+      },
+      {
+        "name": "ChannelsCount",
+        "type": "int",
+        "doc": "Gets the PSD channels count.",
+        "line": 98,
+        "writable": false,
+        "file": "src/Aspose.PSD.FOSS/PsdImage.cs"
+      },
+      {
+        "name": "Size",
+        "type": "Size",
+        "doc": "Gets the image size.",
+        "line": 103,
+        "writable": false,
+        "file": "src/Aspose.PSD.FOSS/PsdImage.cs"
+      },
+      {
+        "name": "ActiveLayer",
+        "type": "Layer?",
+        "doc": "Gets or sets the active layer.",
+        "line": 108,
+        "writable": true,
+        "file": "src/Aspose.PSD.FOSS/PsdImage.cs"
+      },
+      {
+        "name": "ImageResources",
+        "type": "ResourceBlock[]",
+        "doc": "Gets or sets the PSD image resources.",
+        "line": 137,
+        "writable": true,
+        "file": "src/Aspose.PSD.FOSS/PsdImage.cs"
+      },
+      {
+        "name": "GlobalLayerResources",
+        "type": "LayerResource[]",
+        "doc": "Gets or sets the global layer resources.",
+        "line": 146,
+        "writable": true,
+        "file": "src/Aspose.PSD.FOSS/PsdImage.cs"
+      },
+      {
+        "name": "GlobalLayerMaskInfo",
+        "type": "GlobalLayerMaskInfo",
+        "doc": "Gets the global layer mask info.",
+        "line": 155,
+        "writable": false,
+        "file": "src/Aspose.PSD.FOSS/PsdImage.cs"
+      },
+      {
+        "name": "IsFlatten",
+        "type": "bool",
+        "doc": "Gets a value indicating whether the PSD image is flattened.",
+        "line": 160,
+        "writable": false,
+        "file": "src/Aspose.PSD.FOSS/PsdImage.cs"
+      },
+      {
+        "name": "HasTransparencyData",
+        "type": "bool",
+        "doc": "Gets or sets a value indicating whether first alpha channel contains the transparency data for the merged result when specifying layers data.",
+        "line": 165,
+        "writable": true,
+        "file": "src/Aspose.PSD.FOSS/PsdImage.cs"
+      },
+      {
+        "name": "Compression",
+        "type": "CompressionMethod",
+        "doc": "Gets the compression method used by the merged image data section.",
+        "line": 199,
+        "writable": false,
+        "file": "src/Aspose.PSD.FOSS/PsdImage.cs"
+      },
+      {
+        "name": "GlobalAngle",
+        "type": "int",
+        "doc": "Gets the parsed global angle from the image resources, when present.",
+        "line": 220,
+        "writable": true,
+        "file": "src/Aspose.PSD.FOSS/PsdImage.cs"
+      },
+      {
+        "name": "Bounds",
+        "type": "Rectangle",
+        "doc": "Gets the image bounds.",
+        "line": 23,
+        "writable": false,
+        "file": "src/Aspose.PSD.FOSS/Image.cs"
+      }
+    ],
+    "visibility": "public",
+    "reachable": true,
+    "deprecated": false,
+    "deprecated_reason": "",
+    "is_sealed": true,
+    "canonical_namespace": "Aspose.PSD.FileFormats.Psd",
+    "class_import": "Aspose.PSD.FileFormats.Psd.PsdImage",
+    "module_key": "core",
+    "module_label": "Core API"
+  },
+  {
+    "name": "PsdVersion",
+    "kind": "enum_declaration",
+    "doc": "Represents the supported PSD container versions.",
+    "file": "src/Aspose.PSD.FOSS/PsdVersion.cs",
+    "line": 6,
+    "bases": [
+      "byte"
+    ],
+    "methods": [],
+    "properties": [],
+    "visibility": "public",
+    "reachable": true,
+    "deprecated": false,
+    "deprecated_reason": "",
+    "enum_members": [
+      {
+        "name": "Psd",
+        "value": "1"
+      },
+      {
+        "name": "Psb",
+        "value": "2"
+      }
+    ],
+    "canonical_namespace": "Aspose.PSD.FileFormats.Psd",
+    "class_import": "Aspose.PSD.FileFormats.Psd.PsdVersion",
+    "module_key": "core",
+    "module_label": "Core API"
+  },
+  {
+    "name": "Rectangle",
+    "kind": "struct_declaration",
+    "doc": "Stores a set of four integers that represent the location and size of a rectangle.",
+    "file": "src/Aspose.PSD.FOSS/Rectangle.cs",
+    "line": 6,
+    "bases": [
+      "IEquatable<Rectangle>"
+    ],
+    "methods": [
+      {
+        "name": "Rectangle",
+        "params": [
+          {
+            "name": "location",
+            "type": "Point"
+          },
+          {
+            "name": "size",
+            "type": "Size"
+          }
+        ],
+        "return_type": "",
+        "doc": "Initializes a new instance of the Rectangle structure with the specified location and size.",
+        "line": 18,
+        "is_constructor": true,
+        "deprecated": false,
+        "deprecated_reason": "",
+        "file": "src/Aspose.PSD.FOSS/Rectangle.cs"
+      },
+      {
+        "name": "Rectangle",
+        "params": [
+          {
+            "name": "x",
+            "type": "int"
+          },
+          {
+            "name": "y",
+            "type": "int"
+          },
+          {
+            "name": "width",
+            "type": "int"
+          },
+          {
+            "name": "height",
+            "type": "int"
+          }
+        ],
+        "return_type": "",
+        "doc": "Initializes a new instance of the Rectangle structure with the specified coordinates.",
+        "line": 30,
+        "is_constructor": true,
+        "deprecated": false,
+        "deprecated_reason": "",
+        "file": "src/Aspose.PSD.FOSS/Rectangle.cs"
+      },
+      {
+        "name": "Ceiling",
+        "params": [
+          {
+            "name": "value",
+            "type": "RectangleF"
+          }
+        ],
+        "return_type": "",
+        "doc": "Converts a RectangleF structure to a Rectangle structure by rounding up the coordinates and size.",
+        "line": 140,
+        "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
+        "file": "src/Aspose.PSD.FOSS/Rectangle.cs"
+      },
+      {
+        "name": "FromLeftTopRightBottom",
+        "params": [
+          {
+            "name": "left",
+            "type": "int"
+          },
+          {
+            "name": "top",
+            "type": "int"
+          },
+          {
+            "name": "right",
+            "type": "int"
+          },
+          {
+            "name": "bottom",
+            "type": "int"
+          }
+        ],
+        "return_type": "",
+        "doc": "Creates a rectangle from edge coordinates.",
+        "line": 157,
+        "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
+        "file": "src/Aspose.PSD.FOSS/Rectangle.cs"
+      },
+      {
+        "name": "FromPoints",
+        "params": [
+          {
+            "name": "point1",
+            "type": "Point"
+          },
+          {
+            "name": "point2",
+            "type": "Point"
+          }
+        ],
+        "return_type": "",
+        "doc": "Creates a rectangle that spans the specified points.",
+        "line": 181,
+        "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
+        "file": "src/Aspose.PSD.FOSS/Rectangle.cs"
+      },
+      {
+        "name": "Inflate",
+        "params": [
+          {
+            "name": "rectangle",
+            "type": "Rectangle"
+          },
+          {
+            "name": "x",
+            "type": "int"
+          },
+          {
+            "name": "y",
+            "type": "int"
+          }
+        ],
+        "return_type": "",
+        "doc": "Creates and returns an inflated copy of the specified rectangle.",
+        "line": 197,
+        "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
+        "file": "src/Aspose.PSD.FOSS/Rectangle.cs"
+      },
+      {
+        "name": "Intersect",
+        "params": [
+          {
+            "name": "a",
+            "type": "Rectangle"
+          },
+          {
+            "name": "b",
+            "type": "Rectangle"
+          }
+        ],
+        "return_type": "",
+        "doc": "Returns a rectangle that represents the intersection of two rectangles.",
+        "line": 210,
+        "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
+        "file": "src/Aspose.PSD.FOSS/Rectangle.cs"
+      },
+      {
+        "name": "Round",
+        "params": [
+          {
+            "name": "value",
+            "type": "RectangleF"
+          }
+        ],
+        "return_type": "",
+        "doc": "Converts a RectangleF structure to a Rectangle structure by rounding the coordinates and size.",
+        "line": 227,
+        "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
+        "file": "src/Aspose.PSD.FOSS/Rectangle.cs"
+      },
+      {
+        "name": "Truncate",
+        "params": [
+          {
+            "name": "value",
+            "type": "RectangleF"
+          }
+        ],
+        "return_type": "",
+        "doc": "Converts a RectangleF structure to a Rectangle structure by truncating the coordinates and size.",
+        "line": 241,
+        "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
+        "file": "src/Aspose.PSD.FOSS/Rectangle.cs"
+      },
+      {
+        "name": "Union",
+        "params": [
+          {
+            "name": "a",
+            "type": "Rectangle"
+          },
+          {
+            "name": "b",
+            "type": "Rectangle"
+          }
+        ],
+        "return_type": "",
+        "doc": "Returns a rectangle that contains the union of two rectangles.",
+        "line": 252,
+        "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
+        "file": "src/Aspose.PSD.FOSS/Rectangle.cs"
+      },
+      {
+        "name": "Contains",
+        "params": [
+          {
+            "name": "point",
+            "type": "Point"
+          }
+        ],
+        "return_type": "",
+        "doc": "Determines whether the specified point is contained within this Rectangle.",
+        "line": 266,
+        "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
+        "file": "src/Aspose.PSD.FOSS/Rectangle.cs"
+      },
+      {
+        "name": "Contains",
+        "params": [
+          {
+            "name": "rectangle",
+            "type": "Rectangle"
+          }
+        ],
+        "return_type": "",
+        "doc": "Determines whether the rectangular region represented by the specified rectangle is entirely contained within this Rectangle.",
+        "line": 276,
+        "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
+        "file": "src/Aspose.PSD.FOSS/Rectangle.cs"
+      },
+      {
+        "name": "Contains",
+        "params": [
+          {
+            "name": "x",
+            "type": "int"
+          },
+          {
+            "name": "y",
+            "type": "int"
+          }
+        ],
+        "return_type": "",
+        "doc": "Determines whether the specified point is contained within this Rectangle.",
+        "line": 290,
+        "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
+        "file": "src/Aspose.PSD.FOSS/Rectangle.cs"
+      },
+      {
+        "name": "Equals",
+        "params": [
+          {
+            "name": "other",
+            "type": "Rectangle"
+          }
+        ],
+        "return_type": "",
+        "doc": "Determines whether the specified rectangle is equal to this rectangle.",
+        "line": 300,
+        "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
+        "file": "src/Aspose.PSD.FOSS/Rectangle.cs"
+      },
+      {
+        "name": "Equals",
+        "params": [
+          {
+            "name": "obj",
+            "type": "object?"
+          }
+        ],
+        "return_type": "",
+        "doc": "Determines whether the specified object is equal to this rectangle.",
+        "line": 310,
+        "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
+        "file": "src/Aspose.PSD.FOSS/Rectangle.cs"
+      },
+      {
+        "name": "GetHashCode",
+        "params": [],
+        "return_type": "",
+        "doc": "Returns a hash code for this rectangle.",
+        "line": 319,
+        "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
+        "file": "src/Aspose.PSD.FOSS/Rectangle.cs"
+      },
+      {
+        "name": "Inflate",
+        "params": [
+          {
+            "name": "size",
+            "type": "Size"
+          }
+        ],
+        "return_type": "",
+        "doc": "Inflates this rectangle by the specified size.",
+        "line": 328,
+        "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
+        "file": "src/Aspose.PSD.FOSS/Rectangle.cs"
+      },
+      {
+        "name": "Inflate",
+        "params": [
+          {
+            "name": "width",
+            "type": "int"
+          },
+          {
+            "name": "height",
+            "type": "int"
+          }
+        ],
+        "return_type": "",
+        "doc": "Inflates this rectangle by the specified horizontal and vertical amounts.",
+        "line": 338,
+        "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
+        "file": "src/Aspose.PSD.FOSS/Rectangle.cs"
+      },
+      {
+        "name": "Intersect",
+        "params": [
+          {
+            "name": "rectangle",
+            "type": "Rectangle"
+          }
+        ],
+        "return_type": "",
+        "doc": "Replaces this rectangle with its intersection with the specified rectangle.",
+        "line": 350,
+        "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
+        "file": "src/Aspose.PSD.FOSS/Rectangle.cs"
+      },
+      {
+        "name": "IntersectsWith",
+        "params": [
+          {
+            "name": "rectangle",
+            "type": "Rectangle"
+          }
+        ],
+        "return_type": "",
+        "doc": "Determines whether this rectangle intersects with the specified rectangle.",
+        "line": 360,
+        "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
+        "file": "src/Aspose.PSD.FOSS/Rectangle.cs"
+      },
+      {
+        "name": "Normalize",
+        "params": [],
+        "return_type": "",
+        "doc": "Normalizes this rectangle so that width and height are non-negative.",
+        "line": 371,
+        "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
+        "file": "src/Aspose.PSD.FOSS/Rectangle.cs"
+      },
+      {
+        "name": "Offset",
+        "params": [
+          {
+            "name": "point",
+            "type": "Point"
+          }
+        ],
+        "return_type": "",
+        "doc": "Moves this rectangle by the specified point.",
+        "line": 390,
+        "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
+        "file": "src/Aspose.PSD.FOSS/Rectangle.cs"
+      },
+      {
+        "name": "Offset",
+        "params": [
+          {
+            "name": "x",
+            "type": "int"
+          },
+          {
+            "name": "y",
+            "type": "int"
+          }
+        ],
+        "return_type": "",
+        "doc": "Moves this rectangle by the specified horizontal and vertical amounts.",
+        "line": 400,
+        "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
+        "file": "src/Aspose.PSD.FOSS/Rectangle.cs"
+      },
+      {
+        "name": "ToString",
+        "params": [],
+        "return_type": "",
+        "doc": "Returns a string representation of this rectangle.",
+        "line": 410,
+        "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
+        "file": "src/Aspose.PSD.FOSS/Rectangle.cs"
+      }
+    ],
+    "properties": [
+      {
+        "name": "X",
+        "type": "int",
+        "doc": "Gets or sets the x-coordinate of the upper-left corner of this Rectangle.",
+        "line": 41,
+        "writable": true,
+        "file": "src/Aspose.PSD.FOSS/Rectangle.cs"
+      },
+      {
+        "name": "Y",
+        "type": "int",
+        "doc": "Gets or sets the y-coordinate of the upper-left corner of this Rectangle.",
+        "line": 46,
+        "writable": true,
+        "file": "src/Aspose.PSD.FOSS/Rectangle.cs"
+      },
+      {
+        "name": "Width",
+        "type": "int",
+        "doc": "Gets or sets the width of this Rectangle.",
+        "line": 51,
+        "writable": true,
+        "file": "src/Aspose.PSD.FOSS/Rectangle.cs"
+      },
+      {
+        "name": "Height",
+        "type": "int",
+        "doc": "Gets or sets the height of this Rectangle.",
+        "line": 56,
+        "writable": true,
+        "file": "src/Aspose.PSD.FOSS/Rectangle.cs"
+      },
+      {
+        "name": "Bottom",
+        "type": "int",
+        "doc": "Gets or sets the y-coordinate of the bottom edge of this Rectangle.",
+        "line": 61,
+        "writable": true,
+        "file": "src/Aspose.PSD.FOSS/Rectangle.cs"
+      },
+      {
+        "name": "IsEmpty",
+        "type": "bool",
+        "doc": "Gets a value indicating whether this Rectangle has no location or size.",
+        "line": 70,
+        "writable": false,
+        "file": "src/Aspose.PSD.FOSS/Rectangle.cs"
+      },
+      {
+        "name": "Left",
+        "type": "int",
+        "doc": "Gets or sets the x-coordinate of the left edge of this Rectangle.",
+        "line": 75,
+        "writable": true,
+        "file": "src/Aspose.PSD.FOSS/Rectangle.cs"
+      },
+      {
+        "name": "Location",
+        "type": "Point",
+        "doc": "Gets or sets the coordinates of the upper-left corner of this Rectangle.",
+        "line": 89,
+        "writable": true,
+        "file": "src/Aspose.PSD.FOSS/Rectangle.cs"
+      },
+      {
+        "name": "Right",
+        "type": "int",
+        "doc": "Gets or sets the x-coordinate of the right edge of this Rectangle.",
+        "line": 102,
+        "writable": true,
+        "file": "src/Aspose.PSD.FOSS/Rectangle.cs"
+      },
+      {
+        "name": "Size",
+        "type": "Size",
+        "doc": "Gets or sets the size of this Rectangle.",
+        "line": 111,
+        "writable": true,
+        "file": "src/Aspose.PSD.FOSS/Rectangle.cs"
+      },
+      {
+        "name": "Top",
+        "type": "int",
+        "doc": "Gets or sets the y-coordinate of the top edge of this Rectangle.",
+        "line": 124,
+        "writable": true,
+        "file": "src/Aspose.PSD.FOSS/Rectangle.cs"
+      },
+      {
+        "name": "Empty",
+        "type": "Rectangle",
+        "kind": "static_field",
+        "doc": "Represents a Rectangle structure with its properties left uninitialized.",
+        "line": 11,
+        "writable": false,
+        "file": "src/Aspose.PSD.FOSS/Rectangle.cs"
+      }
+    ],
+    "visibility": "public",
+    "reachable": true,
+    "deprecated": false,
+    "deprecated_reason": "",
+    "canonical_namespace": "Aspose.PSD",
+    "class_import": "Aspose.PSD.Rectangle",
+    "module_key": "core",
+    "module_label": "Core API"
+  },
+  {
+    "name": "RectangleF",
+    "kind": "struct_declaration",
+    "doc": "Stores a set of four floating-point numbers that represent the location and size of a rectangle.",
+    "file": "src/Aspose.PSD.FOSS/RectangleF.cs",
+    "line": 6,
+    "bases": [
+      "IEquatable<RectangleF>"
+    ],
+    "methods": [
+      {
+        "name": "RectangleF",
+        "params": [
+          {
+            "name": "x",
+            "type": "float"
+          },
+          {
+            "name": "y",
+            "type": "float"
+          },
+          {
+            "name": "width",
+            "type": "float"
+          },
+          {
+            "name": "height",
+            "type": "float"
+          }
+        ],
+        "return_type": "",
+        "doc": "Initializes a new instance of the RectangleF structure with the specified coordinates.",
+        "line": 20,
+        "is_constructor": true,
+        "deprecated": false,
+        "deprecated_reason": "",
+        "file": "src/Aspose.PSD.FOSS/RectangleF.cs"
+      },
+      {
+        "name": "Equals",
+        "params": [
+          {
+            "name": "other",
+            "type": "RectangleF"
+          }
+        ],
+        "return_type": "",
+        "doc": "Determines whether the specified rectangle is equal to this rectangle.",
+        "line": 78,
+        "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
+        "file": "src/Aspose.PSD.FOSS/RectangleF.cs"
+      },
+      {
+        "name": "Equals",
+        "params": [
+          {
+            "name": "obj",
+            "type": "object?"
+          }
+        ],
+        "return_type": "",
+        "doc": "Determines whether the specified object is equal to this rectangle.",
+        "line": 88,
+        "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
+        "file": "src/Aspose.PSD.FOSS/RectangleF.cs"
+      },
+      {
+        "name": "GetHashCode",
+        "params": [],
+        "return_type": "",
+        "doc": "Returns a hash code for this rectangle.",
+        "line": 97,
+        "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
+        "file": "src/Aspose.PSD.FOSS/RectangleF.cs"
+      },
+      {
+        "name": "ToString",
+        "params": [],
+        "return_type": "",
+        "doc": "Returns a compact coordinate representation.",
+        "line": 106,
+        "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
+        "file": "src/Aspose.PSD.FOSS/RectangleF.cs"
+      }
+    ],
+    "properties": [
+      {
+        "name": "X",
+        "type": "float",
+        "doc": "Gets or sets the x-coordinate of the upper-left corner of this RectangleF.",
+        "line": 31,
+        "writable": true,
+        "file": "src/Aspose.PSD.FOSS/RectangleF.cs"
+      },
+      {
+        "name": "Y",
+        "type": "float",
+        "doc": "Gets or sets the y-coordinate of the upper-left corner of this RectangleF.",
+        "line": 36,
+        "writable": true,
+        "file": "src/Aspose.PSD.FOSS/RectangleF.cs"
+      },
+      {
+        "name": "Width",
+        "type": "float",
+        "doc": "Gets or sets the width of this RectangleF.",
+        "line": 41,
+        "writable": true,
+        "file": "src/Aspose.PSD.FOSS/RectangleF.cs"
+      },
+      {
+        "name": "Height",
+        "type": "float",
+        "doc": "Gets or sets the height of this RectangleF.",
+        "line": 46,
+        "writable": true,
+        "file": "src/Aspose.PSD.FOSS/RectangleF.cs"
+      },
+      {
+        "name": "Bottom",
+        "type": "float",
+        "doc": "Gets the y-coordinate of the bottom edge of this RectangleF.",
+        "line": 51,
+        "writable": false,
+        "file": "src/Aspose.PSD.FOSS/RectangleF.cs"
+      },
+      {
+        "name": "IsEmpty",
+        "type": "bool",
+        "doc": "Gets a value indicating whether this RectangleF has no location or size.",
+        "line": 56,
+        "writable": false,
+        "file": "src/Aspose.PSD.FOSS/RectangleF.cs"
+      },
+      {
+        "name": "Left",
+        "type": "float",
+        "doc": "Gets the x-coordinate of the left edge of this RectangleF.",
+        "line": 61,
+        "writable": false,
+        "file": "src/Aspose.PSD.FOSS/RectangleF.cs"
+      },
+      {
+        "name": "Right",
+        "type": "float",
+        "doc": "Gets the x-coordinate of the right edge of this RectangleF.",
+        "line": 66,
+        "writable": false,
+        "file": "src/Aspose.PSD.FOSS/RectangleF.cs"
+      },
+      {
+        "name": "Top",
+        "type": "float",
+        "doc": "Gets the y-coordinate of the top edge of this RectangleF.",
+        "line": 71,
+        "writable": false,
+        "file": "src/Aspose.PSD.FOSS/RectangleF.cs"
+      },
+      {
+        "name": "Empty",
+        "type": "RectangleF",
+        "kind": "static_field",
+        "doc": "Represents a RectangleF structure with its properties left uninitialized.",
+        "line": 11,
+        "writable": false,
+        "file": "src/Aspose.PSD.FOSS/RectangleF.cs"
+      }
+    ],
+    "visibility": "public",
+    "reachable": true,
+    "deprecated": false,
+    "deprecated_reason": "",
+    "canonical_namespace": "Aspose.PSD",
+    "class_import": "Aspose.PSD.RectangleF",
+    "module_key": "core",
+    "module_label": "Core API"
+  },
+  {
+    "name": "ResourceBlock",
+    "kind": "class_declaration",
+    "doc": "Represents a PSD image resource block.",
+    "file": "src/Aspose.PSD.FOSS/ResourceBlock.cs",
+    "line": 6,
+    "bases": [],
+    "methods": [
+      {
+        "name": "Save",
+        "params": [
+          {
+            "name": "stream",
+            "type": "StreamContainer"
+          }
+        ],
+        "return_type": "",
+        "doc": "Saves the resource block to the specified stream container.",
+        "line": 52,
+        "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
+        "file": "src/Aspose.PSD.FOSS/ResourceBlock.cs"
+      },
+      {
+        "name": "ValidateValues",
+        "params": [],
+        "return_type": "",
+        "doc": "Validates the resource values.",
+        "line": 57,
+        "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
+        "file": "src/Aspose.PSD.FOSS/ResourceBlock.cs"
+      }
+    ],
+    "properties": [
+      {
+        "name": "DataSize",
+        "type": "int",
+        "doc": "Gets the resource data size in bytes.",
+        "line": 21,
+        "writable": false,
+        "file": "src/Aspose.PSD.FOSS/ResourceBlock.cs"
+      },
+      {
+        "name": "ID",
+        "type": "short",
+        "doc": "Gets or sets the unique identifier for the resource.",
+        "line": 26,
+        "writable": true,
+        "file": "src/Aspose.PSD.FOSS/ResourceBlock.cs"
+      },
+      {
+        "name": "MinimalVersion",
+        "type": "int",
+        "doc": "Gets the minimal required PSD version.",
+        "line": 31,
+        "writable": false,
+        "file": "src/Aspose.PSD.FOSS/ResourceBlock.cs"
+      },
+      {
+        "name": "Name",
+        "type": "string",
+        "doc": "Gets or sets the resource name.",
+        "line": 36,
+        "writable": true,
+        "file": "src/Aspose.PSD.FOSS/ResourceBlock.cs"
+      },
+      {
+        "name": "Signature",
+        "type": "int",
+        "doc": "Gets the resource signature.",
+        "line": 41,
+        "writable": false,
+        "file": "src/Aspose.PSD.FOSS/ResourceBlock.cs"
+      },
+      {
+        "name": "Size",
+        "type": "int",
+        "doc": "Gets the resource block size in bytes including its data.",
+        "line": 46,
+        "writable": false,
+        "file": "src/Aspose.PSD.FOSS/ResourceBlock.cs"
+      },
+      {
+        "name": "ResouceBlockSignature",
+        "type": "int",
+        "kind": "constant",
+        "doc": "The regular Photoshop resource signature.",
+        "line": 11,
+        "writable": false,
+        "file": "src/Aspose.PSD.FOSS/ResourceBlock.cs"
+      },
+      {
+        "name": "ResouceBlockMeSaSignature",
+        "type": "int",
+        "kind": "constant",
+        "doc": "The ImageReady resource signature.",
+        "line": 16,
+        "writable": false,
+        "file": "src/Aspose.PSD.FOSS/ResourceBlock.cs"
+      }
+    ],
+    "visibility": "public",
+    "reachable": true,
+    "deprecated": false,
+    "deprecated_reason": "",
+    "is_abstract": true,
+    "canonical_namespace": "Aspose.PSD.FileFormats.Psd",
+    "class_import": "Aspose.PSD.FileFormats.Psd.ResourceBlock",
+    "module_key": "core",
+    "module_label": "Core API"
+  },
+  {
+    "name": "ResourceBlockState",
+    "kind": "enum_declaration",
+    "doc": "Represents resource block state.",
+    "file": "src/Aspose.PSD.FOSS/ResourceBlock.cs",
+    "line": 64,
+    "bases": [],
+    "methods": [],
+    "properties": [],
+    "visibility": "public",
+    "reachable": true,
+    "deprecated": false,
+    "deprecated_reason": "",
+    "enum_members": [
+      {
+        "name": "Ready",
+        "value": ""
+      },
+      {
+        "name": "Disposed",
+        "value": ""
+      }
+    ],
+    "canonical_namespace": "Aspose.PSD.FileFormats.Psd",
+    "class_import": "Aspose.PSD.FileFormats.Psd.ResourceBlockState",
+    "module_key": "core",
+    "module_label": "Core API"
+  },
+  {
+    "name": "Size",
+    "kind": "struct_declaration",
+    "doc": "Represents an ordered pair of integer width and height values that defines a size.",
+    "file": "src/Aspose.PSD.FOSS/Size.cs",
+    "line": 6,
+    "bases": [
+      "IEquatable<Size>"
+    ],
+    "methods": [
+      {
+        "name": "Size",
+        "params": [
+          {
+            "name": "width",
+            "type": "int"
+          },
+          {
+            "name": "height",
+            "type": "int"
+          }
+        ],
+        "return_type": "",
+        "doc": "Initializes a new instance of the Size structure with the specified dimensions.",
+        "line": 18,
+        "is_constructor": true,
+        "deprecated": false,
+        "deprecated_reason": "",
+        "file": "src/Aspose.PSD.FOSS/Size.cs"
+      },
+      {
+        "name": "Equals",
+        "params": [
+          {
+            "name": "other",
+            "type": "Size"
+          }
+        ],
+        "return_type": "",
+        "doc": "Determines whether the specified size is equal to this size.",
+        "line": 44,
+        "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
+        "file": "src/Aspose.PSD.FOSS/Size.cs"
+      },
+      {
+        "name": "Equals",
+        "params": [
+          {
+            "name": "obj",
+            "type": "object?"
+          }
+        ],
+        "return_type": "",
+        "doc": "Determines whether the specified object is equal to this size.",
+        "line": 54,
+        "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
+        "file": "src/Aspose.PSD.FOSS/Size.cs"
+      },
+      {
+        "name": "GetHashCode",
+        "params": [],
+        "return_type": "",
+        "doc": "Returns a hash code for this size.",
+        "line": 63,
+        "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
+        "file": "src/Aspose.PSD.FOSS/Size.cs"
+      },
+      {
+        "name": "ToString",
+        "params": [],
+        "return_type": "",
+        "doc": "Returns a compact size representation.",
+        "line": 72,
+        "is_constructor": false,
+        "deprecated": false,
+        "deprecated_reason": "",
+        "file": "src/Aspose.PSD.FOSS/Size.cs"
+      }
+    ],
+    "properties": [
+      {
+        "name": "Width",
+        "type": "int",
+        "doc": "Gets or sets the width component of this Size.",
+        "line": 27,
+        "writable": true,
+        "file": "src/Aspose.PSD.FOSS/Size.cs"
+      },
+      {
+        "name": "Height",
+        "type": "int",
+        "doc": "Gets or sets the height component of this Size.",
+        "line": 32,
+        "writable": true,
+        "file": "src/Aspose.PSD.FOSS/Size.cs"
+      },
+      {
+        "name": "IsEmpty",
+        "type": "bool",
+        "doc": "Gets a value indicating whether this Size has width and height left uninitialized.",
+        "line": 37,
+        "writable": false,
+        "file": "src/Aspose.PSD.FOSS/Size.cs"
+      },
+      {
+        "name": "Empty",
+        "type": "Size",
+        "kind": "static_field",
+        "doc": "Represents a Size with width and height left uninitialized.",
+        "line": 11,
+        "writable": false,
+        "file": "src/Aspose.PSD.FOSS/Size.cs"
+      }
+    ],
+    "visibility": "public",
+    "reachable": true,
+    "deprecated": false,
+    "deprecated_reason": "",
+    "canonical_namespace": "Aspose.PSD",
+    "class_import": "Aspose.PSD.Size",
+    "module_key": "core",
+    "module_label": "Core API"
+  },
+  {
+    "name": "StreamContainer",
+    "kind": "class_declaration",
+    "doc": "Represents a stream container used by resource save APIs.",
+    "file": "src/Aspose.PSD.FOSS/StreamContainer.cs",
+    "line": 8,
+    "bases": [],
+    "methods": [
+      {
+        "name": "StreamContainer",
+        "params": [
+          {
+            "name": "stream",
+            "type": "Stream"
+          }
+        ],
+        "return_type": "",
+        "doc": "Initializes a new instance of the StreamContainer class.",
+        "line": 14,
+        "is_constructor": true,
+        "deprecated": false,
+        "deprecated_reason": "",
+        "file": "src/Aspose.PSD.FOSS/StreamContainer.cs"
+      }
+    ],
+    "properties": [
+      {
+        "name": "Stream",
+        "type": "Stream",
+        "doc": "Gets the wrapped stream.",
+        "line": 22,
+        "writable": false,
+        "file": "src/Aspose.PSD.FOSS/StreamContainer.cs"
+      }
+    ],
+    "visibility": "public",
+    "reachable": true,
+    "deprecated": false,
+    "deprecated_reason": "",
+    "canonical_namespace": "Aspose.PSD",
+    "class_import": "Aspose.PSD.StreamContainer",
+    "module_key": "core",
+    "module_label": "Core API"
+  }
+]

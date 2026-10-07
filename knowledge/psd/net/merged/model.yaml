@@ -1,0 +1,38 @@
+bundle_generated_at: '2026-10-07T12:59:40.122845+00:00'
+bundle_id: 0161d144-2a04-475f-8e48-84c1d6cb9a20
+config_sha: e24f998c0d721fd3
+enrichment_status: full
+extractor_hash: 4529a951ae6f24f7
+family: psd
+generator_fingerprint: 3a123a0a803d8d3b65b489dc83817b6c9d4468612fa78f0b23cef5dec9cd1464
+generator_semver: 2.0.0
+has_conflicts: false
+input_hashes:
+  enriched_claims_sha: 4aa3dfc6401e3a1fa8cbb96f92fc923154c212875ef8a00cd5060559c6ffbc52
+  extractor_config_sha: e24f998c0d721fd3
+  products_json_entry_sha: 870aba27624b227485e116a95e440a60c266682247569c89b3d5d2add7fc9c16
+  scout_api_surface_sha: f6d95d56892634f068e671ace6d3c6e4dfd592c692cedc46ffa96ad29506445a
+  scout_claims_sha: c8ff8d3fd09cfc88185a0161881ba91a4d26a1e457bf851368bb9389f3f74630
+license: ''
+module_assignment_version: 1
+platform: net
+product_name: Aspose.PSD.FOSS
+promoted_at: '2026-10-07T12:59:40.373973+00:00'
+repo_sha: f4e1b261922d514591b898f01346af1c6bf59f92
+repo_url: https://github.com/aspose-psd-foss/Aspose.PSD-FOSS-for-.NET.git
+schema_version: 2
+source: scout_and_enriched
+stale_since: null
+stats:
+  class_count: 24
+  classes:
+    public_documented: 24
+    raw_entries_including_non_class: 24
+    total_declared: 24
+  enriched_claims: 19
+  forbidden_count: 0
+  scout_claims: 206
+  snippet_count: 100
+  supplemental_claims: 0
+  total_claims: 225
+version: 1.0.0
