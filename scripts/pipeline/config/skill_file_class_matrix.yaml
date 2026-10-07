@@ -1,0 +1,155 @@
+# skill_file_class_matrix.yaml -- "Skill-first matrix" consumed by
+# scripts/pipeline/commands/ops/skill_provenance_audit.py (MT074 card A11, AC-5).
+#
+# Maps FILE CLASSES (ordered glob patterns, first match wins) to the skill IDs
+# that are SANCTIONED writers of that class. The audit requires every commit in
+# a range to be backed by a skill-run record (or "Skills invoked:" trailer)
+# that declares at least one sanctioned skill for EVERY non-exempt file class
+# the commit touches. This file is DATA: the audit code has no file-class or
+# skill literals. Schema is documented in the audit module's docstring.
+#
+# ORDER MATTERS: more specific patterns must come before broader ones
+# (e.g. deployed-workflows before scripts/ci/**, specific data/*.json files
+# before data/**).
+
+version: 1
+
+# Gap markers: a declared token `<NAME>:<id>` (skill-run `skills_invoked` entry
+# or `Skills invoked:` trailer token) stands in for a sanctioned skill on classes
+# with allow_gap_markers: true and on every no_skill class, but ONLY when <id>
+# resolves under gap_dir (an `entries[].id` row of index.yaml, or a report file
+# whose stem equals <id>). A bare `<NAME>` or an unresolvable id never counts
+# (AGENTS.md section 6b gap escalation).
+gap_markers:
+  - "GAP-APPROVED"
+gap_dir: reports/skill-gaps
+
+# Files matching no class below.
+default:
+  id: unclassified
+  exempt: true
+  warn: true
+
+classes:
+  - id: deployed_workflows
+    description: Deployed workflow templates
+    patterns: ["scripts/ci/deployed-workflows/**"]
+    skills: [S-115, S-99]
+
+  - id: pipeline_code
+    description: Pipeline / CI / maintenance / SEO code, tests and registry
+    patterns:
+      - "scripts/pipeline/**"
+      - "scripts/ci/**"
+      - "scripts/maintenance/**"
+      - "scripts/seo/**"
+    skills: [S-99]
+    allow_gap_markers: true
+
+  - id: knowledge
+    description: Knowledge artifacts
+    patterns: ["knowledge/**"]
+    skills: [S-12, S-14, S-34, S-35, S-84]
+
+  - id: derived_knowledge_projection
+    description: Derived knowledge projections
+    patterns:
+      - "data/upstream_baselines.json"
+      - "data/knowledge_state.json"
+    skills: [S-14, S-35, S-84]
+
+  - id: content_propagation_state
+    description: Content propagation state
+    patterns: ["data/content_propagation_state.json"]
+    skills: [S-84, S-94]
+
+  - id: workflow_deploy_baselines
+    description: Deployed-workflow approval baselines (committed by the W6 baseline-approval step)
+    patterns: ["data/workflow_deploy_baselines.json"]
+    skills: [S-115]
+
+  - id: data_other
+    description: Other data files
+    patterns: ["data/**"]
+    skills: [S-99, S-84, S-94, S-110, S-118]
+
+  - id: content_reference
+    description: reference.aspose.org content
+    patterns: ["content/reference.aspose.org/**"]
+    skills: [S-84, S-62, S-60, S-73, S-HT-01, S-HT-02, S-109, S-75]
+
+  - id: content_docs
+    description: docs.aspose.org content
+    patterns: ["content/docs.aspose.org/**"]
+    skills: [S-56, S-20, S-73, S-84, S-HT-01, S-HT-02, S-109, S-75]
+
+  - id: content_kb
+    description: kb.aspose.org content
+    patterns: ["content/kb.aspose.org/**"]
+    skills: [S-58, S-59, S-73, S-84, S-HT-01, S-HT-02, S-109, S-75]
+
+  - id: content_blog
+    description: blog.aspose.org content
+    patterns: ["content/blog.aspose.org/**"]
+    skills: [S-57, S-124, S-73, S-84, S-HT-01, S-HT-02, S-109, S-75]
+
+  - id: content_products
+    description: products.aspose.org content
+    patterns: ["content/products.aspose.org/**"]
+    skills: [S-73, S-61, S-86, S-84, S-HT-01, S-HT-02, S-109, S-75]
+
+  - id: content_other
+    description: Other content
+    patterns: ["content/**"]
+    skills: [S-73, S-84, S-98, S-48, S-HT-01, S-HT-02, S-109, S-75]
+
+  - id: plans_backlog
+    description: Plans and backlog
+    patterns: ["plans/**", "backlog/**"]
+    skills: [S-88, S-91, S-113]
+
+  - id: skills_and_registries
+    description: Skills, agent config, registries and governance docs
+    patterns:
+      - "skills/**"
+      - ".claude/**"
+      - ".agents/**"
+      - ".kilocode/**"
+      - "docs/registries/**"
+      - "docs/workflows/**"
+      - "docs/governance/**"
+    skills: [S-99, S-110]
+    token_required: true
+
+  - id: github_ci
+    description: GitHub Actions workflows and repo-level CI config
+    patterns: [".github/**"]
+    skills: [S-115, S-99]
+
+  - id: git_hook_scripts
+    description: Git hook installers and hook shell scripts
+    patterns: ["scripts/*.sh", "scripts/githooks/**"]
+    skills: [S-99]
+
+  - id: root_governance_docs
+    description: Constitutional root and session-gate documents
+    patterns: ["AGENTS.md", "CLAUDE.md"]
+    skills: [S-99]
+    token_required: true
+
+  - id: seo_keywords
+    description: SEO keyword data (reviewed by S-116, applied by the SEO tooling)
+    patterns: ["keywords/**"]
+    skills: [S-116, S-99]
+
+  # No registered skill writes Hugo layouts/themes or site configs: commits touching them
+  # report GAP unless declared under a resolvable GAP-APPROVED:<id> (gap escalation).
+  - id: theme_layouts
+    description: Hugo layouts and themes (no sanctioned skill)
+    patterns: ["layouts/**", "themes/**"]
+    no_skill: true
+
+  - id: site_configs
+    description: Hugo site configs (no sanctioned skill)
+    patterns: ["configs/**"]
+    no_skill: true
