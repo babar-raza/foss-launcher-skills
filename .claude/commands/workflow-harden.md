@@ -6,11 +6,11 @@ description: >
 ---
 
 <!-- CONTRACT: agent-executed
-     purpose: forensic investigation + hardening of this repo's GitHub Actions workflows — trigger/dependency/permission/secret/cache correctness, plus CI-weight reduction
-     preconditions: git working tree clean for .github/workflows/**,scripts/ci/**; .venv usable; gh CLI authenticated
+     purpose: forensic investigation + hardening of this repo's GitHub Actions workflows — trigger/dependency/permission/secret/cache correctness, plus CI-weight reduction; MT074: also the tracked templates in scripts/ci/deployed-workflows/** that are deployed to Aspose/aspose.org-workflows (template checklist, code-before-YAML deploy order)
+     preconditions: git working tree clean for .github/workflows/**,scripts/ci/** (including scripts/ci/deployed-workflows/**); .venv usable; gh CLI authenticated
      postcondition: every reviewed workflow has documented findings with a VERIFIED_CLOSED or explicitly-deferred disposition; evidence bundle at reports/sprint/workflow-harden-{date}/
      idempotent: no — investigation findings vary run to run as workflows change; fixes are additive
-     verified: 2026-07-18
+     verified: 2026-10-07
      id: S-115
      depends_on: []
 -->
@@ -96,6 +96,50 @@ PYTHONPATH=scripts/pipeline .venv/Scripts/python scripts/pipeline/commands/gover
 - **Lightening must not reduce coverage**: caching, step consolidation, or trigger
   narrowing must not skip work a workflow was created to do — verify the same checks still
   run, just faster or with less duplication.
+
+---
+
+## MT074: Scope also covers `scripts/ci/deployed-workflows/**`
+
+Added by mission MT074. Besides `.github/workflows/**`, this skill governs the **tracked templates of the
+workflows that run from another repository**: `scripts/ci/deployed-workflows/*.yml`. They are
+copy-deployed into `Aspose/aspose.org-workflows` (`.github/workflows/`), check out `Aspose/aspose.org`
+fresh on each run, and run its scripts from `main`. The path is already inside the context scope
+`scripts/ci/**`; name it explicitly when you begin, so the skill-run record shows it was in scope:
+
+```bash
+PYTHONPATH=scripts/pipeline .venv/Scripts/python scripts/pipeline/commands/governance/skill_context.py begin \
+  --skill S-115 --scope ".github/workflows/**,scripts/ci/**,scripts/ci/deployed-workflows/**"
+```
+
+Phase 0 additionally inventories `scripts/ci/deployed-workflows/*.yml`, fetches each deployed copy
+read-only (`gh api repos/Aspose/aspose.org-workflows/contents/.github/workflows/<name>.yml --jq .content | base64 -d`),
+and records `check_workflow_drift.py --no-seed` output in `state_snapshot.json`. A dirty working tree for
+that directory is a HALT, same as `.github/workflows/**`.
+
+**Template checklist (every change to a deployed-workflow template).** Record each line PASS/FAIL with evidence:
+
+1. Least-privilege `permissions:` on every job (`contents: read` unless a step proves a write is needed); no widening to make a step pass.
+2. A `concurrency:` group and a `timeout-minutes:` on every job.
+3. No new secret: only the existing repository token secrets, none echoed, none in a URL printed to the log; actions pinned per the repo's current norm.
+4. Schedule and trigger set unchanged unless the change is the point of the PR; any new `workflow_dispatch` input has a safe default (a heavy path is dispatch-only and defaults off).
+5. Default path does the cheap, clone-free work; nothing heavy (full clones of the whole fleet) on the scheduled path.
+6. Never auto-merge and never push content or write to `main` from CI: outputs are issues, artifacts and a PR whose `add-paths` list is exactly the intended state files.
+7. Issue/PR automation is idempotent: keyed titles/branches, update-not-duplicate on re-run, a per-run cap on new issues, and a documented behaviour for the first run after a long gap.
+8. Exit semantics are intentional and recorded: what fails the job (infrastructure error, token or rate-limit failure, too many `UNKNOWN`) versus what is reported (drift itself).
+9. Failure of an optional step can never block the step that does the primary work (`continue-on-error` only where nothing downstream trusts its output), and the failure is surfaced in the job summary.
+10. Structure tests pass: `scripts/ci/tests/test_deployed_workflows_wiring.py` (step order, `add-paths`, key formats, permissions, concurrency, schedule intact), YAML parses, and the local template differs from the deployed copy only by the intended diff (`diff` against the fetched copy).
+
+**Deploy ordering is load-bearing.** The deployed YAML runs scripts from a fresh checkout of `main`, so the
+code those scripts need must be on `main` **before** the workflow YAML is deployed (YAML first makes the
+next run fail). Order: code on `main`, then a PR in `Aspose/aspose.org-workflows` updating only the changed
+templates (reviewed by someone other than the author; this skill's checklist is the review), then a
+`workflow_dispatch` run and verification, then `check_workflow_drift.py --approve <name> --reason ...`
+(it refuses unless deployed equals the reviewed template) and a commit of the rewritten
+`data/workflow_deploy_baselines.json`. `workflow-drift-watch` reports `DIVERGED` between the code push and
+the workflows-PR merge; that window is expected. Rollback is reverting the workflows PR
+(`gh workflow disable` as a stop-gap). This skill stages the package and the runbook; the deployment itself
+needs the operator's go-ahead.
 
 ---
 

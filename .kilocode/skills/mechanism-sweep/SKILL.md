@@ -26,7 +26,9 @@ description: >
      idempotent: yes for the sweep itself (diff-only, no promotion) — re-running with the
        same mechanism-id and commit produces the same classification; promoting a product's
        corrected knowledge (step 5) is a one-time action per product per mechanism
-     verified: '2026-07-29'
+     MT074: the sweep reads each model's LF-normalised extractor_hash (preserved by promote.py) to skip
+       products already built by the current extractor and to flag products with no stored hash
+     verified: '2026-10-07'
 -->
 
 **Arguments**: $ARGUMENTS
@@ -75,6 +77,28 @@ as a standard follow-up step of the mission that lands such a fix, the same way 
 1. **Enumerate candidates**: read `data/products.json` and `reports/phase_state.json` for
    every already-launched product whose `language` (or platform) matches `--language`,
    excluding any product listed in `--exclude`.
+
+1b. **MT074: use the extractor hash to narrow and to prove the trigger.** Each product's
+   `knowledge/{family}/{platform}/merged/model.yaml` records `extractor_hash`, a 16-hex digest of
+   every `.py` file under `scripts/pipeline/extraction/` plus `commands/knowledge/promote.py`, read as
+   LF-normalised bytes (a CRLF checkout and an LF checkout of the same source hash identically; the old
+   raw-byte hash made "extractor changed" a per-machine artefact). `promote.py` preserves the hash across
+   promotions. Compare per candidate:
+   ```bash
+   PYTHONPATH=scripts/pipeline .venv/Scripts/python -c "import commands.knowledge.refresh_knowledge as r; \
+   print(r._compute_extractor_hash()); print(r._stored_extractor_hash('FAMILY','PLATFORM'))"
+   ```
+   - Stored hash equals the current hash: the product's knowledge was built by the current extractor, so
+     this mechanism cannot be what makes it stale. Record `NONE (hash current)` without a re-run.
+   - Stored hash differs: the product was built by an older extractor. That alone is not proof of
+     content impact (any change under `extraction/` moves the hash, including a docstring); continue to
+     the diff-only re-run in Step 2 for the classification.
+   - Stored hash missing (only a minority of models carry one; the fleet report lists them as
+     `extractor_hash_missing`): treat as unknown, never as current. Run Step 2, and note that promoting
+     the product afterwards stamps the hash so the next sweep can skip it.
+   Landing a change under `extraction/` or in `promote.py` is itself a trigger for this skill: the hash
+   moves for every product, so run the sweep for each affected language right after the fix, and record
+   the "extractor_hash changed" event in `docs/workflows/change-trigger-matrix.md`.
 
 2. **Diff-only re-run per candidate**: for each candidate, re-run *only* the fixed
    extraction/enrichment/snippet/format step against the product's **current, already-

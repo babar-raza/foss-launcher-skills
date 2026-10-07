@@ -19,7 +19,7 @@
 | category-fix | S-42 | Run specific fixer on files by category code |
 | causal-backtrack | S-74 | Resolve upstream dependency failures |
 | change-guard | S-33 | Pre-write knowledge gate |
-| change-sweep | S-94 | Batch SHA comparison across all active products |
+| change-sweep | S-94 | Batch SHA comparison across all active products; MT074 adds the clone-free fleet drift step (`fleet_drift.py`: tiers, state drift fields, keyed FLEET-PROPAGATE issues, release trigger) and discovery stages L1-L4 (`propagation_analyze.py`) |
 | cleanroom-regen | S-97 | Full cleanroom regeneration workflow |
 | code-smoke | S-63 | Syntax and type-check code blocks |
 | commit | S-76 | Full commit-prep workflow |
@@ -31,12 +31,13 @@
 | cross-platform | S-36 | Family consistency check |
 | delta-site-plan | S-82 | Incremental site planning after knowledge update |
 | diagnose-skill-failure | S-67 | Governed diagnostic when a skill or pipeline script fails |
-| discovery-triage | S-95 | Route patrol and sweep reports to backlog actions |
+| discovery-triage | S-95 | Route patrol and sweep reports to backlog actions; consumes the fleet ledger with keyed, duplicate-safe FLEET-PROPAGATE rows; never invokes S-84 |
 | embed-knowledge | S-15 | Embed knowledge artifacts into vector stores |
 | eval-page | S-25 | Evaluate page grade |
 | evidence-cite | S-24 | Attach knowledge citations to content pages |
 | evidence-enhance | S-78 | Improve section evidence coverage on passing pages |
 | evidence-repair | S-72 | Repair evidence frontmatter for validator-blocked pages |
+| example-write | S-126 | Produce VERIFIED code examples for a capability ledger's units: candidates are chosen mechanically from harvested snippets/docs fences (never LLM-authored), verified by the Example Verifier against the product artifact, recorded with artifact/toolchain evidence, and handed to content skills as a table; unverified code never reaches content |
 | family-sync | S-48 | Update family-level products page |
 | faq-generate | S-22 | Generate FAQ section |
 | gap-apply | S-46 | Execute wave-ordered fix specs |
@@ -48,6 +49,7 @@
 | git-tracking-policy | S-125 | Generate/verify the managed .gitignore negation-chain block that selectively tracks a curated subtree of an otherwise blanket-ignored directory (e.g. reports/repo-presenter-regen-full/{family}/**), keyed off a canonical name registry (e.g. data/blog_family_routes.yaml) via scripts/pipeline/config/git_tracking_policy.yaml |
 | heal-batch | S-89 | Batch healing from content_eval report |
 | heal-page | S-26 | Heal low-quality page |
+| independent-content-review | S-127 | Independent Verification Panel: seeded-defect-calibrated, author-separated fresh read-only reviewers verify every new/changed page to production-website standard (docs/reference/production-page-rubric.md), with hash-bound verdicts, rendered-HTML audit, a sampling policy for generated reference pages, and a gate that clears a page only on current-hash PASS verdicts; S-90 remains the author-side gate |
 | knowledge-bootstrap | S-54 | Pre-condition gate before content or validation |
 | knowledge-coverage-audit | S-81 | Per-claim disposition table |
 | knowledge-diff | S-12 | Detect upstream repo changes |
@@ -63,7 +65,7 @@
 | llms-verify | S-LG-02 | Verify live HTTP endpoints for deployed llms-output .txt pages |
 | locale-patch | S-75 | Propagate targeted text fixes to locale files |
 | manual-edit | S-73 | Operator-directed targeted content edit |
-| mechanism-sweep | S-117 | Sweep already-launched products for staleness caused by OUR OWN pipeline (extraction/enrichment) improving, independent of any upstream FOSS change — the sibling of change-sweep's upstream-drift axis |
+| mechanism-sweep | S-117 | Sweep already-launched products for staleness caused by OUR OWN pipeline (extraction/enrichment) improving, independent of any upstream FOSS change — the sibling of change-sweep's upstream-drift axis; MT074 uses the LF-normalised extractor hash preserved by promote |
 | new-blog-index | S-101 | Scaffold Blog platform section landing page |
 | new-blog-post | S-57 | Generate blog posts for blog.aspose.org |
 | new-docs-index | S-70 | Scaffold Docs platform section landing page |
@@ -95,14 +97,14 @@
 | triage-verdict-gate | S-112 | Deterministic exit-code gate over triage_confirm/reconcile_triage findings; hard precondition for S-76 commit and post_refresh_verify Check 9 (RPR-F-03). Enforcement half of S-92 triage-confirm |
 | plan-health-watchdog | S-113 | Detect stalled P0 taskcards and plan-prose contradicted by repo state via structured taskcards.jsonl (schema 5f) field comparison + plan-markdown parity check (RPR-G-04) |
 | regression-classification | S-114 | Classify every grade regression JUSTIFIED/UNJUSTIFIED with a cited evidence source, writing the complete input list (never a sample) so it cannot be silently lost (RPR-A-01) |
-| workflow-harden | S-115 | GitHub Actions CI forensic audit and hardening — trigger/permission/secret/cache correctness plus CI-weight reduction across `.github/workflows/**` |
+| workflow-harden | S-115 | GitHub Actions CI forensic audit and hardening — trigger/permission/secret/cache correctness plus CI-weight reduction across `.github/workflows/**` and the deployed-workflow templates in `scripts/ci/deployed-workflows/**` (MT074 template checklist) |
 | package-publish-watch | S-118 | Multi-registry (pypi/nuget/npm/go_modules/cargo) publish detection with 2-consecutive-check debounce + operator-confirmed content healing via package_install_migrator.py; Maven's own sibling is S-110/publish_watcher.py (Mission MT015-2026-07-30-PACKAGE-REGISTRY, TC-MT015-09) |
 | media-optimize | S-119 | Ensure every static/media/{family}/{platform} icon/banner slot has both a .png and a .webp artifact, each under 1MB (WebP quality ladder; PNG lossless-then-palette-quantization ladder), with mandatory visual review for any lossy result |
 | project-phase-store | S-10 | Track generation phase state |
-| publish-readiness-review | S-90 | Agent-executed governed inspection |
+| publish-readiness-review | S-90 | Agent-executed governed inspection (author-side gate; independence is provided by S-127 independent-content-review) |
 | readme-refresh | S-120 | Generate, verify, and (on explicit approval) push a production-grade README.md refresh for one FOSS product repository via the run-bound readme_refresh_run.py state machine |
 | root-docs-refresh | S-121 | Repeatable, deterministic-check-driven refresh of the seven root-level operator/governance docs (OPERATOR_GUIDE.md, RUNBOOK.md, CODEX.md, GRADE_CONTRACT.md, LAYMAN_SYSTEM_STATUS_REVIEW.md, TASK_BACKLOG.md, TASK_BACKLOG_20260521.md) via the run-bound root_docs_refresh_run.py state machine; the same check functions back scripts/ci/checks/check_root_docs_truth.py's commit-time gate |
-| refresh-product | S-84 | Full post-launch product refresh orchestration |
+| refresh-product | S-84 | Full post-launch product refresh orchestration; MT074 adds the capability ledger (plan-stage Check 13, set-disposition), pinned-SHA rule, Check 12 mass-deletion guard, page_errors.json, and the close-time `capability_surface_gate.py` (sole writer of content_propagated_*) |
 | refresh-product-page | S-86 | Re-generate a single products.aspose.org page |
 | register-human-content | S-66 | Onboard a human-authored page into quality systems |
 | repo-patrol | S-93 | Discover new FOSS repos across GitHub orgs |

@@ -2,7 +2,7 @@
   "schema_version": 1,
   "generated_from": "skills/*.md",
   "generated_by": "scripts/pipeline/commands/ops/sync_providers.py",
-  "skill_count": 113,
+  "skill_count": 115,
   "skills": [
     {
       "id": "S-01",
@@ -858,6 +858,22 @@
       "description": "Some directories in this repo are blanket-gitignored (e.g.",
       "internal": false,
       "canonical_path": "skills/git-tracking-policy.md"
+    },
+    {
+      "id": "S-126",
+      "slug": "example-write",
+      "name": "Example Write — Verified Examples for a Capability Ledger",
+      "description": "Produce verified code examples for the units of a capability ledger, taken from code people already wrote and tested, and hand content skills a table of examples they may cite.",
+      "internal": false,
+      "canonical_path": "skills/example-write.md"
+    },
+    {
+      "id": "S-127",
+      "slug": "independent-content-review",
+      "name": "Independent Content Review — Author-Separated Verification Panel",
+      "description": "Verify every new or changed page to production-website standard with fresh read-only reviewers who did not write it, before publication.",
+      "internal": false,
+      "canonical_path": "skills/independent-content-review.md"
     },
     {
       "id": "S-HT-02",

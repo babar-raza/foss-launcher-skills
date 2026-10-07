@@ -5,7 +5,8 @@
      postcondition: per-page publish disposition recorded; fix skills invoked for actionable items;
                     final-verdict.md written with PUBLISH | CONDITIONAL | BLOCKED recommendation
      idempotent: no — LLM-based fix skills vary; --dry-run flag enables safe re-inspection
-     verified: 2026-04-17
+     MT074: author-side gate only; independence is provided by S-127 independent-content-review
+     verified: 2026-10-07
      depends_on: [S-54, S-25]
 -->
 # S-90: Publish Readiness Review — Agent-Executed Governed Inspection
@@ -25,6 +26,15 @@ system. When any skill, plan, or report says "escalate to human review", "manual
 review required", "human action required", or equivalent, agents MUST invoke this
 skill rather than halting — see AGENTS.md §7c for the canonical definition.
 (Launch gates: [docs/governance/launch-gates.md](../docs/governance/launch-gates.md))
+
+**MT074: this is the author-side gate; independence is S-127's job.** S-90 is executed by the
+session that wrote or refreshed the content and routes its own fixes, so its PASS is not an
+independent verification and it states no author-is-not-reviewer rule. Before anything goes live,
+every new or changed page also goes through `/independent-content-review` (S-127): fresh read-only
+reviewers, calibrated on seeded defects, a hash-bound verdict per page (two reviewers for Tier-1),
+checked against `docs/reference/production-page-rubric.md`. Run S-90 first to fix what it can; do not
+treat a PUBLISH verdict here as clearance to push, and never use it to clear a finding an S-127
+reviewer raised (only a changed page and a fresh review can).
 
 **AMBIGUOUS_PLATFORM_TARGETS backlink findings** (TC7, 2026-08-21): when
 `resolve_backlink()` (`scripts/pipeline/lib/backlink_targets.py`) returns

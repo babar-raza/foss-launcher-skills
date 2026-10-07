@@ -24,10 +24,13 @@ See AGENTS.md §6a for the full DAR governance rules.
 | `/content-audit` (S-32) | `/knowledge-bootstrap` | Requires knowledge for semantic verification |
 | `/content-check` (S-23) | `/knowledge-bootstrap` | Requires knowledge for accuracy audit |
 | `/content-enrich` (S-98) | `/knowledge-bootstrap` | Requires knowledge for cross-subdomain enrichment |
+| `/example-write` (S-126) | `/knowledge-bootstrap` | Candidates are selected from the product's harvested `merged/snippets/` and matched to capability-unit symbols; without bootstrapped knowledge there is nothing mechanical to choose from |
+| `/example-write` (S-126) | `/refresh-product` (S-84) | Reads the capability ledger that `refresh_run.py`'s `prepare_run()` builds (`manifest["capability_ledger"]`) and writes example evidence back through `capability_ledger.py set-disposition`; no ledger means no units to serve |
 | `/family-sync` (S-48) | `/knowledge-bootstrap` | Requires knowledge to sync family page |
 | `/faq-generate` (S-22) | `/knowledge-bootstrap` | Requires knowledge for FAQ grounding |
 | `/gap-apply` (S-46) | `/knowledge-bootstrap` | Requires knowledge for fix spec execution |
 | `/heal-page` (S-26) | `/knowledge-bootstrap` | Requires knowledge for page healing |
+| `/independent-content-review` (S-127) | `/knowledge-bootstrap` | Reviewers independently re-derive counts and claims against the knowledge model and source (rubric R1.5, R7); the model must be current before a page can be judged against it |
 | `/new-blog-post` (S-57) | `/knowledge-bootstrap` | Requires knowledge for blog content grounding |
 | `/new-blog-post` (S-57) | `data/package_registry.json` | Same install-instruction data-file dependency as `/new-docs-page` below (Mission MT018-2026-08-01-PACKAGE-IDENTITY-COVERAGE, TC-MT018-02: S-57 was found ungrounded and additionally sourcing package identity from `scout/model.yaml.canonical_import` — a full-repo audit found this exact skill's output responsible for a large share of the ~5,000+ pages carrying fabricated or never-published install commands). |
 | `/new-docs-index` (S-70) | `/knowledge-bootstrap` | Requires knowledge for docs index scaffold |

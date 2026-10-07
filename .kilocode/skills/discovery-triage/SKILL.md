@@ -16,9 +16,11 @@ preconditions:
   - reports/discovery/sweep_report.json exists (from S-94)
   - `repo_patrol.py gate` exits 0 or 1 (exit 1 = degraded, requires the provenance
     stamp on every row created). Exit 2 blocks triage entirely — see Step 0.
-postcondition: backlog/inbox.md updated with new items for each finding
-idempotent: no (creates backlog items; check for duplicates before re-running)
-verified: '2026-08-05'
+postcondition: backlog/inbox.md updated with new items for each finding; MT074 fleet rows are keyed
+  FLEET-PROPAGATE-{family}-{platform}-{upstream_sha8} and never duplicated (a second run adds zero rows)
+idempotent: no for patrol/sweep rows (creates backlog items; check for duplicates before re-running);
+  yes for fleet rows (key pre-check)
+verified: '2026-10-07'
 -->
 
 ## Purpose
@@ -102,6 +104,30 @@ equivalent signal and is already surfaced in Step 5.
    Create INV-item P3 -- "Unclassifiable repo: {repo_name}"
 
 7. Set deferred discovery candidates with review date: after 30 days from today.
+
+## MT074: Consuming the fleet ledger (keyed, duplicate-safe rows)
+
+Added by mission MT074 (steps 1-7 above are unchanged). `/change-sweep` (S-94) now has a clone-free
+fleet step (`fleet_drift.py`) that writes a `reports/discovery/sweep_report.json`-compatible file
+(`--sweep-out`), so the existing Step 5 reads it with no changes. The fleet ledger adds more detail than
+the sweep schema: use it to rank and key the rows.
+
+1. **Inputs.** `reports/discovery/sweep_report.json` (fleet-compatible), plus optionally
+   `reports/fleet/drift_ledger.json` (tier, `api_surface_touched`, `ahead_by`, `release_state`, ground-truth tier) and
+   `reports/fleet/candidates.json` (from `propagation_analyze.py rank`: ranked candidates with capability-unit counts).
+   Step 0 still applies: run `repo_patrol.py gate` and obey the exit code before creating any row. A degraded
+   verdict puts the provenance stamp on every row, exactly as before.
+2. **One row per product and upstream SHA, with a key.** Row key: `FLEET-PROPAGATE-{family}-{platform}-{upstream_sha8}`.
+   - Priority: release-triggered candidate P1; `API_TOUCHED` P1; `SOURCE` P2; `UNKNOWN` P2 (a blind spot is never dropped); `NON_SOURCE` and `NO_CHANGE` are logged only.
+   - Within a priority, order by the L4 rank when `candidates.json` exists, otherwise by `family/platform`.
+   - Cat=K, Effect=TF, Size from the capability-unit count when known (otherwise `ahead_by`/files changed).
+   - The row body names the next action: `/refresh-product {family} {platform} --mode upstream`, then `/example-write`, the surface skills by disposition, `/independent-content-review`.
+3. **Duplicate safety (required before every write).** Search `backlog/inbox.md` and `BACKLOG.md` for the exact key. Present: do not add a row. If the existing row's facts changed (new SHA gives a new key, so a changed `tier` or `release_state` for the same key), update that row in place instead. A second run on the same ledger must add zero rows. A key for an older SHA of the same product is superseded: mark the older row `superseded-by` the new key rather than leaving two open rows.
+4. **No refresh from here.** This skill does not invoke S-84 or S-12 for fleet findings, even with `--auto-refresh`
+   (TC-GATE-01 does not extend to fleet rows). The refresh stays an operator-started, agent-run chain with independent verification.
+5. **State is not written here.** This skill never writes `data/content_propagation_state.json`. The
+   state file's drift fields come from `fleet_drift.py --update-state` (S-94) and its propagation fields only from
+   `capability_surface_gate.py` (S-84 close step). A closed backlog row does not mean propagated.
 
 ## Follow-Up Policy for Deferred Candidates
 

@@ -60,7 +60,7 @@ Source: `scripts/pipeline/commands/ops/sync_skills.py:INTERNAL_SKILLS`.
 
 ## Skill Catalog
 
-114 registered skills grouped by functional category. For the machine-validated registry with
+116 registered skills grouped by functional category. For the machine-validated registry with
 full descriptions, see [AGENTS.md §12 (full table: docs/registries/skills.md)](../AGENTS.md).
 
 ### Knowledge & Truth
@@ -122,6 +122,8 @@ Skills that verify content accuracy, quality, and structural compliance.
 | S-80 | `coverage-reconcile` | Trace every knowledge unit to a page disposition |
 | S-81 | `knowledge-coverage-audit` | Per-claim disposition table |
 | S-85 | `truth-audit-content` | Line-level content truth audit |
+| S-126 | `example-write` | Produce VERIFIED code examples for a capability ledger's units from harvested snippets/docs fences via the Example Verifier; unverified code never reaches content |
+| S-127 | `independent-content-review` | Independent Verification Panel: calibrated, author-separated reviewers clear every new/changed page with hash-bound verdicts (S-90 stays the author-side gate) |
 
 ### Repair & Remediation
 

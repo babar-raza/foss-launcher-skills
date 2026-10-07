@@ -54,6 +54,43 @@ current — skip if already current (see `docs/pipeline/vector-regeneration-proc
 coverage-report command). This is non-blocking: content generation and the maintenance chain
 above do not require it.
 
+## Reusable Propagation Chain (Release or Upstream Drift, Any Family/Platform)
+
+> Added by mission MT074. One parameterised chain; no per-product code. Use it whenever a product
+> has a new release or API-touching upstream change whose features are not yet on the five sites.
+
+```
+release / drift detected
+→ S-94 (change-sweep: fleet_drift.py step, then L2-L4 analysis for candidates)
+→ S-95 (discovery-triage: keyed FLEET-PROPAGATE-{family}-{platform}-{sha8} row)
+→ S-84 (refresh-product --mode upstream: knowledge, capability ledger, reference rebuild, existing-page refresh)
+→ S-126 (example-write: verified examples for units that need code)
+→ surface skills by disposition
+     docs: S-56 (new-docs-page) / S-20 (page-update)   kb: S-58 (new-kb-howto)
+     blog: S-57 (new-blog-post) + S-124 (blog-release-check)   products: S-73 (manual-edit)
+→ S-23 (content-check) and S-90 (publish-readiness-review): author-side gates
+→ S-127 (independent-content-review: calibrated, author-separated panel; page-by-page clearance)
+→ capability_surface_gate.py (the close step of S-84; sole writer of content_propagated_*)
+→ S-76 (commit) / git_plumb_commit.py --no-push, one commit per class of change
+→ publication-readiness dossier
+→ user-gated push
+```
+
+How the links work:
+
+- **Detection.** The weekly monitor workflow, the 6-hourly registry watch (its release-trigger step) or an on-demand `fleet_drift.py` run puts a product in `DRIFTED` (or a new release) in `data/content_propagation_state.json`. A product with no record is `UNRECORDED`, which is drift by definition. Detection compares upstream with the last *content-propagated* SHA, never with the knowledge-accepted baseline, so a knowledge-only refresh cannot hide drift.
+- **Triage.** S-95 files one keyed, duplicate-safe backlog row. It never starts the refresh.
+- **Refresh.** S-84 builds the capability ledger: every new capability unit gets a disposition (`create | update | mention | none`) on each of reference, docs, kb, blog and products. Plan-stage Check 13 proves the ledger complete.
+- **Examples.** S-126 selects code mechanically from harvested snippets and docs fences, verifies it against the product artifact, and hands the content skills a table. Unverified code never reaches a page.
+- **Surfaces.** One skill per disposition; every content edit runs under an S-73 context. The skills record their decision with `capability_ledger.py set-disposition`.
+- **Verification.** S-90 is the author's gate. S-127 is the independent one: fresh read-only reviewers, a calibrated panel, hash-bound verdicts. An edit after review invalidates the verdict.
+- **Close.** `capability_surface_gate.py` recomputes satisfaction from the files and, only on PASS, records the propagation (`PROPAGATED_LOCAL` while content is committed but not pushed). A product whose gate has not passed is still drifted.
+- **Push.** Content is never pushed by a skill. A state commit containing `PROPAGATED_LOCAL` is never pushed. Capability `availability` flips from `unreleased` to `released` automatically once the published release contains the symbols, which removes the availability qualifier on the next run.
+
+If a step finds a defect in the machinery rather than in one product's content, open a hardening card
+(`/pipeline-harden`, S-99; `/workflow-harden`, S-115 for deployed-workflow templates) with a failing test
+first, then replay the fix against products already processed.
+
 ## Healing / Fix
 
 ```

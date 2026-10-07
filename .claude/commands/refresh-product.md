@@ -14,7 +14,12 @@ args: "{family} {platform}"
      preconditions: product launched; explicit session identity; knowledge and clone reachable
      postcondition: run is blocked, ready-to-commit, committed-and-bound, or abandoned
      idempotent: yes — immutable receipts, OCC hashes, and state checkpoints
-     verified: 2026-07-26
+     MT074: upstream/combined runs also build a capability ledger in prepare_run (plan-stage Check 13,
+            plan_fingerprint, set-disposition by skills; optional --released-api-surface), enforce the
+            Check 12 mass-deletion guard and page_errors.json, and CLOSE with capability_surface_gate.py,
+            the ONLY writer of content_propagated_* in data/content_propagation_state.json; pinned-SHA
+            rule (--pin-sha/--strict-fetch); never push
+     verified: 2026-10-07
 -->
 
 > Cross-skill references like `/knowledge-bootstrap` refer to sibling skills in this directory.
@@ -108,6 +113,115 @@ the content commit exactly once each in the final Git trailer block, then bind i
 explicitly; matching subject/body prose is not accepted. Binding compares
 checkout-filtered committed bytes to each receipt's raw `new_hash` in addition to
 normalized body/frontmatter hashes. Never push as part of S-84.
+
+## MT074: capability ledger, pinned target, and the propagation close step
+
+Added by mission MT074. Everything above still holds; these steps make a refresh carry every new
+upstream capability across all five surfaces, and make "this product is propagated" a recorded fact
+that only one gate can write.
+
+### 1. Start: optional released surface
+
+```bash
+.venv/Scripts/python scripts/pipeline/commands/ops/refresh_run.py start FAMILY PLATFORM \
+  --mode upstream|combined [--released-api-surface PATH]
+```
+
+`--released-api-surface` is the `api_surface.json` of the **published release** bundle. It is the
+availability source for the capability ledger (a capability is `released` only if its symbols exist at
+the published release; `unknown` counts as not released). Without it the run falls back to the
+pre-refresh tracked bundle (`release_surface: proxy_pre_refresh_bundle`), which is weaker evidence; say so
+in the run notes. The pinned file's sha256 is checked on every later stage.
+
+### 2. Plan: the capability ledger (built inside `prepare_run`)
+
+For a real knowledge delta in `upstream`/`combined` mode, `prepare_run` builds
+`reports/refresh_runs/{family}/{platform}/{run_id}/capability_ledger.json` with
+`capability_ledger.py build` and records `manifest["capability_ledger"]` (path, `plan_fingerprint`,
+`release_surface`). Units are groups of new public symbols a reader would call a feature (types
+co-added, enum constants, formats, members added to existing types); every unit has a disposition
+(`create | update | mention | none`, a target, and a rationale for `none`) on each of `reference`,
+`docs`, `kb`, `blog`, `products`. Thresholds live in `scripts/pipeline/config/capability_placement.yaml`;
+never edit them in the same commit as a run.
+
+- **Plan-stage Check 13 (`capability_ledger_plan`)** in `post_refresh_verify --run-id` fails the run if a real delta has no ledger, if the ledger's plan identity (sorted unit ids) differs from the recorded `plan_fingerprint` (units cannot be added, removed or regrouped after planning), or if the ledger is incomplete (a unit x surface with no disposition or rationale). An `unplaced` mention is only a warning at plan stage. Editing dispositions never changes the fingerprint.
+- Skills record decisions with `capability_ledger.py set-disposition --ledger PATH --unit CU-.. --surface S --action A --target T --rationale R [--evidence FILE]`. The command validates the result. Hand-editing the JSON is not allowed.
+- Inspect at any time: `capability_ledger.py validate --ledger PATH --stage plan` and the read-only `capability_ledger.py satisfaction --ledger PATH`.
+- A disposition with an `unplaced` placement (a `mention` with no matching existing block) is a hard failure at the close gate: a feature may never silently vanish. Decide a target (`mention` into an existing block) or a justified `none`.
+
+### 3. Pinned target SHA
+
+A refresh covers exactly one upstream commit. When the target is not simply the current origin HEAD, or
+HEAD may move during the run, pin it:
+
+```bash
+.venv/Scripts/python scripts/pipeline/commands/knowledge/refresh_knowledge.py FAMILY PLATFORM \
+  --pin-sha SHA --strict-fetch --compulsory-enrich
+```
+
+`--pin-sha` detach-checks the clone out at exactly SHA and fails if HEAD is not SHA. `--strict-fetch`
+makes a failed upstream fetch a hard failure instead of the old "degraded mode on the old HEAD".
+`refresh_run`'s own knowledge stage calls `refresh_knowledge.py ... --compulsory-enrich` without these
+flags and its clone update can move HEAD, so for a pinned target assert before every `run`/`resume` and
+after each stage that `git -C <clone> rev-parse HEAD` equals the pinned SHA, record the check, and stop
+if it moved (never continue on a moved target; report it as a gap). Related flags:
+`--allow-drop-enrichment` lets promote drop tracked enriched (`ERC-*`) claims when enrichment output is
+absent; it is OFF by default (promote aborts instead) and needs a recorded reason. Enrichment is
+incremental per class by content hash; `enrich.py --force-full-enrich` re-enriches everything and is only
+for a deliberate prompt/model change.
+
+### 4. Reference stage: page errors and the mass-deletion guard
+
+- `batch_reference` exits non-zero when any page was refused or errored, and writes the refused pages to `page_errors.json` in the run root. `apply_run` asserts receipts written, files changed on disk and pages planned all agree, so a refused page can never appear applied. `--allow-page-errors` exists only for diagnostics; never use it in a production run.
+- **Check 12 (mass-deletion guard)** in `post_refresh_verify --run-id` trips on the outcome itself: a body that shrank by more than 40% and 80 words with no governed explanation (retirement, deliberate section removal), more than 5% of in-scope pages (at least 3) shrinking that much, or removed claims above 30% of base claims without enough `reidentified_claims` reconciliation. A trip means an upstream stage lost content: fix the cause, never raise the thresholds to pass.
+
+### 5. Between plan and close: the surface skills
+
+After `run` the reference surface is done. The other surfaces follow the ledger, one skill per disposition,
+with S-73 as the carrier context for any `content/` edit:
+
+| Disposition surface | Skill |
+|---|---|
+| Verified examples for units that need code | `/example-write` (S-126), before any docs/kb/blog skill |
+| docs `create` / `update` | `/new-docs-page` (S-56) / `/page-update` (S-20) |
+| kb | `/new-kb-howto` (S-58) |
+| blog | `/new-blog-post` (S-57) and `/blog-release-check` (S-124) |
+| products | `/manual-edit` (S-73), targeted placement only |
+
+Each skill records its decision with `set-disposition`. Every changed page then goes through
+`/independent-content-review` (S-127) before the close step. Locale files are untouched.
+
+### 6. Close: `capability_surface_gate.py` is the final step
+
+Run after the surface skills and the independent review, and after the refresh run's own `verify`:
+
+```bash
+PYTHONPATH=scripts/pipeline .venv/Scripts/python scripts/pipeline/commands/ops/capability_surface_gate.py \
+  --family FAMILY --platform PLATFORM --ledger PATH [--local-only] [--dry-run] [--released-version V ...] \
+  [--json-out PATH]
+```
+
+It recomputes every unit's satisfaction from the files on disk (never from what the ledger claims) and
+fails on: `ledger_invalid`/`ledger_mismatch`, `no_symbol_level_ground_truth`, `missing_upstream_head`,
+`unsatisfied` (a create/update/mention target missing or not mentioning the unit's symbols, or `none`
+without a rationale), `availability_qualifier_missing` (a page about an unreleased or unknown-availability
+unit lacks an availability qualifier) and `forbidden_coordinate` (such a page names a version or coordinate
+outside the released set).
+
+- **PASS** records the upstream head, the tracked knowledge commit, the units with computed statuses and
+  verdict `PASS` in `data/content_propagation_state.json`. With `--local-only` (the default while content is
+  committed locally but not pushed) the status written is `PROPAGATED_LOCAL`.
+- **FAIL** writes nothing to the propagation fields and exits 1. Exit 2 means unreadable input.
+- **This gate is the ONLY writer of `content_propagated_*`.** `refresh_run`, `promote`, `attach_evidence`,
+  `fleet_drift` and hand edits can make a product `DRIFTED`; only a PASS here can make it propagated. Never
+  write those fields another way.
+- A state commit that contains `PROPAGATED_LOCAL` is never pushed (it would tell the monitor the product is
+  done). Only `UNRECORDED`/`DRIFTED`/`PROPAGATED`-after-publication values may be pushed.
+- Idempotent: an unchanged second run leaves the state file byte-identical.
+
+Then commit with `/commit` (S-76) or `git_plumb_commit.py` (always `--no-push` for content) as separate commits
+for code, state data, knowledge and each surface's content, and hand over a publication-readiness dossier.
+**Never push as part of S-84**; the push is the user's decision.
 
 <details>
 <summary>Legacy pre-orchestrator sequence (forensic context only; do not execute)</summary>
