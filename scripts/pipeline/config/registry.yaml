@@ -7214,3 +7214,180 @@ scripts:
     requires_test: true
     deprecated_since: null
     notes: "MT069-2026-09-16-GHA-MINUTES-REARCHITECTURE PHB-03: read+report-only CLI wiring workflow_usage_collector.py -> workflow_usage_ledger.py -> workflow_cost_circuit_breaker.py, dry-run by default (--live to persist + open alert issues). Also extends coverage to CI-check *health* (a required check failing continuously across its last N runs), not just cost -- per the mission plan's CI-defect-remediation direction 5, this class of check would have caught this mission's own platform-capabilities-checker bug and upstream-monitor.yml PAT-gap misdiagnosis automatically instead of waiting for a cost investigation to stumble onto them. Live dry-run smoke test against the real private repo (2026-09-18, 30-day window) correctly surfaced both of those real, independently-confirmed defects."
+  - path: scripts/pipeline/lib/content_propagation_state.py
+    kind: library
+    lifecycle: active
+    canonical_impl_path: null
+    public_entrypoint: false
+    cli_contract: none
+    owner_domain: knowledge-pipeline
+    backing:
+      kind: internal
+      ref: null
+    requires_test: true
+    test_targets:
+      - scripts/pipeline/tests/test_content_propagation_state.py
+    deprecated_since: null
+    notes: "MT074 B9: single tracked per-product propagation truth (data/content_propagation_state.json); record_drift vs record_propagation (propagation fields written only by capability_surface_gate); FileLock + atomic replace with Windows PermissionError retry"
+
+  - path: scripts/pipeline/lib/language_adapters.py
+    kind: library
+    lifecycle: active
+    canonical_impl_path: null
+    public_entrypoint: false
+    cli_contract: none
+    owner_domain: knowledge-pipeline
+    backing:
+      kind: internal
+      ref: null
+    requires_test: true
+    test_targets:
+      - scripts/pipeline/tests/test_language_adapters.py
+    deprecated_since: null
+    notes: "MT074 B11: language-adapter contract - GT-1 (compiled API diff; Java via javap) vs GT-2 (file-level); also owns the api-path classifier shared with fleet_drift"
+
+  - path: scripts/pipeline/commands/diagnostics/fleet_drift.py
+    kind: entrypoint
+    lifecycle: active
+    canonical_impl_path: null
+    public_entrypoint: true
+    cli_contract: stable
+    owner_domain: product-registry
+    backing:
+      kind: internal
+      ref: null
+    requires_test: true
+    test_targets:
+      - scripts/pipeline/tests/test_fleet_drift.py
+    deprecated_since: null
+    notes: "MT074 B10/B12: clone-free fleet drift classifier (ls-remote + GitHub compare API + registry projection); tiers, release_state, keyed FLEET-PROPAGATE issues, state updates; run as an S-94 step and by the deployed upstream-monitor/registry-watch workflows"
+
+  - path: scripts/pipeline/lib/capability_delta.py
+    kind: library
+    lifecycle: active
+    canonical_impl_path: null
+    public_entrypoint: false
+    cli_contract: none
+    owner_domain: knowledge-pipeline
+    backing:
+      kind: internal
+      ref: null
+    requires_test: true
+    test_targets:
+      - scripts/pipeline/tests/test_capability_delta.py
+      - scripts/pipeline/tests/test_capability_ledger_cli.py
+    deprecated_since: null
+    notes: "MT074 B4: capability units + five-surface disposition ledger + placement (config/capability_placement.yaml); plan-stage and close-stage validation"
+
+  - path: scripts/pipeline/lib/availability.py
+    kind: library
+    lifecycle: active
+    canonical_impl_path: null
+    public_entrypoint: false
+    cli_contract: none
+    owner_domain: knowledge-pipeline
+    backing:
+      kind: internal
+      ref: null
+    requires_test: true
+    test_targets:
+      - scripts/pipeline/tests/test_availability.py
+    deprecated_since: null
+    notes: "MT074 B5: symbol-level availability (released/unreleased/unknown) against PUBLISHED surfaces, forbidden-coordinate scan, qualifier detection"
+
+  - path: scripts/pipeline/commands/ops/capability_surface_gate.py
+    kind: entrypoint
+    lifecycle: active
+    canonical_impl_path: null
+    public_entrypoint: true
+    cli_contract: stable
+    owner_domain: governance
+    backing:
+      kind: internal
+      ref: null
+    requires_test: true
+    test_targets:
+      - scripts/pipeline/tests/test_capability_surface_gate.py
+    deprecated_since: null
+    notes: "MT074 B4 close-time gate: the ONLY caller of content_propagation_state.record_propagation; fails closed"
+
+  - path: scripts/pipeline/commands/ops/capability_ledger.py
+    kind: entrypoint
+    lifecycle: active
+    canonical_impl_path: null
+    public_entrypoint: true
+    cli_contract: stable
+    owner_domain: governance
+    backing:
+      kind: internal
+      ref: null
+    requires_test: true
+    test_targets:
+      - scripts/pipeline/tests/test_capability_ledger_cli.py
+    deprecated_since: null
+    notes: "MT074 B4 CLI over capability_delta: build / validate (plan|close) / set-disposition / satisfaction; the sanctioned way for skills to update a disposition"
+
+  - path: scripts/pipeline/commands/content/rendered_page_audit.py
+    kind: entrypoint
+    lifecycle: active
+    canonical_impl_path: null
+    public_entrypoint: true
+    cli_contract: stable
+    owner_domain: content-quality
+    backing:
+      kind: internal
+      ref: null
+    requires_test: true
+    test_targets:
+      - scripts/pipeline/tests/test_rendered_page_audit.py
+    deprecated_since: null
+    notes: "MT074 B14: deterministic rendered-HTML audit feeding the Independent Verification Panel (R3.x/R4.x/R6.5); never replaces manual review"
+
+  - path: scripts/pipeline/commands/ops/skill_provenance_audit.py
+    kind: entrypoint
+    lifecycle: active
+    canonical_impl_path: null
+    public_entrypoint: true
+    cli_contract: stable
+    owner_domain: governance
+    backing:
+      kind: internal
+      ref: null
+    requires_test: true
+    test_targets:
+      - scripts/pipeline/tests/test_skill_provenance_audit.py
+    deprecated_since: null
+    notes: "MT074 A11 / AC-5: post-hoc skills-only audit; file-class -> sanctioned-skill mapping is data in config/skill_file_class_matrix.yaml"
+
+  - path: scripts/pipeline/lib/propagation_analyzer.py
+    kind: library
+    lifecycle: active
+    canonical_impl_path: null
+    public_entrypoint: false
+    cli_contract: none
+    owner_domain: knowledge-pipeline
+    backing:
+      kind: internal
+      ref: null
+    requires_test: true
+    test_targets:
+      - scripts/pipeline/tests/test_propagation_analyzer.py
+    deprecated_since: null
+    notes: "MT074 B16: capability-unit analysis for products with unrefreshed knowledge + content-presence scan + candidate ranking (Wave E)"
+
+  - path: scripts/pipeline/commands/diagnostics/propagation_analyze.py
+    kind: entrypoint
+    lifecycle: active
+    canonical_impl_path: null
+    public_entrypoint: true
+    cli_contract: stable
+    owner_domain: product-registry
+    backing:
+      kind: internal
+      ref: null
+    requires_test: true
+    test_targets:
+      - scripts/pipeline/tests/test_propagation_analyzer.py
+    deprecated_since: null
+    notes: "MT074 B16 CLI: analyze / rank; read-only; never writes the propagation state"
+
