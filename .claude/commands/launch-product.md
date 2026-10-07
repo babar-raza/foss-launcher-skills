@@ -53,6 +53,17 @@ would otherwise be filtered as unreachable elsewhere.
 
 **Save checkpoint**: `python scripts/pipeline/commands/ops/project_phase_store.py set {family} {platform} knowledge_ready true`
 
+**Compile/import smoke (TC-PSD-HRD-02, net/python only):** tree-sitter's parser is lenient and
+never fails on source that doesn't actually compile (a real upstream repo has been found holding
+320 real compile errors invisible to extraction). `scripts/pipeline/commands/launch/
+compile_smoke.py {platform} {clone_path} --json` runs a real `dotnet build` (net) or isolated-mode
+`import` (python) against the product's own clone and PASS/FAIL/WARNs honestly; every other
+platform returns `NOT_RUN` (not yet built). This is **not currently invoked automatically by any
+stage above** — `upstream_readiness_check.py`'s own `U-07` placeholder still reports `NOT_RUN`
+regardless of this module's real result (wiring the dispatch is a future card, same disclosed-scope
+pattern as `U-01`'s own Stage -1 module). Run it by hand for a net/python launch before trusting a
+scout's API surface.
+
 ---
 
 ### Platform notes — TypeScript/npm

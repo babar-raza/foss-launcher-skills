@@ -514,6 +514,21 @@ scripts:
     deprecated_since: null
     notes: "TC-PSD-HRD-01 (MT076): Stage -1 readiness before any registry/knowledge/content work -- license (file-first, GitHub API second only for the SPDX id; absence is WARN MISCONFIGURED_NO_LICENSE_FILE per owner decision, never a launch blocker), merged source, clone-current, install-fallback viability (F-PSD-07), hooks installed, family placeholder copy. Not yet wired into /launch-product's own stage sequence (HRD-01-05 SYNC step; this card ships the module + its NC-13 real-portfolio acceptance test only)."
 
+  - path: scripts/pipeline/commands/launch/compile_smoke.py
+    kind: entrypoint
+    lifecycle: active
+    canonical_impl_path: null
+    public_entrypoint: true
+    cli_contract: stable
+    owner_domain: content-governance
+    backing:
+      kind: internal
+      ref: null
+    test_targets: ["scripts/pipeline/tests/test_compile_smoke.py"]
+    requires_test: true
+    deprecated_since: null
+    notes: "TC-PSD-HRD-02 (MT076): U-07 compile/import smoke -- the real-compiler gap tree-sitter's lenient parser can't see (gis/net held at 320 real compile errors invisible to extraction). Real implementation for net (disposable full-clone copy + dotnet build, immune to a project's own hard-coded relative output paths) and python (detect_package_root + isolated-mode import, token-scrubbed env); honest NOT_RUN for java/cpp/go/rust/typescript (out of this card's scope). Not yet wired into upstream_readiness_check.py's own U-07 placeholder (still NOT_RUN there) -- this card ships the capability only, same disclosed-scope pattern as HRD-01's own module."
+
   - path: scripts/pipeline/commands/diagnostics/human_review_sampler.py
     kind: entrypoint
     lifecycle: active
