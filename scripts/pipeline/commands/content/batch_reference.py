@@ -192,6 +192,7 @@ REPO_ROOT = _DEFAULT_REPO_ROOT
 KNOWLEDGE_ROOT = REPO_ROOT / "knowledge"
 CONTENT_ROOT = REPO_ROOT / "content" / "reference.aspose.org" / "en"
 _resolve_backlink_fn = resolve_backlink
+_cfg_content_write_fn = None  # None -> safe_content_write (configure() seam, real-path write only)
 
 
 def _safe_print(message: str) -> None:
@@ -222,6 +223,7 @@ def configure(
     knowledge_root: Path | None = None,
     content_root: Path | None = None,
     resolve_backlink_fn=None,
+    content_write_fn=None,
 ) -> None:
     """Set module-level root paths. Call with no args to reset defaults.
 
@@ -235,8 +237,13 @@ def configure(
     tests override behavior via configure() instead of monkeypatching an
     imported module function directly (a T2 monkeypatch-lint violation).
     Omit to reset to the real resolve_backlink().
+
+    content_write_fn (MT074 RC-8): observation seam for the REAL content-path
+    write (not the staging write) so a test can assert what exists on disk at
+    the moment of mutation; omit to use the real safe_content_write().
     """
     global REPO_ROOT, KNOWLEDGE_ROOT, CONTENT_ROOT, _resolve_backlink_fn
+    global _cfg_content_write_fn
     root = repo_root if repo_root is not None else _DEFAULT_REPO_ROOT
     REPO_ROOT = root
     KNOWLEDGE_ROOT = knowledge_root if knowledge_root is not None else root / "knowledge"
@@ -245,6 +252,7 @@ def configure(
         else root / "content" / "reference.aspose.org" / "en"
     )
     _resolve_backlink_fn = resolve_backlink_fn if resolve_backlink_fn is not None else resolve_backlink
+    _cfg_content_write_fn = content_write_fn
     # FRESH-001 (2026-08-14): keep freshness_guard's module-level paths in lockstep
     # with this module's own configure() -- it is a separate module with its own
     # REPO_ROOT/KNOWLEDGE_ROOT globals, and the freshness gate below must see the
@@ -2756,19 +2764,6 @@ def run(family: str, platform: str, kind_arg: str = "all",
                 )
             else:
                 reference_disposition = "GENERATED"
-            _record_reference_attempt(
-                page_path,
-                before_content,
-                final_content,
-                before_file_hash=before_file_hash,
-                final_file_hash=final_file_hash,
-                intended_action=(
-                    "REFERENCE_UPDATE" if is_update else "REFERENCE_GENERATE"
-                ),
-                disposition=reference_disposition,
-                verdict=reference_disposition,
-                reason="GENERATED_FROM_PINNED_KNOWLEDGE",
-            )
             # TC13 (2026-08-26): structural no-downgrade guard for backlink
             # presence, mirroring no_downgrade_guard.py's existing grade-
             # regression philosophy but for link presence -- confirmed live
@@ -2792,7 +2787,33 @@ def run(family: str, platform: str, kind_arg: str = "all",
                     f"(would silently strip an existing backlink); run "
                     f"backlink_backfill.py --deep --write to reconcile instead"
                 )
-            safe_content_write(
+            # RC-8 (MT074 B17): every guarded check that can refuse this page
+            # (forbidden-claims scan inside _record_reference_attempt, and the
+            # backlink-downgrade guard above) now runs BEFORE the receipt +
+            # page decision are persisted. The receipt is still emitted BEFORE
+            # the real content path is mutated (crash-recovery property: a
+            # crash between this call and safe_content_write() leaves a
+            # receipt for bytes that were never written, and the resume
+            # regenerates this page from the same pinned inputs and re-emits
+            # the identical receipt) -- but a page REFUSED by a guard can no
+            # longer leave an applied-looking BODY_UPDATED/EVIDENCE_ONLY/
+            # GENERATED receipt + decision for a write that never happens
+            # (previously the guard raised AFTER the receipt, the per-entry
+            # except swallowed it, and the stage still exited 0).
+            _record_reference_attempt(
+                page_path,
+                before_content,
+                final_content,
+                before_file_hash=before_file_hash,
+                final_file_hash=final_file_hash,
+                intended_action=(
+                    "REFERENCE_UPDATE" if is_update else "REFERENCE_GENERATE"
+                ),
+                disposition=reference_disposition,
+                verdict=reference_disposition,
+                reason="GENERATED_FROM_PINNED_KNOWLEDGE",
+            )
+            (_cfg_content_write_fn or safe_content_write)(
                 page_path, final_content, mechanism="batch-reference"
             )
             actual_file_hash = hashlib.sha256(page_path.read_bytes()).hexdigest()
@@ -2891,9 +2912,49 @@ def run(family: str, platform: str, kind_arg: str = "all",
     # also covers already-grouped pages whose table predates a generator-logic fix (the GI-01
     # case this taskcard exists to close) -- not just pages still in the legacy scaffold format.
 
+    # RC-8 (MT074 B17): surface WHICH pages were refused/errored (and why) so
+    # the CLI can fail loudly instead of exiting 0, and persist the same list
+    # as a run-scoped sidecar that refresh_run.apply_run() asserts is empty.
+    # Rewritten on EVERY mutating run (empty list on a clean one) so a stale
+    # sidecar from an earlier failed attempt of the same run never lingers
+    # after a successful resume.
+    error_pages: list[dict] = []
+    for _err_entry, _err_msg in errors:
+        try:
+            _err_page = _canonical_reference_path(
+                output_dir / f"{_entry_slug(_err_entry)}.md"
+            )
+        except Exception:  # noqa: BLE001 -- reporting must never mask the error
+            _err_page = str(_err_entry.get("name", ""))
+        error_pages.append({
+            "name": _err_entry.get("name", ""),
+            "page_path": _err_page,
+            "reason": str(_err_msg),
+        })
+    if not dry_run and resolved_run_root is not None:
+        _write_page_errors_sidecar(resolved_run_root, run_id, error_pages)
+
     return {"generated": len(generated), "updated": len(updated),
             "skipped": len(to_skip), "errors": len(errors),
-            "unchanged": len(unchanged)}
+            "unchanged": len(unchanged), "error_pages": error_pages}
+
+
+PAGE_ERRORS_SIDECAR = "page_errors.json"
+
+
+def _write_page_errors_sidecar(
+    run_root: Path, run_id: str | None, error_pages: list[dict]
+) -> None:
+    """Persist this invocation's refused/errored pages under the run root."""
+    run_root.mkdir(parents=True, exist_ok=True)
+    (run_root / PAGE_ERRORS_SIDECAR).write_text(
+        json.dumps(
+            {"run_id": run_id, "errors": error_pages},
+            indent=2,
+            sort_keys=True,
+        ) + "\n",
+        encoding="utf-8",
+    )
 
 
 def _write_freshness_manifest_if_enabled(
@@ -3024,6 +3085,11 @@ def main():
                         help="Required immutable refresh-run ID for any mutating execution")
     parser.add_argument("--run-root", default=None, metavar="DIR",
                         help="Run artifact directory created by refresh_run.py")
+    parser.add_argument("--allow-page-errors", action="store_true",
+                        help="DIAGNOSTIC USE ONLY: exit 0 even when one or more pages "
+                             "were refused/errored (default: any page error on a "
+                             "mutating run exits non-zero so a refused page can never "
+                             "pass as a successful refresh stage).")
     args = parser.parse_args()
 
     if args.knowledge_root or args.content_root:
@@ -3046,7 +3112,7 @@ def main():
                 print(result["body_preview"])
         sys.exit(0)
 
-    run(args.family, args.platform,
+    result = run(args.family, args.platform,
         kind_arg=args.kind,
         limit=args.limit,
         dry_run=args.dry_run,
@@ -3059,6 +3125,46 @@ def main():
         confirm_rebuild=args.confirm_rebuild,
         run_id=args.run_id,
         run_root=args.run_root)
+    sys.exit(_page_error_exit_code(
+        result, dry_run=args.dry_run, allow_page_errors=args.allow_page_errors
+    ))
+
+
+def _page_error_exit_code(
+    result: dict | None, *, dry_run: bool = False, allow_page_errors: bool = False
+) -> int:
+    """RC-8 (MT074 B17): exit status for a finished run().
+
+    run()'s ``errors`` count used to be discarded, so a page refused by a
+    guard (backlink downgrade, forbidden claim, hash mismatch, ...) still
+    produced exit 0 and the calling refresh stage PASSED. Mutating runs now
+    exit 1 when any page errored, with a stderr summary naming every page and
+    its reason. dry_run never fails (nothing was attempted);
+    ``allow_page_errors`` is the explicit, default-off diagnostic opt-out.
+    """
+    if dry_run or not result or not result.get("errors"):
+        return 0
+    pages = result.get("error_pages") or []
+    lines = [
+        f"batch-reference: {result['errors']} page(s) refused or errored "
+        f"-- no applied receipt exists for them and they were NOT written:"
+    ]
+    for item in pages:
+        lines.append(f"  - {item.get('page_path') or item.get('name')}: {item.get('reason')}")
+    if allow_page_errors:
+        lines.append("--allow-page-errors set (diagnostic): exiting 0 anyway")
+        _safe_print_err("\n".join(lines))
+        return 0
+    lines.append("exiting 1 (pass --allow-page-errors only for diagnostics)")
+    _safe_print_err("\n".join(lines))
+    return 1
+
+
+def _safe_print_err(text: str) -> None:
+    try:
+        print(text, file=sys.stderr)
+    except UnicodeEncodeError:
+        print(text.encode("ascii", "replace").decode("ascii"), file=sys.stderr)
 
 
 if __name__ == "__main__":

@@ -53,6 +53,15 @@ def _runner(
 ) -> subprocess.CompletedProcess[str]:
     if args[:3] == ["git", "rev-parse", "HEAD"]:
         return subprocess.CompletedProcess(args, 0, HEAD_SHA + "\n", "")
+    if any("capability_ledger.py" in str(a) for a in args):
+        # MT074 B4: the ledger builder is a pure, deterministic file-to-file
+        # CLI -- run the real one rather than stubbing it.
+        # The tmp repo_root has no scripts/ tree: point at the real script.
+        real_script = Path(refresh_run.__file__).resolve().parent / "capability_ledger.py"
+        return subprocess.run(
+            [str(real_script) if "capability_ledger.py" in str(a) else str(a) for a in args],
+            capture_output=True, text=True, encoding="utf-8", errors="replace",
+        )
     _write_empty_backlink_manifest(args)
     return subprocess.CompletedProcess(args, 0, "", "")
 
@@ -5151,3 +5160,434 @@ def test_bind_commit_tolerates_out_of_scope_additive_generated_page(
 def test_locate_run_rejects_unsafe_glob_identity():
     with pytest.raises(refresh_run.RefreshRunError, match="run_id"):
         refresh_run._locate_run("*")
+
+
+# ---------------------------------------------------------------------------
+# RC-8 (MT074 B17): apply_run reference-stage receipts == bytes on disk
+# ---------------------------------------------------------------------------
+
+def _rc8_stage(tmp_path: Path, family: str, platform: str, pages: dict[str, dict]):
+    """Build a reference stage fixture.
+
+    pages: {file name: {"initial": str, "final": str, "receipt": bool}}
+    Writes the INITIAL bytes on disk, then (if receipt) an applied receipt +
+    decision row whose new_hash is the hash of FINAL; the caller decides
+    whether the FINAL bytes really land on disk.
+    Returns (scope, rows, initial_hashes, run_root).
+    """
+    refresh_run.configure(repo_root=tmp_path)
+    run_root = tmp_path / "reports/refresh_runs" / family / platform / "RUN-RC8"
+    (run_root / "receipts").mkdir(parents=True)
+    scope: list[str] = []
+    rows: list[dict] = []
+    initial_hashes: dict[str, str] = {}
+    for index, (name, spec) in enumerate(pages.items(), 1):
+        rel = f"content/reference.aspose.org/en/{family}/{platform}/{name}"
+        scope.append(rel)
+        page = tmp_path / rel
+        page.parent.mkdir(parents=True, exist_ok=True)
+        page.write_bytes(spec["initial"].encode("utf-8"))
+        initial_hashes[rel] = refresh_run._path_hash(rel)
+        if not spec.get("receipt"):
+            continue
+        new_hash = "sha256:" + hashlib.sha256(
+            spec["final"].encode("utf-8")
+        ).hexdigest()
+        ref = f"receipts/RCP-{index:03d}.yaml"
+        (run_root / ref).write_text(yaml.safe_dump({
+            "content_refresh_receipt": {
+                "receipt_id": f"RCP-{index:03d}",
+                "old_hash": initial_hashes[rel],
+                "new_hash": new_hash,
+            }
+        }), encoding="utf-8")
+        rows.append({
+            "run_id": "RUN-RC8", "page_path": rel,
+            "disposition": spec.get("disposition", "BODY_UPDATED"),
+            "receipt_ref": ref,
+        })
+    return scope, rows, initial_hashes, run_root
+
+
+_RC8_SHAPES = [
+    ("pdf", "net", "Document.md", "Zeta.md"),
+    ("cells", "python", "workbook.md", "cell_range.md"),
+]
+
+
+@pytest.mark.parametrize("family,platform,first,second", _RC8_SHAPES)
+def test_reference_stage_reconciled_when_receipts_match_bytes(
+    tmp_path, family, platform, first, second
+):
+    scope, rows, initial, run_root = _rc8_stage(tmp_path, family, platform, {
+        first: {"initial": "old a\n", "final": "new a\n", "receipt": True},
+        second: {"initial": "old b\n", "final": "new b\n", "receipt": True,
+                 "disposition": "EVIDENCE_ONLY"},
+    })
+    (tmp_path / scope[0]).write_bytes("new a\n".encode("utf-8"))
+    (tmp_path / scope[1]).write_bytes("new b\n".encode("utf-8"))
+    refresh_run._assert_reference_stage_reconciled(scope, rows, initial, run_root)
+
+
+@pytest.mark.parametrize("family,platform,first,second", _RC8_SHAPES)
+def test_reference_stage_fails_when_applied_receipt_has_no_bytes_written(
+    tmp_path, family, platform, first, second
+):
+    """The RC-8 false-PASS: receipt + decision say applied, disk unchanged."""
+    scope, rows, initial, run_root = _rc8_stage(tmp_path, family, platform, {
+        first: {"initial": "old a\n", "final": "new a\n", "receipt": True},
+        second: {"initial": "old b\n", "final": "new b\n", "receipt": True},
+    })
+    (tmp_path / scope[0]).write_bytes("new a\n".encode("utf-8"))  # only one lands
+    with pytest.raises(refresh_run.RefreshRunError) as excinfo:
+        refresh_run._assert_reference_stage_reconciled(scope, rows, initial, run_root)
+    message = str(excinfo.value)
+    assert scope[1] in message and scope[0] not in message
+    assert "applied_receipt_but_bytes_not_written" in message
+
+
+@pytest.mark.parametrize("family,platform,first,second", _RC8_SHAPES)
+def test_reference_stage_fails_when_disk_differs_from_receipt_hash(
+    tmp_path, family, platform, first, second
+):
+    scope, rows, initial, run_root = _rc8_stage(tmp_path, family, platform, {
+        first: {"initial": "old a\n", "final": "new a\n", "receipt": True},
+    })
+    (tmp_path / scope[0]).write_bytes("something else entirely\n".encode("utf-8"))
+    with pytest.raises(refresh_run.RefreshRunError, match="bytes_not_written"):
+        refresh_run._assert_reference_stage_reconciled(scope, rows, initial, run_root)
+
+
+@pytest.mark.parametrize("family,platform,first,second", _RC8_SHAPES)
+def test_reference_stage_fails_when_bytes_changed_without_applied_receipt(
+    tmp_path, family, platform, first, second
+):
+    scope, rows, initial, run_root = _rc8_stage(tmp_path, family, platform, {
+        first: {"initial": "old a\n", "final": "new a\n", "receipt": True},
+        second: {"initial": "old b\n", "final": "x", "receipt": False},
+    })
+    (tmp_path / scope[0]).write_bytes("new a\n".encode("utf-8"))
+    (tmp_path / scope[1]).write_bytes("clobbered\n".encode("utf-8"))
+    with pytest.raises(refresh_run.RefreshRunError) as excinfo:
+        refresh_run._assert_reference_stage_reconciled(scope, rows, initial, run_root)
+    assert "bytes_changed_without_applied_receipt" in str(excinfo.value)
+    assert scope[1] in str(excinfo.value)
+
+
+@pytest.mark.parametrize("family,platform,first,second", _RC8_SHAPES)
+def test_reference_stage_fails_on_writer_page_error_sidecar(
+    tmp_path, family, platform, first, second
+):
+    scope, rows, initial, run_root = _rc8_stage(tmp_path, family, platform, {
+        first: {"initial": "old a\n", "final": "new a\n", "receipt": True},
+        second: {"initial": "old b\n", "final": "x", "receipt": False},
+    })
+    (tmp_path / scope[0]).write_bytes("new a\n".encode("utf-8"))
+    (run_root / "page_errors.json").write_text(json.dumps({
+        "run_id": "RUN-RC8",
+        "errors": [{"name": "B", "page_path": scope[1], "reason": "refusing write"}],
+    }), encoding="utf-8")
+    with pytest.raises(refresh_run.RefreshRunError) as excinfo:
+        refresh_run._assert_reference_stage_reconciled(scope, rows, initial, run_root)
+    assert "refused_by_writer" in str(excinfo.value) and scope[1] in str(excinfo.value)
+
+
+def test_reference_stage_noop_restamp_receipt_is_not_applied(tmp_path):
+    """A regenerated-identical page (receipt old_hash == new_hash, bytes
+    unchanged) is a legitimate no-op, never a mismatch."""
+    scope, rows, initial, run_root = _rc8_stage(tmp_path, "pdf", "net", {
+        "Same.md": {"initial": "same\n", "final": "same\n", "receipt": True,
+                    "disposition": "EVIDENCE_ONLY"},
+    })
+    refresh_run._assert_reference_stage_reconciled(scope, rows, initial, run_root)
+
+
+def test_apply_run_blocks_when_reference_writer_refuses_a_page(tmp_path: Path):
+    """End to end through apply_run(): the writer subprocess exits 0 (as the
+    old batch_reference did), records an applied-looking decision + receipt
+    for a page whose bytes never change -> apply_run must now refuse to
+    advance to VALIDATING."""
+    scoped = "content/reference.aspose.org/en/pdf/net/Refused.md"
+    manifest = _write_scope_manifest_and_plan(tmp_path, [scoped], "RUN-RC8-APPLY")
+    run_root = tmp_path / "reports/refresh_runs/pdf/net/RUN-RC8-APPLY"
+
+    def false_pass_runner(args: list[str], **_: object):
+        if any("batch_reference.py" in str(a) for a in args):
+            (run_root / "receipts").mkdir(parents=True, exist_ok=True)
+            old_hash = refresh_run._path_hash(scoped)
+            (run_root / "receipts/RCP-1.yaml").write_text(yaml.safe_dump({
+                "content_refresh_receipt": {
+                    "receipt_id": "RCP-1", "old_hash": old_hash,
+                    "new_hash": "sha256:" + "0" * 64,
+                }
+            }), encoding="utf-8")
+            with open(run_root / "page_decisions.jsonl", "a", encoding="utf-8") as f:
+                f.write(json.dumps({
+                    "run_id": "RUN-RC8-APPLY", "page_path": scoped,
+                    "disposition": "BODY_UPDATED",
+                    "receipt_ref": "receipts/RCP-1.yaml",
+                }) + "\n")
+            return subprocess.CompletedProcess(args, 0, "", "")
+        return _runner(args)
+
+    refresh_run.configure(
+        repo_root=tmp_path, command_runner=false_pass_runner,
+        source_sha_resolver=lambda _f, _p: MODEL_SHA,
+        now=lambda: datetime(2026, 7, 25, tzinfo=timezone.utc),
+    )
+    with pytest.raises(refresh_run.RefreshRunError, match="bytes_not_written"):
+        refresh_run.apply_run(manifest)
+
+
+@pytest.mark.parametrize("family,platform,first,second", _RC8_SHAPES)
+def test_reference_stage_page_with_applied_receipt_and_extra_allowed_hash(
+    tmp_path, family, platform, first, second
+):
+    """R3-10: a page with BOTH an applied receipt and an extra-allowed hash must
+    reconcile. The augmented initial hashes (current hash substituted for the
+    initial one) made it look unchanged and report applied_not_on_disk."""
+    scope, rows, initial, run_root = _rc8_stage(tmp_path, family, platform, {
+        first: {"initial": "old a\n", "final": "new a\n", "receipt": True},
+        second: {"initial": "old b\n", "final": "x", "receipt": False},
+    })
+    (tmp_path / scope[0]).write_bytes(b"new a\n")
+    (tmp_path / scope[1]).write_bytes(b"authorized out of band\n")
+    extra = {
+        scope[0]: {refresh_run._path_hash(scope[0])},
+        scope[1]: {refresh_run._path_hash(scope[1])},
+    }
+    # Raw pinned hashes + the explicit extra-allowed map: passes.
+    refresh_run._assert_reference_stage_reconciled(
+        scope, rows, initial, run_root, extra)
+    # The old input (augmented initial hashes) is exactly what mis-reported it.
+    augmented = {**initial, **{p: refresh_run._path_hash(p) for p in extra}}
+    with pytest.raises(refresh_run.RefreshRunError, match="bytes_not_written"):
+        refresh_run._assert_reference_stage_reconciled(
+            scope, rows, augmented, run_root, None)
+    # Authorization is by exact current hash: any other drift still fails.
+    (tmp_path / scope[1]).write_bytes(b"drifted after authorization\n")
+    with pytest.raises(refresh_run.RefreshRunError,
+                       match="bytes_changed_without_applied_receipt"):
+        refresh_run._assert_reference_stage_reconciled(
+            scope, rows, initial, run_root, extra)
+
+
+def test_apply_run_reference_page_with_receipt_and_extra_allowed_hash(tmp_path: Path):
+    """R3-10 end to end: apply_run passes the RAW pinned hashes plus the
+    extra-allowed sidecar into the reconciliation helper."""
+    scoped = "content/reference.aspose.org/en/pdf/net/Both.md"
+    manifest = _write_scope_manifest_and_plan(tmp_path, [scoped], "RUN-RC8-BOTH")
+    run_root = tmp_path / "reports/refresh_runs/pdf/net/RUN-RC8-BOTH"
+    new_bytes = b"written by the reference writer\n"
+
+    def writer_runner(args: list[str], **_: object):
+        if any("batch_reference.py" in str(a) for a in args):
+            (run_root / "receipts").mkdir(parents=True, exist_ok=True)
+            (tmp_path / scoped).write_bytes(new_bytes)
+            new_hash = refresh_run._path_hash(scoped)
+            (run_root / "receipts/RCP-1.yaml").write_text(yaml.safe_dump({
+                "content_refresh_receipt": {
+                    "receipt_id": "RCP-1",
+                    "old_hash": "sha256:" + "1" * 64, "new_hash": new_hash,
+                }
+            }), encoding="utf-8")
+            with open(run_root / "page_decisions.jsonl", "a", encoding="utf-8") as f:
+                f.write(json.dumps({
+                    "run_id": "RUN-RC8-BOTH", "page_path": scoped,
+                    "disposition": "BODY_UPDATED",
+                    "receipt_ref": "receipts/RCP-1.yaml",
+                }) + "\n")
+            # the same final hash is ALSO registered as an authorized write
+            refresh_run._record_extra_allowed_hash(run_root, scoped, new_hash)
+            return subprocess.CompletedProcess(args, 0, "", "")
+        return _runner(args)
+
+    refresh_run.configure(
+        repo_root=tmp_path, command_runner=writer_runner,
+        source_sha_resolver=lambda _f, _p: MODEL_SHA,
+        now=lambda: datetime(2026, 7, 25, tzinfo=timezone.utc),
+    )
+    result = refresh_run.apply_run(manifest)
+    assert result["state"] == "VALIDATING"
+
+
+# ---------------------------------------------------------------------------
+# R3-4 (MT074): sanctioned, validated authorize-body-removal verb
+# ---------------------------------------------------------------------------
+
+_AUTH_SHAPES = [
+    ("content/docs.aspose.org/en/pdf/net/guide.md", "content/docs.aspose.org/en/pdf/net/Guide2.md"),
+    ("content/kb.aspose.org/en/pdf/net/how-to-merge.md", "content/kb.aspose.org/en/pdf/net/faq.md"),
+]
+
+
+@pytest.mark.parametrize("first,second", _AUTH_SHAPES)
+def test_authorize_body_removal_records_paths_and_audit_row(tmp_path: Path, first, second):
+    _write_scope_manifest_and_plan(tmp_path, [first, second], "RUN-AUTH")
+    result = refresh_run.authorize_body_removal(
+        "pdf", "net", "RUN-AUTH", paths=[first.upper().replace("CONTENT", "content")],
+        reason="API removed upstream; section deliberately deleted",
+        session_id="session-1",
+    )
+    # a case-insensitive match is stored under the scope path spelling
+    assert result["intentional_body_removals"] == [first]
+    log = result["intentional_body_removal_log"]
+    assert len(log) == 1 and log[0]["session"] == "session-1"
+    assert log[0]["reason"] == "API removed upstream; section deliberately deleted"
+    assert log[0]["at"] and log[0]["paths"] == [first]
+    reloaded = refresh_run._load_manifest("pdf", "net", "RUN-AUTH")
+    assert reloaded["intentional_body_removals"] == [first]
+    # idempotent on the path list, additive on the audit log
+    again = refresh_run.authorize_body_removal(
+        "pdf", "net", "RUN-AUTH", paths=[first, second], reason="more", session_id="session-1")
+    assert sorted(again["intentional_body_removals"]) == sorted([first, second])
+    assert len(again["intentional_body_removal_log"]) == 2
+
+
+@pytest.mark.parametrize("first,second", _AUTH_SHAPES)
+def test_authorized_removal_is_honoured_by_check_12(tmp_path: Path, first, second):
+    import post_refresh_verify as prv
+    _write_scope_manifest_and_plan(tmp_path, [first, second], "RUN-AUTH-C12")
+    refresh_run.authorize_body_removal(
+        "pdf", "net", "RUN-AUTH-C12", paths=[first], reason="intentional", session_id="session-1")
+    stored = refresh_run._load_manifest("pdf", "net", "RUN-AUTH-C12")
+    big = "---\ntitle: T\n---\n" + " ".join(f"w{i}" for i in range(400)) + "\n"
+    (tmp_path / first).write_bytes(b"---\ntitle: T\n---\nshort\n")
+    (tmp_path / second).write_bytes(b"---\ntitle: T\n---\nshort\n")
+    prv.configure(repo_root=tmp_path,
+                  git_base_blobs=lambda paths, ref: {p: big.encode() for p in paths})
+    try:
+        failures, _n, _u = prv.check_mass_deletion(
+            [first, second], base_ref="X",
+            authorized_paths=set(stored["intentional_body_removals"]))
+    finally:
+        prv.configure()
+    assert len(failures) == 1 and second in failures[0] and first not in failures[0]
+
+
+def test_authorize_body_removal_refusals(tmp_path: Path):
+    first = "content/docs.aspose.org/en/pdf/net/guide.md"
+    _write_scope_manifest_and_plan(tmp_path, [first], "RUN-AUTH-NO")
+    with pytest.raises(refresh_run.RefreshRunError, match="outside the run scope"):
+        refresh_run.authorize_body_removal(
+            "pdf", "net", "RUN-AUTH-NO",
+            paths=["content/docs.aspose.org/en/pdf/net/other.md"],
+            reason="r", session_id="session-1")
+    with pytest.raises(refresh_run.RefreshRunError, match="non-empty --reason"):
+        refresh_run.authorize_body_removal(
+            "pdf", "net", "RUN-AUTH-NO", paths=[first], reason="  ", session_id="session-1")
+    with pytest.raises(refresh_run.RefreshRunError, match="at least one --path"):
+        refresh_run.authorize_body_removal(
+            "pdf", "net", "RUN-AUTH-NO", paths=[], reason="r", session_id="session-1")
+    with pytest.raises(refresh_run.RefreshRunError, match="owned by session"):
+        refresh_run.authorize_body_removal(
+            "pdf", "net", "RUN-AUTH-NO", paths=[first], reason="r", session_id="someone-else")
+    stored = refresh_run._load_manifest("pdf", "net", "RUN-AUTH-NO")
+    assert "intentional_body_removals" not in stored
+
+
+def test_authorize_body_removal_refused_before_scope_is_resolved(tmp_path: Path):
+    refresh_run.create_run(
+        "pdf", "net", mode="upstream", run_id="RUN-AUTH-EARLY", session_id="session-1")
+    with pytest.raises(refresh_run.RefreshRunError, match="outside the run scope"):
+        refresh_run.authorize_body_removal(
+            "pdf", "net", "RUN-AUTH-EARLY",
+            paths=["content/docs.aspose.org/en/pdf/net/guide.md"],
+            reason="r", session_id="session-1")
+
+
+def test_authorize_body_removal_refused_for_terminal_run(tmp_path: Path):
+    first = "content/docs.aspose.org/en/pdf/net/guide.md"
+    _write_scope_manifest_and_plan(tmp_path, [first], "RUN-AUTH-DONE")
+    refresh_run.abandon_run("pdf", "net", "RUN-AUTH-DONE", reason="test", session_id="session-1")
+    with pytest.raises(refresh_run.RefreshRunError):
+        refresh_run.authorize_body_removal(
+            "pdf", "net", "RUN-AUTH-DONE", paths=[first], reason="r", session_id="session-1")
+
+
+def test_authorize_body_removal_cli(tmp_path: Path, capsys):
+    first = "content/docs.aspose.org/en/pdf/net/guide.md"
+    _write_scope_manifest_and_plan(tmp_path, [first], "RUN-AUTH-CLI")
+    capsys.readouterr()  # drop output printed while planning
+    code =refresh_run.main(["authorize-body-removal", "--run-id", "RUN-AUTH-CLI",
+                             "--path", first, "--reason", "cli reason",
+                             "--session-id", "session-1"])
+    assert code == 0
+    printed = json.loads(capsys.readouterr().out)
+    assert printed["intentional_body_removals"] == [first]
+    code = refresh_run.main(["authorize-body-removal", "--run-id", "RUN-AUTH-CLI",
+                             "--path", "content/docs.aspose.org/en/pdf/net/x.md",
+                             "--reason", "r", "--session-id", "session-1"])
+    assert code == 2
+
+
+# ---------------------------------------------------------------------------
+# B19 (MT074): the knowledge stage must scout the run's PINNED clone SHA
+# ---------------------------------------------------------------------------
+
+def _write_product(tmp_path: Path, family: str, platform: str, sha: str):
+    merged = tmp_path / "knowledge" / family / platform / "merged"
+    merged.mkdir(parents=True, exist_ok=True)
+    (merged / "model.yaml").write_text(yaml.safe_dump({
+        "family": family, "platform": platform, "repo_sha": sha, "stale_since": None,
+    }), encoding="utf-8")
+    page = tmp_path / f"content/docs.aspose.org/en/{family}/{platform}/page.md"
+    page.parent.mkdir(parents=True, exist_ok=True)
+    page.write_text("page\n", encoding="utf-8")
+    return page
+
+
+@pytest.mark.parametrize("family,platform,sha", [
+    ("pdf", "net", MODEL_SHA),
+    ("cells", "python", "c" * 40),
+])
+def test_knowledge_stage_receives_pin_sha_and_strict_fetch(tmp_path: Path, family, platform, sha):
+    page = _write_product(tmp_path, family, platform, sha)
+    calls: list[list[str]] = []
+
+    def runner(args: list[str], **kw: object):
+        if any("refresh_knowledge.py" in str(a) for a in args):
+            calls.append([str(a) for a in args])
+        return _runner(args, **kw)
+
+    refresh_run.configure(
+        repo_root=tmp_path, command_runner=runner,
+        source_sha_resolver=lambda _f, _p: sha,
+        now=lambda: datetime(2026, 7, 25, tzinfo=timezone.utc),
+    )
+    manifest = refresh_run.create_run(
+        family, platform, mode="upstream", run_id=f"RUN-PIN-{family}", session_id="session-1")
+    assert manifest["initial_source_sha"] == sha
+    planning = (tmp_path / "reports/refresh_runs" / family / platform
+                / f"RUN-PIN-{family}" / "planning" / family / platform)
+    planning.mkdir(parents=True)
+    (planning / "page_impact.json").write_text(json.dumps({"pages": [
+        {"path": page.relative_to(tmp_path).as_posix(), "pia_score": "HIGH_IMPACT"}]}),
+        encoding="utf-8")
+    (tmp_path / "knowledge" / family / platform / "merged" / "knowledge_delta.json").write_text(
+        "{}", encoding="utf-8")
+    refresh_run.prepare_run(manifest)
+    assert len(calls) == 1
+    assert calls[0][-6:] == [family, platform, "--compulsory-enrich",
+                             "--pin-sha", sha, "--strict-fetch"]
+
+
+def test_knowledge_stage_refused_when_pinned_sha_missing(tmp_path: Path):
+    calls: list[list[str]] = []
+
+    def runner(args: list[str], **kw: object):
+        calls.append([str(a) for a in args])
+        return _runner(args, **kw)
+
+    refresh_run.configure(
+        repo_root=tmp_path, command_runner=runner,
+        source_sha_resolver=lambda _f, _p: MODEL_SHA,
+        now=lambda: datetime(2026, 7, 25, tzinfo=timezone.utc),
+    )
+    manifest = refresh_run.create_run(
+        "pdf", "net", mode="upstream", run_id="RUN-PIN-MISSING", session_id="session-1")
+    calls.clear()
+    manifest["initial_source_sha"] = ""
+    with pytest.raises(refresh_run.RefreshRunError, match="no pinned clone SHA"):
+        refresh_run.prepare_run(manifest)
+    assert not [c for c in calls if any("refresh_knowledge.py" in a for a in c)]

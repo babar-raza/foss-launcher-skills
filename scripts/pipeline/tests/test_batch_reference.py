@@ -3058,3 +3058,198 @@ def test_generate_grouped_index_stamps_generator_version_and_output_has_no_dupli
     all_names = [name for names in tables.values() for name in names]
     assert all_names.count("Rectangle") == 0, "bare 'Rectangle' must be disambiguated, not duplicated"
     assert any(n.startswith("Rectangle-") for n in all_names)
+
+
+# ---------------------------------------------------------------------------
+# RC-8 (MT074 B17): a page REFUSED by a guard must not pass as a clean stage
+# ---------------------------------------------------------------------------
+
+_RC8_PRODUCTS = [
+    # (family, platform, entry kind, class name, backlink slug)
+    ("fake", "net", "class_declaration", "Foo", "foo"),
+    ("demo", "java", "interface_declaration", "Widget", "widget"),
+]
+
+
+def _rc8_make_run(tmp_path, family, platform, kind, name, run_id):
+    """One-class product with an existing, backlinked page and a pinned run."""
+    _make_api_surface(
+        tmp_path,
+        [{"name": name, "kind": kind, "methods": [], "properties": []}],
+        family=family, platform=platform,
+    )
+    page = tmp_path / f"content/reference.aspose.org/en/{family}/{platform}/{name}.md"
+    page.parent.mkdir(parents=True, exist_ok=True)
+    link = f"https://reference.aspose.com/{family}/{platform}/x/{name.lower()}/"
+    page.write_text(
+        "---\nprovenance:\n  content_origin: skill-generated\n"
+        "  auto_updatable: true\n---\n"
+        f"# {name}\n\nOld body text.\n\n"
+        f"## See Also\n\n- [Aspose.{family} API Reference]({link})\n",
+        encoding="utf-8",
+    )
+    run_root = tmp_path / f"reports/refresh_runs/{family}/{platform}/{run_id}"
+    run_root.mkdir(parents=True)
+    scoped = f"content/reference.aspose.org/en/{family}/{platform}/{name}.md"
+    scope_path = run_root / "scope.json"
+    scope_path.write_text(json.dumps({
+        "schema_version": 1, "run_id": run_id, "family": family,
+        "platform": platform, "paths": [scoped], "initial_hashes": {},
+    }), encoding="utf-8")
+    logical = json.dumps({"paths": [scoped], "input_digest": None},
+                         sort_keys=True, separators=(",", ":")).encode("utf-8")
+    (run_root / "manifest.json").write_text(json.dumps({
+        "run_id": run_id, "family": family, "platform": platform,
+        "created_at": "2026-07-26T00:00:00Z",
+        "scope": {"paths": [scoped], "input_digest": None,
+                  "digest": "sha256:" + hashlib.sha256(logical).hexdigest()},
+        "output_digests": {"scope": "sha256:" + hashlib.sha256(
+            scope_path.read_bytes()).hexdigest()},
+    }), encoding="utf-8")
+    return page, run_root, link, scoped
+
+
+def _rc8_run(tmp_path, family, platform, run_id, run_root, resolver):
+    _br.configure(repo_root=tmp_path, resolve_backlink_fn=resolver)
+    try:
+        return _production_run(family, platform, rebuild_all=True,
+                               confirm_rebuild=True, run_id=run_id,
+                               run_root=run_root)
+    finally:
+        _br.configure(repo_root=tmp_path)
+
+
+@pytest.mark.parametrize("family,platform,kind,name,slug", _RC8_PRODUCTS)
+def test_refused_backlink_downgrade_leaves_no_applied_receipt(
+    tmp_path, capsys, family, platform, kind, name, slug
+):
+    """The false-PASS fixture: the guard refuses the write, so NO receipt or
+    page decision may claim the page was applied, the sidecar names the page,
+    and the CLI exit code is non-zero."""
+    page, run_root, link, scoped = _rc8_make_run(
+        tmp_path, family, platform, kind, name, "RUN-RC8-REFUSE")
+    before = page.read_bytes()
+    result = _rc8_run(tmp_path, family, platform, "RUN-RC8-REFUSE", run_root,
+                      lambda *a, **k: (None, None, None, None))
+
+    assert result["errors"] == 1 and result["updated"] == 0
+    assert page.read_bytes() == before, "refused page must be untouched"
+    assert not list((run_root / "receipts").glob("*.yaml")), (
+        "a refused page must not leave an applied-looking receipt"
+    )
+    decisions = run_root / "page_decisions.jsonl"
+    rows = (
+        [json.loads(x) for x in decisions.read_text(encoding="utf-8").splitlines() if x.strip()]
+        if decisions.is_file() else []
+    )
+    assert not [r for r in rows if r.get("page_path") == scoped]
+    sidecar = json.loads((run_root / "page_errors.json").read_text(encoding="utf-8"))
+    assert [e["page_path"] for e in sidecar["errors"]] == [scoped]
+    assert "refusing write" in sidecar["errors"][0]["reason"]
+
+    code = _br._page_error_exit_code(result)
+    assert code == 1
+    err = capsys.readouterr().err
+    assert scoped in err and "refusing write" in err
+
+
+@pytest.mark.parametrize("family,platform,kind,name,slug", _RC8_PRODUCTS)
+def test_clean_run_still_passes_with_receipt_and_exit_zero(
+    tmp_path, capsys, family, platform, kind, name, slug
+):
+    page, run_root, link, scoped = _rc8_make_run(
+        tmp_path, family, platform, kind, name, "RUN-RC8-CLEAN")
+    result = _rc8_run(
+        tmp_path, family, platform, "RUN-RC8-CLEAN", run_root,
+        lambda *a, **k: (link, "platform", "reference.aspose.com", None))
+    assert result["errors"] == 0 and result["updated"] == 1
+    assert len(list((run_root / "receipts").glob("*.yaml"))) == 1
+    rows = [json.loads(x) for x in
+            (run_root / "page_decisions.jsonl").read_text(encoding="utf-8").splitlines()
+            if x.strip()]
+    assert [r["page_path"] for r in rows] == [scoped]
+    sidecar = json.loads((run_root / "page_errors.json").read_text(encoding="utf-8"))
+    assert sidecar["errors"] == []
+    assert _br._page_error_exit_code(result) == 0
+    assert capsys.readouterr().err == ""
+
+
+def test_receipt_still_written_before_real_write_after_guards_pass(tmp_path):
+    """Crash-recovery property is preserved: when every guard passes, the
+    receipt + decision exist BEFORE the real content path is mutated."""
+    page, run_root, link, scoped = _rc8_make_run(
+        tmp_path, "fake", "net", "class_declaration", "Foo", "RUN-RC8-ORDER")
+    original_write = _br.safe_content_write
+    seen = {}
+
+    def spy(path, content, **kwargs):
+        # the seam wraps the REAL content-path write only (never staging)
+        seen["receipts"] = len(list((run_root / "receipts").glob("*.yaml")))
+        seen["decisions"] = (run_root / "page_decisions.jsonl").is_file()
+        return original_write(path, content, **kwargs)
+
+    _br.configure(repo_root=tmp_path, content_write_fn=spy,
+                  resolve_backlink_fn=lambda *a, **k: (
+                      link, "platform", "reference.aspose.com", None))
+    try:
+        _production_run("fake", "net", rebuild_all=True, confirm_rebuild=True,
+                        run_id="RUN-RC8-ORDER", run_root=run_root)
+    finally:
+        _br.configure(repo_root=tmp_path)
+    assert seen == {"receipts": 1, "decisions": True}
+
+
+def test_refused_page_is_retried_on_resume_not_skipped(tmp_path):
+    """A refused page leaves nothing resume could mistake for 'already
+    applied': once the guard condition clears, the same run converges."""
+    page, run_root, link, scoped = _rc8_make_run(
+        tmp_path, "demo", "java", "interface_declaration", "Widget", "RUN-RC8-RESUME")
+    first = _rc8_run(tmp_path, "demo", "java", "RUN-RC8-RESUME", run_root,
+                     lambda *a, **k: (None, None, None, None))
+    assert first["errors"] == 1
+    second = _rc8_run(
+        tmp_path, "demo", "java", "RUN-RC8-RESUME", run_root,
+        lambda *a, **k: (link, "platform", "reference.aspose.com", None))
+    assert second["errors"] == 0 and second["updated"] == 1
+    assert len(list((run_root / "receipts").glob("*.yaml"))) == 1
+    sidecar = json.loads((run_root / "page_errors.json").read_text(encoding="utf-8"))
+    assert sidecar["errors"] == []
+
+
+def test_exit_code_helper_dry_run_and_allow_flag(capsys):
+    result = {"errors": 2, "error_pages": [
+        {"name": "A", "page_path": "content/a.md", "reason": "r1"},
+        {"name": "B", "page_path": "content/b.md", "reason": "r2"}]}
+    assert _br._page_error_exit_code(result, dry_run=True) == 0
+    assert capsys.readouterr().err == ""
+    assert _br._page_error_exit_code(result, allow_page_errors=True) == 0
+    err = capsys.readouterr().err
+    assert "content/a.md" in err and "content/b.md" in err and "allow-page-errors" in err
+    assert _br._page_error_exit_code({"errors": 0}) == 0
+    assert _br._page_error_exit_code(result) == 1
+    err = capsys.readouterr().err
+    assert "content/a.md: r1" in err and "content/b.md: r2" in err
+
+
+@pytest.mark.parametrize("allow,expected", [(False, 1), (True, 0)])
+def test_cli_main_exit_status_for_refused_page(
+    tmp_path, monkeypatch, capsys, allow, expected
+):
+    """End to end through main(): refused page => exit 1 unless the explicit
+    diagnostic flag is given."""
+    page, run_root, link, scoped = _rc8_make_run(
+        tmp_path, "fake", "net", "class_declaration", "Foo", "RUN-RC8-CLI")
+    _br.configure(repo_root=tmp_path,
+                  resolve_backlink_fn=lambda *a, **k: (None, None, None, None))
+    argv = ["batch_reference.py", "fake", "net", "--rebuild-all", "--confirm-rebuild",
+            "--run-id", "RUN-RC8-CLI", "--run-root", str(run_root)]
+    if allow:
+        argv.append("--allow-page-errors")
+    monkeypatch.setattr(sys, "argv", argv)
+    try:
+        with pytest.raises(SystemExit) as excinfo:
+            _br.main()
+    finally:
+        _br.configure(repo_root=tmp_path)
+    assert excinfo.value.code == expected
+    assert scoped in capsys.readouterr().err

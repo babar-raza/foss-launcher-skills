@@ -11,6 +11,20 @@ advances through input refresh and impact planning, then stops at ``PLANNED``.
 A normal ``run`` continues through the registered S-62/S-105 writers and the
 blocking validation chain. Every mutating command requires a stable session
 identity and an explicit run ID.
+
+Sanctioned authorizations (MT074 R3-4). post_refresh_verify Check 12 (the
+mass-deletion guard) hard-fails a page whose body shrinks by more than 40% and
+80 words unless a page decision explains it or the run authorizes it::
+
+    refresh_run.py authorize-body-removal --run-id ID --path PAGE [--path ...] \\
+        --reason TEXT [--session-id ID]
+
+Each ``--path`` must be a page in the run's resolved scope (so only after
+planning), the run must not be COMMITTED/ABANDONED, and the caller must own the
+run. The path is appended to ``manifest["intentional_body_removals"]`` (read by
+Check 12) and an audit row {paths, reason, session, at} is appended to
+``manifest["intentional_body_removal_log"]``. (``intentional_renames``, read by
+Check 11, has no CLI yet.)
 """
 from __future__ import annotations
 
@@ -466,6 +480,122 @@ def _reconcile_scope_and_decisions(
         if any(_is_real_violation(row) for row in decisions_by_path.get(p, []))
     ]
     return real_missing, real_unexpected
+
+
+_REFERENCE_APPLIED_DISPOSITIONS = {"BODY_UPDATED", "EVIDENCE_ONLY", "GENERATED"}
+
+
+def _assert_reference_stage_reconciled(
+    reference_scope: list[str],
+    decision_rows: list[dict[str, Any]],
+    initial_hashes: dict[str, str],
+    run_root: Path,
+    extra_allowed: dict[str, set[str]] | None = None,
+) -> None:
+    """RC-8 (MT074 B17): after the reference writer stage, require that
+    (pages with an APPLIED receipt/decision) == (pages whose bytes changed on
+    disk) == (planned reference-scope pages the writer did not refuse).
+
+    batch_reference.py used to record a BODY_UPDATED/EVIDENCE_ONLY/GENERATED
+    receipt + decision BEFORE a guard (backlink-downgrade) could refuse the
+    write, swallow the refusal, and exit 0 -- leaving an applied-looking
+    receipt for a page that was never written. _reconcile_scope_and_decisions
+    only checks decision-vs-scope presence, never decision-vs-bytes, so that
+    class slipped through. "Applied" here means a write disposition whose
+    receipt actually changes the file (old_hash != new_hash); a no-op
+    restamp that regenerates identical bytes is correctly not "applied".
+    Raises RefreshRunError naming each mismatching page list.
+    """
+    if not reference_scope:
+        return
+    scope = {p.casefold(): p for p in reference_scope}
+
+    # (a) the writer's own refusal sidecar: pages it refused/errored on.
+    sidecar = run_root / "page_errors.json"
+    refused: list[str] = []
+    if sidecar.is_file():
+        try:
+            doc = json.loads(sidecar.read_text(encoding="utf-8"))
+        except (OSError, json.JSONDecodeError) as exc:
+            raise RefreshRunError(
+                f"reference refresh page-error sidecar is unreadable: {exc}"
+            ) from exc
+        refused = sorted(
+            str(item.get("page_path") or item.get("name"))
+            for item in (doc.get("errors") or [])
+        )
+
+    # (b) applied (decision + receipt) vs bytes changed on disk.
+    applied: dict[str, str | None] = {}
+    unverifiable: set[str] = set()
+    for row in decision_rows:
+        key = str(row.get("page_path") or "").casefold()
+        if key not in scope or row.get("disposition") not in _REFERENCE_APPLIED_DISPOSITIONS:
+            continue
+        ref = row.get("receipt_ref")
+        if not (isinstance(ref, str) and ref):
+            # Real writer rows always carry receipt_ref (hard-required later
+            # by _assert_run_evidence_ready); a row without one cannot be
+            # compared against bytes here, so it is exempt from both lists.
+            unverifiable.add(key)
+            continue
+        ref_path = Path(ref)
+        receipt_path = run_root / ref_path
+        if (
+            ref_path.is_absolute()
+            or ".." in ref_path.parts
+            or not receipt_path.is_file()
+        ):
+            unverifiable.add(key)
+            continue
+        receipt = (
+            yaml.safe_load(receipt_path.read_text(encoding="utf-8")) or {}
+        ).get("content_refresh_receipt") or {}
+        if receipt.get("old_hash") == receipt.get("new_hash"):
+            continue  # no-op restamp: nothing was supposed to change
+        applied[key] = receipt.get("new_hash")
+
+    # initial_hashes must be the RAW pinned hashes. The extra-allowed map
+    # (_record_extra_allowed_hash: authorized out-of-band writes) is applied
+    # here explicitly instead of through _augment_initial_hashes_with_extra_
+    # allowed, which would rewrite a page's "initial" hash to its current one
+    # and make a page that ALSO has an applied receipt look unchanged.
+    extra = {
+        key.casefold(): set(values)
+        for key, values in (extra_allowed or {}).items()
+    }
+
+    def _authorized(page: str) -> bool:
+        return _path_hash(page) in extra.get(page.casefold(), set())
+
+    changed = {
+        key
+        for key, page in scope.items()
+        if key not in unverifiable
+        and _path_hash(page) != initial_hashes.get(page, "MISSING")
+    }
+    applied_not_on_disk = sorted(
+        scope[k] for k in applied
+        if k not in changed
+        or (
+            applied[k] is not None
+            and _path_hash(scope[k]) != applied[k]
+            and not _authorized(scope[k])
+        )
+    )
+    changed_not_applied = sorted(
+        scope[k] for k in changed
+        if k not in applied and not _authorized(scope[k])
+    )
+    if refused or applied_not_on_disk or changed_not_applied:
+        raise RefreshRunError(
+            "Reference stage receipts do not match the working tree "
+            f"(applied={len(applied)}, changed={len(changed)}, "
+            f"scope={len(scope)}): "
+            f"refused_by_writer={refused[:5]}, "
+            f"applied_receipt_but_bytes_not_written={applied_not_on_disk[:5]}, "
+            f"bytes_changed_without_applied_receipt={changed_not_applied[:5]}"
+        )
 
 
 def _allowed_commit_paths(
@@ -1080,12 +1210,32 @@ def create_run(
     scope_manifest: str | None = None,
     run_id: str | None = None,
     session_id: str | None = None,
+    released_api_surface: str | None = None,
 ) -> dict[str, Any]:
-    """Create and input-pin a new run; returns its validated manifest."""
+    """Create and input-pin a new run; returns its validated manifest.
+
+    ``released_api_surface`` (MT074 B4, optional): path to the api_surface.json
+    of the PUBLISHED release bundle; pinned (path + sha256) in the manifest and
+    used as the capability ledger's availability source. Absent, prepare_run
+    falls back to a copy of the pre-refresh tracked bundle surface.
+    """
     family = _safe_token(family, "family")
     platform = _safe_token(platform, "platform")
     if mode not in MODES:
         raise RefreshRunError(f"mode must be one of {sorted(MODES)}")
+    released_pin: dict[str, str] | None = None
+    if released_api_surface:
+        released_path = Path(released_api_surface)
+        if not released_path.is_absolute():
+            released_path = _repo_root / released_path
+        if not released_path.is_file():
+            raise RefreshRunError(
+                f"Released api surface not found: {released_path}"
+            )
+        released_pin = {
+            "path": _relative_input(released_path),
+            "sha256": "sha256:" + hashlib.sha256(released_path.read_bytes()).hexdigest(),
+        }
     owner = _session_id(session_id)
     rid = _safe_token(
         run_id or f"rf-{_now().strftime('%Y%m%dT%H%M%SZ')}-{uuid.uuid4().hex[:12]}",
@@ -1176,6 +1326,13 @@ def create_run(
             "commit_sha": None,
             "failure_reason": None,
         }
+        if mode in {"upstream", "combined"}:
+            # MT074 B4/R3-2: marks runs created WITH the capability-ledger
+            # contract; post_refresh_verify Check 13 only FAILS a missing
+            # ledger for marked runs (older manifests verify as NA).
+            manifest["capability_ledger_required"] = True
+        if released_pin is not None:
+            manifest["released_api_surface"] = released_pin
         _save_manifest(manifest)
         _event(family, platform, rid, "RUN_CREATED", mode=mode, owner=owner)
         _set_active(family, platform, rid)
@@ -1594,6 +1751,175 @@ def _reconcile_fact_pack_with_registry(
     return mismatches
 
 
+_RELEASED_SURFACE_PROXY = "released_surface_proxy.json"
+_CAPABILITY_LEDGER = "capability_ledger.json"
+
+
+def _released_surface_for_ledger(
+    manifest: dict[str, Any], run_root: Path
+) -> tuple[Path | None, str]:
+    """(path, release_surface kind) for the capability ledger's availability.
+
+    'explicit' = the operator-supplied published surface pinned at start;
+    'proxy_pre_refresh_bundle' = the copy captured before the knowledge
+    refresh; 'none' = neither exists (availability then stays unknown).
+    """
+    pinned = manifest.get("released_api_surface")
+    if pinned:
+        path = _repo_root / pinned["path"]
+        if _file_digest(path) != pinned.get("sha256"):
+            raise RefreshRunError(
+                "Released api surface changed since it was pinned at start: "
+                f"{pinned['path']}"
+            )
+        return path, "explicit"
+    proxy = run_root / _RELEASED_SURFACE_PROXY
+    if proxy.is_file():
+        return proxy, "proxy_pre_refresh_bundle"
+    return None, "none"
+
+
+def _capture_released_surface_proxy(manifest: dict[str, Any], run_root: Path) -> None:
+    """Copy the PRE-refresh tracked bundle api_surface.json into the run root.
+
+    Must run BEFORE the knowledge refresh, which overwrites the working-tree
+    bundle. Read from the run's pinned base commit (not the moving working
+    tree), so a resumed prepare_run -- whose working tree was already
+    overwritten by an earlier attempt -- captures the identical bytes; an
+    existing proxy is never rewritten. Falls back to the working-tree file
+    only when the bundle is not tracked at the base commit (first attempt:
+    still pre-refresh). No explicit surface and no readable bundle -> no proxy.
+    """
+    if manifest.get("released_api_surface"):
+        return
+    proxy = run_root / _RELEASED_SURFACE_PROXY
+    if proxy.is_file():
+        return
+    family, platform = manifest["family"], manifest["platform"]
+    relative = f"knowledge/{family}/{platform}/merged/api_surface.json"
+    raw: bytes | None = None
+    try:
+        result = _command(
+            ["git", "show", f"{manifest['base_commit_sha']}:{relative}"],
+            timeout=60,
+        )
+        if result.returncode == 0 and (result.stdout or "").strip():
+            json.loads(result.stdout)
+            raw = result.stdout.encode("utf-8")
+    except Exception:  # noqa: BLE001 -- fall through to the working-tree copy
+        raw = None
+    if raw is None:
+        working = _repo_root / relative
+        if working.is_file():
+            try:
+                json.loads(working.read_text(encoding="utf-8"))
+                raw = working.read_bytes()
+            except (OSError, ValueError):
+                raw = None
+    if raw is not None:
+        proxy.write_bytes(raw)
+
+
+def capability_plan_fingerprint(ledger: dict[str, Any]) -> str:
+    """Plan identity of a capability ledger: sha256 over its schema_version and
+    the sorted unit ids (each id is a deterministic hash of the unit's symbols/
+    formats, so adding, removing or regrouping a unit changes it). Disposition
+    edits (set-disposition) never touch unit ids, so they leave it unchanged.
+    """
+    payload = json.dumps(
+        {
+            "schema_version": ledger.get("schema_version"),
+            "unit_ids": sorted(str(u.get("id")) for u in (ledger.get("units") or [])),
+        },
+        sort_keys=True,
+        separators=(",", ":"),
+    )
+    return "sha256:" + hashlib.sha256(payload.encode("utf-8")).hexdigest()
+
+
+def _ledger_file_fingerprint(path: Path) -> str | None:
+    try:
+        data = json.loads(path.read_text(encoding="utf-8"))
+    except (OSError, ValueError):
+        return None
+    return capability_plan_fingerprint(data) if isinstance(data, dict) else None
+
+
+def _build_capability_ledger(
+    manifest: dict[str, Any],
+    run_root: Path,
+    delta: Path,
+    source_sha: str,
+) -> None:
+    """Build the plan-time capability ledger (MT074 B4) for a real delta.
+
+    Deterministic and resume-safe, keyed on PLAN IDENTITY (capability_plan_
+    fingerprint), not bytes: the candidate is built to a temp file; an existing
+    ledger with the same plan identity is kept as-is (so disposition edits and
+    byte-identical reruns are never rewritten), a different plan replaces an
+    untampered ledger, and an existing ledger whose current identity no longer
+    equals the recorded one (units added/removed/regrouped) is left untouched
+    for Check 13 to fail.
+    """
+    family, platform = manifest["family"], manifest["platform"]
+    ledger = run_root / _CAPABILITY_LEDGER
+    recorded = manifest.get("capability_ledger")
+    recorded_fp = recorded.get("plan_fingerprint") if isinstance(recorded, dict) else None
+    current_fp = _ledger_file_fingerprint(ledger) if ledger.is_file() else None
+    if ledger.is_file() and recorded_fp is not None and current_fp != recorded_fp:
+        return
+    merged = _repo_root / "knowledge" / family / platform / "merged"
+    released, kind = _released_surface_for_ledger(manifest, run_root)
+    tmp = run_root / (_CAPABILITY_LEDGER + ".tmp")
+    args = [
+        sys.executable,
+        str(_repo_root / "scripts/pipeline/commands/ops/capability_ledger.py"),
+        "build",
+        "--family", family,
+        "--platform", platform,
+        "--knowledge-delta", str(delta),
+        "--upstream-head", source_sha,
+        "--out", str(tmp),
+    ]
+    if (merged / "format_delta.json").is_file():
+        args += ["--format-delta", str(merged / "format_delta.json")]
+    if (merged / "api_surface.json").is_file():
+        args += ["--api-surface", str(merged / "api_surface.json")]
+    if released is not None:
+        args += ["--released-api-surface", str(released)]
+    registry = _repo_root / "data" / "package_registry.json"
+    if registry.is_file():
+        args += ["--registry-json", str(registry)]
+    _require_command(args, "capability ledger build", manifest=manifest)
+    if not tmp.is_file():
+        raise RefreshRunError("capability ledger build produced no output")
+    new_fp = _ledger_file_fingerprint(tmp)
+    if new_fp is None:
+        raise RefreshRunError("capability ledger build produced an unreadable ledger")
+    keep_existing = ledger.is_file() and (
+        current_fp == new_fp or ledger.read_bytes() == tmp.read_bytes()
+    )
+    if keep_existing:
+        tmp.unlink()
+    else:
+        tmp.replace(ledger)
+    try:
+        ledger_ref = ledger.relative_to(_repo_root).as_posix()
+    except ValueError:
+        ledger_ref = str(ledger)
+    initial_sha = (
+        recorded.get("initial_sha256")
+        if keep_existing and isinstance(recorded, dict) and recorded.get("initial_sha256")
+        else _file_digest(ledger)
+    )
+    manifest["capability_ledger"] = {
+        "path": ledger_ref,
+        "plan_fingerprint": new_fp,
+        "initial_sha256": initial_sha,  # informational only
+        "release_surface": kind,
+    }
+
+
 def prepare_run(manifest: dict[str, Any]) -> dict[str, Any]:
     """Refresh/revalidate inputs and create the immutable run scope."""
     family, platform, rid = (
@@ -1635,6 +1961,20 @@ def prepare_run(manifest: dict[str, Any]) -> dict[str, Any]:
     python = sys.executable
     post_kr_snapshot: dict[str, str] = {}
     if manifest["mode"] in {"upstream", "combined"}:
+        # MT074 B19: the run's pinned clone SHA (captured at create_run) is
+        # the ONLY source revision this run may scout -- never a moving
+        # upstream HEAD. Fail before touching anything if it is missing.
+        pinned_sha = str(manifest.get("initial_source_sha") or "").strip()
+        if not pinned_sha:
+            raise RefreshRunError(
+                "upstream/combined run has no pinned clone SHA "
+                "(manifest.initial_source_sha is missing/empty); refusing to run "
+                "the knowledge refresh against a moving upstream HEAD"
+            )
+        # MT074 B4: capture the pre-refresh released-surface proxy BEFORE the
+        # knowledge refresh below overwrites the working-tree bundle. Read-only
+        # on the repo (a `git show` + a write under the run root).
+        _capture_released_surface_proxy(manifest, _run_root(family, platform, rid))
         _require_command(
             [
                 python,
@@ -1645,6 +1985,9 @@ def prepare_run(manifest: dict[str, Any]) -> dict[str, Any]:
                 family,
                 platform,
                 "--compulsory-enrich",
+                "--pin-sha",
+                pinned_sha,
+                "--strict-fetch",
             ],
             "knowledge refresh",
             manifest=manifest,
@@ -1729,6 +2072,11 @@ def prepare_run(manifest: dict[str, Any]) -> dict[str, Any]:
             "delta site planning",
             manifest=manifest,
         )
+        # MT074 B4: plan-time capability ledger, only for a REAL delta.
+        if manifest["blog_announcement_required"]:
+            _build_capability_ledger(
+                manifest, _run_root(family, platform, rid), delta, source_sha
+            )
 
     run_root = _run_root(family, platform, rid)
     planning_root = run_root / "planning"
@@ -2131,6 +2479,13 @@ def apply_run(manifest: dict[str, Any]) -> dict[str, Any]:
             "Run decision/scope reconciliation failed: "
             f"missing={real_missing[:5]}, unexpected={real_unexpected[:5]}"
         )
+    _assert_reference_stage_reconciled(
+        reference_scope,
+        decision_rows,
+        _assert_pinned_scope(manifest).get("initial_hashes") or {},
+        run_root,
+        _load_extra_allowed_hashes(run_root),
+    )
     blocked = [
         row.get("page_path")
         for row in decision_rows
@@ -3059,6 +3414,62 @@ def abandon_run(
         return manifest
 
 
+def authorize_body_removal(
+    family: str,
+    platform: str,
+    run_id: str,
+    *,
+    paths: list[str],
+    reason: str,
+    session_id: str | None = None,
+) -> dict[str, Any]:
+    """Authorize a deliberate large body shrink for in-scope pages (Check 12)."""
+    owner = _session_id(session_id)
+    if not reason or not reason.strip():
+        raise RefreshRunError("authorize-body-removal requires a non-empty --reason")
+    if not paths:
+        raise RefreshRunError("authorize-body-removal requires at least one --path")
+    with _product_guard(family, platform):
+        _assert_active(family, platform, run_id)
+        manifest = _load_manifest(family, platform, run_id)
+        if manifest["session_owner"] != owner:
+            raise RefreshRunError(
+                f"Run is owned by session {manifest['session_owner']!r}, not {owner!r}"
+            )
+        if manifest["state"] in TERMINAL_STATES:
+            raise RefreshRunError(
+                f"Run is {manifest['state']}; body removals can no longer be authorized"
+            )
+        scope = {
+            str(p).casefold(): str(p)
+            for p in (manifest.get("scope", {}).get("paths") or [])
+        }
+        outside = [p for p in paths if Path(p).as_posix().casefold() not in scope]
+        if outside:
+            raise RefreshRunError(
+                "Refusing to authorize body removal outside the run scope "
+                f"({len(scope)} scoped page(s)): {outside[:5]}"
+            )
+        resolved = [scope[Path(p).as_posix().casefold()] for p in paths]
+        existing = list(manifest.get("intentional_body_removals") or [])
+        for page in resolved:
+            if page not in existing:
+                existing.append(page)
+        manifest["intentional_body_removals"] = existing
+        manifest.setdefault("intentional_body_removal_log", []).append({
+            "paths": resolved,
+            "reason": _redact_artifact_text(reason.strip()),
+            "session": owner,
+            "at": _utc(),
+        })
+        _save_manifest(manifest)
+        _event(
+            family, platform, run_id, "BODY_REMOVAL_AUTHORIZED",
+            paths=resolved, owner=owner,
+        )
+        return manifest
+
+
 def recover_run(
     family: str,
     platform: str,
@@ -3486,6 +3897,11 @@ def main(argv: list[str] | None = None) -> int:
     start.add_argument("--scope-manifest")
     start.add_argument("--run-id")
     start.add_argument("--session-id")
+    start.add_argument(
+        "--released-api-surface",
+        help="api_surface.json of the PUBLISHED release bundle; the capability "
+             "ledger's availability source (default: pre-refresh bundle copy)",
+    )
 
     for name in ("run", "resume", "verify", "status"):
         command = sub.add_parser(name)
@@ -3505,6 +3921,16 @@ def main(argv: list[str] | None = None) -> int:
     abandon.add_argument("--reason", required=True)
     abandon.add_argument("--session-id")
 
+    authorize = sub.add_parser(
+        "authorize-body-removal",
+        help="authorize a deliberate large body shrink for in-scope pages "
+             "(post_refresh_verify Check 12)",
+    )
+    authorize.add_argument("--run-id", required=True)
+    authorize.add_argument("--path", action="append", required=True, dest="paths")
+    authorize.add_argument("--reason", required=True)
+    authorize.add_argument("--session-id")
+
     recover = sub.add_parser("recover")
     recover.add_argument("--run-id", required=True)
     recover.add_argument("--reason", required=True)
@@ -3520,6 +3946,7 @@ def main(argv: list[str] | None = None) -> int:
                 scope_manifest=args.scope_manifest,
                 run_id=args.run_id,
                 session_id=args.session_id,
+                released_api_surface=args.released_api_surface,
             )
         else:
             family, platform = _locate_run(args.run_id)
@@ -3558,6 +3985,15 @@ def main(argv: list[str] | None = None) -> int:
                     family,
                     platform,
                     args.run_id,
+                    reason=args.reason,
+                    session_id=args.session_id,
+                )
+            elif args.command == "authorize-body-removal":
+                manifest = authorize_body_removal(
+                    family,
+                    platform,
+                    args.run_id,
+                    paths=args.paths,
                     reason=args.reason,
                     session_id=args.session_id,
                 )

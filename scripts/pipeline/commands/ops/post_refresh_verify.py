@@ -33,6 +33,7 @@ import json
 import re
 import subprocess
 import sys
+from collections import Counter
 from datetime import datetime, timezone
 from pathlib import Path
 
@@ -65,6 +66,39 @@ _cfg_subprocess_run = None           # None → use subprocess.run directly
 _cfg_detect_grade_regressions = None  # None → import from audit_content_hash
 _cfg_detect_seo_violations = None    # None → import from seo_stability_check
 _cfg_git_body_changed = None         # None → real git-founded check (RPR-J-05)
+_cfg_git_base_blobs = None           # None → real `git cat-file --batch` (Check 12)
+
+# MT074 B15 (Check 12, mass-deletion guard) thresholds. Module-level defaults
+# with a configure(mass_deletion_thresholds=...) override; no config-file
+# loader pattern exists for verify checks, so none is introduced.
+MASS_DELETION_DEFAULTS: dict = {
+    # (a) per-page: body shrank by more than this fraction AND by more words.
+    "max_shrink_fraction": 0.40,
+    "min_shrink_words": 80,
+    # (b) run-wide: share of comparable in-scope pages with a large shrink
+    #     exceeds this fraction AND is at least this many pages.
+    "max_run_share": 0.05,
+    "min_run_pages": 3,
+    # (c) knowledge delta: removed claims exceed this share of the base
+    #     claims without enough reidentified_claims reconciliation.
+    "max_removed_claim_share": 0.30,
+    "min_reidentified_coverage": 0.95,
+    # (R3-1) fail-closed floor: when fewer than this fraction of the in-scope
+    # pages that SHOULD have a base version (all but GENERATED ones) could be
+    # read at the base ref, the guard could not really look -> UNKNOWN.
+    "min_comparable_fraction": 0.5,
+}
+_cfg_mass_deletion: dict = dict(MASS_DELETION_DEFAULTS)
+
+# Page-decision dispositions / intended actions that EXPLAIN a large body
+# shrink (a governed retirement or deliberate section removal). The current
+# refresh_page_decision vocabulary only carries RETIRED for this; the other
+# two are accepted forward-compatibly. A BODY_UPDATED decision alone never
+# explains a large shrink -- body_refresh records the same disposition for a
+# one-word fix and for a whole-body deletion -- so an intentional large
+# removal must be authorized per page via the run manifest's optional
+# ``intentional_body_removals`` list (same pattern as intentional_renames).
+_SHRINK_EXPLAINING_MARKERS = {"RETIRED", "PAGE_RETIRED", "SECTION_REMOVED"}
 
 
 def configure(
@@ -78,6 +112,8 @@ def configure(
     detect_grade_regressions=None,
     detect_seo_violations=None,
     git_body_changed=None,
+    git_base_blobs=None,
+    mass_deletion_thresholds: "dict | None" = None,
 ) -> None:
     """Reconfigure module-level paths for testing or alternative layouts.
 
@@ -87,7 +123,7 @@ def configure(
     """
     global REPO_ROOT, KNOWLEDGE_ROOT, CONTENT_ROOT, REPORTS_ROOT, _REVIEW_ROOT, _HERE
     global _cfg_subprocess_run, _cfg_detect_grade_regressions, _cfg_detect_seo_violations
-    global _cfg_git_body_changed
+    global _cfg_git_body_changed, _cfg_git_base_blobs, _cfg_mass_deletion
     _root = Path(repo_root) if repo_root is not None else _DEFAULT_REPO_ROOT
     REPO_ROOT = _root
     KNOWLEDGE_ROOT = Path(knowledge_root) if knowledge_root is not None else _root / "knowledge"
@@ -99,6 +135,11 @@ def configure(
     _cfg_detect_grade_regressions = detect_grade_regressions
     _cfg_detect_seo_violations = detect_seo_violations
     _cfg_git_body_changed = git_body_changed
+    _cfg_git_base_blobs = git_base_blobs
+    unknown_keys = set(mass_deletion_thresholds or {}) - set(MASS_DELETION_DEFAULTS)
+    if unknown_keys:
+        raise ValueError(f"unknown mass_deletion_thresholds: {sorted(unknown_keys)}")
+    _cfg_mass_deletion = {**MASS_DELETION_DEFAULTS, **(mass_deletion_thresholds or {})}
 
 
 _SITE_PATTERNS = (
@@ -1281,6 +1322,335 @@ def check_coverage_completeness(
     return False, failures
 
 
+# ---------------------------------------------------------------------------
+# Check 12 (MT074 B15): mass-deletion guard
+# ---------------------------------------------------------------------------
+#
+# Incident: after a claim-ID reassignment, _write_knowledge_delta treated
+# 11,942 of 11,945 removed claims as removed (text-identical to added ones),
+# semantic_diff made FEATURE_REMOVED events, body_impact UT_REMOVAL, and
+# body_refresh DELETED the whole body of 41 pages (2,390 deletions, 0
+# additions) -- caught only by a human diff review. The text-reconciliation
+# fix (reidentified_claims) exists, but nothing GUARDED the outcome. This
+# check compares base vs working bytes for every in-scope page and trips on
+# the outcome itself, whatever upstream stage caused it.
+
+_FRONTMATTER_RE = re.compile(r"^---\s*\n.*?\n---\s*(?:\n|$)", re.DOTALL)
+
+
+def _split_body(text: str) -> str:
+    """Body of a markdown page: everything after the closing frontmatter fence."""
+    text = text.replace("\r\n", "\n")
+    m = _FRONTMATTER_RE.match(text)
+    return text[m.end():] if m else text
+
+
+def _read_base_blobs(paths: list[str], base_ref: str) -> "dict[str, bytes | None]":
+    """Bytes of each repo-relative path at base_ref (None = absent there).
+
+    One ``git cat-file --batch`` process for the whole list: a run scope can
+    carry 1000+ pages and a ``git show`` per page would be needlessly slow.
+    Any git failure yields None for every path (callers treat that as "no
+    comparable base", i.e. SKIP, never a fabricated defect).
+    """
+    if _cfg_git_base_blobs is not None:
+        return _cfg_git_base_blobs(paths, base_ref)
+    out: "dict[str, bytes | None]" = {p: None for p in paths}
+    if not paths:
+        return out
+    request = "".join(f"{base_ref}:{p}\n" for p in paths).encode("utf-8")
+    try:
+        proc = subprocess.run(
+            ["git", "cat-file", "--batch"],
+            input=request, capture_output=True,
+            cwd=str(REPO_ROOT), timeout=300,
+        )
+    except Exception:
+        return out
+    if proc.returncode != 0:
+        return out
+    data, pos = proc.stdout, 0
+    for p in paths:
+        eol = data.find(b"\n", pos)
+        if eol < 0:
+            break
+        header = data[pos:eol].split()
+        pos = eol + 1
+        # `<sha> <type> <size>` for ANY found object (blob, tree, commit, tag);
+        # `<spec> missing` / `<spec> ambiguous` carry no body. Advance past the
+        # body of every found object, not just blobs, or one directory path in
+        # the list (a tree) desynchronises every later read.
+        if len(header) == 3 and header[2].isdigit():
+            size = int(header[2])
+            if header[1] == b"blob":
+                out[p] = data[pos:pos + size]
+            pos += size + 1  # trailing newline after the object body
+    return out
+
+
+def _body_shrink_rows(paths: list[str], base_ref: str) -> list[dict]:
+    """Per-page body size change for every path that exists at base_ref.
+
+    A path with no version at base_ref (a genuinely new page) is not
+    comparable and is omitted. A path whose working file is gone counts as
+    an empty body (a whole-page deletion is the extreme shrink).
+    """
+    blobs = _read_base_blobs(paths, base_ref)
+    rows: list[dict] = []
+    for rel in paths:
+        base_bytes = blobs.get(rel)
+        if base_bytes is None:
+            continue
+        base_body = _split_body(base_bytes.decode("utf-8", errors="replace"))
+        try:
+            new_body = _split_body(
+                (REPO_ROOT / rel).read_text(encoding="utf-8")
+            )
+        except (OSError, UnicodeDecodeError):
+            new_body = ""
+        base_words = len(base_body.split())
+        new_words = len(new_body.split())
+        base_lines = Counter(l.strip() for l in base_body.splitlines() if l.strip())
+        new_lines = Counter(l.strip() for l in new_body.splitlines() if l.strip())
+        shrink_words = base_words - new_words
+        rows.append({
+            "path": rel,
+            "base_words": base_words,
+            "new_words": new_words,
+            "shrink_words": shrink_words,
+            "shrink_fraction": (shrink_words / base_words) if base_words else 0.0,
+            "deleted_lines": sum((base_lines - new_lines).values()),
+            "added_lines": sum((new_lines - base_lines).values()),
+        })
+    return rows
+
+
+def check_mass_deletion(
+    paths: list[str],
+    *,
+    base_ref: str,
+    decision_rows: "list[dict] | None" = None,
+    authorized_paths: "set[str] | None" = None,
+    claims_current_total: "int | None" = None,
+    knowledge_delta: "dict | None" = None,
+) -> "tuple[list[str], list[str], list[str]]":
+    """Check 12 core: returns (failures, notes, unknowns). Pure apart from
+    reading git and the working tree; thresholds come from ``_cfg_mass_deletion``.
+
+    UNKNOWN (RPR-J-06, fail-closed): when the guard could not read a base
+    version for enough in-scope pages -- none at all, or fewer than
+    ``min_comparable_fraction`` of the pages that should have one (every .md
+    page except those a GENERATED decision explains as new) -- it did not
+    really look, so the outcome is an ``unknowns`` entry, never a silent PASS.
+
+    (a) a page's body shrank by more than ``max_shrink_fraction`` AND by more
+        than ``min_shrink_words`` words, with no explaining disposition;
+    (b) run-wide, the share of comparable in-scope pages with such a shrink
+        exceeds ``max_run_share`` and is at least ``min_run_pages`` pages;
+    (c) the knowledge delta's removed-claim share of the base claims exceeds
+        ``max_removed_claim_share`` while ``reidentified_claims`` covers less
+        than ``min_reidentified_coverage`` of the removed ids.
+
+    A page is "explained" when its page decision's disposition or
+    intended_action is in ``_SHRINK_EXPLAINING_MARKERS`` or the page is
+    listed in ``authorized_paths``. Explained pages are excluded from (a)
+    and (b). Evidence-only restamps change frontmatter only, so they never
+    shrink a body and can never trip this check.
+    """
+    cfg = _cfg_mass_deletion
+    failures: list[str] = []
+    notes: list[str] = []
+    unknowns: list[str] = []
+
+    explained: set[str] = {p.casefold() for p in (authorized_paths or set())}
+    for row in decision_rows or []:
+        markers = {
+            str(row.get("disposition") or "").upper(),
+            str(row.get("intended_action") or "").upper(),
+        }
+        if markers & _SHRINK_EXPLAINING_MARKERS:
+            explained.add(str(row.get("page_path") or "").casefold())
+
+    md_paths = [p for p in paths if p.endswith(".md")]
+    rows = _body_shrink_rows(md_paths, base_ref)
+    new_pages = {
+        str(row.get("page_path") or "").casefold()
+        for row in (decision_rows or [])
+        if str(row.get("disposition") or "").upper() == "GENERATED"
+    }
+    expected_comparable = [p for p in md_paths if p.casefold() not in new_pages]
+    if expected_comparable and len(rows) < max(
+        1, cfg["min_comparable_fraction"] * len(expected_comparable)
+    ):
+        unknowns.append(
+            f"Check 12 (mass-deletion guard): could not read a base version at "
+            f"{base_ref!r} for {len(expected_comparable) - len(rows)} of "
+            f"{len(expected_comparable)} in-scope page(s) (git failure, unknown "
+            f"base ref, or path absent at base) -- only {len(rows)} comparable; "
+            "cannot confirm the absence of mass deletion"
+        )
+    large = [
+        r for r in rows
+        if r["shrink_fraction"] > cfg["max_shrink_fraction"]
+        and r["shrink_words"] > cfg["min_shrink_words"]
+    ]
+    unexplained = [r for r in large if r["path"].casefold() not in explained]
+    unexplained.sort(key=lambda r: (-r["shrink_words"], r["path"]))
+
+    def _describe(r: dict) -> str:
+        return (
+            f"{r['path']} ({r['base_words']} -> {r['new_words']} words, "
+            f"-{r['shrink_fraction']:.0%}; lines -{r['deleted_lines']}/"
+            f"+{r['added_lines']})"
+        )
+
+    for r in unexplained[:5]:
+        failures.append(
+            "Check 12 (mass-deletion guard): body shrank beyond "
+            f"{cfg['max_shrink_fraction']:.0%}/{cfg['min_shrink_words']} words "
+            f"with no explaining disposition: {_describe(r)}"
+        )
+    if len(unexplained) > 5:
+        failures.append(
+            f"Check 12 (mass-deletion guard): ... and {len(unexplained) - 5} "
+            "more page(s) with an unexplained large body shrink"
+        )
+
+    comparable = len(rows)
+    if (
+        comparable
+        and len(unexplained) >= cfg["min_run_pages"]
+        and len(unexplained) / comparable > cfg["max_run_share"]
+    ):
+        total_deleted = sum(r["deleted_lines"] for r in unexplained)
+        total_added = sum(r["added_lines"] for r in unexplained)
+        failures.append(
+            "Check 12 (mass-deletion guard, run-wide): "
+            f"{len(unexplained)} of {comparable} comparable in-scope pages "
+            f"({len(unexplained) / comparable:.1%}) lost >"
+            f"{cfg['max_shrink_fraction']:.0%} of their body "
+            f"(> {cfg['max_run_share']:.0%} and >= {cfg['min_run_pages']} pages "
+            f"allowed); {total_deleted} lines deleted vs {total_added} added. "
+            f"Worst: {', '.join(r['path'] for r in unexplained[:3])}"
+        )
+    elif comparable:
+        notes.append(
+            f"{len(large) - len(unexplained)} explained and "
+            f"{len(unexplained)} unexplained large shrink(s) across "
+            f"{comparable} comparable page(s)"
+        )
+
+    if knowledge_delta is not None and claims_current_total:
+        removed = list(knowledge_delta.get("removed_claims") or [])
+        reidentified = knowledge_delta.get("reidentified_claims") or {}
+        new = list(knowledge_delta.get("new_claims") or [])
+        # removed_claims is already net of reidentified ids; the raw removal
+        # count is removed + reidentified. The base total follows from the
+        # current total (reidentified ids cancel out of added vs removed).
+        raw_removed = len(removed) + len(reidentified)
+        base_total = claims_current_total - len(new) + len(removed)
+        if base_total > 0 and raw_removed:
+            share = raw_removed / base_total
+            coverage = len(reidentified) / raw_removed
+            if (
+                share > cfg["max_removed_claim_share"]
+                and coverage < cfg["min_reidentified_coverage"]
+            ):
+                failures.append(
+                    "Check 12 (mass-deletion guard, knowledge delta): "
+                    f"{raw_removed} of {base_total} base claims removed "
+                    f"({share:.1%} > {cfg['max_removed_claim_share']:.0%}) but "
+                    f"reidentified_claims covers only {coverage:.1%} of them "
+                    f"(< {cfg['min_reidentified_coverage']:.0%}) -- a claim-ID "
+                    "reassignment storm would delete real content downstream"
+                )
+            else:
+                notes.append(
+                    f"claim removal {raw_removed}/{base_total} ({share:.1%}), "
+                    f"reidentified coverage {coverage:.1%}"
+                )
+    return failures, notes, unknowns
+
+
+# ---------------------------------------------------------------------------
+# Check 13 (MT074 B4): plan-time capability ledger
+# ---------------------------------------------------------------------------
+
+def check_capability_ledger_plan(
+    manifest: "dict | None",
+) -> "tuple[list[str], list[str], str]":
+    """Returns (failures, warnings, note-for-the-PASS/NA-line).
+
+    Applies to run-bound upstream/combined runs. prepare_run records
+    ``manifest["capability_ledger"] = {path, plan_fingerprint, initial_sha256,
+    release_surface}`` for a real knowledge delta; this check requires the file
+    to exist, the PLAN IDENTITY recomputed from the CURRENT file (sorted unit
+    ids + schema_version) to equal the recorded ``plan_fingerprint`` -- units
+    cannot be silently added/removed/regrouped after planning, while
+    set-disposition edits (which never touch unit ids) are allowed at any run
+    state -- and ``validate_ledger_ex(stage='plan')`` to report NO errors
+    (warnings are returned for display, never blocking;
+    ``initial_sha256`` is informational only). Not
+    applicable: no bound run, remediation mode, or a run whose delta was not
+    real (``blog_announcement_required`` false -- no ledger is built then).
+    A real-delta run with no recorded ledger FAILS only when its manifest
+    carries ``capability_ledger_required`` (written by create_run for NEW
+    upstream/combined runs); manifests created before the ledger existed are
+    NA ("run predates capability ledger") so in-flight runs still verify.
+    """
+    if manifest is None:
+        return [], [], "NA — no run-bound manifest (capability ledger not applicable)"
+    mode = manifest.get("mode")
+    if mode not in {"upstream", "combined"}:
+        return [], [], f"NA — {mode} run has no capability ledger"
+    record = manifest.get("capability_ledger")
+    if not isinstance(record, dict):
+        if not manifest.get("capability_ledger_required"):
+            return [], [], "NA — run predates capability ledger (no capability_ledger_required marker)"
+        if manifest.get("blog_announcement_required"):
+            return (
+                ["Check 13 (capability_ledger_plan): real knowledge delta but no "
+                 "capability_ledger is recorded in the run manifest"],
+                [], "",
+            )
+        return [], [], "NA — empty/no-op knowledge delta, no capability ledger"
+    ref = str(record.get("path") or "")
+    path = Path(ref)
+    if not path.is_absolute():
+        path = REPO_ROOT / ref
+    if not path.is_file():
+        return [f"Check 13 (capability_ledger_plan): ledger file missing: {ref}"], [], ""
+    try:
+        ledger = json.loads(path.read_text(encoding="utf-8"))
+    except (OSError, ValueError) as exc:
+        return [f"Check 13 (capability_ledger_plan): ledger unreadable: {exc}"], [], ""
+    from commands.ops.refresh_run import capability_plan_fingerprint
+
+    actual = capability_plan_fingerprint(ledger if isinstance(ledger, dict) else {})
+    if actual != record.get("plan_fingerprint"):
+        return [
+            "Check 13 (capability_ledger_plan): ledger plan identity changed since "
+            "planning (units added, removed or regrouped): fingerprint "
+            f"{actual} != recorded {record.get('plan_fingerprint')}: {ref}"
+        ], [], ""
+    from lib.capability_delta import validate_ledger_ex
+
+    errors, warnings = validate_ledger_ex(ledger, stage="plan")
+    if errors:
+        shown = "; ".join(errors[:5]) + (
+            f"; ... and {len(errors) - 5} more" if len(errors) > 5 else ""
+        )
+        return [
+            f"Check 13 (capability_ledger_plan): ledger invalid at plan stage "
+            f"({len(errors)} error(s)): {shown}"
+        ], list(warnings), ""
+    return [], list(warnings), (
+        f"PASS — capability ledger valid at plan stage "
+        f"({len(ledger.get('units') or [])} unit(s), {len(warnings)} warning(s), "
+        f"release_surface={record.get('release_surface')})"
+    )
+
+
 def verify(family: str, platform: str, *, allow_warn: bool = False,
            unknowns_out: "list | None" = None,
            base_ref: "str | None" = None,
@@ -1951,6 +2321,74 @@ def verify(family: str, platform: str, *, allow_warn: bool = False,
         msg = f"Check 11: could not run SEO stability detection: {exc}"
         unknowns.append(msg)
         print(f"  Check 11: UNKNOWN (RPR-J-06) — {msg}")
+
+    # Check 12 (MT074 B15): mass-deletion guard. See check_mass_deletion().
+    try:
+        if run_scope is not None:
+            scope_c12 = list(run_scope)
+        else:
+            scope_c12 = []
+            for f in _discover_content_files(family, platform):
+                try:
+                    scope_c12.append(str(f.relative_to(REPO_ROOT)).replace("\\", "/"))
+                except ValueError:
+                    scope_c12.append(str(f).replace("\\", "/"))
+        delta_c12 = None
+        if claim_delta_path.is_file():
+            try:
+                delta_c12 = json.loads(claim_delta_path.read_text(encoding="utf-8"))
+                if not isinstance(delta_c12, dict):
+                    delta_c12 = None
+            except json.JSONDecodeError as exc:
+                msg = f"Check 12: could not parse knowledge_delta.json: {exc}"
+                unknowns.append(msg)
+                print(f"  Check 12: UNKNOWN (RPR-J-06) — {msg}")
+        c12_failures, c12_notes, c12_unknowns = check_mass_deletion(
+            scope_c12,
+            base_ref=base_ref,
+            decision_rows=run_decisions,
+            authorized_paths=set(
+                (bound_manifest or {}).get("intentional_body_removals") or []
+            ),
+            claims_current_total=len(claims_list) if claims_list else None,
+            knowledge_delta=delta_c12,
+        )
+        if c12_failures:
+            if allow_warn:
+                for msg in c12_failures:
+                    print(f"  Check 12: WARN (--allow-warn) — {msg}")
+            else:
+                failures.extend(c12_failures)
+                print(f"  Check 12: FAIL (MT074 B15) — {len(c12_failures)} mass-deletion finding(s)")
+        for msg in c12_unknowns:
+            unknowns.append(msg)
+            print(f"  Check 12: UNKNOWN (RPR-J-06) — {msg}")
+        if not c12_failures and not c12_unknowns:
+            print("  Check 12: PASS — no mass body deletion"
+                  + (f" ({'; '.join(c12_notes)})" if c12_notes else ""))
+    except Exception as exc:
+        msg = f"Check 12: could not run mass-deletion guard: {exc}"
+        unknowns.append(msg)
+        print(f"  Check 12: UNKNOWN (RPR-J-06) — {msg}")
+
+    # Check 13 (MT074 B4): capability_ledger_plan. See check_capability_ledger_plan().
+    try:
+        c13_failures, c13_warnings, c13_note = check_capability_ledger_plan(bound_manifest)
+        for w in c13_warnings:
+            print(f"  Check 13: WARN (ledger plan-stage warning) — {w}")
+        if c13_failures:
+            if allow_warn:
+                for msg in c13_failures:
+                    print(f"  Check 13: WARN (--allow-warn) — {msg}")
+            else:
+                failures.extend(c13_failures)
+                print(f"  Check 13: FAIL (MT074 B4) — {len(c13_failures)} capability-ledger finding(s)")
+        else:
+            print(f"  Check 13: {c13_note}")
+    except Exception as exc:
+        msg = f"Check 13: could not verify the capability ledger: {exc}"
+        unknowns.append(msg)
+        print(f"  Check 13: UNKNOWN (RPR-J-06) — {msg}")
 
     passed = len(failures) == 0
     return passed, failures
