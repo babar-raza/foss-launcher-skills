@@ -31,6 +31,7 @@ from __future__ import annotations
 import argparse
 import hashlib
 import json
+import os
 import re
 import subprocess
 import sys
@@ -120,6 +121,30 @@ _command_runner: Callable[..., subprocess.CompletedProcess[str]] = subprocess.ru
 _source_sha_resolver: Callable[[str, str], str | None] | None = None
 _now: Callable[[], datetime] = lambda: datetime.now(timezone.utc)
 
+# MT074 (found live on pdf/java, 2026-10-07): the knowledge-refresh subprocess runs
+# `--compulsory-enrich`, an LLM-bound pass over every changed/new class -- genuinely
+# O(class_count), not a fixed-duration step. A hard 1800s (30-minute) timeout, the
+# _require_command default meant for a hung/deadlocked step, killed a real first-run
+# enrichment of a 1158-class product partway through with zero progress saved (the
+# regen lock's own stale-pid reclaim cleans up the kill, but the run still has to
+# restart the whole pass). ANY product with a large class count hits the same wall --
+# this is a fleet-general defect, not pdf/java-specific. Configurable via env var so a
+# very large product (or a slow/contended LLM endpoint) can raise it without a code
+# change; the other _require_command call sites (capability ledger build, etc.) keep
+# the short default, which is still the right hang-detector for genuinely fast,
+# deterministic steps.
+_DEFAULT_KNOWLEDGE_REFRESH_TIMEOUT_SECONDS = 1800
+_knowledge_refresh_timeout_seconds: int = _DEFAULT_KNOWLEDGE_REFRESH_TIMEOUT_SECONDS
+try:
+    _knowledge_refresh_timeout_seconds = int(
+        os.environ.get(
+            "ASPOSE_REFRESH_RUN_KNOWLEDGE_TIMEOUT_SECONDS",
+            _DEFAULT_KNOWLEDGE_REFRESH_TIMEOUT_SECONDS,
+        )
+    )
+except (TypeError, ValueError):
+    _knowledge_refresh_timeout_seconds = _DEFAULT_KNOWLEDGE_REFRESH_TIMEOUT_SECONDS
+
 
 class RefreshRunError(RuntimeError):
     """Raised when a run contract or state transition is unsafe."""
@@ -132,9 +157,11 @@ def configure(
     command_runner: Callable[..., subprocess.CompletedProcess[str]] | None = None,
     source_sha_resolver: Callable[[str, str], str | None] | None = None,
     now: Callable[[], datetime] | None = None,
+    knowledge_refresh_timeout_seconds: int | None = None,
 ) -> None:
     """Override external boundaries for tests; call without arguments to reset."""
     global _repo_root, _reports_root, _command_runner, _source_sha_resolver, _now
+    global _knowledge_refresh_timeout_seconds
     _repo_root = Path(repo_root) if repo_root is not None else _DEFAULT_REPO_ROOT
     _reports_root = (
         Path(reports_root) if reports_root is not None else _repo_root / "reports"
@@ -142,6 +169,18 @@ def configure(
     _command_runner = command_runner or subprocess.run
     _source_sha_resolver = source_sha_resolver
     _now = now or (lambda: datetime.now(timezone.utc))
+    if knowledge_refresh_timeout_seconds is not None:
+        _knowledge_refresh_timeout_seconds = knowledge_refresh_timeout_seconds
+    else:
+        try:
+            _knowledge_refresh_timeout_seconds = int(
+                os.environ.get(
+                    "ASPOSE_REFRESH_RUN_KNOWLEDGE_TIMEOUT_SECONDS",
+                    _DEFAULT_KNOWLEDGE_REFRESH_TIMEOUT_SECONDS,
+                )
+            )
+        except (TypeError, ValueError):
+            _knowledge_refresh_timeout_seconds = _DEFAULT_KNOWLEDGE_REFRESH_TIMEOUT_SECONDS
     # FRESH-001 (2026-08-14): keep freshness_guard's module-level paths in lockstep
     # with this module's own configure() -- see batch_reference.py for the same
     # pattern/rationale. page_impact_matrix follows the identical precedent
@@ -1991,6 +2030,7 @@ def prepare_run(manifest: dict[str, Any]) -> dict[str, Any]:
             ],
             "knowledge refresh",
             manifest=manifest,
+            timeout=_knowledge_refresh_timeout_seconds,
         )
         # Knowledge refresh's own attach_evidence.py sub-step legitimately
         # rewrites working-tree content pages (evidence.model_sha bumps)

@@ -554,6 +554,73 @@ def test_prepare_rejects_dirty_scoped_base(tmp_path: Path):
         refresh_run.prepare_run(manifest)
 
 
+def test_knowledge_refresh_subprocess_uses_the_configurable_timeout(
+    tmp_path: Path, monkeypatch
+):
+    """MT074 (found live on pdf/java, 2026-10-07): `--compulsory-enrich` is an
+    LLM-bound pass over every changed/new class -- genuinely O(class_count), not a
+    fixed-duration step. The hard 1800s _require_command default killed a real
+    first-run enrichment of a 1158-class product partway through. The knowledge-
+    refresh call must use the module's configurable timeout (env var
+    ASPOSE_REFRESH_RUN_KNOWLEDGE_TIMEOUT_SECONDS, or configure()), not the 1800s
+    hang-detector default meant for fast, deterministic steps."""
+    seen_timeouts: list[int] = []
+
+    def kr_runner(args: list[str], **kwargs: object) -> subprocess.CompletedProcess[str]:
+        if args[:3] == ["git", "rev-parse", "HEAD"]:
+            return subprocess.CompletedProcess(args, 0, HEAD_SHA + "\n", "")
+        if "refresh_knowledge.py" in str(args[1]) if len(args) > 1 else False:
+            seen_timeouts.append(kwargs.get("timeout"))
+        return subprocess.CompletedProcess(args, 0, "", "")
+
+    model_path = tmp_path / "knowledge/pdf/java/merged/model.yaml"
+    model_path.parent.mkdir(parents=True, exist_ok=True)
+    model_path.write_text(f"repo_sha: '{MODEL_SHA}'\n", encoding="utf-8")
+    delta_path = tmp_path / "knowledge/pdf/java/merged/knowledge_delta.json"
+    delta_path.write_text("{}", encoding="utf-8")
+
+    monkeypatch.delenv("ASPOSE_REFRESH_RUN_KNOWLEDGE_TIMEOUT_SECONDS", raising=False)
+    refresh_run.configure(
+        repo_root=tmp_path,
+        command_runner=kr_runner,
+        source_sha_resolver=lambda _f, _p: MODEL_SHA,
+        now=lambda: datetime(2026, 7, 25, tzinfo=timezone.utc),
+        knowledge_refresh_timeout_seconds=9999,
+    )
+    manifest = refresh_run.create_run(
+        "pdf", "java", mode="upstream", run_id="RUN-KR-TIMEOUT", session_id="session-1"
+    )
+    # The fixture is minimal (no api_surface.json etc.), so prepare_run legitimately
+    # fails further downstream (reference-scope resolution) -- irrelevant here; the
+    # knowledge-refresh subprocess call itself has already run by that point.
+    with pytest.raises(refresh_run.RefreshRunError, match="zero pages"):
+        refresh_run.prepare_run(manifest)
+
+    assert seen_timeouts == [9999]
+
+    # configure() with no override falls back to the env var (or the 1800s default).
+    # A different platform avoids the one-active-run-per-product lock from the first
+    # (still-INPUTS_PINNED) run above -- this half only tests the env-var fallback.
+    model_path2 = tmp_path / "knowledge/pdf/net/merged/model.yaml"
+    model_path2.parent.mkdir(parents=True, exist_ok=True)
+    model_path2.write_text(f"repo_sha: '{MODEL_SHA}'\n", encoding="utf-8")
+    (tmp_path / "knowledge/pdf/net/merged/knowledge_delta.json").write_text("{}", encoding="utf-8")
+
+    monkeypatch.setenv("ASPOSE_REFRESH_RUN_KNOWLEDGE_TIMEOUT_SECONDS", "5400")
+    refresh_run.configure(
+        repo_root=tmp_path,
+        command_runner=kr_runner,
+        source_sha_resolver=lambda _f, _p: MODEL_SHA,
+        now=lambda: datetime(2026, 7, 25, tzinfo=timezone.utc),
+    )
+    manifest2 = refresh_run.create_run(
+        "pdf", "net", mode="upstream", run_id="RUN-KR-TIMEOUT-2", session_id="session-1"
+    )
+    with pytest.raises(refresh_run.RefreshRunError, match="zero pages"):
+        refresh_run.prepare_run(manifest2)
+    assert seen_timeouts == [9999, 5400]
+
+
 def test_combined_mode_does_not_block_on_its_own_knowledge_refresh_evidence(
     tmp_path: Path,
 ):
