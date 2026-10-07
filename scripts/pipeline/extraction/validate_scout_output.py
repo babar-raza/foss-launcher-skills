@@ -37,6 +37,8 @@ from pathlib import Path
 
 import yaml
 
+from extraction.tree_helpers import _is_non_public_path
+
 # Extension sets per platform that can declare classes/structs/types.
 _CLASS_BEARING_EXTENSIONS: dict[str, list[str]] = {
     "python": [".py"],
@@ -175,6 +177,25 @@ def validate_scout_output(
         result["fidelity"] = _summarize_fidelity(fidelity_report)
 
     return result
+
+
+def check_no_test_entries(api_surface: list[dict]) -> dict:
+    """HRD-11 (MT076, Layer 1): FAIL when any api_surface entry's `file` is test-like, using
+    the same shared predicate HRD-04 fixed at extraction time
+    (extraction.tree_helpers._is_non_public_path). Entries with no `file` field are ignored,
+    not flagged -- this check is additive, not a new hard requirement on older scout output.
+
+    Returns {verdict: "OK" | "FAIL", test_like_count: int, test_like_files: list[str]}.
+    """
+    test_like_files = [
+        entry["file"] for entry in api_surface
+        if entry.get("file") and _is_non_public_path(Path(entry["file"]), Path(""))
+    ]
+    return {
+        "verdict": "FAIL" if test_like_files else "OK",
+        "test_like_count": len(test_like_files),
+        "test_like_files": test_like_files,
+    }
 
 
 def main(argv: list[str] | None = None) -> int:

@@ -77,6 +77,7 @@ from lib.reference_filter import (  # noqa: E402
     _JAVA_INTERNAL_CLASSES,
     GROUPED_INDEX_GENERATOR_VERSION,
 )
+from extraction.tree_helpers import _is_non_public_path  # noqa: E402
 
 # ---------------------------------------------------------------------------
 # Backlink target map (loaded lazily, cached for the run)
@@ -590,6 +591,22 @@ def _is_enum(entry: dict, platform: str) -> bool:
 # _passes_platform_scope is imported from lib.reference_filter (TC-REF-11).
 # The authoritative implementation now lives there and is shared with the CI
 # validator (check_reference_index_structure.py).  Do not re-define it here.
+
+
+def _exclude_test_like_entries(entries: list[dict]) -> tuple[list[dict], int]:
+    """HRD-11 (MT076, Layer 2): refuse to write a reference page whose source `file` is
+    test-like -- the same shared predicate HRD-04 fixed at extraction time
+    (extraction.tree_helpers._is_non_public_path). Found live on psd/python: a manifest-less
+    package root falling back to the whole repo let 13 test classes reach api_surface.json;
+    HRD-04 already prevents that at scout time, this is the second, independent layer so a
+    future regression upstream of this function still can't put a test class on a live page.
+    Entries with no `file` field are kept, not dropped -- additive, not a new requirement.
+    """
+    kept = [
+        e for e in entries
+        if not (e.get("file") and _is_non_public_path(Path(e["file"]), Path("")))
+    ]
+    return kept, len(entries) - len(kept)
 
 
 def _apply_kind_filter(entries: list[dict], kind_arg: str, platform: str) -> list[dict]:
@@ -2001,6 +2018,14 @@ def run(family: str, platform: str, kind_arg: str = "all",
     _internal_skipped = _internal_before - len(candidates)
     if _internal_skipped:
         print(f"Skipped {_internal_skipped} internal/vendor class(es).")
+
+    # H-04f (HRD-11, MT076): refuse a test-like source file a second, independent time
+    # (HRD-04 already prevents this at scout time; this layer survives even if a future
+    # extraction regression upstream of this script lets one through again).
+    candidates, _test_like_skipped = _exclude_test_like_entries(candidates)
+    if _test_like_skipped:
+        print(f"Skipped {_test_like_skipped} test-like entr(y/ies) (source file is a "
+              f"test project/pytest file/.NET build output).")
 
     # H-04e: When __all__ is defined (detected by any "exported" entries),
     # exclude "conventional" classes — they are implementation details not
