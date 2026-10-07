@@ -529,6 +529,36 @@ scripts:
     deprecated_since: null
     notes: "TC-PSD-HRD-02 (MT076): U-07 compile/import smoke -- the real-compiler gap tree-sitter's lenient parser can't see (gis/net held at 320 real compile errors invisible to extraction). Real implementation for net (disposable full-clone copy + dotnet build, immune to a project's own hard-coded relative output paths) and python (detect_package_root + isolated-mode import, token-scrubbed env); honest NOT_RUN for java/cpp/go/rust/typescript (out of this card's scope). Not yet wired into upstream_readiness_check.py's own U-07 placeholder (still NOT_RUN there) -- this card ships the capability only, same disclosed-scope pattern as HRD-01's own module."
 
+  - path: scripts/pipeline/lib/source_install.py
+    kind: entrypoint
+    lifecycle: active
+    canonical_impl_path: null
+    public_entrypoint: false
+    cli_contract: none
+    owner_domain: content-governance
+    backing:
+      kind: internal
+      ref: null
+    test_targets: ["scripts/pipeline/tests/test_source_install_mode.py"]
+    requires_test: true
+    deprecated_since: null
+    notes: "TC-PSD-HRD-10 (MT076, permanent fix of F-PSD-07): determine_source_install_mode(platform, repo) -- standard/pythonpath/None. Shared by foss-source-install.html's python branch (via data/products.json's source_install_mode field) and upstream_readiness_check.py's U-04 check, so the rendered partial and the preflight check can never silently disagree. Real portfolio-measured fixes found building this card: a root-only manifest check misses 3d/net, email/net (csproj under src/) and cells/cpp (CMakeLists.txt in its own subdir); a naive depth-capped scan then over-counts email/net and words/net's real test/example/vendored-tool project files as ambiguity -- both fixed with a depth-capped rglob that excludes test-like names and examples/samples/tools directories."
+
+  - path: scripts/pipeline/commands/ops/enrich_products_source_install_mode.py
+    kind: entrypoint
+    lifecycle: active
+    canonical_impl_path: null
+    public_entrypoint: true
+    cli_contract: stable
+    owner_domain: content-governance
+    backing:
+      kind: internal
+      ref: null
+    test_targets: []
+    requires_test: false
+    deprecated_since: null
+    notes: "TC-PSD-HRD-10-03c (MT076): one-time enrichment, modeled on enrich_products_cmake_targets.py (ST-054 TC-12) -- writes source_install.determine_source_install_mode()'s real result onto each active data/products.json row (absent/standard kept absent to keep the diff minimal; a non-standard mode or a genuinely non-viable repo written explicitly). No dedicated test file yet (manual dry-run against the real portfolio verified idempotent: 0 rows changed against the already-hand-set psd/python row) -- same disclosed gap class as other one-time enrichment scripts in this registry; requires_test left false rather than claiming coverage that doesn't exist."
+
   - path: scripts/pipeline/commands/diagnostics/human_review_sampler.py
     kind: entrypoint
     lifecycle: active

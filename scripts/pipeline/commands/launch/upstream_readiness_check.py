@@ -53,6 +53,7 @@ if str(_PIPELINE_ROOT) not in sys.path:
     sys.path.insert(0, str(_PIPELINE_ROOT))
 
 from extraction.tree_helpers import _is_non_public_path  # noqa: E402  (single definition of "product source")
+from lib import source_install  # noqa: E402  (single definition of "install mode", TC-PSD-HRD-10)
 
 PASS, FAIL, WARN, NOT_RUN = "PASS", "FAIL", "WARN", "NOT_RUN"
 
@@ -218,39 +219,24 @@ def check_clone_current(product: dict, clone: Path) -> Result:
     return Result("U-03", "clone_current", PASS, f"clone at {local[:8]}")
 
 
-def _install_viable(platform: str, clone: Path) -> "tuple[bool | None, str]":
-    names = {p.name for p in clone.iterdir()} if clone.is_dir() else set()
-    if platform == "python":
-        return bool(names & {"pyproject.toml", "setup.py", "setup.cfg"}), "pyproject.toml / setup.py / setup.cfg at the repo root"
-    if platform in ("typescript", "javascript"):
-        return "package.json" in names, "package.json at the repo root"
-    if platform == "net":
-        sln = [n for n in names if n.endswith((".sln", ".slnx"))]
-        proj = [n for n in names if n.endswith((".csproj", ".fsproj", ".vbproj"))]
-        return len(sln) == 1 or (not sln and len(proj) == 1), "exactly one .sln/.slnx (or one project file) at the repo root"
-    if platform == "java":
-        return "pom.xml" in names, "pom.xml at the repo root"
-    if platform == "go":
-        return "go.mod" in names, "go.mod at the repo root"
-    if platform == "cpp":
-        return "CMakeLists.txt" in names, "CMakeLists.txt at the repo root"
-    if platform == "rust":
-        return "Cargo.toml" in names, "Cargo.toml at the repo root"
-    return None, f"no rule for platform {platform!r}"
-
-
 def check_install_fallback(family: str, platform: str, clone: Path) -> Result:
     """The unpublished-package shortcode renders `git clone && <platform install>`; it never verifies the repo
-    can satisfy that command (F-PSD-07). Only relevant while the registry says the package is unpublished."""
+    can satisfy that command (F-PSD-07). Only relevant while the registry says the package is unpublished.
+
+    TC-PSD-HRD-10-03c: reconciled onto the shared `lib/source_install.determine_source_install_mode()`
+    function (the permanent fix) instead of this module's own former inline `_install_viable()` --
+    the same mode decision now drives both the rendered partial and this preflight check, so they
+    can never silently disagree."""
     if _is_published(family, platform):
         return Result("U-04", "install_fallback_viable", PASS, "package is published: the source fallback is not rendered")
-    ok, need = _install_viable(platform, clone)
-    if ok is None:
-        return Result("U-04", "install_fallback_viable", WARN, need)
-    if not ok:
+    if platform not in ("python", "net", "typescript", "javascript", "java", "go", "cpp", "rust"):
+        return Result("U-04", "install_fallback_viable", WARN, f"no rule for platform {platform!r}")
+    mode = source_install.determine_source_install_mode(platform, clone)
+    if mode is None:
         return Result("U-04", "install_fallback_viable", FAIL,
-                      f"unpublished package would render a source-install command that cannot work: needs {need}")
-    return Result("U-04", "install_fallback_viable", PASS, f"found {need}")
+                       "unpublished package would render a source-install command that cannot work: "
+                       f"no viable install mode detected for platform {platform!r}")
+    return Result("U-04", "install_fallback_viable", PASS, f"install mode: {mode}")
 
 
 def check_hooks_installed() -> Result:
