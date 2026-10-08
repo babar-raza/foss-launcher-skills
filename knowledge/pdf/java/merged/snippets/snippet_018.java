@@ -1,7 +1,13 @@
-@Test
-    void existingAnnotationCtor_stillWorks() {
-        // Regression check: the original (Annotation) ctor is untouched.
-        Border border = new Border((Annotation) null);
-        assertNotNull(border);
-        assertEquals(1.0, border.getWidth(), 1e-6);
+import java.util.HashMap;
+import java.util.Map;
+
+try (Document doc = new Document("input.pdf")) {
+    Map<String, Integer> counts = new HashMap<>();
+    for (Page page : doc.getPages()) {
+        for (Annotation a : page.getAnnotations()) {
+            String key = a.getSubtype();
+            counts.merge(key, 1, Integer::sum);
+        }
     }
+    counts.forEach((type, count) -> System.out.println(type + ": " + count));
+}

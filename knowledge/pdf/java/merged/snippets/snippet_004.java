@@ -1,11 +1,13 @@
-@Test
-    public void border_clear_removesEntry() throws Exception {
-        try (Document doc = new Document()) {
-            Page page = doc.getPages().add();
-            WidgetAnnotation w = new WidgetAnnotation(page, new Rectangle(0, 0, 100, 50));
-            w.getCharacteristics().setBorder(Color.fromRgb(0, 1, 0));
-            assertNotNull(w.getCharacteristics().getBorder());
-            w.getCharacteristics().setBorder(null);
-            assertNull(w.getCharacteristics().getBorder());
-        }
+import org.aspose.pdf.Document;
+import org.aspose.pdf.XImage;
+
+try (Document doc = new Document("input.pdf")) {
+    int pageIndex = 1;
+    int imageIndex = 1;
+    for (XImage image : doc.getPages().get(pageIndex).getResources().getImages()) {
+        try (java.io.FileOutputStream out = new java.io.FileOutputStream("image-" + imageIndex + ".png")) {
+            image.save(out);
+        }
+        imageIndex++;
     }
+}

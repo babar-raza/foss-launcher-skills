@@ -1,9 +1,10 @@
 @Test
-    void off_suppressesChildLoggerWarning() {
-        AsposePdfLogging.setLevel(Level.OFF);
-        Logger child = Logger.getLogger("org.aspose.pdf.engine.parser.PDFParser");
-        assertFalse(child.isLoggable(Level.WARNING),
-                "With library logging OFF, an engine WARNING must be suppressed");
-        assertFalse(child.isLoggable(Level.SEVERE),
-                "With library logging OFF, even SEVERE is suppressed");
+    public void intent_defaultIsUndefined() throws Exception {
+        try (Document doc = new Document()) {
+            Page page = doc.getPages().add();
+            DefaultAppearance da = new DefaultAppearance("Helv", 10, Color.BLACK);
+            FreeTextAnnotation fta = new FreeTextAnnotation(page,
+                    new Rectangle(50, 50, 200, 100), da);
+            assertEquals(FreeTextIntent.Undefined, fta.getIntent());
+        }
     }

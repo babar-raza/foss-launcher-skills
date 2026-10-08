@@ -1,25 +1,24 @@
-@Test
-    public void intent_setAndRead() throws Exception {
-        try (Document doc = new Document()) {
-            Page page = doc.getPages().add();
-            DefaultAppearance da = new DefaultAppearance("Helv", 10, Color.BLACK);
-            FreeTextAnnotation fta = new FreeTextAnnotation(page,
-                    new Rectangle(50, 50, 200, 100), da);
-
-            fta.setIntent(FreeTextIntent.FreeTextCallout);
-            assertEquals(FreeTextIntent.FreeTextCallout, fta.getIntent());
-
-            fta.setIntent(FreeTextIntent.FreeTextTypeWriter);
-            assertEquals(FreeTextIntent.FreeTextTypeWriter, fta.getIntent());
-
-            // Setting Undefined removes the entry
-            fta.setIntent(FreeTextIntent.Undefined);
-            assertEquals(FreeTextIntent.Undefined, fta.getIntent());
-
-            // Setting null removes the entry
-            fta.setIntent(FreeTextIntent.FreeText);
-            assertEquals(FreeTextIntent.FreeText, fta.getIntent());
-            fta.setIntent(null);
-            assertEquals(FreeTextIntent.Undefined, fta.getIntent());
-        }
+import org.aspose.pdf.Document;
+import org.aspose.pdf.FileSpecification;
+import java.nio.file.Files;
+import java.nio.file.Path;
+
+public class ExtractAttachments {
+    public static void main(String[] args) throws Exception {
+        try (Document doc = new Document("with-attachment.pdf")) {
+            var files = doc.getEmbeddedFiles();
+            for (int i = 1; i <= files.getCount(); i++) {
+                FileSpecification fs = files.get(i);
+                byte[] data = fs.getData();
+                if (data == null) {
+                    continue;
+                }
+                String name = fs.getName() != null ? fs.getName() : ("file" + i);
+                Path out = Path.of("extracted", name);
+                Files.createDirectories(out.getParent());
+                Files.write(out, data);
+                System.out.println("Wrote " + out + " (" + data.length + " bytes)");
+            }
+        }
     }
+}

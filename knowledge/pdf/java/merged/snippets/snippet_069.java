@@ -1,13 +1,10 @@
 @Test
-    void document_getActions_returnsLiveView() throws IOException {
+    void setOpacity_andGet_roundTrip() throws Exception {
         try (Document doc = new Document()) {
-            doc.getPages().add();
-            DocumentActions actions = doc.getActions();
-            assertNotNull(actions);
-            assertNull(actions.getOpenAction());
-
-            actions.setOpenAction(new GoToURIAction("https://example.com"));
-            // Re-fetch a new view; same catalog → entry visible
-            assertNotNull(doc.getActions().getOpenAction());
+            Page p = doc.getPages().add();
+            WatermarkAnnotation w = new WatermarkAnnotation(p, new Rectangle(0, 0, 100, 100));
+            assertEquals(1.0, w.getOpacity(), 1e-6, "default = 1.0");
+            w.setOpacity(0.4);
+            assertEquals(0.4, w.getOpacity(), 1e-6);
         }
     }

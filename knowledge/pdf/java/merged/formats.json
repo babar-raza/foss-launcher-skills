@@ -27,6 +27,24 @@
     "functional": true
   },
   {
+    "format": "Xlsx",
+    "enum": "LoadFormat",
+    "value": "",
+    "file": "src/main/java/org/aspose/pdf/LoadFormat.java",
+    "line": 7,
+    "direction": "import",
+    "functional": true
+  },
+  {
+    "format": "Markdown",
+    "enum": "LoadFormat",
+    "value": "",
+    "file": "src/main/java/org/aspose/pdf/LoadFormat.java",
+    "line": 7,
+    "direction": "import",
+    "functional": true
+  },
+  {
     "format": "Pdf",
     "enum": "SaveFormat",
     "value": "",
@@ -55,6 +73,42 @@
   },
   {
     "format": "Doc",
+    "enum": "SaveFormat",
+    "value": "",
+    "file": "src/main/java/org/aspose/pdf/SaveFormat.java",
+    "line": 6,
+    "direction": "export",
+    "functional": true
+  },
+  {
+    "format": "Xml",
+    "enum": "SaveFormat",
+    "value": "",
+    "file": "src/main/java/org/aspose/pdf/SaveFormat.java",
+    "line": 6,
+    "direction": "enum_only",
+    "functional": false
+  },
+  {
+    "format": "Xlsx",
+    "enum": "SaveFormat",
+    "value": "",
+    "file": "src/main/java/org/aspose/pdf/SaveFormat.java",
+    "line": 6,
+    "direction": "export",
+    "functional": true
+  },
+  {
+    "format": "Excel",
+    "enum": "SaveFormat",
+    "value": "",
+    "file": "src/main/java/org/aspose/pdf/SaveFormat.java",
+    "line": 6,
+    "direction": "export",
+    "functional": true
+  },
+  {
+    "format": "Markdown",
     "enum": "SaveFormat",
     "value": "",
     "file": "src/main/java/org/aspose/pdf/SaveFormat.java",
@@ -119,6 +173,70 @@
     "direction": "export"
   },
   {
+    "format": "Doc",
+    "enum": "DocFormat",
+    "value": "",
+    "file": "src/main/java/org/aspose/pdf/DocSaveOptions.java",
+    "line": 39,
+    "direction": "detect"
+  },
+  {
+    "format": "DocX",
+    "enum": "DocFormat",
+    "value": "",
+    "file": "src/main/java/org/aspose/pdf/DocSaveOptions.java",
+    "line": 39,
+    "direction": "detect"
+  },
+  {
+    "format": "Excel",
+    "enum": "",
+    "value": "",
+    "file": "src/main/java/org/aspose/pdf/ExcelLoadOptions.java",
+    "line": 14,
+    "direction": "import"
+  },
+  {
+    "format": "Excel",
+    "enum": "",
+    "value": "",
+    "file": "src/main/java/org/aspose/pdf/ExcelSaveOptions.java",
+    "line": 17,
+    "direction": "export"
+  },
+  {
+    "format": "XLSX",
+    "enum": "ExcelFormat",
+    "value": "",
+    "file": "src/main/java/org/aspose/pdf/ExcelSaveOptions.java",
+    "line": 24,
+    "direction": "detect"
+  },
+  {
+    "format": "XmlSpreadSheet2003",
+    "enum": "ExcelFormat",
+    "value": "",
+    "file": "src/main/java/org/aspose/pdf/ExcelSaveOptions.java",
+    "line": 24,
+    "direction": "detect"
+  },
+  {
+    "format": "CSV",
+    "enum": "ExcelFormat",
+    "value": "",
+    "file": "src/main/java/org/aspose/pdf/ExcelSaveOptions.java",
+    "line": 24,
+    "direction": "detect"
+  },
+  {
+    "format": "ODS",
+    "enum": "ExcelFormat",
+    "value": "",
+    "file": "src/main/java/org/aspose/pdf/ExcelSaveOptions.java",
+    "line": 24,
+    "direction": "detect"
+  },
+  {
     "format": "Html",
     "enum": "",
     "value": "",
@@ -132,6 +250,22 @@
     "value": "",
     "file": "src/main/java/org/aspose/pdf/HtmlSaveOptions.java",
     "line": 11,
+    "direction": "export"
+  },
+  {
+    "format": "Markdown",
+    "enum": "",
+    "value": "",
+    "file": "src/main/java/org/aspose/pdf/MarkdownLoadOptions.java",
+    "line": 20,
+    "direction": "import"
+  },
+  {
+    "format": "Markdown",
+    "enum": "",
+    "value": "",
+    "file": "src/main/java/org/aspose/pdf/MarkdownSaveOptions.java",
+    "line": 22,
     "direction": "export"
   },
   {

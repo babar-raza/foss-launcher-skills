@@ -1,8 +1,6 @@
-private static boolean isFinderRow(boolean[][] m, int row, int col) {
-        for (int dx = 0; dx < 7; dx++) {
-            if (!m[row][col + dx]) {
-                return false;
-            }
-        }
-        return true;
+@Test
+    void setLevelNull_silencesLibrary() {
+        AsposePdfLogging.setLevel(Level.WARNING);
+        AsposePdfLogging.setLevel(null);
+        assertEquals(Level.OFF, AsposePdfLogging.getLevel());
     }

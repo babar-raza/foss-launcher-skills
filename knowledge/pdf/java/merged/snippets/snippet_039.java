@@ -1,8 +1,14 @@
 @Test
-    void getText_defaultsToNull() throws Exception {
-        try (Document doc = new Document()) {
-            Page p = doc.getPages().add();
-            WatermarkAnnotation w = new WatermarkAnnotation(p, new Rectangle(0, 0, 100, 100));
-            assertNull(w.getText());
-        }
+    void fromBits_returnsCorrectFlags() {
+        EnumSet<AnnotationFlags> empty = AnnotationFlags.fromBits(0);
+        assertTrue(empty.isEmpty());
+
+        EnumSet<AnnotationFlags> printOnly = AnnotationFlags.fromBits(4);
+        assertEquals(EnumSet.of(AnnotationFlags.Print), printOnly);
+
+        EnumSet<AnnotationFlags> mixed = AnnotationFlags.fromBits(4 | 64); // Print + ReadOnly
+        assertEquals(EnumSet.of(AnnotationFlags.Print, AnnotationFlags.ReadOnly), mixed);
+
+        EnumSet<AnnotationFlags> all = AnnotationFlags.fromBits(0x3FF);
+        assertEquals(10, all.size());
     }

@@ -1,10 +1,13 @@
 @Test
-    void setText_andGet_roundTrip() throws Exception {
-        try (Document doc = new Document()) {
-            Page p = doc.getPages().add();
-            WatermarkAnnotation w = new WatermarkAnnotation(p, new Rectangle(0, 0, 100, 100));
-            w.setText("DRAFT");
-            assertEquals("DRAFT", w.getText());
-            assertEquals("DRAFT", w.getContents(), "setText delegates to /Contents");
-        }
+    void enumValues_matchSpecBits() {
+        assertEquals(1,   AnnotationFlags.Invisible.getBit());
+        assertEquals(2,   AnnotationFlags.Hidden.getBit());
+        assertEquals(4,   AnnotationFlags.Print.getBit());
+        assertEquals(8,   AnnotationFlags.NoZoom.getBit());
+        assertEquals(16,  AnnotationFlags.NoRotate.getBit());
+        assertEquals(32,  AnnotationFlags.NoView.getBit());
+        assertEquals(64,  AnnotationFlags.ReadOnly.getBit());
+        assertEquals(128, AnnotationFlags.Locked.getBit());
+        assertEquals(256, AnnotationFlags.ToggleNoView.getBit());
+        assertEquals(512, AnnotationFlags.LockedContents.getBit());
     }

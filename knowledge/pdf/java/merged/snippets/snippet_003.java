@@ -1,13 +1,9 @@
-@Test
-    public void border_setAndRead_rgb() throws Exception {
-        try (Document doc = new Document()) {
-            Page page = doc.getPages().add();
-            WidgetAnnotation w = new WidgetAnnotation(page, new Rectangle(0, 0, 100, 50));
-            w.getCharacteristics().setBorder(Color.fromRgb(1, 0, 0));
-            Color got = w.getCharacteristics().getBorder();
-            assertNotNull(got);
-            assertEquals(1.0, got.getR(), 0.01);
-            assertEquals(0.0, got.getG(), 0.01);
-            assertEquals(0.0, got.getB(), 0.01);
-        }
-    }
+import org.aspose.pdf.Document;
+import org.aspose.pdf.text.TextAbsorber;
+
+try (Document doc = new Document("input.pdf")) {
+    TextAbsorber absorber = new TextAbsorber();
+    doc.getPages().accept(absorber);
+    String text = absorber.getText();
+    System.out.println(text);
+}

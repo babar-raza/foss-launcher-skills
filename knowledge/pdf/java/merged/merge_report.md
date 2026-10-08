@@ -1,17 +1,17 @@
 # Promote Report: pdf/java
-Date: 2026-09-10T11:11:41.274215+00:00
-Scout SHA: 099e70a8b309fdd6ce349607dd589dfde96f2989
+Date: 2026-10-08T10:02:53.183474+00:00
+Scout SHA: 736cedaa2922e4952f429364bdb9a4bbb1d97863
 Source: scout-only (standalone pipeline, no FL dependency)
 
 ## Statistics
 | Metric | Value |
 |--------|-------|
-| Scout claims | 14279 |
-| Enriched claims (S-37) | 1542 |
+| Scout claims | 14456 |
+| Enriched claims (S-37) | 2247 |
 | Supplemental claims (bridge) | 0 |
-| Total claims | 15728 |
-| Classes | 1158 |
-| API surface entries (incl. functions) | 1158 |
+| Total claims | 16606 |
+| Classes | 1181 |
+| API surface entries (incl. functions) | 1181 |
 | Forbidden claims | 1 |
 | Snippets | 100 |
 

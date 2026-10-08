@@ -1,15 +1,15 @@
 @Test
-    void setAfterPrinting_thenGet_roundTrips() throws IOException {
-        PdfDictionary catalog = new PdfDictionary();
-        DocumentActions actions = new DocumentActions(catalog, null);
-
-        actions.setAfterPrinting(new GoToURIAction("https://done"));
-        PdfAction read = actions.getAfterPrinting();
-        assertNotNull(read);
-        assertTrue(read instanceof UriAction);
-
-        // /AA dictionary was created with the /DP entry
-        PdfDictionary aa = (PdfDictionary) catalog.get(PdfName.of("AA"));
-        assertNotNull(aa);
-        assertNotNull(aa.get(PdfName.of("DP")));
+    public void allFourSubtypesAreSet() throws Exception {
+        try (Document doc = new Document()) {
+            Page page = doc.getPages().add();
+            Rectangle r = new Rectangle(10, 20, 30, 40);
+            assertEquals("Highlight",
+                    new HighlightAnnotation(page, r).getSubtype());
+            assertEquals("Underline",
+                    new UnderlineAnnotation(page, r).getSubtype());
+            assertEquals("StrikeOut",
+                    new StrikeOutAnnotation(page, r).getSubtype());
+            assertEquals("Squiggly",
+                    new SquigglyAnnotation(page, r).getSubtype());
+        }
     }

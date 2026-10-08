@@ -1,10 +1,11 @@
-@Test
-    public void callout_defaultIsNull() throws Exception {
-        try (Document doc = new Document()) {
-            Page page = doc.getPages().add();
-            DefaultAppearance da = new DefaultAppearance();
-            FreeTextAnnotation fta = new FreeTextAnnotation(page,
-                    new Rectangle(0, 0, 100, 50), da);
-            assertNull(fta.getCallout());
-        }
+import org.aspose.pdf.facades.PdfFileEditor;
+
+public class MergeKeepsAttachments {
+    public static void main(String[] args) throws Exception {
+        PdfFileEditor editor = new PdfFileEditor();
+        editor.concatenate(
+            new String[] { "a.pdf", "b.pdf" },  // both may carry attachments
+            "merged.pdf");
+        // merged.pdf contains the embedded files from both a.pdf and b.pdf
     }
+}

@@ -1,17 +1,19 @@
-@Test
-    void setEndingStyle_nullOrNone_removesEntry() throws Exception {
-        try (Document doc = new Document()) {
-            Page p = doc.getPages().add();
-            FreeTextAnnotation ft = new FreeTextAnnotation(p, new Rectangle(0, 0, 100, 50));
-            ft.setEndingStyle(LineEnding.Square);
-            assertNotNull(ft.getPdfDictionary().get("LE"));
-
-            ft.setEndingStyle(null);
-            assertNull(ft.getPdfDictionary().get("LE"));
-
-            ft.setEndingStyle(LineEnding.Butt);
-            assertNotNull(ft.getPdfDictionary().get("LE"));
-            ft.setEndingStyle(LineEnding.None);
-            assertNull(ft.getPdfDictionary().get("LE"));
-        }
+import org.aspose.pdf.Document;
+import org.aspose.pdf.FileSpecification;
+import java.io.ByteArrayInputStream;
+import java.nio.charset.StandardCharsets;
+
+public class AttachFromStream {
+    public static void main(String[] args) throws Exception {
+        byte[] payload = "id,name\n1,Alice\n".getBytes(StandardCharsets.UTF_8);
+        try (Document doc = new Document("input.pdf")) {
+            FileSpecification fs = new FileSpecification(
+                new ByteArrayInputStream(payload), "people.csv");
+            fs.setDescription("Generated at runtime");
+            fs.setMimeType("text/csv");
+
+            doc.getEmbeddedFiles().add(fs);
+            doc.save("with-attachment.pdf");
+        }
     }
+}

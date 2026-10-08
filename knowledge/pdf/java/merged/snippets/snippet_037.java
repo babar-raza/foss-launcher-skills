@@ -1,15 +1,12 @@
 @Test
-    public void allFourSubtypesAreSet() throws Exception {
+    public void caption_setAndRead() throws Exception {
         try (Document doc = new Document()) {
             Page page = doc.getPages().add();
-            Rectangle r = new Rectangle(10, 20, 30, 40);
-            assertEquals("Highlight",
-                    new HighlightAnnotation(page, r).getSubtype());
-            assertEquals("Underline",
-                    new UnderlineAnnotation(page, r).getSubtype());
-            assertEquals("StrikeOut",
-                    new StrikeOutAnnotation(page, r).getSubtype());
-            assertEquals("Squiggly",
-                    new SquigglyAnnotation(page, r).getSubtype());
+            WidgetAnnotation w = new WidgetAnnotation(page, new Rectangle(0, 0, 100, 50));
+            assertNull(w.getCharacteristics().getCaption());
+            w.getCharacteristics().setCaption("Submit");
+            assertEquals("Submit", w.getCharacteristics().getCaption());
+            w.getCharacteristics().setCaption(null);
+            assertNull(w.getCharacteristics().getCaption());
         }
     }

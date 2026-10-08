@@ -1,6 +1,7 @@
 @Test
-    void propertyVerbose_enablesFine() {
-        System.setProperty(AsposePdfLogging.LOG_PROPERTY, "verbose");
-        AsposePdfLogging.configureFromSystemProperty();
-        assertEquals(Level.FINE, AsposePdfLogging.getLevel());
+    void existingAnnotationCtor_stillWorks() {
+        // Regression check: the original (Annotation) ctor is untouched.
+        Border border = new Border((Annotation) null);
+        assertNotNull(border);
+        assertEquals(1.0, border.getWidth(), 1e-6);
     }

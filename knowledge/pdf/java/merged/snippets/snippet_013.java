@@ -1,5 +1,11 @@
-@Test
-    void unknownBits_ignored() {
-        EnumSet<AnnotationFlags> high = AnnotationFlags.fromBits(0x40000); // bit 19, unmapped
-        assertTrue(high.isEmpty());
-    }
+import org.aspose.pdf.annotations.LinkAnnotation;
+
+try (Document doc = new Document("input.pdf")) {
+    Page page = doc.getPages().get(1);
+    Rectangle rect = new Rectangle(100, 500, 400, 520);
+
+    LinkAnnotation link = new LinkAnnotation(page, rect);
+    // ... configure action: GoToURIAction or similar
+    page.getAnnotations().add(link);
+    doc.save("linked.pdf");
+}

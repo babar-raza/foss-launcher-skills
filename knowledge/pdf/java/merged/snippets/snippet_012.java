@@ -1,6 +1,14 @@
-@Test
-    void roundTrip_bitsEnumBits() {
-        int original = 1 | 4 | 64 | 256; // Invisible + Print + ReadOnly + ToggleNoView
-        EnumSet<AnnotationFlags> set = AnnotationFlags.fromBits(original);
-        assertEquals(original, AnnotationFlags.toBits(set));
-    }
+import org.aspose.pdf.annotations.FreeTextAnnotation;
+import org.aspose.pdf.annotations.DefaultAppearance;
+
+try (Document doc = new Document("input.pdf")) {
+    Page page = doc.getPages().get(1);
+    Rectangle rect = new Rectangle(100, 600, 300, 650);
+
+    FreeTextAnnotation note = new FreeTextAnnotation(
+        page, rect, new DefaultAppearance(/* font, size, color */));
+    note.setContents("Please review this section.");
+
+    page.getAnnotations().add(note);
+    doc.save("annotated.pdf");
+}

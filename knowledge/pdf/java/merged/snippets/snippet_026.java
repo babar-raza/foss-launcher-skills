@@ -1,13 +1,20 @@
-@Test
-    public void rotate_setAndRead() throws Exception {
-        try (Document doc = new Document()) {
-            Page page = doc.getPages().add();
-            DefaultAppearance da = new DefaultAppearance();
-            FreeTextAnnotation fta = new FreeTextAnnotation(page,
-                    new Rectangle(0, 0, 100, 50), da);
-            fta.setRotate(180);
-            assertEquals(180, fta.getRotate());
-            fta.setRotate(90);
-            assertEquals(90, fta.getRotate());
-        }
+import org.aspose.pdf.Document;
+
+public class DeleteAttachments {
+    public static void main(String[] args) throws Exception {
+        try (Document doc = new Document("with-attachment.pdf")) {
+            var files = doc.getEmbeddedFiles();
+
+            // Remove one by name:
+            files.delete("report.csv");
+
+            // Or remove the first by index (1-based):
+            // files.delete(1);
+
+            // Or remove everything:
+            // files.delete();
+
+            doc.save("cleaned.pdf");
+        }
     }
+}

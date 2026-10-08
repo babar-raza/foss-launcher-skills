@@ -1,7 +1,10 @@
 @Test
-    void verbose_allowsChildFine() {
-        AsposePdfLogging.setLevel(Level.FINE);
-        Logger child = Logger.getLogger("org.aspose.pdf.engine.parser.PDFParser");
-        assertTrue(child.isLoggable(Level.FINE),
-                "At verbose/FINE level, recovery details should pass");
+    public void rotate_defaultIsZero() throws Exception {
+        try (Document doc = new Document()) {
+            Page page = doc.getPages().add();
+            DefaultAppearance da = new DefaultAppearance();
+            FreeTextAnnotation fta = new FreeTextAnnotation(page,
+                    new Rectangle(0, 0, 100, 50), da);
+            assertEquals(0, fta.getRotate());
+        }
     }

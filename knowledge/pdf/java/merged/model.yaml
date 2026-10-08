@@ -1,37 +1,38 @@
+bundle_generated_at: '2026-10-08T10:02:52.393324+00:00'
+bundle_id: dff87b26-c2af-4b94-97ea-dca060fa8f15
+config_sha: ba558925e966ce6d
+enrichment_status: full
+extractor_hash: 05afc3e6317c4213
 family: pdf
+generator_fingerprint: 2c63eb86851f18b3c89c6d999d15086233a7287d1548d28209403f5372d3eab4
+generator_semver: 2.0.0
+has_conflicts: false
+input_hashes:
+  enriched_claims_sha: 3f12da4114aeaf4121295428d1f182a40a10f5253a2bb7f0909459e717ae83b1
+  extractor_config_sha: ba558925e966ce6d
+  products_json_entry_sha: d26bd7dd2a51d23eed7e89e4234244356512cc82a171a4f9a22202a278db6abc
+  scout_api_surface_sha: b55ff27ee5742db86fbc14ee31f873fab831fb9b40a077bc3337c3cb40c8c893
+  scout_claims_sha: 3a6a5ed9b95e2b7fe21f74eec4db341cb1ebf0c551e650b78138c6faede85f5f
+license: ''
+module_assignment_version: 1
 platform: java
 product_name: aspose-pdf-foss
-version: 26.8.0
-license: ''
+promoted_at: '2026-10-08T10:02:53.089273+00:00'
+repo_sha: 736cedaa2922e4952f429364bdb9a4bbb1d97863
 repo_url: https://github.com/aspose-pdf-foss/Aspose.PDF-FOSS-for-Java.git
-repo_sha: 099e70a8b309fdd6ce349607dd589dfde96f2989
-config_sha: ba558925e966ce6d
-stale_since: null
-promoted_at: '2026-09-10T11:11:41.163197+00:00'
-source: scout_and_enriched
-enrichment_status: full
-has_conflicts: false
 schema_version: 2
-generator_fingerprint: 39b55c0381d862030a39cf289a74386dba0d96ba7bead7439ed295a74ed8206e
-generator_semver: 2.0.0
-bundle_id: 40632c9d-c9d8-4312-a73e-6775a28e8dcd
-bundle_generated_at: '2026-09-10T11:11:40.311793+00:00'
-module_assignment_version: 1
-input_hashes:
-  extractor_config_sha: ba558925e966ce6d
-  scout_claims_sha: 52dc18d08c0918401207f533370731b421eeed0aeb813cccd56969a24fee5a82
-  scout_api_surface_sha: a68e2677e5598f38dfc898164040a8d7f242a3fdc8ccff60dc8cddb5e21e1774
-  enriched_claims_sha: b7b67903cb5ef933565347754b72afcd48eb8da1b46524dc2fb9f4246b54362f
-  products_json_entry_sha: d26bd7dd2a51d23eed7e89e4234244356512cc82a171a4f9a22202a278db6abc
+source: scout_and_enriched
+stale_since: null
 stats:
-  scout_claims: 14279
-  enriched_claims: 1542
-  supplemental_claims: 0
-  total_claims: 15728
-  class_count: 1158
+  class_count: 1181
   classes:
-    total_declared: 1158
-    public_documented: 1115
-    raw_entries_including_non_class: 1158
+    public_documented: 1136
+    raw_entries_including_non_class: 1181
+    total_declared: 1181
+  enriched_claims: 2247
   forbidden_count: 1
+  scout_claims: 14456
   snippet_count: 100
+  supplemental_claims: 0
+  total_claims: 16606
+version: 26.9.0

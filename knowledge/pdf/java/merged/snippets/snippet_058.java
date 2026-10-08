@@ -1,14 +1,14 @@
 @Test
-    void cellAdd_textbox_wrapsInFormFieldParagraph() throws Exception {
+    public void callout_twoPoints_setAndRead() throws Exception {
         try (Document doc = new Document()) {
             Page page = doc.getPages().add();
-            Cell cell = new Cell();
-
-            TextBoxField tf = new TextBoxField(page, new Rectangle(50, 700, 250, 720));
-            cell.add(tf);
-
-            BaseParagraph p = cell.getParagraphs().get(0);
-            assertTrue(p instanceof FormFieldParagraph);
-            assertSame(tf, ((FormFieldParagraph) p).asField());
+            DefaultAppearance da = new DefaultAppearance();
+            FreeTextAnnotation fta = new FreeTextAnnotation(page,
+                    new Rectangle(0, 0, 100, 50), da);
+            fta.setCallout(new double[][] {{0, 0}, {200, 100}});
+            double[][] cl = fta.getCallout();
+            assertNotNull(cl);
+            assertEquals(2, cl.length);
+            assertEquals(200.0, cl[1][0], 0.001);
         }
     }

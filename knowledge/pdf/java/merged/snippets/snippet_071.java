@@ -1,6 +1,10 @@
 @Test
-    void reedSolomonMatchesSpecExample() {
-        byte[] data = toBytes(SPEC_DATA);
-        byte[] ecc = QrEncoder.rsRemainder(data, QrEncoder.rsGenerator(10));
-        assertArrayEquals(toBytes(SPEC_ECC), ecc, "RS ECC codewords must match ISO 18004 Annex I");
+    void subtype_isWatermark() throws Exception {
+        try (Document doc = new Document()) {
+            Page p = doc.getPages().add();
+            WatermarkAnnotation w = new WatermarkAnnotation(p, new Rectangle(0, 0, 100, 100));
+            // Verify the /Subtype entry was set
+            assertEquals("Watermark",
+                    ((org.aspose.pdf.engine.pdfobjects.PdfName) w.getPdfDictionary().get("Subtype")).getName());
+        }
     }

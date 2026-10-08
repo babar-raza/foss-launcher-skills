@@ -1,11 +1,8 @@
-@Test
-    void setWidth_syncsToOption() {
-        RadioButtonOptionField opt = new RadioButtonOptionField();
-        Border border = new Border(opt);
-        border.setWidth(2.5);
-
-        // Border is stored on the option through setBorder
-        Border roundTrip = opt.getBorder();
-        assertNotNull(roundTrip, "option should now have a Border via syncParent");
-        assertEquals(2.5, roundTrip.getWidth(), 1e-6);
+import org.aspose.pdf.annotations.MarkupAnnotation;
+
+for (Annotation a : page.getAnnotations()) {
+    if (a instanceof MarkupAnnotation) {
+        MarkupAnnotation m = (MarkupAnnotation) a;
+        // getAuthor(), getSubject(), getCreationDate() (where applicable)
     }
+}

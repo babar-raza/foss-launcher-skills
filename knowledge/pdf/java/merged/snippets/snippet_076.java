@@ -1,9 +1,6 @@
 @Test
-    void capacityTableMatchesSpec() {
-        assertEquals(19, QrEncoder.numDataCodewords(1, QrEncoder.Ecc.LOW));
-        assertEquals(16, QrEncoder.numDataCodewords(1, QrEncoder.Ecc.MEDIUM));
-        assertEquals(13, QrEncoder.numDataCodewords(1, QrEncoder.Ecc.QUARTILE));
-        assertEquals(9, QrEncoder.numDataCodewords(1, QrEncoder.Ecc.HIGH));
-        assertEquals(2956, QrEncoder.numDataCodewords(40, QrEncoder.Ecc.LOW));
-        assertEquals(3706, QrEncoder.numRawDataModules(40) / 8);
+    void propertyVerbose_enablesFine() {
+        System.setProperty(AsposePdfLogging.LOG_PROPERTY, "verbose");
+        AsposePdfLogging.configureFromSystemProperty();
+        assertEquals(Level.FINE, AsposePdfLogging.getLevel());
     }

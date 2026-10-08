@@ -1,7 +1,13 @@
-@Test
-    void toBits_encodes() {
-        assertEquals(0, AnnotationFlags.toBits(EnumSet.noneOf(AnnotationFlags.class)));
-        assertEquals(4, AnnotationFlags.toBits(EnumSet.of(AnnotationFlags.Print)));
-        assertEquals(4 | 64,
-                AnnotationFlags.toBits(EnumSet.of(AnnotationFlags.Print, AnnotationFlags.ReadOnly)));
-    }
+import org.aspose.pdf.Rectangle;
+import org.aspose.pdf.annotations.HighlightAnnotation;
+
+try (Document doc = new Document("input.pdf")) {
+    Page page = doc.getPages().get(1);
+
+    // Coordinates are in PDF user-space points, origin at lower-left
+    Rectangle rect = new Rectangle(100, 700, 400, 720);
+    HighlightAnnotation highlight = new HighlightAnnotation(page, rect);
+
+    page.getAnnotations().add(highlight);
+    doc.save("highlighted.pdf");
+}
