@@ -609,6 +609,52 @@ def _exclude_test_like_entries(entries: list[dict]) -> tuple[list[dict], int]:
     return kept, len(entries) - len(kept)
 
 
+def _apply_conventional_exclusion(
+    candidates: list[dict], family: str, platform: str,
+) -> tuple[list[dict], int]:
+    """H-04e: when the package genuinely curates its public surface via a package-level
+    __init__.py __all__, exclude "conventional" classes -- they are implementation details
+    not intended for public consumption. Only "exported" and "public" remain. EXCEPTION: a
+    conventional class that already has a published reference page stays a candidate, so
+    --rebuild-all can still keep it in sync. Unconditionally dropping every conventional
+    entry silently orphaned already-published pages outside this generator's reach forever
+    -- found live 2026-08-29, pdf/python's PdfNumber.md: its class dropped `to_double()`/
+    `to_int()` for a `value` property at some point, but since PdfNumber is "conventional"
+    the page was excluded from every subsequent --rebuild-all candidate set (never
+    regenerated, never flagged) and kept citing the removed methods indefinitely -- caught
+    only by a separate, unrelated validator (truth_audit), not this one.
+
+    HRD-9N-14 (MT076-2026-10-07-PSD-NET-PYTHON-LAUNCH): the package-curates-its-surface
+    signal must be `exported_via_package_init` (set by extraction's
+    `_mark_package_init_exports()` from a genuine package-level __init__.py __all__), NOT
+    merely any entry with `visibility == "exported"`. That visibility tier is also set by
+    api_surface.py's S-1 extraction, which is explicitly scoped to a SINGLE module file's
+    own local __all__ -- a real signal for that file's own `from module import *` surface,
+    but not evidence the whole package curates its public API. Live-verified false for
+    psd/python: PsdImageLoader's visibility == "exported" only because its own file
+    (loaders/psdimageloader.py) declares a local `__all__ = ["PsdImageLoader",
+    "ImageLoader"]` -- the real top-level aspose_psd_foss/__init__.py is empty (0 bytes, no
+    __all__ at all), so exported_via_package_init is None/unset for every psd/python entry.
+    The old `any(visibility == "exported")` check wrongly treated that one module-local
+    marker as package-wide curation and excluded all 18 "conventional" classes with no
+    existing page, including Layer (the product's central class), Point, and Size -- a
+    severe, real content gap. Confirmed this fix does not regress the rest of the portfolio:
+    every other python product with both "exported" and "conventional" entries (pdf, font,
+    html, note) has at least one entry with exported_via_package_init=True, so this check
+    stays True for them unchanged.
+    """
+    has_exports = any(e.get("exported_via_package_init") for e in candidates)
+    if not has_exports:
+        return candidates, 0
+    before = len(candidates)
+    kept = [
+        e for e in candidates
+        if e.get("visibility") != "conventional"
+        or (CONTENT_ROOT / family / platform / f"{_entry_slug(e)}.md").exists()
+    ]
+    return kept, before - len(kept)
+
+
 def _apply_kind_filter(entries: list[dict], kind_arg: str, platform: str) -> list[dict]:
     """Apply --kind class|enum|all filter on top of platform-scoped entries."""
     if kind_arg == "all":
@@ -713,6 +759,65 @@ def _assign_namespace_slug_suffixes(group: list[dict]) -> None:
     for e in entries_with_ns:
         short = truncated[id(e)]
         e["_slug_suffix"] = ns_by_id[id(e)] if counts[short] > 1 else short
+
+
+# Mirrors the dedup-by-visibility-rank logic lib/denominator_reconciler.py already
+# applies for its own M==N scope count (see that module's own inline _VIS_RANK) --
+# duplicated rather than shared to avoid a cross-module import for a 4-entry dict.
+_NAME_COLLISION_VIS_RANK = {"exported": 3, "public": 2, "conventional": 1, "internal": 0}
+
+
+def _dedup_namespaceless_name_collisions(
+    candidates: list[dict],
+) -> tuple[list[dict], int]:
+    """HRD-9N-14 (MT076-2026-10-07-PSD-NET-PYTHON-LAUNCH): when 2+ same-name candidates
+    have NO distinguishing effective namespace at all, `_assign_namespace_slug_suffixes`
+    cannot tell them apart (both get no `_slug_suffix`) and they go on to collide on the
+    same output filename -- previously masked because H-04e's (buggy) package-wide
+    "conventional" exclusion happened to filter the lower-visibility duplicate out before
+    it ever reached this point for most real products. Once that package-wide check was
+    correctly narrowed to `exported_via_package_init` (see `_apply_conventional_exclusion`),
+    this latent gap surfaced: two namespaceless same-name entries now both survive to the
+    write loop and an arbitrary processing-order "WITHIN-BATCH-DEDUP" skip decides the
+    winner, which can keep the WRONG (lower-visibility, less complete) entry.
+
+    Treat namespaceless same-name entries as duplicate descriptions of the SAME logical
+    class (not genuinely distinct classes -- those always carry a real namespace signal,
+    per `_assign_namespace_slug_suffixes`'s own docstring) and keep only the
+    highest-visibility-rank one, same rank table `denominator_reconciler.py` already uses
+    for its own count. Entries that DO have a namespace are untouched here -- real
+    different-namespace collisions still get `_slug_suffix` disambiguation as before.
+    """
+    from collections import Counter as _Counter
+    from collections import defaultdict as _defaultdict
+
+    name_counts = _Counter(e.get("name", "") for e in candidates)
+    collision_names = {n for n, c in name_counts.items() if c > 1}
+    if not collision_names:
+        return candidates, 0
+
+    groups: dict[str, list[dict]] = _defaultdict(list)
+    for entry in candidates:
+        if entry.get("name", "") in collision_names:
+            groups[entry["name"]].append(entry)
+
+    drop_ids: set[int] = set()
+    for group in groups.values():
+        namespaceless = [e for e in group if not _effective_namespace(e)]
+        if len(namespaceless) < 2:
+            continue
+        best = max(
+            namespaceless,
+            key=lambda e: _NAME_COLLISION_VIS_RANK.get(e.get("visibility", "conventional"), 1),
+        )
+        for e in namespaceless:
+            if e is not best:
+                drop_ids.add(id(e))
+
+    if not drop_ids:
+        return candidates, 0
+    kept = [e for e in candidates if id(e) not in drop_ids]
+    return kept, len(drop_ids)
 
 
 # ---------------------------------------------------------------------------
@@ -2027,31 +2132,12 @@ def run(family: str, platform: str, kind_arg: str = "all",
         print(f"Skipped {_test_like_skipped} test-like entr(y/ies) (source file is a "
               f"test project/pytest file/.NET build output).")
 
-    # H-04e: When __all__ is defined (detected by any "exported" entries),
-    # exclude "conventional" classes — they are implementation details not
-    # intended for public consumption. Only "exported" and "public" remain.
-    # EXCEPTION: a conventional class that already has a published reference
-    # page stays a candidate, so --rebuild-all can still keep it in sync.
-    # Unconditionally dropping every conventional entry silently orphaned
-    # already-published pages outside this generator's reach forever --
-    # found live 2026-08-29, pdf/python's PdfNumber.md: its class dropped
-    # `to_double()`/`to_int()` for a `value` property at some point, but
-    # since PdfNumber is "conventional" the page was excluded from every
-    # subsequent --rebuild-all candidate set (never regenerated, never
-    # flagged) and kept citing the removed methods indefinitely -- caught
-    # only by a separate, unrelated validator (truth_audit), not this one.
-    _has_exports = any(e.get("visibility") == "exported" for e in candidates)
-    if _has_exports:
-        _conv_before = len(candidates)
-        candidates = [
-            e for e in candidates
-            if e.get("visibility") != "conventional"
-            or (CONTENT_ROOT / family / platform / f"{_entry_slug(e)}.md").exists()
-        ]
-        _conv_skipped = _conv_before - len(candidates)
-        if _conv_skipped:
-            print(f"Skipped {_conv_skipped} conventional class(es) with no "
-                  f"existing page (package defines __all__).")
+    # H-04e: see _apply_conventional_exclusion()'s own docstring (HRD-9N-14) for the
+    # exported_via_package_init vs. per-file visibility=="exported" distinction.
+    candidates, _conv_skipped = _apply_conventional_exclusion(candidates, family, platform)
+    if _conv_skipped:
+        print(f"Skipped {_conv_skipped} conventional class(es) with no "
+              f"existing page (package defines __all__).")
 
     scoped_paths: set[str] | None = None
     if explicit_run_root and resolved_run_root is not None:
@@ -2087,6 +2173,14 @@ def run(family: str, platform: str, kind_arg: str = "all",
         # (a different, legitimate concern: deciding NEW filenames when two
         # DIFFERENT classes would collide) -- that logic is untouched.
         scoped_paths_lower = {p.lower() for p in scoped_paths}
+
+    # HRD-9N-14: drop namespaceless same-name duplicates (keep the highest-visibility-rank
+    # entry) before the namespace-disambiguation step below -- see
+    # _dedup_namespaceless_name_collisions()'s own docstring.
+    candidates, _ns_dedup_dropped = _dedup_namespaceless_name_collisions(candidates)
+    if _ns_dedup_dropped:
+        print(f"  {_ns_dedup_dropped} namespaceless same-name duplicate(s) dropped "
+              f"(kept highest-visibility entry).")
 
     # api_surface is already consolidated at extraction time (consolidate_classes
     # in api_surface.py).  Remaining same-name entries have distinct namespaces.
