@@ -227,17 +227,38 @@ def apply_version_update_proposal(
     this updates candidate.version on an ALREADY-published entry. Called
     automatically by run_auto_apply() (Phase 3) when --auto-apply is set;
     otherwise a human-reviewed follow-up action, same as apply_proposal().
+
+    Clears candidate.repo_sha (2026-10-08 fix) rather than carrying it forward
+    unchanged. That field is the FOSS repo commit the PRIOR version was
+    scouted/published at (lib/availability.py's release_ref_from_registry uses
+    it as a last-resort release ref -- "the scout-time commit, weaker
+    evidence"). Spreading the old candidate dict forward used to leave it
+    silently pinned to a commit that predates the new version, misrepresenting
+    it as evidence for a release it was never scouted against -- confirmed live
+    as the exact mechanism behind 3 stale repo_sha values this function itself
+    had already produced for cells/3d/slides java. This watcher has no
+    reliable way to re-resolve the new version's exact tag commit from Maven
+    Central alone, so it fails closed to null (this module's live_checker
+    discipline: a checker's silence is never evidence) instead of guessing.
     """
     checked_at = checked_at or datetime.now(timezone.utc).date().isoformat()
     entry = data[proposal["family"]][proposal["platform"]]
-    entry["candidate"] = {**entry.get("candidate", {}), "version": proposal["live_version"]}
+    new_candidate = {**entry.get("candidate", {}), "version": proposal["live_version"]}
+    repo_sha_cleared = new_candidate.get("repo_sha") is not None
+    if repo_sha_cleared:
+        new_candidate["repo_sha"] = None
+    entry["candidate"] = new_candidate
+    evidence_note = (f"publish-watcher steady-state version-update check, {checked_at}: "
+                      f"{proposal['recorded_version']} -> {proposal['live_version']}")
+    if repo_sha_cleared:
+        evidence_note += (" (candidate.repo_sha cleared: it pinned the PRIOR version's commit "
+                           "and is not re-derived for the new version)")
     entry["verification"] = {
         **entry.get("verification", {}),
         "published": True,
         "verified_at": checked_at,
         "evidence_url": proposal["central_url"],
-        "evidence_note": f"publish-watcher steady-state version-update check, {checked_at}: "
-                          f"{proposal['recorded_version']} -> {proposal['live_version']}",
+        "evidence_note": evidence_note,
         "method": "maven-central-poll-version-update",
     }
     return entry

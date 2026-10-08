@@ -240,6 +240,42 @@ def test_apply_version_update_proposal_updates_only_version():
     assert "26.5.0" in entry["verification"]["evidence_note"] and "26.7.0" in entry["verification"]["evidence_note"]
 
 
+def test_apply_version_update_proposal_clears_stale_repo_sha():
+    """2026-10-08 fix: candidate.repo_sha pins the PRIOR version's scouted/published
+    commit. Carrying it forward unchanged across a version bump silently misrepresents
+    it as evidence for the new version -- the confirmed, live-reproduced mechanism
+    behind 3 real stale values (cells/3d/slides java). This watcher cannot re-resolve
+    the new version's exact tag commit from Maven Central alone, so it must fail closed
+    to null rather than guess."""
+    data = _fake_data()
+    data["cells"]["java"]["candidate"]["repo_sha"] = "deadbeef00000000000000000000000000000000"
+    proposal = {
+        "family": "cells", "platform": "java",
+        "group_id": "org.aspose", "artifact_id": "aspose-cells-foss",
+        "recorded_version": "26.5.0", "live_version": "26.7.0",
+        "central_url": "https://repo1.maven.org/maven2/org/aspose/aspose-cells-foss/",
+    }
+    entry = sut.apply_version_update_proposal(data, proposal, checked_at="2026-10-08")
+    assert entry["candidate"]["version"] == "26.7.0"
+    assert entry["candidate"]["repo_sha"] is None
+    assert "repo_sha cleared" in entry["verification"]["evidence_note"]
+
+
+def test_apply_version_update_proposal_no_repo_sha_note_when_none_to_clear():
+    """The sibling invariant: when there was no repo_sha to begin with, the clearing
+    note must not appear (nothing was actually cleared)."""
+    data = _fake_data()
+    assert "repo_sha" not in data["cells"]["java"]["candidate"]
+    proposal = {
+        "family": "cells", "platform": "java",
+        "group_id": "org.aspose", "artifact_id": "aspose-cells-foss",
+        "recorded_version": "26.5.0", "live_version": "26.7.0",
+        "central_url": "https://repo1.maven.org/maven2/org/aspose/aspose-cells-foss/",
+    }
+    entry = sut.apply_version_update_proposal(data, proposal, checked_at="2026-10-08")
+    assert "repo_sha cleared" not in entry["verification"]["evidence_note"]
+
+
 def test_format_version_update_issue_body_includes_recorded_and_live_versions():
     proposals = [{
         "family": "cells", "platform": "java", "group_id": "org.aspose",
