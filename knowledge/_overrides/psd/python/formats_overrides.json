@@ -1,0 +1,22 @@
+[
+  {
+    "format": "psd",
+    "enum": "",
+    "value": "",
+    "file": "aspose_psd_foss/psdimage.py",
+    "line": 294,
+    "direction": "both",
+    "manual": true,
+    "note": "PSDPY-FORMATSGAP-001: the formats extractor never detects PSD/PSB as format tokens for psd/python -- PSD has no SaveFormat-style enum declaration (same cross-language extraction blind spot already disclosed for PDF/Go as PDFPY-FORMATSGAP-001/CELLSGO-FORMATSGAP-001), and instead picked up 'ltrb'/'int32'/'points' (rectangle/coordinate-arithmetic helper terms, not real formats) from unrelated code. PsdImage.load() (psdimage.py:294) and PsdImage.save() (psdimage.py:341) both confirmed to accept/produce real .psd files -- the Supported Formats table on every psd/python page (products, blog, reference) needs this entry or format_completeness.py's phantom-format check FAILs. Found live during TC-PSD-LPY-02-S1 (first blog post generation)."
+  },
+  {
+    "format": "psb",
+    "enum": "",
+    "value": "",
+    "file": "aspose_psd_foss/psdimage.py",
+    "line": 294,
+    "direction": "both",
+    "manual": true,
+    "note": "PSDPY-FORMATSGAP-001 (see 'psd' entry's note for the full root cause) -- PSB (Photoshop large-document) is the same container format family handled by the same PsdImage.load()/save() methods, confirmed via PsdImage.is_large_document/is_psb properties and the is_large_document parameter threaded through Layer.load()/write()."
+  }
+]
