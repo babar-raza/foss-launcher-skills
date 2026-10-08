@@ -846,6 +846,180 @@ class TestNameCollisionDedup:
 
 
 # ---------------------------------------------------------------------------
+# H-04g: internal-namespace collision priority (MT074, found live 2026-10-07 on pdf/java)
+# ---------------------------------------------------------------------------
+
+class TestInternalNamespaceCollisionPriority:
+    """A newly-extracted internal implementation class (engine/sdm/pgm/... -- a java
+    scout never sets `visibility: internal`, so H-04d's own exclusion is a no-op for it)
+    must never force a real, already-published public class's stable URL to change just
+    because it shares its simple name. _entry_is_internal_namespace()/
+    _pick_collision_priority_winner() give the non-internal member of a 2-way collision
+    priority over an internal one; everything else (genuine dual-public collisions,
+    all-internal collisions) falls back to the pre-existing "whichever has an existing
+    page" rule, unchanged."""
+
+    def test_entry_is_internal_namespace_detects_configured_segments(self):
+        assert _br._entry_is_internal_namespace(
+            {"file": "src/main/java/org/aspose/pdf/engine/xfa/model/template/Border.java"}
+        )
+        assert not _br._entry_is_internal_namespace(
+            {"file": "src/main/java/org/aspose/pdf/annotations/Border.java"}
+        )
+
+    def test_entry_is_internal_namespace_does_not_match_the_filename_itself(self):
+        """A class legitimately named e.g. `Impl` must not be flagged because its own
+        file is `Impl.java` -- only package SEGMENTS (excluding the filename) count."""
+        assert not _br._entry_is_internal_namespace(
+            {"file": "src/main/java/org/aspose/pdf/drawing/Impl.java"}
+        )
+
+    def test_entry_is_internal_namespace_empty_or_missing_file(self):
+        assert not _br._entry_is_internal_namespace({"file": ""})
+        assert not _br._entry_is_internal_namespace({})
+
+    def test_internal_collision_keeps_public_classs_existing_plain_url(self, tmp_path):
+        """The exact pdf/java shape: a real, published `Border.md` (annotations.Border)
+        collides with a newly-extracted internal `engine.xfa.model.template.Border` --
+        Border.md must be left completely alone; only the internal one is renamed."""
+        entries = [
+            {"name": "Border", "kind": "class_declaration", "visibility": "public",
+             "file": "src/main/java/org/aspose/pdf/annotations/Border.java",
+             "class_import": "org.aspose.pdf.annotations.Border",
+             "methods": [{"name": "getWidth", "params": [], "return_type": "float",
+                          "doc": "", "line": 1}], "properties": []},
+            {"name": "Border", "kind": "class_declaration", "visibility": "public",
+             "file": "src/main/java/org/aspose/pdf/engine/xfa/model/template/Border.java",
+             "class_import": "org.aspose.pdf.engine.xfa.model.template.Border",
+             "methods": [{"name": "getThickness", "params": [], "return_type": "float",
+                          "doc": "", "line": 1}], "properties": []},
+        ]
+        _make_api_surface(tmp_path, entries, "pdf", "java")
+        out_dir = tmp_path / "content" / "reference.aspose.org" / "en" / "pdf" / "java"
+        out_dir.mkdir(parents=True)
+        (out_dir / "Border.md").write_text("existing-border-page", encoding="utf-8")
+
+        # --rebuild-all --confirm-rebuild: the exact mode refresh_run.py's own reference
+        # stage uses (production shape), so the old page is actively regenerated in
+        # place, not merely left alone because it already exists.
+        result = run("pdf", "java", rebuild_all=True, confirm_rebuild=True)
+
+        assert result["errors"] == 0
+        assert (out_dir / "Border.md").read_text(encoding="utf-8") != "existing-border-page", (
+            "Border.md should have been UPDATED in place from the real annotations.Border "
+            "entry (--rebuild-all regenerates in place; only its slug/identity must be stable)"
+        )
+        assert "getWidth" in (out_dir / "Border.md").read_text(encoding="utf-8")
+        # the internal twin gets its own, separate, namespace-suffixed page
+        actual_names = {f.name for f in out_dir.iterdir() if f.suffix == ".md"}
+        suffixed = [n for n in actual_names if n.startswith("Border-")]
+        assert len(suffixed) == 1, f"expected exactly one Border-<suffix>.md, got {suffixed}"
+        assert "getThickness" in (out_dir / suffixed[0]).read_text(encoding="utf-8")
+
+    def test_internal_collision_fresh_no_existing_page_still_prefers_public(self, tmp_path):
+        """Even with no pre-existing page at all, the non-internal member still gets the
+        plain slug on first generation -- the priority rule is about identity, not just
+        about protecting a file that happens to already exist."""
+        entries = [
+            {"name": "Fill", "kind": "class_declaration", "visibility": "public",
+             "file": "src/main/java/org/aspose/pdf/operators/Fill.java",
+             "class_import": "org.aspose.pdf.operators.Fill",
+             "methods": [], "properties": []},
+            {"name": "Fill", "kind": "class_declaration", "visibility": "public",
+             "file": "src/main/java/org/aspose/pdf/engine/xfa/model/template/Fill.java",
+             "class_import": "org.aspose.pdf.engine.xfa.model.template.Fill",
+             "methods": [], "properties": []},
+        ]
+        _make_api_surface(tmp_path, entries, "pdf", "java")
+        out_dir = tmp_path / "content" / "reference.aspose.org" / "en" / "pdf" / "java"
+        out_dir.mkdir(parents=True)
+
+        result = run("pdf", "java")
+
+        assert result["generated"] == 2
+        assert (out_dir / "Fill.md").exists()
+        actual_names = {f.name for f in out_dir.iterdir() if f.suffix == ".md"}
+        assert "Fill.md" in actual_names
+        assert not any(n == "Fill-Operators.md" for n in actual_names), (
+            "the real, non-internal class must keep the PLAIN slug, not get suffixed itself"
+        )
+
+    def test_genuine_dual_public_collision_unaffected_falls_back_to_existing_rule(self, tmp_path):
+        """Two genuinely public classes sharing a name (facades.Form vs. forms.Form --
+        neither internal) must behave exactly as before this change: whichever already
+        has a page at the plain slug keeps it; the other gets namespace-suffixed."""
+        entries = [
+            {"name": "Form", "kind": "class_declaration", "visibility": "public",
+             "file": "src/main/java/org/aspose/pdf/facades/Form.java",
+             "class_import": "org.aspose.pdf.facades.Form",
+             "methods": [], "properties": []},
+            {"name": "Form", "kind": "class_declaration", "visibility": "public",
+             "file": "src/main/java/org/aspose/pdf/forms/Form.java",
+             "class_import": "org.aspose.pdf.forms.Form",
+             "methods": [], "properties": []},
+        ]
+        _make_api_surface(tmp_path, entries, "pdf", "java")
+        out_dir = tmp_path / "content" / "reference.aspose.org" / "en" / "pdf" / "java"
+        out_dir.mkdir(parents=True)
+        (out_dir / "Form.md").write_text("existing-form-page", encoding="utf-8")
+
+        result = run("pdf", "java")
+
+        assert result["errors"] == 0
+        actual_names = {f.name for f in out_dir.iterdir() if f.suffix == ".md"}
+        assert "Form.md" in actual_names
+        suffixed = [n for n in actual_names if n.startswith("Form-")]
+        assert len(suffixed) == 1
+
+    def test_all_internal_collision_falls_back_to_existing_rule(self, tmp_path):
+        """A collision where BOTH members are internal-looking (e.g. two nested helper
+        types both happening to be named `Value` inside different engine subsystems)
+        must not be treated as having a priority winner -- falls back unchanged."""
+        entries = [
+            {"name": "Value", "kind": "class_declaration", "visibility": "public",
+             "file": "src/main/java/org/aspose/pdf/engine/function/Value.java",
+             "class_import": "org.aspose.pdf.engine.function.Value",
+             "methods": [], "properties": []},
+            {"name": "Value", "kind": "class_declaration", "visibility": "public",
+             "file": "src/main/java/org/aspose/pdf/engine/xfa/model/template/Value.java",
+             "class_import": "org.aspose.pdf.engine.xfa.model.template.Value",
+             "methods": [], "properties": []},
+        ]
+        _make_api_surface(tmp_path, entries, "pdf", "java")
+        out_dir = tmp_path / "content" / "reference.aspose.org" / "en" / "pdf" / "java"
+        out_dir.mkdir(parents=True)
+
+        result = run("pdf", "java")
+
+        assert result["generated"] == 2
+        actual_names = {f.name for f in out_dir.iterdir() if f.suffix == ".md"}
+        assert "Value.md" not in actual_names, (
+            "with no existing page and no non-internal member, both must be suffixed"
+        )
+
+    def test_the_659_non_colliding_internal_pages_are_never_touched(self, tmp_path):
+        """H-04g only ever fires INSIDE an actual name collision. An internal class with
+        a unique simple name (the overwhelming majority -- confirmed live: 659 of
+        pdf/java's own published pages) must keep generating/updating exactly as before;
+        this is deliberately NOT a blanket internal-namespace exclusion."""
+        entries = [
+            {"name": "CFFFontLoader", "kind": "class_declaration", "visibility": "public",
+             "file": "src/main/java/org/aspose/pdf/engine/font/cff/CFFFontLoader.java",
+             "class_import": "org.aspose.pdf.engine.font.cff.CFFFontLoader",
+             "methods": [{"name": "load", "params": [], "return_type": "", "doc": "", "line": 1}],
+             "properties": []},
+        ]
+        _make_api_surface(tmp_path, entries, "pdf", "java")
+        out_dir = tmp_path / "content" / "reference.aspose.org" / "en" / "pdf" / "java"
+        out_dir.mkdir(parents=True)
+
+        result = run("pdf", "java")
+
+        assert result["generated"] == 1
+        assert (out_dir / "CFFFontLoader.md").exists()
+
+
+# ---------------------------------------------------------------------------
 # Java internal class filter (SEA-T3 regression)
 # ---------------------------------------------------------------------------
 

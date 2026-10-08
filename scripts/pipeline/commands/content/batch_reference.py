@@ -194,6 +194,10 @@ KNOWLEDGE_ROOT = REPO_ROOT / "knowledge"
 CONTENT_ROOT = REPO_ROOT / "content" / "reference.aspose.org" / "en"
 _resolve_backlink_fn = resolve_backlink
 _cfg_content_write_fn = None  # None -> safe_content_write (configure() seam, real-path write only)
+# H-04g (MT074, 2026-10-08): cache for the shared `internal_namespace_segments`
+# vocabulary (config/capability_placement.yaml) used by _entry_is_internal_namespace().
+# None = not yet loaded; reset by configure().
+_internal_namespace_segments_cache: "frozenset[str] | None" = None
 
 
 def _safe_print(message: str) -> None:
@@ -225,6 +229,7 @@ def configure(
     content_root: Path | None = None,
     resolve_backlink_fn=None,
     content_write_fn=None,
+    internal_namespace_config_path: "Path | str | None" = None,
 ) -> None:
     """Set module-level root paths. Call with no args to reset defaults.
 
@@ -242,9 +247,16 @@ def configure(
     content_write_fn (MT074 RC-8): observation seam for the REAL content-path
     write (not the staging write) so a test can assert what exists on disk at
     the moment of mutation; omit to use the real safe_content_write().
+
+    internal_namespace_config_path (H-04g, MT074): points
+    ``lib.availability``'s shared config loader at another
+    capability_placement.yaml for tests, and resets this module's own cache
+    of the ``internal_namespace_segments`` list either way (so a test can
+    also just rely on the reset-on-every-configure() behavior). Omit to use
+    the real config.
     """
     global REPO_ROOT, KNOWLEDGE_ROOT, CONTENT_ROOT, _resolve_backlink_fn
-    global _cfg_content_write_fn
+    global _cfg_content_write_fn, _internal_namespace_segments_cache
     root = repo_root if repo_root is not None else _DEFAULT_REPO_ROOT
     REPO_ROOT = root
     KNOWLEDGE_ROOT = knowledge_root if knowledge_root is not None else root / "knowledge"
@@ -254,6 +266,12 @@ def configure(
     )
     _resolve_backlink_fn = resolve_backlink_fn if resolve_backlink_fn is not None else resolve_backlink
     _cfg_content_write_fn = content_write_fn
+    _internal_namespace_segments_cache = None
+    try:
+        from lib.availability import configure as _configure_availability
+        _configure_availability(config_path=internal_namespace_config_path)
+    except ImportError:
+        pass
     # FRESH-001 (2026-08-14): keep freshness_guard's module-level paths in lockstep
     # with this module's own configure() -- it is a separate module with its own
     # REPO_ROOT/KNOWLEDGE_ROOT globals, and the freshness gate below must see the
@@ -726,6 +744,76 @@ def _effective_namespace(entry: dict) -> str:
     if class_import and class_import != entry.get("name", "") and "." in class_import:
         return class_import.rsplit(".", 1)[0]
     return ""
+
+
+def _internal_namespace_segments() -> "frozenset[str]":
+    """The shared ``internal_namespace_segments`` vocabulary from
+    config/capability_placement.yaml (lib.availability's cached loader --
+    single source of truth with the capability model, see that config
+    file's own comment: namespace segments that mark a type as
+    internal-looking). Cached per process; configure() resets the cache.
+    Config absent/damaged -> empty set (never block reference generation on
+    a config problem outside this module's own ownership)."""
+    global _internal_namespace_segments_cache
+    if _internal_namespace_segments_cache is None:
+        try:
+            from lib.availability import load_config as _load_cap_config
+            segs = _load_cap_config().get("internal_namespace_segments") or []
+        except Exception:
+            segs = []
+        _internal_namespace_segments_cache = frozenset(str(s).casefold() for s in segs)
+    return _internal_namespace_segments_cache
+
+
+def _entry_is_internal_namespace(entry: dict) -> bool:
+    """True when the entry's source file path contains a package segment from the shared
+    ``internal_namespace_segments`` vocabulary (e.g. ``engine``, ``sdm``) -- a strong,
+    generic signal of implementation-detail code that most language scouts never set as
+    ``visibility: internal`` (H-04d's own exclusion is a no-op for them). The filename
+    itself is excluded from the check (a class legitimately named e.g. ``Impl`` must not
+    be flagged because its own file is ``Impl.java``)."""
+    file_path = str(entry.get("file") or "")
+    if not file_path:
+        return False
+    segments = _internal_namespace_segments()
+    if not segments:
+        return False
+    parts = re.split(r"[\\/]", file_path)[:-1]
+    return any(p.casefold() in segments for p in parts)
+
+
+def _pick_collision_priority_winner(
+    group: list[dict], ref_dir: Path,
+) -> dict | None:
+    """H-04g (MT074, found live 2026-10-07, pdf/java): when a name-collision group has
+    exactly one member that is NOT in an internal-looking namespace while every other
+    member is, that one member keeps the plain, undisambiguated slug. An internal
+    implementation-detail class must never force a real, already-published public
+    class's stable URL to change just because an unrelated internal class happens to
+    share its simple name (confirmed live: 14 real, long-published pages -- Border,
+    Field, Fill, FontRepository, Arc, Color, Heading, Image, Line, PatternColorSpace,
+    Rectangle, Scope, Signature, Table -- were about to be force-renamed by a newly
+    extracted, identically-named internal `engine.xfa.model.template.*` / `sdm.*` /
+    `engine.font.*` / `engine.colorspace.*` / `engine.script.*` class). Deliberately
+    narrow: it only ever fires INSIDE an actual name collision, so it never touches the
+    hundreds of internal classes that already have their own, non-colliding reference
+    pages (pdf/java alone has 659 of them) -- this is not a blanket internal-namespace
+    exclusion.
+
+    Falls back to "whichever member already has a page at the plain slug" (the
+    pre-existing, unconditional behavior, matching the case-only-collision block's own
+    established rule) when the internal/public split does not single out exactly one
+    member -- e.g. two genuinely public classes sharing a name (``Form``: a facade vs. a
+    core forms-model class), where no namespace deserves editorial priority over the
+    other, or a group where every member is internal-looking.
+    """
+    internal_flags = [_entry_is_internal_namespace(e) for e in group]
+    if internal_flags.count(False) == 1:
+        return group[internal_flags.index(False)]
+    for e in group:
+        if (ref_dir / f"{_sanitize_slug(e.get('name', ''))}.md").exists():
+            return e
+    return None
 
 
 def _assign_namespace_slug_suffixes(group: list[dict]) -> None:
@@ -2189,14 +2277,28 @@ def run(family: str, platform: str, kind_arg: str = "all",
     from collections import defaultdict as _defaultdict
     _name_counts = _Counter(e.get("name", "") for e in candidates)
     _collisions = {n for n, c in _name_counts.items() if c > 1}
+    # H-04g (MT074): names whose collision group has a designated priority winner (an
+    # entry deliberately left un-suffixed, keeping the plain slug) -- the stale-page-
+    # retire check below must NOT treat that plain-named page as orphaned: it is being
+    # regenerated in place by the winning entry, not abandoned.
+    _collision_names_kept_plain: set[str] = set()
     if _collisions:
         _groups: dict[str, list[dict]] = _defaultdict(list)
         for entry in candidates:
             if entry.get("name", "") in _collisions:
                 _groups[entry["name"]].append(entry)
-        for _group in _groups.values():
-            _assign_namespace_slug_suffixes(_group)
-        print(f"  {len(_collisions)} name collision(s) disambiguated by namespace")
+        _priority_kept = 0
+        for _cname, _group in _groups.items():
+            _winner = _pick_collision_priority_winner(_group, CONTENT_ROOT / family / platform)
+            _targets = [_e for _e in _group if _e is not _winner]
+            if _winner is not None:
+                _priority_kept += 1
+                _collision_names_kept_plain.add(_cname)
+            _assign_namespace_slug_suffixes(_targets)
+        print(
+            f"  {len(_collisions)} name collision(s) disambiguated by namespace"
+            + (f" ({_priority_kept} kept an existing plain URL)" if _priority_kept else "")
+        )
 
     # Phase A: Case-collision detection.
     # Catches entries whose slugs are case-identical on Windows NTFS (e.g., Id vs ID).
@@ -2263,7 +2365,7 @@ def run(family: str, platform: str, kind_arg: str = "all",
     if _collisions and not dry_run:
         _ref_dir = CONTENT_ROOT / family / platform
         _stale_pages: list[Path] = []
-        for _cname in sorted(_collisions):
+        for _cname in sorted(_collisions - _collision_names_kept_plain):
             _old = _ref_dir / f"{_sanitize_slug(_cname)}.md"
             if not _old.exists():
                 continue
