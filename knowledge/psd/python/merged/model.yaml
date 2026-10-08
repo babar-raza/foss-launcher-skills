@@ -1,0 +1,38 @@
+family: psd
+platform: python
+product_name: Aspose.PSD-FOSS for Python
+version: ''
+license: MIT
+repo_url: https://github.com/aspose-psd-foss/Aspose.PSD-FOSS-for-Python.git
+repo_sha: 664446b97952c063baf828f469995ad2a160bae7
+config_sha: e24f998c0d721fd3
+stale_since: null
+promoted_at: '2026-10-08T03:47:33.621113+00:00'
+source: scout_and_enriched
+enrichment_status: full
+has_conflicts: false
+schema_version: 2
+generator_fingerprint: 2c63eb86851f18b3c89c6d999d15086233a7287d1548d28209403f5372d3eab4
+generator_semver: 2.0.0
+bundle_id: 81eb8495-e5ef-48f1-98e3-aaaaf1111ee7
+bundle_generated_at: '2026-10-08T03:47:33.532276+00:00'
+module_assignment_version: 1
+input_hashes:
+  extractor_config_sha: e24f998c0d721fd3
+  scout_claims_sha: bd3ddcbc19f1a4db28f095d32aa04c9154ef2b50d50586c746d9de1fb7df73d6
+  scout_api_surface_sha: d35885262e29a493f12eeefb6cdcc32b3c0f032349dc1df4fa5ec516fac65be4
+  enriched_claims_sha: d4b1782c0b93e2730ed93f1750add59527141dd50452e8c53ebf83b411750287
+  products_json_entry_sha: ae2530924b1ec2a3b63b6d334e3fa20949022474932e33e723ed0821264deda5
+stats:
+  scout_claims: 465
+  enriched_claims: 41
+  supplemental_claims: 0
+  total_claims: 506
+  class_count: 64
+  classes:
+    total_declared: 64
+    public_documented: 64
+    raw_entries_including_non_class: 64
+  forbidden_count: 1
+  snippet_count: 71
+extractor_hash: d1a8219b4844ab06

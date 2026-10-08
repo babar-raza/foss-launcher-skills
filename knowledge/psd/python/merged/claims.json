@@ -1,0 +1,7162 @@
+[
+  {
+    "claim_id": "CLM-psd-76cd03",
+    "kind": "api_class",
+    "text": "Class SeekOrigin defined in aspose_psd_foss/bigendianreader.py",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose_psd_foss/bigendianreader.py",
+        "line": 8
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-29cc916d",
+    "kind": "api_method",
+    "text": "BigEndianReader.__init__(stream, leave_open) -> ",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose_psd_foss/bigendianreader.py",
+        "line": 20
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-7ed31b98",
+    "kind": "api_method",
+    "text": "BigEndianReader.seek(offset, origin) -> None",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose_psd_foss/bigendianreader.py",
+        "line": 36
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-86ffd36b",
+    "kind": "api_method",
+    "text": "BigEndianReader.read_byte() -> int",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose_psd_foss/bigendianreader.py",
+        "line": 39
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-fcbb8bad",
+    "kind": "api_method",
+    "text": "BigEndianReader.read_sbyte() -> int",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose_psd_foss/bigendianreader.py",
+        "line": 45
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-26d86461",
+    "kind": "api_method",
+    "text": "BigEndianReader.read_bytes(count) -> bytes",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose_psd_foss/bigendianreader.py",
+        "line": 51
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-35897b5b",
+    "kind": "api_method",
+    "text": "BigEndianReader.read_int16() -> int",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose_psd_foss/bigendianreader.py",
+        "line": 62
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-3f31dff6",
+    "kind": "api_method",
+    "text": "BigEndianReader.read_uint16() -> int",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose_psd_foss/bigendianreader.py",
+        "line": 66
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-d143b8de",
+    "kind": "api_method",
+    "text": "BigEndianReader.read_int32() -> int",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose_psd_foss/bigendianreader.py",
+        "line": 70
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-b68a634e",
+    "kind": "api_method",
+    "text": "BigEndianReader.read_uint32() -> int",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose_psd_foss/bigendianreader.py",
+        "line": 74
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-9ce7d44e",
+    "kind": "api_method",
+    "text": "BigEndianReader.read_int64() -> int",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose_psd_foss/bigendianreader.py",
+        "line": 78
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-8cfd3dfe",
+    "kind": "api_method",
+    "text": "BigEndianReader.read_uint64() -> int",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose_psd_foss/bigendianreader.py",
+        "line": 82
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-94b69635",
+    "kind": "api_method",
+    "text": "BigEndianReader.read_single() -> float",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose_psd_foss/bigendianreader.py",
+        "line": 86
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-774dddd8",
+    "kind": "api_method",
+    "text": "BigEndianReader.read_double() -> float",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose_psd_foss/bigendianreader.py",
+        "line": 90
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-be98bff0",
+    "kind": "api_method",
+    "text": "BigEndianReader.read_pascal_string(max_length) -> str",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose_psd_foss/bigendianreader.py",
+        "line": 94
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-363f6b86",
+    "kind": "api_method",
+    "text": "BigEndianReader.read_pascal_string_aligned_to2(max_length) -> str",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose_psd_foss/bigendianreader.py",
+        "line": 97
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-818ffeb5",
+    "kind": "api_method",
+    "text": "BigEndianReader.read_pascal_string_aligned_to4(max_length) -> str",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose_psd_foss/bigendianreader.py",
+        "line": 100
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-7fb8ee08",
+    "kind": "api_method",
+    "text": "BigEndianReader.read_exactly(size) -> bytes",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose_psd_foss/bigendianreader.py",
+        "line": 121
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-6ec2b7a9",
+    "kind": "api_method",
+    "text": "BigEndianReader.skip(count) -> None",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose_psd_foss/bigendianreader.py",
+        "line": 136
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-4016e78c",
+    "kind": "api_method",
+    "text": "BigEndianReader.dispose() -> None",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose_psd_foss/bigendianreader.py",
+        "line": 139
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-29fa9613",
+    "kind": "api_method",
+    "text": "BigEndianReader.position property of type int",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose_psd_foss/bigendianreader.py",
+        "line": 25
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-0429fbbe",
+    "kind": "api_method",
+    "text": "BigEndianReader.length property of type int",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose_psd_foss/bigendianreader.py",
+        "line": 29
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-545949",
+    "kind": "api_class",
+    "text": "Class BigEndianReader defined in aspose_psd_foss/bigendianreader.py",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose_psd_foss/bigendianreader.py",
+        "line": 14
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-509c7e79",
+    "kind": "api_method",
+    "text": "BigEndianWriter.__init__(stream, leave_open) -> ",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose_psd_foss/bigendianwriter.py",
+        "line": 6
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-7a438fa6",
+    "kind": "api_method",
+    "text": "BigEndianWriter.seek(offset, origin) -> ",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose_psd_foss/bigendianwriter.py",
+        "line": 22
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-44279919",
+    "kind": "api_method",
+    "text": "BigEndianWriter.write(value) -> ",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose_psd_foss/bigendianwriter.py",
+        "line": 25
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-6bc38635",
+    "kind": "api_method",
+    "text": "BigEndianWriter.write_byte(bytevalue) -> ",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose_psd_foss/bigendianwriter.py",
+        "line": 34
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-f36407e4",
+    "kind": "api_method",
+    "text": "BigEndianWriter.write_bytes(buffer, offset, count) -> ",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose_psd_foss/bigendianwriter.py",
+        "line": 37
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-b6c86f6f",
+    "kind": "api_method",
+    "text": "BigEndianWriter.write_sbyte(value) -> ",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose_psd_foss/bigendianwriter.py",
+        "line": 42
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-fca55e9d",
+    "kind": "api_method",
+    "text": "BigEndianWriter.write_short(value) -> ",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose_psd_foss/bigendianwriter.py",
+        "line": 45
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-da18de13",
+    "kind": "api_method",
+    "text": "BigEndianWriter.write_ushort(value) -> ",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose_psd_foss/bigendianwriter.py",
+        "line": 48
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-d99bd9f0",
+    "kind": "api_method",
+    "text": "BigEndianWriter.write_uint16(value) -> None",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose_psd_foss/bigendianwriter.py",
+        "line": 51
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-a061d6ab",
+    "kind": "api_method",
+    "text": "BigEndianWriter.write_int(value) -> ",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose_psd_foss/bigendianwriter.py",
+        "line": 55
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-9e370428",
+    "kind": "api_method",
+    "text": "BigEndianWriter.write_int32(value) -> None",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose_psd_foss/bigendianwriter.py",
+        "line": 58
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-4b53dc76",
+    "kind": "api_method",
+    "text": "BigEndianWriter.write_uint(value) -> ",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose_psd_foss/bigendianwriter.py",
+        "line": 62
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-5b9bb34d",
+    "kind": "api_method",
+    "text": "BigEndianWriter.write_uint32(value) -> None",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose_psd_foss/bigendianwriter.py",
+        "line": 65
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-5061ae49",
+    "kind": "api_method",
+    "text": "BigEndianWriter.write_int16(value) -> None",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose_psd_foss/bigendianwriter.py",
+        "line": 69
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-7620cac9",
+    "kind": "api_method",
+    "text": "BigEndianWriter.write_uint8(value) -> None",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose_psd_foss/bigendianwriter.py",
+        "line": 73
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-6542571c",
+    "kind": "api_method",
+    "text": "BigEndianWriter.write_long(value) -> ",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose_psd_foss/bigendianwriter.py",
+        "line": 77
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-3c74fcda",
+    "kind": "api_method",
+    "text": "BigEndianWriter.write_ulong(value) -> ",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose_psd_foss/bigendianwriter.py",
+        "line": 80
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-665ee1f6",
+    "kind": "api_method",
+    "text": "BigEndianWriter.write_pascal_string(value) -> ",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose_psd_foss/bigendianwriter.py",
+        "line": 83
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-f4b91389",
+    "kind": "api_method",
+    "text": "BigEndianWriter.write_pascal_string_aligned_to2(value) -> ",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose_psd_foss/bigendianwriter.py",
+        "line": 86
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-3f18dd5a",
+    "kind": "api_method",
+    "text": "BigEndianWriter.write_pascal_string_aligned_to_2(value) -> None",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose_psd_foss/bigendianwriter.py",
+        "line": 89
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-4d72b74e",
+    "kind": "api_method",
+    "text": "BigEndianWriter.write_pascal_string_aligned_to4(value) -> ",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose_psd_foss/bigendianwriter.py",
+        "line": 93
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-73d3c864",
+    "kind": "api_method",
+    "text": "BigEndianWriter.get_pascal_string_storage_length_aligned_to4(value) -> ",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose_psd_foss/bigendianwriter.py",
+        "line": 97
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-19e79402",
+    "kind": "api_method",
+    "text": "BigEndianWriter.write_all_bytes(data) -> ",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose_psd_foss/bigendianwriter.py",
+        "line": 118
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-48638df8",
+    "kind": "api_method",
+    "text": "BigEndianWriter.dispose() -> ",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose_psd_foss/bigendianwriter.py",
+        "line": 121
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-3481fa6b",
+    "kind": "api_method",
+    "text": "BigEndianWriter.position property of type ",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose_psd_foss/bigendianwriter.py",
+        "line": 19
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-7dee4b",
+    "kind": "api_class",
+    "text": "Class BigEndianWriter defined in aspose_psd_foss/bigendianwriter.py",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose_psd_foss/bigendianwriter.py",
+        "line": 5
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-c7a3645c",
+    "kind": "api_method",
+    "text": "ImageLoader.load_from_path(file_path) -> object",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose_psd_foss/imageloader.py",
+        "line": 13
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-e863f875",
+    "kind": "api_method",
+    "text": "ImageLoader.load_from_stream(stream) -> object",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose_psd_foss/imageloader.py",
+        "line": 17
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-db7276",
+    "kind": "api_class",
+    "text": "Class ImageLoader defined in aspose_psd_foss/imageloader.py",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose_psd_foss/imageloader.py",
+        "line": 6
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-d6257f10",
+    "kind": "api_method",
+    "text": "LayerAndMaskSectionReader.load(reader, is_large_document) -> LayerAndMaskSection",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose_psd_foss/layerandmasksectionreader.py",
+        "line": 14
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-1d9a95",
+    "kind": "api_class",
+    "text": "Class LayerAndMaskSectionReader defined in aspose_psd_foss/layerandmasksectionreader.py",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose_psd_foss/layerandmasksectionreader.py",
+        "line": 12
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-4c48c049",
+    "kind": "api_method",
+    "text": "LayerAndMaskSectionWriter.save(section, writer, is_large_document) -> None",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose_psd_foss/layerandmasksectionwriter.py",
+        "line": 14
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-8a62ec",
+    "kind": "api_class",
+    "text": "Class LayerAndMaskSectionWriter defined in aspose_psd_foss/layerandmasksectionwriter.py",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose_psd_foss/layerandmasksectionwriter.py",
+        "line": 8
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-a15fe3fb",
+    "kind": "api_method",
+    "text": "ChannelInformation.__init__(compression_method, bit_depth, psd_version) -> ",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose_psd_foss/layers/channelinformation.py",
+        "line": 11
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-ef362f8e",
+    "kind": "api_method",
+    "text": "ChannelInformation.from_layer_channel_info(channel_info) -> ",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose_psd_foss/layers/channelinformation.py",
+        "line": 50
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-eee327d7",
+    "kind": "api_method",
+    "text": "ChannelInformation.ChannelID property of type ",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose_psd_foss/layers/channelinformation.py",
+        "line": 24
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-a45a95e9",
+    "kind": "api_method",
+    "text": "ChannelInformation.compression_method field of type unknown",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose_psd_foss/layers/channelinformation.py",
+        "line": 19
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-763d275d",
+    "kind": "api_method",
+    "text": "ChannelInformation.length field of type unknown",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose_psd_foss/layers/channelinformation.py",
+        "line": 20
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-cbc93c",
+    "kind": "api_class",
+    "text": "Class ChannelInformation defined in aspose_psd_foss/layers/channelinformation.py",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose_psd_foss/layers/channelinformation.py",
+        "line": 6
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-8eb7f32a",
+    "kind": "api_method",
+    "text": "LayerRecordReader.load(reader, is_large_document) -> ",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose_psd_foss/layers/layerrecordreader.py",
+        "line": 20
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-672aba",
+    "kind": "api_class",
+    "text": "Class LayerRecordReader defined in aspose_psd_foss/layers/layerrecordreader.py",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose_psd_foss/layers/layerrecordreader.py",
+        "line": 14
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-b2babc50",
+    "kind": "api_method",
+    "text": "LayerRecordWriter.write(layer, writer, is_large_document) -> None",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose_psd_foss/layers/layerrecordwriter.py",
+        "line": 20
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-9dba6d",
+    "kind": "api_class",
+    "text": "Class LayerRecordWriter defined in aspose_psd_foss/layers/layerrecordwriter.py",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose_psd_foss/layers/layerrecordwriter.py",
+        "line": 5
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-1ec49845",
+    "kind": "api_method",
+    "text": "PsdImageLoader.load(stream, leave_open) -> ",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose_psd_foss/loaders/psdimageloader.py",
+        "line": 16
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-5a516c",
+    "kind": "api_class",
+    "text": "Class PsdImageLoader defined in aspose_psd_foss/loaders/psdimageloader.py",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose_psd_foss/loaders/psdimageloader.py",
+        "line": 14
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-4cbf1f5f",
+    "kind": "api_method",
+    "text": "PsdSectionReader.read_bytes(reader, length, section_name) -> bytes",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose_psd_foss/psdsectionreader.py",
+        "line": 10
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-103cb375",
+    "kind": "api_method",
+    "text": "PsdSectionReader.ReadBytes(reader, length, section_name) -> bytes",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose_psd_foss/psdsectionreader.py",
+        "line": 28
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-820aa885",
+    "kind": "api_method",
+    "text": "PsdSectionReader.get_memory_backed_length(reader, length, section_name) -> int",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose_psd_foss/psdsectionreader.py",
+        "line": 32
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-4b949101",
+    "kind": "api_method",
+    "text": "PsdSectionReader.validate_signed_length(length, section_name) -> int",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose_psd_foss/psdsectionreader.py",
+        "line": 59
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-25c8be3d",
+    "kind": "api_method",
+    "text": "PsdSectionReader.get_nested_memory_backed_length(reader, length, section_end, section_name) -> int",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose_psd_foss/psdsectionreader.py",
+        "line": 77
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-2ceb0e",
+    "kind": "api_class",
+    "text": "Class PsdSectionReader defined in aspose_psd_foss/psdsectionreader.py",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose_psd_foss/psdsectionreader.py",
+        "line": 6
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-96a18f29",
+    "kind": "api_method",
+    "text": "PsdImageWriter.save(document, stream, leave_open) -> None",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose_psd_foss/writedescriptors/psdimagewriter.py",
+        "line": 12
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-e6137c",
+    "kind": "api_class",
+    "text": "Class PsdImageWriter defined in aspose_psd_foss/writedescriptors/psdimagewriter.py",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose_psd_foss/writedescriptors/psdimagewriter.py",
+        "line": 6
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-e603cc49",
+    "kind": "api_method",
+    "text": "BigEndianBitConverter.to_int32(byte_array, offset) -> ",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose_psd_foss/bigendianbitconverter.py",
+        "line": 6
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-973c83",
+    "kind": "api_class",
+    "text": "Class BigEndianBitConverter defined in aspose_psd_foss/bigendianbitconverter.py",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose_psd_foss/bigendianbitconverter.py",
+        "line": 2
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-906817",
+    "kind": "api_class",
+    "text": "Class ColorModes defined in aspose_psd_foss/colormodes.py",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose_psd_foss/colormodes.py",
+        "line": 4
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-5c4181",
+    "kind": "api_class",
+    "text": "Class CompressionMethod defined in aspose_psd_foss/compressionmethod.py",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose_psd_foss/compressionmethod.py",
+        "line": 4
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-5535f22a",
+    "kind": "api_method",
+    "text": "ArgumentNullException.__init__(message, inner_exception) -> ",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose_psd_foss/coreexceptions/argumentnullexception.py",
+        "line": 4
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-340cc76c",
+    "kind": "api_method",
+    "text": "ArgumentNullException.inner_exception field of type unknown",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose_psd_foss/coreexceptions/argumentnullexception.py",
+        "line": 12
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-c4b437",
+    "kind": "api_class",
+    "text": "Class ArgumentNullException defined in aspose_psd_foss/coreexceptions/argumentnullexception.py",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose_psd_foss/coreexceptions/argumentnullexception.py",
+        "line": 1
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-0762002e",
+    "kind": "api_method",
+    "text": "NotSupportedException.__init__(message, inner_exception) -> ",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose_psd_foss/coreexceptions/notsupportedexception.py",
+        "line": 4
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-6e21d444",
+    "kind": "api_method",
+    "text": "NotSupportedException.inner_exception field of type unknown",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose_psd_foss/coreexceptions/notsupportedexception.py",
+        "line": 12
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-93fb21",
+    "kind": "api_class",
+    "text": "Class NotSupportedException defined in aspose_psd_foss/coreexceptions/notsupportedexception.py",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose_psd_foss/coreexceptions/notsupportedexception.py",
+        "line": 1
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-c2c04554",
+    "kind": "api_method",
+    "text": "PsdLoadException.__init__(message, inner_exception) -> ",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose_psd_foss/coreexceptions/psdloadexception.py",
+        "line": 4
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-3beb5150",
+    "kind": "api_method",
+    "text": "PsdLoadException.inner_exception field of type unknown",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose_psd_foss/coreexceptions/psdloadexception.py",
+        "line": 12
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-ff1865",
+    "kind": "api_class",
+    "text": "Class PsdLoadException defined in aspose_psd_foss/coreexceptions/psdloadexception.py",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose_psd_foss/coreexceptions/psdloadexception.py",
+        "line": 1
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-b94ecc92",
+    "kind": "api_method",
+    "text": "PsdSaveException.__init__(message, inner_exception) -> ",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose_psd_foss/coreexceptions/psdsaveexception.py",
+        "line": 9
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-62e14798",
+    "kind": "api_method",
+    "text": "PsdSaveException.inner_exception field of type unknown",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose_psd_foss/coreexceptions/psdsaveexception.py",
+        "line": 11
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-72fd20",
+    "kind": "api_class",
+    "text": "Class PsdSaveException defined in aspose_psd_foss/coreexceptions/psdsaveexception.py",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose_psd_foss/coreexceptions/psdsaveexception.py",
+        "line": 2
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-d449c642",
+    "kind": "api_method",
+    "text": "Image.load(source) -> \"Image\"",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose_psd_foss/image.py",
+        "line": 16
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-872892",
+    "kind": "api_class",
+    "text": "Class Image defined in aspose_psd_foss/image.py",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose_psd_foss/image.py",
+        "line": 7
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-2ca34d",
+    "kind": "api_class",
+    "text": "Class BlendMode defined in aspose_psd_foss/layers/blendmode.py",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose_psd_foss/layers/blendmode.py",
+        "line": 4
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-6144fa7f",
+    "kind": "api_method",
+    "text": "BlendRange.__init__(destination, source) -> ",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose_psd_foss/layers/blendrange.py",
+        "line": 4
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-b644286b",
+    "kind": "api_method",
+    "text": "BlendRange.destination field of type unknown",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose_psd_foss/layers/blendrange.py",
+        "line": 5
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-bdb3f0b8",
+    "kind": "api_method",
+    "text": "BlendRange.source field of type unknown",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose_psd_foss/layers/blendrange.py",
+        "line": 6
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-74a253",
+    "kind": "api_class",
+    "text": "Class BlendRange defined in aspose_psd_foss/layers/blendrange.py",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose_psd_foss/layers/blendrange.py",
+        "line": 1
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-8b764a00",
+    "kind": "api_method",
+    "text": "GlobalLayerMaskInfo.empty() -> ",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose_psd_foss/layers/globallayermaskinfo.py",
+        "line": 5
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-468c0b",
+    "kind": "api_class",
+    "text": "Class GlobalLayerMaskInfo defined in aspose_psd_foss/layers/globallayermaskinfo.py",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose_psd_foss/layers/globallayermaskinfo.py",
+        "line": 2
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-c89d5b44",
+    "kind": "api_method",
+    "text": "Layer.__init__() -> ",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose_psd_foss/layers/layer.py",
+        "line": 42
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-333382a7",
+    "kind": "api_method",
+    "text": "Layer.mark_mutated() -> None",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose_psd_foss/layers/layer.py",
+        "line": 268
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-548c4ad8",
+    "kind": "api_method",
+    "text": "Layer.load(reader, is_large_document) -> \"Layer\"",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose_psd_foss/layers/layer.py",
+        "line": 284
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-80402f88",
+    "kind": "api_method",
+    "text": "Layer.write(writer, is_large_document) -> None",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose_psd_foss/layers/layer.py",
+        "line": 288
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-34a4759c",
+    "kind": "api_method",
+    "text": "Layer.create_parsed(name, bounds, is_visible, opacity, clipping, blend_mode, raw_data) -> \"Layer\"",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose_psd_foss/layers/layer.py",
+        "line": 293
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-747d8a9e",
+    "kind": "api_method",
+    "text": "Layer.name property of type str",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose_psd_foss/layers/layer.py",
+        "line": 46
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-17508e16",
+    "kind": "api_method",
+    "text": "Layer.bounds property of type Rectangle",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose_psd_foss/layers/layer.py",
+        "line": 56
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-c4d9bdec",
+    "kind": "api_method",
+    "text": "Layer.width property of type int",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose_psd_foss/layers/layer.py",
+        "line": 60
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-37d42084",
+    "kind": "api_method",
+    "text": "Layer.height property of type int",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose_psd_foss/layers/layer.py",
+        "line": 64
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-45084d9c",
+    "kind": "api_method",
+    "text": "Layer.top property of type int",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose_psd_foss/layers/layer.py",
+        "line": 68
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-05e71385",
+    "kind": "api_method",
+    "text": "Layer.left property of type int",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose_psd_foss/layers/layer.py",
+        "line": 81
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-a1554c80",
+    "kind": "api_method",
+    "text": "Layer.bottom property of type int",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose_psd_foss/layers/layer.py",
+        "line": 94
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-6155c9b3",
+    "kind": "api_method",
+    "text": "Layer.right property of type int",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose_psd_foss/layers/layer.py",
+        "line": 107
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-9901d8cd",
+    "kind": "api_method",
+    "text": "Layer.is_visible property of type bool",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose_psd_foss/layers/layer.py",
+        "line": 120
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-28d17d3e",
+    "kind": "api_method",
+    "text": "Layer.IsVisible property of type bool",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose_psd_foss/layers/layer.py",
+        "line": 130
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-39561932",
+    "kind": "api_method",
+    "text": "Layer.opacity property of type int",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose_psd_foss/layers/layer.py",
+        "line": 138
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-c796d57e",
+    "kind": "api_method",
+    "text": "Layer.clipping property of type int",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose_psd_foss/layers/layer.py",
+        "line": 148
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-07b2adf1",
+    "kind": "api_method",
+    "text": "Layer.blend_mode_key property of type BlendMode",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose_psd_foss/layers/layer.py",
+        "line": 158
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-210337f3",
+    "kind": "api_method",
+    "text": "Layer.channels_count property of type int",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose_psd_foss/layers/layer.py",
+        "line": 166
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-afaf7cb1",
+    "kind": "api_method",
+    "text": "Layer.channel_information property of type List[ChannelInformation]",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose_psd_foss/layers/layer.py",
+        "line": 170
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-4c060cee",
+    "kind": "api_method",
+    "text": "Layer.channels property of type List[PsdLayerChannelInfo]",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose_psd_foss/layers/layer.py",
+        "line": 182
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-e34fca6b",
+    "kind": "api_method",
+    "text": "Layer.has_mask_data property of type bool",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose_psd_foss/layers/layer.py",
+        "line": 188
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-aae9bc00",
+    "kind": "api_method",
+    "text": "Layer.has_blending_ranges_data property of type bool",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose_psd_foss/layers/layer.py",
+        "line": 192
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-36b2d659",
+    "kind": "api_method",
+    "text": "Layer.mask_info property of type LayerMaskInfo",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose_psd_foss/layers/layer.py",
+        "line": 204
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-d455e05e",
+    "kind": "api_method",
+    "text": "Layer.blending_ranges_info property of type LayerBlendingRangesInfo",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose_psd_foss/layers/layer.py",
+        "line": 210
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-1b2dc032",
+    "kind": "api_method",
+    "text": "Layer.channel_info property of type List",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose_psd_foss/layers/layer.py",
+        "line": 217
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-8ec8f946",
+    "kind": "api_method",
+    "text": "Layer.raw_flags property of type int",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose_psd_foss/layers/layer.py",
+        "line": 221
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-dac05e68",
+    "kind": "api_method",
+    "text": "Layer.raw_layer_mask_section property of type ",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose_psd_foss/layers/layer.py",
+        "line": 225
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-5d2e495a",
+    "kind": "api_method",
+    "text": "Layer.raw_layer_blending_ranges_section property of type ",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose_psd_foss/layers/layer.py",
+        "line": 229
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-b4545afb",
+    "kind": "api_method",
+    "text": "Layer.layer_mask_data property of type Optional[LayerMaskDataShort]",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose_psd_foss/layers/layer.py",
+        "line": 233
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-83fe641f",
+    "kind": "api_method",
+    "text": "Layer.layer_blending_ranges_data property of type LayerBlendingRangesData",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose_psd_foss/layers/layer.py",
+        "line": 245
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-966406b3",
+    "kind": "api_method",
+    "text": "Layer.additional_layer_data property of type bytes",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose_psd_foss/layers/layer.py",
+        "line": 257
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-3dfc4b3d",
+    "kind": "api_method",
+    "text": "Layer.raw_blend_mode_key property of type str",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose_psd_foss/layers/layer.py",
+        "line": 261
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-986883cf",
+    "kind": "api_method",
+    "text": "Layer.has_mutated property of type bool",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose_psd_foss/layers/layer.py",
+        "line": 265
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-1ca871",
+    "kind": "api_class",
+    "text": "Class Layer defined in aspose_psd_foss/layers/layer.py",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose_psd_foss/layers/layer.py",
+        "line": 20
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-85fca44f",
+    "kind": "api_method",
+    "text": "LayerBlendingRangesData.__init__() -> ",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose_psd_foss/layers/layerblendingrangesdata.py",
+        "line": 10
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-3dcb8812",
+    "kind": "api_method",
+    "text": "LayerBlendingRangesData.from_raw_length(length) -> ",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose_psd_foss/layers/layerblendingrangesdata.py",
+        "line": 22
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-a7fb9d99",
+    "kind": "api_method",
+    "text": "LayerBlendingRangesData.length property of type ",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose_psd_foss/layers/layerblendingrangesdata.py",
+        "line": 17
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-1e6431fa",
+    "kind": "api_method",
+    "text": "LayerBlendingRangesData.composite_blend_range field of type unknown",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose_psd_foss/layers/layerblendingrangesdata.py",
+        "line": 12
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-b704e38d",
+    "kind": "api_method",
+    "text": "LayerBlendingRangesData.channel_blend_ranges field of type unknown",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose_psd_foss/layers/layerblendingrangesdata.py",
+        "line": 13
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-c7875e",
+    "kind": "api_class",
+    "text": "Class LayerBlendingRangesData defined in aspose_psd_foss/layers/layerblendingrangesdata.py",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose_psd_foss/layers/layerblendingrangesdata.py",
+        "line": 5
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-9ba6c08c",
+    "kind": "api_method",
+    "text": "LayerBlendingRangesInfo.__init__(is_present, raw_data_length) -> ",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose_psd_foss/layers/layerblendingrangesinfo.py",
+        "line": 3
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-365d612f",
+    "kind": "api_method",
+    "text": "LayerBlendingRangesInfo.is_present property of type ",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose_psd_foss/layers/layerblendingrangesinfo.py",
+        "line": 8
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-f4a4f3ab",
+    "kind": "api_method",
+    "text": "LayerBlendingRangesInfo.raw_data_length property of type ",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose_psd_foss/layers/layerblendingrangesinfo.py",
+        "line": 13
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-873e67",
+    "kind": "api_class",
+    "text": "Class LayerBlendingRangesInfo defined in aspose_psd_foss/layers/layerblendingrangesinfo.py",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose_psd_foss/layers/layerblendingrangesinfo.py",
+        "line": 2
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-c8be8704",
+    "kind": "api_method",
+    "text": "LayerBlendModeMapper.parse_blend_mode_key(key) -> ",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose_psd_foss/layers/layerblendmodemapper.py",
+        "line": 8
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-a9c40098",
+    "kind": "api_method",
+    "text": "LayerBlendModeMapper.get_blend_mode_key(mode) -> ",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose_psd_foss/layers/layerblendmodemapper.py",
+        "line": 47
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-cabedd",
+    "kind": "api_class",
+    "text": "Class LayerBlendModeMapper defined in aspose_psd_foss/layers/layerblendmodemapper.py",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose_psd_foss/layers/layerblendmodemapper.py",
+        "line": 4
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-0762d4d4",
+    "kind": "api_method",
+    "text": "LayerChannelInfo.__init__(channel_id, data_length) -> ",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose_psd_foss/layers/layerchannelinfo.py",
+        "line": 7
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-e615ea6b",
+    "kind": "api_method",
+    "text": "LayerChannelInfo.channel_id field of type unknown",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose_psd_foss/layers/layerchannelinfo.py",
+        "line": 8
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-0d8ef254",
+    "kind": "api_method",
+    "text": "LayerChannelInfo.data_length field of type unknown",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose_psd_foss/layers/layerchannelinfo.py",
+        "line": 9
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-16ad8a",
+    "kind": "api_class",
+    "text": "Class LayerChannelInfo defined in aspose_psd_foss/layers/layerchannelinfo.py",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose_psd_foss/layers/layerchannelinfo.py",
+        "line": 4
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-37c26af0",
+    "kind": "api_method",
+    "text": "LayerMaskData.__init__() -> None",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose_psd_foss/layers/layermaskdata.py",
+        "line": 14
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-d5439c00",
+    "kind": "api_method",
+    "text": "LayerMaskData.bottom property of type int",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose_psd_foss/layers/layermaskdata.py",
+        "line": 25
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-d2daaf5f",
+    "kind": "api_method",
+    "text": "LayerMaskData.data_size property of type int",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose_psd_foss/layers/layermaskdata.py",
+        "line": 34
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-995ddca1",
+    "kind": "api_method",
+    "text": "LayerMaskData.default_color property of type int",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose_psd_foss/layers/layermaskdata.py",
+        "line": 39
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-f2df33f0",
+    "kind": "api_method",
+    "text": "LayerMaskData.flags property of type LayerMaskFlags",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose_psd_foss/layers/layermaskdata.py",
+        "line": 48
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-d11fe722",
+    "kind": "api_method",
+    "text": "LayerMaskData.image_data property of type bytearray",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose_psd_foss/layers/layermaskdata.py",
+        "line": 57
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-0a96841b",
+    "kind": "api_method",
+    "text": "LayerMaskData.left property of type int",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose_psd_foss/layers/layermaskdata.py",
+        "line": 68
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-d88d5971",
+    "kind": "api_method",
+    "text": "LayerMaskData.mask_rectangle property of type Rectangle",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose_psd_foss/layers/layermaskdata.py",
+        "line": 77
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-3137a454",
+    "kind": "api_method",
+    "text": "LayerMaskData.right property of type int",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose_psd_foss/layers/layermaskdata.py",
+        "line": 86
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-e4d0e4d3",
+    "kind": "api_method",
+    "text": "LayerMaskData.top property of type int",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose_psd_foss/layers/layermaskdata.py",
+        "line": 95
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-101b5e",
+    "kind": "api_class",
+    "text": "Class LayerMaskData defined in aspose_psd_foss/layers/layermaskdata.py",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose_psd_foss/layers/layermaskdata.py",
+        "line": 9
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-9825d75b",
+    "kind": "api_method",
+    "text": "LayerMaskDataShort.__init__() -> ",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose_psd_foss/layers/layermaskdatashort.py",
+        "line": 9
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-adddab7b",
+    "kind": "api_method",
+    "text": "LayerMaskDataShort.padding property of type ",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose_psd_foss/layers/layermaskdatashort.py",
+        "line": 14
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-74a9df",
+    "kind": "api_class",
+    "text": "Class LayerMaskDataShort defined in aspose_psd_foss/layers/layermaskdatashort.py",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose_psd_foss/layers/layermaskdatashort.py",
+        "line": 4
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-81ab55",
+    "kind": "api_class",
+    "text": "Class LayerMaskFlags defined in aspose_psd_foss/layers/layermaskflags.py",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose_psd_foss/layers/layermaskflags.py",
+        "line": 4
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-4d755f8e",
+    "kind": "api_method",
+    "text": "LayerMaskInfo.__init__(is_present, raw_data_length) -> ",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose_psd_foss/layers/layermaskinfo.py",
+        "line": 3
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-b2df5191",
+    "kind": "api_method",
+    "text": "LayerMaskInfo.is_present property of type ",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose_psd_foss/layers/layermaskinfo.py",
+        "line": 8
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-427f61ae",
+    "kind": "api_method",
+    "text": "LayerMaskInfo.raw_data_length property of type ",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose_psd_foss/layers/layermaskinfo.py",
+        "line": 12
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-e96191",
+    "kind": "api_class",
+    "text": "Class LayerMaskInfo defined in aspose_psd_foss/layers/layermaskinfo.py",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose_psd_foss/layers/layermaskinfo.py",
+        "line": 2
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-d614a22e",
+    "kind": "api_method",
+    "text": "LayerRawData.empty() -> \"LayerRawData\"",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose_psd_foss/layers/layerrawdata.py",
+        "line": 11
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-de4527d4",
+    "kind": "api_method",
+    "text": "LayerRawData.__init__(flags, blend_mode_key, channel_info, layer_mask_section, blending_ranges_section, additional_layer_data) -> ",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose_psd_foss/layers/layerrawdata.py",
+        "line": 21
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-b98d9a2f",
+    "kind": "api_method",
+    "text": "LayerRawData.with_blend_mode_key(blend_mode_key) -> ",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose_psd_foss/layers/layerrawdata.py",
+        "line": 37
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-43d5ab82",
+    "kind": "api_method",
+    "text": "LayerRawData.WithBlendModeKey(blend_mode_key) -> ",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose_psd_foss/layers/layerrawdata.py",
+        "line": 48
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-306fe953",
+    "kind": "api_method",
+    "text": "LayerRawData.Empty field of type \"LayerRawData\"",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose_psd_foss/layers/layerrawdata.py",
+        "line": 8
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-c35eba20",
+    "kind": "api_method",
+    "text": "LayerRawData.flags field of type unknown",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose_psd_foss/layers/layerrawdata.py",
+        "line": 30
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-5cea57bf",
+    "kind": "api_method",
+    "text": "LayerRawData.blend_mode_key field of type unknown",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose_psd_foss/layers/layerrawdata.py",
+        "line": 31
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-0c319565",
+    "kind": "api_method",
+    "text": "LayerRawData.channel_info field of type unknown",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose_psd_foss/layers/layerrawdata.py",
+        "line": 32
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-a8c9015c",
+    "kind": "api_method",
+    "text": "LayerRawData.layer_mask_section field of type unknown",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose_psd_foss/layers/layerrawdata.py",
+        "line": 33
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-360da27e",
+    "kind": "api_method",
+    "text": "LayerRawData.blending_ranges_section field of type unknown",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose_psd_foss/layers/layerrawdata.py",
+        "line": 34
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-a1a1913a",
+    "kind": "api_method",
+    "text": "LayerRawData.additional_layer_data field of type unknown",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose_psd_foss/layers/layerrawdata.py",
+        "line": 35
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-1d4651",
+    "kind": "api_class",
+    "text": "Class LayerRawData defined in aspose_psd_foss/layers/layerrawdata.py",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose_psd_foss/layers/layerrawdata.py",
+        "line": 7
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-aa1f476a",
+    "kind": "api_method",
+    "text": "LayerResource.save(stream_container, psd_version) -> None",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose_psd_foss/layers/layerresource.py",
+        "line": 28
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-9d74e159",
+    "kind": "api_method",
+    "text": "LayerResource.key property of type int",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose_psd_foss/layers/layerresource.py",
+        "line": 11
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-8bde19fe",
+    "kind": "api_method",
+    "text": "LayerResource.length property of type int",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose_psd_foss/layers/layerresource.py",
+        "line": 16
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-7b5ad196",
+    "kind": "api_method",
+    "text": "LayerResource.psd_version property of type int",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose_psd_foss/layers/layerresource.py",
+        "line": 20
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-30150806",
+    "kind": "api_method",
+    "text": "LayerResource.signature property of type int",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose_psd_foss/layers/layerresource.py",
+        "line": 24
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-4aba31",
+    "kind": "api_class",
+    "text": "Class LayerResource defined in aspose_psd_foss/layers/layerresource.py",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose_psd_foss/layers/layerresource.py",
+        "line": 5
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-cbc9daf8",
+    "kind": "api_method",
+    "text": "PsdLayerChannelInfo.__init__(channel_id, data_length) -> ",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose_psd_foss/layers/psdlayerchannelinfo.py",
+        "line": 4
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-cf7151e9",
+    "kind": "api_method",
+    "text": "PsdLayerChannelInfo.channel_id property of type ",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose_psd_foss/layers/psdlayerchannelinfo.py",
+        "line": 15
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-0fbc3f8e",
+    "kind": "api_method",
+    "text": "PsdLayerChannelInfo.data_length property of type ",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose_psd_foss/layers/psdlayerchannelinfo.py",
+        "line": 20
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-664811",
+    "kind": "api_class",
+    "text": "Class PsdLayerChannelInfo defined in aspose_psd_foss/layers/psdlayerchannelinfo.py",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose_psd_foss/layers/psdlayerchannelinfo.py",
+        "line": 1
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-9c22b74c",
+    "kind": "api_method",
+    "text": "RawLayerBlendingRangesSection.empty() -> ",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose_psd_foss/layers/rawlayerblendingrangessection.py",
+        "line": 9
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-c9e03487",
+    "kind": "api_method",
+    "text": "RawLayerBlendingRangesSection.__init__(raw_data) -> ",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose_psd_foss/layers/rawlayerblendingrangessection.py",
+        "line": 12
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-04490744",
+    "kind": "api_method",
+    "text": "RawLayerBlendingRangesSection.load(reader, section_end) -> ",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose_psd_foss/layers/rawlayerblendingrangessection.py",
+        "line": 20
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-398be745",
+    "kind": "api_method",
+    "text": "RawLayerBlendingRangesSection.raw_data property of type ",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose_psd_foss/layers/rawlayerblendingrangessection.py",
+        "line": 16
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-30f01f",
+    "kind": "api_class",
+    "text": "Class RawLayerBlendingRangesSection defined in aspose_psd_foss/layers/rawlayerblendingrangessection.py",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose_psd_foss/layers/rawlayerblendingrangessection.py",
+        "line": 7
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-81463715",
+    "kind": "api_method",
+    "text": "RawLayerMaskSection.empty() -> ",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose_psd_foss/layers/rawlayermasksection.py",
+        "line": 10
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-a6c37169",
+    "kind": "api_method",
+    "text": "RawLayerMaskSection.__init__(raw_data) -> ",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose_psd_foss/layers/rawlayermasksection.py",
+        "line": 13
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-58d407b8",
+    "kind": "api_method",
+    "text": "RawLayerMaskSection.load(reader, section_end) -> ",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose_psd_foss/layers/rawlayermasksection.py",
+        "line": 21
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-755bed05",
+    "kind": "api_method",
+    "text": "RawLayerMaskSection.raw_data property of type bytes",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose_psd_foss/layers/rawlayermasksection.py",
+        "line": 17
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-5045ef",
+    "kind": "api_class",
+    "text": "Class RawLayerMaskSection defined in aspose_psd_foss/layers/rawlayermasksection.py",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose_psd_foss/layers/rawlayermasksection.py",
+        "line": 6
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-a934b5e2",
+    "kind": "api_method",
+    "text": "Point.empty() -> ",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose_psd_foss/point.py",
+        "line": 10
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-3eb5ad01",
+    "kind": "api_method",
+    "text": "Point.__init__(x, y) -> ",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose_psd_foss/point.py",
+        "line": 14
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-ebac9040",
+    "kind": "api_method",
+    "text": "Point.equals(other) -> ",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose_psd_foss/point.py",
+        "line": 24
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-99c3ad64",
+    "kind": "api_method",
+    "text": "Point.is_empty property of type ",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose_psd_foss/point.py",
+        "line": 20
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-d66ee3d2",
+    "kind": "api_method",
+    "text": "Point.Empty field of type Optional[\"Point\"]",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose_psd_foss/point.py",
+        "line": 6
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-d22e380a",
+    "kind": "api_method",
+    "text": "Point.x field of type unknown",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose_psd_foss/point.py",
+        "line": 15
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-ea92a589",
+    "kind": "api_method",
+    "text": "Point.y field of type unknown",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose_psd_foss/point.py",
+        "line": 16
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-4064b9",
+    "kind": "api_class",
+    "text": "Class Point defined in aspose_psd_foss/point.py",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose_psd_foss/point.py",
+        "line": 4
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-ad7bdb98",
+    "kind": "api_method",
+    "text": "PsdImage.__init__(stream, leave_open) -> ",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose_psd_foss/psdimage.py",
+        "line": 43
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-a476309d",
+    "kind": "api_method",
+    "text": "PsdImage.load(file_path_or_stream) -> PsdImage",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose_psd_foss/psdimage.py",
+        "line": 294
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-d012d05b",
+    "kind": "api_method",
+    "text": "PsdImage.save(file_path_or_stream) -> ",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose_psd_foss/psdimage.py",
+        "line": 341
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-3d590086",
+    "kind": "api_method",
+    "text": "PsdImage.dispose() -> ",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose_psd_foss/psdimage.py",
+        "line": 368
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-da97123a",
+    "kind": "api_method",
+    "text": "PsdImage.width property of type int",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose_psd_foss/psdimage.py",
+        "line": 56
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-b646be88",
+    "kind": "api_method",
+    "text": "PsdImage.height property of type int",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose_psd_foss/psdimage.py",
+        "line": 62
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-8686f11d",
+    "kind": "api_method",
+    "text": "PsdImage.channels property of type int",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose_psd_foss/psdimage.py",
+        "line": 68
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-60cf0178",
+    "kind": "api_method",
+    "text": "PsdImage.bits_per_channel property of type int",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose_psd_foss/psdimage.py",
+        "line": 74
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-6902c1f5",
+    "kind": "api_method",
+    "text": "PsdImage.color_mode property of type ColorModes",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose_psd_foss/psdimage.py",
+        "line": 80
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-eb025d15",
+    "kind": "api_method",
+    "text": "PsdImage.version property of type int",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose_psd_foss/psdimage.py",
+        "line": 90
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-7d956d4c",
+    "kind": "api_method",
+    "text": "PsdImage.header property of type PsdHeader",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose_psd_foss/psdimage.py",
+        "line": 102
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-731d80a2",
+    "kind": "api_method",
+    "text": "PsdImage.is_large_document property of type bool",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose_psd_foss/psdimage.py",
+        "line": 109
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-afe55dfa",
+    "kind": "api_method",
+    "text": "PsdImage.is_psb property of type bool",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose_psd_foss/psdimage.py",
+        "line": 115
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-b2f484d0",
+    "kind": "api_method",
+    "text": "PsdImage.layers property of type List[Layer]",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose_psd_foss/psdimage.py",
+        "line": 120
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-0a7e2a7b",
+    "kind": "api_method",
+    "text": "PsdImage.channels_count property of type int",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose_psd_foss/psdimage.py",
+        "line": 132
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-7fc2087b",
+    "kind": "api_method",
+    "text": "PsdImage.size property of type Size",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose_psd_foss/psdimage.py",
+        "line": 137
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-7a28e5a9",
+    "kind": "api_method",
+    "text": "PsdImage.active_layer property of type Optional[Layer]",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose_psd_foss/psdimage.py",
+        "line": 142
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-e84782b4",
+    "kind": "api_method",
+    "text": "PsdImage.layer_count property of type int",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose_psd_foss/psdimage.py",
+        "line": 154
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-29b4ae61",
+    "kind": "api_method",
+    "text": "PsdImage.has_layers property of type bool",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose_psd_foss/psdimage.py",
+        "line": 159
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-f8a7a5fe",
+    "kind": "api_method",
+    "text": "PsdImage.has_image_resources property of type bool",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose_psd_foss/psdimage.py",
+        "line": 164
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-5d4a5326",
+    "kind": "api_method",
+    "text": "PsdImage.resource_count property of type int",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose_psd_foss/psdimage.py",
+        "line": 169
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-c814c27e",
+    "kind": "api_method",
+    "text": "PsdImage.image_resources property of type List[ResourceBlock]",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose_psd_foss/psdimage.py",
+        "line": 174
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-4a4e5128",
+    "kind": "api_method",
+    "text": "PsdImage.global_layer_resources property of type List[LayerResource]",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose_psd_foss/psdimage.py",
+        "line": 188
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-2b113188",
+    "kind": "api_method",
+    "text": "PsdImage.global_layer_mask_info property of type GlobalLayerMaskInfo",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose_psd_foss/psdimage.py",
+        "line": 199
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-ce9c8574",
+    "kind": "api_method",
+    "text": "PsdImage.is_flatten property of type bool",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose_psd_foss/psdimage.py",
+        "line": 204
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-bf2b31ba",
+    "kind": "api_method",
+    "text": "PsdImage.has_transparency_data property of type bool",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose_psd_foss/psdimage.py",
+        "line": 209
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-9dcfe6c0",
+    "kind": "api_method",
+    "text": "PsdImage.resources property of type ",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose_psd_foss/psdimage.py",
+        "line": 220
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-fc03fc34",
+    "kind": "api_method",
+    "text": "PsdImage.has_color_mode_data property of type bool",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose_psd_foss/psdimage.py",
+        "line": 228
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-ea76d038",
+    "kind": "api_method",
+    "text": "PsdImage.color_data_info property of type PsdColorDataInfo",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose_psd_foss/psdimage.py",
+        "line": 233
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-d19862de",
+    "kind": "api_method",
+    "text": "PsdImage.indexed_palette property of type Optional[IndexedColorPaletteInfo]",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose_psd_foss/psdimage.py",
+        "line": 238
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-756a434b",
+    "kind": "api_method",
+    "text": "PsdImage.has_merged_image_data property of type bool",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose_psd_foss/psdimage.py",
+        "line": 243
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-d9cfbc67",
+    "kind": "api_method",
+    "text": "PsdImage.compression property of type CompressionMethod",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose_psd_foss/psdimage.py",
+        "line": 248
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-234dcda5",
+    "kind": "api_method",
+    "text": "PsdImage.image_data_info property of type PsdImageDataInfo",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose_psd_foss/psdimage.py",
+        "line": 253
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-4ffb43b8",
+    "kind": "api_method",
+    "text": "PsdImage.image_data_kind property of type ImageDataKind",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose_psd_foss/psdimage.py",
+        "line": 258
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-827cd5ef",
+    "kind": "api_method",
+    "text": "PsdImage.uses_prediction property of type bool",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose_psd_foss/psdimage.py",
+        "line": 263
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-76b6f648",
+    "kind": "api_method",
+    "text": "PsdImage.has_icc_profile property of type bool",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose_psd_foss/psdimage.py",
+        "line": 272
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-3c46fc3c",
+    "kind": "api_method",
+    "text": "PsdImage.is_icc_profile_untagged property of type Optional[bool]",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose_psd_foss/psdimage.py",
+        "line": 277
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-e399402f",
+    "kind": "api_method",
+    "text": "PsdImage.parsed_color_data property of type ColorData",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose_psd_foss/psdimage.py",
+        "line": 282
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-cd4941a9",
+    "kind": "api_method",
+    "text": "PsdImage.parsed_resources property of type List[UnknownResource]",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose_psd_foss/psdimage.py",
+        "line": 287
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-4a274214",
+    "kind": "api_method",
+    "text": "PsdImage.global_angle field of type int",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose_psd_foss/psdimage.py",
+        "line": 269
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-c77288",
+    "kind": "api_class",
+    "text": "Class PsdImage defined in aspose_psd_foss/psdimage.py",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose_psd_foss/psdimage.py",
+        "line": 38
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-4683f0",
+    "kind": "api_class",
+    "text": "Class PsdVersion defined in aspose_psd_foss/psdversion.py",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose_psd_foss/psdversion.py",
+        "line": 4
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-39e78d1c",
+    "kind": "api_method",
+    "text": "Rectangle.__init__(x, y, width, height) -> ",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose_psd_foss/rectangle.py",
+        "line": 15
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-8d824fec",
+    "kind": "api_method",
+    "text": "Rectangle.empty() -> ",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose_psd_foss/rectangle.py",
+        "line": 23
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-c632bc00",
+    "kind": "api_method",
+    "text": "Rectangle.from_left_top_right_bottom(left, top, right, bottom) -> ",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose_psd_foss/rectangle.py",
+        "line": 28
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-1120d7e2",
+    "kind": "api_method",
+    "text": "Rectangle.from_ltrb(left, top, right, bottom) -> ",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose_psd_foss/rectangle.py",
+        "line": 33
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-f5918e2c",
+    "kind": "api_method",
+    "text": "Rectangle.from_points(point1, point2) -> ",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose_psd_foss/rectangle.py",
+        "line": 38
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-277951db",
+    "kind": "api_method",
+    "text": "Rectangle.from_point_and_size(location, size) -> ",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose_psd_foss/rectangle.py",
+        "line": 47
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-d1cf3167",
+    "kind": "api_method",
+    "text": "Rectangle.ceiling(value) -> ",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose_psd_foss/rectangle.py",
+        "line": 52
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-2851cda1",
+    "kind": "api_method",
+    "text": "Rectangle.round(value) -> ",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose_psd_foss/rectangle.py",
+        "line": 62
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-0bb968e5",
+    "kind": "api_method",
+    "text": "Rectangle.truncate(value) -> ",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose_psd_foss/rectangle.py",
+        "line": 72
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-4188cb8a",
+    "kind": "api_method",
+    "text": "Rectangle.inflate_rect(rectangle, x, y) -> ",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose_psd_foss/rectangle.py",
+        "line": 77
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-522d8ed6",
+    "kind": "api_method",
+    "text": "Rectangle.intersect_rect(a, b) -> ",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose_psd_foss/rectangle.py",
+        "line": 84
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-34746d28",
+    "kind": "api_method",
+    "text": "Rectangle.union_rect(a, b) -> ",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose_psd_foss/rectangle.py",
+        "line": 95
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-9e90fded",
+    "kind": "api_method",
+    "text": "Rectangle.contains() -> ",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose_psd_foss/rectangle.py",
+        "line": 183
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-0da701d4",
+    "kind": "api_method",
+    "text": "Rectangle.inflate() -> ",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose_psd_foss/rectangle.py",
+        "line": 229
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-5db55d22",
+    "kind": "api_method",
+    "text": "Rectangle.intersect(rectangle) -> ",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose_psd_foss/rectangle.py",
+        "line": 243
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-1df6924b",
+    "kind": "api_method",
+    "text": "Rectangle.intersects_with(rectangle) -> ",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose_psd_foss/rectangle.py",
+        "line": 251
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-aa661d68",
+    "kind": "api_method",
+    "text": "Rectangle.normalize() -> ",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose_psd_foss/rectangle.py",
+        "line": 260
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-a218d59b",
+    "kind": "api_method",
+    "text": "Rectangle.offset() -> ",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose_psd_foss/rectangle.py",
+        "line": 269
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-caed3fbc",
+    "kind": "api_method",
+    "text": "Rectangle.bottom property of type ",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose_psd_foss/rectangle.py",
+        "line": 105
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-95f2c08c",
+    "kind": "api_method",
+    "text": "Rectangle.is_empty property of type ",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose_psd_foss/rectangle.py",
+        "line": 114
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-894aad1a",
+    "kind": "api_method",
+    "text": "Rectangle.left property of type ",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose_psd_foss/rectangle.py",
+        "line": 119
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-efbeca6c",
+    "kind": "api_method",
+    "text": "Rectangle.right property of type ",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose_psd_foss/rectangle.py",
+        "line": 130
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-d1c9ae86",
+    "kind": "api_method",
+    "text": "Rectangle.top property of type ",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose_psd_foss/rectangle.py",
+        "line": 139
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-238b82e7",
+    "kind": "api_method",
+    "text": "Rectangle.location property of type ",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose_psd_foss/rectangle.py",
+        "line": 150
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-7f650d05",
+    "kind": "api_method",
+    "text": "Rectangle.size property of type ",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose_psd_foss/rectangle.py",
+        "line": 160
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-f8362303",
+    "kind": "api_method",
+    "text": "Rectangle.x field of type unknown",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose_psd_foss/rectangle.py",
+        "line": 16
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-22464ec0",
+    "kind": "api_method",
+    "text": "Rectangle.y field of type unknown",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose_psd_foss/rectangle.py",
+        "line": 17
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-0aebd0f9",
+    "kind": "api_method",
+    "text": "Rectangle.width field of type unknown",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose_psd_foss/rectangle.py",
+        "line": 18
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-92228357",
+    "kind": "api_method",
+    "text": "Rectangle.height field of type unknown",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose_psd_foss/rectangle.py",
+        "line": 19
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-c9d815",
+    "kind": "api_class",
+    "text": "Class Rectangle defined in aspose_psd_foss/rectangle.py",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose_psd_foss/rectangle.py",
+        "line": 9
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-555487bd",
+    "kind": "api_method",
+    "text": "RectangleF.__init__(x, y, width, height) -> ",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose_psd_foss/rectanglef.py",
+        "line": 10
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-6318e097",
+    "kind": "api_method",
+    "text": "RectangleF.empty() -> \"RectangleF\"",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose_psd_foss/rectanglef.py",
+        "line": 104
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-8ee5504e",
+    "kind": "api_method",
+    "text": "RectangleF.X property of type float",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose_psd_foss/rectanglef.py",
+        "line": 17
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-91db6fb4",
+    "kind": "api_method",
+    "text": "RectangleF.Y property of type float",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose_psd_foss/rectanglef.py",
+        "line": 26
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-335b9ad0",
+    "kind": "api_method",
+    "text": "RectangleF.Width property of type float",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose_psd_foss/rectanglef.py",
+        "line": 35
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-d5aa0977",
+    "kind": "api_method",
+    "text": "RectangleF.Height property of type float",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose_psd_foss/rectanglef.py",
+        "line": 44
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-342ff841",
+    "kind": "api_method",
+    "text": "RectangleF.bottom property of type float",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose_psd_foss/rectanglef.py",
+        "line": 53
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-ad5ec523",
+    "kind": "api_method",
+    "text": "RectangleF.is_empty property of type bool",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose_psd_foss/rectanglef.py",
+        "line": 58
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-0bb09d54",
+    "kind": "api_method",
+    "text": "RectangleF.left property of type float",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose_psd_foss/rectanglef.py",
+        "line": 63
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-21dd0b81",
+    "kind": "api_method",
+    "text": "RectangleF.right property of type float",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose_psd_foss/rectanglef.py",
+        "line": 68
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-6d094a49",
+    "kind": "api_method",
+    "text": "RectangleF.top property of type float",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose_psd_foss/rectanglef.py",
+        "line": 73
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-075192e4",
+    "kind": "api_method",
+    "text": "RectangleF.x field of type unknown",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose_psd_foss/rectanglef.py",
+        "line": 11
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-85ff6f5b",
+    "kind": "api_method",
+    "text": "RectangleF.y field of type unknown",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose_psd_foss/rectanglef.py",
+        "line": 12
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-f4b9396b",
+    "kind": "api_method",
+    "text": "RectangleF.width field of type unknown",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose_psd_foss/rectanglef.py",
+        "line": 13
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-943124c7",
+    "kind": "api_method",
+    "text": "RectangleF.height field of type unknown",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose_psd_foss/rectanglef.py",
+        "line": 14
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-84f4df",
+    "kind": "api_class",
+    "text": "Class RectangleF defined in aspose_psd_foss/rectanglef.py",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose_psd_foss/rectanglef.py",
+        "line": 5
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-e07a6dbf",
+    "kind": "api_method",
+    "text": "ResourceBlock.__init__() -> ",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose_psd_foss/resourceblock.py",
+        "line": 17
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-30278b94",
+    "kind": "api_method",
+    "text": "ResourceBlock.save(stream) -> None",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose_psd_foss/resourceblock.py",
+        "line": 54
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-9d2ee045",
+    "kind": "api_method",
+    "text": "ResourceBlock.validate_values() -> None",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose_psd_foss/resourceblock.py",
+        "line": 64
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-97f873de",
+    "kind": "api_method",
+    "text": "ResourceBlock.data_size property of type int",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose_psd_foss/resourceblock.py",
+        "line": 25
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-942c431c",
+    "kind": "api_method",
+    "text": "ResourceBlock.minimal_version property of type int",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose_psd_foss/resourceblock.py",
+        "line": 33
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-7d1c6e15",
+    "kind": "api_method",
+    "text": "ResourceBlock.signature property of type int",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose_psd_foss/resourceblock.py",
+        "line": 40
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-c1dcfdf8",
+    "kind": "api_method",
+    "text": "ResourceBlock.size property of type int",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose_psd_foss/resourceblock.py",
+        "line": 47
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-8bc9cfc7",
+    "kind": "api_method",
+    "text": "ResourceBlock.id field of type int",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose_psd_foss/resourceblock.py",
+        "line": 19
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-89322645",
+    "kind": "api_method",
+    "text": "ResourceBlock.name field of type str",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose_psd_foss/resourceblock.py",
+        "line": 21
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-6d768c",
+    "kind": "api_class",
+    "text": "Class ResourceBlock defined in aspose_psd_foss/resourceblock.py",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose_psd_foss/resourceblock.py",
+        "line": 8
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-cced4b",
+    "kind": "api_class",
+    "text": "Class ResourceBlockState defined in aspose_psd_foss/resourceblock.py",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose_psd_foss/resourceblock.py",
+        "line": 71
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-1b5ddf",
+    "kind": "api_class",
+    "text": "Class ImageResourceIds defined in aspose_psd_foss/resources/imageresourceids.py",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose_psd_foss/resources/imageresourceids.py",
+        "line": 7
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-ddf42069",
+    "kind": "api_method",
+    "text": "IndexedColorPalette.__init__(entries) -> ",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose_psd_foss/resources/indexedcolorpalette.py",
+        "line": 8
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-c96edd4b",
+    "kind": "api_method",
+    "text": "IndexedColorPalette.parse(raw_data) -> ",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose_psd_foss/resources/indexedcolorpalette.py",
+        "line": 20
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-3d471fbd",
+    "kind": "api_method",
+    "text": "IndexedColorPalette.to_public_info() -> ",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose_psd_foss/resources/indexedcolorpalette.py",
+        "line": 26
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-8af80243",
+    "kind": "api_method",
+    "text": "IndexedColorPalette.entries property of type ",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose_psd_foss/resources/indexedcolorpalette.py",
+        "line": 13
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-c1e36d",
+    "kind": "api_class",
+    "text": "Class IndexedColorPalette defined in aspose_psd_foss/resources/indexedcolorpalette.py",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose_psd_foss/resources/indexedcolorpalette.py",
+        "line": 2
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-1357c75f",
+    "kind": "api_method",
+    "text": "IndexedColorPaletteInfo.__init__(entries) -> ",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose_psd_foss/resources/indexedcolorpaletteinfo.py",
+        "line": 4
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-de396dd0",
+    "kind": "api_method",
+    "text": "IndexedColorPaletteInfo.entries property of type ",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose_psd_foss/resources/indexedcolorpaletteinfo.py",
+        "line": 13
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-ba78d2",
+    "kind": "api_class",
+    "text": "Class IndexedColorPaletteInfo defined in aspose_psd_foss/resources/indexedcolorpaletteinfo.py",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose_psd_foss/resources/indexedcolorpaletteinfo.py",
+        "line": 1
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-ff8754d7",
+    "kind": "api_method",
+    "text": "PreservedResourceBlock.__init__(resource) -> ",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose_psd_foss/resources/preservedresourceblock.py",
+        "line": 10
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-61d1244e",
+    "kind": "api_method",
+    "text": "PreservedResourceBlock.save(stream) -> None",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose_psd_foss/resources/preservedresourceblock.py",
+        "line": 23
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-c700ecd9",
+    "kind": "api_method",
+    "text": "PreservedResourceBlock.data_size property of type int",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose_psd_foss/resources/preservedresourceblock.py",
+        "line": 16
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-bbd9558e",
+    "kind": "api_method",
+    "text": "PreservedResourceBlock.minimal_version property of type int",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose_psd_foss/resources/preservedresourceblock.py",
+        "line": 20
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-d889617a",
+    "kind": "api_method",
+    "text": "PreservedResourceBlock.id field of type unknown",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose_psd_foss/resources/preservedresourceblock.py",
+        "line": 11
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-e287770d",
+    "kind": "api_method",
+    "text": "PreservedResourceBlock.name field of type unknown",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose_psd_foss/resources/preservedresourceblock.py",
+        "line": 12
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-01b9fa",
+    "kind": "api_class",
+    "text": "Class PreservedResourceBlock defined in aspose_psd_foss/resources/preservedresourceblock.py",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose_psd_foss/resources/preservedresourceblock.py",
+        "line": 7
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-c4c3365c",
+    "kind": "api_method",
+    "text": "PsdResourceInfo.__init__(resource_id, name, kind, data_length, global_angle, is_icc_profile_untagged) -> ",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose_psd_foss/resources/psdresourceinfo.py",
+        "line": 9
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-22628e36",
+    "kind": "api_method",
+    "text": "PsdResourceInfo.resource_id property of type int",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose_psd_foss/resources/psdresourceinfo.py",
+        "line": 26
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-cbb073b9",
+    "kind": "api_method",
+    "text": "PsdResourceInfo.name property of type str",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose_psd_foss/resources/psdresourceinfo.py",
+        "line": 31
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-1171e0ea",
+    "kind": "api_method",
+    "text": "PsdResourceInfo.kind property of type PsdResourceKind",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose_psd_foss/resources/psdresourceinfo.py",
+        "line": 36
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-133df4f1",
+    "kind": "api_method",
+    "text": "PsdResourceInfo.data_length property of type int",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose_psd_foss/resources/psdresourceinfo.py",
+        "line": 41
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-422c01d9",
+    "kind": "api_method",
+    "text": "PsdResourceInfo.global_angle property of type ",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose_psd_foss/resources/psdresourceinfo.py",
+        "line": 46
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-123f904e",
+    "kind": "api_method",
+    "text": "PsdResourceInfo.is_icc_profile_untagged property of type ",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose_psd_foss/resources/psdresourceinfo.py",
+        "line": 51
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-ef1cc3",
+    "kind": "api_class",
+    "text": "Class PsdResourceInfo defined in aspose_psd_foss/resources/psdresourceinfo.py",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose_psd_foss/resources/psdresourceinfo.py",
+        "line": 4
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-e5836e",
+    "kind": "api_class",
+    "text": "Class PsdResourceKind defined in aspose_psd_foss/resources/psdresourcekind.py",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose_psd_foss/resources/psdresourcekind.py",
+        "line": 5
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-4a37b1ec",
+    "kind": "api_method",
+    "text": "UnknownResource.__init__(resource_id, name, data) -> ",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose_psd_foss/resources/unknownresource.py",
+        "line": 13
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-2e2202bc",
+    "kind": "api_method",
+    "text": "UnknownResource.load(reader, section_end) -> ",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose_psd_foss/resources/unknownresource.py",
+        "line": 46
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-ecda5703",
+    "kind": "api_method",
+    "text": "UnknownResource.Load(reader, section_end) -> ",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose_psd_foss/resources/unknownresource.py",
+        "line": 78
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-3a27c48f",
+    "kind": "api_method",
+    "text": "UnknownResource.to_public_info() -> ",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose_psd_foss/resources/unknownresource.py",
+        "line": 81
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-04b4712d",
+    "kind": "api_method",
+    "text": "UnknownResource.resource_id property of type ",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose_psd_foss/resources/unknownresource.py",
+        "line": 19
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-b482fc97",
+    "kind": "api_method",
+    "text": "UnknownResource.name property of type ",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose_psd_foss/resources/unknownresource.py",
+        "line": 24
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-bdf4d5fc",
+    "kind": "api_method",
+    "text": "UnknownResource.data property of type ",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose_psd_foss/resources/unknownresource.py",
+        "line": 29
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-25d4eade",
+    "kind": "api_method",
+    "text": "UnknownResource.ResourceId property of type ",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose_psd_foss/resources/unknownresource.py",
+        "line": 34
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-7af63e6e",
+    "kind": "api_method",
+    "text": "UnknownResource.Name property of type ",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose_psd_foss/resources/unknownresource.py",
+        "line": 38
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-11ec3574",
+    "kind": "api_method",
+    "text": "UnknownResource.Data property of type ",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose_psd_foss/resources/unknownresource.py",
+        "line": 42
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-b161a5",
+    "kind": "api_class",
+    "text": "Class UnknownResource defined in aspose_psd_foss/resources/unknownresource.py",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose_psd_foss/resources/unknownresource.py",
+        "line": 5
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-ace3db41",
+    "kind": "api_method",
+    "text": "ColorData.__init__(raw_data, kind, indexed_palette) -> None",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose_psd_foss/sections/colordata.py",
+        "line": 17
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-70e83abb",
+    "kind": "api_method",
+    "text": "ColorData.empty() -> \"ColorData\"",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose_psd_foss/sections/colordata.py",
+        "line": 40
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-9bffce40",
+    "kind": "api_method",
+    "text": "ColorData.load(reader, color_mode) -> \"ColorData\"",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose_psd_foss/sections/colordata.py",
+        "line": 44
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-c025e964",
+    "kind": "api_method",
+    "text": "ColorData.save(writer) -> None",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose_psd_foss/sections/colordata.py",
+        "line": 63
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-d245be66",
+    "kind": "api_method",
+    "text": "ColorData.to_public_info() -> PsdColorDataInfo",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose_psd_foss/sections/colordata.py",
+        "line": 68
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-0bc43d22",
+    "kind": "api_method",
+    "text": "ColorData.kind property of type PsdColorDataKind",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose_psd_foss/sections/colordata.py",
+        "line": 28
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-52ffdab4",
+    "kind": "api_method",
+    "text": "ColorData.raw_data property of type bytes",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose_psd_foss/sections/colordata.py",
+        "line": 32
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-9c0def49",
+    "kind": "api_method",
+    "text": "ColorData.indexed_palette property of type Optional[IndexedColorPalette]",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose_psd_foss/sections/colordata.py",
+        "line": 36
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-2b9b5c",
+    "kind": "api_class",
+    "text": "Class ColorData defined in aspose_psd_foss/sections/colordata.py",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose_psd_foss/sections/colordata.py",
+        "line": 12
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-9b27c06b",
+    "kind": "api_method",
+    "text": "ImageData.__init__(compression, raw_data, structure) -> ",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose_psd_foss/sections/imagedata.py",
+        "line": 15
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-e58c415e",
+    "kind": "api_method",
+    "text": "ImageData.load(reader, is_large_document, height, channel_count) -> \"ImageData\"",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose_psd_foss/sections/imagedata.py",
+        "line": 45
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-fcbd78dd",
+    "kind": "api_method",
+    "text": "ImageData.save(writer) -> None",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose_psd_foss/sections/imagedata.py",
+        "line": 67
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-3c72a81c",
+    "kind": "api_method",
+    "text": "ImageData.to_public_info() -> PsdImageDataInfo",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose_psd_foss/sections/imagedata.py",
+        "line": 76
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-35542a98",
+    "kind": "api_method",
+    "text": "ImageData.structure property of type ImageDataStructure",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose_psd_foss/sections/imagedata.py",
+        "line": 30
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-cf6f6795",
+    "kind": "api_method",
+    "text": "ImageData.compression property of type CompressionMethod",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose_psd_foss/sections/imagedata.py",
+        "line": 35
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-c415debb",
+    "kind": "api_method",
+    "text": "ImageData.raw_data property of type bytearray",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose_psd_foss/sections/imagedata.py",
+        "line": 40
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-f22fdf",
+    "kind": "api_class",
+    "text": "Class ImageData defined in aspose_psd_foss/sections/imagedata.py",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose_psd_foss/sections/imagedata.py",
+        "line": 10
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-bbca5d",
+    "kind": "api_class",
+    "text": "Class ImageDataKind defined in aspose_psd_foss/sections/imagedatakind.py",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose_psd_foss/sections/imagedatakind.py",
+        "line": 4
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-0a149409",
+    "kind": "api_method",
+    "text": "ImageDataStructure.__init__(kind, row_length_field_size, row_byte_counts, compressed_payload_length, uses_prediction) -> ",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose_psd_foss/sections/imagedatastructure.py",
+        "line": 7
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-cc936e06",
+    "kind": "api_method",
+    "text": "ImageDataStructure.create_raw(payload_length) -> ",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose_psd_foss/sections/imagedatastructure.py",
+        "line": 42
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-6197e30c",
+    "kind": "api_method",
+    "text": "ImageDataStructure.create_rle(row_byte_counts, row_length_field_size, compressed_payload_length) -> ",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose_psd_foss/sections/imagedatastructure.py",
+        "line": 47
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-40c4fecd",
+    "kind": "api_method",
+    "text": "ImageDataStructure.create_zip(payload_length, uses_prediction) -> ",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose_psd_foss/sections/imagedatastructure.py",
+        "line": 63
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-465105e7",
+    "kind": "api_method",
+    "text": "ImageDataStructure.create_unknown(payload_length) -> ",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose_psd_foss/sections/imagedatastructure.py",
+        "line": 68
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-cbbcfeec",
+    "kind": "api_method",
+    "text": "ImageDataStructure.kind property of type ",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose_psd_foss/sections/imagedatastructure.py",
+        "line": 22
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-58ac4cc5",
+    "kind": "api_method",
+    "text": "ImageDataStructure.row_length_field_size property of type ",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose_psd_foss/sections/imagedatastructure.py",
+        "line": 26
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-aa5a6dd7",
+    "kind": "api_method",
+    "text": "ImageDataStructure.row_byte_counts property of type ",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose_psd_foss/sections/imagedatastructure.py",
+        "line": 30
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-93b2c448",
+    "kind": "api_method",
+    "text": "ImageDataStructure.compressed_payload_length property of type ",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose_psd_foss/sections/imagedatastructure.py",
+        "line": 34
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-37cce6e9",
+    "kind": "api_method",
+    "text": "ImageDataStructure.uses_prediction property of type ",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose_psd_foss/sections/imagedatastructure.py",
+        "line": 38
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-470ddd",
+    "kind": "api_class",
+    "text": "Class ImageDataStructure defined in aspose_psd_foss/sections/imagedatastructure.py",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose_psd_foss/sections/imagedatastructure.py",
+        "line": 4
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-df8b347e",
+    "kind": "api_method",
+    "text": "ImageResourcesSection.empty() -> \"ImageResourcesSection\"",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose_psd_foss/sections/imageresourcessection.py",
+        "line": 16
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-284e14f8",
+    "kind": "api_method",
+    "text": "ImageResourcesSection.Empty() -> \"ImageResourcesSection\"",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose_psd_foss/sections/imageresourcessection.py",
+        "line": 21
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-e513691b",
+    "kind": "api_method",
+    "text": "ImageResourcesSection.__init__(raw_data, resources) -> ",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose_psd_foss/sections/imageresourcessection.py",
+        "line": 25
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-35aeb96b",
+    "kind": "api_method",
+    "text": "ImageResourcesSection.load(reader) -> \"ImageResourcesSection\"",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose_psd_foss/sections/imageresourcessection.py",
+        "line": 35
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-06b62503",
+    "kind": "api_method",
+    "text": "ImageResourcesSection.save(writer) -> None",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose_psd_foss/sections/imageresourcessection.py",
+        "line": 56
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-dd96b335",
+    "kind": "api_method",
+    "text": "ImageResourcesSection.has_resources property of type bool",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose_psd_foss/sections/imageresourcessection.py",
+        "line": 30
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-d3156d58",
+    "kind": "api_method",
+    "text": "ImageResourcesSection.raw_data field of type bytes",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose_psd_foss/sections/imageresourcessection.py",
+        "line": 26
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-2675935e",
+    "kind": "api_method",
+    "text": "ImageResourcesSection.resources field of type List[UnknownResource]",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose_psd_foss/sections/imageresourcessection.py",
+        "line": 27
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-8ffce3",
+    "kind": "api_class",
+    "text": "Class ImageResourcesSection defined in aspose_psd_foss/sections/imageresourcessection.py",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose_psd_foss/sections/imageresourcessection.py",
+        "line": 12
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-9f690443",
+    "kind": "api_method",
+    "text": "LayerAndMaskSection.__init__(raw_section_bytes, layer_channel_image_data_raw, layer_global_mask_and_tail_raw, layer_count_raw, layers, has_layer_collection_mutated) -> ",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose_psd_foss/sections/layerandmasksection.py",
+        "line": 23
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-663b5731",
+    "kind": "api_method",
+    "text": "LayerAndMaskSection.empty() -> \"LayerAndMaskSection\"",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose_psd_foss/sections/layerandmasksection.py",
+        "line": 60
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-91a5977b",
+    "kind": "api_method",
+    "text": "LayerAndMaskSection.load(reader, is_large_document) -> \"LayerAndMaskSection\"",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose_psd_foss/sections/layerandmasksection.py",
+        "line": 108
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-5b3eac58",
+    "kind": "api_method",
+    "text": "LayerAndMaskSection.save(writer, is_large_document) -> None",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose_psd_foss/sections/layerandmasksection.py",
+        "line": 119
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-1655b9d3",
+    "kind": "api_method",
+    "text": "LayerAndMaskSection.with_layers(layers) -> \"LayerAndMaskSection\"",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose_psd_foss/sections/layerandmasksection.py",
+        "line": 131
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-45d984d9",
+    "kind": "api_method",
+    "text": "LayerAndMaskSection.raw_section_bytes property of type bytes",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose_psd_foss/sections/layerandmasksection.py",
+        "line": 73
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-b7d20733",
+    "kind": "api_method",
+    "text": "LayerAndMaskSection.layer_channel_image_data_raw property of type bytes",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose_psd_foss/sections/layerandmasksection.py",
+        "line": 78
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-7d481fb4",
+    "kind": "api_method",
+    "text": "LayerAndMaskSection.layer_global_mask_and_tail_raw property of type bytes",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose_psd_foss/sections/layerandmasksection.py",
+        "line": 83
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-33e8cecf",
+    "kind": "api_method",
+    "text": "LayerAndMaskSection.layer_count_raw property of type int",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose_psd_foss/sections/layerandmasksection.py",
+        "line": 88
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-60f2ac59",
+    "kind": "api_method",
+    "text": "LayerAndMaskSection.layers property of type List[Layer]",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose_psd_foss/sections/layerandmasksection.py",
+        "line": 96
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-ec00dfed",
+    "kind": "api_method",
+    "text": "LayerAndMaskSection.has_layer_collection_mutated property of type bool",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose_psd_foss/sections/layerandmasksection.py",
+        "line": 101
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-788f6b",
+    "kind": "api_class",
+    "text": "Class LayerAndMaskSection defined in aspose_psd_foss/sections/layerandmasksection.py",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose_psd_foss/sections/layerandmasksection.py",
+        "line": 17
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-16147e2b",
+    "kind": "api_method",
+    "text": "PsdColorDataInfo.__init__(kind, raw_data_length, indexed_palette) -> ",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose_psd_foss/sections/psdcolordatainfo.py",
+        "line": 11
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-5ed4b7c8",
+    "kind": "api_method",
+    "text": "PsdColorDataInfo.kind property of type PsdColorDataKind",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose_psd_foss/sections/psdcolordatainfo.py",
+        "line": 29
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-9d88f16b",
+    "kind": "api_method",
+    "text": "PsdColorDataInfo.raw_data_length property of type int",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose_psd_foss/sections/psdcolordatainfo.py",
+        "line": 34
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-52b28ab2",
+    "kind": "api_method",
+    "text": "PsdColorDataInfo.indexed_palette property of type Optional[IndexedColorPaletteInfo]",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose_psd_foss/sections/psdcolordatainfo.py",
+        "line": 39
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-637560",
+    "kind": "api_class",
+    "text": "Class PsdColorDataInfo defined in aspose_psd_foss/sections/psdcolordatainfo.py",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose_psd_foss/sections/psdcolordatainfo.py",
+        "line": 8
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-4b1b9d",
+    "kind": "api_class",
+    "text": "Class PsdColorDataKind defined in aspose_psd_foss/sections/psdcolordatakind.py",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose_psd_foss/sections/psdcolordatakind.py",
+        "line": 4
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-ca442a",
+    "kind": "api_class",
+    "text": "Class PsdVersion defined in aspose_psd_foss/sections/psdheader.py",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose_psd_foss/sections/psdheader.py",
+        "line": 5
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-b808146b",
+    "kind": "api_method",
+    "text": "PsdHeader.__init__() -> ",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose_psd_foss/sections/psdheader.py",
+        "line": 28
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-ab42440d",
+    "kind": "api_method",
+    "text": "PsdHeader.load(reader) -> \"PsdHeader\"",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose_psd_foss/sections/psdheader.py",
+        "line": 81
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-2193e7ee",
+    "kind": "api_method",
+    "text": "PsdHeader.save(writer) -> None",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose_psd_foss/sections/psdheader.py",
+        "line": 185
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-db04f1c7",
+    "kind": "api_method",
+    "text": "PsdHeader.set_color_mode(color_mode) -> None",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose_psd_foss/sections/psdheader.py",
+        "line": 199
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-beaad133",
+    "kind": "api_method",
+    "text": "PsdHeader.set_version(version) -> None",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose_psd_foss/sections/psdheader.py",
+        "line": 207
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-1c484668",
+    "kind": "api_method",
+    "text": "PsdHeader.width property of type int",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose_psd_foss/sections/psdheader.py",
+        "line": 39
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-447a23f0",
+    "kind": "api_method",
+    "text": "PsdHeader.height property of type int",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose_psd_foss/sections/psdheader.py",
+        "line": 44
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-5d60baac",
+    "kind": "api_method",
+    "text": "PsdHeader.channels property of type int",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose_psd_foss/sections/psdheader.py",
+        "line": 49
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-6ea3b55d",
+    "kind": "api_method",
+    "text": "PsdHeader.bit_depth property of type int",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose_psd_foss/sections/psdheader.py",
+        "line": 54
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-06fa0fdf",
+    "kind": "api_method",
+    "text": "PsdHeader.color_mode property of type int",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose_psd_foss/sections/psdheader.py",
+        "line": 59
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-59042ec4",
+    "kind": "api_method",
+    "text": "PsdHeader.version property of type int",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose_psd_foss/sections/psdheader.py",
+        "line": 64
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-02fea84f",
+    "kind": "api_method",
+    "text": "PsdHeader.format_version property of type int",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose_psd_foss/sections/psdheader.py",
+        "line": 69
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-e7108424",
+    "kind": "api_method",
+    "text": "PsdHeader.is_large_document property of type bool",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose_psd_foss/sections/psdheader.py",
+        "line": 74
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-e9a6dd",
+    "kind": "api_class",
+    "text": "Class PsdHeader defined in aspose_psd_foss/sections/psdheader.py",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose_psd_foss/sections/psdheader.py",
+        "line": 11
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-3cd1d015",
+    "kind": "api_method",
+    "text": "PsdImageDataInfo.__init__(kind, row_length_field_size, row_byte_counts, compressed_payload_length, uses_prediction) -> ",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose_psd_foss/sections/psdimagedatainfo.py",
+        "line": 6
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-65a8329c",
+    "kind": "api_method",
+    "text": "PsdImageDataInfo.kind property of type ImageDataKind",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose_psd_foss/sections/psdimagedatainfo.py",
+        "line": 21
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-0249b509",
+    "kind": "api_method",
+    "text": "PsdImageDataInfo.row_length_field_size property of type int",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose_psd_foss/sections/psdimagedatainfo.py",
+        "line": 25
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-dfb24724",
+    "kind": "api_method",
+    "text": "PsdImageDataInfo.row_byte_counts property of type Tuple[int, ...]",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose_psd_foss/sections/psdimagedatainfo.py",
+        "line": 29
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-f20eb794",
+    "kind": "api_method",
+    "text": "PsdImageDataInfo.compressed_payload_length property of type int",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose_psd_foss/sections/psdimagedatainfo.py",
+        "line": 33
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-9bd347e9",
+    "kind": "api_method",
+    "text": "PsdImageDataInfo.uses_prediction property of type bool",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose_psd_foss/sections/psdimagedatainfo.py",
+        "line": 37
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-e837e0",
+    "kind": "api_class",
+    "text": "Class PsdImageDataInfo defined in aspose_psd_foss/sections/psdimagedatainfo.py",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose_psd_foss/sections/psdimagedatainfo.py",
+        "line": 5
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-fbf6fd54",
+    "kind": "api_method",
+    "text": "PsdImageDocumentState.empty() -> \"PsdImageDocumentState\"",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose_psd_foss/sections/psdimagedocumentstate.py",
+        "line": 22
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-53265112",
+    "kind": "api_method",
+    "text": "PsdImageDocumentState.__init__(header, color_data, image_resources_section, layer_and_mask_section, image_data) -> None",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose_psd_foss/sections/psdimagedocumentstate.py",
+        "line": 36
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-02b3a73c",
+    "kind": "api_method",
+    "text": "PsdImageDocumentState.with_layer_and_mask_section(layer_and_mask_section) -> \"PsdImageDocumentState\"",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose_psd_foss/sections/psdimagedocumentstate.py",
+        "line": 70
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-47cc7682",
+    "kind": "api_method",
+    "text": "PsdImageDocumentState.Header property of type PsdHeader | None",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose_psd_foss/sections/psdimagedocumentstate.py",
+        "line": 51
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-ac10254e",
+    "kind": "api_method",
+    "text": "PsdImageDocumentState.ColorData property of type ColorData",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose_psd_foss/sections/psdimagedocumentstate.py",
+        "line": 55
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-97c4e917",
+    "kind": "api_method",
+    "text": "PsdImageDocumentState.ImageResourcesSection property of type ImageResourcesSection",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose_psd_foss/sections/psdimagedocumentstate.py",
+        "line": 59
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-25bbba77",
+    "kind": "api_method",
+    "text": "PsdImageDocumentState.layer_and_mask_section property of type LayerAndMaskSection",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose_psd_foss/sections/psdimagedocumentstate.py",
+        "line": 63
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-7e522009",
+    "kind": "api_method",
+    "text": "PsdImageDocumentState.ImageData property of type ImageData",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose_psd_foss/sections/psdimagedocumentstate.py",
+        "line": 67
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-8bc6c387",
+    "kind": "api_method",
+    "text": "PsdImageDocumentState.Empty field of type \"PsdImageDocumentState\"",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose_psd_foss/sections/psdimagedocumentstate.py",
+        "line": 19
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-b88d05f8",
+    "kind": "api_method",
+    "text": "PsdImageDocumentState.header field of type unknown",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose_psd_foss/sections/psdimagedocumentstate.py",
+        "line": 44
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-388e373c",
+    "kind": "api_method",
+    "text": "PsdImageDocumentState.color_data field of type unknown",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose_psd_foss/sections/psdimagedocumentstate.py",
+        "line": 45
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-cff153ab",
+    "kind": "api_method",
+    "text": "PsdImageDocumentState.image_resources_section field of type unknown",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose_psd_foss/sections/psdimagedocumentstate.py",
+        "line": 46
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-26e252af",
+    "kind": "api_method",
+    "text": "PsdImageDocumentState.image_data field of type unknown",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose_psd_foss/sections/psdimagedocumentstate.py",
+        "line": 48
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-a95c29",
+    "kind": "api_class",
+    "text": "Class PsdImageDocumentState defined in aspose_psd_foss/sections/psdimagedocumentstate.py",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose_psd_foss/sections/psdimagedocumentstate.py",
+        "line": 16
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-bc7faef2",
+    "kind": "api_method",
+    "text": "Size.empty() -> ",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose_psd_foss/size.py",
+        "line": 7
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-ca68acd4",
+    "kind": "api_method",
+    "text": "Size.__init__(width, height) -> ",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose_psd_foss/size.py",
+        "line": 10
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-a751fb58",
+    "kind": "api_method",
+    "text": "Size.equals(other) -> bool",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose_psd_foss/size.py",
+        "line": 22
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-31f666b5",
+    "kind": "api_method",
+    "text": "Size.is_empty property of type bool",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose_psd_foss/size.py",
+        "line": 15
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-d6db960b",
+    "kind": "api_method",
+    "text": "Size.IsEmpty property of type bool",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose_psd_foss/size.py",
+        "line": 19
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-162c0753",
+    "kind": "api_method",
+    "text": "Size.Empty field of type Optional[\"Size\"]",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose_psd_foss/size.py",
+        "line": 4
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-09703665",
+    "kind": "api_method",
+    "text": "Size.width field of type unknown",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose_psd_foss/size.py",
+        "line": 11
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-2680d379",
+    "kind": "api_method",
+    "text": "Size.height field of type unknown",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose_psd_foss/size.py",
+        "line": 12
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-cfb594",
+    "kind": "api_class",
+    "text": "Class Size defined in aspose_psd_foss/size.py",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose_psd_foss/size.py",
+        "line": 3
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-acea6270",
+    "kind": "api_method",
+    "text": "StreamContainer.__init__(stream) -> ",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose_psd_foss/streamcontainer.py",
+        "line": 7
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-37db63ff",
+    "kind": "api_method",
+    "text": "StreamContainer.stream property of type ",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose_psd_foss/streamcontainer.py",
+        "line": 13
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-485f12f6",
+    "kind": "api_method",
+    "text": "StreamContainer.Stream property of type ",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose_psd_foss/streamcontainer.py",
+        "line": 18
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-65ca68",
+    "kind": "api_class",
+    "text": "Class StreamContainer defined in aspose_psd_foss/streamcontainer.py",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose_psd_foss/streamcontainer.py",
+        "line": 1
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-fa5424",
+    "kind": "format_support",
+    "text": "import support for BigEndian via BigEndianReader",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose_psd_foss/bigendianreader.py",
+        "line": 14
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-793318",
+    "kind": "format_support",
+    "text": "export support for BigEndian via BigEndianWriter",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose_psd_foss/bigendianwriter.py",
+        "line": 5
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-765d32",
+    "kind": "format_support",
+    "text": "import support for LayerAndMaskSection via LayerAndMaskSectionReader",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose_psd_foss/layerandmasksectionreader.py",
+        "line": 12
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-63ccb6",
+    "kind": "format_support",
+    "text": "export support for LayerAndMaskSection via LayerAndMaskSectionWriter",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose_psd_foss/layerandmasksectionwriter.py",
+        "line": 8
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-06ba17",
+    "kind": "format_support",
+    "text": "import support for LayerRecord via LayerRecordReader",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose_psd_foss/layers/layerrecordreader.py",
+        "line": 14
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-d505e2",
+    "kind": "format_support",
+    "text": "export support for LayerRecord via LayerRecordWriter",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose_psd_foss/layers/layerrecordwriter.py",
+        "line": 5
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-dcb0f6",
+    "kind": "format_support",
+    "text": "import support for PsdImage via PsdImageLoader",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose_psd_foss/loaders/psdimageloader.py",
+        "line": 14
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-005431",
+    "kind": "format_support",
+    "text": "import support for PsdSection via PsdSectionReader",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose_psd_foss/psdsectionreader.py",
+        "line": 6
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-2efb1f",
+    "kind": "format_support",
+    "text": "export support for PsdImage via PsdImageWriter",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose_psd_foss/writedescriptors/psdimagewriter.py",
+        "line": 6
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-2f2ece",
+    "kind": "format_support",
+    "text": "import support for ltrb format (method name: from_ltrb)",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose_psd_foss/layers/layerrecordreader.py",
+        "line": 95
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-73288f",
+    "kind": "format_support",
+    "text": "export support for int32 format (method name: to_int32)",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose_psd_foss/bigendianbitconverter.py",
+        "line": 6
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-f8cae3",
+    "kind": "format_support",
+    "text": "import support for points format (method name: from_points)",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose_psd_foss/rectangle.py",
+        "line": 38
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "CLM-psd-b6e5a1",
+    "kind": "limitation",
+    "text": "Not implemented: PreservedResourceBlock.save in aspose_psd_foss/resources/preservedresourceblock.py:24",
+    "confidence": 1.0,
+    "claim_source": "scout",
+    "evidence": [
+      {
+        "file": "aspose_psd_foss/resources/preservedresourceblock.py",
+        "line": 24
+      }
+    ],
+    "provenance": "scout"
+  },
+  {
+    "claim_id": "ERC-psd-python-71800dc7",
+    "text": "The library supports both standard PSD and large PSB documents, exposing version detection via PsdImage.is_large_document and is_psb.",
+    "kind": "feature",
+    "page_role": "product",
+    "confidence": 0.9,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "aspose_psd_foss/psdimage.py",
+        "snippet": "class PsdImage:\n    @property\n    def is_large_document(self) -> bool: ...\n    @property\n    def is_psb(self) -> bool: ..."
+      }
+    ],
+    "enrich_unit": "batch:0/4",
+    "class_hash": "61270328e0426b0c",
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-psd-python-e57fcef8",
+    "text": "Developers can access detailed layer information, including channel metadata and mask data, through the LayerAndMaskSection and related classes.",
+    "kind": "feature",
+    "page_role": "product",
+    "confidence": 0.88,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "aspose_psd_foss/layerandmasksection.py",
+        "snippet": "class LayerAndMaskSection:\n    \"\"\"Represents the PSD/PSB Layer and Mask Information section and its raw-preserved save state.\"\"\"\n    @property\n    def layers(self): ...\n    @property\n    def layer_channel_image_data_raw(self): ..."
+      }
+    ],
+    "enrich_unit": "batch:0/4",
+    "class_hash": "61270328e0426b0c",
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-psd-python-c18a6557",
+    "text": "Image data can be read in raw, RLE, or ZIP compressed forms, identified by the ImageDataKind enumeration.",
+    "kind": "feature",
+    "page_role": "product",
+    "confidence": 0.91,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "aspose_psd_foss/imagedatakind.py",
+        "snippet": "class ImageDataKind:\n    \"\"\"Identifies the structural shape of the PSD Image Data payload.\"\"\"\n    Enum values: RAW, RLE, ZIP, UNKNOWN"
+      }
+    ],
+    "enrich_unit": "batch:0/4",
+    "class_hash": "61270328e0426b0c",
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-psd-python-3f0ff999",
+    "text": "To open a PSD file, call PsdImage.load(path_or_stream) which returns a PsdImage instance for further inspection.",
+    "kind": "api",
+    "page_role": "docs",
+    "confidence": 0.95,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "verified_facts.txt",
+        "snippet": "PsdImage.load(file_path_or_stream) -> PsdImage"
+      }
+    ],
+    "enrich_unit": "batch:0/4",
+    "class_hash": "61270328e0426b0c",
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-psd-python-a1bd313b",
+    "text": "After modifying a PsdImage, use the save method with a file path or stream to write the updated PSD back to disk.",
+    "kind": "api",
+    "page_role": "docs",
+    "confidence": 0.94,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "verified_facts.txt",
+        "snippet": "PsdImage.save(file_path_or_stream)"
+      }
+    ],
+    "enrich_unit": "batch:0/4",
+    "class_hash": "61270328e0426b0c",
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-psd-python-8233fbd2",
+    "text": "Layer channel IDs and data lengths are available via the PsdLayerChannelInfo properties channel_id and data_length.",
+    "kind": "api",
+    "page_role": "docs",
+    "confidence": 0.93,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "verified_facts.txt",
+        "snippet": "PsdLayerChannelInfo properties: channel_id, data_length"
+      }
+    ],
+    "enrich_unit": "batch:0/4",
+    "class_hash": "61270328e0426b0c",
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-psd-python-5cb7e05d",
+    "text": "BigEndianReader provides methods such as read_int32 and read_pascal_string_aligned_to4 to parse big‑endian structures in PSD files.",
+    "kind": "api",
+    "page_role": "docs",
+    "confidence": 0.96,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "aspose_psd_foss/bigendianreader.py",
+        "snippet": "def read_int32(self) -> int:\n        data = self.read_exactly(4)\n        return int.from_bytes(data, byteorder='big', signed=True)\n\n    def read_pascal_string_aligned_to4(self, max_length: int = 255) -> str:\n        return self._read_pascal_string_aligned_to(4, max_length)"
+      }
+    ],
+    "enrich_unit": "batch:0/4",
+    "class_hash": "61270328e0426b0c",
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-psd-python-0c050772",
+    "text": "Use LayerAndMaskSection.with_layers(layers) to create a new section that includes a custom collection of Layer objects.",
+    "kind": "api",
+    "page_role": "docs",
+    "confidence": 0.9,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "verified_facts.txt",
+        "snippet": "LayerAndMaskSection.with_layers(layers) -> \"LayerAndMaskSection\""
+      }
+    ],
+    "enrich_unit": "batch:0/4",
+    "class_hash": "61270328e0426b0c",
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-psd-python-b1b9702e",
+    "text": "If a Pascal string exceeds the maximum length, BigEndianReader raises a PsdLoadException; ensure the max_length argument matches the PSD specification.",
+    "kind": "troubleshoot",
+    "page_role": "kb",
+    "confidence": 0.88,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "aspose_psd_foss/bigendianreader.py",
+        "snippet": "if length > max_length:\n            raise PsdLoadException(\n                f\"PSD Pascal string length {length} exceeds the supported maximum {max_length}.\"\n            )"
+      }
+    ],
+    "enrich_unit": "batch:0/4",
+    "class_hash": "61270328e0426b0c",
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-psd-python-f4895089",
+    "text": "When loading a large document, pass is_large_document=True to LayerAndMaskSection.load so that 64‑bit offsets are handled correctly.",
+    "kind": "troubleshoot",
+    "page_role": "kb",
+    "confidence": 0.85,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "verified_facts.txt",
+        "snippet": "LayerAndMaskSection.load(reader, is_large_document) -> \"LayerAndMaskSection\""
+      }
+    ],
+    "enrich_unit": "batch:0/4",
+    "class_hash": "61270328e0426b0c",
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-psd-python-d1532f7e",
+    "text": "The ImageDataStructure.create_rle method constructs an RLE‑compressed image data descriptor using row_byte_counts, row_length_field_size, and compressed_payload_length.",
+    "kind": "api",
+    "page_role": "reference",
+    "confidence": 0.9,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "verified_facts.txt",
+        "snippet": "ImageDataStructure.create_rle(row_byte_counts, row_length_field_size, compressed_payload_length)"
+      }
+    ],
+    "enrich_unit": "batch:0/4",
+    "class_hash": "61270328e0426b0c",
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-psd-python-48e4af70",
+    "text": "The library provides high‑level objects such as Image, LayerAndMaskSection, and PsdImageWriter to manipulate image data and layer structures.",
+    "kind": "feature",
+    "page_role": "product",
+    "confidence": 0.9,
+    "claim_source": "llm_enriched",
+    "evidence": [],
+    "enrich_unit": "batch:1/4",
+    "class_hash": "dc7e01a87a74fdd3",
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-psd-python-ac9d930d",
+    "text": "Developers can access blend range information of individual layers via the BlendRange class, which exposes the source and destination properties.",
+    "kind": "api",
+    "page_role": "product",
+    "confidence": 0.85,
+    "claim_source": "llm_enriched",
+    "evidence": [],
+    "enrich_unit": "batch:1/4",
+    "class_hash": "dc7e01a87a74fdd3",
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-psd-python-84846440",
+    "text": "To load a PSD document from a file or stream, call Image.load(source) which returns an Image instance representing the document.",
+    "kind": "api",
+    "page_role": "docs",
+    "confidence": 0.9,
+    "claim_source": "llm_enriched",
+    "evidence": [],
+    "enrich_unit": "batch:1/4",
+    "class_hash": "dc7e01a87a74fdd3",
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-psd-python-3d1b1ed6",
+    "text": "Layer and mask information can be read by invoking LayerAndMaskSectionReader.load(reader, is_large_document), which returns a LayerAndMaskSection object.",
+    "kind": "api",
+    "page_role": "docs",
+    "confidence": 0.9,
+    "claim_source": "llm_enriched",
+    "evidence": [],
+    "enrich_unit": "batch:1/4",
+    "class_hash": "dc7e01a87a74fdd3",
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-psd-python-08e1dae3",
+    "text": "To write updated layer and mask data back to a PSD file, use LayerAndMaskSectionWriter.save(section, writer, is_large_document).",
+    "kind": "api",
+    "page_role": "docs",
+    "confidence": 0.9,
+    "claim_source": "llm_enriched",
+    "evidence": [],
+    "enrich_unit": "batch:1/4",
+    "class_hash": "dc7e01a87a74fdd3",
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-psd-python-4b1a3262",
+    "text": "Blend range data for a layer can be constructed from raw length using LayerBlendingRangesData.from_raw_length(length).",
+    "kind": "api",
+    "page_role": "docs",
+    "confidence": 0.85,
+    "claim_source": "llm_enriched",
+    "evidence": [],
+    "enrich_unit": "batch:1/4",
+    "class_hash": "dc7e01a87a74fdd3",
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-psd-python-1b8c773d",
+    "text": "The PsdImageWriter.save(document, stream, leave_open) method writes the full document state to a stream, optionally leaving the stream open for further operations.",
+    "kind": "api",
+    "page_role": "docs",
+    "confidence": 0.9,
+    "claim_source": "llm_enriched",
+    "evidence": [],
+    "enrich_unit": "batch:1/4",
+    "class_hash": "dc7e01a87a74fdd3",
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-psd-python-ae85951a",
+    "text": "Resource blocks can be persisted by calling LayerResource.save(stream_container, psd_version) on a LayerResource instance.",
+    "kind": "api",
+    "page_role": "docs",
+    "confidence": 0.85,
+    "claim_source": "llm_enriched",
+    "evidence": [],
+    "enrich_unit": "batch:1/4",
+    "class_hash": "dc7e01a87a74fdd3",
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-psd-python-2fabc701",
+    "text": "If a layer’s blending ranges are missing, LayerBlendingRangesInfo.is_present will be False and raw_data_length indicates the size of the stored data.",
+    "kind": "troubleshoot",
+    "page_role": "kb",
+    "confidence": 0.8,
+    "claim_source": "llm_enriched",
+    "evidence": [],
+    "enrich_unit": "batch:1/4",
+    "class_hash": "dc7e01a87a74fdd3",
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-psd-python-0b505230",
+    "text": "When attempting to save a resource with an unsupported PSD version, LayerResource.save may raise NotSupportedException; inspect its inner_exception for details.",
+    "kind": "troubleshoot",
+    "page_role": "kb",
+    "confidence": 0.8,
+    "claim_source": "llm_enriched",
+    "evidence": [],
+    "enrich_unit": "batch:1/4",
+    "class_hash": "dc7e01a87a74fdd3",
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-psd-python-52d7f26d",
+    "text": "The Point class provides empty() to obtain a zero point and equals(other) to compare coordinates; its properties include x, y, is_empty, and the static Empty.",
+    "kind": "api",
+    "page_role": "reference",
+    "confidence": 0.9,
+    "claim_source": "llm_enriched",
+    "evidence": [],
+    "enrich_unit": "batch:1/4",
+    "class_hash": "dc7e01a87a74fdd3",
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-psd-python-c105d5c2",
+    "text": "The library provides read‑only access to image resources, header metadata, and indexed color palettes while preserving the original file data.",
+    "kind": "feature",
+    "page_role": "product",
+    "confidence": 0.88,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "verified_facts",
+        "snippet": "Class: ImageResourcesSection\nDocstring: Represents the PSD Image Resources section as raw‑preserved bytes plus unknown‑only parsed summaries."
+      },
+      {
+        "source_file": "verified_facts",
+        "snippet": "Class: PsdHeader\nDocstring: Contains the header information of a Photoshop document."
+      },
+      {
+        "source_file": "verified_facts",
+        "snippet": "Class: IndexedColorPalette\nMethods: parse(raw_data); to_public_info()"
+      }
+    ],
+    "enrich_unit": "batch:2/4",
+    "class_hash": "f4456c973b7bd22e",
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-psd-python-c0f1675f",
+    "text": "Unknown image resources are wrapped in the UnknownResource class, allowing their raw data to be preserved and later re‑saved without parsing errors.",
+    "kind": "feature",
+    "page_role": "product",
+    "confidence": 0.87,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "verified_facts",
+        "snippet": "Class: UnknownResource\nDocstring: Initializes a new instance of the UnknownResource class."
+      }
+    ],
+    "enrich_unit": "batch:2/4",
+    "class_hash": "f4456c973b7bd22e",
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-psd-python-29aba9d0",
+    "text": "Use PsdImageLoader.load(stream, leave_open) to read a PSD file from any binary stream.",
+    "kind": "api",
+    "page_role": "docs",
+    "confidence": 0.92,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "verified_facts",
+        "snippet": "Class: PsdImageLoader\nMethods: load(stream, leave_open)"
+      }
+    ],
+    "enrich_unit": "batch:2/4",
+    "class_hash": "f4456c973b7bd22e",
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-psd-python-a5eee8d9",
+    "text": "Call PsdHeader.load(reader) to populate a PsdHeader instance with document dimensions, channel count, and color mode.",
+    "kind": "api",
+    "page_role": "docs",
+    "confidence": 0.91,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "verified_facts",
+        "snippet": "Class: PsdHeader\nMethods: load(reader) -> \"PsdHeader\""
+      }
+    ],
+    "enrich_unit": "batch:2/4",
+    "class_hash": "f4456c973b7bd22e",
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-psd-python-b57bfdd9",
+    "text": "After modifying header properties, invoke PsdHeader.save(writer) to write the updated header back to a stream.",
+    "kind": "api",
+    "page_role": "docs",
+    "confidence": 0.9,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "verified_facts",
+        "snippet": "Class: PsdHeader\nMethods: save(writer) -> None"
+      }
+    ],
+    "enrich_unit": "batch:2/4",
+    "class_hash": "f4456c973b7bd22e",
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-psd-python-a8b843dd",
+    "text": "Retrieve raw image resource bytes via ImageResourcesSection.raw_data and check ImageResourcesSection.has_resources to determine if any resources are present.",
+    "kind": "api",
+    "page_role": "docs",
+    "confidence": 0.89,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "verified_facts",
+        "snippet": "Class: ImageResourcesSection\nProperties: has_resources, raw_data, resources"
+      }
+    ],
+    "enrich_unit": "batch:2/4",
+    "class_hash": "f4456c973b7bd22e",
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-psd-python-bd5ee331",
+    "text": "Parse an indexed color palette by calling IndexedColorPalette.parse(raw_data) and then obtain a public view with to_public_info().",
+    "kind": "api",
+    "page_role": "docs",
+    "confidence": 0.88,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "verified_facts",
+        "snippet": "Class: IndexedColorPalette\nMethods: parse(raw_data); to_public_info()"
+      }
+    ],
+    "enrich_unit": "batch:2/4",
+    "class_hash": "f4456c973b7bd22e",
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-psd-python-301c1e4a",
+    "text": "If a Pascal string exceeds the maximum length, BigEndianReader.read_pascal_string raises a PsdLoadException; ensure strings are within the 256‑byte limit.",
+    "kind": "troubleshoot",
+    "page_role": "kb",
+    "confidence": 0.93,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "aspose_psd_foss/bigendianreader.py",
+        "snippet": "def read_pascal_string(self, max_length: int = 256) -> str:\n        return self._read_pascal_string_aligned_to(4, max_length)\n...\n        if length > max_length:\n            raise PsdLoadException(\n                f\"PSD Pascal string length {length} exceeds the supported maximum {max_length}.\"\n            )"
+      }
+    ],
+    "enrich_unit": "batch:2/4",
+    "class_hash": "f4456c973b7bd22e",
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-psd-python-cc7a990d",
+    "text": "When loading a PSD, unknown resource blocks are represented by UnknownResource; use its to_public_info() to access the resource ID and data without causing parsing errors.",
+    "kind": "troubleshoot",
+    "page_role": "kb",
+    "confidence": 0.86,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "verified_facts",
+        "snippet": "Class: UnknownResource\nMethods: load(reader, section_end); Load(reader, section_end); to_public_info()"
+      }
+    ],
+    "enrich_unit": "batch:2/4",
+    "class_hash": "f4456c973b7bd22e",
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-psd-python-090113c9",
+    "text": "BigEndianBitConverter.to_int32(byte_array, offset) returns a signed 32‑bit integer interpreted in big‑endian order from the given byte array.",
+    "kind": "api",
+    "page_role": "reference",
+    "confidence": 0.95,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "aspose_psd_foss/bigendianbitconverter.py",
+        "snippet": "def to_int32(cls, byte_array, offset):\n        \"\"\"Reads a 32-bit signed integer in big-endian format from the specified byte array.\"\"\"\n        return (\n            (byte_array[offset] << 24)\n            | (byte_array[offset + 1] << 16)\n            | (byte_array[offset + 2] << 8)\n            | byte_array[offset + 3]\n        )"
+      }
+    ],
+    "enrich_unit": "batch:2/4",
+    "class_hash": "f4456c973b7bd22e",
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-psd-python-af25f7e5",
+    "text": "The library supports all standard PSD blend modes, exposing them through the BlendMode enumeration.",
+    "kind": "feature",
+    "page_role": "product",
+    "confidence": 0.94,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "verified_facts",
+        "snippet": "Class: BlendMode\n  Docstring: Defines the blend modes used for layers in PSD files.\n  Enum values: NORMAL, MULTIPLY, SCREEN, OVERLAY, DARKEN, LIGHTEN, COLORDODGE, COLORBURN, HARDLIGHT, SOFTLIGHT"
+      }
+    ],
+    "enrich_unit": "batch:3/4",
+    "class_hash": "16ddfeed5cf3b7ea",
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-psd-python-aa32acb2",
+    "text": "Image data can be saved using multiple compression methods, selectable via the CompressionMethod enum.",
+    "kind": "feature",
+    "page_role": "product",
+    "confidence": 0.91,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "verified_facts",
+        "snippet": "Class: CompressionMethod\n  Docstring: Defines the compression methods used for image data in PSD files.\n  Enum values: RAW, RLE, ZIP_WITHOUT_PREDICTION, ZIP_WITH_PREDICTION"
+      }
+    ],
+    "enrich_unit": "batch:3/4",
+    "class_hash": "16ddfeed5cf3b7ea",
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-psd-python-c911b3a7",
+    "text": "Use BigEndianWriter.seek(offset, origin) to reposition the output stream before writing binary PSD structures.",
+    "kind": "api",
+    "page_role": "docs",
+    "confidence": 0.95,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "aspose_psd_foss/bigendianwriter.py",
+        "snippet": "def seek(self, offset, origin):\n        self._stream.seek(offset, origin)"
+      }
+    ],
+    "enrich_unit": "batch:3/4",
+    "class_hash": "16ddfeed5cf3b7ea",
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-psd-python-2907bc0b",
+    "text": "BigEndianWriter.write_pascal_string(value) writes a Pascal‑style string aligned to a 4‑byte boundary, as required by the PSD specification.",
+    "kind": "api",
+    "page_role": "docs",
+    "confidence": 0.94,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "aspose_psd_foss/bigendianwriter.py",
+        "snippet": "def write_pascal_string(self, value):\n        self._write_pascal_string_aligned_to(value, boundary=4)"
+      }
+    ],
+    "enrich_unit": "batch:3/4",
+    "class_hash": "16ddfeed5cf3b7ea",
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-psd-python-a040c429",
+    "text": "Load a PSD file from disk with ImageLoader.load_from_path(file_path) which returns a parsed PSD object.",
+    "kind": "api",
+    "page_role": "docs",
+    "confidence": 0.93,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "verified_facts",
+        "snippet": "Class: ImageLoader\n  Docstring: Provides the load functionality for images.\n  Methods: load_from_path(file_path) -> object; load_from_stream(stream) -> object"
+      }
+    ],
+    "enrich_unit": "batch:3/4",
+    "class_hash": "16ddfeed5cf3b7ea",
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-psd-python-ca55b51f",
+    "text": "Access a layer’s visibility via the Layer.is_visible property and modify it by setting the property and calling Layer.mark_mutated().",
+    "kind": "api",
+    "page_role": "docs",
+    "confidence": 0.92,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "verified_facts",
+        "snippet": "Class: Layer\n  Methods: mark_mutated() -> None; ...\n  Properties: ..., is_visible, IsVisible"
+      }
+    ],
+    "enrich_unit": "batch:3/4",
+    "class_hash": "16ddfeed5cf3b7ea",
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-psd-python-58abf098",
+    "text": "When reading Pascal strings, the default maximum length is 256 bytes; exceeding this limit raises a PsdLoadException.",
+    "kind": "troubleshoot",
+    "page_role": "kb",
+    "confidence": 0.9,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "aspose_psd_foss/bigendianreader.py",
+        "snippet": "def read_pascal_string(self, max_length: int = 256) -> str:\n        return self._read_pascal_string_aligned_to(4, max_length)"
+      }
+    ],
+    "enrich_unit": "batch:3/4",
+    "class_hash": "16ddfeed5cf3b7ea",
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-psd-python-0204c762",
+    "text": "For very large PSD documents, pass is_large_document=True to ImageData.load so the loader uses 64‑bit dimensions and offsets.",
+    "kind": "troubleshoot",
+    "page_role": "kb",
+    "confidence": 0.88,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "verified_facts",
+        "snippet": "Class: ImageData\n  Methods: load(reader, is_large_document, height, channel_count) -> \"ImageData\""
+      }
+    ],
+    "enrich_unit": "batch:3/4",
+    "class_hash": "16ddfeed5cf3b7ea",
+    "provenance": "enriched"
+  },
+  {
+    "claim_id": "ERC-psd-python-ba1573c8",
+    "text": "BigEndianWriter.position property returns the current write offset in the underlying stream.",
+    "kind": "api",
+    "page_role": "reference",
+    "confidence": 0.96,
+    "claim_source": "llm_enriched",
+    "evidence": [
+      {
+        "source_file": "aspose_psd_foss/bigendianwriter.py",
+        "snippet": "def position(self):\n        return self._stream.tell()"
+      }
+    ],
+    "enrich_unit": "batch:3/4",
+    "class_hash": "16ddfeed5cf3b7ea",
+    "provenance": "enriched"
+  }
+]
