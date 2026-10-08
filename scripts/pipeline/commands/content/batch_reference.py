@@ -787,32 +787,44 @@ def _pick_collision_priority_winner(
 ) -> dict | None:
     """H-04g (MT074, found live 2026-10-07, pdf/java): when a name-collision group has
     exactly one member that is NOT in an internal-looking namespace while every other
-    member is, that one member keeps the plain, undisambiguated slug. An internal
+    member is, AND no member of the group already has a namespace-suffixed sibling page
+    on disk, that one member keeps the plain, undisambiguated slug. An internal
     implementation-detail class must never force a real, already-published public
     class's stable URL to change just because an unrelated internal class happens to
-    share its simple name (confirmed live: 14 real, long-published pages -- Border,
-    Field, Fill, FontRepository, Arc, Color, Heading, Image, Line, PatternColorSpace,
-    Rectangle, Scope, Signature, Table -- were about to be force-renamed by a newly
-    extracted, identically-named internal `engine.xfa.model.template.*` / `sdm.*` /
-    `engine.font.*` / `engine.colorspace.*` / `engine.script.*` class). Deliberately
-    narrow: it only ever fires INSIDE an actual name collision, so it never touches the
-    hundreds of internal classes that already have their own, non-colliding reference
-    pages (pdf/java alone has 659 of them) -- this is not a blanket internal-namespace
-    exclusion.
+    share its simple name, the FIRST time such a collision ever appears.
 
-    Falls back to "whichever member already has a page at the plain slug" (the
-    pre-existing, unconditional behavior, matching the case-only-collision block's own
-    established rule) when the internal/public split does not single out exactly one
-    member -- e.g. two genuinely public classes sharing a name (``Form``: a facade vs. a
-    core forms-model class), where no namespace deserves editorial priority over the
-    other, or a group where every member is internal-looking.
+    Returns ``None`` (never exempts anyone -- the pre-existing, unconditional
+    "suffix everyone" behavior applies and the governed retire-page workflow decides)
+    in every other shape:
+
+    - A namespace-suffixed sibling page already exists for ANY member of this group:
+      disambiguation already happened for real, at some point in the past (its own
+      commit, independent of this run), so the plain-named page is settled,
+      confirmed-superseded leftover debt, not a live identity to protect. Found live,
+      2026-10-08: pdf/java's `Border`/`Field`/`Fill`/`FontRepository`/etc. collisions
+      already had BOTH namespace-suffixed pages published (commit `ea05b9d8c8`,
+      predating this mission) -- exempting the "public" member here would have
+      resurrected a stale duplicate of an already-published page instead of letting
+      retirement close out debt the earlier run never finished.
+    - The internal/public split does not single out exactly one member -- e.g. two
+      genuinely public classes sharing a name (``Form``: a facade vs. a core
+      forms-model class), where no namespace deserves editorial priority over the
+      other, or a group where every member is internal-looking.
+
+    Deliberately does NOT try to guess "which of several identically-named candidates
+    an existing plain page already describes" by any other heuristic (such as
+    iteration order): found live, 2026-10-08, pdf/java's all-internal `Value` collision
+    -- guessing silently swapped the existing page's body under its stable URL
+    (1327 -> 206 words), caught only by the mass-deletion guard (B15). Every collision
+    shape this function does not confidently resolve goes through the governed,
+    content-aware retire workflow instead.
     """
+    name = _sanitize_slug(group[0].get("name", "")) if group else ""
+    if name and ref_dir.is_dir() and any(ref_dir.glob(f"{name}-*.md")):
+        return None  # disambiguation already happened historically -- never exempt
     internal_flags = [_entry_is_internal_namespace(e) for e in group]
     if internal_flags.count(False) == 1:
         return group[internal_flags.index(False)]
-    for e in group:
-        if (ref_dir / f"{_sanitize_slug(e.get('name', ''))}.md").exists():
-            return e
     return None
 
 

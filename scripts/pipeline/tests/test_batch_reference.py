@@ -944,10 +944,12 @@ class TestInternalNamespaceCollisionPriority:
             "the real, non-internal class must keep the PLAIN slug, not get suffixed itself"
         )
 
-    def test_genuine_dual_public_collision_unaffected_falls_back_to_existing_rule(self, tmp_path):
+    def test_genuine_dual_public_collision_never_guesses_a_winner(self, tmp_path):
         """Two genuinely public classes sharing a name (facades.Form vs. forms.Form --
-        neither internal) must behave exactly as before this change: whichever already
-        has a page at the plain slug keeps it; the other gets namespace-suffixed."""
+        neither internal) must never have a winner guessed for them: there is no
+        reliable way to tell which entry an existing plain page's content already
+        belongs to, so this falls to the governed retire workflow, exactly like the
+        all-internal case -- never a silent "whichever happens to have a file" pick."""
         entries = [
             {"name": "Form", "kind": "class_declaration", "visibility": "public",
              "file": "src/main/java/org/aspose/pdf/facades/Form.java",
@@ -961,15 +963,37 @@ class TestInternalNamespaceCollisionPriority:
         _make_api_surface(tmp_path, entries, "pdf", "java")
         out_dir = tmp_path / "content" / "reference.aspose.org" / "en" / "pdf" / "java"
         out_dir.mkdir(parents=True)
-        (out_dir / "Form.md").write_text("existing-form-page", encoding="utf-8")
+        original = "existing-form-page"
+        (out_dir / "Form.md").write_text(original, encoding="utf-8")
+
+        with pytest.raises(RuntimeError, match="stale undisambiguated page"):
+            run("pdf", "java", rebuild_all=True, confirm_rebuild=True)
+
+        assert (out_dir / "Form.md").read_text(encoding="utf-8") == original
+
+    def test_genuine_dual_public_collision_fresh_both_disambiguated(self, tmp_path):
+        """With no pre-existing plain page at all, both genuinely-public members are
+        simply disambiguated as before -- nothing to retire, nothing ambiguous."""
+        entries = [
+            {"name": "Form", "kind": "class_declaration", "visibility": "public",
+             "file": "src/main/java/org/aspose/pdf/facades/Form.java",
+             "class_import": "org.aspose.pdf.facades.Form",
+             "methods": [], "properties": []},
+            {"name": "Form", "kind": "class_declaration", "visibility": "public",
+             "file": "src/main/java/org/aspose/pdf/forms/Form.java",
+             "class_import": "org.aspose.pdf.forms.Form",
+             "methods": [], "properties": []},
+        ]
+        _make_api_surface(tmp_path, entries, "pdf", "java")
+        out_dir = tmp_path / "content" / "reference.aspose.org" / "en" / "pdf" / "java"
+        out_dir.mkdir(parents=True)
 
         result = run("pdf", "java")
 
-        assert result["errors"] == 0
+        assert result["generated"] == 2
         actual_names = {f.name for f in out_dir.iterdir() if f.suffix == ".md"}
-        assert "Form.md" in actual_names
-        suffixed = [n for n in actual_names if n.startswith("Form-")]
-        assert len(suffixed) == 1
+        assert "Form.md" not in actual_names
+        assert len([n for n in actual_names if n.startswith("Form-")]) == 2
 
     def test_all_internal_collision_falls_back_to_existing_rule(self, tmp_path):
         """A collision where BOTH members are internal-looking (e.g. two nested helper
@@ -996,6 +1020,71 @@ class TestInternalNamespaceCollisionPriority:
         assert "Value.md" not in actual_names, (
             "with no existing page and no non-internal member, both must be suffixed"
         )
+
+    def test_all_internal_collision_with_an_existing_plain_page_never_guesses_a_winner(
+        self, tmp_path
+    ):
+        """B15 regression (found live, pdf/java, 2026-10-08): when neither member is
+        uniquely non-internal, there is NO reliable way to tell which of several
+        identically-named candidates an existing plain page's CONTENT already belongs
+        to -- picking "whichever happens to be first in iteration order" silently
+        swapped a real page's body (Value.md: 1327 -> 206 words) under a stable URL,
+        caught only by the mass-deletion guard. The fix must never guess here: an
+        existing plain page in this shape is left to the governed retire-page workflow
+        (RuntimeError, matching the pre-H-04g behavior), never silently overwritten."""
+        entries = [
+            {"name": "Value", "kind": "class_declaration", "visibility": "public",
+             "file": "src/main/java/org/aspose/pdf/engine/function/Value.java",
+             "class_import": "org.aspose.pdf.engine.function.Value",
+             "methods": [{"name": "m", "params": [], "return_type": "", "doc": "", "line": 1}]
+                        * 1,
+             "properties": []},
+            {"name": "Value", "kind": "class_declaration", "visibility": "public",
+             "file": "src/main/java/org/aspose/pdf/engine/xfa/model/template/Value.java",
+             "class_import": "org.aspose.pdf.engine.xfa.model.template.Value",
+             "methods": [{"name": f"m{i}", "params": [], "return_type": "", "doc": "", "line": 1}
+                         for i in range(20)],
+             "properties": []},
+        ]
+        _make_api_surface(tmp_path, entries, "pdf", "java")
+        out_dir = tmp_path / "content" / "reference.aspose.org" / "en" / "pdf" / "java"
+        out_dir.mkdir(parents=True)
+        original = "substantial pre-existing content " * 100
+        (out_dir / "Value.md").write_text(original, encoding="utf-8")
+
+        with pytest.raises(RuntimeError, match="stale undisambiguated page"):
+            run("pdf", "java", rebuild_all=True, confirm_rebuild=True)
+
+        # the original content must be completely untouched -- never silently swapped
+        assert (out_dir / "Value.md").read_text(encoding="utf-8") == original
+
+    def test_exemption_never_fires_when_a_suffixed_sibling_already_exists(self, tmp_path):
+        """Border regression (found live, pdf/java, 2026-10-08): if a namespace-suffixed
+        sibling page ALREADY exists for this collision (disambiguation already happened
+        for real, in some earlier commit), the plain page is confirmed, settled
+        leftover debt -- not a live identity to protect. The priority exemption must
+        never fire in that case, even though one member is the sole non-internal one;
+        it falls through to the governed retire workflow instead of reviving a stale
+        duplicate of an already-published page."""
+        entries = [
+            {"name": "Border", "kind": "class_declaration", "visibility": "public",
+             "file": "src/main/java/org/aspose/pdf/annotations/Border.java",
+             "class_import": "org.aspose.pdf.annotations.Border",
+             "methods": [], "properties": []},
+            {"name": "Border", "kind": "class_declaration", "visibility": "public",
+             "file": "src/main/java/org/aspose/pdf/engine/xfa/model/template/Border.java",
+             "class_import": "org.aspose.pdf.engine.xfa.model.template.Border",
+             "methods": [], "properties": []},
+        ]
+        _make_api_surface(tmp_path, entries, "pdf", "java")
+        out_dir = tmp_path / "content" / "reference.aspose.org" / "en" / "pdf" / "java"
+        out_dir.mkdir(parents=True)
+        (out_dir / "Border.md").write_text("stale-plain-page", encoding="utf-8")
+        # the disambiguated sibling already exists from an earlier, unrelated run
+        (out_dir / "Border-annotations.md").write_text("already-disambiguated-page", encoding="utf-8")
+
+        with pytest.raises(RuntimeError, match="stale undisambiguated page"):
+            run("pdf", "java", rebuild_all=True, confirm_rebuild=True)
 
     def test_the_659_non_colliding_internal_pages_are_never_touched(self, tmp_path):
         """H-04g only ever fires INSIDE an actual name collision. An internal class with
