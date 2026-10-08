@@ -309,7 +309,12 @@ def _kb_noun_from_cluster(category: str, family: str, verb: str = "") -> str:
         "compress":  ["compression", "compressing"],
         "encrypt":   ["encryption", "encrypting"],
         "protect":   ["protection", "protecting"],
-        "load":      ["loading"],
+        # "loaders" added 2026-10-08 (TC-PSD-HRD-9N-12, psd/python): category
+        # "Loaders" (aspose_psd_foss/loaders/PsdImageLoader) with verb "load"
+        # produced unstripped noun "loaders", colliding as
+        # "how-to-load-loaders-python" -- the exact false-duplication failure
+        # this dict exists to prevent per its own comment above.
+        "load":      ["loading", "loaders"],
         "export":    ["exporting", "exportation"],
         "build":     ["building"],
         "add":       ["adding", "addition"],
@@ -739,6 +744,23 @@ _ROOT_LABELS: dict[str, str] = {
 }
 
 _FAMILY_SUBPKG_LABELS: dict[str, dict[str, str]] = {
+    "psd": {
+        # TC-PSD-HRD-9N-12 (MT076-2026-10-07-PSD-NET-PYTHON-LAUNCH): psd/python's
+        # first real site-plan run crashed _validate_kb_slugs's Check 1 on
+        # "coreexceptions" (aspose_psd_foss/coreexceptions/ -- all-lowercase Python
+        # package naming, unlike C#'s PascalCase CoreExceptions/, so TC-KBS-002's
+        # splitter finds no word boundary -- the exact same failure shape as gis's
+        # "spatialreferencing" and pdf's "connectionset"/"datadescription" entries).
+        # Value matches psd/net's own already-shipped KB slug stem exactly
+        # ("how-to-work-with-psd-core-exceptions-dotnet").
+        "coreexceptions": "psd-core-exceptions",
+        # Same mechanism, second module: aspose_psd_foss/writedescriptors/ (C#'s
+        # equivalent WriteDescriptors/ never formed its own KB cluster for
+        # psd/net, so there is no existing net slug to mirror -- "write-descriptors"
+        # is the natural split and independently confirmed to pass the C4
+        # family-qualifier check without a "psd-" prefix).
+        "writedescriptors": "write-descriptors",
+    },
     "gis": {
         # MT074-2026-09-25-GIS-NET-LAUNCH-AND-READINESS-GATE-HARDENING: gis/net's
         # first real site-plan run crashed _validate_kb_slugs's Check 1 on

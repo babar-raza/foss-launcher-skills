@@ -1008,10 +1008,31 @@ class TestCamelCaseSplitter:
             f"Lookup table should win; got {result!r}"
         )
 
+    def test_psd_coreexceptions_maps_to_readable_label(self):
+        """TC-PSD-HRD-9N-12: Python's all-lowercase coreexceptions/ directory
+        (unlike C#'s PascalCase CoreExceptions/) has no CamelCase boundary for
+        the splitter to find, so it needs a manual _FAMILY_SUBPKG_LABELS['psd']
+        entry -- same shape as gis's spatialreferencing and pdf's connectionset."""
+        result = sp._subpkg_to_label("coreexceptions", "psd")
+        assert result == "psd-core-exceptions", (
+            f"Expected 'psd-core-exceptions' (matching psd/net's own already-shipped "
+            f"KB slug stem), got {result!r}"
+        )
+
     def test_single_word_unmapped_unchanged(self):
         """A single-word lowercase name has no camel boundary — stays as-is."""
         result = sp._subpkg_to_label("widgets", "email")
         assert result == "widgets", f"Single word gave {result!r}"
+
+    def test_psd_writedescriptors_maps_to_readable_label(self):
+        """TC-PSD-HRD-9N-12: same mechanism as coreexceptions above -- Python's
+        all-lowercase writedescriptors/ has no CamelCase boundary; C#'s
+        WriteDescriptors/ never formed its own KB cluster for psd/net, so there
+        is no existing net slug to mirror."""
+        result = sp._subpkg_to_label("writedescriptors", "psd")
+        assert result == "write-descriptors", (
+            f"Expected 'write-descriptors', got {result!r}"
+        )
 
 
 class TestVerbNounDedup:
@@ -1043,6 +1064,16 @@ class TestVerbNounDedup:
         noun = sp._kb_noun_from_cluster("text-extraction", "pdf", verb="")
         # suffix "-support" etc. not present; no stripping
         assert "text" in noun, f"No-verb case gave {noun!r}"
+
+    def test_loaders_category_with_load_verb_falls_back_to_family(self):
+        """TC-PSD-HRD-9N-12 (psd/python): category 'Loaders' with verb 'load'
+        used to leave noun 'loaders' unstripped (only the "-ing" nominal form
+        "loading" was listed), producing the false duplication
+        'how-to-load-loaders-...'. 'loaders' is now a listed nominal form of
+        'load', so the bare-nominal-form branch fires and falls back to the
+        family name, same as the existing render/rendering precedent."""
+        noun = sp._kb_noun_from_cluster("Loaders", "psd", verb="load")
+        assert noun == "psd", f"Got {noun!r}"
 
 
 class TestKbSlugValidator:
