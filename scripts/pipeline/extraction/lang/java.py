@@ -54,15 +54,42 @@ def doc_anchor(node):
 # parse_doc
 # ---------------------------------------------------------------------------
 
+def _mask_doc_tags(text: str) -> str:
+    """Mirrors api_surface._mask_doc_tags exactly -- see its docstring."""
+    out: list[str] = []
+    i, n = 0, len(text)
+    while i < n:
+        if text[i] == "{" and i + 1 < n and text[i + 1] == "@":
+            depth = 1
+            j = i + 1
+            while j < n and depth > 0:
+                if text[j] == "{":
+                    depth += 1
+                elif text[j] == "}":
+                    depth -= 1
+                j += 1
+            out.append("\0" * (j - i))
+            i = j
+        else:
+            out.append(text[i])
+            i += 1
+    return "".join(out)
+
+
 def _first_sentence(text: str) -> str:
     """Return the first sentence (up to first period-space or newline).
 
-    Mirrors api_surface._first_sentence exactly.
+    Mirrors api_surface._first_sentence exactly, including its MT074 fix
+    (2026-10-09): punctuation inside a ``{@tag ...}`` span (balanced braces)
+    or an ellipsis's own periods is never mistaken for the sentence
+    terminator -- see api_surface._first_sentence's docstring for the full
+    incident writeup.
     """
     text = text.strip()
-    m = re.match(r"^(.+?[.!?])(?:\s|$)", text, re.DOTALL)
+    masked = _mask_doc_tags(text)
+    m = re.match(r"^(.+?(?:(?<!\.)\.(?!\.)|[!?]))(?:\s|$)", masked, re.DOTALL)
     if m:
-        return m.group(1).strip()
+        return text[: m.end(1)].strip()
     return text.split("\n")[0].strip()[:200]
 
 

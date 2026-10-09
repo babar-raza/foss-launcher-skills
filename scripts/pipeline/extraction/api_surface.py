@@ -500,12 +500,55 @@ def _extract_go_receiver_type(fnode) -> str:
 # Doc comment extraction
 # ---------------------------------------------------------------------------
 
+def _mask_doc_tags(text: str) -> str:
+    """Replace each ``{@tag ...}`` span (balanced braces, so a nested ``{``/``}``
+    inside the tag -- e.g. ``{@code { ... }}`` -- is handled correctly, not just
+    the first ``}``) with an equal-length run of ``\\0``, a character that can
+    never be mistaken for sentence-ending punctuation. Used only to locate the
+    true end of the first sentence; callers slice the *original* text, never
+    this masked copy, so the tag's real content is never lost."""
+    out: list[str] = []
+    i, n = 0, len(text)
+    while i < n:
+        if text[i] == "{" and i + 1 < n and text[i + 1] == "@":
+            depth = 1
+            j = i + 1
+            while j < n and depth > 0:
+                if text[j] == "{":
+                    depth += 1
+                elif text[j] == "}":
+                    depth -= 1
+                j += 1
+            out.append("\0" * (j - i))
+            i = j
+        else:
+            out.append(text[i])
+            i += 1
+    return "".join(out)
+
+
 def _first_sentence(text: str) -> str:
-    """Return the first sentence (up to first period-space or newline)."""
+    """Return the first sentence (up to first period-space or newline).
+
+    MT074 (found live, 2026-10-09): a doc comment's own code example can carry
+    punctuation that looks like a sentence terminator to a naive scan -- an
+    ellipsis's periods (``{@code { ... }} block.``), or a ``?``/``!`` inside a
+    ``{@code test ? cons : alt}.`` ternary -- and the first such false
+    terminator inside the tag used to end the "sentence" there, leaking a
+    dangling, incoherent fragment (``{@code { ...``, ``{@code test ?``) onto
+    reference pages across every language this function serves (Javadoc,
+    JSDoc, XML doc, Godoc, docstrings). Fix: scan a masked copy with every
+    ``{@tag ...}`` span (balanced braces) blanked out, so punctuation inside a
+    tag is invisible to the sentence-boundary search; still slice the
+    *original* text once the true boundary is found. A "." in the remaining,
+    unmasked text still only ends a sentence when it is not itself part of a
+    run of two or more consecutive periods (an ellipsis outside any tag).
+    """
     text = text.strip()
-    m = re.match(r"^(.+?[.!?])(?:\s|$)", text, re.DOTALL)
+    masked = _mask_doc_tags(text)
+    m = re.match(r"^(.+?(?:(?<!\.)\.(?!\.)|[!?]))(?:\s|$)", masked, re.DOTALL)
     if m:
-        return m.group(1).strip()
+        return text[: m.end(1)].strip()
     # no sentence-ending punctuation; return first line
     return text.split("\n")[0].strip()[:200]
 
