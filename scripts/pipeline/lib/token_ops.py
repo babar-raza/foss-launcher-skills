@@ -797,6 +797,18 @@ def verify_tokens(tokens: list[Token], knowledge: Knowledge, filepath: Path) -> 
                               # match the ALL_CAPS enum-access heuristic at extraction time and
                               # get tokenized as "property" instead of "enum" — mirrors the
                               # enum branch's own has_property() fallback above.
+                if tok.member_name in knowledge.classes:
+                    continue  # MT074 (found live, 2026-10-08): a 3-segment nested-class-then-
+                              # -constant chain (Java `Outer.Nested.CONSTANT`, e.g. the real,
+                              # compiled, run-verified `ExcelSaveOptions.ExcelFormat.XLSX`) gets
+                              # tokenized the same way as the PascalCase-enum case above, one
+                              # level removed: "ExcelFormat" is PascalCase (not ALL_CAPS), so the
+                              # enum-access skip heuristic does not exclude it, and it is checked
+                              # as a property of ExcelSaveOptions instead of what it actually is
+                              # -- the simple name of a separate, nested/sibling type (our
+                              # extraction flattens a nested class to a top-level api_surface.json
+                              # entry like every other class). A member name that is itself a
+                              # known class is a type reference, not a property miss.
                 if cls_name in PLATFORM_SDK_CLASSES or cls_name in PROPERTY_CHAIN_CLASSES:
                     continue  # Skip platform SDK types and property chain ambiguities
                 if (cls_name, tok.member_name) in knowledge.workaround_members:

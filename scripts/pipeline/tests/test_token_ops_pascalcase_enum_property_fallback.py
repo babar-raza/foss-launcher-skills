@@ -31,13 +31,13 @@ def _make_md(content: str) -> Path:
 class _FakeKnowledge:
     """Minimal stand-in for knowledge_core.Knowledge, property/enum-fallback path only."""
 
-    def __init__(self, classes, properties, enum_members):
+    def __init__(self, classes, properties, enum_members, methods=None):
         self.platform = "java"
         self.surface_tier = 1
         self.classes = set(classes)
         self.properties = properties
         self.enum_members = enum_members
-        self.methods = {}
+        self.methods = methods or {}
         self.valid_imports = set()
         self.workaround_members = set()
 
@@ -46,6 +46,9 @@ class _FakeKnowledge:
 
     def has_enum_member(self, cls, name):
         return name in self.enum_members.get(cls, set())
+
+    def has_method(self, cls, name):
+        return name in self.methods.get(cls, set())
 
     def closest_match(self, actual, name):
         return []
@@ -89,3 +92,57 @@ class TestPascalCaseEnumPropertyFallback:
         assert fails, "expected a FAIL for a member not present in properties or enum_members"
         assert "Bogus" in fails[0].message
         md.unlink()
+
+
+class TestNestedTypeChainPropertyFallback:
+    """MT074 (found live, 2026-10-08): a 3-segment nested-class-then-enum-constant chain
+    (`Outer.Nested.CONSTANT`, e.g. Java's `ExcelSaveOptions.ExcelFormat.XLSX` — a real,
+    compiled, run-verified example from pdf/java's own upstream docs) gets the SAME
+    mis-tokenization as the PascalCase-enum case above, one level removed: the property
+    regex matches `ExcelSaveOptions.ExcelFormat` as obj.prop (ExcelFormat is PascalCase,
+    not ALL_CAPS, so the enum-access skip heuristic does not exclude it), and the
+    verification branch then checks has_property/has_enum_member for member "ExcelFormat"
+    on class "ExcelSaveOptions" — neither holds, because "ExcelFormat" is not a property
+    OR an enum constant of ExcelSaveOptions, it is the SIMPLE NAME OF A SEPARATE, NESTED
+    TYPE (our scout/extraction flattens Java's `ExcelSaveOptions$ExcelFormat` to a
+    top-level `ExcelFormat` entry in api_surface.json, same as every other class).
+    Generic fix, same shape as the existing enum-member fallback immediately above it:
+    if the member name is itself a known class (a nested/sibling type reference, not a
+    property), the chain is valid and must not FAIL."""
+
+    def test_nested_type_name_as_member_produces_no_fail(self):
+        md = _make_md(
+            "```java\n"
+            "ExcelSaveOptions options = new ExcelSaveOptions();\n"
+            "options.setFormat(ExcelSaveOptions.ExcelFormat.XLSX);\n"
+            "```\n"
+        )
+        tokens = extract_tokens(md, "java")
+        knowledge = _FakeKnowledge(
+            classes={"ExcelSaveOptions", "ExcelFormat"},
+            properties={"ExcelSaveOptions": {"format"}},
+            enum_members={"ExcelFormat": {"XLSX", "XmlSpreadSheet2003", "CSV", "ODS"}},
+            methods={"ExcelSaveOptions": {"setFormat"}},
+        )
+        findings = verify_tokens(tokens, knowledge, md)
+        assert not [f for f in findings if f.level == "FAIL"], findings
+
+    def test_unknown_member_that_is_not_a_class_still_fails(self):
+        """Negative control: a member absent from properties, enum_members AND classes
+        must still FAIL — the fallback must only cover genuine nested-type references."""
+        md = _make_md(
+            "```java\n"
+            "options.setFormat(ExcelSaveOptions.Bogus.XLSX);\n"
+            "```\n"
+        )
+        tokens = extract_tokens(md, "java")
+        knowledge = _FakeKnowledge(
+            classes={"ExcelSaveOptions", "ExcelFormat"},
+            properties={"ExcelSaveOptions": {"format"}},
+            enum_members={"ExcelFormat": {"XLSX"}},
+            methods={"ExcelSaveOptions": {"setFormat"}},
+        )
+        findings = verify_tokens(tokens, knowledge, md)
+        fails = [f for f in findings if f.level == "FAIL"]
+        assert fails, "expected a FAIL for a member that is not a property, enum member or class"
+        assert "Bogus" in fails[0].message
