@@ -1310,6 +1310,12 @@ def detect_formats(
         "address", "storage", "black", "double", "el", "opt",
         "chars", "emu", "color", "point", "rect", "size",
         "underlying", "hex",
+        # TC-PSD-HRD-9N-10: psd/python false positives -- "int32" from
+        # BigEndianBitConverter.to_int32 (a primitive integer-conversion
+        # utility, not a format), "ltrb" from LayerRecordReader (a
+        # left/top/right/bottom rectangle coordinate convention), "points"
+        # from Rectangle/Point (geometry, not a container/image format).
+        "int32", "ltrb", "points",
     })
     # Rust: bare `to_x`/`from_x` are the language's TYPE-conversion idiom
     # (to_lowercase, to_vec, from_bits, to_rfc3339, ...), not format I/O —

@@ -1,29 +1,5 @@
 [
   {
-    "format": "ltrb",
-    "enum": "",
-    "value": "",
-    "file": "aspose_psd_foss/layers/layerrecordreader.py",
-    "line": 95,
-    "direction": "import"
-  },
-  {
-    "format": "int32",
-    "enum": "",
-    "value": "",
-    "file": "aspose_psd_foss/bigendianbitconverter.py",
-    "line": 6,
-    "direction": "export"
-  },
-  {
-    "format": "points",
-    "enum": "",
-    "value": "",
-    "file": "aspose_psd_foss/rectangle.py",
-    "line": 38,
-    "direction": "import"
-  },
-  {
     "format": "psd",
     "enum": "",
     "value": "",
