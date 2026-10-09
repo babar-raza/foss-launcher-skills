@@ -312,7 +312,14 @@ def is_public(node, language: str) -> bool:
         return False
 
     if language == "python":
-        if name == "__init__":
+        # TC-PSD-HRD-9N-11: every dunder method (leading AND trailing
+        # "__", e.g. __eq__/__hash__/__str__/__repr__/__copy__, not just
+        # the hardcoded __init__ special case) is a real, public,
+        # callable Python protocol method -- it is excluded from name-
+        # mangling and genuinely public despite the leading underscore.
+        # A name-mangled attribute (leading "__", NO trailing "__", e.g.
+        # __secret) is the actual private case and must stay excluded.
+        if len(name) > 4 and name.startswith("__") and name.endswith("__"):
             return True
         return not name.startswith("_")
 

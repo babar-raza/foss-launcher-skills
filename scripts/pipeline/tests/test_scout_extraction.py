@@ -341,11 +341,22 @@ class TestPythonInitVisibility:
         assert scout._node_name(init_node, "python") == "__init__"
         assert scout.is_public(init_node, "python") is True
 
-    def test_dunder_other_still_private(self):
+    def test_dunder_protocol_method_is_public(self):
+        # TC-PSD-HRD-9N-11: __repr__ (like __eq__/__hash__/__str__/...) is a
+        # real, callable Python protocol method, not a private helper --
+        # leading-AND-trailing "__" exempts it from name mangling. Previously
+        # misclassified as private because it merely starts with "_".
         code = "class Foo:\n    def __repr__(self):\n        return ''\n"
         root = _parse("python", code)
         funcs = scout.collect_nodes(root, {"function_definition"})
-        # __repr__ starts with _ so is_public returns False
+        assert scout.is_public(funcs[0], "python") is True
+
+    def test_name_mangled_dunder_prefix_still_private(self):
+        # Leading "__" with NO trailing "__" triggers real name mangling
+        # (self.__secret -> self._Foo__secret) and must stay private.
+        code = "class Foo:\n    def __secret(self):\n        pass\n"
+        root = _parse("python", code)
+        funcs = scout.collect_nodes(root, {"function_definition"})
         assert scout.is_public(funcs[0], "python") is False
 
     def test_private_method_still_excluded(self):

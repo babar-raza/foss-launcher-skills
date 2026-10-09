@@ -13,7 +13,13 @@ from __future__ import annotations
 
 import pytest
 
-from extraction.tree_helpers import _collect_source_files, _is_non_public_path
+from extraction.tree_helpers import (
+    _collect_source_files,
+    _is_non_public_path,
+    collect_nodes,
+    get_parser,
+    is_public,
+)
 
 
 @pytest.mark.parametrize("rel", [
@@ -65,3 +71,81 @@ def test_collect_source_files_skips_the_manifestless_test_package(tmp_path):
     (tmp_path / "aspose_psd_foss_test" / "helpers.py").write_text("class PsdTestFixtureBase: ...\n", encoding="utf-8")
     names = sorted(p.name for p in _collect_source_files(tmp_path, ".py"))
     assert names == ["psdimage.py"]
+
+
+# ---------------------------------------------------------------------------
+# TC-PSD-HRD-9N-11 — is_public() for Python only special-cased __init__ as
+# public; every OTHER dunder method (__eq__, __ne__, __hash__, __str__,
+# __repr__, __copy__, ...) starts with "_" too, so the original
+# `return not name.startswith("_")` fallback silently classified all of
+# them as private, even though they are genuinely public, callable,
+# documented Python protocol methods (e.g. `point1 == point2` calls the
+# public __eq__ method, not an internal helper).
+#
+# Found live on psd/python's Point/Rectangle/RectangleF/Size classes: 18
+# real dunder protocol methods invisible to api_surface.json, only
+# __init__ (4, one per class) ever extracted. Not psd-specific --
+# is_public() is the single, shared Python visibility gate for the whole
+# pipeline; any Python FOSS product implementing __eq__/__hash__/__str__/
+# __repr__/etc. for real protocol behavior has the same gap.
+# ---------------------------------------------------------------------------
+
+def _first_python_function(code: str):
+    parser = get_parser("python")
+    root = parser.parse(code.encode("utf-8")).root_node
+    funcs = collect_nodes(root, {"function_definition"})
+    assert funcs, "no function_definition node found in test fixture"
+    return funcs[0]
+
+
+@pytest.mark.parametrize("dunder", [
+    "__eq__", "__ne__", "__hash__", "__str__", "__repr__", "__copy__",
+    "__len__", "__iter__", "__enter__", "__exit__", "__call__", "__add__",
+])
+def test_python_dunder_protocol_methods_are_public(dunder):
+    """Every real dunder protocol method must be recognized as public --
+    this is the exact live regression found on psd/python's Point/
+    Rectangle/RectangleF/Size classes (18 real occurrences across
+    __eq__/__ne__/__hash__/__str__/__repr__/__copy__)."""
+    code = f"class Foo:\n    def {dunder}(self):\n        pass\n"
+    node = _first_python_function(code)
+    assert is_public(node, "python") is True, (
+        f"{dunder} is a real Python protocol method and must be public, "
+        f"not silently hidden from api_surface.json"
+    )
+
+
+def test_python_init_still_public():
+    """Negative control: the ORIGINAL, already-working __init__ case must
+    keep working (it's now just one instance of the general dunder rule,
+    not a hardcoded special case)."""
+    code = "class Foo:\n    def __init__(self):\n        pass\n"
+    node = _first_python_function(code)
+    assert is_public(node, "python") is True
+
+
+def test_python_single_underscore_still_private():
+    """Negative control: a genuinely private, single-underscore-prefixed
+    method must stay private."""
+    code = "class Foo:\n    def _helper(self):\n        pass\n"
+    node = _first_python_function(code)
+    assert is_public(node, "python") is False
+
+
+def test_python_name_mangled_double_underscore_still_private():
+    """Negative control: a name-mangled attribute (leading __, NO
+    trailing __ -- Python mangles self.__secret to
+    self._ClassName__secret) is genuinely private, unlike a real dunder
+    (leading AND trailing __). Must not be swept up by a loose "starts
+    with __" check."""
+    code = "class Foo:\n    def __secret(self):\n        pass\n"
+    node = _first_python_function(code)
+    assert is_public(node, "python") is False
+
+
+def test_python_plain_public_method_unaffected():
+    """Negative control: an ordinary public method (no leading
+    underscore at all) must be unaffected by this fix."""
+    code = "class Foo:\n    def do_thing(self):\n        pass\n"
+    node = _first_python_function(code)
+    assert is_public(node, "python") is True
