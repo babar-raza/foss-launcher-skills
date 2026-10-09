@@ -267,3 +267,66 @@ def test_ready_rework_required_excluded_after_two_reworks(tmp_path, capsys):
     eligible_ids = {c["task_id"] for c in out["eligible"]}
     assert "ONE-REWORK" in eligible_ids
     assert "TWO-REWORKS" not in eligible_ids
+
+
+# ---------------------------------------------------------------------------
+# TC-PSD-HRD-9N-8: a dependency resolved to OUT_OF_SCOPE/SUPERSEDED must
+# count as satisfied, the same as CLOSED -- both are members of this file's
+# own _TERMINAL_STATUSES set, but _dependencies_closed() only ever checked
+# for the literal string "CLOSED", permanently hiding any dependent task.
+# Found live, MT076-2026-10-07-PSD-NET-PYTHON-LAUNCH, tick 29: running
+# `/family-sync psd`-adjacent work advanced TC-PSD-LNC-NET-03-05 to
+# OUT_OF_SCOPE (a real, documented "SKIPPED_NOT_APPLICABLE" disposition),
+# and its dependent TC-PSD-LNC-NET-03-90 (a plain TODO with no lease held)
+# vanished from `ready`'s eligible listing with "dependencies not CLOSED:
+# ['TC-PSD-LNC-NET-03-05']" even though that dependency was genuinely,
+# permanently resolved.
+# ---------------------------------------------------------------------------
+
+def test_ready_includes_dependent_once_dependency_out_of_scope(tmp_path, capsys):
+    seed_path = _seed_file(tmp_path, [
+        {"task_id": "DEP", "status": "OUT_OF_SCOPE"},
+        {"task_id": "DEPENDENT", "status": "READY", "dependencies": ["DEP"]},
+    ])
+    _run(tmp_path, "seed", "--from-json", seed_path, "--session-id", SID)
+    capsys.readouterr()
+
+    _run(tmp_path, "ready", "--session-id", SID)
+    out = json.loads(capsys.readouterr().out)
+    eligible_ids = {c["task_id"] for c in out["eligible"]}
+    assert "DEPENDENT" in eligible_ids, (
+        "a dependency resolved to OUT_OF_SCOPE must count as satisfied, "
+        "the same as CLOSED -- this is the exact live regression found on "
+        "TC-PSD-LNC-NET-03-90 (MT076, tick 29)"
+    )
+
+
+def test_ready_includes_dependent_once_dependency_superseded(tmp_path, capsys):
+    seed_path = _seed_file(tmp_path, [
+        {"task_id": "DEP", "status": "SUPERSEDED"},
+        {"task_id": "DEPENDENT", "status": "READY", "dependencies": ["DEP"]},
+    ])
+    _run(tmp_path, "seed", "--from-json", seed_path, "--session-id", SID)
+    capsys.readouterr()
+
+    _run(tmp_path, "ready", "--session-id", SID)
+    out = json.loads(capsys.readouterr().out)
+    eligible_ids = {c["task_id"] for c in out["eligible"]}
+    assert "DEPENDENT" in eligible_ids
+
+
+def test_ready_negative_control_in_progress_dependency_still_excludes(tmp_path, capsys):
+    """A dependency that is NOT in _TERMINAL_STATUSES (e.g. still
+    IN_PROGRESS) must keep correctly excluding its dependent -- the fix
+    must not accidentally treat every status as satisfied."""
+    seed_path = _seed_file(tmp_path, [
+        {"task_id": "DEP", "status": "IN_PROGRESS", "worker_id": "someone-else"},
+        {"task_id": "DEPENDENT", "status": "READY", "dependencies": ["DEP"]},
+    ])
+    _run(tmp_path, "seed", "--from-json", seed_path, "--session-id", SID)
+    capsys.readouterr()
+
+    _run(tmp_path, "ready", "--session-id", SID)
+    out = json.loads(capsys.readouterr().out)
+    eligible_ids = {c["task_id"] for c in out["eligible"]}
+    assert "DEPENDENT" not in eligible_ids

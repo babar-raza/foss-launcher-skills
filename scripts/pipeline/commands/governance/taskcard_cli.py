@@ -304,10 +304,18 @@ def cmd_recover_expired(args: argparse.Namespace) -> int:
 # ── ready (selection rule) ───────────────────────────────────────────────
 
 def _dependencies_closed(row: dict, latest: dict) -> bool:
+    # TC-PSD-HRD-9N-8: a dependency resolved to any _TERMINAL_STATUSES
+    # member (CLOSED, SUPERSEDED, OUT_OF_SCOPE) is satisfied -- not just
+    # the literal "CLOSED" string. Before this fix, a dependent task was
+    # permanently hidden from `ready`'s listing the moment its dependency
+    # resolved to OUT_OF_SCOPE/SUPERSEDED, even though this same file's
+    # own _TERMINAL_STATUSES set already models both as valid, non-
+    # blocking terminal outcomes (line 372 already uses it correctly for
+    # self-dependency/cycle filtering -- this function just never did).
     deps = row.get("dependencies") or []
     for dep in deps:
         dep_row = latest.get(dep)
-        if dep_row is None or dep_row.get("status") != "CLOSED":
+        if dep_row is None or dep_row.get("status") not in _TERMINAL_STATUSES:
             return False
     return True
 
@@ -394,8 +402,9 @@ def cmd_ready(args: argparse.Namespace) -> int:
             reasons.append(f"status={status} not selectable")
 
         if not _dependencies_closed(row, latest):
-            open_deps = [d for d in (row.get("dependencies") or []) if (latest.get(d) or {}).get("status") != "CLOSED"]
-            reasons.append(f"dependencies not CLOSED: {open_deps}")
+            open_deps = [d for d in (row.get("dependencies") or [])
+                         if (latest.get(d) or {}).get("status") not in _TERMINAL_STATUSES]
+            reasons.append(f"dependencies not CLOSED/terminal: {open_deps}")
 
         not_before = _parse_iso(row.get("not_before"))
         if not_before is not None and not_before > now:
