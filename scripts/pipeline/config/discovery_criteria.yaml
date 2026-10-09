@@ -1,0 +1,126 @@
+# MT074 E0: frozen Wave-E discovery matching criteria (card E0, 2026-10-07).
+# This file pins the exact DEFAULT_CRITERIA values from lib/propagation_analyzer.py at the
+# time Wave E starts, as a tracked, reviewable artifact (never tune these in the same commit
+# as a discovery run -- a threshold change is its own commit with its own boundary tests).
+# A product is a Wave-E candidate iff ALL FOUR hold (AC-3 criteria, mission file Wave E):
+#   1. drift/release:        content_propagated_sha is UNRECORDED/DRIFTED, AND main's release_state
+#                            is one of drift.main_release_states (api-touched main or unknown release
+#                            evidence), or a newer published release exists.
+#   2. worth mentioning:     >= worth_mentioning.min_units capability units reach >= min_action
+#                            placement on any of worth_mentioning.surfaces.
+#   3. content gap:          >= content_gap.min_gap_units of those units have < max_coverage_ratio
+#                            of their new public symbols present in the English content of any
+#                            content_gap.gap_surfaces (reference is excluded from the gap scan --
+#                            it is covered by the separate coverage-matrix comparison).
+#   4. analysable:           ground_truth_tier is one of analysable.tiers (GT-1, GT-2, or the
+#                            knowledge-baseline-assumed tier for UNRECORDED products -- never
+#                            skipped for lack of a language adapter).
+# `gt2.min_added_api_files` stands in for "a unit" when no adapter gives real symbols (GT-2).
+# `scan.*` configures the deterministic content-presence scanner (extensions, locale exclusion,
+# per-surface path templates, keyword/file limits). `ranking.*` is deterministic L4 ranking
+# (release-triggered first, then API-touched, then release_state, then gap-unit count, then
+# family/platform lexicographically via the `product` tie-breaker).
+#
+# Schema + validation: lib/propagation_analyzer.py `_SCHEMA` / `_validate` / `load_criteria`.
+# A threshold change after this freeze needs its own commit, boundary tests on both sides of
+# every changed threshold, and a re-run note in the mission file (never silently re-tuned).
+
+schema_version: 1
+drift:
+  main_release_states:
+  - unreleased_main
+  - unknown
+  require_api_touched_for_main: true
+worth_mentioning:
+  surfaces:
+  - docs
+  - kb
+  - blog
+  - products
+  min_action: mention
+  min_units: 1
+content_gap:
+  gap_surfaces:
+  - docs
+  - kb
+  - blog
+  - products
+  max_coverage_ratio: 0.5
+  min_gap_units: 1
+analysable:
+  tiers:
+  - GT-1
+  - GT-2
+  - KNOWLEDGE
+gt2:
+  min_added_api_files: 1
+scan:
+  extensions:
+  - .md
+  - .mdx
+  - .html
+  min_term_length: 3
+  keyword_min_length: 4
+  max_keywords_per_unit: 12
+  max_files_per_surface: 5
+  locale_codes:
+  - ar
+  - bg
+  - ca
+  - cs
+  - da
+  - de
+  - el
+  - es
+  - fa
+  - fi
+  - fr
+  - he
+  - hi
+  - hr
+  - hu
+  - id
+  - it
+  - ja
+  - ko
+  - lt
+  - lv
+  - ms
+  - nl
+  - 'no'
+  - pl
+  - pt
+  - ro
+  - ru
+  - sk
+  - sl
+  - sr
+  - sv
+  - th
+  - tr
+  - uk
+  - vi
+  - zh
+  surface_paths:
+    reference:
+    - reference.aspose.org/en/{family}/{platform}
+    docs:
+    - docs.aspose.org/en/{family}/{platform}
+    kb:
+    - kb.aspose.org/en/{family}/{platform}
+    blog:
+    - blog.aspose.org/{family}/{platform}
+    products:
+    - products.aspose.org/en/{family}/{platform}
+ranking:
+  order:
+  - release_triggered
+  - api_touched
+  - release_state
+  - gap_units
+  - product
+  release_state_order:
+  - unreleased_main
+  - unknown
+output:
+  max_absent_symbols: 25

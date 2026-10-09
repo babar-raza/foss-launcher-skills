@@ -1269,3 +1269,29 @@ class TestGenerality:
         text = text.replace("aspose.org", "")          # the site hostnames in the path templates are site names
         hits = sorted({m.group(0).lower() for m in self.BANNED.finditer(text)})
         assert hits == [], f"G-1: product/language/format literal(s) in shipped code: {hits}"
+
+
+# ═══ E0: frozen discovery criteria ═══════════════════════════════════════════════════════════════
+
+class TestFrozenDiscoveryCriteria:
+    """E0 froze config/discovery_criteria.yaml in its own commit before Wave E ever runs. This pins
+    it to exactly DEFAULT_CRITERIA, and to a frozen schema shape, so a later edit to either is a
+    visible, deliberate diff (never a silent re-tune in the same commit as a run)."""
+
+    PATH = Path(__file__).resolve().parents[1] / "config" / "discovery_criteria.yaml"
+
+    def test_frozen_file_exists(self):
+        assert self.PATH.is_file(), "config/discovery_criteria.yaml must be frozen before Wave E (card E0)"
+
+    def test_frozen_file_round_trips_to_default_criteria(self):
+        assert pa.load_criteria(self.PATH) == pa.DEFAULT_CRITERIA
+
+    def test_frozen_file_validates_cleanly(self):
+        # load_criteria raises CriteriaError on any schema violation -- reaching this line is the assertion
+        pa.load_criteria(self.PATH)
+
+    def test_frozen_file_has_a_stable_digest(self):
+        d1 = pa.criteria_digest(pa.load_criteria(self.PATH))
+        d2 = pa.criteria_digest(pa.load_criteria(self.PATH))
+        assert d1 == d2
+        assert len(d1) == 64  # sha256 hex
