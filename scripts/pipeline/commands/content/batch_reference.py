@@ -33,6 +33,7 @@ verified: 2026-04-07
 from __future__ import annotations
 
 import argparse
+import difflib
 import hashlib
 import json
 import logging
@@ -838,8 +839,42 @@ def _apis_set(page_path: Path) -> set:
     return {str(a) for a in apis}
 
 
+_OVERVIEW_BOILERPLATE_RE = re.compile(
+    r"^`[^`]+`\s+is\s+an?\s+.+?\bin\s+Aspose\.[^\n]*\.?\s*$", re.MULTILINE,
+)
+
+
+def _overview_fingerprint(page_path: Path) -> str:
+    """The page's '## Overview' section body, minus the boilerplate "`Name` is a(n)
+    X in Aspose..." opening line that is byte-identical across every sibling sharing
+    that name. Used only as a fallback signal (see _find_superseding_sibling) for
+    entries -- enums, confirmed live on TokenType/Scope/Type -- whose evidence.apis
+    list never carries per-member granularity (batch_reference stamps only the bare
+    enum name, never its constants), so the primary apis-Jaccard signal is blind.
+    """
+    try:
+        text = page_path.read_text(encoding="utf-8")
+    except OSError:
+        return ""
+    marker = "## Overview"
+    start = text.find(marker)
+    if start == -1:
+        return ""
+    start += len(marker)
+    end = text.find("\n## ", start)
+    body = text[start:end if end != -1 else len(text)]
+    body = _OVERVIEW_BOILERPLATE_RE.sub("", body)
+    return " ".join(body.split()).lower()
+
+
 def _find_superseding_sibling(
-    stale_page: Path, ref_dir: Path, *, min_similarity: float = 0.9,
+    stale_page: Path,
+    ref_dir: Path,
+    *,
+    apis_dominance_ratio: float = 2.0,
+    apis_min_best: float = 0.15,
+    text_dominance_ratio: float = 1.3,
+    text_min_best: float = 0.5,
 ) -> "Path | None":
     """H-04g follow-on (MT074, found live 2026-10-09, pdf/java): resolve the
     "governed, content-aware retire workflow" _pick_collision_priority_winner's own
@@ -854,42 +889,83 @@ def _find_superseding_sibling(
     content-swap incident this same module's docstring already warns about), and never
     when more than one sibling is an equally plausible match.
 
-    The signal used is evidence.apis: batch_reference.py stamps that list
-    deterministically from one specific api_surface.json entry's own members, so two
-    pages generated from the SAME entry (the stale page, at some earlier generation; one
-    particular sibling, generated after the collision was recognized) have the same apis
-    set even though their prose wording may have drifted between template-boilerplate
-    revisions (confirmed live: Arc.md vs Arc-drawing.md differ only in "provides" vs
-    "declares" phrasing). Two DIFFERENT real classes sharing a simple name (the entire
-    reason this is a collision at all) have different member sets, so a high
-    intersection-over-union ratio against exactly one sibling -- with no other sibling
-    anywhere close -- is strong, generic evidence of "same source entry", not a guess.
+    Two signals, used in a fixed order, never blended:
 
-    Returns the one safely-identified sibling Path, or None when no sibling clears the
-    threshold or more than one does (ambiguous -- the caller must fall through to the
-    human-reviewed RuntimeError, never force a choice).
+    1. apis-Jaccard (primary, whenever the stale page's evidence.apis has more than
+       the bare type name -- i.e. real member granularity). batch_reference.py
+       stamps evidence.apis deterministically from one specific api_surface.json
+       entry's own members, so two pages generated from the SAME entry (the stale
+       page, at some earlier generation; one particular sibling, generated after the
+       collision was recognized) have the same apis set even though their prose
+       wording may have drifted between template-boilerplate revisions. A real
+       upstream api-surface can drift between those two generations too (confirmed
+       live, pdf/java: Form 0.806, Fill 0.200, Field 0.537 -- all against a second-best
+       two orders of magnitude lower), so the decision is **relative dominance**
+       (best >= apis_dominance_ratio * second-best) with only a low absolute floor to
+       reject pure-noise matches -- never a high absolute floor, which was the original
+       (miscalibrated) design and left 8 real, content-verified matches unresolved.
+    2. Overview-text fingerprint (fallback, only when the apis signal above is
+       uninformative -- len(stale_apis) <= 1, confirmed live for every pdf/java enum:
+       TokenType/Scope/Type each carry only `{"TokenType"}` etc. in evidence.apis, no
+       per-constant entries, so apis-Jaccard ties every sibling at a meaningless 1.0).
+       Falls back to comparing the human-written doc-comment sentence in '## Overview'
+       (stripped of the shared boilerplate opening line), via difflib ratio, under the
+       same relative-dominance rule.
+
+    Returns the one safely-identified sibling Path, or None when no sibling clears its
+    signal's bar or more than one does (ambiguous -- the caller must fall through to the
+    human-reviewed RuntimeError, never force a choice). Deliberately does NOT cascade
+    from signal 1 to signal 2 when signal 1 has real granularity but is inconclusive --
+    only a genuinely uninformative primary signal triggers the fallback.
     """
     stale_apis = _apis_set(stale_page)
     if not stale_apis:
         return None
     name = stale_page.stem
-    scored: list[tuple[float, Path]] = []
-    for sibling in sorted(ref_dir.glob(f"{name}-*.md")):
-        sibling_apis = _apis_set(sibling)
-        if not sibling_apis:
+    siblings = sorted(ref_dir.glob(f"{name}-*.md"))
+    if not siblings:
+        return None
+
+    if len(stale_apis) > 1:
+        scored: list[tuple[float, Path]] = []
+        for sibling in siblings:
+            sibling_apis = _apis_set(sibling)
+            if not sibling_apis:
+                continue
+            union = stale_apis | sibling_apis
+            similarity = len(stale_apis & sibling_apis) / len(union) if union else 0.0
+            scored.append((similarity, sibling))
+        if not scored:
+            return None
+        scored.sort(key=lambda pair: -pair[0])
+        best_similarity, best_sibling = scored[0]
+        second_similarity = scored[1][0] if len(scored) > 1 else 0.0
+        if best_similarity >= apis_min_best and (
+            second_similarity <= 1e-9 or best_similarity >= apis_dominance_ratio * second_similarity
+        ):
+            return best_sibling
+        return None  # real per-member signal exists but is inconclusive -- never guess
+
+    stale_text = _overview_fingerprint(stale_page)
+    if not stale_text:
+        return None
+    text_scored: list[tuple[float, Path]] = []
+    for sibling in siblings:
+        sibling_text = _overview_fingerprint(sibling)
+        if not sibling_text:
             continue
-        union = stale_apis | sibling_apis
-        similarity = len(stale_apis & sibling_apis) / len(union) if union else 0.0
-        scored.append((similarity, sibling))
-    if not scored:
+        ratio = difflib.SequenceMatcher(None, stale_text, sibling_text).ratio()
+        text_scored.append((ratio, sibling))
+    if not text_scored:
         return None
-    scored.sort(key=lambda pair: -pair[0])
-    best_similarity, best_sibling = scored[0]
-    if best_similarity < min_similarity:
-        return None
-    if len(scored) > 1 and scored[1][0] >= best_similarity - 1e-9:
-        return None  # a second sibling is an equally good match -- never guess between them
-    return best_sibling
+    text_scored.sort(key=lambda pair: -pair[0])
+    best_ratio, best_sibling = text_scored[0]
+    second_ratio = text_scored[1][0] if len(text_scored) > 1 else 0.0
+    if best_ratio >= text_min_best and (
+        second_ratio <= 1e-9 or best_ratio >= text_dominance_ratio * second_ratio
+    ):
+        return best_sibling
+    return None
 
 
 def _assign_namespace_slug_suffixes(group: list[dict]) -> None:
@@ -2462,21 +2538,28 @@ def run(family: str, platform: str, kind_arg: str = "all",
             # anything that does not clear that bar still raises below, for a human.
             from commands.healing.retire_page import retire_page as _retire_page
             _unresolved: list[Path] = []
-            _auto_retired: list[tuple[Path, Path, float]] = []
+            _auto_retired: list[tuple[Path, Path, float, str]] = []
             for _old in _stale_pages:
                 _sibling = _find_superseding_sibling(_old, _ref_dir)
                 if _sibling is None:
                     _unresolved.append(_old)
                     continue
                 _stale_apis = _apis_set(_old)
-                _sib_apis = _apis_set(_sibling)
-                _union = _stale_apis | _sib_apis
-                _sim = len(_stale_apis & _sib_apis) / len(_union) if _union else 0.0
+                if len(_stale_apis) > 1:
+                    _sib_apis = _apis_set(_sibling)
+                    _union = _stale_apis | _sib_apis
+                    _sim = len(_stale_apis & _sib_apis) / len(_union) if _union else 0.0
+                    _basis = "apis_jaccard"
+                else:
+                    _stale_text = _overview_fingerprint(_old)
+                    _sib_text = _overview_fingerprint(_sibling)
+                    _sim = difflib.SequenceMatcher(None, _stale_text, _sib_text).ratio()
+                    _basis = "overview_text"
                 _result = _retire_page(_old, dry_run=False)
                 if _result not in ("retired", "skipped"):
                     _unresolved.append(_old)
                     continue
-                _auto_retired.append((_old, _sibling, _sim))
+                _auto_retired.append((_old, _sibling, _sim, _basis))
             if _auto_retired:
                 _audit_dir = REPO_ROOT / "reports" / "stale-page-retirements"
                 _audit_dir.mkdir(parents=True, exist_ok=True)
@@ -2488,13 +2571,22 @@ def run(family: str, platform: str, kind_arg: str = "all",
                         {
                             "page": _canonical_reference_path(_old),
                             "superseded_by": _canonical_reference_path(_sib),
-                            "apis_similarity": round(_sim, 4),
-                            "reason": "collision group fully disambiguated by namespace "
-                                      "suffix at some earlier point; this plain-named page "
-                                      "is leftover debt whose evidence.apis set matches "
-                                      "exactly this one sibling and no other",
+                            "match_basis": _basis,
+                            "similarity": round(_sim, 4),
+                            "reason": (
+                                "collision group fully disambiguated by namespace suffix "
+                                "at some earlier point; this plain-named page is leftover "
+                                "debt whose evidence.apis set dominantly matches exactly "
+                                "this one sibling and no other"
+                                if _basis == "apis_jaccard" else
+                                "collision group fully disambiguated by namespace suffix "
+                                "at some earlier point; evidence.apis carries no per-member "
+                                "granularity for this entry (e.g. an enum), so the match is "
+                                "via its Overview doc-comment text, which dominantly matches "
+                                "exactly this one sibling and no other"
+                            ),
                         }
-                        for _old, _sib, _sim in _auto_retired
+                        for _old, _sib, _sim, _basis in _auto_retired
                     ],
                 }, indent=2, ensure_ascii=False), encoding="utf-8")
                 print(

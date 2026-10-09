@@ -1194,8 +1194,159 @@ class TestSupersededStalePageAutoRetire:
         row = audit["retired"][0]
         assert row["page"].endswith("Form.md")
         assert row["superseded_by"] == _br._canonical_reference_path(facades_sibling)
-        assert row["apis_similarity"] == 1.0
+        assert row["match_basis"] == "apis_jaccard"
+        assert row["similarity"] == 1.0
         assert "reason" in row and row["reason"]
+
+    def test_stale_page_dominant_but_low_absolute_similarity_is_auto_retired(self, tmp_path):
+        """Confirmed live on real pdf/java production data (2026-10-09): Fill.md
+        matched Fill-operators.md at apis similarity 0.200 against a second-best of
+        0.043 (ratio ~4.7x) -- a real page whose api surface had drifted between the
+        stale page's original generation and its sibling's most recent regeneration.
+        An absolute floor (the original, miscalibrated design: min_similarity=0.9)
+        would leave this -- and 7 other real, content-verified matches -- permanently
+        unresolved. The correct bar is RELATIVE dominance over the next-best
+        candidate, not an absolute score, as long as a low floor rejects pure noise."""
+        entries = [
+            {"name": "Fill", "kind": "class_declaration", "visibility": "public",
+             "file": "src/main/java/org/aspose/pdf/operators/Fill.java",
+             "class_import": "org.aspose.pdf.operators.Fill",
+             "methods": [
+                 {"name": "m1", "params": [], "return_type": "void", "doc": "", "line": 1},
+                 {"name": "m2", "params": [], "return_type": "void", "doc": "", "line": 2},
+                 {"name": "m3", "params": [], "return_type": "void", "doc": "", "line": 3},
+                 {"name": "m4", "params": [], "return_type": "void", "doc": "", "line": 4},
+             ], "properties": []},
+            {"name": "Fill", "kind": "class_declaration", "visibility": "public",
+             "file": "src/main/java/org/aspose/pdf/template/Fill.java",
+             "class_import": "org.aspose.pdf.template.Fill",
+             "methods": [
+                 {"name": "n1", "params": [], "return_type": "void", "doc": "", "line": 1},
+                 {"name": "n2", "params": [], "return_type": "void", "doc": "", "line": 2},
+                 {"name": "n3", "params": [], "return_type": "void", "doc": "", "line": 3},
+                 {"name": "n4", "params": [], "return_type": "void", "doc": "", "line": 4},
+                 {"name": "n5", "params": [], "return_type": "void", "doc": "", "line": 5},
+             ], "properties": []},
+        ]
+        _make_api_surface(tmp_path, entries, "pdf", "java")
+        out_dir = tmp_path / "content" / "reference.aspose.org" / "en" / "pdf" / "java"
+        out_dir.mkdir(parents=True)
+
+        run("pdf", "java")
+        siblings = sorted(out_dir.glob("Fill-*.md"))
+        assert len(siblings) == 2
+        operators_sibling = next(p for p in siblings if "m1" in p.read_text(encoding="utf-8"))
+
+        # Simulate drift: the stale page carries only a subset of its true
+        # sibling's current apis (one shared member, one member no longer present
+        # on either side) -- low absolute Jaccard, but still clearly dominant.
+        stale_text = (
+            "---\ntitle: Fill\nevidence:\n  apis:\n"
+            "  - Fill.m1\n  - Fill.m_removed\n"
+            "---\n\n## Overview\n\nStale leftover content.\n"
+        )
+        (out_dir / "Fill.md").write_text(stale_text, encoding="utf-8")
+
+        second = run("pdf", "java", rebuild_all=True, confirm_rebuild=True)
+        assert second["errors"] == 0
+        retired_fm = _br.parse_frontmatter(out_dir / "Fill.md")
+        assert retired_fm.get("draft") is True
+
+        audit_dir = tmp_path / "reports" / "stale-page-retirements"
+        audit = json.loads(next(audit_dir.glob("pdf-java-*.json")).read_text(encoding="utf-8"))
+        row = next(r for r in audit["retired"] if r["page"].endswith("Fill.md"))
+        assert row["superseded_by"] == _br._canonical_reference_path(operators_sibling)
+        assert row["match_basis"] == "apis_jaccard"
+        assert 0.0 < row["similarity"] < 0.5, "low absolute score is expected and fine"
+
+    def test_enum_stale_page_resolved_via_overview_text_fallback(self, tmp_path):
+        """Confirmed live on real pdf/java production data (2026-10-09): enum pages
+        (TokenType, Type, and most Scope-vs-Scope cases) carry ONLY the bare enum
+        name in evidence.apis -- never per-constant entries -- so apis-Jaccard ties
+        every sibling at a meaningless 1.0/1.0 no matter which is the real match.
+        The fallback signal (Overview doc-comment text, stripped of the shared
+        boilerplate opening line) must resolve this correctly, the same way a human
+        reviewer reading the page would."""
+        entries = [
+            {"name": "Status", "kind": "enum_declaration", "visibility": "public",
+             "file": "src/main/java/org/aspose/pdf/forms/Status.java",
+             "class_import": "org.aspose.pdf.forms.Status",
+             "doc": "Field completion status.",
+             "enum_members": ["COMPLETE", "INCOMPLETE"], "methods": [], "properties": []},
+            {"name": "Status", "kind": "enum_declaration", "visibility": "public",
+             "file": "src/main/java/org/aspose/pdf/annotations/Status.java",
+             "class_import": "org.aspose.pdf.annotations.Status",
+             "doc": "Low-level processing status flag, unrelated to form fields.",
+             "enum_members": ["OK", "FAILED", "PENDING"], "methods": [], "properties": []},
+        ]
+        _make_api_surface(tmp_path, entries, "pdf", "java")
+        out_dir = tmp_path / "content" / "reference.aspose.org" / "en" / "pdf" / "java"
+        out_dir.mkdir(parents=True)
+
+        run("pdf", "java")
+        siblings = sorted(out_dir.glob("Status-*.md"))
+        assert len(siblings) == 2
+        forms_sibling = next(p for p in siblings if "COMPLETE" in p.read_text(encoding="utf-8"))
+        assert _br._apis_set(forms_sibling) == {"Status"}, "enum apis must be the bare name only"
+
+        stale_text = (
+            "---\ntitle: Status\nevidence:\n  apis:\n  - Status\n"
+            "---\n\n## Overview\n\n"
+            "`Status` is an enum in Aspose.PDF FOSS for Java.\n\n"
+            "Field completion status.\n\n"
+            "This enumeration defines 2 values: `COMPLETE`, `INCOMPLETE`.\n"
+        )
+        (out_dir / "Status.md").write_text(stale_text, encoding="utf-8")
+
+        second = run("pdf", "java", rebuild_all=True, confirm_rebuild=True)
+        assert second["errors"] == 0
+        retired_fm = _br.parse_frontmatter(out_dir / "Status.md")
+        assert retired_fm.get("draft") is True
+
+        audit_dir = tmp_path / "reports" / "stale-page-retirements"
+        audit = json.loads(next(audit_dir.glob("pdf-java-*.json")).read_text(encoding="utf-8"))
+        row = next(r for r in audit["retired"] if r["page"].endswith("Status.md"))
+        assert row["superseded_by"] == _br._canonical_reference_path(forms_sibling)
+        assert row["match_basis"] == "overview_text"
+        assert row["similarity"] > 0.5
+
+    def test_enum_stale_page_near_tied_overview_text_still_raises(self, tmp_path):
+        """Confirmed live on real pdf/java production data (2026-10-09): Scope.md
+        (apis = bare name only) has an Overview-text ratio of 1.0 against one
+        sibling and 0.827 against a second, real, differently-sourced sibling --
+        only a 1.2x margin, below the dominance bar. Two near-synonymous enum doc
+        sentences must never be guessed between; this must still raise for human
+        review, exactly like the apis-based near-tie case above."""
+        entries = [
+            {"name": "Mode", "kind": "enum_declaration", "visibility": "public",
+             "file": "src/main/java/org/aspose/pdf/forms/Mode.java",
+             "class_import": "org.aspose.pdf.forms.Mode",
+             "doc": "Replacement mode.",
+             "enum_members": ["FIRST", "ALL"], "methods": [], "properties": []},
+            {"name": "Mode", "kind": "enum_declaration", "visibility": "public",
+             "file": "src/main/java/org/aspose/pdf/text/Mode.java",
+             "class_import": "org.aspose.pdf.text.Mode",
+             "doc": "Controls the mode of text replacement.",
+             "enum_members": ["FIRST", "ALL"], "methods": [], "properties": []},
+        ]
+        _make_api_surface(tmp_path, entries, "pdf", "java")
+        out_dir = tmp_path / "content" / "reference.aspose.org" / "en" / "pdf" / "java"
+        out_dir.mkdir(parents=True)
+
+        run("pdf", "java")
+        stale_text = (
+            "---\ntitle: Mode\nevidence:\n  apis:\n  - Mode\n"
+            "---\n\n## Overview\n\n"
+            "`Mode` is an enum in Aspose.PDF FOSS for Java.\n\n"
+            "Replacement mode.\n\n"
+            "This enumeration defines 2 values: `FIRST`, `ALL`.\n"
+        )
+        (out_dir / "Mode.md").write_text(stale_text, encoding="utf-8")
+
+        with pytest.raises(RuntimeError, match="stale undisambiguated page"):
+            run("pdf", "java", rebuild_all=True, confirm_rebuild=True)
+        retired_fm = _br.parse_frontmatter(out_dir / "Mode.md")
+        assert retired_fm.get("draft") is not True, "must not have been retired"
 
     def test_stale_page_with_no_matching_evidence_still_raises(self, tmp_path):
         """No evidence.apis at all (the pre-existing test fixture shape, e.g. a page
