@@ -1511,7 +1511,7 @@
 
 ## Block
 **Modifiers**: static
-**Docstring**: {@code { ...
+**Docstring**: {@code { ... }} block.
 **Bases**: Node
 **Methods**:
 - `Block(body)`
@@ -4347,7 +4347,7 @@
 
 ## ConditionalExpr
 **Modifiers**: static
-**Docstring**: {@code test ?
+**Docstring**: {@code test ? cons : alt}.
 **Bases**: Node
 **Methods**:
 - `ConditionalExpr(test, consequent, alternate)`
@@ -16543,7 +16543,7 @@
 
 ## ObjectLit
 **Modifiers**: static
-**Docstring**: {@code { k: v, ...
+**Docstring**: {@code { k: v, ... }} object literal.
 **Bases**: Node
 **Methods**:
 - `ObjectLit(properties)`
@@ -26803,7 +26803,7 @@
 
 ## SwitchStmt
 **Modifiers**: static
-**Docstring**: {@code switch (disc) { ...
+**Docstring**: {@code switch (disc) { ... }}
 **Bases**: Node
 **Methods**:
 - `SwitchStmt(discriminant, cases)`
@@ -29606,7 +29606,7 @@
 
 ## UnaryExpr
 **Modifiers**: static
-**Docstring**: Unary prefix operator: {@code !
+**Docstring**: Unary prefix operator: {@code ! ~ + - typeof void delete}.
 **Bases**: Node
 **Methods**:
 - `UnaryExpr(operator, argument)`

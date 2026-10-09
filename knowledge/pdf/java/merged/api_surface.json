@@ -98867,7 +98867,7 @@
   {
     "name": "Block",
     "kind": "class_declaration",
-    "doc": "{@code { ...",
+    "doc": "{@code { ... }} block.",
     "file": "src/main/java/org/aspose/pdf/engine/script/js/ast/Node.java",
     "line": 36,
     "bases": [
@@ -100057,7 +100057,7 @@
   {
     "name": "SwitchStmt",
     "kind": "class_declaration",
-    "doc": "{@code switch (disc) { ...",
+    "doc": "{@code switch (disc) { ... }}",
     "file": "src/main/java/org/aspose/pdf/engine/script/js/ast/Node.java",
     "line": 144,
     "bases": [
@@ -101087,7 +101087,7 @@
   {
     "name": "ObjectLit",
     "kind": "class_declaration",
-    "doc": "{@code { k: v, ...",
+    "doc": "{@code { k: v, ... }} object literal.",
     "file": "src/main/java/org/aspose/pdf/engine/script/js/ast/Node.java",
     "line": 240,
     "bases": [
@@ -101255,7 +101255,7 @@
   {
     "name": "UnaryExpr",
     "kind": "class_declaration",
-    "doc": "Unary prefix operator: {@code !",
+    "doc": "Unary prefix operator: {@code ! ~ + - typeof void delete}.",
     "file": "src/main/java/org/aspose/pdf/engine/script/js/ast/Node.java",
     "line": 256,
     "bases": [
@@ -101731,7 +101731,7 @@
   {
     "name": "ConditionalExpr",
     "kind": "class_declaration",
-    "doc": "{@code test ?",
+    "doc": "{@code test ? cons : alt}.",
     "file": "src/main/java/org/aspose/pdf/engine/script/js/ast/Node.java",
     "line": 305,
     "bases": [
@@ -239739,7 +239739,7 @@
         "name": "flattenAnnotations",
         "params": [],
         "return_type": "boolean",
-        "doc": "Flattens all annotations in the document: each annotation that carries a\r normal appearance stream ({@code /AP /N}) has that appearance burned into\r the page content stream — wrapped in a {@code q <CTM> cm ...",
+        "doc": "Flattens all annotations in the document: each annotation that carries a\r normal appearance stream ({@code /AP /N}) has that appearance burned into\r the page content stream — wrapped in a {@code q <CTM> cm ... Q} block\r whose CTM scales the appearance {@code /BBox} onto the annotation\r {@code /Rect} (ISO 32000-1:2008 §12.5.5) — and is then removed from the\r page {@code /Annots} array.",
         "line": 103,
         "is_constructor": false,
         "deprecated": false,
@@ -242877,7 +242877,7 @@
           }
         ],
         "return_type": "void",
-        "doc": "Resizes contents of all pages in the document by wrapping each page's\r content stream in a {@code q  scaleX 0 0 scaleY tx ty cm  ...",
+        "doc": "Resizes contents of all pages in the document by wrapping each page's\r content stream in a {@code q  scaleX 0 0 scaleY tx ty cm  ... Q} matrix\r derived from {@code parameters}.",
         "line": 933,
         "is_constructor": false,
         "deprecated": false,
@@ -242901,7 +242901,7 @@
           }
         ],
         "return_type": "void",
-        "doc": "Resizes contents of specific pages in the document by wrapping each\r targeted page's content stream in a {@code q ...",
+        "doc": "Resizes contents of specific pages in the document by wrapping each\r targeted page's content stream in a {@code q ... cm ... Q} matrix\r derived from {@code parameters}.",
         "line": 962,
         "is_constructor": false,
         "deprecated": false,
