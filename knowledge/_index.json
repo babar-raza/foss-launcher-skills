@@ -198,8 +198,8 @@
       "display_name": "Aspose.Gis for Net",
       "api_confidence": "high",
       "stale": false,
-      "class_count": 34,
-      "claim_count": 320,
+      "class_count": 71,
+      "claim_count": 865,
       "vectors_current": false,
       "vectors_status": "missing",
       "vectors_generated_at": null
@@ -223,7 +223,7 @@
       "api_confidence": "low",
       "stale": false,
       "class_count": 3,
-      "claim_count": 68,
+      "claim_count": 92,
       "vectors_current": false,
       "vectors_status": "missing",
       "vectors_generated_at": null
@@ -282,8 +282,8 @@
       "display_name": "Aspose.Pdf for Java",
       "api_confidence": "high",
       "stale": false,
-      "class_count": 1115,
-      "claim_count": 15728,
+      "class_count": 1136,
+      "claim_count": 16606,
       "vectors_current": true,
       "vectors_status": "current",
       "vectors_generated_at": "2026-09-10T13:23:54.805550Z"
@@ -323,6 +323,30 @@
       "vectors_current": false,
       "vectors_status": "stale",
       "vectors_generated_at": "2026-09-10T13:22:08.946081Z"
+    },
+    {
+      "family": "psd",
+      "platform": "net",
+      "display_name": "Aspose.Psd for Net",
+      "api_confidence": "high",
+      "stale": false,
+      "class_count": 24,
+      "claim_count": 225,
+      "vectors_current": false,
+      "vectors_status": "missing",
+      "vectors_generated_at": null
+    },
+    {
+      "family": "psd",
+      "platform": "python",
+      "display_name": "Aspose.Psd for Python",
+      "api_confidence": "high",
+      "stale": false,
+      "class_count": 64,
+      "claim_count": 506,
+      "vectors_current": false,
+      "vectors_status": "missing",
+      "vectors_generated_at": null
     },
     {
       "family": "slides",

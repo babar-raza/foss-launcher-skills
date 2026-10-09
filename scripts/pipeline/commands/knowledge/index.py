@@ -510,6 +510,74 @@ def build_index(family, platform):
     }
 
 
+def _existing_summary_entry(family, platform, prior_index_entries=None):
+    """Build a BYSTANDER product's _index.json cross-product summary entry
+    from its own existing merged/index.json plus (for the 3 fields that
+    file never stores) the prior _index.json's own entry for it, without
+    calling build_index() -- which has real filesystem side effects
+    (rewrites that product's own merged/index.json and .pipeline_state.json)
+    and recomputes environment-dependent fields (class_graph from a
+    possibly-absent class_graph.json, vectors_available from a possibly-
+    absent local _vectors/ directory) from THIS checkout's current local
+    state.
+
+    TC-PSD-HRD-9N-6 (found live, MT076 psd/net launch): a single-product
+    `index.py {family} {platform}` invocation looped build_index() over
+    EVERY discovered product (not just the one requested) to rebuild the
+    cross-product _index.json summary (HARDEN-words-net, 2026-07-22) --
+    but build_index()'s side effects then silently destroyed bystander
+    products' own already-committed merged/index.json files whenever this
+    checkout's local environment state differed from whatever environment
+    last correctly built them (e.g. a missing class_graph.json wiped a
+    real, previously-committed class_graph to {}; a missing local
+    _vectors/ dir flipped a real vectors_available: true to false).
+
+    `vectors_current`/`vectors_status`/`vectors_generated_at` are NEVER
+    persisted into merged/index.json at all (confirmed by direct source
+    read -- build_index() only computes them for its OWN return dict, used
+    exclusively to build _index.json); the only place a bystander's prior,
+    correct value for these 3 fields can be recovered from is the prior
+    _index.json's own entry for that product, passed in via
+    `prior_index_entries` (a dict keyed by (family, platform), built once
+    by the caller from the on-disk _index.json before this loop starts --
+    found live in an earlier, incomplete version of this fix, which left
+    these 3 fields defaulting to "missing"/null for every bystander on
+    every single-product run, silently discarding real prior values just
+    as destructively as the original bug, only via a different field set).
+
+    `display_name` is likewise never stored with its _index.json-specific
+    " for {Platform}" suffix inside merged/index.json's own schema (that
+    file stores just the bare family display name) -- recomputed here via
+    the same pure, deterministic, environment-independent formatting
+    build_index() itself uses, never read from either file.
+
+    Returns None if no existing merged/index.json is found at all, so the
+    caller can fall back to a real build_index() call for a product that
+    has genuinely never been built before.
+    """
+    idx_path = KNOWLEDGE_ROOT / family / platform / "merged" / "index.json"
+    if not idx_path.exists():
+        return None
+    try:
+        existing = json.loads(idx_path.read_text(encoding="utf-8"))
+    except (OSError, json.JSONDecodeError):
+        return None
+    stats = existing.get("stats", {}) if isinstance(existing.get("stats"), dict) else {}
+    prior = (prior_index_entries or {}).get((family, platform), {})
+    return {
+        "family": existing.get("family", family),
+        "platform": existing.get("platform", platform),
+        "display_name": f"{_display_name(family)} for {platform.title()}",
+        "api_confidence": existing.get("api_confidence", "high"),
+        "stale": existing.get("stale", False),
+        "class_count": stats.get("class_count", len(existing.get("classes", []) or [])),
+        "claim_count": stats.get("total_claims", 0),
+        "vectors_current": prior.get("vectors_current", False),
+        "vectors_status": prior.get("vectors_status", "missing"),
+        "vectors_generated_at": prior.get("vectors_generated_at"),
+    }
+
+
 def discover_products():
     """Find all family/platform combinations with merged knowledge."""
     products = []
@@ -569,13 +637,44 @@ def main():
         # `index.py words net` overwrote a ~26-product _index.json down to
         # 1 entry, silently discarding every other product's summary.
         # Rebuild the full cross-product list from every discovered
-        # product (never reuse a prior on-disk _index.json's stale
-        # entries — that would just reintroduce the same per-product
-        # staleness bug A13 already fixed elsewhere in this file).
+        # product. The EXPLICITLY REQUESTED product's own entry is always
+        # freshly rebuilt (never read back from a prior stale _index.json
+        # entry — that would reintroduce the per-product staleness bug A13
+        # already fixed elsewhere in this file). A BYSTANDER product's
+        # entry is a different case (TC-PSD-HRD-9N-6): reusing its own
+        # already-correct prior state is exactly what must happen, since
+        # nothing about this run is supposed to be re-verifying bystanders
+        # at all -- see _existing_summary_entry()'s own docstring for why
+        # it needs both the bystander's own merged/index.json AND the
+        # prior _index.json's entry for it (two different, non-overlapping
+        # field sets neither file alone can fully supply).
+        prior_index_entries = {}
+        _prior_index_path = KNOWLEDGE_ROOT / "_index.json"
+        if _prior_index_path.exists():
+            try:
+                _prior = json.loads(_prior_index_path.read_text(encoding="utf-8"))
+                for _p in _prior.get("products", []):
+                    if "family" in _p and "platform" in _p:
+                        prior_index_entries[(_p["family"], _p["platform"])] = _p
+            except (OSError, json.JSONDecodeError):
+                pass
+
         entries = []
         if entry:
             for fam, plat in discover_products():
-                e = entry if (fam, plat) == (family, platform) else build_index(fam, plat)
+                if (fam, plat) == (family, platform):
+                    e = entry
+                else:
+                    # TC-PSD-HRD-9N-6: never call build_index() (real
+                    # filesystem writes + environment-dependent recompute)
+                    # for a product that was not explicitly requested --
+                    # reuse its own already-committed state verbatim. Only
+                    # fall back to a real build when that product has
+                    # genuinely never been built before (no merged/
+                    # index.json exists for it at all yet).
+                    e = _existing_summary_entry(fam, plat, prior_index_entries)
+                    if e is None:
+                        e = build_index(fam, plat)
                 if e:
                     entries.append(e)
             # HARDEN-words-net (adversarial re-review, 2026-07-22): a product
