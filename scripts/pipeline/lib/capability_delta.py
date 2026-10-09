@@ -1380,7 +1380,14 @@ def _check_target(row, target, terms, roots, reader, lister, suffixes, min_ratio
     row["evidence_paths"] = sorted(evidence)
     need = min_ratio * len(terms)
     note = ("; refused: " + ", ".join(f"{r['path']} ({r['reason']})" for r in row["refused"])) if row["refused"] else ""
-    if not hit_terms:
+    if not terms:
+        # MT074 (found live, 2026-10-09): a unit whose every symbol was apply_worth()'d to
+        # internal (e.g. an all-internal unit, or every remaining public symbol already
+        # satisfied on another surface) has nothing left a page is required to mention --
+        # "no terms required" must be vacuously satisfied, not reported as "no unit term
+        # mentioned" with an empty, unreadable terms list.
+        row["status"] = "satisfied"
+    elif not hit_terms:
         row["problems"].append(f"no unit term mentioned in {target} (terms: {', '.join(terms)}){note}")
     elif len(hit_terms) < need:
         missing = sorted(set(terms) - hit_terms)

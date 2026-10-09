@@ -654,6 +654,25 @@ class TestSatisfaction:
                                          "products": "prod/new.md"})
         return led
 
+    def test_empty_required_terms_is_vacuously_satisfied_not_a_problem(self):
+        """MT074 (found live, 2026-10-09): an all-internal unit (reference action=create,
+        the other four surfaces none_justified -- see TestWorth) now has unit_terms_from_symbols()
+        == [] on the reference surface too (every symbol excluded as internal). A target file
+        existing with nothing required of it must satisfy, not report "no unit term mentioned"
+        with an empty, unreadable terms list."""
+        d = delta(added_types=[T("ns::HelperA", 2), T("ns::HelperB", 2)], existing_symbols=[])
+        led = ledger_of(d, candidate_blocks=BLOCKS,
+                        surface_targets={"reference": "ref/HelperA.md"},
+                        worth_overrides=[{"symbol": "ns::HelperA", "worth": "internal", "reason": "helper"},
+                                         {"symbol": "ns::HelperB", "worth": "internal", "reason": "helper"}])
+        (u,) = led["units"]
+        assert cd.unit_terms_from_symbols(u) == []
+        reader, lister = self.fs({"ref/HelperA.md": "Some reference page body, no symbol names required."})
+        rep = cd.satisfaction_report(led, [self.ROOT], reader=reader, lister=lister)
+        row = next(x for x in rep["units"] if x["id"] == u["id"])
+        assert row["surfaces"]["reference"]["status"] == "satisfied"
+        assert row["surfaces"]["reference"]["problems"] == []
+
     def test_status_computed_never_trusted(self):
         led = self.led()
         theme = by_type(led["units"], "ChartTheme")
