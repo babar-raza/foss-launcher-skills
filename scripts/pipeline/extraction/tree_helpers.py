@@ -137,7 +137,19 @@ _MODULE_TYPES: dict[str, set[str]] = {
 
 _NOT_IMPL_PATTERNS: dict[str, re.Pattern[str]] = {
     "python": re.compile(r"raise\s+NotImplementedError"),
-    "csharp": re.compile(r"throw\s+new\s+NotImplementedException\s*\("),
+    # TC-PSD-HRD-9N-4: was NotImplementedException only -- real stub throws
+    # in this portfolio also use NotSupportedException (the dominant form
+    # for a FOSS-build "not supported" property setter, e.g. psd/net's
+    # `set => throw new NotSupportedException(...)`) and the other 2 names
+    # api_surface.py's own _STUB_EXCEPTION_RE already recognizes for the
+    # same semantic concept. Confirmed live: psd/net alone had 8 real
+    # NotSupportedException stubs silently absent from limitations.md;
+    # the same pattern was found in 3d/net, email/net, gis/net, pdf/net,
+    # and slides/net (4 already-launched products).
+    "csharp": re.compile(
+        r"throw\s+new\s+(?:NotImplementedException|NotSupportedException"
+        r"|NotSupportedOperationException|UnsupportedOperationException)\s*\("
+    ),
     "java": re.compile(r"throw\s+new\s+UnsupportedOperationException\s*\("),
     "cpp": re.compile(r'throw\s+std::runtime_error\s*\(\s*"not implemented"',
                       re.IGNORECASE),
