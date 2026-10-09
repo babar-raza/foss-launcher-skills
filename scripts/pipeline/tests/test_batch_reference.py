@@ -1109,6 +1109,146 @@ class TestInternalNamespaceCollisionPriority:
 
 
 # ---------------------------------------------------------------------------
+# H-04g follow-on: auto-resolve a stale page superseded by an existing sibling
+# ---------------------------------------------------------------------------
+
+class TestSupersededStalePageAutoRetire:
+    """MT074 (found live, 2026-10-09, pdf/java: 22 production pages in this exact
+    shape). _pick_collision_priority_winner()'s own docstring promises that a stale
+    page whose group is already fully disambiguated "falls through... to the
+    governed, content-aware retire workflow" -- but until this fix, that workflow only
+    ever detected the debt and raised; nothing resolved it. _find_superseding_sibling()
+    (evidence.apis-based, never filename/iteration-order guessing -- the exact failure
+    mode B15's mass-deletion guard caught for Value.md) now lets the generator
+    auto-retire a stale page through the real, governed retire_page.py exactly when its
+    content is tied, unambiguously, to one specific already-disambiguated sibling."""
+
+    def _entries(self):
+        return [
+            {"name": "Form", "kind": "class_declaration", "visibility": "public",
+             "file": "src/main/java/org/aspose/pdf/facades/Form.java",
+             "class_import": "org.aspose.pdf.facades.Form",
+             "methods": [{"name": "exportJson", "params": [], "return_type": "void",
+                          "doc": "", "line": 1},
+                         {"name": "importJson", "params": [], "return_type": "void",
+                          "doc": "", "line": 2}],
+             "properties": []},
+            {"name": "Form", "kind": "class_declaration", "visibility": "public",
+             "file": "src/main/java/org/aspose/pdf/forms/Form.java",
+             "class_import": "org.aspose.pdf.forms.Form",
+             "methods": [{"name": "exportToJson", "params": [], "return_type": "String",
+                          "doc": "", "line": 1},
+                         {"name": "importFromJson", "params": [], "return_type": "int",
+                          "doc": "", "line": 2},
+                         {"name": "add", "params": [], "return_type": "void",
+                          "doc": "", "line": 3}],
+             "properties": []},
+        ]
+
+    def test_stale_page_matching_one_siblings_apis_is_auto_retired(self, tmp_path):
+        entries = self._entries()
+        _make_api_surface(tmp_path, entries, "pdf", "java")
+        out_dir = tmp_path / "content" / "reference.aspose.org" / "en" / "pdf" / "java"
+        out_dir.mkdir(parents=True)
+
+        # Step 1: generate both siblings for real (no plain page yet exists) --
+        # the exact "disambiguation already happened" precondition.
+        first = run("pdf", "java")
+        assert first["generated"] == 2
+        siblings = sorted(p for p in out_dir.glob("Form-*.md"))
+        assert len(siblings) == 2
+
+        # Step 2: find the facades.Form sibling (2 methods) and copy its real,
+        # generated evidence.apis verbatim into a synthetic stale plain page --
+        # standing in for "this page was generated from the facades entry before
+        # the forms.Form collision was ever recognized".
+        facades_sibling = next(p for p in siblings if "exportJson" in p.read_text(encoding="utf-8"))
+        fm = _br.parse_frontmatter(facades_sibling)
+        stale_apis = fm["evidence"]["apis"]
+        stale_text = (
+            "---\n"
+            "title: Form\n"
+            "evidence:\n"
+            f"  apis:\n" + "".join(f"  - {a}\n" for a in stale_apis) +
+            "---\n\n## Overview\n\nStale leftover content.\n"
+        )
+        (out_dir / "Form.md").write_text(stale_text, encoding="utf-8")
+
+        # Step 3: re-run. Must NOT raise -- the stale page is confidently tied to
+        # the facades sibling and gets auto-retired through the real retire_page.py.
+        second = run("pdf", "java", rebuild_all=True, confirm_rebuild=True)
+        assert second["errors"] == 0
+
+        retired_fm = _br.parse_frontmatter(out_dir / "Form.md")
+        assert retired_fm.get("draft") is True
+        assert "retired_at" in retired_fm
+        # retire_page.py never deletes -- content is still on disk, just excluded
+        # from the build by Hugo's draft filtering.
+        assert (out_dir / "Form.md").exists()
+
+        audit_dir = tmp_path / "reports" / "stale-page-retirements"
+        audit_files = list(audit_dir.glob("pdf-java-*.json"))
+        assert len(audit_files) == 1, "exactly one audit-trail report must be written"
+        audit = json.loads(audit_files[0].read_text(encoding="utf-8"))
+        assert len(audit["retired"]) == 1
+        row = audit["retired"][0]
+        assert row["page"].endswith("Form.md")
+        assert row["superseded_by"] == _br._canonical_reference_path(facades_sibling)
+        assert row["apis_similarity"] == 1.0
+        assert "reason" in row and row["reason"]
+
+    def test_stale_page_with_no_matching_evidence_still_raises(self, tmp_path):
+        """No evidence.apis at all (the pre-existing test fixture shape, e.g. a page
+        hand-written as plain text with no frontmatter) must never be auto-retired --
+        there is nothing to tie it to a specific sibling, so it must still surface for
+        human review exactly as before this fix."""
+        entries = self._entries()
+        _make_api_surface(tmp_path, entries, "pdf", "java")
+        out_dir = tmp_path / "content" / "reference.aspose.org" / "en" / "pdf" / "java"
+        out_dir.mkdir(parents=True)
+
+        run("pdf", "java")
+        (out_dir / "Form.md").write_text("stale-plain-page, no frontmatter at all",
+                                         encoding="utf-8")
+
+        with pytest.raises(RuntimeError, match="stale undisambiguated page"):
+            run("pdf", "java", rebuild_all=True, confirm_rebuild=True)
+        # never retired, never touched
+        assert (out_dir / "Form.md").read_text(encoding="utf-8") == \
+            "stale-plain-page, no frontmatter at all"
+
+    def test_stale_page_equally_similar_to_both_siblings_still_raises(self, tmp_path):
+        """A plain page whose apis overlap about equally with BOTH siblings (e.g. it
+        was hand-assembled from both, or the real source entry is genuinely
+        unknowable) must never have a winner guessed -- same B15 "never guess" rule
+        _pick_collision_priority_winner() already enforces, now also enforced at the
+        retire-matching step."""
+        entries = self._entries()
+        _make_api_surface(tmp_path, entries, "pdf", "java")
+        out_dir = tmp_path / "content" / "reference.aspose.org" / "en" / "pdf" / "java"
+        out_dir.mkdir(parents=True)
+
+        run("pdf", "java")
+        siblings = sorted(out_dir.glob("Form-*.md"))
+        apis_a = _br.parse_frontmatter(siblings[0])["evidence"]["apis"]
+        apis_b = _br.parse_frontmatter(siblings[1])["evidence"]["apis"]
+        # One api from each sibling -- equally (and only partially) similar to both,
+        # so neither clears min_similarity confidently over the other.
+        mixed_apis = [apis_a[0], apis_b[0]]
+        stale_text = (
+            "---\ntitle: Form\nevidence:\n  apis:\n" +
+            "".join(f"  - {a}\n" for a in mixed_apis) +
+            "---\n\n## Overview\n\nStale leftover content.\n"
+        )
+        (out_dir / "Form.md").write_text(stale_text, encoding="utf-8")
+
+        with pytest.raises(RuntimeError, match="stale undisambiguated page"):
+            run("pdf", "java", rebuild_all=True, confirm_rebuild=True)
+        retired_fm = _br.parse_frontmatter(out_dir / "Form.md")
+        assert retired_fm.get("draft") is not True, "must not have been retired"
+
+
+# ---------------------------------------------------------------------------
 # Java internal class filter (SEA-T3 regression)
 # ---------------------------------------------------------------------------
 

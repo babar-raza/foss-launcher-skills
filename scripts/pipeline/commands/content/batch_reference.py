@@ -828,6 +828,70 @@ def _pick_collision_priority_winner(
     return None
 
 
+def _apis_set(page_path: Path) -> set:
+    """The page's ``evidence.apis`` list as a set, or an empty set if absent/unparsable."""
+    try:
+        fm = parse_frontmatter(page_path)
+    except Exception:
+        return set()
+    apis = (fm.get("evidence") or {}).get("apis") or []
+    return {str(a) for a in apis}
+
+
+def _find_superseding_sibling(
+    stale_page: Path, ref_dir: Path, *, min_similarity: float = 0.9,
+) -> "Path | None":
+    """H-04g follow-on (MT074, found live 2026-10-09, pdf/java): resolve the
+    "governed, content-aware retire workflow" _pick_collision_priority_winner's own
+    docstring promises, instead of only detecting the debt and raising.
+
+    When a stale, un-suffixed collision page's group was fully disambiguated at some
+    earlier point (every member already has its own namespace-suffixed sibling file --
+    the exact condition that makes _pick_collision_priority_winner refuse to exempt
+    anyone), the plain page is leftover debt from before that disambiguation ran. It is
+    SAFE to auto-retire only when its content can be tied, unambiguously, to exactly one
+    of those siblings -- never by filename/iteration-order guessing (the Value.md
+    content-swap incident this same module's docstring already warns about), and never
+    when more than one sibling is an equally plausible match.
+
+    The signal used is evidence.apis: batch_reference.py stamps that list
+    deterministically from one specific api_surface.json entry's own members, so two
+    pages generated from the SAME entry (the stale page, at some earlier generation; one
+    particular sibling, generated after the collision was recognized) have the same apis
+    set even though their prose wording may have drifted between template-boilerplate
+    revisions (confirmed live: Arc.md vs Arc-drawing.md differ only in "provides" vs
+    "declares" phrasing). Two DIFFERENT real classes sharing a simple name (the entire
+    reason this is a collision at all) have different member sets, so a high
+    intersection-over-union ratio against exactly one sibling -- with no other sibling
+    anywhere close -- is strong, generic evidence of "same source entry", not a guess.
+
+    Returns the one safely-identified sibling Path, or None when no sibling clears the
+    threshold or more than one does (ambiguous -- the caller must fall through to the
+    human-reviewed RuntimeError, never force a choice).
+    """
+    stale_apis = _apis_set(stale_page)
+    if not stale_apis:
+        return None
+    name = stale_page.stem
+    scored: list[tuple[float, Path]] = []
+    for sibling in sorted(ref_dir.glob(f"{name}-*.md")):
+        sibling_apis = _apis_set(sibling)
+        if not sibling_apis:
+            continue
+        union = stale_apis | sibling_apis
+        similarity = len(stale_apis & sibling_apis) / len(union) if union else 0.0
+        scored.append((similarity, sibling))
+    if not scored:
+        return None
+    scored.sort(key=lambda pair: -pair[0])
+    best_similarity, best_sibling = scored[0]
+    if best_similarity < min_similarity:
+        return None
+    if len(scored) > 1 and scored[1][0] >= best_similarity - 1e-9:
+        return None  # a second sibling is an equally good match -- never guess between them
+    return best_sibling
+
+
 def _assign_namespace_slug_suffixes(group: list[dict]) -> None:
     """Set ``_slug_suffix`` on each entry in a same-name collision *group*.
 
@@ -2389,11 +2453,60 @@ def run(family: str, platform: str, kind_arg: str = "all",
             ):
                 _stale_pages.append(_old)
         if _stale_pages:
-            raise RuntimeError(
-                f"{len(_stale_pages)} stale undisambiguated page(s) require "
-                "the governed page-retire workflow; no files were deleted: "
-                f"{[path.name for path in _stale_pages[:5]]}"
-            )
+            # H-04g follow-on (MT074, 2026-10-09): resolve what
+            # _pick_collision_priority_winner's own docstring already calls "the
+            # governed, content-aware retire workflow" instead of only detecting the
+            # debt and raising -- a stale page whose content unambiguously matches
+            # exactly one already-disambiguated sibling (see _find_superseding_sibling)
+            # is auto-retired through retire_page.py (draft:true, never deleted);
+            # anything that does not clear that bar still raises below, for a human.
+            from commands.healing.retire_page import retire_page as _retire_page
+            _unresolved: list[Path] = []
+            _auto_retired: list[tuple[Path, Path, float]] = []
+            for _old in _stale_pages:
+                _sibling = _find_superseding_sibling(_old, _ref_dir)
+                if _sibling is None:
+                    _unresolved.append(_old)
+                    continue
+                _stale_apis = _apis_set(_old)
+                _sib_apis = _apis_set(_sibling)
+                _union = _stale_apis | _sib_apis
+                _sim = len(_stale_apis & _sib_apis) / len(_union) if _union else 0.0
+                _result = _retire_page(_old, dry_run=False)
+                if _result not in ("retired", "skipped"):
+                    _unresolved.append(_old)
+                    continue
+                _auto_retired.append((_old, _sibling, _sim))
+            if _auto_retired:
+                _audit_dir = REPO_ROOT / "reports" / "stale-page-retirements"
+                _audit_dir.mkdir(parents=True, exist_ok=True)
+                _audit_ts = datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%SZ")
+                _audit_path = _audit_dir / f"{family}-{platform}-{_audit_ts}.json"
+                _audit_path.write_text(json.dumps({
+                    "family": family, "platform": platform,
+                    "retired": [
+                        {
+                            "page": _canonical_reference_path(_old),
+                            "superseded_by": _canonical_reference_path(_sib),
+                            "apis_similarity": round(_sim, 4),
+                            "reason": "collision group fully disambiguated by namespace "
+                                      "suffix at some earlier point; this plain-named page "
+                                      "is leftover debt whose evidence.apis set matches "
+                                      "exactly this one sibling and no other",
+                        }
+                        for _old, _sib, _sim in _auto_retired
+                    ],
+                }, indent=2, ensure_ascii=False), encoding="utf-8")
+                print(
+                    f"  AUTO-RETIRED {len(_auto_retired)} stale page(s) superseded by an "
+                    f"already-disambiguated sibling (evidence: {_audit_path})."
+                )
+            if _unresolved:
+                raise RuntimeError(
+                    f"{len(_unresolved)} stale undisambiguated page(s) require "
+                    "the governed page-retire workflow; no files were deleted: "
+                    f"{[path.name for path in _unresolved[:5]]}"
+                )
 
     if limit is not None:
         candidates = candidates[:limit]
