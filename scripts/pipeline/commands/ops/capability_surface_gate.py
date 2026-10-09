@@ -77,6 +77,13 @@ _LIB_DIR = str(_PIPELINE_ROOT / "lib")
 if _LIB_DIR not in sys.path:
     sys.path.insert(0, _LIB_DIR)
 _REPO_ROOT = _PIPELINE_ROOT.parents[1]
+_cfg_repo_root_override: "Path | None" = None  # configure() seam -- real repo root when None
+
+
+def configure(*, repo_root: "Path | str | None" = None) -> None:
+    """Test seam: override the default --content-root base. Call with no args to restore."""
+    global _cfg_repo_root_override
+    _cfg_repo_root_override = Path(repo_root) if repo_root is not None else None
 
 import availability as av  # noqa: E402
 import capability_delta as cd  # noqa: E402
@@ -337,7 +344,7 @@ def main(argv: "list[str] | None" = None, *, model_head_resolver=None, knowledge
     ap.add_argument("--family", required=True)
     ap.add_argument("--platform", required=True)
     ap.add_argument("--ledger", required=True, help="capability_ledger.json built by lib/capability_delta")
-    ap.add_argument("--content-root", action="append", default=[], help="content root (repeatable); default <repo>/content")
+    ap.add_argument("--content-root", action="append", default=[], help="content root (repeatable); default <repo> (ledger targets are already full repo-relative paths)")
     ap.add_argument("--state-path", default=None, help="content_propagation_state.json override")
     ap.add_argument("--local-only", action="store_true", help="record the propagation as local-only (not pushed)")
     ap.add_argument("--dry-run", action="store_true", help="evaluate only; never write the state file")
@@ -347,7 +354,15 @@ def main(argv: "list[str] | None" = None, *, model_head_resolver=None, knowledge
                     help="a version content must not cite (repeatable; adds to the ledger's unreleased_versions)")
     ap.add_argument("--config", default=None, help="capability_placement.yaml override (default: the repo file)")
     args = ap.parse_args(argv)
-    roots = [Path(r) for r in args.content_root] or [_REPO_ROOT / "content"]
+    # MT074 (found live, 2026-10-09): every real disposition target set via
+    # `capability_ledger.py set-disposition --target ...` (this repo's only sanctioned
+    # writer) is already a full repo-relative path including the content-tree root
+    # segment itself -- the old default of `_REPO_ROOT / "content"` silently
+    # double-prefixed every lookup to a path that never exists, so EVERY satisfied
+    # disposition in a real ledger surfaced a false "target not found" problem and the
+    # gate could never pass. Default root must be the repo root itself, not repo root
+    # plus the content-tree segment.
+    roots = [Path(r) for r in args.content_root] or [_cfg_repo_root_override or _REPO_ROOT]
     try:
         config = None
         if args.config:

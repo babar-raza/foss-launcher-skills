@@ -306,6 +306,39 @@ class TestSatisfactionCli:
         assert Path(java["out"]).read_bytes() == led_bytes                     # never writes the ledger
 
 
+class TestSatisfactionDefaultContentRoot:
+    """MT074 (found live, 2026-10-09): same double-prefix bug as capability_surface_gate.py's
+    default -- real disposition targets are already full repo-relative paths (e.g.
+    "content/<site>/.../page.md"), so the old default of `_REPO_ROOT / "content"` silently
+    doubled the prefix and no real target ever resolved."""
+
+    def test_default_root_matches_real_content_prefixed_targets(self, java, capsys, tmp_path):
+        cli.configure(repo_root=tmp_path)
+        try:
+            targets = jwrite(tmp_path / "t.json",
+                             {"reference": "content/ref.aspose.org/x/", "docs": "content/docs.aspose.org/x/d.md",
+                              "kb": "content/kb.aspose.org/x/", "blog": "content/blog.aspose.org/x/",
+                              "products": "content/products.aspose.org/x/new.md"})
+            blocks = jwrite(tmp_path / "b.json", [{"id": "b", "path": "content/products.aspose.org/x/p.md",
+                                                   "terms": ["Render", "Early"]}])
+            build(capsys, java, "--surface-targets", targets, "--blocks", blocks)
+            led = ledger(java)
+            for u in led["units"]:
+                terms = " ".join(cd.unit_terms_from_symbols(u))
+                for surface, d in u["dispositions"].items():
+                    if d["action"] == "none":
+                        continue
+                    t = d["target"].split("#")[0]
+                    p = tmp_path / t / "page.md" if t.endswith("/") else tmp_path / t
+                    p.parent.mkdir(parents=True, exist_ok=True)
+                    with open(p, "a", encoding="utf-8") as fh:
+                        fh.write(terms + " ")
+            code, rep = run(capsys, "satisfaction", "--ledger", java["out"])
+            assert code == 0 and rep["all_satisfied"] is True, rep["problems"]
+        finally:
+            cli.configure()
+
+
 class TestGenerality:
     def test_cli_has_no_product_literals(self):
         import re

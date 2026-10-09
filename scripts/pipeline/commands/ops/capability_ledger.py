@@ -64,6 +64,14 @@ _LIB_DIR = str(_PIPELINE_ROOT / "lib")
 if _LIB_DIR not in sys.path:
     sys.path.insert(0, _LIB_DIR)
 _REPO_ROOT = _PIPELINE_ROOT.parents[1]
+_cfg_repo_root_override: "Path | None" = None  # configure() seam -- real repo root when None
+
+
+def configure(*, repo_root: "Path | str | None" = None) -> None:
+    """Test seam: override the default --content-root base. Call with no args to restore."""
+    global _cfg_repo_root_override
+    _cfg_repo_root_override = Path(repo_root) if repo_root is not None else None
+
 
 import availability as av  # noqa: E402
 import capability_delta as cd  # noqa: E402
@@ -243,7 +251,10 @@ def cmd_set_worth(args: argparse.Namespace) -> int:
 
 def cmd_satisfaction(args: argparse.Namespace) -> int:
     ledger = _read_json(args.ledger, "ledger")
-    roots = [Path(r) for r in args.content_root] or [_REPO_ROOT / "content"]
+    # MT074 (found live, 2026-10-09): same fix as capability_surface_gate.py's default --
+    # real disposition targets are already full repo-relative paths, so the default root
+    # must be the repo root itself, not repo root + an extra content-tree segment.
+    roots = [Path(r) for r in args.content_root] or [_cfg_repo_root_override or _REPO_ROOT]
     report = cd.satisfaction_report(ledger, roots)
     _emit(report)
     return 0 if report["all_satisfied"] else 1

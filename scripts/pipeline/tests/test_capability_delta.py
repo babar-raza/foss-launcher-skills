@@ -1195,6 +1195,20 @@ class TestWorth:
         with pytest.raises(ValueError, match="unknown symbol"):
             cd.apply_worth(led, uid, "ns::Missing", "internal", "r", config=CFG)
 
+    def test_unit_terms_from_symbols_excludes_internal_worth(self):
+        """MT074 (found live, 2026-10-09): a mixed unit (some symbols public, some marked
+        internal via apply_worth) must not require reader-facing content to mention the
+        internal ones -- unit_terms_from_symbols() is what the close-time satisfaction
+        check reads to decide what a page must say, and it used to read raw `symbols`,
+        ignoring `internal_symbols` entirely."""
+        led = ledger_of(self.delta(), candidate_blocks=BLOCKS)
+        uid = led["units"][0]["id"]
+        out = cd.apply_worth(led, uid, "ns::InternalHelper", "internal", "pipeline type", config=CFG)
+        u = out["units"][0]
+        terms = cd.unit_terms_from_symbols(u)
+        assert "InternalHelper" not in terms
+        assert {"SaveOptions", "SaveResult"} <= set(terms)
+
 
 class TestGenerality:
     FORBIDDEN = re.compile(r"\b(pdf|java|xlsx|docx|markdown|cells|slides|words|words|python|csharp|typescript|"

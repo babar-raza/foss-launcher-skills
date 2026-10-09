@@ -301,6 +301,45 @@ class TestFlags:
         assert a == b
 
 
+class TestCliDefaultContentRoot:
+    """MT074 (found live, 2026-10-09): running the real pdf/java capability_ledger_real.json
+    (built by capability_ledger.py set-disposition --target content/docs.aspose.org/...,
+    this repo's only sanctioned writer) through the gate with no --content-root flag
+    reported "target not found" for every single disposition, even ones with a real,
+    committed file on disk -- because every real target is already a full repo-relative
+    path INCLUDING "content/", and the old default root was `_REPO_ROOT / "content"`,
+    doubling the prefix to ".../content/content/...". The gate could never pass against
+    a real ledger. Default root must be `_REPO_ROOT` itself."""
+
+    def test_default_root_matches_real_content_prefixed_targets(self, tmp_path, capsys, _state):
+        gate.configure(repo_root=tmp_path)
+        try:
+            targets = {"reference": "content/reference.aspose.org/en/fam/plat/Feature.md",
+                       "docs": "content/docs.aspose.org/en/fam/plat/developer-guide/feature.md",
+                       "kb": "content/kb.aspose.org/en/fam/plat/how-to-feature.md",
+                       "blog": "content/blog.aspose.org/fam/plat/feature/index.md",
+                       "products": "content/products.aspose.org/en/fam/_index.md"}
+            delta = SHAPES["py"]
+            units = cd.group_units(delta)
+            avail = {s: "released" for u in units for s in u["symbols"]}
+            ledger = cd.build_ledger(delta, family="fam", platform="plat", upstream_head=HEAD,
+                                     surface_targets=targets, candidate_blocks=block_for(delta), availability=avail)
+            lp = write_ledger(tmp_path, ledger)
+            # Populate real files directly under tmp_path (standing in for the repo root),
+            # at exactly the content/-prefixed paths the targets already carry -- no extra
+            # "content" subdirectory layer, matching how set-disposition actually stores them.
+            populate(tmp_path, ledger)
+            argv = ["--family", "fam", "--platform", "plat", "--ledger", str(lp), "--state-path", str(_state)]
+            seams = dict(model_head_resolver=lambda f, p: ledger["upstream_head"],
+                         knowledge_clean_checker=lambda f, p: (True, ""), knowledge_commit_resolver=lambda f, p: KNOWLEDGE)
+            code = gate.main(argv + ["--dry-run"], **seams)
+            shown = json.loads(capsys.readouterr().out)
+            assert code == 0, shown["reasons"]
+            assert not any(r["code"] == "unsatisfied" for r in shown["reasons"]), shown["reasons"]
+        finally:
+            gate.configure()
+
+
 class TestCli:
     def test_cli_pass_fail_and_json_out(self, tmp_path, capsys, _state):
         ledger = make_ledger(SHAPES["py"])

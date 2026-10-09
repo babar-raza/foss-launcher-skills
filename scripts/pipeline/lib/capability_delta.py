@@ -1197,8 +1197,18 @@ def _rel(path: PurePath, root: PurePath) -> str:
 
 
 def unit_terms_from_symbols(unit: "dict[str, Any]") -> "list[str]":
-    """Terms a page must mention: type names; else enum constants; else formats; else members."""
-    types = sorted({simple_name(s) for s in unit.get("symbols") or [] if not is_member_symbol(s)})
+    """Terms a page must mention: type names; else enum constants; else formats; else members.
+
+    MT074 (found live, 2026-10-09): a mixed unit -- some symbols already apply_worth()'d to
+    "internal" (namespace heuristic missed them, e.g. this product's own "sdm" sub-package
+    convention, not a generic pattern -- see internal_namespace_segments) while others stay
+    public -- still demanded that public-facing content literally name the internal engine
+    helpers too, because this function read raw `symbols` and never consulted
+    `internal_symbols`. A symbol marked not-worth-documenting must never become a term a
+    reader-facing page is required to mention."""
+    internal = set(unit.get("internal_symbols") or [])
+    public_symbols = [s for s in (unit.get("symbols") or []) if s not in internal]
+    types = sorted({simple_name(s) for s in public_symbols if not is_member_symbol(s)})
     if types:
         return types
     consts = sorted({simple_name(s) for s in unit.get("enum_constants") or []})
@@ -1206,7 +1216,7 @@ def unit_terms_from_symbols(unit: "dict[str, Any]") -> "list[str]":
         return consts
     if unit.get("formats"):
         return sorted(unit["formats"])
-    return sorted({simple_name(s) for s in unit.get("symbols") or []})
+    return sorted({simple_name(s) for s in public_symbols})
 
 
 def _pa() -> Any:
