@@ -82,3 +82,186 @@ class TestCSharpNotImplPatternMatchesAllStubExceptionNames:
         as a stub/limitation."""
         line = '        set => throw new ArgumentNullException(nameof(value));'
         assert not _CSHARP_PATTERN.search(line)
+
+
+# ---------------------------------------------------------------------------
+# TC-PSD-HRD-9N-27 — api_surface.py::_is_csharp_stub() and property-setter
+# stub detection (a SEPARATE defect from HRD-9N-4 above: that fix closed the
+# limitations.md regex gap; this one closes a different gap in a different
+# function, feeding a different consumer -- batch_reference.py's/
+# regenerate_reference.py's reference-page `stub` rendering).
+#
+# Confirmed via a direct tree-sitter parse probe (not guessed): C#'s
+# `set => throw new X(...);` parses as
+# accessor_declaration > arrow_expression_clause > throw_expression -- a
+# DIFFERENT node shape than the block-bodied `{ throw ...; }` form
+# (which produces a `block` > `throw_statement`). The original
+# `_is_csharp_stub()` only ever checked for `block`, so it returned False
+# immediately for every real, expression-bodied stub in this portfolio
+# (psd/net's Layer.cs/PsdImage.cs/PreservedResourceBlock.cs use the arrow
+# form exclusively, zero block-bodied occurrences). Separately, the
+# property_declaration extraction branch never called ANY stub-detection
+# function for either accessor at all.
+# ---------------------------------------------------------------------------
+
+import tree_sitter_language_pack as _tsl  # noqa: E402
+
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent.parent))
+from extraction.api_surface import _is_csharp_stub, extract_api_surface  # noqa: E402
+from extraction.tree_helpers import find_child_by_type  # noqa: E402
+
+_CS_PARSER = _tsl.get_parser("csharp")
+
+
+def _parse_csharp_first_method(src: str):
+    """Parse a minimal C# source snippet and return the first
+    method_declaration node found (depth-first)."""
+    tree = _CS_PARSER.parse(src.encode("utf-8"))
+
+    def _walk(node):
+        if node.type == "method_declaration":
+            return node
+        for ch in node.children:
+            found = _walk(ch)
+            if found is not None:
+                return found
+        return None
+
+    return _walk(tree.root_node)
+
+
+def _parse_csharp_first_setter(src: str):
+    """Parse a minimal C# source snippet and return the first property's
+    `set`/`init` accessor_declaration node."""
+    tree = _CS_PARSER.parse(src.encode("utf-8"))
+
+    def _walk(node):
+        if node.type == "property_declaration":
+            acc_list = find_child_by_type(node, "accessor_list")
+            if acc_list is not None:
+                for acc in acc_list.children:
+                    if acc.type == "accessor_declaration":
+                        text = _tsl_node_text(acc, src)
+                        if text.lstrip().startswith(("set", "init")):
+                            return acc
+        for ch in node.children:
+            found = _walk(ch)
+            if found is not None:
+                return found
+        return None
+
+    return _walk(tree.root_node)
+
+
+def _tsl_node_text(node, src: str) -> str:
+    return src.encode("utf-8")[node.start_byte:node.end_byte].decode("utf-8")
+
+
+class TestIsCSharpStubExpressionBodied:
+    def test_expression_bodied_method_stub_detected(self):
+        """A bare, expression-bodied METHOD stub (not just a property
+        setter) must also be recognized -- the fix is general, not
+        property-specific, even though no real portfolio example of this
+        exact shape was found during this investigation (psd/net's own
+        stubs are all property setters)."""
+        src = (
+            "class Foo {\n"
+            "    public void Bar() => throw new NotSupportedException(\"nope\");\n"
+            "}\n"
+        )
+        node = _parse_csharp_first_method(src)
+        assert node is not None
+        assert _is_csharp_stub(node) is True
+
+    def test_block_bodied_method_stub_still_detected(self):
+        """Negative control: the ORIGINAL, already-working block-bodied
+        case must keep working."""
+        src = (
+            "class Foo {\n"
+            "    public void Bar() { throw new NotSupportedException(\"nope\"); }\n"
+            "}\n"
+        )
+        node = _parse_csharp_first_method(src)
+        assert node is not None
+        assert _is_csharp_stub(node) is True
+
+    def test_expression_bodied_non_stub_method_not_flagged(self):
+        """Negative control: a real, working expression-bodied method
+        (no throw at all) must not be misclassified as a stub."""
+        src = (
+            "class Foo {\n"
+            "    public int Bar() => 42;\n"
+            "}\n"
+        )
+        node = _parse_csharp_first_method(src)
+        assert node is not None
+        assert _is_csharp_stub(node) is False
+
+
+class TestPropertySetterStubDetection:
+    def test_real_psd_net_setter_shape_flagged_as_setter_stub(self):
+        """The exact real-world shape found live on psd/net's Layer.cs:208
+        -- a property with a working getter and a setter that
+        unconditionally throws."""
+        src = (
+            "class Layer {\n"
+            "    public ChannelInformation[] ChannelInformation {\n"
+            "        get => _channelInfo;\n"
+            "        set => throw new NotSupportedException(\"Changing layer channel information is not supported by this FOSS build.\");\n"
+            "    }\n"
+            "}\n"
+        )
+        acc = _parse_csharp_first_setter(src)
+        assert acc is not None
+        assert _is_csharp_stub(acc) is True, (
+            "the setter's own body must be recognized as a stub throw -- "
+            "this is the exact live shape found on psd/net's "
+            "Layer.ChannelInformation (and 7 other real properties across "
+            "Layer.cs/PsdImage.cs/PreservedResourceBlock.cs)"
+        )
+
+    def test_negative_control_working_setter_not_flagged(self):
+        """A real, working setter (no throw) must not be misclassified."""
+        src = (
+            "class Layer {\n"
+            "    public string Name {\n"
+            "        get => _name;\n"
+            "        set => _name = value;\n"
+            "    }\n"
+            "}\n"
+        )
+        acc = _parse_csharp_first_setter(src)
+        assert acc is not None
+        assert _is_csharp_stub(acc) is False
+
+    def test_extract_api_surface_sets_setter_stub_field(self):
+        """End-to-end: extract_api_surface() (the real public entry point
+        api_surface.py exposes, not just the internal helper) must set
+        `setter_stub: True` on the property entry for the real psd/net
+        shape, and must NOT set it for a normal working property."""
+        src = (
+            "namespace Foo {\n"
+            "public class Layer {\n"
+            "    public ChannelInformation[] ChannelInformation {\n"
+            "        get => _channelInfo;\n"
+            "        set => throw new NotSupportedException(\"nope\");\n"
+            "    }\n"
+            "    public string Name {\n"
+            "        get => _name;\n"
+            "        set => _name = value;\n"
+            "    }\n"
+            "}\n"
+            "}\n"
+        )
+        import tempfile
+        with tempfile.TemporaryDirectory() as tmpdir:
+            tmp_path = Path(tmpdir)
+            src_path = tmp_path / "Layer.cs"
+            src_path.write_text(src, encoding="utf-8")
+            classes, _claims, _scanned, _pkgs, _report = extract_api_surface(
+                _CS_PARSER, "csharp", tmp_path, tmp_path, "psd",
+            )
+        layer = next(c for c in classes if c["name"] == "Layer")
+        props_by_name = {p["name"]: p for p in layer["properties"]}
+        assert props_by_name["ChannelInformation"].get("setter_stub") is True
+        assert "setter_stub" not in props_by_name["Name"] or not props_by_name["Name"]["setter_stub"]

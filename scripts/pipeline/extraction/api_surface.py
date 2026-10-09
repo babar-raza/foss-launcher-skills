@@ -1518,17 +1518,34 @@ def _is_stub_throw(txt: str) -> bool:
 
 
 def _is_csharp_stub(mnode) -> bool:
-    """Return True if a C# method body is a single throw indicating unimplemented."""
-    body = find_child_by_type(mnode, "block")
-    if body is None:
+    """Return True if a C# method/accessor body is a single throw
+    indicating unimplemented.
+
+    TC-PSD-HRD-9N-27: handles both block-bodied members
+    (``{ throw new X(...); }``) and expression-bodied members
+    (``=> throw new X(...);``) -- tree-sitter represents the latter as an
+    ``arrow_expression_clause`` wrapping a ``throw_expression``, a
+    different node type than the block-bodied ``throw_statement``. The
+    arrow form is the dominant shape for a FOSS-build "not supported"
+    property setter (confirmed live: psd/net's `Layer.cs`/`PsdImage.cs`
+    use `set => throw new NotSupportedException(...)` exclusively, zero
+    block-bodied occurrences) -- the original block-only check returned
+    `False` for every one of them.
+    """
+    block = find_child_by_type(mnode, "block")
+    if block is not None:
+        stmts = [ch for ch in block.children if ch.type not in ("{", "}", "\n", "comment")]
+        if len(stmts) != 1:
+            return False
+        stmt = stmts[0]
+        if stmt.type == "throw_statement":
+            return _is_stub_throw(node_text(stmt))
         return False
-    stmts = [ch for ch in body.children if ch.type not in ("{", "}", "\n", "comment")]
-    if len(stmts) != 1:
-        return False
-    stmt = stmts[0]
-    if stmt.type == "throw_statement":
-        txt = node_text(stmt)
-        return _is_stub_throw(txt)
+    arrow = find_child_by_type(mnode, "arrow_expression_clause")
+    if arrow is not None:
+        body_children = [ch for ch in arrow.children if ch.type != "=>"]
+        if len(body_children) == 1 and body_children[0].type == "throw_expression":
+            return _is_stub_throw(node_text(body_children[0]))
     return False
 
 
@@ -3172,6 +3189,7 @@ def extract_api_surface(
                         ptype = node_text(type_node)
                     # Detect setter — C# accessor_list with "set" or "init"
                     writable = False
+                    setter_stub = False
                     acc_list = find_child_by_type(mnode, "accessor_list")
                     if acc_list is not None:
                         for acc in acc_list.children:
@@ -3179,6 +3197,22 @@ def extract_api_surface(
                                 acc_text = node_text(acc).lstrip()
                                 if acc_text.startswith(("set", "init")):
                                     writable = True
+                                    # TC-PSD-HRD-9N-27: a setter whose own
+                                    # body is a single stub throw (e.g.
+                                    # `set => throw new
+                                    # NotSupportedException(...);`) is
+                                    # syntactically present but never
+                                    # actually writable -- flag it so a
+                                    # downstream consumer (reference-page
+                                    # generation) can render this
+                                    # accurately instead of unconditionally
+                                    # showing "Read/Write". Only checked
+                                    # for csharp today (the real,
+                                    # confirmed case); other languages'
+                                    # equivalent accessor shapes are out
+                                    # of this card's own scope.
+                                    if language == "csharp" and _is_csharp_stub(acc):
+                                        setter_stub = True
                                     break
                     prop_entry: dict[str, Any] = {
                         "name": mname,
@@ -3187,6 +3221,8 @@ def extract_api_surface(
                         "line": mnode.start_point[0] + 1,
                         "writable": writable,
                     }
+                    if setter_stub:
+                        prop_entry["setter_stub"] = True
 
                     # TC-MT040-13: TypeScript class fields carry static/
                     # readonly as direct modifier-TOKEN children (verified
