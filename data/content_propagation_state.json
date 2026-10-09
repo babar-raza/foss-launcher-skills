@@ -1,0 +1,396 @@
+{
+  "products": {
+    "pdf/java": {
+      "ahead_by": null,
+      "api_surface_touched": false,
+      "baseline_assumed": false,
+      "capability_units": [
+        {
+          "availability": "released",
+          "dispositions": {
+            "blog": {
+              "evidence_paths": [],
+              "status": "none_justified"
+            },
+            "docs": {
+              "evidence_paths": [],
+              "status": "none_justified"
+            },
+            "kb": {
+              "evidence_paths": [],
+              "status": "none_justified"
+            },
+            "products": {
+              "evidence_paths": [],
+              "status": "none_justified"
+            },
+            "reference": {
+              "evidence_paths": [
+                "content/reference.aspose.org/en/pdf/java/PdfPageRenderer.md"
+              ],
+              "status": "satisfied"
+            }
+          },
+          "id": "CU-07271204",
+          "symbols": [
+            "org.aspose.pdf.engine.render::PdfPageRenderer.setSuppressTextKeepType3"
+          ]
+        },
+        {
+          "availability": "released",
+          "dispositions": {
+            "blog": {
+              "evidence_paths": [],
+              "status": "none_justified"
+            },
+            "docs": {
+              "evidence_paths": [],
+              "status": "none_justified"
+            },
+            "kb": {
+              "evidence_paths": [],
+              "status": "none_justified"
+            },
+            "products": {
+              "evidence_paths": [],
+              "status": "none_justified"
+            },
+            "reference": {
+              "evidence_paths": [
+                "content/reference.aspose.org/en/pdf/java/Page.md"
+              ],
+              "status": "satisfied"
+            }
+          },
+          "id": "CU-31ca342f",
+          "symbols": [
+            "org.aspose.pdf::Page.applyParagraphOverlay"
+          ]
+        },
+        {
+          "availability": "released",
+          "dispositions": {
+            "blog": {
+              "evidence_paths": [],
+              "status": "none_justified"
+            },
+            "docs": {
+              "evidence_paths": [],
+              "status": "none_justified"
+            },
+            "kb": {
+              "evidence_paths": [],
+              "status": "none_justified"
+            },
+            "products": {
+              "evidence_paths": [],
+              "status": "none_justified"
+            },
+            "reference": {
+              "evidence_paths": [
+                "content/reference.aspose.org/en/pdf/java/LayoutEngine.md"
+              ],
+              "status": "satisfied"
+            }
+          },
+          "id": "CU-6020b280",
+          "symbols": [
+            "org.aspose.pdf.engine.layout::LayoutEngine.buildParagraphOverlay"
+          ]
+        },
+        {
+          "availability": "released",
+          "dispositions": {
+            "blog": {
+              "evidence_paths": [
+                "content/blog.aspose.org/pdf/java/convert-pdf-to-excel-and-markdown-java/index.md"
+              ],
+              "status": "satisfied"
+            },
+            "docs": {
+              "evidence_paths": [
+                "content/docs.aspose.org/en/pdf/java/developer-guide/conversion.md"
+              ],
+              "status": "satisfied"
+            },
+            "kb": {
+              "evidence_paths": [
+                "content/kb.aspose.org/en/pdf/java/how-to-convert-pdf-to-excel-java.md"
+              ],
+              "status": "satisfied"
+            },
+            "products": {
+              "evidence_paths": [
+                "content/products.aspose.org/en/pdf/_index.md"
+              ],
+              "status": "satisfied"
+            },
+            "reference": {
+              "evidence_paths": [
+                "content/reference.aspose.org/en/pdf/java/Document.md",
+                "content/reference.aspose.org/en/pdf/java/ExcelFormat.md",
+                "content/reference.aspose.org/en/pdf/java/ExcelFormulaTranslator.md",
+                "content/reference.aspose.org/en/pdf/java/ExcelLoadOptions.md",
+                "content/reference.aspose.org/en/pdf/java/ExcelSaveOptions.md",
+                "content/reference.aspose.org/en/pdf/java/MarkdownLoadOptions.md",
+                "content/reference.aspose.org/en/pdf/java/MarkdownSaveOptions.md",
+                "content/reference.aspose.org/en/pdf/java/SdmXlsxWriter.md",
+                "content/reference.aspose.org/en/pdf/java/StructuralMarkdownPipeline.md",
+                "content/reference.aspose.org/en/pdf/java/StructuralXlsxPipeline.md",
+                "content/reference.aspose.org/en/pdf/java/_index.md"
+              ],
+              "status": "satisfied"
+            }
+          },
+          "id": "CU-6524b55c",
+          "symbols": [
+            "org.aspose.pdf.sdm.layout::SdmPdfLayout.getXlsxPlacements",
+            "org.aspose.pdf.sdm.layout::SdmPdfLayout.xlsxPlacements",
+            "org.aspose.pdf.sdm.layout::XlsxFieldPlacement",
+            "org.aspose.pdf.sdm.markdown::MarkdownSdmReader",
+            "org.aspose.pdf.sdm.markdown::SdmMarkdownWriter",
+            "org.aspose.pdf.sdm.markdown::StructuralMarkdownPipeline",
+            "org.aspose.pdf.sdm.xlsx::CellRefResolver",
+            "org.aspose.pdf.sdm.xlsx::CellValueTyper",
+            "org.aspose.pdf.sdm.xlsx::ExcelFormulaTranslator",
+            "org.aspose.pdf.sdm.xlsx::Result",
+            "org.aspose.pdf.sdm.xlsx::SdmXlsxWriter",
+            "org.aspose.pdf.sdm.xlsx::StructuralXlsxPipeline",
+            "org.aspose.pdf.sdm.xlsx::Typed",
+            "org.aspose.pdf.sdm.xlsx::UnsupportedFormulaException",
+            "org.aspose.pdf.sdm.xlsx::XlsxSdmReader",
+            "org.aspose.pdf::Document.markdownText",
+            "org.aspose.pdf::ExcelFormat",
+            "org.aspose.pdf::ExcelLoadOptions",
+            "org.aspose.pdf::ExcelSaveOptions",
+            "org.aspose.pdf::LoadFormat.Markdown",
+            "org.aspose.pdf::LoadFormat.Xlsx",
+            "org.aspose.pdf::MarkdownLoadOptions",
+            "org.aspose.pdf::MarkdownSaveOptions",
+            "org.aspose.pdf::SaveFormat.Excel",
+            "org.aspose.pdf::SaveFormat.Markdown",
+            "org.aspose.pdf::SaveFormat.Xlsx"
+          ]
+        },
+        {
+          "availability": "released",
+          "dispositions": {
+            "blog": {
+              "evidence_paths": [],
+              "status": "none_justified"
+            },
+            "docs": {
+              "evidence_paths": [],
+              "status": "none_justified"
+            },
+            "kb": {
+              "evidence_paths": [],
+              "status": "none_justified"
+            },
+            "products": {
+              "evidence_paths": [],
+              "status": "none_justified"
+            },
+            "reference": {
+              "evidence_paths": [],
+              "status": "satisfied"
+            }
+          },
+          "id": "CU-768dbc96",
+          "symbols": [
+            "org.aspose.pdf.engine.function::Evaluator",
+            "org.aspose.pdf.engine.function::ExpressionStack",
+            "org.aspose.pdf.engine.function::Value"
+          ]
+        },
+        {
+          "availability": "released",
+          "dispositions": {
+            "blog": {
+              "evidence_paths": [],
+              "status": "none_justified"
+            },
+            "docs": {
+              "evidence_paths": [
+                "content/docs.aspose.org/en/pdf/java/developer-guide/features.md"
+              ],
+              "status": "satisfied"
+            },
+            "kb": {
+              "evidence_paths": [
+                "content/kb.aspose.org/en/pdf/java/how-to-work-with-forms-java.md"
+              ],
+              "status": "satisfied"
+            },
+            "products": {
+              "evidence_paths": [
+                "content/products.aspose.org/en/pdf/_index.md"
+              ],
+              "status": "satisfied"
+            },
+            "reference": {
+              "evidence_paths": [
+                "content/reference.aspose.org/en/pdf/java/FormJsonSupport.md"
+              ],
+              "status": "satisfied"
+            }
+          },
+          "id": "CU-79e58e2c",
+          "symbols": [
+            "org.aspose.pdf.facades::Form.exportJson",
+            "org.aspose.pdf.facades::Form.importJson",
+            "org.aspose.pdf.forms::Field.exportValueToJson",
+            "org.aspose.pdf.forms::Field.importValueFromJson",
+            "org.aspose.pdf.forms::FieldEntry",
+            "org.aspose.pdf.forms::Form.exportToJson",
+            "org.aspose.pdf.forms::Form.importFromJson",
+            "org.aspose.pdf.forms::FormJsonSupport"
+          ]
+        },
+        {
+          "availability": "released",
+          "dispositions": {
+            "blog": {
+              "evidence_paths": [],
+              "status": "none_justified"
+            },
+            "docs": {
+              "evidence_paths": [],
+              "status": "none_justified"
+            },
+            "kb": {
+              "evidence_paths": [],
+              "status": "none_justified"
+            },
+            "products": {
+              "evidence_paths": [],
+              "status": "none_justified"
+            },
+            "reference": {
+              "evidence_paths": [
+                "content/reference.aspose.org/en/pdf/java/PDFParser.md"
+              ],
+              "status": "satisfied"
+            }
+          },
+          "id": "CU-a8c48c00",
+          "symbols": [
+            "org.aspose.pdf.engine.parser::PDFParser.removeObject"
+          ]
+        },
+        {
+          "availability": "released",
+          "dispositions": {
+            "blog": {
+              "evidence_paths": [],
+              "status": "none_justified"
+            },
+            "docs": {
+              "evidence_paths": [],
+              "status": "none_justified"
+            },
+            "kb": {
+              "evidence_paths": [],
+              "status": "none_justified"
+            },
+            "products": {
+              "evidence_paths": [],
+              "status": "none_justified"
+            },
+            "reference": {
+              "evidence_paths": [
+                "content/reference.aspose.org/en/pdf/java/Document.md"
+              ],
+              "status": "satisfied"
+            }
+          },
+          "id": "CU-cfae81d1",
+          "symbols": [
+            "org.aspose.pdf::Document.removeParserObjects"
+          ]
+        },
+        {
+          "availability": "released",
+          "dispositions": {
+            "blog": {
+              "evidence_paths": [],
+              "status": "none_justified"
+            },
+            "docs": {
+              "evidence_paths": [],
+              "status": "none_justified"
+            },
+            "kb": {
+              "evidence_paths": [],
+              "status": "none_justified"
+            },
+            "products": {
+              "evidence_paths": [],
+              "status": "none_justified"
+            },
+            "reference": {
+              "evidence_paths": [
+                "content/reference.aspose.org/en/pdf/java/PdfToHtmlConverter.md"
+              ],
+              "status": "satisfied"
+            }
+          },
+          "id": "CU-d48b2028",
+          "symbols": [
+            "org.aspose.pdf.html::PdfToHtmlConverter.type3NoUnicodeFontNames"
+          ]
+        },
+        {
+          "availability": "released",
+          "dispositions": {
+            "blog": {
+              "evidence_paths": [],
+              "status": "none_justified"
+            },
+            "docs": {
+              "evidence_paths": [],
+              "status": "none_justified"
+            },
+            "kb": {
+              "evidence_paths": [],
+              "status": "none_justified"
+            },
+            "products": {
+              "evidence_paths": [],
+              "status": "none_justified"
+            },
+            "reference": {
+              "evidence_paths": [
+                "content/reference.aspose.org/en/pdf/java/TextFragment.md"
+              ],
+              "status": "satisfied"
+            }
+          },
+          "id": "CU-e484a764",
+          "symbols": [
+            "org.aspose.pdf.text::TextFragment.setEditOptions"
+          ]
+        }
+      ],
+      "content_propagated_knowledge_commit": "ac933cb8a39313f67aa9d59d4c37241eb1933f14",
+      "content_propagated_sha": "736cedaa2922e4952f429364bdb9a4bbb1d97863",
+      "family": "pdf",
+      "files_seen": 0,
+      "gate_verdict": "PASS",
+      "ground_truth_tier": "GT-2",
+      "knowledge_sha": null,
+      "local_only": true,
+      "platform": "java",
+      "release_state": "unknown",
+      "release_state_reason": null,
+      "source_files": 0,
+      "status": "DRIFTED",
+      "tier": "UNKNOWN",
+      "tier_reason": null,
+      "truncated": false,
+      "upstream_head": null,
+      "volatile": {}
+    }
+  },
+  "schema_version": 1
+}
