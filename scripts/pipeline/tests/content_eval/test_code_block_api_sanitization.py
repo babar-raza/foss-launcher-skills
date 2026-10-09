@@ -211,3 +211,65 @@ class TestGenuineUnreachableStillCaught:
         fails = [f for f in findings if f.level == "FAIL" and f.category == "CB"]
         assert len(fails) == 1, f"expected exactly 1 FAIL, got: {findings}"
         assert "InternalOnly" in fails[0].message
+
+
+class TestNestedTypeChainMemberFallback:
+    """MT074 (found live, 2026-10-09): a 3-segment nested-class-then-member chain
+    (`Outer.Nested.CONSTANT`, e.g. Java's `ExcelSaveOptions.ExcelFormat.XLSX` -- a
+    real, compiled, run-verified example from pdf/java's own upstream docs) is
+    mis-tokenized the same way as the PascalCase-enum case in lib/token_ops.py's
+    TestNestedTypeChainPropertyFallback (see
+    scripts/pipeline/tests/test_token_ops_pascalcase_enum_property_fallback.py):
+    the member-access regex matches `ExcelSaveOptions.ExcelFormat` as obj.member,
+    and `ExcelFormat` is neither a method, property, nor enum constant of
+    `ExcelSaveOptions` -- it is the simple name of a separate, nested type (scout
+    flattens Java's `ExcelSaveOptions$ExcelFormat` to a top-level `ExcelFormat`
+    entry). This is the same defect class in a sibling evaluator that does not
+    share code with token_ops.py; the fix mirrors it with a `member_name in
+    knowledge.classes` fallback."""
+
+    def test_nested_type_name_as_member_produces_no_warn(self, tmp_path):
+        body = (
+            "```java\n"
+            "ExcelSaveOptions options = new ExcelSaveOptions();\n"
+            "options.setFormat(ExcelSaveOptions.ExcelFormat.XLSX);\n"
+            "```\n"
+        )
+        page = _make_page(tmp_path, "pdf", "java", body)
+        knowledge = _make_knowledge(tmp_path, "pdf", "java", [
+            {"name": "ExcelSaveOptions",
+             "methods": [{"name": "setFormat"}],
+             "properties": [], "enum_members": [], "reachable": True},
+            {"name": "ExcelFormat",
+             "methods": [], "properties": [],
+             "enum_members": [{"name": "XLSX"}, {"name": "CSV"}],
+             "reachable": True},
+        ])
+        findings = CodeBlockApiEvaluator().evaluate(page, knowledge)
+        cb_findings = [f for f in findings if f.category == "CB"
+                       and "ExcelFormat" in f.message]
+        assert cb_findings == [], f"expected no CB finding, got: {cb_findings}"
+
+    def test_unknown_member_that_is_not_a_class_still_warns(self, tmp_path):
+        """Negative control: a member absent from methods, properties, enum_members
+        AND classes must still produce the CB finding -- the fallback must only
+        cover genuine nested-type references."""
+        body = (
+            "```java\n"
+            "options.setFormat(ExcelSaveOptions.Bogus.XLSX);\n"
+            "```\n"
+        )
+        page = _make_page(tmp_path, "pdf", "java", body)
+        knowledge = _make_knowledge(tmp_path, "pdf", "java", [
+            {"name": "ExcelSaveOptions",
+             "methods": [{"name": "setFormat"}],
+             "properties": [], "enum_members": [], "reachable": True},
+            {"name": "ExcelFormat",
+             "methods": [], "properties": [],
+             "enum_members": [{"name": "XLSX"}],
+             "reachable": True},
+        ])
+        findings = CodeBlockApiEvaluator().evaluate(page, knowledge)
+        cb_findings = [f for f in findings if f.category == "CB"
+                       and "Bogus" in f.message]
+        assert len(cb_findings) == 1, f"expected exactly 1 CB finding, got: {findings}"

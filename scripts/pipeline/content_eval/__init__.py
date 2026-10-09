@@ -74,7 +74,7 @@ EVALUATOR_VERSIONS: dict[str, str] = {
     "api_accuracy": "2",  # v2: TS/JS built-ins (Error, JSON, Buffer, Worker, GLB, etc.) added to PLATFORM_SDK_CLASSES
     "api_backtick": "1",
     "claim_coverage": "1",
-    "code_block_api": "1",
+    "code_block_api": "2",
     "content_substance": "1",
     "dead_internal_link": "1",
     "description_completeness": "1",

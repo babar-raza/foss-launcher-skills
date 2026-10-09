@@ -239,7 +239,17 @@ class CodeBlockApiEvaluator(BaseEvaluator):
                 # Class is known — check if member exists (inheritance-aware)
                 if (not knowledge.has_method(class_name, member_name)
                         and not knowledge.has_property(class_name, member_name)
-                        and not knowledge.has_enum_member(class_name, member_name)):
+                        and not knowledge.has_enum_member(class_name, member_name)
+                        and member_name not in knowledge.classes):
+                    # MT074 (found live, 2026-10-09): a 3-segment nested-class-then-
+                    # member chain (`Outer.Nested.CONSTANT`, e.g. Java's
+                    # `ExcelSaveOptions.ExcelFormat.XLSX`) mis-tokenizes the same way
+                    # one level up: the regex matches `ExcelSaveOptions.ExcelFormat`
+                    # as obj.member, but `ExcelFormat` is the simple name of a
+                    # separate, nested type (scout flattens Java's
+                    # `ExcelSaveOptions$ExcelFormat` to a top-level `ExcelFormat`
+                    # entry), not a property or enum constant of ExcelSaveOptions.
+                    # Mirrors the equivalent fix already made in lib/token_ops.py.
                     # Member doesn't exist on this class
                     findings.append(Finding(
                         level="WARN",
