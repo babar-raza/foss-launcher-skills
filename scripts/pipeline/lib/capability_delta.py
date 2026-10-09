@@ -1249,9 +1249,44 @@ def locale_codes(roots: "Iterable[PurePath]") -> "set[str]":
     return codes
 
 
+def _frontmatter_prose(fm_text: str) -> str:
+    """MT074 (found live, 2026-10-09): some themed pages carry their entire visible prose
+    inside a frontmatter field (a `{section: {content: "..."}}`-shaped YAML block) rather
+    than as page body text after the closing frontmatter marker -- the page body for such
+    a page is empty, so a term-mention check against the stripped body alone always
+    reports every term missing, no matter what the page actually says. Generic, structural
+    detection (no product/site literal): any string value found anywhere under a
+    `content` key in the frontmatter mapping is prose a reader sees."""
+    inner = re.sub(r"^\s*(?:-{3}|\+{3})\s*\n", "", fm_text, count=1)
+    inner = re.sub(r"\n\s*(?:-{3}|\+{3})\s*$", "", inner, count=1)
+    try:
+        import yaml
+        fm = yaml.safe_load(inner) or {}
+    except Exception:
+        return ""
+    if not isinstance(fm, dict):
+        return ""
+    found: "list[str]" = []
+
+    def walk(node: Any) -> None:
+        if isinstance(node, dict):
+            for k, v in node.items():
+                if k == "content" and isinstance(v, str):
+                    found.append(v)
+                else:
+                    walk(v)
+        elif isinstance(node, list):
+            for item in node:
+                walk(item)
+
+    walk(fm)
+    return "\n".join(found)
+
+
 def evidence_page(rel: str, text: str, locales: "set[str]") -> "tuple[str | None, str | None]":
     """(body, None) when `text` may count as evidence, else (None, reason): reason is
-    locale-suffixed | locale-directory | draft. The body has its frontmatter stripped."""
+    locale-suffixed | locale-directory | draft. The body has its frontmatter stripped,
+    plus any frontmatter-embedded prose (see `_frontmatter_prose`) appended."""
     pa = _pa()
     parts = rel.replace("\\", "/").split("/")
     if pa._is_locale_file(parts[-1], locales):
@@ -1259,9 +1294,11 @@ def evidence_page(rel: str, text: str, locales: "set[str]") -> "tuple[str | None
     if any(seg.casefold() in locales for seg in parts[:-1]):
         return None, "locale-directory"
     body = pa.strip_frontmatter(text)
-    if _DRAFT_RE.search(text[:len(text) - len(body)]):
+    fm_text = text[:len(text) - len(body)]
+    if _DRAFT_RE.search(fm_text):
         return None, "draft"
-    return body, None
+    extra = _frontmatter_prose(fm_text)
+    return (body + "\n" + extra if extra else body), None
 
 
 def _code_spans(body: str) -> "list[tuple[int, int]]":

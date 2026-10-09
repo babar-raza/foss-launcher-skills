@@ -633,6 +633,42 @@ class TestValidateStages:
             cd.validate_ledger({}, stage="later")
 
 
+class TestFrontmatterEmbeddedProse:
+    """MT074 (found live, 2026-10-09): a themed page whose visible prose lives inside a
+    frontmatter field (e.g. `overview: {content: "..."}`) rather than the Markdown body has
+    an empty body after frontmatter stripping -- term-mention checks against the stripped
+    body alone always report every term missing for such a page, regardless of what it
+    actually says. `products.aspose.org` family pages are shaped exactly this way, but the
+    detection here is purely structural (any string under a `content` key), not tied to
+    any one site or product."""
+
+    def test_evidence_page_includes_frontmatter_content_field(self):
+        text = (
+            "---\n"
+            "title: Example\n"
+            "overview:\n"
+            "  enable: true\n"
+            "  content: |-\n"
+            "    This paragraph mentions SaveOptions and ResultType by name.\n"
+            "---\n"
+        )
+        body, reason = cd.evidence_page("content/x/_index.md", text, set())
+        assert reason is None
+        assert cd.find_mentions(body, "SaveOptions")
+        assert cd.find_mentions(body, "ResultType")
+
+    def test_ordinary_markdown_body_page_is_unaffected(self):
+        text = "---\ntitle: Example\n---\n\nSaveOptions is documented here in the real body.\n"
+        body, reason = cd.evidence_page("content/x/page.md", text, set())
+        assert reason is None
+        assert cd.find_mentions(body, "SaveOptions")
+
+    def test_malformed_frontmatter_does_not_crash(self):
+        text = "---\n: : not valid yaml : :\n---\n\nBody text.\n"
+        body, reason = cd.evidence_page("content/x/page.md", text, set())
+        assert reason is None and "Body text." in body
+
+
 class TestSatisfaction:
     ROOT = PurePosixPath("c")
 
